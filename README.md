@@ -1,5 +1,13 @@
-Greenshot - a free screenshot tool optimized for productivity
-=============================================================
+GreenShotPlus
+=============
+
+## Download and install on Windows
+
+**[Download GreenShotPlus-Setup.exe — Windows installer](https://github.com/uloxer/GreenShotPlus/releases/latest/download/GreenShotPlus-Setup.exe)**
+
+Run the EXE and choose **Install for me only** for installation without administrator rights.
+
+The installer is also under **[Releases → Assets](https://github.com/uloxer/GreenShotPlus/releases/latest)**. GitHub's **Code → Download ZIP** and **Source code (zip)** downloads contain source code, not the installer. The installer is currently unsigned.
 
 This is **GreenShotPlus**, a Windows Greenshot fork with compact quick colours and per-image engineering measurements. See [usage and development notes](docs/greenshotplus.md). The original editor and drawing architecture are retained.
 
