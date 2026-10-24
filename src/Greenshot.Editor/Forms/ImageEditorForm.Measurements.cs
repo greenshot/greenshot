@@ -25,6 +25,7 @@ namespace Greenshot.Editor.Forms
             tableLayoutPanel1.Controls.Add(_measurementPanel, 1, 0);
             _measurementPanel.CalibrateRequested += (s, e) => BeginCalibration();
             _measurementPanel.ClearRequested += (s, e) => _surface?.SetMeasurements(MeasurementState.Pixels);
+            _measurementPanel.GeometryEdited += (s, e) => UpdateUndoRedoSurfaceDependencies();
             _measurementPanel.UnitChanged += (s, e) =>
             {
                 if (_surface == null) return;
@@ -38,7 +39,7 @@ namespace Greenshot.Editor.Forms
             _scaleButton = new ToolStripButton("Scale")
             {
                 DisplayStyle = ToolStripItemDisplayStyle.Image,
-                ToolTipText = "Scale: draw a line of known length", AccessibleName = "Scale", Image = CreateScaleIcon()
+                ToolTipText = "Scale: click two points; hold Shift to snap the angle", AccessibleName = "Scale", Image = CreateScaleIcon()
             };
             _scaleButton.Click += (s, e) => BeginCalibration();
             toolsToolStrip.Items.Insert(toolsToolStrip.Items.IndexOf(btnLine) + 1, _scaleButton);
@@ -78,7 +79,7 @@ namespace Greenshot.Editor.Forms
             if (_surface == null || _controlsDisabledDueToConfirmable) return;
             _measurementPanel.SetExpanded(true);
             _surface.DrawingMode = DrawingModes.Scale;
-            UpdateStatusLabel("Draw a line between two points with a known distance.");
+            UpdateStatusLabel("Click the first point, then the second point. Hold Shift to snap in 15° steps; Esc cancels.");
             FocusCanvas(fromKeyboard: false);
         }
 

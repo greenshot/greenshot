@@ -34,6 +34,7 @@ namespace Greenshot.Editor.Measurements
         private static bool IsPositiveFinite(double value) => value > 0 && !double.IsInfinity(value) && !double.IsNaN(value);
         public MeasurementState WithUnit(MeasurementUnit unit) => new MeasurementState(MetresPerPixel, unit);
         public double Convert(double pixels) => Unit == MeasurementUnit.Pixels ? pixels : pixels * MetresPerPixel / MetresPerUnit(Unit);
+        public double ToPixels(double value) => Unit == MeasurementUnit.Pixels ? value : value * MetresPerUnit(Unit) / MetresPerPixel;
 
         public static double MetresPerUnit(MeasurementUnit unit) => unit switch
         {

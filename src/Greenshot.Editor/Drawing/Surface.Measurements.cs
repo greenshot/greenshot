@@ -6,6 +6,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Measurements;
 using Greenshot.Editor.Memento;
+using Greenshot.Editor.Helpers;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -15,6 +17,8 @@ namespace Greenshot.Editor.Drawing
         public event EventHandler MeasurementsChanged;
         public event EventHandler<ScaleLineEventArgs> ScaleLineCompleted;
         private LineContainer _scalePreview;
+        private bool _scaleCompleting;
+        private Point _scalePointer;
 
         public void SetMeasurements(MeasurementState state)
         {
@@ -44,26 +48,39 @@ namespace Greenshot.Editor.Drawing
             if (_scalePreview == null) return;
             _scalePreview.Dispose();
             _scalePreview = null;
-            Capture = false;
+            _scaleCompleting = false;
             Invalidate();
         }
 
-        protected override void OnMouseCaptureChanged(EventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnMouseCaptureChanged(e);
-            if (!Capture) CancelScalePreview();
+            base.OnKeyDown(e);
+            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(ModifierKeys);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(ModifierKeys);
         }
 
         private void StartScalePreview(MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Right) { DrawingMode = DrawingModes.None; return; }
             if (e.Button != MouseButtons.Left) return;
-            CancelScalePreview();
+            if (_scalePreview != null)
+            {
+                _scaleCompleting = true;
+                MoveScalePreview(e);
+                return;
+            }
             _scalePreview = new LineContainer(this)
             {
                 Left = e.X, Top = e.Y, Status = EditStatus.DRAWING
             };
             _scalePreview.HandleMouseDown(e.X, e.Y);
-            Capture = true;
+            _scalePointer = e.Location;
+            _scaleCompleting = false;
             Focus();
         }
 
@@ -71,15 +88,32 @@ namespace Greenshot.Editor.Drawing
         {
             Cursor = Cursors.Cross;
             if (_scalePreview == null) return;
-            // Use exact endpoints, independent of normal tool modifier/rounding behaviours.
-            _scalePreview.Width = e.X - _scalePreview.Left;
-            _scalePreview.Height = e.Y - _scalePreview.Top;
+            _scalePointer = e.Location;
+            UpdateScalePreview(ModifierKeys);
+        }
+
+        private void UpdateScalePreview(Keys modifiers)
+        {
+            if (_scalePreview == null) return;
+            var end = GetScaleEndpoint(new Point(_scalePreview.Left, _scalePreview.Top), _scalePointer, modifiers);
+            _scalePreview.Width = end.X - _scalePreview.Left;
+            _scalePreview.Height = end.Y - _scalePreview.Top;
             Invalidate();
+        }
+
+        // A shared endpoint calculation leaves a single place to compose future object/grid snaps.
+        internal static Point GetScaleEndpoint(Point start, Point pointer, Keys modifiers)
+        {
+            var bounds = new NativeRect(start.X, start.Y, pointer.X - start.X, pointer.Y - start.Y);
+            var options = (modifiers & Keys.Shift) != 0 ? ScaleOptions.Rational : ScaleOptions.Default;
+            var snapped = ScaleHelper.Scale(bounds, pointer.X, pointer.Y, LineAngleRoundBehavior.INSTANCE, options);
+            return new Point(start.X + (int)snapped.Width, start.Y + (int)snapped.Height);
         }
 
         private void FinishScalePreview(MouseEventArgs e)
         {
-            if (_scalePreview == null || e.Button != MouseButtons.Left) return;
+            // Releasing the first click only anchors the first point. The second click completes it.
+            if (_scalePreview == null || !_scaleCompleting || e.Button != MouseButtons.Left) return;
             MoveScalePreview(e);
             double length = MeasurementCalculator.LineLength(_scalePreview.Width, _scalePreview.Height);
             CancelScalePreview();

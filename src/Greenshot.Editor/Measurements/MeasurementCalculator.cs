@@ -10,9 +10,9 @@ namespace Greenshot.Editor.Measurements
 
         public static (string Label, double Pixels)[] GetDimensions(IDrawableContainer container)
         {
-            // Exact types deliberately exclude arrows, crop tools and other specialized descendants.
+            // Exact types exclude crop tools and other specialized descendants.
             var type = container?.GetType();
-            if (type == typeof(LineContainer))
+            if (type == typeof(LineContainer) || type == typeof(ArrowContainer))
                 return new[] { ("L1", LineLength(container.Width, container.Height)) };
             if (type == typeof(RectangleContainer))
                 return new[] { ("L1", Math.Abs((double)container.Width)), ("L2", Math.Abs((double)container.Height)) };

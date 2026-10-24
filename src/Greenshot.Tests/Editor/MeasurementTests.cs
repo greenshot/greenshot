@@ -34,7 +34,7 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(new[] { ("L1", 30d), ("L2", 40d) }, MeasurementCalculator.GetDimensions(rectangle));
             var ellipse = new EllipseContainer(surface) { Width = 25, Height = 25 };
             Assert.Equal(new[] { ("D1", 25d), ("D2", 25d) }, MeasurementCalculator.GetDimensions(ellipse));
-            Assert.Empty(MeasurementCalculator.GetDimensions(new ArrowContainer(surface)));
+            Assert.Equal(("L1", 5d), Assert.Single(MeasurementCalculator.GetDimensions(new ArrowContainer(surface) { Width = 3, Height = 4 })));
             Assert.Empty(MeasurementCalculator.GetDimensions(null));
             Assert.True(MeasurementCalculator.LineLength(int.MaxValue, int.MaxValue) > int.MaxValue);
         }
@@ -172,9 +172,12 @@ namespace Greenshot.Tests.Editor
             double measured = 0;
             surface.ScaleLineCompleted += (s, e) => measured = e.PixelLength;
             Mouse(surface, "SurfaceMouseDown", 10, 10);
+            Mouse(surface, "SurfaceMouseUp", 10, 10);
+            Assert.Equal(0, measured);
             Mouse(surface, "SurfaceMouseMove", 40, 50);
             Assert.Empty(surface.Elements);
             using (var exported = surface.GetImageForExport()) Assert.Equal(100, exported.Width);
+            Mouse(surface, "SurfaceMouseDown", 40, 50);
             Mouse(surface, "SurfaceMouseUp", 40, 50);
             Assert.Equal(50, measured);
             Assert.Empty(surface.Elements);
@@ -207,6 +210,55 @@ namespace Greenshot.Tests.Editor
         private static void Mouse(Surface surface, string method, int x, int y) =>
             typeof(Surface).GetMethod(method, BindingFlags.NonPublic | BindingFlags.Instance)
                 .Invoke(surface, new object[] { surface, new MouseEventArgs(MouseButtons.Left, 1, x, y, 0) });
+
+        [Fact]
+        public void PropertyGrid_CommitsScaledEditsAndProtectsTypingFromCanvasShortcuts()
+        {
+            RunOnSta(() =>
+            {
+                using var surface = new Surface(new Bitmap(640, 400));
+                using var editor = new ImageEditorForm(surface, true, false);
+                editor.Size = new Size(1050, 700);
+                var panel = (MeasurementPanel)typeof(ImageEditorForm).GetField("_measurementPanel", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(editor);
+                panel.SetExpanded(true);
+                editor.Show();
+                Application.DoEvents();
+                var shape = new ArrowContainer(surface) { Left = 100, Top = 100, Width = 30, Height = 40 };
+                surface.AddElement(shape);
+                surface.SelectElement(shape);
+                surface.SetMeasurements(MeasurementState.Calibrate(100, 10, MeasurementUnit.Millimetres));
+                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single();
+                Assert.Equal(5, grid.Rows.Count);
+                grid.Focus();
+                grid.CurrentCell = grid.Rows[0].Cells[1];
+                Assert.True(grid.BeginEdit(true));
+                Assert.True((bool)typeof(ImageEditorForm).GetProperty("IsTyping", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(editor));
+                Assert.False((bool)typeof(ImageEditorForm).GetProperty("CanvasHasKeys", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(editor));
+                ((TextBox)grid.EditingControl).Text = "10";
+                Assert.True(grid.EndEdit());
+                Assert.Equal(60, shape.Width); Assert.Equal(80, shape.Height);
+                Assert.Equal("10", grid.Rows[0].Cells[1].Value);
+                surface.Undo();
+                Assert.Equal(30, shape.Width); Assert.Equal(40, shape.Height);
+                Assert.Equal("5", grid.Rows[0].Cells[1].Value);
+                grid.CurrentCell = grid.Rows[0].Cells[1];
+                Assert.True(grid.BeginEdit(true));
+                ((TextBox)grid.EditingControl).Text = "-1";
+                grid.EndEdit();
+                Assert.Equal(30, shape.Width);
+                grid.CancelEdit();
+                Assert.Equal("5", grid.Rows[0].Cells[1].Value);
+
+                string preview = Environment.GetEnvironmentVariable("GREENSHOTPLUS_PREVIEW");
+                if (!string.IsNullOrEmpty(preview))
+                {
+                    editor.Update();
+                    using var bitmap = new Bitmap(editor.Width, editor.Height);
+                    editor.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size));
+                    bitmap.Save(preview, System.Drawing.Imaging.ImageFormat.Png);
+                }
+            });
+        }
 
         [Fact]
         public void ResizeImage_UpdatesCalibrationAndUndoRestoresIt()
@@ -246,18 +298,20 @@ namespace Greenshot.Tests.Editor
                 var shape = new RectangleContainer(surface) { Width = 30, Height = 40 };
                 surface.AddElement(shape);
                 surface.SelectElement(shape);
-                var label = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<Label>().First();
-                Assert.Contains("L1 = 30 px", label.Text);
+                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single();
+                Assert.Equal("30", grid.Rows[0].Cells[1].Value);
+                Assert.Equal(10, grid.Rows.Count);
                 shape.Width = 55;
-                Assert.Contains("L1 = 55 px", label.Text);
+                Assert.Equal("55", grid.Rows[0].Cells[1].Value);
                 surface.SetMeasurements(MeasurementState.Calibrate(100, 10, MeasurementUnit.Millimetres));
-                Assert.Contains("mm", label.Text);
+                Assert.Contains("mm", grid.Columns[1].HeaderText);
+                Assert.Equal(5.5d.ToString(System.Globalization.CultureInfo.CurrentCulture), grid.Rows[0].Cells[1].Value);
                 var second = new EllipseContainer(surface) { Width = 10, Height = 20 };
                 surface.AddElement(second);
                 surface.SelectElement(second);
-                Assert.Equal(string.Empty, label.Text);
+                Assert.Empty(grid.Rows.Cast<DataGridViewRow>());
                 surface.DeselectAllElements();
-                Assert.Equal(string.Empty, label.Text);
+                Assert.Empty(grid.Rows.Cast<DataGridViewRow>());
                 // Optional local visual review, requested explicitly by the test runner.
                 string preview = Environment.GetEnvironmentVariable("GREENSHOTPLUS_PREVIEW");
                 if (!string.IsNullOrEmpty(preview))
