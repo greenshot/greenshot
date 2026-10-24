@@ -57,7 +57,7 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of Surface.
     /// </summary>
-    public sealed class Surface : Control, ISurface, INotifyPropertyChanged
+    public sealed partial class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -464,6 +464,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                CancelScalePreview();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -607,6 +608,7 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                CancelScalePreview();
                 if (_image != null)
                 {
                     _image.Dispose();
@@ -853,7 +855,8 @@ namespace Greenshot.Editor.Drawing
                 Modified = Modified,
                 ZoomFactor = ZoomFactor,
                 LastSaveFullPath = LastSaveFullPath,
-                UploadUrl = UploadUrl
+                UploadUrl = UploadUrl,
+                Measurements = Measurements
             };
 
             if (_elements != null && _elements.Count > 0)
@@ -923,6 +926,7 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.Path:
                     _undrawnElement = new FreehandContainer(this);
                     break;
+                case DrawingModes.Scale:
                 case DrawingModes.None:
                     _undrawnElement = null;
                     break;
@@ -1377,6 +1381,7 @@ namespace Greenshot.Editor.Drawing
             _elements.Transform(matrix);
             // Make undoable
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            TransformMeasurements(matrix);
             SetImage(newImage, false);
             Invalidate();
             if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
@@ -1986,6 +1991,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (DrawingMode == DrawingModes.Scale) { StartScalePreview(e); return; }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2059,6 +2065,8 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            ClearSnapGuide();
+            if (DrawingMode == DrawingModes.Scale) { FinishScalePreview(e); return; }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2211,6 +2219,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (DrawingMode == DrawingModes.Scale) { MoveScalePreview(e); return; }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2228,6 +2237,7 @@ namespace Greenshot.Editor.Drawing
 
             if (_mouseDownElement != null)
             {
+                currentMouse = SnapTranslation(currentMouse);
                 // an element is currently dragged
                 _mouseDownElement.Invalidate();
                 selectedElements.Invalidate();
@@ -2441,6 +2451,8 @@ namespace Greenshot.Editor.Drawing
 
             // No clipping for the adorners
             targetGraphics.ResetClip();
+            PaintScalePreview(targetGraphics);
+            PaintSnapGuide(targetGraphics);
             // Draw adorners last
             foreach (var drawableContainer in selectedElements)
             {
@@ -2830,6 +2842,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="confirm">bool</param>
         public void Confirm(bool confirm)
         {
+            ClearSnapGuide();
             if (DrawingMode == DrawingModes.Crop)
             {
                 ConfirmCrop(confirm);
@@ -3228,6 +3241,11 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == Keys.Escape && DrawingMode == DrawingModes.Scale)
+            {
+                DrawingMode = DrawingModes.None;
+                return true;
+            }
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
@@ -3437,6 +3455,12 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            if (keys == Keys.Escape) ClearSnapGuide();
+            if (keys == Keys.Escape && DrawingMode == DrawingModes.Scale)
+            {
+                DrawingMode = DrawingModes.None;
+                return true;
+            }
             // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
             // (Esc must reach the window, which cancels the drag of the tab)
             if (KeysLocked || MouseButtons != MouseButtons.None)
@@ -3479,6 +3503,7 @@ namespace Greenshot.Editor.Drawing
                 // A freehand line needs a path, an image comes from a file or the clipboard
                 case DrawingModes.Path:
                 case DrawingModes.Bitmap:
+                case DrawingModes.Scale:
                     return false;
                 case DrawingModes.Crop when _cropContainer != null && _undrawnElement != _cropContainer:
                     // The crop rectangle is there, Enter confirms it in ProcessCmdKey(Keys)
