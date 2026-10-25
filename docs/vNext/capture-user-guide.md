@@ -442,6 +442,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Expert tab | *Make some optimizations for usage with remote desktop* | No animations and no crosshair lines, also outside of a remote session. In a remote session this happens on its own. |
 | Expert tab | *Enable to enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
 | Expert tab | *Take screenshots with DirectX* | The way the picture of the screens is taken; needed for HDR screens. |
+| Expert tab | *Ignore the screen reader flag of Windows when capturing* | The capture starts as without a screen reader (live screen, region), also while the screen reader flag of Windows is on. For a flag a program left on, see [the screen reader flag stays on](#the-screen-reader-flag-stays-on). |
 | Expert tab | *Prepare the capture in the background after the start* | The first capture after the start of Greenshot opens faster, but uses more memory. |
 
 **Only in greenshot.ini**
@@ -482,10 +483,36 @@ All of these are in the `[Core]` section, unless said otherwise.
   starts as a window capture. Window capture (its own hotkey, or `Space`) selects the window under the cursor right away and says its
   title: `Enter` captures it, `Tab` selects the next window, `Space` switches to the region. On the live screen the `Insert` and
   `Caps Lock` keys, and the keys pressed with them, stay with the screen reader.
+  Greenshot knows a screen reader runs from the screen reader flag of Windows, see
+  [the screen reader flag stays on](#the-screen-reader-flag-stays-on) when it starts like this without one.
 - **Destination picker:** every destination has a fixed letter, underlined in the menu (for example `C` for the clipboard, `S` to
   save). The letter stays the same whatever other destinations are there, so you can learn it.
 - **Animations:** with *Animation effects* off in Windows (Settings, Accessibility, Visual effects) the selection, the zoomer and the
   panels jump to their place instead of sliding, as in a remote desktop session.
 - **High contrast:** with a contrast theme of Windows the selection, the rulers and the crosshair use the colors of that theme.
+
+### The screen reader flag stays on
+
+Windows has one screen reader flag for everybody ([SystemParametersInfo, `SPI_GETSCREENREADER`](https://learn.microsoft.com/windows/win32/api/winuser/nf-winuser-systemparametersinfow),
+[screen reader parameter](https://learn.microsoft.com/windows/win32/winauto/screen-reader-parameter)). A screen reader or another
+accessibility aid turns it on; Windows doesn't turn it off when that program ends or crashes, the program has to. A program which saves
+it in the user profile (`SPIF_UPDATEINIFILE`, value `On` in `HKEY_CURRENT_USER\Control Panel\Accessibility\Blind Access`) leaves it on
+after a restart too. Greenshot only reads the flag, at every capture, and never stores what it read.
+
+When the capture keeps starting as window capture on the frozen screen without a screen reader, the log says
+`The screen reader flag of Windows is on`. This PowerShell line shows the flag (1 = on), the saved value and the screen readers which run:
+
+```powershell
+Add-Type -Name S -Namespace W -MemberDefinition '[DllImport("user32.dll")] public static extern bool SystemParametersInfo(uint a, uint b, out int c, uint d);'; $v=0; [W.S]::SystemParametersInfo(0x46,0,[ref]$v,0) | Out-Null; "SPI_GETSCREENREADER: $v"; Get-ItemProperty 'HKCU:\Control Panel\Accessibility\Blind Access' -ErrorAction SilentlyContinue | Select-Object On; Get-Process Narrator,nvda,jfw,ZoomText,Fusion -ErrorAction SilentlyContinue | Select-Object Name,Id
+```
+
+With no screen reader running, this turns the flag off now and in the user profile (the next capture starts as usual):
+
+```powershell
+Add-Type -Name S2 -Namespace W -MemberDefinition '[DllImport("user32.dll")] public static extern bool SystemParametersInfo(uint a, uint b, System.IntPtr c, uint d);'; [W.S2]::SystemParametersInfo(0x47,0,[System.IntPtr]::Zero,3)
+```
+
+When a program keeps turning it on again, *Ignore the screen reader flag of Windows when capturing* on the Expert tab
+(`IgnoreScreenReader=true` in greenshot.ini) makes Greenshot capture as without a screen reader.
 
 For developers: how the modes and helpers are built and how a plugin can add its own is described in [capture-tools.md](capture-tools.md).
