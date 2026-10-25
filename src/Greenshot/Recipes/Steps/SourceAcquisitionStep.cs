@@ -462,10 +462,10 @@ namespace Greenshot.Recipes.Steps
                 Log.Info("Selecting on the live screen needs Windows 10 2004 or newer, the screen is frozen.");
                 return false;
             }
-            if (User32Api.IsScreenReaderRunning())
+            if (!CoreConfig.IgnoreScreenReader && User32Api.IsScreenReaderRunning())
             {
                 // The live screen can't take the focus from the application below, so a screen reader can't say the selection: frozen, L switches
-                Log.Info("A screen reader runs, the selection starts on the frozen screen.");
+                Log.Info("The screen reader flag of Windows is on, the selection starts on the frozen screen (IgnoreScreenReader=true ignores the flag).");
                 return false;
             }
             return true;

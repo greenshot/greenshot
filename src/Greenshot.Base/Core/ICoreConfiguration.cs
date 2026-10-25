@@ -359,6 +359,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool CaptureFreezeScreen { get; set; }
 
+        [Description("Ignore the screen reader flag of Windows. When false, while the flag is on, the selection starts on the frozen screen and a region capture starts as window capture. Programs can leave the flag on after the screen reader is gone, true then captures as without a screen reader.")]
+        [DefaultValue(false)]
+        bool IgnoreScreenReader { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }

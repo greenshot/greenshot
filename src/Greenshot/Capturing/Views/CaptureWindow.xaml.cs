@@ -520,9 +520,10 @@ namespace Greenshot.Capturing.Views
                 // The text needs a capture of the screen, T freezes it later
                 _activeTool = _regionTool;
             }
-            if (initialTool == null && _activeTool == _regionTool && User32Api.IsScreenReaderRunning())
+            if (initialTool == null && _activeTool == _regionTool && !Conf.IgnoreScreenReader && User32Api.IsScreenReaderRunning())
             {
                 // A region can't be seen, a window is said by its title: start with window capture, Space still switches to the region
+                Log.Info("The screen reader flag of Windows is on, the region capture starts as window capture (IgnoreScreenReader=true ignores the flag).");
                 _activeTool = _windowTool;
             }
             _usedCaptureMode = _activeTool.Mode;

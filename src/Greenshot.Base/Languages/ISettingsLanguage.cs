@@ -407,6 +407,11 @@ namespace Greenshot.Base.Languages
         string ExpertGraphicscapture { get; }
 
         /// <summary>
+        /// Ignore the screen reader flag of Windows when capturing (when a program left it on)
+        /// </summary>
+        string ExpertIgnorescreenreader { get; }
+
+        /// <summary>
         /// Keep DirectX ready for faster screenshots (uses more memory)
         /// </summary>
         string ExpertKeepgraphicscaptureready { get; }

@@ -1042,6 +1042,17 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
 
+                                <!-- Programs can leave the screen reader flag of Windows on, then the capture keeps starting as with a screen reader -->
+                                <CheckBox Content="{wpf:Text Settings.ExpertIgnorescreenreader}"
+                                          IsChecked="{Binding CoreConfiguration.IgnoreScreenReader, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="IgnoreScreenReader">
+                                            <Binding Path="ExpertModeEnabled"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
+
                                 <!-- Memory and speed, collapsed: the header shows the profile the settings match. The profile sets the settings, which can also be changed one by one -->
                                 <Expander Margin="0,8,0,5" Style="{StaticResource ExpanderStyle}"
                                           AutomationProperties.Name="{wpf:Text Settings.MemoryProfile}">
