@@ -580,6 +580,43 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void Drop_VirtualImageFiles_AreReadAsTheyAre()
+        {
+            using var bitmap = CreateTestBitmap();
+            using var pngStream = new MemoryStream();
+            bitmap.Save(pngStream, ImageFormat.Png);
+            byte[] png = pngStream.ToArray();
+
+            Exception threadException = null;
+            ImageFileContent result = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    // Like an image dragged from a browser
+                    var dataObject = new System.Windows.Forms.DataObject();
+                    dataObject.SetData(DataObjectReader.FileGroupDescriptorWFormat, false, new MemoryStream(CreateFileGroupDescriptor("Star.PNG", png.Length)));
+                    dataObject.SetData(DataObjectReader.FileContentsFormat, false, new MemoryStream(png));
+
+                    using var reader = new DataObjectReader(dataObject);
+                    result = ClipboardHelper.GetVirtualImageFiles(reader).Single();
+                }
+                catch (Exception ex)
+                {
+                    threadException = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadException);
+            Assert.Equal("Star.PNG", result.FileName);
+            Assert.Equal(".png", result.Extension);
+            Assert.Equal(png, result.Content);
+        }
+
+        [Fact]
         public void Drop_AnsiTextOnly_IsRead()
         {
             string text = null;

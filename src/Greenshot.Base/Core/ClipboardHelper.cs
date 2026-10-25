@@ -785,6 +785,55 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The virtual files of the source (e.g. an image dragged from a browser) with an extension Greenshot can load, as they are.
+        /// The content is read right away, the data object of a drop is only valid during the drop.
+        /// </summary>
+        /// <param name="source">IClipboardDataSource, e.g. a DataObjectReader of a drop</param>
+        /// <returns>list with the files, empty when there are none (or they can't be read on this thread)</returns>
+        public static IList<ImageFileContent> GetVirtualImageFiles(IClipboardDataSource source)
+        {
+            if (source == null)
+            {
+                return new List<ImageFileContent>();
+            }
+
+            var supportedExtensions = SupportedExtensions(FileFormatHandlerActions.LoadDrawableFromStream);
+            return UseVirtualFiles(source, virtualFiles =>
+            {
+                var result = new List<ImageFileContent>();
+                foreach (var virtualFile in virtualFiles)
+                {
+                    string extension = SafeExtension(virtualFile.SafeFileName);
+                    if (virtualFile.IsDirectory || virtualFile.Size > MaxVirtualFileSize || extension == null || !supportedExtensions.Contains(extension))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        using var content = virtualFile.OpenContent();
+                        if (content == null)
+                        {
+                            continue;
+                        }
+
+                        using var memoryStream = new MemoryStream();
+                        content.CopyTo(memoryStream);
+                        if (memoryStream.Length > 0)
+                        {
+                            result.Add(new ImageFileContent(Path.GetFileName(virtualFile.SafeFileName), extension, memoryStream.ToArray()));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Couldn't read file contents for {virtualFile.SafeFileName}.", ex);
+                    }
+                }
+                return result;
+            }, new List<ImageFileContent>());
+        }
+
+        /// <summary>
         /// Get the image files from the source (CF_HDROP) which Greenshot can load
         /// </summary>
         internal static IList<string> GetImageFilenames(IClipboardDataSource source)

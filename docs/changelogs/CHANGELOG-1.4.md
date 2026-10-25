@@ -41,6 +41,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Insert emojis directly into your screenshots
 - Contributed by @jairbubbles
 
+**Stamps** (Beta)
+- Collect small images (PNG, SVG and more) in categories, with names and tags, search them and insert them into the editor with Ctrl+Shift+K
+- Add stamps by dropping images from a web page
+- An SVG stamp stays sharp when it is resized
+- Copy or drag a stamp into other programs
+
 **Text Redaction with OCR** (Beta) (#947)
 - Automatically detect and redact text in screenshots using OCR technology
 - Useful for privacy protection and sensitive information removal

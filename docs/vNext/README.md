@@ -11,6 +11,7 @@ work differently there, and they can still change before the release. The docume
 | [capture-user-guide.md](capture-user-guide.md) | Taking a screenshot: modes, helpers, keys and settings |
 | [capture-recipes.md](capture-recipes.md) | Recipes: automating what happens with a capture |
 | [custom-uploader.md](custom-uploader.md) | Uploading to a service of your choice with an uploader file (.sxcu) |
+| [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
