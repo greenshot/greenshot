@@ -1263,7 +1263,7 @@ namespace Greenshot.Editor.Drawing
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
             // Fast enough for the UI thread
             ApplyEffectResult(resizeEffect, Image);
-            _surfaceExpanded(this, null);
+            _surfaceExpanded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -1275,7 +1275,7 @@ namespace Greenshot.Editor.Drawing
             var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
             // Fast enough for the UI thread
             ApplyEffectResult(resizeEffect, Image);
-            _surfaceExpanded(this, null);
+            _surfaceExpanded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
