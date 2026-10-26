@@ -751,16 +751,12 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             #region Push Out, Fit, Snap
-            var availableTranslations = new List<string>()
-            {
-                "en-US",
-            };
-            if (availableTranslations.Contains(Texts.Config.CurrentLanguage))
+            if (Count == 1)
             {
                 menu.Items.Add(GetPushOutSubMenu(surface));
-                menu.Items.Add(GetFitSubMenu(surface));
-                menu.Items.Add(GetSnapSubMenu(surface));
             }
+            menu.Items.Add(GetFitSubMenu(surface));
+            menu.Items.Add(GetSnapSubMenu(surface));
 
             #endregion Push Out, Fit, Snap
 
@@ -870,15 +866,18 @@ namespace Greenshot.Editor.Drawing
         public void SnapAllToEdge(Direction direction, ISurface surface = null)
         {
             surface ??= Parent;
-            if (surface == null)
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (surfaceSize.IsEmpty)
             {
                 return;
             }
 
+            MakeBoundsChangeUndoable(false);
             foreach (IDrawableContainer container in this)
             {
-                SnapContainerToEdge(direction, container, surface);
+                container.SnapToEdge(direction, surfaceSize);
             }
+            surface.Modified = true;
             surface.DeselectAllElements();
         }
 
@@ -896,28 +895,18 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
+            Expansion expansion = GetExpansionFromSize(direction, targetElement.Bounds.Size);
             
             surface.ResizeCanvas(expansion);
 
-            SnapContainerToEdge(direction, targetElement, surface);
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (!surfaceSize.IsEmpty)
+            {
+                targetElement.MakeBoundsChangeUndoable(false);
+                targetElement.SnapToEdge(direction, surfaceSize);
+            }
 
             surface.DeselectAllElements();
-        }
-
-        private void SnapContainerToEdge(Direction direction, IDrawableContainer targetElement, ISurface surface = null)
-        {
-            Size surfaceBounds = GetSurfaceSize(surface ?? Parent);
-            if (surfaceBounds.IsEmpty)
-            {
-                return;
-            }
-            targetElement.SnapToEdge(direction, surfaceBounds);
-        }
-
-        private Size GetParentSurfaceSize()
-        {
-            return GetSurfaceSize(Parent);
         }
 
         private static Size GetSurfaceSize(ISurface surface)
@@ -1034,17 +1023,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                if (surface?.Image == null)
-                {
-                    return;
-                }
-                foreach (IDrawableContainer item in this)
-                {
-                    MakeBoundsChangeUndoable(false);
-                    item.Width = surface.Image.Width;
-                }
-                SnapAllToEdge(Direction.LEFT, surface);
-                surface.Invalidate();
+                FitAllToSurface(true, surface);
             };
             fitSubmenu.DropDownItems.Add(item);
 
@@ -1055,21 +1034,40 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                if (surface?.Image == null)
-                {
-                    return;
-                }
-                foreach (IDrawableContainer item in this)
-                {
-                    MakeBoundsChangeUndoable(false);
-                    item.Height = surface.Image.Height;
-                }
-                SnapAllToEdge(Direction.TOP, surface);
-                surface.Invalidate();
+                FitAllToSurface(false, surface);
             };
             fitSubmenu.DropDownItems.Add(item);
 
             return fitSubmenu;
+        }
+
+        /// <summary>Stretches every element to the surface width or height and aligns it to the corresponding edge.</summary>
+        public void FitAllToSurface(bool horizontal, ISurface surface = null)
+        {
+            surface ??= Parent;
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (surfaceSize.IsEmpty)
+            {
+                return;
+            }
+
+            MakeBoundsChangeUndoable(false);
+            foreach (IDrawableContainer container in this)
+            {
+                if (horizontal)
+                {
+                    container.Width = container.Width < 0 ? -surfaceSize.Width : surfaceSize.Width;
+                    container.SnapToEdge(Direction.LEFT, surfaceSize);
+                }
+                else
+                {
+                    container.Height = container.Height < 0 ? -surfaceSize.Height : surfaceSize.Height;
+                    container.SnapToEdge(Direction.TOP, surfaceSize);
+                }
+            }
+            surface.Modified = true;
+            surface.DeselectAllElements();
+            surface.Invalidate();
         }
 
         private ToolStripMenuItem GetSnapSubMenu(ISurface surface)
