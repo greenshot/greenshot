@@ -21,6 +21,7 @@
 
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Destinations;
+using Greenshot.Linux.Core.Languages;
 
 namespace Greenshot.Linux.Destinations;
 
@@ -31,7 +32,7 @@ internal sealed class EditorDestination(Action<Capture> openEditor) : IDestinati
 {
     public string Designation => WellKnownDestinations.Editor;
 
-    public string DisplayName => "Open in image editor";
+    public string DisplayName => Texts.Settings("destination_editor");
 
     public int Priority => -1;
 

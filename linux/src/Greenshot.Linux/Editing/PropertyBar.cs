@@ -23,6 +23,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Editor;
 using Greenshot.Linux.Editor.Fields;
 using SkiaSharp;
@@ -109,13 +110,13 @@ internal sealed class PropertyBar : StackPanel
         switch (value)
         {
             case SKColor color:
-                var colorButton = new ColorButton(field.DisplayName(), color, () => _settings?.RecentColors ?? []);
+                var colorButton = new ColorButton(FieldText(field), color, () => _settings?.RecentColors ?? []);
                 colorButton.ColorChosen += chosen => Set(field, chosen);
                 _refreshers[field] = v => colorButton.Color = (SKColor)v;
-                return Labeled(field == FieldType.LineColor ? "Line" : field == FieldType.FillColor ? "Fill" : field.DisplayName(), colorButton);
+                return Labeled(FieldText(field), colorButton);
 
             case bool flag:
-                var toggle = new ToggleButton { Content = field.DisplayName(), IsChecked = flag, Padding = new Thickness(8, 4) };
+                var toggle = new ToggleButton { Content = FieldText(field), IsChecked = flag, Padding = new Thickness(8, 4) };
                 if (field == FieldType.FontBold)
                 {
                     toggle.Content = "B";
@@ -127,7 +128,7 @@ internal sealed class PropertyBar : StackPanel
                     toggle.FontStyle = Avalonia.Media.FontStyle.Italic;
                 }
 
-                ToolTip.SetTip(toggle, field.DisplayName());
+                ToolTip.SetTip(toggle, FieldText(field));
                 toggle.IsCheckedChanged += (_, _) => Set(field, toggle.IsChecked == true);
                 _refreshers[field] = v => toggle.IsChecked = (bool)v;
                 return toggle;
@@ -157,7 +158,7 @@ internal sealed class PropertyBar : StackPanel
                     }
                 };
                 _refreshers[field] = v => numeric.Value = (int)v;
-                return Labeled(field.DisplayName(), numeric);
+                return Labeled(FieldText(field), numeric);
 
             case float size:
                 var fontSize = new NumericUpDown { Value = (decimal)size, Minimum = 4, Maximum = 500, Increment = 1, FormatString = "0", Width = 110 };
@@ -169,7 +170,7 @@ internal sealed class PropertyBar : StackPanel
                     }
                 };
                 _refreshers[field] = v => fontSize.Value = (decimal)(float)v;
-                return Labeled("Size", fontSize);
+                return Labeled(FieldText(field), fontSize);
 
             case string family:
                 var fonts = new ComboBox { ItemsSource = FontFamilies, SelectedItem = family, Width = 180, MaxDropDownHeight = 400 };
@@ -181,7 +182,7 @@ internal sealed class PropertyBar : StackPanel
                     }
                 };
                 _refreshers[field] = v => fonts.SelectedItem = FontFamilies.Contains((string)v) ? v : null;
-                return Labeled(field.DisplayName(), fonts);
+                return Labeled(FieldText(field), fonts);
 
             case Enum:
                 var values = Enum.GetValues(value.GetType()).Cast<object>().ToList();
@@ -199,7 +200,7 @@ internal sealed class PropertyBar : StackPanel
                     }
                 };
                 _refreshers[field] = v => combo.SelectedIndex = values.IndexOf(v);
-                return Labeled(field.DisplayName(), combo);
+                return Labeled(FieldText(field), combo);
 
             default:
                 return null;
@@ -214,18 +215,48 @@ internal sealed class PropertyBar : StackPanel
         return panel;
     }
 
-    private static string EnumText(object value) => value switch
+    /// <summary>
+    /// The texts of the Windows editor for the fields, without their key hints
+    /// </summary>
+    private static string FieldText(FieldType field) => Texts.Label(field switch
     {
-        ArrowHeads.None => "No heads",
-        ArrowHeads.Start => "At the start",
-        ArrowHeads.End => "At the end",
-        ArrowHeads.Both => "At both ends",
-        HighlightFilter.TextHighlight => "Text",
-        HighlightFilter.AreaHighlight => "Area",
-        HighlightFilter.Grayscale => "Grayscale",
-        HighlightFilter.Magnification => "Magnify",
-        ObfuscateFilter.Pixelize => "Pixelate",
-        ObfuscateFilter.Blur => "Blur",
+        FieldType.LineThickness => Texts.Editor("thickness"),
+        FieldType.LineColor => Texts.Editor("forecolor"),
+        FieldType.FillColor => Texts.Editor("backcolor"),
+        FieldType.Shadow => Texts.Editor("shadow"),
+        FieldType.ArrowHeads => Texts.Editor("arrowheads"),
+        FieldType.FontFamily => Texts.Editor("font_family"),
+        FieldType.FontSize => Texts.Editor("fontsize"),
+        FieldType.FontBold => Texts.Editor("bold"),
+        FieldType.FontItalic => Texts.Editor("italic"),
+        FieldType.TextHorizontalAlignment => Texts.Editor("align_horizontal"),
+        FieldType.TextVerticalAlignment => Texts.Editor("align_vertical"),
+        FieldType.HighlightFilter => Texts.Editor("highlight_mode"),
+        FieldType.ObfuscateFilter => Texts.Editor("obfuscate_mode"),
+        FieldType.BlurRadius => Texts.Editor("blur_radius"),
+        FieldType.PixelSize => Texts.Editor("pixel_size"),
+        FieldType.MagnificationFactor => Texts.Editor("magnification_factor"),
+        _ => field.DisplayName(),
+    });
+
+    private static string EnumText(object value) => Texts.Label(value switch
+    {
+        ArrowHeads.None => Texts.Editor("arrowheads_none"),
+        ArrowHeads.Start => Texts.Editor("arrowheads_start"),
+        ArrowHeads.End => Texts.Editor("arrowheads_end"),
+        ArrowHeads.Both => Texts.Editor("arrowheads_both"),
+        HighlightFilter.TextHighlight => Texts.Editor("highlight_text"),
+        HighlightFilter.AreaHighlight => Texts.Editor("highlight_area"),
+        HighlightFilter.Grayscale => Texts.Editor("highlight_grayscale"),
+        HighlightFilter.Magnification => Texts.Editor("highlight_magnify"),
+        ObfuscateFilter.Pixelize => Texts.Editor("obfuscate_pixelize"),
+        ObfuscateFilter.Blur => Texts.Editor("obfuscate_blur"),
+        TextHorizontalAlignment.Left => Texts.Editor("align_left"),
+        TextHorizontalAlignment.Center => Texts.Editor("align_center"),
+        TextHorizontalAlignment.Right => Texts.Editor("align_right"),
+        TextVerticalAlignment.Top => Texts.Editor("align_top"),
+        TextVerticalAlignment.Center => Texts.Editor("align_middle"),
+        TextVerticalAlignment.Bottom => Texts.Editor("align_bottom"),
         _ => value.ToString() ?? string.Empty,
-    };
+    });
 }

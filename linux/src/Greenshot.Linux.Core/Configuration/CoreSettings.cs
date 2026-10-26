@@ -74,6 +74,33 @@ public sealed class CoreSettings
         }
     }
 
+    /// <summary>
+    /// The language in IETF format (e.g. en-US), empty for the language of the system
+    /// </summary>
+    public string Language
+    {
+        get => GetString(nameof(Language), string.Empty);
+        set => SetString(nameof(Language), value);
+    }
+
+    /// <summary>
+    /// System, Light or Dark
+    /// </summary>
+    public string Theme
+    {
+        get => GetString(nameof(Theme), "System");
+        set => SetString(nameof(Theme), value);
+    }
+
+    /// <summary>
+    /// The welcome window is shown once, at the first start
+    /// </summary>
+    public bool WelcomeShown
+    {
+        get => GetBool(nameof(WelcomeShown), false);
+        set => SetBool(nameof(WelcomeShown), value);
+    }
+
     public string RegionHotkey
     {
         get => GetString(nameof(RegionHotkey), "PrintScreen");
@@ -111,6 +138,15 @@ public sealed class CoreSettings
     {
         get => GetBool(nameof(CaptureMousepointer), true);
         set => SetBool(nameof(CaptureMousepointer), value);
+    }
+
+    /// <summary>
+    /// Alt + PrintScreen: false captures the active window, true opens the capture screen in the window mode
+    /// </summary>
+    public bool CaptureWindowsInteractive
+    {
+        get => GetBool(nameof(CaptureWindowsInteractive), false);
+        set => SetBool(nameof(CaptureWindowsInteractive), value);
     }
 
     public int CaptureDelay

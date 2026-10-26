@@ -22,6 +22,7 @@
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Configuration;
 using Greenshot.Linux.Core.Destinations;
+using Greenshot.Linux.Core.Languages;
 
 namespace Greenshot.Linux.Destinations;
 
@@ -32,7 +33,7 @@ internal sealed class FileWithDialogDestination(CoreSettings settings, SaveDialo
 {
     public string Designation => WellKnownDestinations.FileWithDialog;
 
-    public string DisplayName => "Save as…";
+    public string DisplayName => Texts.WithoutAccessKey(Texts.Editor("saveas"));
 
     public int Priority => 1;
 

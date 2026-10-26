@@ -25,6 +25,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Greenshot.Linux.Core.Capturing;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Capturing.Interactive;
 using SkiaSharp;
 
@@ -208,7 +209,7 @@ internal sealed class CaptureSurface : Control
 
         if (!_model.ShowHelp)
         {
-            var hint = Text(_model.Mode == CaptureMode.Window ? "Window – F1 keys" : "Region – F1 keys", 12);
+            var hint = Text($"{Texts.Label(Texts.Core(_model.Mode == CaptureMode.Window ? "contextmenu_capturewindow" : "contextmenu_capturearea"))} – F1 {Texts.Core("capture_keys_title")}", 12);
             DrawPanel(context, bounds, cursor, hint, alignRight: false);
         }
     }
@@ -234,31 +235,28 @@ internal sealed class CaptureSurface : Control
 
     private string HelpText()
     {
-        var lines = new List<string> { "Esc\tCancel" };
+        var lines = new List<string> { Texts.Core("capture_keys_title"), $"Esc\t{Texts.Core("capture_key_cancel")}" };
         if (_model.Mode == CaptureMode.Window)
         {
-            lines.Add("Enter / click\tCapture the window");
-            lines.Add("Tab / Shift+Tab\tNext / previous window");
+            lines.Add($"Enter\t{Texts.Core("capture_key_window_accept")}");
+            lines.Add($"Tab\t{Texts.Core("capture_key_window_next")}");
+            lines.Add($"Shift+Tab\t{Texts.Core("capture_key_window_previous")}");
         }
         else
         {
-            lines.Add("Drag\tSelect a region");
-            lines.Add("Enter\tStart or finish the selection");
-            lines.Add("↑↓←→\tMove one pixel (Ctrl: ten)");
-            lines.Add("Z\tShow or hide the zoomer");
-            if (_model.CanSelectWindows)
-            {
-                lines.Add("Click\tCapture the window under the cursor");
-            }
+            lines.Add($"Enter\t{Texts.Core("capture_key_region_select")}");
+            lines.Add($"↑↓←→\t{Texts.Core("capture_key_move")}");
+            lines.Add($"Ctrl ↑↓←→\t{Texts.Core("capture_key_move_fast")}");
+            lines.Add($"Z\t{Texts.Core("capture_key_zoomer")}");
         }
 
         if (_model.CanSelectWindows)
         {
-            lines.Add("Space\tSwitch between region and window");
+            lines.Add($"Space\t{Texts.Core("capture_key_region_window")}");
         }
 
-        lines.Add("I\tShow or hide the info");
-        lines.Add("F1\tShow or hide the keys");
+        lines.Add($"I\t{Texts.Core("capture_key_info")}");
+        lines.Add($"F1\t{Texts.Core("capture_key_help")}");
         return string.Join('\n', lines);
     }
 
@@ -266,18 +264,18 @@ internal sealed class CaptureSurface : Control
     {
         var lines = new List<string>
         {
-            string.Create(CultureInfo.InvariantCulture, $"Screen\t{ScreenPixels.Width} × {ScreenPixels.Height}"),
-            string.Create(CultureInfo.InvariantCulture, $"Cursor\t{_model.Cursor.X}, {_model.Cursor.Y}"),
+            Texts.Core("capture_info_title"),
+            string.Create(CultureInfo.InvariantCulture, $"{Texts.Core("capture_info_screen")}\t{ScreenPixels.Width} × {ScreenPixels.Height}"),
+            string.Create(CultureInfo.InvariantCulture, $"{Texts.Core("capture_info_mouse")}\t{_model.Cursor.X}, {_model.Cursor.Y}"),
         };
         var highlight = _model.Highlight;
-        if (!highlight.IsEmpty)
-        {
-            lines.Add(string.Create(CultureInfo.InvariantCulture, $"Selection\t{highlight.Width} × {highlight.Height}"));
-        }
+        lines.Add(highlight.IsEmpty
+            ? $"{Texts.Core("capture_info_selection")}\t{Texts.Core("capture_info_no_selection")}"
+            : string.Create(CultureInfo.InvariantCulture, $"{Texts.Core("capture_info_selection")}\t{highlight.Width} × {highlight.Height}"));
 
         if (_model.HoveredWindow is { } window && !string.IsNullOrEmpty(window.Title))
         {
-            lines.Add($"Window\t{(window.Title.Length > 40 ? window.Title[..40] + "…" : window.Title)}");
+            lines.Add($"{Texts.Core("capture_info_window")}\t{(window.Title.Length > 40 ? window.Title[..40] + "…" : window.Title)}");
         }
 
         return string.Join('\n', lines);

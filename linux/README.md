@@ -6,8 +6,8 @@ in `src/`: the Windows version uses WPF, WinForms, GDI+ and Win32, none of which
 compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
-Done so far: **milestone 1, capturing** and **milestone 2, the image editor**. The settings window, more destinations and
-the plugins follow, see [Roadmap](#roadmap).
+Done so far: **milestone 1, capturing**, **milestone 2, the image editor** and **milestone 3, settings and languages**.
+More destinations and the plugins follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -26,6 +26,9 @@ the plugins follow, see [Roadmap](#roadmap).
 | Command line, single instance: `greenshot capture region` etc. | ✅ |
 | Global hotkeys via the GlobalShortcuts portal | ✅ KDE, GNOME 48+, Hyprland |
 | `greenshot.ini` in the Windows format, unknown keys are kept | ✅ |
+| Settings window: language, theme, autostart, notifications, hotkeys, capture, output, destinations, editor | ✅ |
+| Welcome window at the first start, with a check of what the desktop offers (capturing, clipboard, tray, notifications, hotkeys) | ✅ |
+| The 40 languages of the Windows version (shared files, see [Languages](#languages)) | ✅ |
 
 ### The image editor
 
@@ -111,13 +114,25 @@ exec-once = greenshot
 
 ## Settings
 
-`~/.config/greenshot/greenshot.ini`, the same format and key names as on Windows (tray menu: *Edit the settings file*).
+The tray menu has *Preferences…*, `greenshot settings` opens them too. They are stored in
+`~/.config/greenshot/greenshot.ini`, the same format and key names as on Windows (the settings window has a button to open it).
 The settings used so far: `OutputDestinations` (`Picker`, `FileDefault`, `FileWithDialog`, `Clipboard`), `OutputFilePath`,
 `OutputFileFilenamePattern`, `OutputFileFormat` (`png`, `jpg`, `webp`), `OutputFileJpegQuality`, `OutputFileAllowOverwrite`,
 `OutputFileCopyPathToClipboard`, `CaptureMousepointer`, `CaptureDelay`, `PlayCameraSound`, `ShowTrayNotification`,
 the four hotkeys, and the Linux only `CaptureBackend` (`Auto`, `Grim`, `Portal`).
 
 The log is `~/.local/state/greenshot/greenshot.log`; `GREENSHOT_DEBUG=1` adds details.
+
+## Languages
+
+The language packs are the ones of the Windows version, `src/Greenshot/Languages/greenshot.<language>.ini`, linked into
+the build, so a translation helps both. Texts only Linux has are in
+`linux/src/Greenshot.Linux/Languages/greenshot-linux.<language>.ini` (section `[Linux]`); a missing text falls back to
+English. Without a `Language` in the settings, the language of the system (`LANGUAGE`, `LC_MESSAGES`, `LANG`) is used,
+the closest one available (de-AT finds de-DE). Own files can go to `~/.config/greenshot/Languages`.
+
+Texts which mention Windows (e.g. the autostart) have a Linux text instead. XAML uses `{l:Text Editor.save}`,
+like `wpf:Text` on Windows.
 
 ## What Wayland changes
 
@@ -156,7 +171,7 @@ linux/
 1. **Capturing** ✅
 2. **Editor** ✅ (see above for what is left: tabs, emoji, cut out, effect settings, reading Windows `.greenshot` elements
    with `System.Formats.Nrbf`)
-3. **Settings window, welcome window, languages** (the existing `Languages/*.xml`)
+3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
 4. **Destinations**: printer (Print portal), email (Email portal / xdg-email), OCR and text capture (Tesseract
    instead of Windows.Media.Ocr), QR codes (ZXing.Net), PDF
 5. **Plugins**: Jira / Confluence, Box, Dropbox, custom uploader (.sxcu), external command, recipes, MCP server.

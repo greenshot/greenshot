@@ -31,6 +31,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Greenshot.Linux.Core;
 using Greenshot.Linux.Core.Capturing;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Destinations;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Destinations;
@@ -111,28 +112,28 @@ public partial class EditorWindow : Window
 
     private void CreateToolButtons()
     {
-        AddTool(EditorTool.Select, "cursor", "Select (Esc)");
-        AddTool(EditorTool.Rectangle, "layer-shape", "Rectangle (R)");
-        AddTool(EditorTool.Ellipse, "layer-shape-ellipse", "Ellipse (E)");
-        AddTool(EditorTool.Line, "layer-shape-line", "Line (L)");
-        AddTool(EditorTool.Arrow, "layer-shape-arrow", "Arrow (A)");
-        AddTool(EditorTool.Freehand, "pencil-color", "Freehand (F)");
-        AddTool(EditorTool.Text, "layer-shape-text", "Text (T)");
-        AddTool(EditorTool.SpeechBubble, "balloon", "Speech bubble (S)");
-        AddTool(EditorTool.StepLabel, "notification-counter-01", "Step label (I)");
-        AddTool(EditorTool.Highlight, "highlighter-text", "Highlight (H)");
-        AddTool(EditorTool.Obfuscate, "image-pixelate", "Obfuscate (O)");
-        AddTool(EditorTool.Crop, "ruler-crop", "Crop (C), Enter applies");
+        AddTool(EditorTool.Select, "cursor", Texts.Editor("cursortool"));
+        AddTool(EditorTool.Rectangle, "layer-shape", Texts.Editor("drawrectangle"));
+        AddTool(EditorTool.Ellipse, "layer-shape-ellipse", Texts.Editor("drawellipse"));
+        AddTool(EditorTool.Line, "layer-shape-line", Texts.Editor("drawline"));
+        AddTool(EditorTool.Arrow, "layer-shape-arrow", Texts.Editor("drawarrow"));
+        AddTool(EditorTool.Freehand, "pencil-color", Texts.Editor("drawfreehand"));
+        AddTool(EditorTool.Text, "layer-shape-text", Texts.Editor("drawtextbox"));
+        AddTool(EditorTool.SpeechBubble, "balloon", Texts.Editor("speechbubble"));
+        AddTool(EditorTool.StepLabel, "notification-counter-01", Texts.Editor("counter"));
+        AddTool(EditorTool.Highlight, "highlighter-text", Texts.Editor("drawhighlighter"));
+        AddTool(EditorTool.Obfuscate, "image-pixelate", Texts.Editor("obfuscate"));
+        AddTool(EditorTool.Crop, "ruler-crop", Texts.Editor("crop"));
 
         ToolPanel.Children.Add(new Separator { Margin = new Thickness(0, 4) });
-        AddAction("arrow-resize", "Resize (Z)", () => _ = ResizeAsync());
-        AddAction("magnifier-zoom-in", "Zoom in (Ctrl +)", () => ZoomStep(+1));
-        AddAction("magnifier-zoom-out", "Zoom out (Ctrl -)", () => ZoomStep(-1));
-        AddAction("magnifier-zoom-actual", "Actual size (Ctrl 0)", () => SetZoom(1));
-        AddAction("magnifier-zoom-fit", "Best fit (Ctrl 9)", ZoomToFit);
+        AddAction("arrow-resize", Texts.Editor("resize"), () => _ = ResizeAsync());
+        AddAction("magnifier-zoom-in", Texts.Linux("zoom_in") + " (Ctrl +)", () => ZoomStep(+1));
+        AddAction("magnifier-zoom-out", Texts.Linux("zoom_out") + " (Ctrl -)", () => ZoomStep(-1));
+        AddAction("magnifier-zoom-actual", Texts.Linux("zoom_actual") + " (Ctrl 0)", () => SetZoom(1));
+        AddAction("magnifier-zoom-fit", Texts.Linux("zoom_fit") + " (Ctrl 9)", ZoomToFit);
         ToolPanel.Children.Add(new Separator { Margin = new Thickness(0, 4) });
-        AddAction("disk-black", "Save (Ctrl S)", () => _ = SaveAsync());
-        AddAction("clipboard", "Copy image to clipboard (Ctrl Shift C)", () => _ = CopyImageAsync());
+        AddAction("disk-black", Texts.Label(Texts.Editor("save")) + " (Ctrl S)", () => _ = SaveAsync());
+        AddAction("clipboard", Texts.Label(Texts.Editor("copyimagetoclipboard")) + " (Ctrl Shift C)", () => _ = CopyImageAsync());
         UpdateToolButtons();
     }
 
@@ -227,8 +228,8 @@ public partial class EditorWindow : Window
 
     private void UpdateTitle()
     {
-        var name = _filePath != null ? Path.GetFileName(_filePath) : _details.Title ?? "Capture";
-        Title = $"{(_surface.IsModified ? "*" : string.Empty)}{name} - Greenshot image editor";
+        var name = _filePath != null ? Path.GetFileName(_filePath) : _details.Title ?? "Greenshot";
+        Title = $"{(_surface.IsModified ? "*" : string.Empty)}{name} - {Texts.Editor("title")}";
     }
 
     private void UpdateStatus(string? message)
@@ -609,7 +610,7 @@ public partial class EditorWindow : Window
         using var bitmap = data != null ? SKBitmap.Decode(data) : null;
         if (bitmap == null)
         {
-            UpdateStatus("There is no image on the clipboard");
+            UpdateStatus(Texts.Linux("no_clipboard_image"));
             return;
         }
 
@@ -696,7 +697,7 @@ public partial class EditorWindow : Window
 
             _surface.IsModified = false;
             UpdateTitle();
-            UpdateStatus($"Saved to {path}");
+            UpdateStatus(Texts.Linux("saved_to", path));
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -729,7 +730,7 @@ public partial class EditorWindow : Window
                 UpdateTitle();
             }
 
-            UpdateStatus(result.FilePath != null ? $"Saved to {result.FilePath}" : result.Message);
+            UpdateStatus(result.FilePath != null ? Texts.Linux("saved_to", result.FilePath) : result.Message);
         }
         else if (!result.Cancelled)
         {
@@ -743,11 +744,11 @@ public partial class EditorWindow : Window
     {
         if (_host.FileChooser == null)
         {
-            UpdateStatus("There is no file dialog (FileChooser portal) on this desktop");
+            UpdateStatus(Texts.Linux("no_file_dialog"));
             return;
         }
 
-        var path = await _host.FileChooser.OpenFileAsync("Open an image", SaveDialog.OpenFilters);
+        var path = await _host.FileChooser.OpenFileAsync(Texts.Linux("open_image"), SaveDialog.OpenFilters);
         if (path != null)
         {
             await _host.OpenFileAsync(path);
@@ -815,7 +816,7 @@ public partial class EditorWindow : Window
 
     private async void OnCounterStart(object? sender, RoutedEventArgs e)
     {
-        var start = await Dialogs.AskNumberAsync(this, "Step labels", "The number of the first step label", _surface.CounterStart, 0, 9999);
+        var start = await Dialogs.AskNumberAsync(this, Texts.Label(Texts.Editor("counter")), Texts.Linux("counter_start_question"), _surface.CounterStart, 0, 9999);
         if (start is { } value && value != _surface.CounterStart)
         {
             _surface.Checkpoint();
@@ -834,7 +835,7 @@ public partial class EditorWindow : Window
     {
         if (!_controller.AutoCrop())
         {
-            UpdateStatus("There is no border to crop");
+            UpdateStatus(Texts.Editor("autocrop_not_possible"));
         }
     }
 

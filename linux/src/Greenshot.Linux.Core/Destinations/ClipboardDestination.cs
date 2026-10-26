@@ -21,6 +21,7 @@
 
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Output;
+using Greenshot.Linux.Core.Languages;
 
 namespace Greenshot.Linux.Core.Destinations;
 
@@ -31,7 +32,7 @@ public sealed class ClipboardDestination : IDestination
 {
     public string Designation => WellKnownDestinations.Clipboard;
 
-    public string DisplayName => "Copy to clipboard";
+    public string DisplayName => Texts.Editor("copyimagetoclipboard");
 
     public int Priority => 2;
 
@@ -43,7 +44,7 @@ public sealed class ClipboardDestination : IDestination
         {
             var png = ImageFormats.Encode(capture.Image, "png");
             await SystemClipboard.SetImageAsync(png, "image/png").ConfigureAwait(false);
-            return ExportResult.Done(message: "The capture was copied to the clipboard");
+            return ExportResult.Done(message: Texts.Editor("storedtoclipboard"));
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or OperationCanceledException)
         {

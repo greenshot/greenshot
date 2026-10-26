@@ -24,6 +24,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Greenshot.Linux.Core.Languages;
 using SkiaSharp;
 
 namespace Greenshot.Linux.Editing;
@@ -87,16 +88,16 @@ internal sealed class ColorButton : Button
         var recent = _recentColors();
         if (recent.Count > 0)
         {
-            panel.Children.Add(new TextBlock { Text = "Recent", FontSize = 11, Opacity = 0.7 });
+            panel.Children.Add(new TextBlock { Text = Texts.Linux("recent_colors"), FontSize = 11, Opacity = 0.7 });
             panel.Children.Add(Grid(recent.Take(10)));
         }
 
-        var transparent = new Button { Content = "Transparent", HorizontalAlignment = HorizontalAlignment.Stretch };
+        var transparent = new Button { Content = Texts.Editor("color_transparent"), HorizontalAlignment = HorizontalAlignment.Stretch };
         transparent.Click += (_, _) => Choose(SKColors.Transparent);
         panel.Children.Add(transparent);
 
         var hexRow = new DockPanel();
-        var apply = new Button { Content = "OK" };
+        var apply = new Button { Content = Texts.Linux("ok") };
         DockPanel.SetDock(apply, Dock.Right);
         var hex = new TextBox { Text = ToHex(_color), PlaceholderText = "#RRGGBB" };
         apply.Click += (_, _) =>

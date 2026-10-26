@@ -40,6 +40,11 @@ public enum AppCommandKind
     /// Open the image on the clipboard in the editor
     /// </summary>
     OpenClipboard,
+
+    /// <summary>
+    /// Show the settings window
+    /// </summary>
+    Settings,
     Exit,
     Help,
     Version,
@@ -64,6 +69,7 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
           capture last          Capture the last region again (Shift + PrintScreen)
           open <file>           Open an image or .greenshot file in the editor, also: greenshot <file>
           clipboard             Open the image on the clipboard in the editor
+          settings              Show the settings
           exit                  Stop the running Greenshot
           --help                Show this text
           --version             Show the version
@@ -99,6 +105,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
                 return new AppCommand(AppCommandKind.Open, Path: ToAbsolute(string.Join(' ', args.Skip(1))));
             case "clipboard":
                 return new AppCommand(AppCommandKind.OpenClipboard);
+            case "settings" or "preferences":
+                return new AppCommand(AppCommandKind.Settings);
             default:
                 // Like Greenshot.exe: a file on the command line is opened in the editor
                 return File.Exists(args[0]) || args[0].StartsWith("file://", StringComparison.Ordinal)
@@ -146,6 +154,7 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
         },
         AppCommandKind.Open => "open " + Path,
         AppCommandKind.OpenClipboard => "clipboard",
+        AppCommandKind.Settings => "settings",
         AppCommandKind.Exit => "exit",
         _ => "start",
     };

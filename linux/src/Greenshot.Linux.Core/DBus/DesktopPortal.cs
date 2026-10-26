@@ -101,6 +101,32 @@ public sealed class DesktopPortal : IDisposable
     }
 
     /// <summary>
+    /// Does a service own the name on the session bus? E.g. org.kde.StatusNotifierWatcher for a tray,
+    /// org.freedesktop.Notifications for notifications
+    /// </summary>
+    public async Task<bool> NameHasOwnerAsync(string name)
+    {
+        MessageBuffer message;
+        using (var writer = Connection.GetMessageWriter())
+        {
+            writer.WriteMethodCallHeader(destination: "org.freedesktop.DBus", path: "/org/freedesktop/DBus", @interface: "org.freedesktop.DBus",
+                member: "NameHasOwner", signature: "s");
+            writer.WriteString(name);
+            message = writer.CreateMessage();
+        }
+
+        try
+        {
+            return await Connection.CallMethodAsync(message, static (m, _) => m.GetBodyReader().ReadBool(), null).ConfigureAwait(false);
+        }
+        catch (DBusExceptionBase ex)
+        {
+            Log.Debug($"NameHasOwner {name} failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
     /// The handle_token for the options, unique for this connection
     /// </summary>
     public static string NewToken() => "greenshot" + Guid.NewGuid().ToString("N")[..12];

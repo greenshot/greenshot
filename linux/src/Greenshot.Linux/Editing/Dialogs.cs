@@ -22,6 +22,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Helpers;
 
 namespace Greenshot.Linux.Editing;
@@ -44,11 +45,11 @@ internal static class Dialogs
     public static async Task<SaveChoice> AskSaveChangesAsync(Window owner)
     {
         var choice = SaveChoice.Cancel;
-        var dialog = CreateDialog("Greenshot", "Do you want to save the changes to the image?");
+        var dialog = CreateDialog(Texts.Editor("close_on_save_title"), Texts.Editor("close_on_save"));
         var buttons = (StackPanel)((StackPanel)dialog.Content!).Children[^1];
-        AddButton(buttons, "_Save", () => choice = SaveChoice.Save, dialog, isDefault: true);
-        AddButton(buttons, "_Don't save", () => choice = SaveChoice.Discard, dialog);
-        AddButton(buttons, "Cancel", () => choice = SaveChoice.Cancel, dialog, isCancel: true);
+        AddButton(buttons, Texts.Label(Texts.Editor("save")), () => choice = SaveChoice.Save, dialog, isDefault: true);
+        AddButton(buttons, Texts.Linux("dont_save"), () => choice = SaveChoice.Discard, dialog);
+        AddButton(buttons, Texts.Linux("cancel"), () => choice = SaveChoice.Cancel, dialog, isCancel: true);
         await dialog.ShowDialog(owner);
         return choice;
     }
@@ -64,8 +65,8 @@ internal static class Dialogs
         var content = (StackPanel)dialog.Content!;
         content.Children.Insert(1, numeric);
         var buttons = (StackPanel)content.Children[^1];
-        AddButton(buttons, "OK", () => result = (int?)numeric.Value, dialog, isDefault: true);
-        AddButton(buttons, "Cancel", () => result = null, dialog, isCancel: true);
+        AddButton(buttons, Texts.Linux("ok"), () => result = (int?)numeric.Value, dialog, isDefault: true);
+        AddButton(buttons, Texts.Linux("cancel"), () => result = null, dialog, isCancel: true);
         dialog.Opened += (_, _) => numeric.Focus();
         await dialog.ShowDialog(owner);
         return result;
@@ -77,11 +78,11 @@ internal static class Dialogs
     public static async Task<(int Width, int Height)?> AskSizeAsync(Window owner, int width, int height)
     {
         (int, int)? result = null;
-        var dialog = CreateDialog("Resize", "The new size of the image in pixels");
+        var dialog = CreateDialog(Texts.Editor("resize_settings"), Texts.Label(Texts.Editor("resize")));
         var widthBox = new NumericUpDown { Value = width, Minimum = 1, Maximum = 30000, FormatString = "0", Width = 140 };
         var heightBox = new NumericUpDown { Value = height, Minimum = 1, Maximum = 30000, FormatString = "0", Width = 140 };
         var percent = new NumericUpDown { Value = 100, Minimum = 1, Maximum = 1000, FormatString = "0", Width = 140 };
-        var keepAspect = new CheckBox { Content = "Keep the proportions", IsChecked = true };
+        var keepAspect = new CheckBox { Content = Texts.Editor("resize_aspectratio"), IsChecked = true };
         bool updating = false;
         double ratio = (double)width / height;
 
@@ -123,9 +124,9 @@ internal static class Dialogs
         });
 
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,8,Auto"), RowDefinitions = new RowDefinitions("Auto,6,Auto,6,Auto,6,Auto") };
-        AddRow(grid, 0, "Percent", percent);
-        AddRow(grid, 2, "Width", widthBox);
-        AddRow(grid, 4, "Height", heightBox);
+        AddRow(grid, 0, Texts.Editor("resize_percent"), percent);
+        AddRow(grid, 2, Texts.Editor("resize_width"), widthBox);
+        AddRow(grid, 4, Texts.Editor("resize_height"), heightBox);
         Grid.SetRow(keepAspect, 6);
         Grid.SetColumn(keepAspect, 2);
         grid.Children.Add(keepAspect);
@@ -133,14 +134,14 @@ internal static class Dialogs
         var content = (StackPanel)dialog.Content!;
         content.Children.Insert(1, grid);
         var buttons = (StackPanel)content.Children[^1];
-        AddButton(buttons, "OK", () =>
+        AddButton(buttons, Texts.Linux("ok"), () =>
         {
             if (widthBox.Value is { } w && heightBox.Value is { } h)
             {
                 result = ((int)w, (int)h);
             }
         }, dialog, isDefault: true);
-        AddButton(buttons, "Cancel", () => result = null, dialog, isCancel: true);
+        AddButton(buttons, Texts.Linux("cancel"), () => result = null, dialog, isCancel: true);
         await dialog.ShowDialog(owner);
         return result;
     }

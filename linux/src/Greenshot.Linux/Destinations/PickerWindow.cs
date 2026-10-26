@@ -28,6 +28,7 @@ using Avalonia.Media;
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Destinations;
 using Greenshot.Linux.Helpers;
+using Greenshot.Linux.Core.Languages;
 
 namespace Greenshot.Linux.Destinations;
 
@@ -82,7 +83,7 @@ internal sealed class PickerWindow : Window
             panel.Children.Add(button);
         }
 
-        var close = new Button { Content = "Close", HorizontalAlignment = HorizontalAlignment.Right, IsCancel = true };
+        var close = new Button { Content = Texts.Editor("close"), HorizontalAlignment = HorizontalAlignment.Right, IsCancel = true };
         close.Click += (_, _) => Close();
         panel.Children.Add(close);
         Content = panel;

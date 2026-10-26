@@ -23,6 +23,7 @@ using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Configuration;
 using Greenshot.Linux.Core.Naming;
 using Greenshot.Linux.Core.Output;
+using Greenshot.Linux.Core.Languages;
 
 namespace Greenshot.Linux.Core.Destinations;
 
@@ -33,7 +34,7 @@ public sealed class FileDestination(CoreSettings settings, Func<string, Task<str
 {
     public string Designation => WellKnownDestinations.FileDefault;
 
-    public string DisplayName => "Save";
+    public string DisplayName => Texts.Editor("save");
 
     public int Priority => 0;
 
@@ -104,7 +105,7 @@ public sealed class FileDestination(CoreSettings settings, Func<string, Task<str
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             Log.Error($"Saving to {path} failed", ex);
-            return ExportResult.Failed($"Could not save {path}: {ex.Message}");
+            return ExportResult.Failed(Texts.Core("error_nowriteaccess", path) + "\n" + ex.Message);
         }
     }
 

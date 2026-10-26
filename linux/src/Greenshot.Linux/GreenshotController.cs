@@ -38,7 +38,10 @@ using Greenshot.Linux.Editing;
 using Greenshot.Linux.Editor;
 using Greenshot.Linux.Editor.Serialization;
 using SkiaSharp;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Helpers;
+using Greenshot.Linux.Settings;
+using Avalonia.Styling;
 
 namespace Greenshot.Linux;
 
@@ -46,7 +49,7 @@ namespace Greenshot.Linux;
 /// The running Greenshot: the tray icon, the commands from the command line and the hotkeys, and the capture flow
 /// from taking the picture to the destinations. The MainForm of the Windows version without a form.
 /// </summary>
-internal sealed class GreenshotController : IEditorHost, IDisposable
+internal sealed class GreenshotController : ISettingsHost, IDisposable
 {
     private const string ShortcutRegion = "capture-region";
     private const string ShortcutWindow = "capture-window";
@@ -72,6 +75,82 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
     {
         _desktop = desktop;
         _editorSettings = new EditorSettings(_settings);
+        Texts.Initialize(_settings.Language);
+        ApplyTheme();
+    }
+
+    public bool HasGlobalShortcuts => _shortcuts != null;
+
+    /// <summary>
+    /// The settings window saved: the language, the theme and the tray menu follow at once
+    /// </summary>
+    public void ApplySettings()
+    {
+        Texts.SetLanguage(_settings.Language);
+        ApplyTheme();
+        if (_trayIcon != null)
+        {
+            _trayIcon.Menu = CreateTrayMenu();
+        }
+    }
+
+    private void ApplyTheme()
+    {
+        if (Application.Current is { } application)
+        {
+            application.RequestedThemeVariant = _settings.Theme.ToLowerInvariant() switch
+            {
+                "light" => ThemeVariant.Light,
+                "dark" => ThemeVariant.Dark,
+                _ => ThemeVariant.Default,
+            };
+        }
+    }
+
+    private SettingsWindow? _settingsWindow;
+
+    public void ShowSettings()
+    {
+        if (_settingsWindow != null)
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+
+        _settingsWindow = new SettingsWindow(this);
+        _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+        _settingsWindow.Show();
+    }
+
+    /// <summary>
+    /// The welcome window, once at the first start
+    /// </summary>
+    private async Task ShowWelcomeAsync()
+    {
+        if (_settings.WelcomeShown)
+        {
+            return;
+        }
+
+        _settings.WelcomeShown = true;
+        _settings.Save();
+        var checks = new List<SetupCheck>
+        {
+            _captureService != null
+                ? new SetupCheck(true, Texts.Linux("setup_capture_ok", _captureService.Grabber.Name))
+                : new SetupCheck(false, Texts.Linux("setup_capture_missing")),
+            SystemClipboard.IsAvailable
+                ? new SetupCheck(true, Texts.Linux("setup_clipboard_ok"))
+                : new SetupCheck(false, Texts.Linux("setup_clipboard_missing")),
+        };
+        bool tray = _portal != null && await _portal.NameHasOwnerAsync("org.kde.StatusNotifierWatcher");
+        checks.Add(new SetupCheck(tray, Texts.Linux(tray ? "setup_tray_ok" : "setup_tray_missing")));
+        bool notifications = _portal != null && await _portal.NameHasOwnerAsync("org.freedesktop.Notifications");
+        checks.Add(new SetupCheck(notifications, Texts.Linux(notifications ? "setup_notifications_ok" : "setup_notifications_missing")));
+        checks.Add(new SetupCheck(HasGlobalShortcuts, Texts.Linux(HasGlobalShortcuts ? "setup_hotkeys_portal" : "setup_hotkeys_manual")));
+
+        var welcome = new WelcomeWindow(checks, ShowSettings);
+        welcome.Show();
     }
 
     public CoreSettings Settings => _settings;
@@ -119,6 +198,7 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
 
         CreateTrayIcon();
         await RegisterShortcutsAsync();
+        await ShowWelcomeAsync();
 
         await RunAsync(startCommand);
     }
@@ -135,6 +215,9 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
                 break;
             case AppCommandKind.OpenClipboard:
                 await OpenClipboardAsync();
+                break;
+            case AppCommandKind.Settings:
+                ShowSettings();
                 break;
             case AppCommandKind.Exit:
                 Exit();
@@ -317,7 +400,7 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
 
         if (result.FilePath is { } path)
         {
-            await NotifyAsync("Capture saved", path, NotificationSeverity.Info, path, () => ProcessRunner.StartDetached("xdg-open", path));
+            await NotifyAsync("Greenshot", Texts.Editor("imagesaved", path), NotificationSeverity.Info, path, () => ProcessRunner.StartDetached("xdg-open", path));
         }
         else
         {
@@ -335,34 +418,41 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
         return _notifications.ShowAsync(summary, body, severity, imagePath, onClick);
     }
 
-    private void CreateTrayIcon()
+    /// <summary>
+    /// The menu of the tray icon, with the texts of the Windows context menu
+    /// </summary>
+    private NativeMenu CreateTrayMenu()
     {
         var menu = new NativeMenu();
-        AddItem(menu, "Capture region", () => _ = CaptureAsync(CaptureMode.Region), _settings.RegionHotkey);
-        AddItem(menu, "Capture last region", () => _ = CaptureAsync(CaptureMode.LastRegion), _settings.LastregionHotkey);
+        AddItem(menu, Texts.Core("contextmenu_capturearea"), () => _ = CaptureAsync(CaptureMode.Region), _settings.RegionHotkey);
+        AddItem(menu, Texts.Core("contextmenu_capturelastregion"), () => _ = CaptureAsync(CaptureMode.LastRegion), _settings.LastregionHotkey);
         if (_compositor.KnowsWindows)
         {
-            AddItem(menu, "Capture window", () => _ = CaptureAsync(CaptureMode.Window), null);
-            AddItem(menu, "Capture active window", () => _ = CaptureAsync(CaptureMode.ActiveWindow), _settings.WindowHotkey);
+            AddItem(menu, Texts.Core("contextmenu_capturewindow"), () => _ = CaptureAsync(CaptureMode.Window), null);
+            AddItem(menu, Texts.Linux("contextmenu_captureactivewindow"), () => _ = CaptureAsync(CaptureMode.ActiveWindow), _settings.WindowHotkey);
         }
 
-        AddItem(menu, "Capture full screen", () => _ = CaptureAsync(CaptureMode.FullScreen), _settings.FullscreenHotkey);
+        AddItem(menu, Texts.Core("contextmenu_capturefullscreen"), () => _ = CaptureAsync(CaptureMode.FullScreen), _settings.FullscreenHotkey);
         menu.Items.Add(new NativeMenuItemSeparator());
-        AddItem(menu, "Open image from file…", () => _ = AskOpenFileAsync(), null);
-        AddItem(menu, "Open image from clipboard", () => _ = OpenClipboardAsync(), null);
+        AddItem(menu, Texts.Core("contextmenu_openfile"), () => _ = AskOpenFileAsync(), null);
+        AddItem(menu, Texts.Core("contextmenu_captureclipboard"), () => _ = OpenClipboardAsync(), null);
+        AddItem(menu, Texts.Core("contextmenu_openrecentcapture"), OpenCaptureFolder, null);
         menu.Items.Add(new NativeMenuItemSeparator());
-        AddItem(menu, "Open the capture folder", OpenCaptureFolder, null);
-        AddItem(menu, "Edit the settings file", () => ProcessRunner.StartDetached("xdg-open", _settings.FilePath), null);
-        AddItem(menu, "Open the log", () => ProcessRunner.StartDetached("xdg-open", Log.FilePath), null);
+        AddItem(menu, Texts.Core("contextmenu_settings"), ShowSettings, null);
+        AddItem(menu, Texts.Linux("open_log"), () => ProcessRunner.StartDetached("xdg-open", Log.FilePath), null);
         menu.Items.Add(new NativeMenuItemSeparator());
-        AddItem(menu, $"About Greenshot {Program.Version}", () => ProcessRunner.StartDetached("xdg-open", "https://getgreenshot.org/"), null);
-        AddItem(menu, "Exit", Exit, null);
+        AddItem(menu, $"{Texts.Core("contextmenu_about")} ({Program.Version})", () => ProcessRunner.StartDetached("xdg-open", "https://getgreenshot.org/"), null);
+        AddItem(menu, Texts.Core("contextmenu_exit"), Exit, null);
+        return menu;
+    }
 
+    private void CreateTrayIcon()
+    {
         _trayIcon = new TrayIcon
         {
             Icon = AppIcons.Tray,
             ToolTipText = "Greenshot",
-            Menu = menu,
+            Menu = CreateTrayMenu(),
             IsVisible = true,
         };
         // A click on the icon captures a region, like the default of the Windows version
@@ -372,6 +462,7 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
 
     private static void AddItem(NativeMenu menu, string header, Action action, string? hotkey)
     {
+        header = Texts.WithoutAccessKey(header);
         var item = new NativeMenuItem(string.IsNullOrWhiteSpace(hotkey) ? header : $"{header}\t{hotkey}");
         item.Click += (_, _) => action();
         menu.Items.Add(item);
@@ -490,7 +581,7 @@ internal sealed class GreenshotController : IEditorHost, IDisposable
                 CaptureMode? mode = id switch
                 {
                     ShortcutRegion => CaptureMode.Region,
-                    ShortcutWindow => _compositor.KnowsWindows ? CaptureMode.ActiveWindow : CaptureMode.Window,
+                    ShortcutWindow => _compositor.KnowsWindows && !_settings.CaptureWindowsInteractive ? CaptureMode.ActiveWindow : CaptureMode.Window,
                     ShortcutFullscreen => CaptureMode.FullScreen,
                     ShortcutLastRegion => CaptureMode.LastRegion,
                     _ => null,

@@ -92,8 +92,9 @@ public sealed class FileChooserPortal(DesktopPortal portal)
     /// <summary>
     /// Ask for a file to open, null when the user cancels
     /// </summary>
+    /// <param name="directory">Choose a folder instead of a file</param>
     public async Task<string?> OpenFileAsync(string title, IReadOnlyList<(string Name, string Pattern)> filters,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, bool directory = false)
     {
         var response = await portal.RequestAsync(FileChooserInterface, "OpenFile", "ssa{sv}", (ref MessageWriter writer, string token) =>
         {
@@ -102,7 +103,13 @@ public sealed class FileChooserPortal(DesktopPortal portal)
             var options = writer.WriteDictionaryStart();
             WriteKey(ref writer, "handle_token");
             writer.WriteVariantString(token);
-            if (filters.Count > 0)
+            if (directory)
+            {
+                WriteKey(ref writer, "directory");
+                writer.WriteVariantBool(true);
+            }
+
+            if (filters.Count > 0 && !directory)
             {
                 WriteKey(ref writer, "filters");
                 writer.WriteSignature("a(sa(us))");
@@ -125,6 +132,9 @@ public sealed class FileChooserPortal(DesktopPortal portal)
 
         return new Uri(uris.GetItem(0).GetString()).LocalPath;
     }
+
+    public Task<string?> OpenFolderAsync(string title, CancellationToken cancellationToken = default) =>
+        OpenFileAsync(title, [], cancellationToken, directory: true);
 
     /// <summary>
     /// Start a dictionary entry; the caller writes the variant signature and value

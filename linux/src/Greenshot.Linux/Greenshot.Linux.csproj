@@ -18,4 +18,9 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The language packs are shared with the Windows version -->
+    <None Include="..\..\..\src\Greenshot\Languages\greenshot.*.ini" Link="Languages\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Languages\greenshot-linux.*.ini" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
