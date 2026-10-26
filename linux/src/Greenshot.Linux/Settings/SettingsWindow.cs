@@ -46,6 +46,12 @@ internal interface ISettingsHost : IEditorHost
     /// </summary>
     bool HasGlobalShortcuts { get; }
 
+    IReadOnlyList<Core.Plugins.IGreenshotPlugin> Plugins { get; }
+
+    Core.Plugins.PluginPolicy Policy { get; }
+
+    Core.Configuration.ISecretStore Secrets { get; }
+
     /// <summary>
     /// The settings were saved: apply language, theme and the tray menu
     /// </summary>
@@ -81,6 +87,7 @@ internal sealed class SettingsWindow : Window
         tabs.Items.Add(Tab(Texts.Settings("destination"), DestinationPage()));
         tabs.Items.Add(Tab(Texts.Settings("editor"), EditorPage()));
         tabs.Items.Add(Tab(Texts.Settings("printer"), PrinterPage()));
+        tabs.Items.Add(Tab(Texts.Linux("plugins"), new PluginSettingsPage(host, this, _apply).Create()));
 
         var ok = new Button { Content = Texts.Linux("ok"), IsDefault = true, MinWidth = 90, HorizontalContentAlignment = HorizontalAlignment.Center };
         ok.Click += (_, _) => Save();
@@ -379,13 +386,13 @@ internal sealed class SettingsWindow : Window
             (WellKnownDestinations.Email, Texts.Settings("destination_email")),
             (WellKnownDestinations.Ocr, Texts.Linux("ocr_destination")),
             (WellKnownDestinations.QrCode, Texts.Linux("qr_destination")),
+            .. _host.Plugins.Where(p => _host.Policy.IsPluginEnabled(p.Name)).SelectMany(p => p.Destinations).Select(d => (d.Designation, d.DisplayName)),
         ];
         var list = new StackPanel { Spacing = 4, Margin = new Thickness(24, 0, 0, 0) };
         var checks = new List<(string Designation, CheckBox Check)>();
         foreach (var (designation, text) in destinations)
         {
-            var check = Ui.Check(text, configured.Contains(designation, StringComparer.OrdinalIgnoreCase)
-                || (designation == WellKnownDestinations.Ocr && configured.Contains(WellKnownDestinations.WindowsOcr, StringComparer.OrdinalIgnoreCase)));
+            var check = Ui.Check(text, configured.Contains(designation, StringComparer.OrdinalIgnoreCase));
             checks.Add((designation, check));
             list.Children.Add(check);
         }

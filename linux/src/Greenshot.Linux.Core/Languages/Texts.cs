@@ -31,7 +31,7 @@ namespace Greenshot.Linux.Core.Languages;
 public sealed record LanguageInfo(string Ietf, string Description);
 
 /// <summary>
-/// The language packs of Greenshot: greenshot.&lt;ietf&gt;.ini from src/Greenshot/Languages (shared with Windows,
+/// The language packs of Greenshot: greenshot.&lt;ietf&gt;.ini from src/Greenshot/Languages and the plugins (shared with Windows,
 /// sections [Core], [Editor], [Settings], [Welcome], ... with snake_case keys) and greenshot-linux.&lt;ietf&gt;.ini
 /// for the texts only the Linux version has. A text missing in a language comes from en-US.
 /// </summary>
@@ -44,7 +44,10 @@ public static partial class Texts
     private static Dictionary<string, Dictionary<string, string>> _current = new();
     private static Dictionary<string, Dictionary<string, string>> _fallback = new();
 
-    [GeneratedRegex(@"^greenshot(-linux)?\.(?<ietf>[A-Za-z]{2,3}(-[A-Za-z0-9]+)*)\.ini$")]
+    /// <summary>
+    /// greenshot.de-DE.ini, greenshot-linux.de-DE.ini and the plugins' greenshot.box.de-DE.ini
+    /// </summary>
+    [GeneratedRegex(@"^greenshot(?:-linux|\.[A-Za-z]+)?\.(?<ietf>[A-Za-z]{2,3}(-[A-Za-z0-9]+)*)\.ini$")]
     private static partial Regex FileNameRegex();
 
     /// <summary>

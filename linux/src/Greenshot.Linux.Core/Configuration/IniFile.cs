@@ -117,6 +117,9 @@ public sealed class IniFile
         s.Values.Add(new KeyValuePair<string, string>(key, value));
     }
 
+    public void Remove(string section, string key) =>
+        FindSection(section)?.Values.RemoveAll(pair => string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase));
+
     public override string ToString()
     {
         var sb = new StringBuilder();

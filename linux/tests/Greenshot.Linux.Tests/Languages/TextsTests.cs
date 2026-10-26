@@ -62,6 +62,15 @@ public class TextsTests
     }
 
     [Fact]
+    public void Plugin_texts_are_found()
+    {
+        Texts.Initialize("de-DE", [.. Folders, Path.GetFullPath(Path.Combine(Folders[0], "../../Greenshot.Plugin.Pdf/Languages"))]);
+        Assert.NotEqual("destination", Texts.Get("Pdf", "destination"));
+        Texts.SetLanguage("en-US");
+        Assert.Equal("Save as PDF", Texts.Get("Pdf", "destination"));
+    }
+
+    [Fact]
     public void Arguments_and_line_breaks_are_filled_in()
     {
         Texts.Initialize("en-US", Folders);

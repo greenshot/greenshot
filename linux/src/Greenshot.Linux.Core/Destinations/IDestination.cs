@@ -63,8 +63,15 @@ public interface IDestination
 public static class WellKnownDestinations
 {
     public const string Picker = "Picker";
-    public const string FileDefault = "FileDefault";
-    public const string FileWithDialog = "FileWithDialog";
+    /// <summary>
+    /// Save directly, "FileDefault" in older settings
+    /// </summary>
+    public const string FileDefault = "FileNoDialog";
+
+    /// <summary>
+    /// Save as, "FileWithDialog" in older settings
+    /// </summary>
+    public const string FileWithDialog = "FileDialog";
     public const string Clipboard = "Clipboard";
     public const string Editor = "Editor";
     public const string Printer = "Printer";
@@ -76,4 +83,15 @@ public static class WellKnownDestinations
     /// </summary>
     public const string WindowsOcr = "Windows10OCR";
     public const string QrCode = "ZxingQrDestination";
+
+    /// <summary>
+    /// The current name of a destination: older settings and the Windows version used other names for some
+    /// </summary>
+    public static string Normalize(string designation) => designation.Trim() switch
+    {
+        var d when d.Equals("FileDefault", StringComparison.OrdinalIgnoreCase) => FileDefault,
+        var d when d.Equals("FileWithDialog", StringComparison.OrdinalIgnoreCase) => FileWithDialog,
+        var d when d.Equals(WindowsOcr, StringComparison.OrdinalIgnoreCase) => Ocr,
+        var d => d,
+    };
 }

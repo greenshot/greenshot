@@ -60,7 +60,7 @@ public sealed class SettingsTests : IDisposable
 
         var settings = CoreSettings.Load(IniPath);
         Assert.Equal("jpg", settings.OutputFileFormat);
-        Assert.Equal(["FileDefault", "Clipboard"], settings.OutputDestinations);
+        Assert.Equal(["FileNoDialog", "Clipboard"], settings.OutputDestinations);
         Assert.Equal(new LayoutRect(10, 20, 300, 200), settings.LastCapturedRegion);
 
         settings.CaptureDelay = 250;
@@ -72,6 +72,14 @@ public sealed class SettingsTests : IDisposable
         Assert.Contains("FreehandSensitivity=3", text);
         Assert.Contains("; Greenshot core configuration", text);
         Assert.Equal(250, CoreSettings.Load(IniPath).CaptureDelay);
+    }
+
+    [Fact]
+    public void Destination_names_of_windows_and_older_settings_are_understood()
+    {
+        Directory.CreateDirectory(_folder);
+        File.WriteAllText(IniPath, "[Core]\nOutputDestinations=FileDefault,FileWithDialog,Windows10OCR,FileNoDialog\n");
+        Assert.Equal(["FileNoDialog", "FileDialog", "OCR"], CoreSettings.Load(IniPath).OutputDestinations);
     }
 
     [Fact]

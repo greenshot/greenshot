@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
     <ProjectReference Include="..\Greenshot.Linux.Editor\Greenshot.Linux.Editor.csproj" />
+    <ProjectReference Include="..\Greenshot.Linux.Plugins\Greenshot.Linux.Plugins.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -22,5 +23,6 @@
     <!-- The language packs are shared with the Windows version -->
     <None Include="..\..\..\src\Greenshot\Languages\greenshot.*.ini" Link="Languages\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Languages\greenshot-linux.*.ini" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\src\Greenshot.Plugin.*\Languages\greenshot.*.ini" Link="Languages\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

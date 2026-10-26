@@ -130,7 +130,7 @@ public sealed class CoreSettings
     /// </summary>
     public IReadOnlyList<string> OutputDestinations
     {
-        get => GetList(nameof(OutputDestinations), "Picker");
+        get => GetList(nameof(OutputDestinations), "Picker").Select(Destinations.WellKnownDestinations.Normalize).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         set => SetString(nameof(OutputDestinations), string.Join(',', value));
     }
 
@@ -334,6 +334,14 @@ public sealed class CoreSettings
         lock (_lock)
         {
             _ini.Set(section, key, value);
+        }
+    }
+
+    public void RemoveValue(string section, string key)
+    {
+        lock (_lock)
+        {
+            _ini.Remove(section, key);
         }
     }
 

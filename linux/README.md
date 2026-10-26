@@ -7,7 +7,8 @@ compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
 Done so far: **milestone 1, capturing**, **milestone 2, the image editor**, **milestone 3, settings and languages** and
-**milestone 4, more destinations**. The plugins follow, see [Roadmap](#roadmap).
+**milestone 4, more destinations** and the first part of **milestone 5, plugins**. Jira/Confluence, recipes and the MCP server
+follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -32,6 +33,30 @@ Done so far: **milestone 1, capturing**, **milestone 2, the image editor**, **mi
 | Settings window: language, theme, autostart, notifications, hotkeys, capture, output, destinations, editor | ✅ |
 | Welcome window at the first start, with a check of what the desktop offers (capturing, clipboard, tray, notifications, hotkeys) | ✅ |
 | The 40 languages of the Windows version (shared files, see [Languages](#languages)) | ✅ |
+
+### Plugins
+
+The plugins of the Windows version are built in; Settings → Plugins switches them on or off and has their settings.
+The keys are the ones of Windows: `ExcludePluginNames` and `ExcludeDestinations` for the user, `BlockedPluginNames`,
+`AllowedPluginNames`, `BlockedDestinations` and `AllowedDestinations` for an administrator in `greenshot-fixed.ini`
+(`/etc/greenshot/` or next to the program), see docs/vNext/plugins-and-destinations.md.
+
+| Plugin | Status |
+|---|---|
+| External command: open the capture in GIMP, Krita, Pinta, KolourPaint (added when installed) or any program | ✅ `[ExternalCommand]` like on Windows |
+| PDF: save as PDF with page size, margins and scaling | ✅ |
+| Custom uploader: ShareX `.sxcu` files, with the checks of Windows, your values, the reminder and the list of uploads | ✅ uploaders and uploads in the keyring |
+| Box, Dropbox | ✅ with your own app key, see below |
+| Jira, Confluence, recipes, MCP server | ⏳ next |
+
+Keys, tokens and uploaders are kept in the keyring of the desktop (Secret Service: GNOME Keyring, KWallet, KeePassXC) with
+`secret-tool`, or without it in `~/.config/greenshot/secrets.ini` readable only by you. The Windows version obfuscates them
+in greenshot.ini instead.
+
+Box and Dropbox need an app registered with the service: the official Windows build has its keys from the build server,
+which a self built Linux version doesn't. Register an app in the developer console of the service with the redirect
+address `http://127.0.0.1` and enter its key and secret in the settings (`ClientId` and `ClientSecret` in `[Box]` or
+`[Dropbox]`, or `GREENSHOT_BOX_CLIENT_ID` and so on). The first upload opens the browser to sign in.
 
 ### The image editor
 
@@ -157,6 +182,7 @@ linux/
   src/Greenshot.Linux.Core     no UI: settings, filename patterns, screen grabbers, compositor queries,
                                D-Bus portals and notifications, destinations, single instance socket
   src/Greenshot.Linux.Editor   no UI: the editor model, drawing elements, Skia rendering, undo, effects, .greenshot files
+  src/Greenshot.Linux.Plugins  no UI: the plugins (external command, PDF, custom uploader, Box, Dropbox)
   src/Greenshot.Linux          Avalonia: tray, capture screen, picker, editor window, the capture flow (GreenshotController)
   tests/Greenshot.Linux.Tests  xunit
   packaging/                   desktop file, install script
@@ -180,8 +206,7 @@ linux/
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
 4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames
    on the capture screen and the QR generator with its WiFi / vCard / calendar types
-5. **Plugins**: Jira / Confluence, Box, Dropbox, custom uploader (.sxcu), external command, recipes, MCP server.
-   Most of their logic is portable once `Greenshot.Base` is split into a UI free part
+5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox ✅; Jira / Confluence, recipes and the MCP server next
 6. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
 7. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 

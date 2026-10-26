@@ -41,6 +41,11 @@ using SkiaSharp;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Helpers;
 using Greenshot.Linux.Settings;
+using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Plugins.Cloud;
+using Greenshot.Linux.Plugins.CustomUploader;
+using Greenshot.Linux.Plugins.ExternalCommand;
+using Greenshot.Linux.Plugins.Pdf;
 using Avalonia.Styling;
 
 namespace Greenshot.Linux;
@@ -60,6 +65,9 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     private readonly CoreSettings _settings = CoreSettings.Load();
     private readonly ICompositor _compositor = CompositorDetector.Detect();
     private readonly List<IDestination> _destinations = new();
+    private readonly List<IGreenshotPlugin> _plugins = new();
+    private readonly ISecretStore _secrets = SecretStores.Create();
+    private PluginPolicy? _policy;
     private readonly EditorSettings _editorSettings;
     private FileChooserPortal? _fileChooser;
     private DesktopPortal? _portal;
@@ -160,7 +168,29 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     public FileChooserPortal? FileChooser => _fileChooser;
 
     public IReadOnlyList<IDestination> ExportDestinations =>
-        _destinations.Where(d => d.Designation != WellKnownDestinations.Editor).OrderBy(d => d.Priority).ToList();
+        AllDestinations().Where(d => d.Designation != WellKnownDestinations.Editor).ToList();
+
+    public IReadOnlyList<IGreenshotPlugin> Plugins => _plugins;
+
+    public PluginPolicy Policy => _policy ??= new PluginPolicy(_settings);
+
+    public ISecretStore Secrets => _secrets;
+
+    /// <summary>
+    /// The built-in destinations and those of the switched on plugins, without the ones switched off, ordered for the menus
+    /// </summary>
+    private IReadOnlyList<IDestination> AllDestinations() => _destinations
+        .Concat(_plugins.Where(p => Policy.IsPluginEnabled(p.Name)).SelectMany(p => p.Destinations))
+        .Where(d => Policy.IsDestinationEnabled(d.Designation))
+        .OrderBy(d => d.Priority)
+        .ToList();
+
+    /// <summary>
+    /// "CustomUploader" in the settings means the uploaders of the plugin, else the designation must match
+    /// </summary>
+    private static bool Matches(IDestination destination, string designation) =>
+        destination.Designation.Equals(designation, StringComparison.OrdinalIgnoreCase)
+        || destination.Designation.StartsWith(designation + ":", StringComparison.OrdinalIgnoreCase);
 
     public async Task StartAsync(AppCommand startCommand)
     {
@@ -201,6 +231,7 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         _destinations.Add(new EmailDestination(_settings, emailPortal));
         _destinations.Add(new OcrDestination(_settings));
         _destinations.Add(new QrCodeDestination());
+        await CreatePluginsAsync(saveDialog);
 
         CreateTrayIcon();
         await RegisterShortcutsAsync();
@@ -229,6 +260,32 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
                 Exit();
                 break;
         }
+    }
+
+    /// <summary>
+    /// The plugins of Greenshot, built in; the settings decide which are switched on
+    /// </summary>
+    private async Task CreatePluginsAsync(SaveDialog saveDialog)
+    {
+        _plugins.Add(new ExternalCommandPlugin(_settings));
+        _plugins.Add(new PdfPlugin(_settings, path => _fileChooser != null
+            ? _fileChooser.SaveFileAsync(Texts.Get("Pdf", "destination"), path, [(Texts.Get("Pdf", "label_pdf_document"), "*.pdf")])
+            : Task.FromResult<string?>(path)));
+        var uploader = new CustomUploaderPlugin(_settings, _secrets, UploadReminderDialog.AskAsync);
+        _plugins.Add(uploader);
+        _plugins.Add(new BoxPlugin(_settings, _secrets));
+        _plugins.Add(new DropboxPlugin(_settings, _secrets));
+        try
+        {
+            await uploader.Store.LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("The custom uploaders can't be read", ex);
+        }
+
+        _settings.Save();
+        Log.Info("Plugins: " + string.Join(", ", _plugins.Select(p => $"{p.Name}{(Policy.IsPluginEnabled(p.Name) ? string.Empty : " (off)")}")));
     }
 
     private async Task ConnectPortalAsync()
@@ -363,14 +420,11 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     /// </summary>
     private async Task ExportAsync(Capture capture)
     {
-        // The OCR of Windows has another name
-        var configured = _settings.OutputDestinations
-            .Select(d => d.Equals(WellKnownDestinations.WindowsOcr, StringComparison.OrdinalIgnoreCase) ? WellKnownDestinations.Ocr : d)
-            .ToList();
+        var configured = _settings.OutputDestinations;
         List<IDestination> targets;
         if (configured.Contains(WellKnownDestinations.Picker, StringComparer.OrdinalIgnoreCase))
         {
-            var picked = await PickerWindow.PickAsync(capture, _destinations.OrderBy(d => d.Priority).ToList());
+            var picked = await PickerWindow.PickAsync(capture, AllDestinations());
             if (picked == null)
             {
                 return;
@@ -380,18 +434,20 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         }
         else
         {
+            var available = AllDestinations();
             targets = configured
-                .Select(designation => _destinations.FirstOrDefault(d => d.Designation.Equals(designation, StringComparison.OrdinalIgnoreCase)))
+                .Select(designation => available.FirstOrDefault(d => Matches(d, designation)))
                 .OfType<IDestination>()
                 .ToList();
-            foreach (var missing in configured.Where(c => _destinations.All(d => !d.Designation.Equals(c, StringComparison.OrdinalIgnoreCase))))
+            foreach (var missing in configured.Where(c => available.All(d => !Matches(d, c))))
             {
-                Log.Warn($"The destination {missing} is not available on Linux yet");
+                Log.Warn($"The destination {missing} is not available (switched off, or not on Linux)");
             }
 
+            // Like on Windows: when none of them is there, the capture opens in the editor
             if (targets.Count == 0)
             {
-                targets = [_destinations.First(d => d.Designation == WellKnownDestinations.FileDefault)];
+                targets = [_destinations.First(d => d.Designation == WellKnownDestinations.Editor)];
             }
         }
 
