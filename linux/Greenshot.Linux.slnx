@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Greenshot.Linux.Core/Greenshot.Linux.Core.csproj" />
+    <Project Path="src/Greenshot.Linux/Greenshot.Linux.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Greenshot.Linux.Tests/Greenshot.Linux.Tests.csproj" />
+  </Folder>
+</Solution>

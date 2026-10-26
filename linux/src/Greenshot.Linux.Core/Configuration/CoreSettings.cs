@@ -1,0 +1,248 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System.Globalization;
+using Greenshot.Linux.Core.Capturing;
+
+namespace Greenshot.Linux.Core.Configuration;
+
+/// <summary>
+/// The [Core] section of greenshot.ini. Key names and defaults are the ones of ICoreConfiguration in Greenshot.Base,
+/// so a greenshot.ini copied from Windows keeps its meaning.
+/// </summary>
+public sealed class CoreSettings
+{
+    public const string SectionName = "Core";
+
+    private readonly IniFile _ini;
+    private readonly string _path;
+    private readonly object _lock = new();
+
+    private CoreSettings(IniFile ini, string path)
+    {
+        _ini = ini;
+        _path = path;
+    }
+
+    /// <summary>
+    /// $XDG_CONFIG_HOME/greenshot/greenshot.ini, or ~/.config/greenshot/greenshot.ini
+    /// </summary>
+    public static string DefaultPath => Path.Combine(XdgDirectories.ConfigHome, "greenshot", "greenshot.ini");
+
+    public static CoreSettings Load(string? path = null)
+    {
+        path ??= DefaultPath;
+        IniFile ini;
+        try
+        {
+            ini = IniFile.Load(path);
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Could not read {path}, using the defaults", ex);
+            ini = new IniFile();
+        }
+
+        return new CoreSettings(ini, path);
+    }
+
+    public string FilePath => _path;
+
+    public void Save()
+    {
+        lock (_lock)
+        {
+            _ini.Save(_path);
+        }
+    }
+
+    public string RegionHotkey
+    {
+        get => GetString(nameof(RegionHotkey), "PrintScreen");
+        set => SetString(nameof(RegionHotkey), value);
+    }
+
+    public string WindowHotkey
+    {
+        get => GetString(nameof(WindowHotkey), "Alt + PrintScreen");
+        set => SetString(nameof(WindowHotkey), value);
+    }
+
+    public string FullscreenHotkey
+    {
+        get => GetString(nameof(FullscreenHotkey), "Ctrl + PrintScreen");
+        set => SetString(nameof(FullscreenHotkey), value);
+    }
+
+    public string LastregionHotkey
+    {
+        get => GetString(nameof(LastregionHotkey), "Shift + PrintScreen");
+        set => SetString(nameof(LastregionHotkey), value);
+    }
+
+    /// <summary>
+    /// Editor, FileDefault, FileWithDialog, Clipboard, Picker
+    /// </summary>
+    public IReadOnlyList<string> OutputDestinations
+    {
+        get => GetList(nameof(OutputDestinations), "Picker");
+        set => SetString(nameof(OutputDestinations), string.Join(',', value));
+    }
+
+    public bool CaptureMousepointer
+    {
+        get => GetBool(nameof(CaptureMousepointer), true);
+        set => SetBool(nameof(CaptureMousepointer), value);
+    }
+
+    public int CaptureDelay
+    {
+        get => GetInt(nameof(CaptureDelay), 100);
+        set => SetInt(nameof(CaptureDelay), value);
+    }
+
+    public bool PlayCameraSound
+    {
+        get => GetBool(nameof(PlayCameraSound), false);
+        set => SetBool(nameof(PlayCameraSound), value);
+    }
+
+    public bool ShowTrayNotification
+    {
+        get => GetBool(nameof(ShowTrayNotification), true);
+        set => SetBool(nameof(ShowTrayNotification), value);
+    }
+
+    /// <summary>
+    /// The folder captures are saved in, defaults to the XDG pictures folder (~/Pictures)
+    /// </summary>
+    public string OutputFilePath
+    {
+        get
+        {
+            var value = GetString(nameof(OutputFilePath), string.Empty);
+            return string.IsNullOrWhiteSpace(value) ? XdgDirectories.Pictures : value;
+        }
+        set => SetString(nameof(OutputFilePath), value);
+    }
+
+    public bool OutputFileAllowOverwrite
+    {
+        get => GetBool(nameof(OutputFileAllowOverwrite), true);
+        set => SetBool(nameof(OutputFileAllowOverwrite), value);
+    }
+
+    public string OutputFileFilenamePattern
+    {
+        get => GetString(nameof(OutputFileFilenamePattern), "${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}");
+        set => SetString(nameof(OutputFileFilenamePattern), value);
+    }
+
+    public string OutputFileFormat
+    {
+        get => GetString(nameof(OutputFileFormat), "png");
+        set => SetString(nameof(OutputFileFormat), value);
+    }
+
+    public bool OutputFileCopyPathToClipboard
+    {
+        get => GetBool(nameof(OutputFileCopyPathToClipboard), true);
+        set => SetBool(nameof(OutputFileCopyPathToClipboard), value);
+    }
+
+    /// <summary>
+    /// The file chosen last in "Save as", its folder is offered the next time
+    /// </summary>
+    public string OutputFileAsFullpath
+    {
+        get => GetString(nameof(OutputFileAsFullpath), string.Empty);
+        set => SetString(nameof(OutputFileAsFullpath), value);
+    }
+
+    public int OutputFileJpegQuality
+    {
+        get => Math.Clamp(GetInt(nameof(OutputFileJpegQuality), 80), 1, 100);
+        set => SetInt(nameof(OutputFileJpegQuality), value);
+    }
+
+    public uint OutputFileIncrementingNumber
+    {
+        get => (uint)Math.Max(0, GetInt(nameof(OutputFileIncrementingNumber), 1));
+        set => SetString(nameof(OutputFileIncrementingNumber), value.ToString(CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// The last region in layout coordinates, stored as "x,y,width,height" like the NativeRect of Windows
+    /// </summary>
+    public LayoutRect LastCapturedRegion
+    {
+        get => LayoutRect.TryParse(GetString(nameof(LastCapturedRegion), string.Empty), out var rect) ? rect : LayoutRect.Empty;
+        set => SetString(nameof(LastCapturedRegion), value.ToString());
+    }
+
+    /// <summary>
+    /// Linux only: which screen grabber to use, Auto, Grim or Portal
+    /// </summary>
+    public string CaptureBackend
+    {
+        get => GetString(nameof(CaptureBackend), "Auto");
+        set => SetString(nameof(CaptureBackend), value);
+    }
+
+    public bool ZoomerEnabled
+    {
+        get => GetBool(nameof(ZoomerEnabled), true);
+        set => SetBool(nameof(ZoomerEnabled), value);
+    }
+
+    private string GetString(string key, string defaultValue)
+    {
+        lock (_lock)
+        {
+            return _ini.Get(SectionName, key) ?? defaultValue;
+        }
+    }
+
+    private void SetString(string key, string value)
+    {
+        lock (_lock)
+        {
+            _ini.Set(SectionName, key, value);
+        }
+    }
+
+    private bool GetBool(string key, bool defaultValue) =>
+        bool.TryParse(GetString(key, string.Empty), out var value) ? value : defaultValue;
+
+    private void SetBool(string key, bool value) => SetString(key, value ? "True" : "False");
+
+    private int GetInt(string key, int defaultValue) =>
+        int.TryParse(GetString(key, string.Empty), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : defaultValue;
+
+    private void SetInt(string key, int value) => SetString(key, value.ToString(CultureInfo.InvariantCulture));
+
+    private IReadOnlyList<string> GetList(string key, string defaultValue)
+    {
+        var value = GetString(key, defaultValue);
+        var items = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return items.Length > 0 ? items : [defaultValue];
+    }
+}

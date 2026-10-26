@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Name=Greenshot
+GenericName=Screenshot Tool
+Comment=Capture a region, a window or the full screen
+Exec=greenshot
+Icon=greenshot
+Terminal=false
+Categories=Graphics;
+Keywords=screenshot;capture;print;screen;
+StartupWMClass=greenshot
+Actions=CaptureRegion;CaptureFullscreen;CaptureLastRegion;
+
+[Desktop Action CaptureRegion]
+Name=Capture region
+Exec=greenshot capture region
+
+[Desktop Action CaptureFullscreen]
+Name=Capture full screen
+Exec=greenshot capture fullscreen
+
+[Desktop Action CaptureLastRegion]
+Name=Capture last region
+Exec=greenshot capture last
