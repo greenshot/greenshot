@@ -47,6 +47,8 @@ internal sealed class CaptureSurface : Control
     private static readonly IPen SelectionPen = new Pen(new SolidColorBrush(Color.FromRgb(0x8B, 0xC3, 0x4A)), 2);
     private static readonly IPen WindowPen = new Pen(new SolidColorBrush(Color.FromRgb(0x8B, 0xC3, 0x4A)), 2, new DashStyle([4, 3], 0));
     private static readonly IPen CrosshairPen = new Pen(new SolidColorBrush(Color.FromArgb(0xA0, 0xFF, 0xFF, 0xFF)), 1, new DashStyle([2, 2], 0));
+    private static readonly IPen TextLinePen = new Pen(new SolidColorBrush(Color.FromArgb(0xC0, 0x8B, 0xC3, 0x4A)), 1);
+    private static readonly IBrush SelectedWordBrush = new SolidColorBrush(Color.FromArgb(0x60, 0x8B, 0xC3, 0x4A));
     private static readonly IPen ZoomerFramePen = new Pen(Brushes.White, 2);
     private static readonly IPen ZoomerPixelPen = new Pen(Brushes.Red, 1);
     private static readonly Typeface PanelTypeface = new(FontFamily.Default);
@@ -101,9 +103,14 @@ internal sealed class CaptureSurface : Control
             context.DrawRectangle(null, _model.IsSelecting || _model.Mode == CaptureMode.Window ? SelectionPen : WindowPen, highlightRect);
         }
 
+        if (_model.Mode == CaptureMode.Text)
+        {
+            DrawTextLines(context);
+        }
+
         var cursorOnThisScreen = _model.IsCursorKnown && ScreenPixels.Contains(_model.Cursor.X, _model.Cursor.Y);
         var cursor = ToControl(_model.Cursor);
-        if (_model.Mode == CaptureMode.Region && cursorOnThisScreen)
+        if (_model.SelectsRectangle && cursorOnThisScreen)
         {
             context.DrawLine(CrosshairPen, new Point(0, cursor.Y + 0.5), new Point(bounds.Width, cursor.Y + 0.5));
             context.DrawLine(CrosshairPen, new Point(cursor.X + 0.5, 0), new Point(cursor.X + 0.5, bounds.Height));
@@ -114,7 +121,7 @@ internal sealed class CaptureSurface : Control
             DrawSizeLabel(context, bounds, highlightRect, highlight);
         }
 
-        if (cursorOnThisScreen && _model.ShowZoomer && _model.Mode == CaptureMode.Region)
+        if (cursorOnThisScreen && _model.ShowZoomer && _model.SelectsRectangle)
         {
             DrawZoomer(context, bounds, cursor);
         }
@@ -123,6 +130,30 @@ internal sealed class CaptureSurface : Control
         if (cursorOnThisScreen || (!_model.IsCursorKnown && ScreenPixels.Contains(_model.Cursor.X, _model.Cursor.Y)))
         {
             DrawPanels(context, bounds, cursor);
+        }
+    }
+
+    /// <summary>
+    /// The text mode: a thin frame around every line found, the words inside the selection filled while dragging
+    /// </summary>
+    private void DrawTextLines(DrawingContext context)
+    {
+        if (_model.TextLines is not { } lines)
+        {
+            return;
+        }
+
+        foreach (var line in lines)
+        {
+            if (SKRectI.Intersect(line.Bounds, ScreenPixels) is { IsEmpty: false })
+            {
+                context.DrawRectangle(null, TextLinePen, ToControl(line.Bounds));
+            }
+        }
+
+        foreach (var word in _model.SelectedWords)
+        {
+            context.FillRectangle(SelectedWordBrush, ToControl(word));
         }
     }
 
@@ -209,7 +240,14 @@ internal sealed class CaptureSurface : Control
 
         if (!_model.ShowHelp)
         {
-            var hint = Text($"{Texts.Label(Texts.Core(_model.Mode == CaptureMode.Window ? "contextmenu_capturewindow" : "contextmenu_capturearea"))} – F1 {Texts.Core("capture_keys_title")}", 12);
+            var mode = _model.Mode switch
+            {
+                CaptureMode.Window => Texts.Label(Texts.Core("contextmenu_capturewindow")),
+                CaptureMode.Text when !string.IsNullOrEmpty(_model.TextStatus) => $"{Texts.Core("capture_key_text")}: {_model.TextStatus}",
+                CaptureMode.Text => Texts.Core("capture_key_text"),
+                _ => Texts.Label(Texts.Core("contextmenu_capturearea")),
+            };
+            var hint = Text($"{mode} – F1 {Texts.Core("capture_keys_title")}", 12);
             DrawPanel(context, bounds, cursor, hint, alignRight: false);
         }
     }
@@ -249,6 +287,8 @@ internal sealed class CaptureSurface : Control
             lines.Add($"Ctrl ↑↓←→\t{Texts.Core("capture_key_move_fast")}");
             lines.Add($"Z\t{Texts.Core("capture_key_zoomer")}");
         }
+
+        lines.Add($"T\t{Texts.Core("capture_key_text")}");
 
         if (_model.CanSelectWindows)
         {

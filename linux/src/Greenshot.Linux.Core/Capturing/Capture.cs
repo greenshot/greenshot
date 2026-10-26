@@ -33,6 +33,11 @@ public enum CaptureMode
     ActiveWindow,
     Window,
     LastRegion,
+
+    /// <summary>
+    /// A region whose text is recognized (T on the capture screen)
+    /// </summary>
+    Text,
 }
 
 /// <summary>

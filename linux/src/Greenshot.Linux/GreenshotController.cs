@@ -195,6 +195,12 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         _destinations.Add(new FileDestination(_settings, saveDialog.AskAsync));
         _destinations.Add(new FileWithDialogDestination(_settings, saveDialog));
         _destinations.Add(new ClipboardDestination());
+        var printPortal = _portal != null && await PrintPortal.IsAvailableAsync(_portal) ? new PrintPortal(_portal) : null;
+        var emailPortal = _portal != null && await EmailPortal.IsAvailableAsync(_portal) ? new EmailPortal(_portal) : null;
+        _destinations.Add(new PrinterDestination(_settings, printPortal, options => PrintOptionsDialog.AskAsync(_settings, options)));
+        _destinations.Add(new EmailDestination(_settings, emailPortal));
+        _destinations.Add(new OcrDestination(_settings));
+        _destinations.Add(new QrCodeDestination());
 
         CreateTrayIcon();
         await RegisterShortcutsAsync();
@@ -284,6 +290,14 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
                 ProcessRunner.StartDetached("canberra-gtk-play", "-i", "camera-shutter", "-d", "Greenshot");
             }
 
+            if (capture.Details.Mode == CaptureMode.Text)
+            {
+                // T on the capture screen: the text goes to the clipboard, not the image to the destinations
+                var ocr = _destinations.First(d => d.Designation == WellKnownDestinations.Ocr);
+                await ReportAsync(ocr, await ocr.ExportAsync(capture));
+                return;
+            }
+
             await ExportAsync(capture);
         }
         catch (OperationCanceledException)
@@ -293,7 +307,7 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         catch (Exception ex)
         {
             Log.Error($"Capturing {mode} failed", ex);
-            await NotifyAsync("The capture failed", ex.Message, NotificationSeverity.Error);
+            await NotifyAsync(Texts.Core("error"), ex.Message, NotificationSeverity.Error);
         }
         finally
         {
@@ -349,7 +363,10 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     /// </summary>
     private async Task ExportAsync(Capture capture)
     {
-        var configured = _settings.OutputDestinations;
+        // The OCR of Windows has another name
+        var configured = _settings.OutputDestinations
+            .Select(d => d.Equals(WellKnownDestinations.WindowsOcr, StringComparison.OrdinalIgnoreCase) ? WellKnownDestinations.Ocr : d)
+            .ToList();
         List<IDestination> targets;
         if (configured.Contains(WellKnownDestinations.Picker, StringComparer.OrdinalIgnoreCase))
         {
@@ -394,13 +411,17 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
 
         if (!result.Success)
         {
-            await NotifyAsync($"{destination.DisplayName} failed", result.Message ?? "See the log for details", NotificationSeverity.Error);
+            await NotifyAsync(Texts.Core("exported_to_error", destination.DisplayName), result.Message ?? Log.FilePath, NotificationSeverity.Error);
             return;
         }
 
         if (result.FilePath is { } path)
         {
             await NotifyAsync("Greenshot", Texts.Editor("imagesaved", path), NotificationSeverity.Info, path, () => ProcessRunner.StartDetached("xdg-open", path));
+        }
+        else if (result.Link is { } link)
+        {
+            await NotifyAsync("Greenshot", result.Message ?? link, NotificationSeverity.Info, onClick: () => ProcessRunner.StartDetached("xdg-open", link));
         }
         else
         {

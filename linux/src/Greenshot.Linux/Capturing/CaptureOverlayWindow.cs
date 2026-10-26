@@ -155,6 +155,9 @@ internal sealed class CaptureOverlayWindow : Window
             case Key.Z:
                 _model.ToggleZoomer();
                 break;
+            case Key.T:
+                _model.ToggleTextMode();
+                break;
             case Key.F1:
                 _model.ToggleHelp();
                 break;

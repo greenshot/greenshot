@@ -28,6 +28,11 @@ namespace Greenshot.Linux.Core.Destinations;
 /// </summary>
 public sealed record ExportResult(bool Success, string? FilePath = null, string? Message = null, bool Cancelled = false)
 {
+    /// <summary>
+    /// A link the notification opens when it is clicked, e.g. the URL of a QR code
+    /// </summary>
+    public string? Link { get; init; }
+
     public static ExportResult Done(string? filePath = null, string? message = null) => new(true, filePath, message);
 
     public static ExportResult Failed(string message) => new(false, Message: message);
@@ -62,4 +67,13 @@ public static class WellKnownDestinations
     public const string FileWithDialog = "FileWithDialog";
     public const string Clipboard = "Clipboard";
     public const string Editor = "Editor";
+    public const string Printer = "Printer";
+    public const string Email = "EMail";
+    public const string Ocr = "OCR";
+
+    /// <summary>
+    /// The OCR destination of the Windows version, so a greenshot.ini of Windows works
+    /// </summary>
+    public const string WindowsOcr = "Windows10OCR";
+    public const string QrCode = "ZxingQrDestination";
 }

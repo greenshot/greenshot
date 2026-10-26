@@ -404,6 +404,12 @@ public partial class EditorWindow : Window
                 return true;
         }
 
+        // Like on Windows the tool letters only work without modifiers, Shift + a letter does nothing
+        if (shift)
+        {
+            return false;
+        }
+
         EditorTool? tool = key switch
         {
             Key.R => EditorTool.Rectangle,
@@ -824,6 +830,14 @@ public partial class EditorWindow : Window
             _surface.Invalidate();
         }
     }
+
+    private void OnRedactText(object? sender, RoutedEventArgs e)
+    {
+        CommitTextEdit();
+        _ = EditorToolDialogs.RedactTextAsync(this, _controller, _host.Settings);
+    }
+
+    private void OnInsertQrCode(object? sender, RoutedEventArgs e) => _ = EditorToolDialogs.InsertQrCodeAsync(this, _controller);
 
     private void OnCropTool(object? sender, RoutedEventArgs e)
     {

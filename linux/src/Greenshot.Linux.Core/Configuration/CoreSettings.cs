@@ -225,6 +225,75 @@ public sealed class CoreSettings
         set => SetString(nameof(OutputFileIncrementingNumber), value.ToString(CultureInfo.InvariantCulture));
     }
 
+    public bool OutputPrintPromptOptions
+    {
+        get => GetBool(nameof(OutputPrintPromptOptions), true);
+        set => SetBool(nameof(OutputPrintPromptOptions), value);
+    }
+
+    public bool OutputPrintAllowRotate
+    {
+        get => GetBool(nameof(OutputPrintAllowRotate), false);
+        set => SetBool(nameof(OutputPrintAllowRotate), value);
+    }
+
+    public bool OutputPrintAllowEnlarge
+    {
+        get => GetBool(nameof(OutputPrintAllowEnlarge), false);
+        set => SetBool(nameof(OutputPrintAllowEnlarge), value);
+    }
+
+    public bool OutputPrintAllowShrink
+    {
+        get => GetBool(nameof(OutputPrintAllowShrink), true);
+        set => SetBool(nameof(OutputPrintAllowShrink), value);
+    }
+
+    public bool OutputPrintCenter
+    {
+        get => GetBool(nameof(OutputPrintCenter), true);
+        set => SetBool(nameof(OutputPrintCenter), value);
+    }
+
+    public bool OutputPrintInverted
+    {
+        get => GetBool(nameof(OutputPrintInverted), false);
+        set => SetBool(nameof(OutputPrintInverted), value);
+    }
+
+    public bool OutputPrintGrayscale
+    {
+        get => GetBool(nameof(OutputPrintGrayscale), false);
+        set => SetBool(nameof(OutputPrintGrayscale), value);
+    }
+
+    public bool OutputPrintMonochrome
+    {
+        get => GetBool(nameof(OutputPrintMonochrome), false);
+        set => SetBool(nameof(OutputPrintMonochrome), value);
+    }
+
+    public bool OutputPrintFooter
+    {
+        get => GetBool(nameof(OutputPrintFooter), true);
+        set => SetBool(nameof(OutputPrintFooter), value);
+    }
+
+    public string OutputPrintFooterPattern
+    {
+        get => GetString(nameof(OutputPrintFooterPattern), "${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}");
+        set => SetString(nameof(OutputPrintFooterPattern), value);
+    }
+
+    /// <summary>
+    /// Linux only: the tesseract languages for text recognition, e.g. deu+eng; empty for the language of Greenshot and English
+    /// </summary>
+    public string OcrLanguages
+    {
+        get => GetValue("Ocr", "Languages") ?? string.Empty;
+        set => SetValue("Ocr", "Languages", value);
+    }
+
     /// <summary>
     /// The last region in layout coordinates, stored as "x,y,width,height" like the NativeRect of Windows
     /// </summary>

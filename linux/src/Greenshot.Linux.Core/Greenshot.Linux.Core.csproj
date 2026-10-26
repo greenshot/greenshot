@@ -6,6 +6,7 @@
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.94.1" />
+    <PackageReference Include="ZXing.Net" Version="0.16.11" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Greenshot.Linux.Tests" />

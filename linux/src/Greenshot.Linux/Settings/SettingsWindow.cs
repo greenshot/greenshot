@@ -80,6 +80,7 @@ internal sealed class SettingsWindow : Window
         tabs.Items.Add(Tab(Texts.Settings("output"), OutputPage()));
         tabs.Items.Add(Tab(Texts.Settings("destination"), DestinationPage()));
         tabs.Items.Add(Tab(Texts.Settings("editor"), EditorPage()));
+        tabs.Items.Add(Tab(Texts.Settings("printer"), PrinterPage()));
 
         var ok = new Button { Content = Texts.Linux("ok"), IsDefault = true, MinWidth = 90, HorizontalContentAlignment = HorizontalAlignment.Center };
         ok.Click += (_, _) => Save();
@@ -246,6 +247,11 @@ internal sealed class SettingsWindow : Window
         };
         _apply.Add(() => _settings.CaptureBackend = backends[Math.Max(0, backend.SelectedIndex)]);
 
+        var ocrLanguages = new TextBox { Text = _settings.OcrLanguages, Width = 220, HorizontalAlignment = HorizontalAlignment.Left };
+        _apply.Add(() => _settings.OcrLanguages = ocrLanguages.Text?.Trim() ?? string.Empty);
+        var installed = Ui.Note(Texts.Linux("ocr_languages_hint", "…"));
+        _ = ShowInstalledOcrLanguagesAsync(installed);
+
         return Ui.Page(
             Ui.Section(Texts.Settings("capture"),
                 mouse,
@@ -253,7 +259,20 @@ internal sealed class SettingsWindow : Window
                 zoomer,
                 Ui.Row(Texts.Settings("waittime"), delay)),
             Ui.Section(Texts.Settings("windowscapture"), interactive),
-            Ui.Section(Texts.Linux("capture_backend"), backend, Ui.Note(Texts.Linux("capture_backend_restart"))));
+            Ui.Section(Texts.Linux("capture_backend"), backend, Ui.Note(Texts.Linux("capture_backend_restart"))),
+            Ui.Section(Texts.Settings("ocr"), Ui.Row(Texts.Linux("ocr_languages"), ocrLanguages), installed));
+    }
+
+    private static async Task ShowInstalledOcrLanguagesAsync(TextBlock note)
+    {
+        if (!Core.Ocr.TesseractOcr.IsAvailable)
+        {
+            note.Text = Texts.Linux("ocr_missing");
+            return;
+        }
+
+        var languages = await Core.Ocr.TesseractOcr.GetLanguagesAsync();
+        note.Text = Texts.Linux("ocr_languages_hint", string.Join(", ", languages));
     }
 
     #endregion
@@ -356,12 +375,17 @@ internal sealed class SettingsWindow : Window
             (WellKnownDestinations.FileDefault, Texts.Settings("destination_file")),
             (WellKnownDestinations.FileWithDialog, Texts.Settings("destination_fileas")),
             (WellKnownDestinations.Clipboard, Texts.Settings("destination_clipboard")),
+            (WellKnownDestinations.Printer, Texts.Settings("destination_printer")),
+            (WellKnownDestinations.Email, Texts.Settings("destination_email")),
+            (WellKnownDestinations.Ocr, Texts.Linux("ocr_destination")),
+            (WellKnownDestinations.QrCode, Texts.Linux("qr_destination")),
         ];
         var list = new StackPanel { Spacing = 4, Margin = new Thickness(24, 0, 0, 0) };
         var checks = new List<(string Designation, CheckBox Check)>();
         foreach (var (designation, text) in destinations)
         {
-            var check = Ui.Check(text, configured.Contains(designation, StringComparer.OrdinalIgnoreCase));
+            var check = Ui.Check(text, configured.Contains(designation, StringComparer.OrdinalIgnoreCase)
+                || (designation == WellKnownDestinations.Ocr && configured.Contains(WellKnownDestinations.WindowsOcr, StringComparer.OrdinalIgnoreCase)));
             checks.Add((designation, check));
             list.Children.Add(check);
         }
@@ -384,6 +408,39 @@ internal sealed class SettingsWindow : Window
         });
 
         return Ui.Page(Ui.Section(Texts.Settings("destination"), picker, chosen, list));
+    }
+
+    #endregion
+
+    #region Printer
+
+    private Control PrinterPage()
+    {
+        CheckBox Option(string key, bool value, Action<bool> store)
+        {
+            var check = Ui.Check(Texts.Core(key), value);
+            _apply.Add(() => store(check.IsChecked == true));
+            return check;
+        }
+
+        var prompt = Ui.Check(Texts.Settings("alwaysshowprintoptionsdialog"), _settings.OutputPrintPromptOptions);
+        _apply.Add(() => _settings.OutputPrintPromptOptions = prompt.IsChecked == true);
+        var footerPattern = new TextBox { Text = _settings.OutputPrintFooterPattern };
+        _apply.Add(() => _settings.OutputPrintFooterPattern = footerPattern.Text ?? string.Empty);
+
+        return Ui.Page(
+            Ui.Section(Texts.Settings("printoptions"), prompt),
+            Ui.Section(Texts.Core("printoptions_layout"),
+                Option("printoptions_allowshrink", _settings.OutputPrintAllowShrink, v => _settings.OutputPrintAllowShrink = v),
+                Option("printoptions_allowenlarge", _settings.OutputPrintAllowEnlarge, v => _settings.OutputPrintAllowEnlarge = v),
+                Option("printoptions_allowrotate", _settings.OutputPrintAllowRotate, v => _settings.OutputPrintAllowRotate = v),
+                Option("printoptions_allowcenter", _settings.OutputPrintCenter, v => _settings.OutputPrintCenter = v),
+                Option("printoptions_timestamp", _settings.OutputPrintFooter, v => _settings.OutputPrintFooter = v),
+                Ui.Row(Texts.Settings("expert_footerpattern"), footerPattern)),
+            Ui.Section(Texts.Core("printoptions_colors"),
+                Option("printoptions_printgrayscale", _settings.OutputPrintGrayscale, v => _settings.OutputPrintGrayscale = v),
+                Option("printoptions_printmonochrome", _settings.OutputPrintMonochrome, v => _settings.OutputPrintMonochrome = v),
+                Option("printoptions_inverted", _settings.OutputPrintInverted, v => _settings.OutputPrintInverted = v)));
     }
 
     #endregion

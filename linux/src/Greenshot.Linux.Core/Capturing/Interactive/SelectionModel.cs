@@ -29,6 +29,11 @@ namespace Greenshot.Linux.Core.Capturing.Interactive;
 public sealed record SelectableWindow(string Title, SKRectI Pixels);
 
 /// <summary>
+/// A line of text found on the screen for the text mode, with its words, in image pixels
+/// </summary>
+public sealed record TextLine(SKRectI Bounds, IReadOnlyList<SKRectI> Words);
+
+/// <summary>
 /// What was chosen on the capture screen
 /// </summary>
 public sealed record SelectionResult(SKRectI Pixels, CaptureMode Mode, string? Title);
@@ -67,6 +72,50 @@ public sealed class SelectionModel
     /// The capture is finished (Result set) or cancelled (Result null)
     /// </summary>
     public event Action<SelectionResult?>? Completed;
+
+    /// <summary>
+    /// The text mode started: the screen should be read, then <see cref="SetTextLines"/> called
+    /// </summary>
+    public event Action? TextRecognitionRequested;
+
+    /// <summary>
+    /// The lines of text on the screen, null while they are not known yet
+    /// </summary>
+    public IReadOnlyList<TextLine>? TextLines { get; private set; }
+
+    /// <summary>
+    /// Shown in the text mode: reading the screen, or why it can't
+    /// </summary>
+    public string? TextStatus { get; private set; }
+
+    /// <summary>
+    /// The line under the cursor in the text mode
+    /// </summary>
+    public TextLine? HoveredLine => Mode == CaptureMode.Text && !IsSelecting
+        ? TextLines?.FirstOrDefault(l => Inflate(l.Bounds, 2).Contains(Cursor.X, Cursor.Y))
+        : null;
+
+    /// <summary>
+    /// The words inside the selection while dragging in the text mode
+    /// </summary>
+    public IEnumerable<SKRectI> SelectedWords => Mode == CaptureMode.Text && IsSelecting && TextLines != null
+        ? TextLines.SelectMany(l => l.Words).Where(w => w.IntersectsWith(Selection))
+        : [];
+
+    public void SetTextStatus(string status)
+    {
+        TextStatus = status;
+        Changed?.Invoke();
+    }
+
+    public void SetTextLines(IReadOnlyList<TextLine> lines, string? status = null)
+    {
+        TextLines = lines;
+        TextStatus = status;
+        Changed?.Invoke();
+    }
+
+    private static SKRectI Inflate(SKRectI rect, int size) => new(rect.Left - size, rect.Top - size, rect.Right + size, rect.Bottom + size);
 
     public CaptureMode Mode { get; private set; }
 
@@ -117,7 +166,14 @@ public sealed class SelectionModel
     /// <summary>
     /// What would be captured right now: the selection, or the window under the cursor
     /// </summary>
-    public SKRectI Highlight => IsSelecting ? Selection : HoveredWindow?.Pixels ?? SKRectI.Empty;
+    public SKRectI Highlight => IsSelecting
+        ? Selection
+        : Mode == CaptureMode.Text ? HoveredLine?.Bounds ?? SKRectI.Empty : HoveredWindow?.Pixels ?? SKRectI.Empty;
+
+    /// <summary>
+    /// Region and text select a rectangle, window picks a window
+    /// </summary>
+    public bool SelectsRectangle => Mode is CaptureMode.Region or CaptureMode.Text;
 
     public void SetZoomer(bool show)
     {
@@ -160,7 +216,7 @@ public sealed class SelectionModel
 
     public void Release()
     {
-        if (IsCompleted || Mode != CaptureMode.Region || Anchor is not { } anchor)
+        if (IsCompleted || !SelectsRectangle || Anchor is not { } anchor)
         {
             return;
         }
@@ -168,12 +224,19 @@ public sealed class SelectionModel
         bool isClick = Math.Abs(anchor.X - Cursor.X) < ClickTolerance && Math.Abs(anchor.Y - Cursor.Y) < ClickTolerance;
         if (!isClick)
         {
-            Complete(new SelectionResult(Selection, CaptureMode.Region, null));
+            Complete(new SelectionResult(Selection, Mode, null));
+            return;
+        }
+
+        // Like on Windows: a click in the text mode captures the line under the cursor
+        if (Mode == CaptureMode.Text && TextLines?.FirstOrDefault(l => Inflate(l.Bounds, 2).Contains(Cursor.X, Cursor.Y)) is { } line)
+        {
+            Complete(new SelectionResult(Inflate(line.Bounds, 3), CaptureMode.Text, null));
             return;
         }
 
         // Like on Windows: a click in the region mode captures the window under the cursor
-        if (HoveredWindow != null)
+        if (Mode == CaptureMode.Region && HoveredWindow != null)
         {
             CompleteWithWindow();
             return;
@@ -204,7 +267,7 @@ public sealed class SelectionModel
         }
         else
         {
-            Complete(new SelectionResult(Selection, CaptureMode.Region, null));
+            Complete(new SelectionResult(Selection, Mode, null));
         }
     }
 
@@ -229,9 +292,27 @@ public sealed class SelectionModel
             return;
         }
 
-        Mode = Mode == CaptureMode.Window ? CaptureMode.Region : CaptureMode.Window;
+        // Like on Windows: from the text mode Space goes back to the region mode
+        Mode = Mode == CaptureMode.Region ? CaptureMode.Window : CaptureMode.Region;
         Anchor = null;
         UpdateHoveredWindow();
+        Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// T: capture text, again T goes back to the region mode
+    /// </summary>
+    public void ToggleTextMode()
+    {
+        Mode = Mode == CaptureMode.Text ? CaptureMode.Region : CaptureMode.Text;
+        Anchor = null;
+        if (Mode == CaptureMode.Text && TextLines == null && TextStatus == null)
+        {
+            // The screen is read once, the first time the text mode starts
+            TextStatus = string.Empty;
+            TextRecognitionRequested?.Invoke();
+        }
+
         Changed?.Invoke();
     }
 

@@ -21,6 +21,10 @@
 
 using Avalonia;
 using Avalonia.Platform;
+using Avalonia.Threading;
+using Greenshot.Linux.Core;
+using Greenshot.Linux.Core.Languages;
+using Greenshot.Linux.Core.Ocr;
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Capturing.Interactive;
 using Greenshot.Linux.Core.Compositor;
@@ -45,6 +49,7 @@ internal static class CaptureOverlay
         var model = new SelectionModel(new SKRectI(0, 0, snapshot.Image.Width, snapshot.Image.Height), selectable, mode,
             new SKPointI(startPixels.MidX, startPixels.MidY));
         model.SetZoomer(settings.ZoomerEnabled);
+        model.TextRecognitionRequested += () => _ = RecognizeTextAsync(model, snapshot, settings);
 
         var moveWithSway = compositor is SwayCompositor && snapshot.Layout.Screens.Count > 1;
         var overlayWindows = snapshot.Layout.Screens
@@ -71,6 +76,34 @@ internal static class CaptureOverlay
         }
 
         return result.Task;
+    }
+
+    /// <summary>
+    /// The text mode: read the frozen screen in the background and show the lines when they are known.
+    /// A copy is read, the snapshot is disposed when the capture screen closes.
+    /// </summary>
+    private static async Task RecognizeTextAsync(SelectionModel model, ScreenSnapshot snapshot, CoreSettings settings)
+    {
+        if (!TesseractOcr.IsAvailable)
+        {
+            model.SetTextLines([], Texts.Linux("ocr_missing"));
+            return;
+        }
+
+        model.SetTextStatus(Texts.Core("accessible_loading"));
+        using var image = snapshot.Image.Copy();
+        try
+        {
+            var languages = TesseractOcr.ChooseLanguages(settings.OcrLanguages, Texts.Current, await TesseractOcr.GetLanguagesAsync());
+            var lines = await Task.Run(() => TesseractOcr.RecognizeAsync(image, languages));
+            var textLines = lines.Select(l => new TextLine(l.Bounds, l.Words.Select(w => w.Bounds).ToList())).ToList();
+            Dispatcher.UIThread.Post(() => model.SetTextLines(textLines, textLines.Count == 0 ? Texts.Linux("ocr_none") : null));
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException)
+        {
+            Log.Error("Reading the text of the screen failed", ex);
+            Dispatcher.UIThread.Post(() => model.SetTextLines([], ex.Message));
+        }
     }
 
     /// <summary>

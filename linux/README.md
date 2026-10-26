@@ -6,8 +6,8 @@ in `src/`: the Windows version uses WPF, WinForms, GDI+ and Win32, none of which
 compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
-Done so far: **milestone 1, capturing**, **milestone 2, the image editor** and **milestone 3, settings and languages**.
-More destinations and the plugins follow, see [Roadmap](#roadmap).
+Done so far: **milestone 1, capturing**, **milestone 2, the image editor**, **milestone 3, settings and languages** and
+**milestone 4, more destinations**. The plugins follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -20,6 +20,9 @@ More destinations and the plugins follow, see [Roadmap](#roadmap).
 | Capture active window | ✅ Sway, Hyprland |
 | Mouse pointer in the capture (`CaptureMousepointer`) | ✅ with grim |
 | Destinations: Open in image editor, Save, Save as… (desktop file dialog), Copy to clipboard, Picker | ✅ |
+| Destinations: Printer (print dialog of the desktop, the print options of Windows), E-Mail (mail program with the capture attached) | ✅ Print / Email portal, else `lp` / `xdg-email` |
+| Destinations: copy the text (OCR), copy the text of QR codes and barcodes (the link opens from the notification) | ✅ OCR needs tesseract |
+| Capture text: `T` on the capture screen, the text of the selection goes to the clipboard | ✅ needs tesseract |
 | Filename patterns (`${capturetime}`, `${title}`, `${NUM}`, `${YYYY}`, padding, substrings, …) | ✅ same as Windows |
 | Notifications with thumbnail; click opens the file | ✅ |
 | Tray icon and menu | ✅ (StatusNotifierItem) |
@@ -46,7 +49,8 @@ More destinations and the plugins follow, see [Roadmap](#roadmap).
 | Save, save as (also as editable `.greenshot`), copy, export to every destination, ask to save when closing | ✅ |
 | Open images and `.greenshot` files: tray menu, `greenshot <file>`, "Open with" in file managers, the clipboard | ✅ |
 | `.greenshot` files of the Windows editor | ⚠️ the image opens, its elements can't be read yet |
-| Tabs, emoji, cut out, settings of drop shadow and torn edges, text obfuscation (OCR), print, email | ⏳ later milestones |
+| Redact text (OCR): find text and pixelate or blur it; insert a QR code | ✅ |
+| Tabs, emoji, cut out, settings of drop shadow and torn edges | ⏳ later |
 
 The keys are the ones of the Windows editor: R rectangle, E ellipse, L line, A arrow, F freehand, T text, S speech bubble,
 I step label, H highlight, O obfuscate, C crop (Enter applies, Esc cancels), Z resize, Esc select tool;
@@ -66,6 +70,8 @@ shows them, they start with a PNG.
   - `grim` on wlroots compositors (Sway, Hyprland, river, Wayfire, …), the fastest and includes the mouse pointer, or
   - `xdg-desktop-portal` with a backend for the desktop (GNOME, KDE, wlr), used automatically when grim can't capture
 - `wl-clipboard` (`wl-copy`) for the clipboard
+- `tesseract` and its language packs for OCR, capturing text and redacting text (optional),
+  Fedora: `sudo dnf install tesseract tesseract-langpack-eng tesseract-langpack-deu`
 - A notification daemon (mako, dunst, GNOME, KDE) for notifications
 - A tray that supports StatusNotifierItem (KDE, Waybar, the AppIndicator extension on GNOME)
 - XWayland (Avalonia renders through it)
@@ -172,8 +178,8 @@ linux/
 2. **Editor** ✅ (see above for what is left: tabs, emoji, cut out, effect settings, reading Windows `.greenshot` elements
    with `System.Formats.Nrbf`)
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
-4. **Destinations**: printer (Print portal), email (Email portal / xdg-email), OCR and text capture (Tesseract
-   instead of Windows.Media.Ocr), QR codes (ZXing.Net), PDF
+4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames
+   on the capture screen and the QR generator with its WiFi / vCard / calendar types
 5. **Plugins**: Jira / Confluence, Box, Dropbox, custom uploader (.sxcu), external command, recipes, MCP server.
    Most of their logic is portable once `Greenshot.Base` is split into a UI free part
 6. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
