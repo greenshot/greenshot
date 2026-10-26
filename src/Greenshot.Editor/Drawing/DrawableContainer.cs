@@ -746,8 +746,10 @@ namespace Greenshot.Editor.Drawing
         {
             NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
 
+            this.Invalidate();
             this.MakeBoundsChangeUndoable(allowMerge: false);
             this.ApplyBounds(newBounds);
+            this.Invalidate();
         }
 
         private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)
