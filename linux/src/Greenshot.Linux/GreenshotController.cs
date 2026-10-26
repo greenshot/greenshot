@@ -42,6 +42,7 @@ using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Helpers;
 using Greenshot.Linux.Settings;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Plugins.Atlassian;
 using Greenshot.Linux.Plugins.Cloud;
 using Greenshot.Linux.Plugins.CustomUploader;
 using Greenshot.Linux.Plugins.ExternalCommand;
@@ -275,6 +276,14 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         _plugins.Add(uploader);
         _plugins.Add(new BoxPlugin(_settings, _secrets));
         _plugins.Add(new DropboxPlugin(_settings, _secrets));
+        var atlassian = new AtlassianPlugin(_settings, _secrets, new AtlassianDialogs());
+        _plugins.Add(atlassian);
+        if (_compositor.KnowsWindows && Policy.IsPluginEnabled(atlassian.Name))
+        {
+            // Issue keys in window titles become destinations, like the title monitor of Windows
+            _ = atlassian.Jira.WatchWindowTitlesAsync(async () => (await _compositor.GetVisibleWindowsAsync()).Select(w => w.Title).ToList(),
+                TimeSpan.FromSeconds(5), CancellationToken.None);
+        }
         try
         {
             await uploader.Store.LoadAsync();

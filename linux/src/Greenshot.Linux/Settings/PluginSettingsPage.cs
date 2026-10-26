@@ -26,10 +26,12 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Greenshot.Linux.Core;
+using Greenshot.Linux.Core.Http;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Core.Plugins;
 using Greenshot.Linux.Helpers;
+using Greenshot.Linux.Plugins.Atlassian;
 using Greenshot.Linux.Plugins.Cloud;
 using Greenshot.Linux.Plugins.CustomUploader;
 using Greenshot.Linux.Plugins.CustomUploader.Sxcu;
@@ -57,6 +59,7 @@ internal sealed class PluginSettingsPage(ISettingsHost host, Window owner, List<
                 CustomUploaderPlugin uploader => CustomUploaderSection(uploader),
                 BoxPlugin box => CloudSection(box.DisplayName, box.Settings, box.Destination),
                 DropboxPlugin dropbox => CloudSection(dropbox.DisplayName, dropbox.Settings, dropbox.Destination),
+                AtlassianPlugin atlassian => AtlassianSection(atlassian),
                 _ => null,
             };
             if (section != null)
@@ -495,6 +498,102 @@ internal sealed class PluginSettingsPage(ISettingsHost host, Window owner, List<
             Ui.Row(T(settings.Section, "label_upload_format"), format),
             link,
             Ui.Horizontal(status, signOut));
+    }
+
+    #endregion
+
+    #region Jira and Confluence
+
+    private Control AtlassianSection(AtlassianPlugin plugin)
+    {
+        var jira = plugin.Jira.Settings;
+        var confluence = plugin.Confluence.Settings;
+        var formats = ImageFormats.Supported.ToList();
+        ComboBox Format(string format) => new() { ItemsSource = formats, SelectedIndex = Math.Max(0, formats.IndexOf(format)) };
+
+        var jiraUrl = new TextBox { Text = jira.Url, Width = 360, PlaceholderText = "https://example.atlassian.net" };
+        var jiraFormat = Format(jira.UploadFormat);
+        var confluenceUrl = new TextBox { Text = confluence.Url, Width = 360, PlaceholderText = "https://example.atlassian.net/wiki" };
+        var confluenceFormat = Format(confluence.UploadFormat);
+        var timeout = new NumericUpDown { Value = confluence.Timeout, Minimum = 1, Maximum = 1440, Increment = 5, FormatString = "0", Width = 140 };
+        var openPage = Ui.Check(T("Confluence", "open_page_after_upload"), confluence.OpenPageAfterUpload);
+        var wikiMarkup = Ui.Check(T("Confluence", "copy_wikimarkup"), confluence.CopyWikiMarkupForImageToClipboard);
+        var personal = Ui.Check(T("Confluence", "include_person_spaces"), confluence.IncludePersonSpaces);
+        apply.Add(() =>
+        {
+            jira.Url = jiraUrl.Text ?? string.Empty;
+            jira.UploadFormat = formats[Math.Max(0, jiraFormat.SelectedIndex)];
+            confluence.Url = confluenceUrl.Text ?? string.Empty;
+            confluence.UploadFormat = formats[Math.Max(0, confluenceFormat.SelectedIndex)];
+            confluence.Timeout = (int)(timeout.Value ?? 30);
+            confluence.OpenPageAfterUpload = openPage.IsChecked == true;
+            confluence.CopyWikiMarkupForImageToClipboard = wikiMarkup.IsChecked == true;
+            confluence.IncludePersonSpaces = personal.IsChecked == true;
+        });
+
+        return Ui.Section(Texts.Linux("plugin_atlassian"),
+            Ui.Note(Texts.Linux("atlassian_hint")),
+            new TextBlock { Text = T("Jira", "settings_title"), FontWeight = FontWeight.SemiBold },
+            Ui.Row(T("Jira", "label_url"), jiraUrl),
+            Ui.Row(T("Jira", "label_upload_format"), jiraFormat),
+            AccountRow(plugin.Jira.Connector.SignIn, () => jira.Url = jiraUrl.Text ?? string.Empty),
+            new TextBlock { Text = T("Confluence", "plugin_settings"), FontWeight = FontWeight.SemiBold, Margin = new Thickness(0, 8, 0, 0) },
+            Ui.Row(T("Confluence", "label_url"), confluenceUrl),
+            Ui.Row(T("Confluence", "label_timeout"), timeout),
+            Ui.Row(T("Confluence", "upload_format"), confluenceFormat),
+            openPage,
+            wikiMarkup,
+            personal,
+            AccountRow(plugin.Confluence.Connector.SignIn, () => confluence.Url = confluenceUrl.Text ?? string.Empty));
+    }
+
+    /// <summary>
+    /// The account of a server: who is signed in, sign in, test and sign out like the account box of Windows.
+    /// The url in the box is used right away, before the settings are saved.
+    /// </summary>
+    private static Control AccountRow(ServerSignIn signIn, Action applyUrl)
+    {
+        var status = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 520 };
+        var signInButton = new Button { Content = Texts.Core("signin_account_sign_in") };
+        var test = new Button { Content = Texts.Core("signin_account_test") };
+        var signOut = new Button { Content = Texts.Core("signin_account_sign_out") };
+
+        async Task RefreshAsync(string? error = null)
+        {
+            bool stored = await signIn.HasStoredCredentialsAsync();
+            status.Text = error
+                          ?? (signIn.IsSignedIn ? Texts.Core("signin_account_signed_in", signIn.Account)
+                              : stored ? Texts.Core("signin_account_stored")
+                              : Texts.Core("signin_account_not_signed_in"));
+            test.IsEnabled = signIn.IsSignedIn || stored;
+            signOut.IsEnabled = signIn.IsSignedIn || stored;
+        }
+
+        async Task RunAsync(Func<Task> action)
+        {
+            applyUrl();
+            if (string.IsNullOrEmpty(signIn.Url))
+            {
+                return;
+            }
+
+            try
+            {
+                await action();
+                await RefreshAsync();
+            }
+            catch (Exception ex) when (ex is HttpRequestException or UnauthorizedAccessException or System.Text.Json.JsonException
+                                           or TaskCanceledException or UriFormatException or InvalidOperationException)
+            {
+                await RefreshAsync(ServerSignIn.DescribeError(ex));
+            }
+        }
+
+        signInButton.Click += async (_, _) => await RunAsync(() => signIn.SignInAsync());
+        test.Click += async (_, _) => await RunAsync(() => signIn.TestAsync());
+        signOut.Click += async (_, _) => await RunAsync(signIn.SignOutAsync);
+        _ = RefreshAsync();
+        return Ui.Row(Texts.Core("signin_account"), new StackPanel { Spacing = 6, Children = { status, Ui.Horizontal(signInButton, test, signOut) } });
     }
 
     #endregion

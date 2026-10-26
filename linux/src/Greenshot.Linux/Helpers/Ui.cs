@@ -74,6 +74,12 @@ internal static class Ui
             ToolTip.SetTip(control, tooltip);
         }
 
+        if (!double.IsNaN(control.Width) && control.HorizontalAlignment == HorizontalAlignment.Stretch)
+        {
+            // A box with a width starts at the label column, not centered in the rest
+            control.HorizontalAlignment = HorizontalAlignment.Left;
+        }
+
         Grid.SetColumn(control, 1);
         grid.Children.Add(text);
         grid.Children.Add(control);
