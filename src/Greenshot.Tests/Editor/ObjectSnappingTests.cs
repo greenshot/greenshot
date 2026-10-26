@@ -22,6 +22,84 @@ namespace Greenshot.Tests.Editor
             => ObjectSnapHelper.Snap(p, anchor, targets, points, through, zoom, compatible, out _, out _);
 
         [Fact]
+        public void SnappingPreferences_RestoreBothSwitchesAndRadiusInNewEditor()
+        {
+            RunOnSta(() =>
+            {
+                var config=(Greenshot.Editor.Configuration.IEditorConfiguration)typeof(ImageEditorForm).GetField("EditorConfiguration",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+                var oldPoints=config.SnapToPoints; var oldThrough=config.SnapThrough; var oldRadius=config.SnappingRadius;
+                try
+                {
+                    config.SnapToPoints=true; config.SnapThrough=true; config.SnappingRadius=17;
+                    using (var surface=new Surface(new Bitmap(100,100)))
+                    using (var editor=new ImageEditorForm(surface,true,false))
+                    {
+                        var toolbar=(ToolStrip)typeof(ImageEditorForm).GetField("destinationsToolStrip",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(editor);
+                        var controls=toolbar.Items.OfType<ToolStripControlHost>().Select(h=>h.Control).ToArray();
+                        Assert.All(controls.OfType<CheckBox>(),c=>Assert.True(c.Checked));
+                        var radius=Assert.Single(controls.OfType<NumericUpDown>());
+                        Assert.Equal(17,radius.Value);
+                        radius.Value=23;
+                        controls.OfType<CheckBox>().First().Checked=false;
+                    }
+                    using (var surface=new Surface(new Bitmap(100,100)))
+                    using (var editor=new ImageEditorForm(surface,true,false))
+                    {
+                        var toolbar=(ToolStrip)typeof(ImageEditorForm).GetField("destinationsToolStrip",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(editor);
+                        var controls=toolbar.Items.OfType<ToolStripControlHost>().Select(h=>h.Control).ToArray();
+                        Assert.False(controls.OfType<CheckBox>().First().Checked);
+                        Assert.True(controls.OfType<CheckBox>().Last().Checked);
+                        Assert.Equal(23,Assert.Single(controls.OfType<NumericUpDown>()).Value);
+                    }
+                }
+                finally { config.SnapToPoints=oldPoints; config.SnapThrough=oldThrough; config.SnappingRadius=oldRadius; }
+            });
+        }
+
+        [Fact]
+        public void TextTargetsAndCustomRadius_AreAvailable()
+        {
+            RunOnSta(() =>
+            {
+                using var surface = new Surface(new Bitmap(300,300));
+                var text = new TextContainer(surface) { Left=100, Top=100, Width=40, Height=20 };
+                surface.AddElement(text);
+                Assert.Equal(9,ObjectSnapHelper.Targets(text).Count());
+                Assert.Contains(new PointF(120,110),ObjectSnapHelper.Targets(text));
+                surface.SetObjectSnapping(true,false,3);
+                Assert.Equal(new Point(105,100),surface.SnapGesture(new Point(105,100),null,null,false));
+                surface.SetObjectSnapping(true,false,12);
+                Assert.Equal(new Point(100,100),surface.SnapGesture(new Point(105,100),null,null,false));
+                surface.DrawingMode=DrawingModes.Line;
+                Assert.Equal(new Point(100,100),surface.PreviewDrawingStart(new Point(105,100)));
+            });
+        }
+
+        [Fact]
+        public void ShapeDrawing_SnapsEdgeMidpointAndCentreWithFixedStart()
+        {
+            RunOnSta(() =>
+            {
+                using var surface = new Surface(new Bitmap(400,400));
+                surface.AddElement(new LineContainer(surface){Left=150,Top=100,Width=0,Height=0});
+                surface.SetObjectSnapping(true,false,8);
+                var rectangle=new RectangleContainer(surface);
+                rectangle.HandleMouseDown(50,50);
+                rectangle.HandleMouseMove(148,148);
+                Assert.Equal(100,rectangle.Width); Assert.Equal(100,rectangle.Height);
+                // The right edge midpoint (150,100), rather than the dragged corner, snaps.
+                var ellipse=new EllipseContainer(surface);
+                ellipse.HandleMouseDown(50,50);
+                ellipse.HandleMouseMove(248,148);
+                Assert.Equal(200,ellipse.Width); Assert.Equal(100,ellipse.Height);
+                // The centre is now (150,100).
+                surface.SetObjectSnapping(false,false);
+                ellipse.HandleMouseMove(248,148);
+                Assert.Equal(198,ellipse.Width); Assert.Equal(98,ellipse.Height);
+            });
+        }
+
+        [Fact]
         public void Targets_IncludeSignedLineAndNormalizedShapes()
         {
             using var surface = new Surface();
@@ -95,6 +173,11 @@ namespace Greenshot.Tests.Editor
         {
             RunOnSta(() =>
             {
+                var config=(Greenshot.Editor.Configuration.IEditorConfiguration)typeof(ImageEditorForm).GetField("EditorConfiguration",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+                var oldPoints=config.SnapToPoints; var oldThrough=config.SnapThrough; var oldRadius=config.SnappingRadius;
+                config.SnapToPoints=false; config.SnapThrough=false; config.SnappingRadius=8;
+                try
+                {
                 using var surface = new Surface(new Bitmap(300,300));
                 using var editor = new ImageEditorForm(surface,true,false);
                 var toolbar = (ToolStrip)typeof(ImageEditorForm).GetField("destinationsToolStrip", BindingFlags.Instance|BindingFlags.NonPublic).GetValue(editor);
@@ -118,6 +201,8 @@ namespace Greenshot.Tests.Editor
                 surface.ClearSnapGuide();
                 using var cleared=surface.GetImageForExport();
                 Assert.Equal(((Bitmap)baseline).GetPixel(100,100),((Bitmap)cleared).GetPixel(100,100));
+                }
+                finally { config.SnapToPoints=oldPoints; config.SnapThrough=oldThrough; config.SnappingRadius=oldRadius; }
             });
         }
         [Fact]

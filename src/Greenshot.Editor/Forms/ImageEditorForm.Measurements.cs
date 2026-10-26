@@ -17,11 +17,21 @@ namespace Greenshot.Editor.Forms
         private ToolStripButton _scaleButton;
         private DrawableContainer _measuredObject;
         private CheckBox _snapPoints, _snapThrough;
+        private NumericUpDown _snappingRadius;
 
         private void InitializeMeasurements()
         {
             _snapPoints = AddSnapCheckBox("Snap to points", "Snap handles and objects to nearby object points");
             _snapThrough = AddSnapCheckBox("Snap through", "Align lines through nearby object points");
+            _snappingRadius = new NumericUpDown { Minimum = 1, Maximum = 100, Width = 48,
+                Value = Math.Max(1, Math.Min(100, EditorConfiguration.SnappingRadius)), AccessibleName = "Snapping radius" };
+            destinationsToolStrip.Items.Add(new ToolStripLabel("Snapping radius"));
+            destinationsToolStrip.Items.Add(new ToolStripControlHost(_snappingRadius) { Overflow = ToolStripItemOverflow.Never });
+            var savedPoints = EditorConfiguration.SnapToPoints;
+            var savedThrough = EditorConfiguration.SnapThrough;
+            _snapPoints.Checked = savedPoints;
+            _snapThrough.Checked = savedThrough;
+            _snappingRadius.ValueChanged += (s, e) => SaveSnappingOptions();
             _measurementPanel = new MeasurementPanel();
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -71,8 +81,17 @@ namespace Greenshot.Editor.Forms
         {
             var checkBox = new CheckBox { Text = label, AutoSize = true, AccessibleName = label, AccessibleDescription = tip, BackColor = Color.Transparent };
             destinationsToolStrip.Items.Add(new ToolStripControlHost(checkBox) { ToolTipText = tip, Overflow = ToolStripItemOverflow.Never });
-            checkBox.CheckedChanged += (s, e) => _surface?.SetObjectSnapping(_snapPoints?.Checked == true, _snapThrough?.Checked == true);
+            checkBox.CheckedChanged += (s, e) => SaveSnappingOptions();
             return checkBox;
+        }
+
+        private void SaveSnappingOptions()
+        {
+            if (_snapPoints == null || _snapThrough == null || _snappingRadius == null) return;
+            EditorConfiguration.SnapToPoints = _snapPoints.Checked;
+            EditorConfiguration.SnapThrough = _snapThrough.Checked;
+            EditorConfiguration.SnappingRadius = (int)_snappingRadius.Value;
+            _surface?.SetObjectSnapping(_snapPoints.Checked, _snapThrough.Checked, (int)_snappingRadius.Value);
         }
 
         private static Bitmap CreateScaleIcon()
@@ -96,7 +115,7 @@ namespace Greenshot.Editor.Forms
 
         private void BindMeasurements()
         {
-            _surface.SetObjectSnapping(_snapPoints.Checked, _snapThrough.Checked);
+            _surface.SetObjectSnapping(_snapPoints.Checked, _snapThrough.Checked, (int)_snappingRadius.Value);
             _surface.MeasurementsChanged += SelectedGeometryChanged;
             _surface.ScaleLineCompleted += CompleteCalibration;
             UpdateMeasurements();

@@ -530,6 +530,7 @@ namespace Greenshot.Editor.Drawing
             MouseDown += SurfaceMouseDown;
             MouseUp += SurfaceMouseUp;
             MouseMove += SurfaceMouseMove;
+            MouseLeave += (sender, e) => ClearSnapGuide();
             MouseDoubleClick += SurfaceDoubleClick;
             Paint += SurfacePaint;
             AllowDrop = true;
@@ -2219,6 +2220,13 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (!_mouseDown && _scalePreview == null)
+            {
+                var snapped = PreviewDrawingStart(e.Location);
+                if (snapped != e.Location && IsHandleCreated && ClientRectangle.Contains(PointToClient(MousePosition)))
+                    System.Windows.Forms.Cursor.Position = PointToScreen(new Point(
+                        (int)Math.Round(snapped.X*(double)_zoomFactor), (int)Math.Round(snapped.Y*(double)_zoomFactor)));
+            }
             if (DrawingMode == DrawingModes.Scale) { MoveScalePreview(e); return; }
 
             // Handle Adorners

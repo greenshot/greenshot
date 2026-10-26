@@ -37,6 +37,16 @@ namespace Greenshot.Editor.Configuration
     [Description("Greenshot editor configuration")]
     public interface IEditorConfiguration : IIniSection, IAfterLoad
     {
+        [DefaultValue(false)]
+        bool SnapToPoints { get; set; }
+
+        [DefaultValue(false)]
+        bool SnapThrough { get; set; }
+
+        [DefaultValue(8)]
+        [Range(1, 100)]
+        int SnappingRadius { get; set; }
+
         [Description("Last used colors")]
         [IniValue(ListDelimiter = '|')]
         List<Color> RecentColors { get; set; }

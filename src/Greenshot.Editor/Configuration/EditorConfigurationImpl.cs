@@ -59,5 +59,7 @@ namespace Greenshot.Editor.Configuration
         {
             RecentColors ??= new List<Color>();
         }
+
+        partial void OnSnappingRadiusSet(ref int value) => value = Clamp(value, 1, 100);
     }
 }

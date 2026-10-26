@@ -20,15 +20,21 @@ Based on upstream Windows Greenshot commit `f25a9bba85bdfc1857ff3f14ac16fb192890
 
 ## Object snapping
 
-The first action toolbar has independent **Snap to points** and **Snap through** checkboxes, both off by default. Settings apply across tabs in the current editor window. There is no grid.
+The first action toolbar has independent **Snap to points** and **Snap through** checkboxes, both off on first use. The checkboxes and **Snapping radius** number are remembered in the normal editor configuration across restarts and apply across tabs. Radius is 1–100 screen pixels (default 8), independent of zoom. There is no grid.
 
-Snap to points uses line/arrow endpoints and midpoints, rectangle corners, edge midpoints and centre, and ellipse centre/cardinal points. It works for drawing (including scale calibration), endpoint and resize handles, and translating objects or selections without changing their geometry. Active objects and the entire moving selection are excluded as targets. The tolerance is eight screen pixels at any zoom.
+Snap to points uses line/arrow endpoints and midpoints, rectangle/text-box corners, edge midpoints and centre, and ellipse centre/cardinal points. It works for drawing (including scale calibration), endpoint and resize handles, and translating objects or selections without changing their geometry. Active objects and the entire moving selection are excluded as targets. While drawing rectangles, text boxes and ellipses, the provisional bounding-box corners, edge midpoints and centre can align to target points. Shift/Ctrl constraints still apply. Before the first click, the pointer is attracted to nearby targets and the target marker previews the start point.
 
 Snap through aligns a line/arrow or calibration endpoint through a target; the endpoint follows the pointer projected onto the forward ray and can extend beyond the target. The target must lie on the resulting segment. Rectangles and ellipses supply targets but do not receive this constraint.
 
 Shift angle/aspect constraints take precedence; incompatible targets are skipped. Point snapping wins over through alignment when both are enabled. Existing centre/aspect modifiers and gesture undo remain in place, and numeric property edits do not snap. A small target marker and dotted through guide appear only while editing, never in saved/exported pixels. Completion, cancellation, tool/tab changes or changing a checkbox clears the guide.
 
 The optional 24-byte versioned metadata trailer follows the serialized element list inside the legacy length-counted payload. Existing projects default to pixels. Older readers can read the original element list and ignore the trailer; saving through an older reader loses calibration. Invalid or unknown metadata is ignored.
+
+## Polygon feasibility
+
+A polygon tool is feasible but is a separate feature rather than a small extension of the existing rectangle or freehand tool. FreehandContainer stores sampled points and a smoothed path; it has no selected vertex, closed-edge ordering or per-vertex undo model. A robust polygon needs its own serializable container, click-to-add/close/cancel interaction, vertex adorners and undo, transforms, hit testing and copy/project round-trip coverage.
+
+The existing shared snapping helper can be reused for each provisional edge (Shift constrains the edge from the last vertex) and polygon vertex/edge-midpoint targets. For an already closed polygon, determine visual anticlockwise order from signed area while accounting for downward image Y; dragging a selected vertex with Shift would constrain the edge connecting it to its anticlockwise neighbour, keeping that neighbour fixed. Degenerate polygons require a defined fallback. Polygon creation and vertex editing are not included in this release.
 
 ## Build and test
 

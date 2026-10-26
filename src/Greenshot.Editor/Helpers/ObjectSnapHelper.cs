@@ -9,7 +9,7 @@ namespace Greenshot.Editor.Helpers
     internal static class ObjectSnapHelper
     {
         internal static bool IsLine(IDrawableContainer shape) => shape?.GetType() == typeof(LineContainer) || shape?.GetType() == typeof(ArrowContainer);
-        internal static bool Supported(IDrawableContainer shape) => IsLine(shape) || shape?.GetType() == typeof(RectangleContainer) || shape?.GetType() == typeof(EllipseContainer);
+        internal static bool Supported(IDrawableContainer shape) => IsLine(shape) || shape?.GetType() == typeof(RectangleContainer) || shape?.GetType() == typeof(EllipseContainer) || shape?.GetType() == typeof(TextContainer);
 
         internal static IEnumerable<PointF> Targets(IDrawableContainer shape)
         {
@@ -22,7 +22,7 @@ namespace Greenshot.Editor.Helpers
             }
             float l = Math.Min(x, r), t = Math.Min(y, b);
             r = Math.Max(x, r); b = Math.Max(y, b);
-            if (shape.GetType() == typeof(RectangleContainer))
+            if (shape.GetType() == typeof(RectangleContainer) || shape.GetType() == typeof(TextContainer))
             {
                 yield return new PointF(l, t); yield return new PointF(r, t);
                 yield return new PointF(r, b); yield return new PointF(l, b);
@@ -33,10 +33,10 @@ namespace Greenshot.Editor.Helpers
 
         // Stable enumeration order breaks equal-distance ties. All distances are in image coordinates.
         internal static Point Snap(Point pointer, Point? anchor, IEnumerable<PointF> targets, bool points, bool through,
-            double zoom, Func<Point, bool> compatible, out PointF? target, out bool ray)
+            double zoom, Func<Point, bool> compatible, out PointF? target, out bool ray, double radius = 8)
         {
             target = null; ray = false;
-            double best = Math.Pow(8 / Math.Max(0.001, zoom), 2);
+            double best = Math.Pow(Math.Max(1, Math.Min(100, radius)) / Math.Max(0.001, zoom), 2);
             Point result = pointer;
             if (points)
                 foreach (var candidate in targets)
