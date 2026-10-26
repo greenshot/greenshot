@@ -32,7 +32,12 @@ using Greenshot.Linux.Core.Configuration;
 using Greenshot.Linux.Core.DBus;
 using Greenshot.Linux.Core.Destinations;
 using Greenshot.Linux.Core.Ipc;
+using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Destinations;
+using Greenshot.Linux.Editing;
+using Greenshot.Linux.Editor;
+using Greenshot.Linux.Editor.Serialization;
+using SkiaSharp;
 using Greenshot.Linux.Helpers;
 
 namespace Greenshot.Linux;
@@ -41,7 +46,7 @@ namespace Greenshot.Linux;
 /// The running Greenshot: the tray icon, the commands from the command line and the hotkeys, and the capture flow
 /// from taking the picture to the destinations. The MainForm of the Windows version without a form.
 /// </summary>
-internal sealed class GreenshotController : IDisposable
+internal sealed class GreenshotController : IEditorHost, IDisposable
 {
     private const string ShortcutRegion = "capture-region";
     private const string ShortcutWindow = "capture-window";
@@ -52,6 +57,8 @@ internal sealed class GreenshotController : IDisposable
     private readonly CoreSettings _settings = CoreSettings.Load();
     private readonly ICompositor _compositor = CompositorDetector.Detect();
     private readonly List<IDestination> _destinations = new();
+    private readonly EditorSettings _editorSettings;
+    private FileChooserPortal? _fileChooser;
     private DesktopPortal? _portal;
     private DesktopNotifications? _notifications;
     private GlobalShortcutsPortal? _shortcuts;
@@ -64,7 +71,17 @@ internal sealed class GreenshotController : IDisposable
     public GreenshotController(IClassicDesktopStyleApplicationLifetime desktop)
     {
         _desktop = desktop;
+        _editorSettings = new EditorSettings(_settings);
     }
+
+    public CoreSettings Settings => _settings;
+
+    public EditorSettings EditorSettings => _editorSettings;
+
+    public FileChooserPortal? FileChooser => _fileChooser;
+
+    public IReadOnlyList<IDestination> ExportDestinations =>
+        _destinations.Where(d => d.Designation != WellKnownDestinations.Editor).OrderBy(d => d.Priority).ToList();
 
     public async Task StartAsync(AppCommand startCommand)
     {
@@ -93,8 +110,9 @@ internal sealed class GreenshotController : IDisposable
             await NotifyAsync("Greenshot can't capture", ex.Message, NotificationSeverity.Error);
         }
 
-        FileChooserPortal? fileChooser = _portal != null && await FileChooserPortal.IsAvailableAsync(_portal) ? new FileChooserPortal(_portal) : null;
-        var saveDialog = new SaveDialog(fileChooser);
+        _fileChooser = _portal != null && await FileChooserPortal.IsAvailableAsync(_portal) ? new FileChooserPortal(_portal) : null;
+        var saveDialog = new SaveDialog(_fileChooser);
+        _destinations.Add(new EditorDestination(OpenEditor));
         _destinations.Add(new FileDestination(_settings, saveDialog.AskAsync));
         _destinations.Add(new FileWithDialogDestination(_settings, saveDialog));
         _destinations.Add(new ClipboardDestination());
@@ -102,9 +120,25 @@ internal sealed class GreenshotController : IDisposable
         CreateTrayIcon();
         await RegisterShortcutsAsync();
 
-        if (startCommand.Kind == AppCommandKind.Capture && startCommand.Mode is { } mode)
+        await RunAsync(startCommand);
+    }
+
+    private async Task RunAsync(AppCommand command)
+    {
+        switch (command.Kind)
         {
-            await CaptureAsync(mode);
+            case AppCommandKind.Capture when command.Mode is { } mode:
+                await CaptureAsync(mode);
+                break;
+            case AppCommandKind.Open when command.Path != null:
+                await OpenFileAsync(command.Path);
+                break;
+            case AppCommandKind.OpenClipboard:
+                await OpenClipboardAsync();
+                break;
+            case AppCommandKind.Exit:
+                Exit();
+                break;
         }
     }
 
@@ -124,24 +158,13 @@ internal sealed class GreenshotController : IDisposable
 
     private Task<string> HandleCommandAsync(string line)
     {
-        var command = AppCommand.Parse(line.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        var command = AppCommand.ParseWire(line);
         if (command == null)
         {
             return Task.FromResult($"error: unknown command {line}");
         }
 
-        Dispatcher.UIThread.Post(() =>
-        {
-            switch (command.Kind)
-            {
-                case AppCommandKind.Capture when command.Mode is { } mode:
-                    _ = CaptureAsync(mode);
-                    break;
-                case AppCommandKind.Exit:
-                    Exit();
-                    break;
-            }
-        });
+        Dispatcher.UIThread.Post(() => _ = RunAsync(command));
         return Task.FromResult("ok");
     }
 
@@ -279,9 +302,9 @@ internal sealed class GreenshotController : IDisposable
         }
     }
 
-    private async Task ReportAsync(IDestination destination, ExportResult result)
+    public async Task ReportAsync(IDestination destination, ExportResult result)
     {
-        if (result.Cancelled)
+        if (result.Cancelled || (result.Success && destination.Designation == WellKnownDestinations.Editor))
         {
             return;
         }
@@ -325,6 +348,9 @@ internal sealed class GreenshotController : IDisposable
 
         AddItem(menu, "Capture full screen", () => _ = CaptureAsync(CaptureMode.FullScreen), _settings.FullscreenHotkey);
         menu.Items.Add(new NativeMenuItemSeparator());
+        AddItem(menu, "Open image from file…", () => _ = AskOpenFileAsync(), null);
+        AddItem(menu, "Open image from clipboard", () => _ = OpenClipboardAsync(), null);
+        menu.Items.Add(new NativeMenuItemSeparator());
         AddItem(menu, "Open the capture folder", OpenCaptureFolder, null);
         AddItem(menu, "Edit the settings file", () => ProcessRunner.StartDetached("xdg-open", _settings.FilePath), null);
         AddItem(menu, "Open the log", () => ProcessRunner.StartDetached("xdg-open", Log.FilePath), null);
@@ -349,6 +375,93 @@ internal sealed class GreenshotController : IDisposable
         var item = new NativeMenuItem(string.IsNullOrWhiteSpace(hotkey) ? header : $"{header}\t{hotkey}");
         item.Click += (_, _) => action();
         menu.Items.Add(item);
+    }
+
+    /// <summary>
+    /// Open a capture in a new editor window; the editor gets its own copy, the capture is disposed by the caller
+    /// </summary>
+    private void OpenEditor(Capture capture)
+    {
+        var surface = new EditorSurface(capture.Image.Copy());
+        ShowEditor(surface, capture.Details, null);
+    }
+
+    private void ShowEditor(EditorSurface surface, CaptureDetails details, string? filePath)
+    {
+        var window = new EditorWindow(this, surface, details, filePath);
+        window.Show();
+        window.Activate();
+    }
+
+    /// <summary>
+    /// Open an image or a .greenshot file in the editor
+    /// </summary>
+    public async Task OpenFileAsync(string path)
+    {
+        try
+        {
+            EditorSurface surface;
+            string? warning = null;
+            if (Path.GetExtension(path).Equals(GreenshotFile.Extension, StringComparison.OrdinalIgnoreCase))
+            {
+                var content = GreenshotFile.Load(path);
+                surface = new EditorSurface(content.Image);
+                if (content.ElementsJson != null)
+                {
+                    surface.LoadElements(content.ElementsJson);
+                }
+
+                warning = content.Warning;
+            }
+            else
+            {
+                var image = SKBitmap.Decode(path) ?? throw new InvalidDataException("The file is not an image Greenshot can read");
+                surface = new EditorSurface(image);
+            }
+
+            surface.IsModified = false;
+            var details = new CaptureDetails { Title = Path.GetFileNameWithoutExtension(path), DateTime = File.GetLastWriteTime(path) };
+            ShowEditor(surface, details, path);
+            if (warning != null)
+            {
+                await NotifyAsync("Greenshot", warning, NotificationSeverity.Warning);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or System.Text.Json.JsonException or NotSupportedException)
+        {
+            Log.Error($"Opening {path} failed", ex);
+            await NotifyAsync("Could not open the file", $"{path}: {ex.Message}", NotificationSeverity.Error);
+        }
+    }
+
+    private async Task AskOpenFileAsync()
+    {
+        if (_fileChooser == null)
+        {
+            await NotifyAsync("Greenshot", "There is no file dialog (FileChooser portal), use: greenshot open <file>", NotificationSeverity.Warning);
+            return;
+        }
+
+        var path = await _fileChooser.OpenFileAsync("Open an image", SaveDialog.OpenFilters);
+        if (path != null)
+        {
+            await OpenFileAsync(path);
+        }
+    }
+
+    private async Task OpenClipboardAsync()
+    {
+        var data = await SystemClipboard.GetImageAsync();
+        var image = data != null ? SKBitmap.Decode(data) : null;
+        if (image == null)
+        {
+            await NotifyAsync("Greenshot", "There is no image on the clipboard", NotificationSeverity.Warning);
+            return;
+        }
+
+        var surface = new EditorSurface(image);
+        surface.IsModified = false;
+        ShowEditor(surface, new CaptureDetails { Title = "Clipboard" }, null);
     }
 
     private void OpenCaptureFolder()

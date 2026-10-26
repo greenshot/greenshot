@@ -22,6 +22,7 @@
 using Greenshot.Linux.Core;
 using Greenshot.Linux.Core.DBus;
 using Greenshot.Linux.Core.Output;
+using Greenshot.Linux.Editor.Serialization;
 
 namespace Greenshot.Linux.Destinations;
 
@@ -30,17 +31,33 @@ namespace Greenshot.Linux.Destinations;
 /// </summary>
 internal sealed class SaveDialog(FileChooserPortal? portal)
 {
-    private static readonly IReadOnlyList<(string Name, string Pattern)> Filters =
+    private static readonly IReadOnlyList<(string Name, string Pattern)> ImageFilters =
     [
         ("PNG image", "*.png"),
         ("JPEG image", "*.jpg"),
         ("WebP image", "*.webp"),
     ];
 
+    private static readonly (string Name, string Pattern) GreenshotFilter = ("Greenshot file (editable)", "*" + GreenshotFile.Extension);
+
+    /// <summary>
+    /// The filters to open images, including .greenshot files
+    /// </summary>
+    public static IReadOnlyList<(string Name, string Pattern)> OpenFilters =>
+    [
+        ("Images and Greenshot files", "*.png;*.jpg;*.jpeg;*.webp;*.bmp;*.gif;*" + GreenshotFile.Extension),
+        GreenshotFilter,
+    ];
+
+    public FileChooserPortal? Portal => portal;
+
+    public Task<string?> AskAsync(string suggestedPath) => AskAsync(suggestedPath, includeGreenshotFormat: false);
+
     /// <summary>
     /// Ask for the file, null when cancelled. Without a file dialog the suggested path is used.
+    /// With includeGreenshotFormat the editable .greenshot format is offered too.
     /// </summary>
-    public async Task<string?> AskAsync(string suggestedPath)
+    public async Task<string?> AskAsync(string suggestedPath, bool includeGreenshotFormat)
     {
         if (portal == null)
         {
@@ -48,8 +65,16 @@ internal sealed class SaveDialog(FileChooserPortal? portal)
             return suggestedPath;
         }
 
-        var extension = ImageFormats.Normalize(Path.GetExtension(suggestedPath));
-        var filters = Filters.OrderByDescending(f => f.Pattern == "*." + extension).ToList();
+        var extension = Path.GetExtension(suggestedPath).Equals(GreenshotFile.Extension, StringComparison.OrdinalIgnoreCase)
+            ? GreenshotFile.Extension.TrimStart('.')
+            : ImageFormats.Normalize(Path.GetExtension(suggestedPath));
+        var filters = ImageFilters.ToList();
+        if (includeGreenshotFormat)
+        {
+            filters.Add(GreenshotFilter);
+        }
+
+        filters = filters.OrderByDescending(f => f.Pattern == "*." + extension).ToList();
         var path = await portal.SaveFileAsync("Save the capture", suggestedPath, filters).ConfigureAwait(true);
         if (path != null && string.IsNullOrEmpty(Path.GetExtension(path)))
         {

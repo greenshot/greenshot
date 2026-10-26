@@ -38,6 +38,38 @@ public static class SystemClipboard
 
     public static Task SetTextAsync(string text) => SetAsync(Encoding.UTF8.GetBytes(text), "text/plain;charset=utf-8");
 
+    /// <summary>
+    /// The image on the clipboard (PNG, JPEG, BMP, ...), null when there is none
+    /// </summary>
+    public static async Task<byte[]?> GetImageAsync()
+    {
+        bool canRead = IsWayland ? ProcessRunner.IsOnPath("wl-paste") : ProcessRunner.IsOnPath("xclip");
+        if (!canRead)
+        {
+            return null;
+        }
+
+        var types = IsWayland
+            ? await ProcessRunner.RunAsync("wl-paste", ["--list-types"], timeout: TimeSpan.FromSeconds(5)).ConfigureAwait(false)
+            : await ProcessRunner.RunAsync("xclip", ["-selection", "clipboard", "-t", "TARGETS", "-o"], timeout: TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        if (types.ExitCode != 0)
+        {
+            return null;
+        }
+
+        var available = types.OutputText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var type = available.FirstOrDefault(t => t == "image/png") ?? available.FirstOrDefault(t => t.StartsWith("image/", StringComparison.Ordinal));
+        if (type == null)
+        {
+            return null;
+        }
+
+        var result = IsWayland
+            ? await ProcessRunner.RunAsync("wl-paste", ["--no-newline", "--type", type], timeout: TimeSpan.FromSeconds(10)).ConfigureAwait(false)
+            : await ProcessRunner.RunAsync("xclip", ["-selection", "clipboard", "-t", type, "-o"], timeout: TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+        return result.ExitCode == 0 && result.Output.Length > 0 ? result.Output : null;
+    }
+
     private static async Task SetAsync(byte[] data, string mimeType)
     {
         if (!IsAvailable)

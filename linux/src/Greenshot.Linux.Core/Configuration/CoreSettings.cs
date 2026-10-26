@@ -213,21 +213,28 @@ public sealed class CoreSettings
         set => SetBool(nameof(ZoomerEnabled), value);
     }
 
-    private string GetString(string key, string defaultValue)
+    /// <summary>
+    /// A value of any section, for the settings of other parts (e.g. the editor) which share greenshot.ini
+    /// </summary>
+    public string? GetValue(string section, string key)
     {
         lock (_lock)
         {
-            return _ini.Get(SectionName, key) ?? defaultValue;
+            return _ini.Get(section, key);
         }
     }
 
-    private void SetString(string key, string value)
+    public void SetValue(string section, string key, string value)
     {
         lock (_lock)
         {
-            _ini.Set(SectionName, key, value);
+            _ini.Set(section, key, value);
         }
     }
+
+    private string GetString(string key, string defaultValue) => GetValue(SectionName, key) ?? defaultValue;
+
+    private void SetString(string key, string value) => SetValue(SectionName, key, value);
 
     private bool GetBool(string key, bool defaultValue) =>
         bool.TryParse(GetString(key, string.Empty), out var value) ? value : defaultValue;

@@ -6,7 +6,8 @@ in `src/`: the Windows version uses WPF, WinForms, GDI+ and Win32, none of which
 compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
-This is **milestone 1: capturing**. The editor, the plugins and the settings window follow, see [Roadmap](#roadmap).
+Done so far: **milestone 1, capturing** and **milestone 2, the image editor**. The settings window, more destinations and
+the plugins follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -18,13 +19,42 @@ This is **milestone 1: capturing**. The editor, the plugins and the settings win
 | Capture window: hover or Tab to pick, or click a window in region mode | ✅ Sway, Hyprland |
 | Capture active window | ✅ Sway, Hyprland |
 | Mouse pointer in the capture (`CaptureMousepointer`) | ✅ with grim |
-| Destinations: Save, Save as… (desktop file dialog), Copy to clipboard, Picker | ✅ |
+| Destinations: Open in image editor, Save, Save as… (desktop file dialog), Copy to clipboard, Picker | ✅ |
 | Filename patterns (`${capturetime}`, `${title}`, `${NUM}`, `${YYYY}`, padding, substrings, …) | ✅ same as Windows |
 | Notifications with thumbnail; click opens the file | ✅ |
 | Tray icon and menu | ✅ (StatusNotifierItem) |
 | Command line, single instance: `greenshot capture region` etc. | ✅ |
 | Global hotkeys via the GlobalShortcuts portal | ✅ KDE, GNOME 48+, Hyprland |
 | `greenshot.ini` in the Windows format, unknown keys are kept | ✅ |
+
+### The image editor
+
+| Feature | Status |
+|---|---|
+| Tools: select, rectangle, ellipse, line, arrow, freehand, text, speech bubble, step label, highlight, obfuscate, crop | ✅ |
+| Highlight: text marker, area (blur and darken the rest), grayscale the rest, magnify | ✅ |
+| Obfuscate: pixelate, blur | ✅ |
+| Properties per tool: line, fill, thickness, shadow, arrow heads, font, size, bold, italic, alignment, …, the last used values are remembered | ✅ |
+| Select, move, resize with handles, rubber band, Shift for squares and 15° lines | ✅ |
+| Undo / redo, cut / copy / paste / duplicate of elements, paste an image from the clipboard | ✅ |
+| Bring to front / forward / backward / back, step label counter start | ✅ |
+| Image: crop, auto crop, resize, rotate, enlarge / shrink the canvas, border, drop shadow, torn edges, grayscale, invert, clear | ✅ |
+| Zoom (Ctrl + wheel, Ctrl +/-/0/9) | ✅ |
+| Save, save as (also as editable `.greenshot`), copy, export to every destination, ask to save when closing | ✅ |
+| Open images and `.greenshot` files: tray menu, `greenshot <file>`, "Open with" in file managers, the clipboard | ✅ |
+| `.greenshot` files of the Windows editor | ⚠️ the image opens, its elements can't be read yet |
+| Tabs, emoji, cut out, settings of drop shadow and torn edges, text obfuscation (OCR), print, email | ⏳ later milestones |
+
+The keys are the ones of the Windows editor: R rectangle, E ellipse, L line, A arrow, F freehand, T text, S speech bubble,
+I step label, H highlight, O obfuscate, C crop (Enter applies, Esc cancels), Z resize, Esc select tool;
+Ctrl+Z/Y undo/redo, Ctrl+C/X/V/D copy/cut/paste/duplicate, Delete, Ctrl+A, arrows move (Shift or Ctrl: 10 pixels),
+PageUp/PageDown/Home/End arrange, Ctrl+S save, Ctrl+Shift+S save as, Ctrl+Shift+C copy the image,
+Ctrl+Q drop shadow, Ctrl+B border, Ctrl+T torn edges, Ctrl+G grayscale, Ctrl+I invert, Ctrl+, / Ctrl+. rotate,
+Ctrl+Shift++ / Ctrl+Shift+- enlarge / shrink the canvas.
+
+Linux `.greenshot` files have the layout of the Windows ones (a PNG, then the elements and a marker), but store the
+elements as JSON with the marker `GreenshotJ1.00`. The Windows editor can't read their elements; any image viewer
+shows them, they start with a PNG.
 
 ## Requirements
 
@@ -105,7 +135,8 @@ The log is `~/.local/state/greenshot/greenshot.log`; `GREENSHOT_DEBUG=1` adds de
 linux/
   src/Greenshot.Linux.Core     no UI: settings, filename patterns, screen grabbers, compositor queries,
                                D-Bus portals and notifications, destinations, single instance socket
-  src/Greenshot.Linux          Avalonia: tray, capture screen, picker, the capture flow (GreenshotController)
+  src/Greenshot.Linux.Editor   no UI: the editor model, drawing elements, Skia rendering, undo, effects, .greenshot files
+  src/Greenshot.Linux          Avalonia: tray, capture screen, picker, editor window, the capture flow (GreenshotController)
   tests/Greenshot.Linux.Tests  xunit
   packaging/                   desktop file, install script
 ```
@@ -113,15 +144,18 @@ linux/
 - A capture starts with a `ScreenSnapshot`: one picture of the bounding box of all outputs and the layout,
   so layout coordinates (logical) and image pixels convert both ways, also with mixed scales.
 - The capture screen works in image pixels (`SelectionModel`), so selections are pixel exact on HiDPI screens.
+- The editor is UI free (`EditorController`, `EditorSurface`), the window only passes the mouse and keys on. The same Skia
+  rendering draws the editor view (through Avalonia's Skia lease) and the exported image. Filters read what was drawn
+  below them, like on Windows. Undo keeps the elements as JSON and the image by reference: effects never change an image
+  in place, they return a new one.
 - D-Bus is spoken with Tmds.DBus.Protocol. Its `MessageWriter` is a `ref struct`: always pass it by `ref`,
   a copy writes bytes the message doesn't account for and the bus disconnects Greenshot.
 
 ## Roadmap
 
-1. **Capturing** (this milestone)
-2. **Editor**: the Greenshot editor on Avalonia + Skia: shapes, arrows, text, speech bubbles, counters, highlight,
-   obfuscate (blur, pixelate), crop, resize, effects (border, shadow, torn edge, grayscale, invert), undo/redo,
-   `.greenshot` files; the Editor destination; open images and the clipboard in the editor
+1. **Capturing** ✅
+2. **Editor** ✅ (see above for what is left: tabs, emoji, cut out, effect settings, reading Windows `.greenshot` elements
+   with `System.Formats.Nrbf`)
 3. **Settings window, welcome window, languages** (the existing `Languages/*.xml`)
 4. **Destinations**: printer (Print portal), email (Email portal / xdg-email), OCR and text capture (Tesseract
    instead of Windows.Media.Ocr), QR codes (ZXing.Net), PDF

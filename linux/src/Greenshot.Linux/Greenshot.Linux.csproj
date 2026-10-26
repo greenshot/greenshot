@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Linux.Editor\Greenshot.Linux.Editor.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

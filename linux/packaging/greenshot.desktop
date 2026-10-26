@@ -3,13 +3,14 @@ Type=Application
 Name=Greenshot
 GenericName=Screenshot Tool
 Comment=Capture a region, a window or the full screen
-Exec=greenshot
+Exec=greenshot %f
 Icon=greenshot
 Terminal=false
 Categories=Graphics;
 Keywords=screenshot;capture;print;screen;
 StartupWMClass=greenshot
-Actions=CaptureRegion;CaptureFullscreen;CaptureLastRegion;
+MimeType=image/png;image/jpeg;image/webp;image/bmp;image/gif;
+Actions=CaptureRegion;CaptureFullscreen;CaptureLastRegion;OpenClipboard;
 
 [Desktop Action CaptureRegion]
 Name=Capture region
@@ -22,3 +23,7 @@ Exec=greenshot capture fullscreen
 [Desktop Action CaptureLastRegion]
 Name=Capture last region
 Exec=greenshot capture last
+
+[Desktop Action OpenClipboard]
+Name=Open image from clipboard
+Exec=greenshot clipboard

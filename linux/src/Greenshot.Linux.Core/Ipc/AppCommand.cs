@@ -30,6 +30,16 @@ public enum AppCommandKind
     /// </summary>
     Start,
     Capture,
+
+    /// <summary>
+    /// Open an image or .greenshot file in the editor
+    /// </summary>
+    Open,
+
+    /// <summary>
+    /// Open the image on the clipboard in the editor
+    /// </summary>
+    OpenClipboard,
     Exit,
     Help,
     Version,
@@ -39,7 +49,7 @@ public enum AppCommandKind
 /// What the command line asks for. The same text goes over the socket to a running Greenshot,
 /// so "greenshot capture region" bound to a key starts a capture in the running instance.
 /// </summary>
-public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null)
+public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, string? Path = null)
 {
     public const string Usage = """
         Usage: greenshot [command]
@@ -52,6 +62,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null)
           capture activewindow  Capture the active window (Alt + PrintScreen, Sway and Hyprland)
           capture fullscreen    Capture all screens (Ctrl + PrintScreen)
           capture last          Capture the last region again (Shift + PrintScreen)
+          open <file>           Open an image or .greenshot file in the editor, also: greenshot <file>
+          clipboard             Open the image on the clipboard in the editor
           exit                  Stop the running Greenshot
           --help                Show this text
           --version             Show the version
@@ -83,10 +95,31 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null)
             case "capture" when args.Count >= 2:
                 var mode = ParseMode(args[1]);
                 return mode == null ? null : new AppCommand(AppCommandKind.Capture, mode);
+            case "open" when args.Count >= 2:
+                return new AppCommand(AppCommandKind.Open, Path: ToAbsolute(string.Join(' ', args.Skip(1))));
+            case "clipboard":
+                return new AppCommand(AppCommandKind.OpenClipboard);
             default:
-                return null;
+                // Like Greenshot.exe: a file on the command line is opened in the editor
+                return File.Exists(args[0]) || args[0].StartsWith("file://", StringComparison.Ordinal)
+                    ? new AppCommand(AppCommandKind.Open, Path: ToAbsolute(args[0]))
+                    : null;
         }
     }
+
+    /// <summary>
+    /// Read a line sent over the socket; the path of "open" may contain spaces
+    /// </summary>
+    public static AppCommand? ParseWire(string line) =>
+        line.StartsWith("open ", StringComparison.Ordinal)
+            ? new AppCommand(AppCommandKind.Open, Path: line[5..])
+            : Parse(line.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+    /// <summary>
+    /// The running Greenshot has another working directory, paths are sent absolute; file:// URIs from file managers too
+    /// </summary>
+    private static string ToAbsolute(string path) =>
+        path.StartsWith("file://", StringComparison.Ordinal) ? new Uri(path).LocalPath : System.IO.Path.GetFullPath(path);
 
     private static CaptureMode? ParseMode(string text) => text.ToLowerInvariant() switch
     {
@@ -111,6 +144,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null)
             CaptureMode.LastRegion => "last",
             _ => "region",
         },
+        AppCommandKind.Open => "open " + Path,
+        AppCommandKind.OpenClipboard => "clipboard",
         AppCommandKind.Exit => "exit",
         _ => "start",
     };

@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Greenshot.Linux.Editing.EditorWindow"
+        Title="Greenshot image editor"
+        Width="1000" Height="700" MinWidth="640" MinHeight="400">
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="_Save" InputGesture="Ctrl+S" Click="OnSave" />
+        <MenuItem Header="Save _as…" InputGesture="Ctrl+Shift+S" Click="OnSaveAs" />
+        <MenuItem Header="_Copy image to clipboard" InputGesture="Ctrl+Shift+C" Click="OnCopyImage" />
+        <MenuItem x:Name="ExportMenu" Header="_Export to" />
+        <Separator />
+        <MenuItem Header="_Open image…" InputGesture="Ctrl+O" Click="OnOpen" />
+        <Separator />
+        <MenuItem Header="_Close" InputGesture="Ctrl+W" Click="OnClose" />
+      </MenuItem>
+      <MenuItem Header="_Edit">
+        <MenuItem x:Name="UndoMenu" Header="_Undo" InputGesture="Ctrl+Z" Click="OnUndo" />
+        <MenuItem x:Name="RedoMenu" Header="_Redo" InputGesture="Ctrl+Y" Click="OnRedo" />
+        <Separator />
+        <MenuItem Header="Cu_t" InputGesture="Ctrl+X" Click="OnCut" />
+        <MenuItem Header="_Copy" InputGesture="Ctrl+C" Click="OnCopy" />
+        <MenuItem Header="_Paste" InputGesture="Ctrl+V" Click="OnPaste" />
+        <MenuItem Header="Paste image from clipboard" InputGesture="Ctrl+Shift+V" Click="OnPasteImage" />
+        <MenuItem Header="_Duplicate" InputGesture="Ctrl+D" Click="OnDuplicate" />
+        <MenuItem Header="De_lete" InputGesture="Delete" Click="OnDelete" />
+        <Separator />
+        <MenuItem Header="Select _all" InputGesture="Ctrl+A" Click="OnSelectAll" />
+      </MenuItem>
+      <MenuItem Header="_Object">
+        <MenuItem Header="Bring to _front" InputGesture="Home" Click="OnBringToFront" />
+        <MenuItem Header="Bring _forward" InputGesture="PageUp" Click="OnBringForward" />
+        <MenuItem Header="Send _backward" InputGesture="PageDown" Click="OnSendBackward" />
+        <MenuItem Header="Send to bac_k" InputGesture="End" Click="OnSendToBack" />
+        <Separator />
+        <MenuItem Header="Reset the step label counter…" Click="OnCounterStart" />
+      </MenuItem>
+      <MenuItem Header="_Image">
+        <MenuItem Header="_Crop" InputGesture="C" Click="OnCropTool" />
+        <MenuItem Header="_Auto crop" Click="OnAutoCrop" />
+        <MenuItem Header="_Resize…" InputGesture="Z" Click="OnResize" />
+        <MenuItem Header="Rotate clockwise" InputGesture="Ctrl+OemPeriod" Click="OnRotateClockwise" />
+        <MenuItem Header="Rotate counter clockwise" InputGesture="Ctrl+OemComma" Click="OnRotateCounterClockwise" />
+        <MenuItem Header="Enlarge the canvas" InputGesture="Ctrl+Shift+OemPlus" Click="OnEnlargeCanvas" />
+        <MenuItem Header="Shrink the canvas" InputGesture="Ctrl+Shift+OemMinus" Click="OnShrinkCanvas" />
+        <Separator />
+        <MenuItem Header="_Border" InputGesture="Ctrl+B" Click="OnBorder" />
+        <MenuItem Header="_Drop shadow" InputGesture="Ctrl+Q" Click="OnDropShadow" />
+        <MenuItem Header="_Torn edges" InputGesture="Ctrl+T" Click="OnTornEdge" />
+        <MenuItem Header="_Grayscale" InputGesture="Ctrl+G" Click="OnGrayscale" />
+        <MenuItem Header="_Invert" InputGesture="Ctrl+I" Click="OnInvert" />
+        <Separator />
+        <MenuItem Header="C_lear (transparent)" InputGesture="Ctrl+Delete" Click="OnClear" />
+      </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem Header="Zoom _in" InputGesture="Ctrl+OemPlus" Click="OnZoomIn" />
+        <MenuItem Header="Zoom _out" InputGesture="Ctrl+OemMinus" Click="OnZoomOut" />
+        <MenuItem Header="_Actual size" InputGesture="Ctrl+D0" Click="OnZoomActual" />
+        <MenuItem Header="Best _fit" InputGesture="Ctrl+D9" Click="OnZoomFit" />
+      </MenuItem>
+    </Menu>
+
+    <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,0,1">
+      <ScrollViewer x:Name="PropertyBarHost" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" />
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,1,0,0" Padding="8,3">
+      <DockPanel>
+        <TextBlock x:Name="ZoomText" DockPanel.Dock="Right" Margin="12,0,0,0" />
+        <TextBlock x:Name="SizeText" DockPanel.Dock="Right" Margin="12,0,0,0" />
+        <TextBlock x:Name="StatusText" TextTrimming="CharacterEllipsis" />
+      </DockPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Left" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,1,0">
+      <StackPanel x:Name="ToolPanel" Margin="3" Spacing="2" />
+    </Border>
+
+    <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                  Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+      <Grid x:Name="CanvasHost" Margin="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Canvas x:Name="TextOverlay" />
+      </Grid>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

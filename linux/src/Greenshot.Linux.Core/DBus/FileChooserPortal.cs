@@ -90,6 +90,43 @@ public sealed class FileChooserPortal(DesktopPortal portal)
     }
 
     /// <summary>
+    /// Ask for a file to open, null when the user cancels
+    /// </summary>
+    public async Task<string?> OpenFileAsync(string title, IReadOnlyList<(string Name, string Pattern)> filters,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await portal.RequestAsync(FileChooserInterface, "OpenFile", "ssa{sv}", (ref MessageWriter writer, string token) =>
+        {
+            writer.WriteString(string.Empty);
+            writer.WriteString(title);
+            var options = writer.WriteDictionaryStart();
+            WriteKey(ref writer, "handle_token");
+            writer.WriteVariantString(token);
+            if (filters.Count > 0)
+            {
+                WriteKey(ref writer, "filters");
+                writer.WriteSignature("a(sa(us))");
+                var array = writer.WriteArrayStart(DBusType.Struct);
+                foreach (var filter in filters)
+                {
+                    WriteFilter(ref writer, filter);
+                }
+
+                writer.WriteArrayEnd(array);
+            }
+
+            writer.WriteDictionaryEnd(options);
+        }, cancellationToken).ConfigureAwait(false);
+
+        if (!response.IsSuccess || !response.Results.TryGetValue("uris", out var uris) || uris.Count == 0)
+        {
+            return null;
+        }
+
+        return new Uri(uris.GetItem(0).GetString()).LocalPath;
+    }
+
+    /// <summary>
     /// Start a dictionary entry; the caller writes the variant signature and value
     /// </summary>
     private static void WriteKey(ref MessageWriter writer, string key)
@@ -103,10 +140,15 @@ public sealed class FileChooserPortal(DesktopPortal portal)
         writer.WriteStructureStart();
         writer.WriteString(filter.Name);
         var patterns = writer.WriteArrayStart(DBusType.Struct);
-        writer.WriteStructureStart();
-        // 0 is a glob pattern, 1 would be a MIME type
-        writer.WriteUInt32(0);
-        writer.WriteString(filter.Pattern);
+        // One filter can have more patterns, separated by ;
+        foreach (var pattern in filter.Pattern.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            writer.WriteStructureStart();
+            // 0 is a glob pattern, 1 would be a MIME type
+            writer.WriteUInt32(0);
+            writer.WriteString(pattern);
+        }
+
         writer.WriteArrayEnd(patterns);
     }
 }

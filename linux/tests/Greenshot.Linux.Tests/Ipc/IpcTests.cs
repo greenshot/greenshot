@@ -70,6 +70,22 @@ public sealed class IpcTests : IDisposable
     }
 
     [Fact]
+    public void Files_are_opened_with_absolute_paths_even_with_spaces()
+    {
+        Directory.CreateDirectory(_folder);
+        var file = Path.Combine(_folder, "my capture.png");
+        File.WriteAllBytes(file, [0]);
+
+        var bare = AppCommand.Parse([file]);
+        Assert.Equal(new AppCommand(AppCommandKind.Open, Path: file), bare);
+
+        var wire = bare!.ToWire();
+        Assert.Equal(bare, AppCommand.ParseWire(wire));
+        Assert.Equal(file, AppCommand.Parse(["open", "file://" + file.Replace(" ", "%20")])!.Path);
+        Assert.Equal(AppCommandKind.OpenClipboard, AppCommand.ParseWire("clipboard")!.Kind);
+    }
+
+    [Fact]
     public async Task A_second_instance_talks_to_the_first()
     {
         var received = new List<string>();

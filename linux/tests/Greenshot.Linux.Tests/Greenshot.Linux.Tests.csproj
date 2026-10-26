@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
+    <ProjectReference Include="..\..\src\Greenshot.Linux.Editor\Greenshot.Linux.Editor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
