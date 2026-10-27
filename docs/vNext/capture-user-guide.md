@@ -214,8 +214,8 @@ A panel lists the sizes:
 └──────────────────────────────────┘
 ```
 
-- **The sizes** are your own sizes from the settings (Capture tab, *Fixed capture sizes*), followed by the sizes of your last
-  region captures under *Recently captured*, with the place where each was captured. Greenshot keeps the last five; an entry which is
+- **The sizes** are your own sizes from the settings (Capture tab, *Fixed capture sizes*), followed by your last region and window
+  captures (also *Capture active window*) under *Recently captured*, with the place where each was captured. Greenshot keeps the last five; an entry which is
   already in your own list (same size and place) isn't repeated.
 - **`1` – `9` and `0`** (also on the number pad) pick an entry from the list, `0` the tenth. **`PgUp`** and **`PgDn`** go to the previous or next
   entry (after the last one comes the first again), also to those after the tenth.
@@ -236,6 +236,8 @@ A panel lists the sizes:
   on a second monitor which is now switched off, the rectangle goes to the same place on the screen with the mouse: a full screen window is
   at the same place on every screen. When it doesn't fit there either, or no window of the program is open, the place is grey in the list
   and the rectangle simply follows the mouse.
+- **Keep a recent one:** the settings list your recent captures below your own sizes; the `+` on one makes it one of your own sizes,
+  so it stays in the list.
 - **Your own places:** in the settings, *Add a size* takes an optional X and Y, from the top left of the main screen, another screen,
   or a window of a program you name (e.g. notepad.exe). In greenshot.ini they are written like the geometry of X11 programs:
   `1280x720` is only the size, `1280x720+100+200` is 100, 200 from the top left of the main screen, `1280x720+100+200@1920+0` from the
@@ -441,7 +443,7 @@ greenshot.ini, so you can also set them there (see [Settings](#settings-which-ch
 | Zoomer shown or hidden | `Z` | yes, also in the settings as *Show magnifier* | `ZoomerEnabled` |
 | Where the mouse holds the fixed size area | `C` | yes | `FixedCaptureAnchor` |
 | The last fixed size entry you captured | capturing a fixed size | yes, the fixed size mode starts with it | `FixedCaptureArea` |
-| The sizes and places of your last region captures (five) | capturing a region or a fixed size | yes, listed under *Recently captured*; what they keep: *Recent captures keep* | `RecentCaptureAreas` |
+| The sizes and places of your last region and window captures (five) | capturing a region, a window or a fixed size | yes, listed under *Recently captured*; what they keep: *Recent captures keep* | `RecentCaptureAreas` |
 | The area of your last capture | any capture with the capture screen | yes, for *Capture last region* | `LastCapturedRegion` |
 | Mouse cursor shown or hidden | `M` | no, only for this capture | starts from `CaptureMousepointer` |
 | Frozen or live screen | `L` | no, only for this capture | starts from `CaptureFreezeScreen` |

@@ -44,9 +44,32 @@ namespace Greenshot.Settings.ViewModels
         /// </summary>
         public ObservableCollection<FixedCaptureSizeItem> FixedCaptureSizes { get; private set; }
 
-        private void InitializeFixedCaptureSizes() =>
-            FixedCaptureSizes = new ObservableCollection<FixedCaptureSizeItem>(
-                FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => new FixedCaptureSizeItem(entry.Area)));
+        /// <summary>
+        /// The recent captures which aren't in the own sizes, to keep one of them
+        /// </summary>
+        public ObservableCollection<FixedCaptureSizeItem> RecentFixedCaptureSizes { get; private set; }
+
+        public bool HasRecentFixedCaptureSizes => RecentFixedCaptureSizes.Count > 0;
+
+        private void InitializeFixedCaptureSizes()
+        {
+            var sizes = FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, CoreConfiguration.RecentCaptureAreas);
+            FixedCaptureSizes = new ObservableCollection<FixedCaptureSizeItem>(sizes.Where(entry => !entry.Recent).Select(entry => new FixedCaptureSizeItem(entry.Area)));
+            RecentFixedCaptureSizes = new ObservableCollection<FixedCaptureSizeItem>(sizes.Where(entry => entry.Recent).Select(entry => new FixedCaptureSizeItem(entry.Area)));
+        }
+
+        /// <summary>
+        /// A recent capture becomes one of the own sizes, at the end, written on save like the others
+        /// </summary>
+        public void KeepRecentFixedCaptureSize(FixedCaptureSizeItem item)
+        {
+            if (item == null || !RecentFixedCaptureSizes.Remove(item))
+            {
+                return;
+            }
+            AddFixedCaptureSize(item.Area);
+            OnPropertyChanged(nameof(HasRecentFixedCaptureSizes));
+        }
 
         /// <summary>
         /// Adds an entry at the end; false when it has no size or is already there

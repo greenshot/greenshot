@@ -292,6 +292,15 @@ namespace Greenshot.Settings.Views
             }
         }
 
+        // A recent capture becomes one of your own sizes
+        private void KeepFixedCaptureSize_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is FixedCaptureSizeItem item)
+            {
+                _viewModel.KeepRecentFixedCaptureSize(item);
+            }
+        }
+
         private void AddFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
             AddFixedCaptureSizePopup.IsOpen = true;

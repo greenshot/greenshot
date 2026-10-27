@@ -943,6 +943,11 @@ namespace Greenshot.Base.Languages
         string FixedCaptureSizesProgramName { get; }
 
         /// <summary>
+        /// Keep it as one of your own sizes
+        /// </summary>
+        string FixedCaptureSizesKeep { get; }
+
+        /// <summary>
         /// Recent captures keep
         /// </summary>
         string FixedCaptureRemembers { get; }
