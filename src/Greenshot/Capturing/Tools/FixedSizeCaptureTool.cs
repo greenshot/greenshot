@@ -49,7 +49,7 @@ namespace Greenshot.Capturing.Tools
     /// of a program. Picking the entry moves the cursor so the area is there (FixedCaptureMovesCursor), the places are drawn as outlines,
     /// and the area snaps onto one when it comes close. When a place on a monitor isn't on the screens (e.g. its monitor is switched off),
     /// the same place on the monitor with the cursor is used, e.g. for a full screen window.
-    /// S starts typing a size: digits, X to the height, Backspace, Enter takes it, S again stops.
+    /// S starts typing a size in two boxes next to the cursor: the width, Tab or Enter to the height, Enter takes it, S again stops.
     /// </summary>
     public class FixedSizeCaptureTool : CaptureTool
     {
@@ -92,7 +92,7 @@ namespace Greenshot.Capturing.Tools
         {
             base.Attach(host);
             host.RegisterKey(this, Key.F, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSize, () => host.ActivateTool(this));
-            host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeAccept, AcceptSelection);
+            host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeAccept, Enter);
             for (int i = 0; i < NumberKeysCount; i++)
             {
                 int index = i;
@@ -102,7 +102,7 @@ namespace Greenshot.Capturing.Tools
             host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(1));
             host.RegisterToolKey(this, Key.C, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeCorner, NextAnchor);
             host.RegisterToolKey(this, Key.S, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeType, ToggleTyping);
-            host.RegisterToolKey(this, Key.X, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeTyping, TypeHeight);
+            host.RegisterToolKey(this, Key.Tab, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeNextBox, NextTypedBox);
             host.RegisterToolKey(this, Key.Back, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeTyping, DeleteTypedDigit);
         }
 
@@ -142,11 +142,12 @@ namespace Greenshot.Capturing.Tools
 
         public override void OnMouseMove()
         {
-            if (_sizes.Count == 0)
+            var size = CurrentSize;
+            if (size.IsEmpty)
             {
                 return;
             }
-            var rect = Place(Host.CursorPosition, _sizes[_index].Area.Size, Conf.FixedCaptureAnchor);
+            var rect = Place(Host.CursorPosition, size, Conf.FixedCaptureAnchor);
             if ((Keyboard.Modifiers & ModifierKeys.Alt) == 0)
             {
                 int placeDistance = Scale(PlaceSnapDistance);
@@ -160,18 +161,62 @@ namespace Greenshot.Capturing.Tools
                 : KeepInside(KeepInside(rect, Host.GetMonitorBounds()), captureBounds).Intersect(captureBounds);
             Host.ShowSelection(_selection);
             Host.ShowLabels(_selection, _selection.Size);
+            if (IsTyping)
+            {
+                // The boxes follow the cursor
+                Host.Redraw();
+            }
         }
 
-        public override void OnMouseUp() => AcceptSelection();
+        /// <summary>
+        /// The size of the area: the current entry, while typing with the typed width and height instead
+        /// </summary>
+        private NativeSize CurrentSize
+        {
+            get
+            {
+                var size = _sizes.Count == 0 ? NativeSize.Empty : _sizes[_index].Area.Size;
+                if (!IsTyping)
+                {
+                    return size;
+                }
+                int width = int.TryParse(_typedWidth, NumberStyles.None, CultureInfo.InvariantCulture, out int typedWidth) && typedWidth > 0 ? typedWidth : size.Width;
+                int height = int.TryParse(_typedHeight, NumberStyles.None, CultureInfo.InvariantCulture, out int typedHeight) && typedHeight > 0 ? typedHeight : size.Height;
+                return width > 0 && height > 0 ? new NativeSize(width, height) : NativeSize.Empty;
+            }
+        }
+
+        public override void OnMouseUp()
+        {
+            // A click while typing captures with the size in the boxes
+            if (IsTyping)
+            {
+                TakeTypedSize();
+            }
+            AcceptSelection();
+        }
+
+        /// <summary>
+        /// Enter: captures; while typing from the width on to the height, then it takes the typed size
+        /// </summary>
+        private void Enter()
+        {
+            if (!IsTyping)
+            {
+                AcceptSelection();
+            }
+            else if (!_typingHeight && _typedHeight.Length == 0)
+            {
+                NextTypedBox();
+            }
+            else
+            {
+                TakeTypedSize();
+            }
+        }
 
         private void AcceptSelection()
         {
-            if (IsTyping)
-            {
-                // Enter takes the typed size, the capture follows with the next Enter or click
-                TakeTypedSize();
-                return;
-            }
             if (_selection.IsEmpty)
             {
                 return;
@@ -216,7 +261,8 @@ namespace Greenshot.Capturing.Tools
                 _typedWidth = _typedHeight = string.Empty;
                 _typingHeight = false;
             }
-            ShowSizes();
+            Host.Redraw();
+            OnMouseMove();
         }
 
         private void TypeDigit(int digit)
@@ -229,21 +275,21 @@ namespace Greenshot.Capturing.Tools
             {
                 _typedWidth = AddDigit(_typedWidth, digit);
             }
-            ShowSizes();
+            OnMouseMove();
         }
 
         private static string AddDigit(string text, int digit) =>
             text.Length >= TypedDigitsCount || (text.Length == 0 && digit == 0) ? text : text + digit.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
-        /// X while typing: on to the height, once there is a width
+        /// Tab while typing: the other box
         /// </summary>
-        private void TypeHeight()
+        private void NextTypedBox()
         {
-            if (IsTyping && !_typingHeight && _typedWidth.Length > 0)
+            if (IsTyping)
             {
-                _typingHeight = true;
-                ShowSizes();
+                _typingHeight = !_typingHeight;
+                Host.Redraw();
             }
         }
 
@@ -268,20 +314,22 @@ namespace Greenshot.Capturing.Tools
             {
                 _typedWidth = _typedWidth.Substring(0, _typedWidth.Length - 1);
             }
-            ShowSizes();
+            Host.Redraw();
+            OnMouseMove();
         }
 
         /// <summary>
-        /// Enter while typing: the typed size becomes the current entry, it follows the cursor
+        /// Enter while typing: the size in the boxes (an empty box keeps that of the current entry) becomes the current entry
         /// </summary>
         private void TakeTypedSize()
         {
-            var size = ParseSize($"{_typedWidth}x{_typedHeight}");
+            var size = CurrentSize;
+            _typedWidth = _typedHeight = null;
             if (size.IsEmpty)
             {
+                Host.Redraw();
                 return;
             }
-            _typedWidth = _typedHeight = null;
             var area = new FixedCaptureArea(size);
             int index = _sizes.FindIndex(entry => entry.Area == area);
             if (index < 0)
@@ -430,11 +478,20 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// The outlines of the places of the current entry
+        /// The outlines of the places of the current entry, while typing the boxes for the size
         /// </summary>
         public override void Draw(DrawingContext drawingContext)
         {
-            if (_places.Count == 0 || Host.ToolStyle is not { } style)
+            if (Host.ToolStyle is not { } style)
+            {
+                return;
+            }
+            if (IsTyping)
+            {
+                DrawTypingBoxes(drawingContext, style);
+                return;
+            }
+            if (_places.Count == 0)
             {
                 return;
             }
@@ -444,6 +501,65 @@ namespace Greenshot.Capturing.Tools
             {
                 drawingContext.DrawRectangle(null, pen, new Rect(place.X + 0.5, place.Y + 0.5, place.Width - 1, place.Height - 1));
             }
+        }
+
+        /// <summary>
+        /// A small panel next to the cursor, on the side away from the area: a box for the width and one for the height,
+        /// an empty box shows the size of the current entry, and below what the keys do
+        /// </summary>
+        private void DrawTypingBoxes(DrawingContext drawingContext, CaptureToolStyle style)
+        {
+            var current = _sizes.Count == 0 ? NativeSize.Empty : _sizes[_index].Area.Size;
+            double gap = style.Scale(8), padding = style.PanelPadding, boxPadding = style.Scale(4);
+            var widthLabel = style.CreateText(Texts.Core.CaptureFixedSizeWidth, 9, style.MutedForeground);
+            var heightLabel = style.CreateText(Texts.Core.CaptureFixedSizeHeight, 9, style.MutedForeground);
+            var times = style.CreateText("×", 12);
+            var hint = style.CreateText(Texts.Core.CaptureFixedSizeTypingHint, 9, style.MutedForeground);
+            FormattedText BoxText(string typed, int currentValue, bool active) => typed.Length > 0
+                ? style.CreateText(active ? typed + "▏" : typed, 12, bold: true)
+                : style.CreateText((currentValue > 0 ? currentValue.ToString(CultureInfo.CurrentCulture) : string.Empty) + (active ? "▏" : string.Empty), 12, style.MutedForeground);
+            var widthText = BoxText(_typedWidth, current.Width, !_typingHeight);
+            var heightText = BoxText(_typedHeight, current.Height, _typingHeight);
+            var widest = style.CreateText(new string('0', TypedDigitsCount) + "▏", 12, bold: true);
+            double boxWidth = Math.Max(widest.Width, Math.Max(widthLabel.Width, heightLabel.Width)) + 2 * boxPadding;
+            double boxHeight = widest.Height + 2 * boxPadding;
+            double labelHeight = Math.Max(widthLabel.Height, heightLabel.Height);
+            double rowWidth = boxWidth + gap + times.Width + gap + boxWidth;
+            double contentWidth = Math.Max(rowWidth, hint.Width);
+            double width = contentWidth + 2 * padding;
+            double height = labelHeight + boxPadding + boxHeight + gap + hint.Height + 2 * padding;
+
+            // The area lies right of and below the cursor for the top left corner and so on: the panel goes to the other side
+            var anchor = Conf.FixedCaptureAnchor;
+            var cursor = Host.CursorPosition;
+            double distance = style.Scale(16);
+            bool areaRight = anchor is FixedCaptureAnchor.TopLeft or FixedCaptureAnchor.BottomLeft or FixedCaptureAnchor.Center;
+            bool areaBelow = anchor is FixedCaptureAnchor.TopLeft or FixedCaptureAnchor.TopRight or FixedCaptureAnchor.Center;
+            double x = areaRight ? cursor.X - distance - width : cursor.X + distance;
+            double y = areaBelow ? cursor.Y - distance - height : cursor.Y + distance;
+            x = Math.Max(0, Math.Min(x, Host.ScreenBounds.Width - width));
+            y = Math.Max(0, Math.Min(y, Host.ScreenBounds.Height - height));
+            x = Math.Round(x);
+            y = Math.Round(y);
+
+            style.DrawPanel(drawingContext, new Rect(x, y, width, height));
+            double left = x + padding, top = y + padding;
+            var activeBorder = new Pen(style.Accent, style.Scale(2));
+            activeBorder.Freeze();
+            var border = new Pen(style.KeyCapBorder, 1);
+            border.Freeze();
+            void DrawBox(FormattedText label, FormattedText text, double boxLeft, bool active)
+            {
+                drawingContext.DrawText(label, new Point(boxLeft, top));
+                var box = new Rect(boxLeft + 0.5, top + labelHeight + boxPadding + 0.5, boxWidth - 1, boxHeight - 1);
+                drawingContext.DrawRoundedRectangle(style.KeyCapBackground, active ? activeBorder : border, box, style.Scale(3), style.Scale(3));
+                drawingContext.DrawText(text, new Point(boxLeft + boxPadding, box.Top + (box.Height - text.Height) / 2));
+            }
+            DrawBox(widthLabel, widthText, left, !_typingHeight);
+            double boxTop = top + labelHeight + boxPadding;
+            drawingContext.DrawText(times, new Point(left + boxWidth + gap, boxTop + (boxHeight - times.Height) / 2));
+            DrawBox(heightLabel, heightText, left + boxWidth + gap + times.Width + gap, _typingHeight);
+            drawingContext.DrawText(hint, new Point(left, boxTop + boxHeight + gap));
         }
 
         /// <summary>
@@ -692,24 +808,14 @@ namespace Greenshot.Capturing.Tools
                 // A place which doesn't fit now is not used
                 : style.CreateText(GetDisplayText(entry.Area), 9, entry.Area.HasPlace && GetPlaces(entry.Area).Count == 0 ? style.MutedForeground : null)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
-            // While typing a size: what is typed so far, the cursor where the next digit goes
-            var typed = IsTyping
-                ? style.CreateText(Format(Texts.Core.CaptureFixedSizesTyping, _typingHeight ? $"{_typedWidth} × {_typedHeight}▏" : $"{_typedWidth}▏", 0, 0, null), 9, style.Accent, true)
-                : null;
-            double typedHeight = typed == null ? 0 : typed.Height + gap;
 
-            double width = new[] { title.Width, hint.Width, anchorWidth, typed?.Width ?? 0, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
-            double height = title.Height + gap + typedHeight + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + anchorHeight + gap + hint.Height;
+            double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
+            double height = title.Height + gap + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + anchorHeight + gap + hint.Height;
 
             Host.ShowPanel(this, new Size(width, height), dc =>
             {
                 dc.DrawText(title, new Point(0, 0));
                 double y = title.Height + gap;
-                if (typed != null)
-                {
-                    dc.DrawText(typed, new Point(0, y));
-                    y += typedHeight;
-                }
                 for (int i = 0; i < _sizes.Count; i++)
                 {
                     if (_sizes[i].Recent && (i == 0 || !_sizes[i - 1].Recent))

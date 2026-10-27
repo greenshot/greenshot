@@ -621,14 +621,19 @@ namespace Greenshot.Base.Languages
         string CaptureKeyFixedSizeCorner { get; }
 
         /// <summary>
-        /// Help text of the key which starts and stops typing a size in the fixed size capture.
+        /// Help text of the key which starts and stops typing a width and height in the fixed size capture.
         /// </summary>
         string CaptureKeyFixedSizeType { get; }
 
         /// <summary>
-        /// Help text shown while a size is typed in the fixed size capture.
+        /// Help text of Backspace while typing a size in the fixed size capture.
         /// </summary>
         string CaptureKeyFixedSizeTyping { get; }
+
+        /// <summary>
+        /// Help text of Tab while typing a size in the fixed size capture: the other box.
+        /// </summary>
+        string CaptureKeyFixedSizeNextBox { get; }
 
         /// <summary>
         /// Cursor at the top left corner
@@ -686,9 +691,19 @@ namespace Greenshot.Base.Languages
         string CaptureFixedSizesAtProgram { get; }
 
         /// <summary>
-        /// The size being typed in the fixed size capture list, {0} is the size.
+        /// The label of the width box when typing a size in the fixed size capture.
         /// </summary>
-        string CaptureFixedSizesTyping { get; }
+        string CaptureFixedSizeWidth { get; }
+
+        /// <summary>
+        /// The label of the height box when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeHeight { get; }
+
+        /// <summary>
+        /// What the keys do, below the boxes when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeTypingHint { get; }
 
         /// <summary>
         /// Start or finish the selection
