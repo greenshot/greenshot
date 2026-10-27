@@ -202,8 +202,9 @@ A panel lists the sizes:
 │ [4]  1280 × 720  ← highlighted   │
 │ [5]  1920 × 1080                 │
 │ Recently captured                │
-│ [6]  412 × 300                   │
-│ [7]  96 × 96                     │
+│ [6]  412 × 300 at 220, 140       │
+│ [7]  96 × 96 at 8, 40 in         │
+│      notepad.exe                 │
 │                                  │
 │ [C]  ┌──•  Cursor at the top     │
 │      └──┘  left corner           │
@@ -213,16 +214,47 @@ A panel lists the sizes:
 └──────────────────────────────────┘
 ```
 
-- **The sizes** are your own sizes from the settings (Capture tab, *Fixed capture sizes*), followed by the sizes of your last
-  region captures under *Recently captured*. Greenshot keeps the last five; a size which is already in your own list isn't repeated.
-- **`1` – `9`** (also on the number pad) pick a size from the list, **`PgUp`** and **`PgDn`** go to the previous or next size (after the last one comes the first again).
+- **The sizes** are your own sizes from the settings (Capture tab, *Fixed capture sizes*), followed by your last region and window
+  captures (also *Capture active window*) under *Recently captured*, with the place where each was captured. Greenshot keeps the last five; an entry which is
+  already in your own list (same size and place) isn't repeated.
+- **`1` – `9` and `0`** (also on the number pad) pick an entry from the list, `0` the tenth. **`PgUp`** and **`PgDn`** go to the previous or next
+  entry (after the last one comes the first again), also to those after the tenth.
+- **A size of your own right now:** press **`S`** and two boxes appear next to the mouse, *Width* and *Height*. Type the width, press
+  `Tab` or `Enter` for the height and type it (`Backspace` deletes a digit, an empty box keeps the size of the current entry). The
+  rectangle takes the size while you type. `Enter` takes the size and the next click or `Enter` captures; a click captures right away.
+  `S` again stops typing without changing the size. Once captured, the size is under *Recently captured*.
+- **The same place again:** when an entry has a place, picking it moves the mouse so the rectangle is exactly there, and a dashed outline
+  shows the place. Click or press `Enter` to capture the same area as before. The rectangle still follows the mouse: move it away to capture
+  somewhere else, bring it close to the outline and it snaps back onto it (hold `Alt` to stop that). The mode starts with the entry you
+  captured last, so `F` and `Enter` capture the last fixed size area again.
+- **On the screen or in a window:** a place is on a screen (e.g. *1280 × 720 at 100, 200*, from the top left of the main screen, or
+  *... on screen 2*) or in the window of a program (*... in notepad.exe*, from the top left of the content of its window). A place in a
+  window goes where the window is now; with more windows of that program open, each one where the area fits gets an outline, the mouse
+  goes into the one under it, else into the top one, and the rectangle snaps onto the others when you move it there. A window completely
+  behind another one gets no outline.
+- **What your captures remember** is set on the Capture tab with *Recent captures keep*: only the size, the place on the screen, or
+  (the default) the place in the window of the program you captured in; a capture which isn't completely in one window keeps the place
+  on the screen. With *Move the mouse to the place of a size* off, the mouse stays where it is: the outline shows the place, and the
+  rectangle snaps onto it when you bring it there.
+- **When the screen is gone:** a place on a screen is used when the whole rectangle is on your screens. When it isn't, e.g. you captured
+  on a second monitor which is now switched off, the rectangle goes to the same place on the screen with the mouse: a full screen window is
+  at the same place on every screen. When it doesn't fit there either, or no window of the program is open, the place is grey in the list
+  and the rectangle simply follows the mouse.
+- **Keep a recent one:** the settings list your recent captures below your own sizes; the `+` on one makes it one of your own sizes,
+  so it stays in the list.
+- **Your own places:** in the settings, *Add a size* takes an optional X and Y, from the top left of the main screen, another screen,
+  or a window of a program you name (e.g. notepad.exe). In greenshot.ini they are written like the geometry of X11 programs:
+  `1280x720` is only the size, `1280x720+100+200` is 100, 200 from the top left of the main screen, `1280x720+100+200@1920+0` from the
+  top left of the screen whose top left corner is at 1920, 0 (a screen on the left of the main one: `@-1920+0`), and
+  `1280x720+10-30@notepad.exe` from the top left of the content of a window of notepad.exe. A minus is a negative number, here 30
+  pixels above the content, in the title bar; it doesn't count from the right or the bottom as in X11. All values are pixels.
 - **Where the mouse holds the rectangle:** at the top left corner at first. **`C`** changes it to the top right corner, the bottom right,
   the bottom left, the middle, and back to the top left. At a corner the pixel under the mouse is the corner pixel of the capture, so the
   zoomer shows you exactly where the capture starts or ends. The panel shows the current choice as a dot in a small rectangle.
 - **Snapping:** an edge of the rectangle which comes close (a few pixels) to an edge of the window under the mouse, of the windows around it,
   or of the monitor, jumps onto that edge. That makes it easy to capture a window's corner exactly. **Hold `Alt`** to place the rectangle freely.
-- The rectangle stays on the monitor with the mouse. A size larger than the monitor is cut off at the edges of your screens.
-- The mode starts with the size you used last time.
+- The rectangle stays on the monitor with the mouse, except at its place, which can be on more than one monitor. A size larger than the
+  monitor is cut off at the edges of your screens.
 
 ### Text
 
@@ -388,9 +420,10 @@ The **Keys** panel (`F1`) always shows the keys which work at that moment. This 
 | Key | What it does |
 |---|---|
 | `Enter` | Capture the area |
-| `1` – `9` | Pick a size from the list (also on the number pad) |
+| `1` – `9`, `0` | Pick a size from the list, `0` the tenth (also on the number pad) |
 | `PgUp` / `PgDn` | The previous or next size |
 | `C` | Hold the area at another corner or in the middle |
+| `S` | Type a width and height in two boxes next to the mouse: `Tab` the other box, `Backspace` deletes a digit, `Enter` takes the size; `S` again stops |
 | hold `Alt` | Place the area without snapping |
 
 **With the mouse**
@@ -414,8 +447,8 @@ greenshot.ini, so you can also set them there (see [Settings](#settings-which-ch
 | Preview in a corner, at the mouse, or off | `P` | yes | `CaptureSelectionPreviewVisible`, `ZoomerShowsPreview` |
 | Zoomer shown or hidden | `Z` | yes, also in the settings as *Show magnifier* | `ZoomerEnabled` |
 | Where the mouse holds the fixed size area | `C` | yes | `FixedCaptureAnchor` |
-| The last fixed size you captured | capturing a fixed size | yes, the fixed size mode starts with it | `FixedCaptureSize` |
-| The sizes of your last region captures (five) | capturing a region or a fixed size | yes, listed under *Recently captured* | `RecentCaptureSizes` |
+| The last fixed size entry you captured | capturing a fixed size | yes, the fixed size mode starts with it | `FixedCaptureArea` |
+| The sizes and places of your last region and window captures (five) | capturing a region, a window or a fixed size | yes, listed under *Recently captured*; what they keep: *Recent captures keep* | `RecentCaptureAreas` |
 | The area of your last capture | any capture with the capture screen | yes, for *Capture last region* | `LastCapturedRegion` |
 | Mouse cursor shown or hidden | `M` | no, only for this capture | starts from `CaptureMousepointer` |
 | Frozen or live screen | `L` | no, only for this capture | starts from `CaptureFreezeScreen` |
@@ -436,7 +469,9 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
 | Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). `L` switches while selecting. |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
-| Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` pick them. Add a size with width and height, remove one from the list. |
+| Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` and `0` pick them. Add a size with width and height, and optionally a place on a screen or in a window of a program (without X and Y: its top left corner); click a size to change it, or remove one from the list. |
+| Capture tab | *Recent captures keep* | What the fixed size mode offers of your last captures: only the size, the place on the screen, or the place in the window of the program (the default). |
+| Capture tab | *Move the mouse to the place of a size* | Picking a size with a place moves the mouse there (the default); off, only the outline shows it. |
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |
 | Capture tab, *Text recognition (OCR)* | *Language of the text* | The language Windows reads text in, for the text mode and the Windows OCR destination. |
 | Expert tab | *Make some optimizations for usage with remote desktop* | No animations and no crosshair lines, also outside of a remote session. In a remote session this happens on its own. |
@@ -457,10 +492,12 @@ All of these are in the `[Core]` section, unless said otherwise.
 | `CaptureInfoVisible` | `True` | Show the info panel. |
 | `CaptureSelectionPreviewVisible` | `True` | Show the preview of the selection. |
 | `ZoomerShowsPreview` | `False` | Show the preview in the place of the zoomer instead of in a corner. |
-| `FixedCaptureSizes` | `640x480,800x600,1024x768,1280x720,1920x1080` | Your sizes for the fixed size mode, the same as in the settings window. |
+| `FixedCaptureSizes` | `640x480,800x600,1024x768,1280x720,1920x1080` | Your sizes for the fixed size mode, the same as in the settings window. An entry can have a place, e.g. `1280x720+100+200` or `800x600+10+40@notepad.exe`, see [Fixed size](#fixed-size). |
+| `FixedCaptureRemembers` | `Window` | What the last captures keep: `Size`, `Screen` or `Window`, the same as *Recent captures keep*. |
+| `FixedCaptureMovesCursor` | `True` | Move the mouse to the place of a size, the same as in the settings window. |
 | `FixedCaptureAnchor` | `TopLeft` | Where the mouse holds the fixed size area: `TopLeft`, `TopRight`, `BottomRight`, `BottomLeft` or `Center`. |
-| `FixedCaptureSize` | | The size the fixed size mode starts with. |
-| `RecentCaptureSizes` | | The sizes of the last region captures. |
+| `FixedCaptureArea` | | The entry the fixed size mode starts with, e.g. `1280x720+100+200`. |
+| `RecentCaptureAreas` | | The sizes and places of the last region captures. |
 | `LastCapturedRegion` | | The area *Capture last region* captures. |
 | `ScreenCaptureMode` | `Auto` | What *Capture full screen* captures: `Auto` the monitor with the mouse, `FullScreen` all monitors, `Fixed` the monitor of `ScreenToCapture`. |
 | `ScreenToCapture` | `1` | The monitor for `ScreenCaptureMode=Fixed`, counting from 1. |

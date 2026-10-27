@@ -621,6 +621,21 @@ namespace Greenshot.Base.Languages
         string CaptureKeyFixedSizeCorner { get; }
 
         /// <summary>
+        /// Help text of the key which starts and stops typing a width and height in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeType { get; }
+
+        /// <summary>
+        /// Help text of Backspace while typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeTyping { get; }
+
+        /// <summary>
+        /// Help text of Tab while typing a size in the fixed size capture: the other box.
+        /// </summary>
+        string CaptureKeyFixedSizeNextBox { get; }
+
+        /// <summary>
         /// Cursor at the top left corner
         /// </summary>
         string CaptureFixedSizesAnchorTopLeft { get; }
@@ -659,6 +674,36 @@ namespace Greenshot.Base.Languages
         /// Hold Alt to place it without snapping
         /// </summary>
         string CaptureFixedSizesNoSnap { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2}
+        /// </summary>
+        string CaptureFixedSizesAt { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} on screen {3}
+        /// </summary>
+        string CaptureFixedSizesAtScreen { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} in {3}
+        /// </summary>
+        string CaptureFixedSizesAtProgram { get; }
+
+        /// <summary>
+        /// The label of the width box when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeWidth { get; }
+
+        /// <summary>
+        /// The label of the height box when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeHeight { get; }
+
+        /// <summary>
+        /// What the keys do, below the boxes when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeTypingHint { get; }
 
         /// <summary>
         /// Start or finish the selection

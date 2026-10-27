@@ -217,4 +217,20 @@ public class CaptureKeyRegistryTests
 
         Assert.Equal(new[] { "1–9" }, rows.Single().Keys);
     }
+
+    [Fact]
+    public void HelpRows_ZeroAfterNine_ShowsAfterTheRange()
+    {
+        var registry = new CaptureKeyRegistry();
+        var tool = new FakeTool();
+        for (int i = 0; i < 9; i++)
+        {
+            registry.Register(ForTool(tool, Key.D1 + i, "Pick"));
+        }
+        registry.Register(ForTool(tool, Key.D0, "Pick"));
+
+        var rows = HelpOverlay.GetRows(registry.Bindings, tool);
+
+        Assert.Equal(new[] { "1–9", "0" }, rows.Single().Keys);
+    }
 }

@@ -908,6 +908,86 @@ namespace Greenshot.Base.Languages
         string FixedCaptureSizesHeight { get; }
 
         /// <summary>
+        /// X (optional)
+        /// </summary>
+        string FixedCaptureSizesX { get; }
+
+        /// <summary>
+        /// Y (optional)
+        /// </summary>
+        string FixedCaptureSizesY { get; }
+
+        /// <summary>
+        /// From the top left of
+        /// </summary>
+        string FixedCaptureSizesRelativeTo { get; }
+
+        /// <summary>
+        /// The main screen
+        /// </summary>
+        string FixedCaptureSizesMainScreen { get; }
+
+        /// <summary>
+        /// Screen {0}
+        /// </summary>
+        string FixedCaptureSizesScreen { get; }
+
+        /// <summary>
+        /// A window of a program
+        /// </summary>
+        string FixedCaptureSizesProgram { get; }
+
+        /// <summary>
+        /// Program, e.g. notepad.exe
+        /// </summary>
+        string FixedCaptureSizesProgramName { get; }
+
+        /// <summary>
+        /// Keep it as one of your own sizes
+        /// </summary>
+        string FixedCaptureSizesKeep { get; }
+
+        /// <summary>
+        /// Change this size (a click on a fixed capture size in the settings)
+        /// </summary>
+        string FixedCaptureSizesChange { get; }
+
+        /// <summary>
+        /// Recent captures keep
+        /// </summary>
+        string FixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Only the size
+        /// </summary>
+        string FixedCaptureRemembersSize { get; }
+
+        /// <summary>
+        /// The place on the screen
+        /// </summary>
+        string FixedCaptureRemembersScreen { get; }
+
+        /// <summary>
+        /// The place in the window, else on the screen
+        /// </summary>
+        string FixedCaptureRemembersWindow { get; }
+
+        /// <summary>
+        /// What F in the region selection offers of your last captures: only the size, also the place on the screen, or also the place in the window of the program, which follows the window.
+        /// </summary>
+        string TooltipFixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Move the mouse to the place of a size
+        /// </summary>
+        string FixedCaptureMovesCursor { get; }
+
+        /// <summary>
+        /// Picking a size with a place moves the mouse so the area is there. When off, the place is shown as an outline and the area snaps onto it.
+        /// </summary>
+        string TooltipFixedCaptureMovesCursor { get; }
+
+        /// <summary>
         /// Window capture
         /// </summary>
         string Windowscapture { get; }
