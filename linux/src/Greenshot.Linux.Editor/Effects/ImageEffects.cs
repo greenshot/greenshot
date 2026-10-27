@@ -288,6 +288,139 @@ public static class ImageEffects
     }
 
     /// <summary>
+    /// Black and white by the brightness of each pixel, the MonochromeEffect
+    /// </summary>
+    public static EffectResult Monochrome(SKBitmap source, byte threshold = 128)
+    {
+        var result = source.Copy(SKColorType.Bgra8888);
+        var pixels = result.Pixels;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            var c = pixels[i];
+            byte value = (c.Red + c.Green + c.Blue) / 3 > threshold ? (byte)255 : (byte)0;
+            pixels[i] = new SKColor(value, value, value, c.Alpha);
+        }
+
+        result.Pixels = pixels;
+        return new EffectResult(result, SKMatrix.Identity);
+    }
+
+    /// <summary>
+    /// Brightness, contrast and gamma like the AdjustEffect (1 changes nothing): the color matrix of Windows, then the gamma
+    /// </summary>
+    public static EffectResult Adjust(SKBitmap source, float brightness = 1f, float contrast = 1f, float gamma = 1f)
+    {
+        float offset = brightness - 1f;
+        var table = new byte[256];
+        for (int i = 0; i < 256; i++)
+        {
+            table[i] = (byte)Math.Clamp(Math.Round(255 * Math.Pow(i / 255.0, gamma)), 0, 255);
+        }
+
+        using var matrix = SKColorFilter.CreateColorMatrix(
+        [
+            contrast, 0, 0, 0, offset,
+            0, contrast, 0, 0, offset,
+            0, 0, contrast, 0, offset,
+            0, 0, 0, 1, 0,
+        ]);
+        using var gammaTable = SKColorFilter.CreateTable(null, table, table, table);
+        using var filter = SKColorFilter.CreateCompose(gammaTable, matrix);
+        var result = NewBitmap(source.Width, source.Height);
+        using (var canvas = new SKCanvas(result))
+        using (var paint = new SKPaint { ColorFilter = filter })
+        {
+            canvas.DrawBitmap(source, 0, 0, paint);
+        }
+
+        return new EffectResult(result, SKMatrix.Identity);
+    }
+
+    /// <summary>
+    /// Rotate by the angle (clockwise, degrees), the canvas grows to hold the rotated image, the RotateEffect
+    /// </summary>
+    public static EffectResult Rotate(SKBitmap source, int angle)
+    {
+        angle = ((angle % 360) + 360) % 360;
+        switch (angle)
+        {
+            case 0:
+                return new EffectResult(source.Copy(), SKMatrix.Identity);
+            case 90:
+                return RotateClockwise(source);
+            case 270:
+                return RotateCounterClockwise(source);
+        }
+
+        var rotation = SKMatrix.CreateRotationDegrees(angle, source.Width / 2f, source.Height / 2f);
+        var bounds = rotation.MapRect(SKRect.Create(source.Width, source.Height));
+        var transform = rotation.PostConcat(SKMatrix.CreateTranslation(-bounds.Left, -bounds.Top));
+        var result = NewBitmap((int)Math.Ceiling(bounds.Width), (int)Math.Ceiling(bounds.Height));
+        using (var canvas = new SKCanvas(result))
+        using (var image = SKImage.FromBitmap(source))
+        using (var paint = new SKPaint { IsAntialias = true })
+        {
+            canvas.SetMatrix(transform);
+            canvas.DrawImage(image, 0, 0, new SKSamplingOptions(SKFilterMode.Linear), paint);
+        }
+
+        return new EffectResult(result, transform);
+    }
+
+    /// <summary>
+    /// At most the number of colors: the most used colors (5 bits per channel) and every pixel the nearest of them,
+    /// the ReduceColorsEffect; transparency stays
+    /// </summary>
+    public static EffectResult ReduceColors(SKBitmap source, int colors = 256)
+    {
+        colors = Math.Clamp(colors, 2, 256);
+        var result = source.Copy(SKColorType.Bgra8888);
+        var pixels = result.Pixels;
+        static int Bucket(SKColor c) => (c.Red >> 3) << 10 | (c.Green >> 3) << 5 | c.Blue >> 3;
+        var counts = new Dictionary<int, (long Count, long R, long G, long B)>();
+        foreach (var c in pixels)
+        {
+            int key = Bucket(c);
+            counts.TryGetValue(key, out var entry);
+            counts[key] = (entry.Count + 1, entry.R + c.Red, entry.G + c.Green, entry.B + c.Blue);
+        }
+
+        var palette = counts.Values.OrderByDescending(e => e.Count).Take(colors)
+            .Select(e => new SKColor((byte)(e.R / e.Count), (byte)(e.G / e.Count), (byte)(e.B / e.Count))).ToArray();
+        var nearest = new Dictionary<int, SKColor>();
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            var c = pixels[i];
+            int key = Bucket(c);
+            if (!nearest.TryGetValue(key, out var mapped))
+            {
+                mapped = palette.MinBy(p => (p.Red - c.Red) * (p.Red - c.Red) + (p.Green - c.Green) * (p.Green - c.Green) + (p.Blue - c.Blue) * (p.Blue - c.Blue));
+                nearest[key] = mapped;
+            }
+
+            pixels[i] = mapped.WithAlpha(c.Alpha);
+        }
+
+        result.Pixels = pixels;
+        return new EffectResult(result, SKMatrix.Identity);
+    }
+
+    /// <summary>
+    /// The image on the color, without transparency, the RemoveTransparencyEffect (white by default)
+    /// </summary>
+    public static EffectResult RemoveTransparency(SKBitmap source, SKColor? color = null)
+    {
+        var result = NewBitmap(source.Width, source.Height);
+        using (var canvas = new SKCanvas(result))
+        {
+            canvas.Clear((color ?? SKColors.White).WithAlpha(255));
+            canvas.DrawBitmap(source, 0, 0);
+        }
+
+        return new EffectResult(result, SKMatrix.Identity);
+    }
+
+    /// <summary>
     /// The area without the border of one color around the image, the AutoCrop of Windows; null when there is nothing to crop
     /// </summary>
     public static SKRectI? FindAutoCropArea(SKBitmap source, int tolerance = 0)

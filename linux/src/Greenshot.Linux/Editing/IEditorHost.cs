@@ -51,4 +51,9 @@ internal interface IEditorHost
     /// Open a file in a new editor window
     /// </summary>
     Task OpenFileAsync(string path);
+
+    /// <summary>
+    /// The recipes of the editor's Recipes menu (Editor triggers)
+    /// </summary>
+    IReadOnlyList<Greenshot.Linux.Recipes.Triggers.IEditorTrigger> EditorRecipeTriggers { get; }
 }

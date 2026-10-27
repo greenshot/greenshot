@@ -48,7 +48,7 @@ namespace Greenshot.Linux.Editing;
 /// The image editor, the ImageEditorForm of Windows: tools on the left, the properties on top, the image in the middle.
 /// The keys are the ones of the Windows editor.
 /// </summary>
-public partial class EditorWindow : Window
+public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 {
     private static readonly double[] ZoomLevels = [0.25, 0.5, 2.0 / 3, 0.75, 1, 1.5, 2, 3, 4, 6, 8];
 
@@ -94,6 +94,7 @@ public partial class EditorWindow : Window
         PropertyBarHost.Content = new PropertyBar(_controller, host.EditorSettings);
         CreateToolButtons();
         CreateExportMenu();
+        CreateRecipesMenu();
 
         _surface.Changed += OnSurfaceChanged;
         _controller.StateChanged += UpdateToolButtons;
@@ -165,6 +166,52 @@ public partial class EditorWindow : Window
         Width = 16,
         Height = 16,
     };
+
+    public EditorSurface Surface => _surface;
+
+    public CaptureDetails CaptureDetails => _details;
+
+    /// <summary>
+    /// The recipes of Editor triggers, in their groups like the Recipes menu of the Windows editor
+    /// </summary>
+    private void CreateRecipesMenu()
+    {
+        var triggers = _host.EditorRecipeTriggers;
+        RecipesMenu.IsVisible = triggers.Count > 0;
+        foreach (var group in triggers.GroupBy(t => t.Group ?? "Recipes")
+                     .OrderBy(g => g.Key == "Recipes" ? 0 : 1).ThenBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase))
+        {
+            var target = RecipesMenu;
+            if (group.Key != "Recipes")
+            {
+                target = new MenuItem { Header = group.Key };
+                RecipesMenu.Items.Add(target);
+            }
+
+            foreach (var trigger in group.OrderBy(t => t.Order).ThenBy(t => t.MenuItemText, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var item = new MenuItem { Header = trigger.MenuItemText };
+                item.Click += (_, _) =>
+                {
+                    CommitTextEdit();
+                    trigger.Fire(this);
+                };
+                target.Items.Add(item);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A recipe of the Recipes menu sends its result back to this editor (TargetEditor CurrentEditor): it can be undone
+    /// </summary>
+    public void ReplaceContent(EditorSurface result)
+    {
+        _surface.Checkpoint();
+        _surface.ReplaceImage(result.Image.Copy(), SkiaSharp.SKMatrix.Identity);
+        _surface.LoadElements(result.SerializeElements());
+        _surface.IsModified = true;
+        _surface.Invalidate();
+    }
 
     private void CreateExportMenu()
     {

@@ -29,6 +29,7 @@ using Greenshot.Linux.Core.Destinations;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Recipes.Pipeline;
 using Capture = Greenshot.Linux.Core.Capturing.Capture;
 
 namespace Greenshot.Linux.Plugins.ExternalCommand;
@@ -151,8 +152,10 @@ public sealed class ExternalCommandSettings(CoreSettings settings)
 /// <summary>
 /// The ExternalCommand plugin: every command is a destination which starts a program with the capture
 /// </summary>
-public sealed class ExternalCommandPlugin : IGreenshotPlugin
+public sealed class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry) => registry.Register<Recipes.ExternalCommandStep>(config => new Recipes.ExternalCommandStep(config, Commands));
+
     private readonly CoreSettings _settings;
 
     public ExternalCommandPlugin(CoreSettings settings)
@@ -176,8 +179,12 @@ public sealed class ExternalCommandPlugin : IGreenshotPlugin
 /// Saves the capture to a file and starts the command with it. The output can bring a link: it goes to the clipboard
 /// and the notification opens it, like on Windows.
 /// </summary>
-public sealed partial class ExternalCommandDestination(CoreSettings settings, ExternalCommandSettings commands, ExternalCommandDefinition command) : IDestination
+public sealed partial class ExternalCommandDestination(CoreSettings settings, ExternalCommandSettings commands, ExternalCommandDefinition command)
+    : IDestination, IRequiresRecipeAuthorization
 {
+    public IEnumerable<RecipeGatedAction> GetGatedActions() =>
+        [new RecipeGatedAction(RecipeGateType.ExternalCommand, $"{command.Name} ({command.Commandline})", "Recipe.gate_external_command")];
+
     [GeneratedRegex(@"https?://[^\s""'<>]+")]
     private static partial Regex UriRegex();
 

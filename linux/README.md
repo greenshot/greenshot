@@ -7,8 +7,8 @@ compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
 Done so far: **milestone 1, capturing**, **milestone 2, the image editor**, **milestone 3, settings and languages** and
-**milestone 4, more destinations** and most of **milestone 5, plugins**. Recipes and the MCP server follow, see
-[Roadmap](#roadmap).
+**milestone 4, more destinations**, **milestone 5, plugins** and the engine of **milestone 6, recipes**. The recipe editor,
+the full command line and the MCP server follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -49,7 +49,7 @@ The keys are the ones of Windows: `ExcludePluginNames` and `ExcludeDestinations`
 | Box, Dropbox | ✅ with your own app key, see below |
 | Jira: attach to an issue of your favourite filters or by key, with a comment that can show the capture; issues seen in window titles become destinations | ✅ titles on Sway, Hyprland |
 | Confluence: attach to a page found by search or in the page tree, a new version or another name when the name is used | ✅ |
-| Recipes, MCP server | ⏳ next |
+| MCP server | ⏳ next |
 
 Keys, tokens and uploaders are kept in the keyring of the desktop (Secret Service: GNOME Keyring, KWallet, KeePassXC) with
 `secret-tool`, or without it in `~/.config/greenshot/secrets.ini` readable only by you. The Windows version obfuscates them
@@ -110,6 +110,25 @@ shows them, they start with a PNG.
 - XWayland (Avalonia renders through it)
 
 Fedora: `sudo dnf install dotnet-sdk-10.0 grim wl-clipboard xdg-desktop-portal`
+
+### Recipes
+
+The recipes of Windows (docs/vNext/capture-recipes.md) run on Linux: the same `.gsrecipe.json` files, steps, options, automatic
+steps (border, drop shadow, caption, …), triggers and approval. The built-in captures are recipes too, so automatic steps
+switched on in Settings → Recipes apply to them.
+
+- Import a recipe with the tray menu *Recipes → Import Recipe…*, by opening a `.gsrecipe.json` file with Greenshot, or with
+  `RecipeFiles` in `[Recipe]`. Before it runs the first time it shows what it does; approved recipes are kept in
+  `~/.local/state/greenshot/recipe_trust.dat`, encrypted with a key in the keyring.
+- Run one with `greenshot recipe <id> [key=value …]`, its hotkey, its tray menu entry or the editor's Recipes menu.
+- The tray's *Quick preferences* has the switches recipes mark with `quickSettings` under *Automatic steps*.
+- Triggers: hotkey (portal or a compositor binding to `greenshot recipe <id>`, listed in Settings → General), context
+  menu, editor menu, clipboard change (`wl-paste --watch`), command line.
+- Steps the Linux version does differently: `RecordVideo` uses `wf-recorder`; window sources need Sway or Hyprland, like
+  window capture.
+
+Still to come: the recipe manager and the visual recipe editor, `--list-recipes`, `--info`, recipe output on stdout, and
+the MCP server.
 
 ## Build, run, test
 
@@ -190,6 +209,7 @@ linux/
   src/Greenshot.Linux.Core     no UI: settings, filename patterns, screen grabbers, compositor queries,
                                D-Bus portals and notifications, destinations, single instance socket
   src/Greenshot.Linux.Editor   no UI: the editor model, drawing elements, Skia rendering, undo, effects, .greenshot files
+  src/Greenshot.Linux.Recipes  no UI: the recipe engine of Windows (model, validation, DAG engine, steps, triggers, approval)
   src/Greenshot.Linux.Plugins  no UI: the plugins (external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence)
   src/Greenshot.Linux          Avalonia: tray, capture screen, picker, editor window, the capture flow (GreenshotController)
   tests/Greenshot.Linux.Tests  xunit
@@ -214,8 +234,10 @@ linux/
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
 4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames
    on the capture screen and the QR generator with its WiFi / vCard / calendar types
-5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅; recipes and the MCP server next
-6. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
-7. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
+5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
+6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
+   editor, the full command line and the MCP server next
+7. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
+8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 
 Not possible on Linux: the Office plugin (COM automation of Microsoft Office). LibreOffice could take its place.

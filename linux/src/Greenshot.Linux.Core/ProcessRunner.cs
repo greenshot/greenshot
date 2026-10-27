@@ -38,10 +38,11 @@ public static class ProcessRunner
     /// and reading them would wait until it ends
     /// </param>
     public static async Task<ProcessResult> RunAsync(string fileName, IEnumerable<string> arguments, byte[]? input = null,
-        TimeSpan? timeout = null, CancellationToken cancellationToken = default, bool captureOutput = true)
+        TimeSpan? timeout = null, CancellationToken cancellationToken = default, bool captureOutput = true, string? workingDirectory = null)
     {
         var startInfo = new ProcessStartInfo(fileName)
         {
+            WorkingDirectory = workingDirectory ?? string.Empty,
             RedirectStandardOutput = captureOutput,
             RedirectStandardError = captureOutput,
             RedirectStandardInput = input != null,

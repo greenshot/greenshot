@@ -38,6 +38,16 @@ public enum CaptureMode
     /// A region whose text is recognized (T on the capture screen)
     /// </summary>
     Text,
+
+    /// <summary>
+    /// The image of the clipboard
+    /// </summary>
+    Clipboard,
+
+    /// <summary>
+    /// An image file
+    /// </summary>
+    File,
 }
 
 /// <summary>

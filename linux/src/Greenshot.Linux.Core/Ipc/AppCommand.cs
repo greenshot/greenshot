@@ -48,13 +48,19 @@ public enum AppCommandKind
     Exit,
     Help,
     Version,
+
+    /// <summary>
+    /// Run a recipe, with the values of its arguments
+    /// </summary>
+    Recipe,
 }
 
 /// <summary>
 /// What the command line asks for. The same text goes over the socket to a running Greenshot,
 /// so "greenshot capture region" bound to a key starts a capture in the running instance.
 /// </summary>
-public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, string? Path = null)
+public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, string? Path = null, string? RecipeId = null,
+    IReadOnlyDictionary<string, string>? Parameters = null)
 {
     public const string Usage = """
         Usage: greenshot [command]
@@ -69,6 +75,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
           capture last          Capture the last region again (Shift + PrintScreen)
           open <file>           Open an image or .greenshot file in the editor, also: greenshot <file>
           clipboard             Open the image on the clipboard in the editor
+          recipe <id> [key=value ...]
+                                Run a recipe, with values of its arguments (also: --recipe <id> --key value)
           settings              Show the settings
           exit                  Stop the running Greenshot
           --help                Show this text
@@ -107,12 +115,53 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
                 return new AppCommand(AppCommandKind.OpenClipboard);
             case "settings" or "preferences":
                 return new AppCommand(AppCommandKind.Settings);
+            case "recipe" or "r" when args.Count >= 2:
+                return ParseRecipe(args);
             default:
                 // Like Greenshot.exe: a file on the command line is opened in the editor
                 return File.Exists(args[0]) || args[0].StartsWith("file://", StringComparison.Ordinal)
                     ? new AppCommand(AppCommandKind.Open, Path: ToAbsolute(args[0]))
                     : null;
         }
+    }
+
+    /// <summary>
+    /// The arguments of a recipe as key=value, --key=value or --key value, like greenshot-cli --recipe of Windows
+    /// </summary>
+    private static AppCommand? ParseRecipe(IReadOnlyList<string> args)
+    {
+        var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 2; i < args.Count; i++)
+        {
+            string arg = args[i];
+            if (arg.StartsWith('-'))
+            {
+                string name = arg.TrimStart('-');
+                int equals = name.IndexOf('=');
+                if (equals > 0)
+                {
+                    parameters[Uri.UnescapeDataString(name[..equals])] = Uri.UnescapeDataString(name[(equals + 1)..]);
+                }
+                else if (i + 1 < args.Count && name.Length > 0)
+                {
+                    parameters[Uri.UnescapeDataString(name)] = Uri.UnescapeDataString(args[++i]);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (arg.IndexOf('=') is > 0 and var separator)
+            {
+                parameters[Uri.UnescapeDataString(arg[..separator])] = Uri.UnescapeDataString(arg[(separator + 1)..]);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return new AppCommand(AppCommandKind.Recipe, RecipeId: args[1], Parameters: parameters);
     }
 
     /// <summary>
@@ -155,6 +204,9 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
         AppCommandKind.Open => "open " + Path,
         AppCommandKind.OpenClipboard => "clipboard",
         AppCommandKind.Settings => "settings",
+        // The values are escaped, they can contain spaces
+        AppCommandKind.Recipe => "recipe " + RecipeId + string.Concat((Parameters ?? new Dictionary<string, string>())
+            .Select(p => $" {Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}")),
         AppCommandKind.Exit => "exit",
         _ => "start",
     };

@@ -31,6 +31,7 @@ using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Naming;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Recipes.Pipeline;
 using Capture = Greenshot.Linux.Core.Capturing.Capture;
 
 namespace Greenshot.Linux.Plugins.Atlassian;
@@ -452,8 +453,10 @@ public sealed class JiraConnector
 /// <summary>
 /// Upload to Jira: with the dialog to choose the issue, or directly to an issue seen in a window title
 /// </summary>
-public sealed class JiraDestination(JiraPlugin plugin, JiraIssue? issue = null) : IDestination
+public sealed class JiraDestination(JiraPlugin plugin, JiraIssue? issue = null) : IDestination, IRequiresRecipeAuthorization
 {
+    public IEnumerable<RecipeGatedAction> GetGatedActions() => [new RecipeGatedAction(RecipeGateType.NetworkAccess, "Jira")];
+
     /// <summary>
     /// Replaced with the attachment when the comment is sent, the final file name isn't known before
     /// </summary>
@@ -726,8 +729,10 @@ public sealed class ConfluenceConnector
 /// <summary>
 /// Upload to a page of Confluence, chosen in the dialog
 /// </summary>
-public sealed class ConfluenceDestination(ConfluencePlugin plugin) : IDestination
+public sealed class ConfluenceDestination(ConfluencePlugin plugin) : IDestination, IRequiresRecipeAuthorization
 {
+    public IEnumerable<RecipeGatedAction> GetGatedActions() => [new RecipeGatedAction(RecipeGateType.NetworkAccess, "Confluence")];
+
     public string Designation => "Confluence";
 
     public string DisplayName => Texts.Get("Confluence", "upload_menu_item");
@@ -858,8 +863,14 @@ public sealed class ConfluencePlugin
 /// Jira and Confluence like the Atlassian plugin of Windows; on the same site (Cloud: https://example.atlassian.net and .../wiki)
 /// both use the same account
 /// </summary>
-public sealed class AtlassianPlugin : IGreenshotPlugin
+public sealed class AtlassianPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        registry.Register<Recipes.JiraStep>(config => new Recipes.JiraStep(config, Jira));
+        registry.Register<Recipes.ConfluenceStep>(config => new Recipes.ConfluenceStep(config, Confluence));
+    }
+
     public AtlassianPlugin(CoreSettings settings, ISecretStore secrets, IAtlassianDialogs dialogs, HttpSend? send = null)
     {
         Jira = new JiraPlugin(settings, secrets, dialogs, send);

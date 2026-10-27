@@ -33,6 +33,7 @@ using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Naming;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Recipes.Pipeline;
 
 namespace Greenshot.Linux.Plugins.Cloud;
 
@@ -88,8 +89,10 @@ public sealed class CloudSettings(CoreSettings settings, string section)
 /// <summary>
 /// Shared by Box and Dropbox: sign in when needed, upload, link to the clipboard, the texts of the plugin's language file
 /// </summary>
-public abstract class CloudDestination(CloudSettings settings, ISecretStore secrets) : IDestination
+public abstract class CloudDestination(CloudSettings settings, ISecretStore secrets) : IDestination, IRequiresRecipeAuthorization
 {
+    public IEnumerable<RecipeGatedAction> GetGatedActions() => [new RecipeGatedAction(RecipeGateType.NetworkAccess, settings.Section)];
+
     protected CloudSettings Settings => settings;
 
     public abstract string Designation { get; }
@@ -233,8 +236,10 @@ public sealed class DropboxDestination(CloudSettings settings, ISecretStore secr
     }
 }
 
-public sealed class BoxPlugin(CoreSettings settings, ISecretStore secrets) : IGreenshotPlugin
+public sealed class BoxPlugin(CoreSettings settings, ISecretStore secrets) : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry) => registry.Register<Recipes.BoxStep>(config => new Recipes.BoxStep(config, this));
+
     public CloudSettings Settings { get; } = new(settings, "Box");
 
     public string Name => "Box";
@@ -246,8 +251,10 @@ public sealed class BoxPlugin(CoreSettings settings, ISecretStore secrets) : IGr
     public IReadOnlyList<IDestination> Destinations => [Destination];
 }
 
-public sealed class DropboxPlugin(CoreSettings settings, ISecretStore secrets) : IGreenshotPlugin
+public sealed class DropboxPlugin(CoreSettings settings, ISecretStore secrets) : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry) => registry.Register<Recipes.DropboxStep>(config => new Recipes.DropboxStep(config, this));
+
     public CloudSettings Settings { get; } = new(settings, "Dropbox");
 
     public string Name => "Dropbox";

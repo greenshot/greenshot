@@ -337,6 +337,17 @@ public sealed class CoreSettings
         }
     }
 
+    /// <summary>
+    /// All keys and values of a section
+    /// </summary>
+    public IReadOnlyList<KeyValuePair<string, string>> GetValues(string section)
+    {
+        lock (_lock)
+        {
+            return _ini.GetSection(section);
+        }
+    }
+
     public void RemoveValue(string section, string key)
     {
         lock (_lock)

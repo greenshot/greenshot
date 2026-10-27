@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Greenshot.Linux.Recipes</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Linux.Editor\Greenshot.Linux.Editor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Greenshot.Linux.Tests" />
+  </ItemGroup>
+</Project>

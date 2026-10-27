@@ -70,8 +70,25 @@ public static class SystemClipboard
         return result.ExitCode == 0 && result.Output.Length > 0 ? result.Output : null;
     }
 
+    /// <summary>
+    /// When Greenshot last put something on the clipboard: a clipboard trigger ignores its own copies
+    /// </summary>
+    public static DateTime LastSetUtc { get; private set; } = DateTime.MinValue;
+
+    /// <summary>
+    /// The MIME types on the clipboard, empty when it can't be read
+    /// </summary>
+    public static async Task<IReadOnlyList<string>> GetTypesAsync()
+    {
+        var types = IsWayland
+            ? await ProcessRunner.RunAsync("wl-paste", ["--list-types"], timeout: TimeSpan.FromSeconds(5)).ConfigureAwait(false)
+            : await ProcessRunner.RunAsync("xclip", ["-selection", "clipboard", "-t", "TARGETS", "-o"], timeout: TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        return types.ExitCode != 0 ? [] : types.OutputText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
     private static async Task SetAsync(byte[] data, string mimeType)
     {
+        LastSetUtc = DateTime.UtcNow;
         if (!IsAvailable)
         {
             throw new InvalidOperationException(IsWayland

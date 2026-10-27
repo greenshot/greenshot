@@ -33,6 +33,8 @@ using Greenshot.Linux.Core.Naming;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Editing;
 using Greenshot.Linux.Helpers;
+using Greenshot.Linux.Recipes;
+using Greenshot.Linux.Recipes.Triggers;
 
 namespace Greenshot.Linux.Settings;
 
@@ -53,6 +55,11 @@ internal interface ISettingsHost : IEditorHost
     Core.Configuration.ISecretStore Secrets { get; }
 
     /// <summary>
+    /// All destinations which are switched on, for the destinations an automatic step is used for
+    /// </summary>
+    IReadOnlyList<Core.Destinations.IDestination> RecipeDestinations { get; }
+
+    /// <summary>
     /// The settings were saved: apply language, theme and the tray menu
     /// </summary>
     void ApplySettings();
@@ -67,6 +74,7 @@ internal sealed class SettingsWindow : Window
     private readonly ISettingsHost _host;
     private readonly CoreSettings _settings;
     private readonly List<Action> _apply = new();
+    private readonly TabItem _recipesTab;
 
     public SettingsWindow(ISettingsHost host)
     {
@@ -88,6 +96,8 @@ internal sealed class SettingsWindow : Window
         tabs.Items.Add(Tab(Texts.Settings("editor"), EditorPage()));
         tabs.Items.Add(Tab(Texts.Settings("printer"), PrinterPage()));
         tabs.Items.Add(Tab(Texts.Linux("plugins"), new PluginSettingsPage(host, this, _apply).Create()));
+        _recipesTab = Tab(Texts.Settings("recipes"), new RecipeSettingsPage(this, host.RecipeDestinations, _apply).Create());
+        tabs.Items.Add(_recipesTab);
 
         var ok = new Button { Content = Texts.Linux("ok"), IsDefault = true, MinWidth = 90, HorizontalContentAlignment = HorizontalAlignment.Center };
         ok.Click += (_, _) => Save();
@@ -113,6 +123,17 @@ internal sealed class SettingsWindow : Window
         Header = Texts.WithoutAccessKey(header),
         Content = new ScrollViewer { Content = content, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled },
     };
+
+    /// <summary>
+    /// Selects a page, "recipes" is the only one asked for by name (the "More…" of the quick settings)
+    /// </summary>
+    public void ShowPage(string? page)
+    {
+        if (page == "recipes")
+        {
+            _recipesTab.IsSelected = true;
+        }
+    }
 
     private void Save()
     {
@@ -190,6 +211,7 @@ internal sealed class SettingsWindow : Window
             (Texts.Core("contextmenu_capturewindow"), _settings.WindowHotkey, "capture activewindow"),
             (Texts.Core("contextmenu_capturefullscreen"), _settings.FullscreenHotkey, "capture fullscreen"),
             (Texts.Core("contextmenu_capturelastregion"), _settings.LastregionHotkey, "capture last"),
+            .. RecipeHotkeys(),
         ];
         foreach (var (text, hotkey, _) in hotkeys)
         {
@@ -212,6 +234,22 @@ internal sealed class SettingsWindow : Window
         var copy = new Button { Content = Texts.Linux("hotkeys_copy") };
         copy.Click += async (_, _) => await SystemClipboard.SetTextAsync(lines);
         return Ui.Section(Texts.Core("hotkeys"), Ui.Note(Texts.Linux("hotkeys_manual")), config, copy);
+    }
+
+    /// <summary>
+    /// The hotkeys of the recipes: bound with the portal like the others, or by the user with "greenshot recipe &lt;id&gt;"
+    /// </summary>
+    private static IEnumerable<(string Text, string Hotkey, string Command)> RecipeHotkeys()
+    {
+        if (RecipeServices.Manager == null)
+        {
+            return [];
+        }
+
+        return TriggerManager.Instance.GetAllTriggers().OfType<HotkeyTrigger>()
+            .Where(t => t.IsEnabled && !string.IsNullOrWhiteSpace(t.HotkeyString))
+            .Select(t => (RecipeText.Translate(RecipeServices.Manager.GetRecipeById(t.TargetRecipeId)?.Name ?? t.TargetRecipeId), t.HotkeyString, $"recipe {t.TargetRecipeId}"))
+            .OrderBy(h => h.Item1, StringComparer.CurrentCultureIgnoreCase);
     }
 
     /// <summary>

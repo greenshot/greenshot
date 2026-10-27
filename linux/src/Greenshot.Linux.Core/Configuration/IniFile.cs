@@ -117,6 +117,11 @@ public sealed class IniFile
         s.Values.Add(new KeyValuePair<string, string>(key, value));
     }
 
+    /// <summary>
+    /// The keys and values of a section, empty when there is none
+    /// </summary>
+    public IReadOnlyList<KeyValuePair<string, string>> GetSection(string section) => FindSection(section)?.Values.ToList() ?? [];
+
     public void Remove(string section, string key) =>
         FindSection(section)?.Values.RemoveAll(pair => string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase));
 

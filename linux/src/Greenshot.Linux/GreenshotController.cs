@@ -48,6 +48,15 @@ using Greenshot.Linux.Plugins.CustomUploader;
 using Greenshot.Linux.Plugins.ExternalCommand;
 using Greenshot.Linux.Plugins.Pdf;
 using Avalonia.Styling;
+using Greenshot.Linux.Plugins.Recipes;
+using Greenshot.Linux.Recipes;
+using Greenshot.Linux.RecipeUi;
+using Greenshot.Linux.Recipes.Approval;
+using Greenshot.Linux.Recipes.Contracts;
+using Greenshot.Linux.Recipes.Pipeline;
+using Greenshot.Linux.Recipes.Steps;
+using Greenshot.Linux.Recipes.Triggers;
+using CaptureMode = Greenshot.Linux.Core.Capturing.CaptureMode;
 
 namespace Greenshot.Linux;
 
@@ -55,7 +64,7 @@ namespace Greenshot.Linux;
 /// The running Greenshot: the tray icon, the commands from the command line and the hotkeys, and the capture flow
 /// from taking the picture to the destinations. The MainForm of the Windows version without a form.
 /// </summary>
-internal sealed class GreenshotController : ISettingsHost, IDisposable
+internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisposable
 {
     private const string ShortcutRegion = "capture-region";
     private const string ShortcutWindow = "capture-window";
@@ -78,7 +87,14 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     private InstanceChannel? _channel;
     private TrayIcon? _trayIcon;
     private Window? _screensHelper;
-    private bool _capturing;
+    private AppRecipeHost? _recipeHost;
+    private IReadOnlyList<string> _heldBackRecipeFiles = [];
+
+    /// <summary>
+    /// The hotkeys of recipe triggers, bound with the capture hotkeys (GlobalShortcuts portal)
+    /// </summary>
+    private readonly Dictionary<string, (string Description, string Hotkey, Action Pressed)> _recipeHotkeys = new();
+    private DispatcherTimer? _rebindTimer;
 
     public GreenshotController(IClassicDesktopStyleApplicationLifetime desktop)
     {
@@ -118,15 +134,22 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
 
     private SettingsWindow? _settingsWindow;
 
-    public void ShowSettings()
+    public void ShowSettings() => ShowSettings(null);
+
+    /// <summary>
+    /// The settings window, on the given page ("recipes") when there is one
+    /// </summary>
+    public void ShowSettings(string? page)
     {
         if (_settingsWindow != null)
         {
+            _settingsWindow.ShowPage(page);
             _settingsWindow.Activate();
             return;
         }
 
         _settingsWindow = new SettingsWindow(this);
+        _settingsWindow.ShowPage(page);
         _settingsWindow.Closed += (_, _) => _settingsWindow = null;
         _settingsWindow.Show();
     }
@@ -163,6 +186,36 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     }
 
     public CoreSettings Settings => _settings;
+
+    public ScreenCaptureService? CaptureService => _captureService;
+
+    public IReadOnlyList<IEditorTrigger> EditorRecipeTriggers =>
+        RecipeServices.Manager == null ? [] : TriggerManager.Instance.GetEditorTriggers();
+
+    public ICompositor Compositor => _compositor;
+
+    public IReadOnlyList<Screen> PlatformScreens => GetPlatformScreens();
+
+    /// <summary>
+    /// The destinations of recipes: all which are switched on, the editor and the picker included
+    /// </summary>
+    public IReadOnlyList<IDestination> RecipeDestinations => [.. AllDestinations(), new PickerPlaceholder()];
+
+    /// <summary>
+    /// The picker as destination of a recipe: the dispatcher shows the picker for it
+    /// </summary>
+    private sealed class PickerPlaceholder : IDestination
+    {
+        public string Designation => WellKnownDestinations.Picker;
+
+        public string DisplayName => Texts.Settings("destination_picker");
+
+        public int Priority => -2;
+
+        public bool IsAvailable => true;
+
+        public Task<ExportResult> ExportAsync(Capture capture, CancellationToken cancellationToken = default) => Task.FromResult(ExportResult.Aborted);
+    }
 
     public EditorSettings EditorSettings => _editorSettings;
 
@@ -233,10 +286,16 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         _destinations.Add(new OcrDestination(_settings));
         _destinations.Add(new QrCodeDestination());
         await CreatePluginsAsync(saveDialog);
+        await InitializeRecipesAsync();
 
         CreateTrayIcon();
         await RegisterShortcutsAsync();
         await ShowWelcomeAsync();
+        if (_heldBackRecipeFiles.Count > 0)
+        {
+            // The recipe files which need the user (approval of a changed file, errors), now that Greenshot runs
+            RecipeManager.Instance.LoadRecipeFilesInteractively(_heldBackRecipeFiles);
+        }
 
         await RunAsync(startCommand);
     }
@@ -248,8 +307,15 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
             case AppCommandKind.Capture when command.Mode is { } mode:
                 await CaptureAsync(mode);
                 break;
+            case AppCommandKind.Open when command.Path != null && command.Path.EndsWith(".gsrecipe.json", StringComparison.OrdinalIgnoreCase):
+                ImportRecipe(command.Path);
+                break;
             case AppCommandKind.Open when command.Path != null:
                 await OpenFileAsync(command.Path);
+                break;
+            case AppCommandKind.Recipe when command.RecipeId != null:
+                StartRecipe(command.RecipeId, new ManualTrigger("Command line", command.RecipeId),
+                    command.Parameters?.ToDictionary(p => p.Key, p => (object)p.Value));
                 break;
             case AppCommandKind.OpenClipboard:
                 await OpenClipboardAsync();
@@ -324,148 +390,236 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
     }
 
     /// <summary>
-    /// Take a capture and send it to the destinations. A capture which is started while another one is running is ignored,
-    /// like a second press of the hotkey on Windows.
+    /// Take a capture and send it to the destinations: the built-in recipe of the mode, like Windows, so the automatic steps
+    /// (border, caption, ...) and recipe files which replace a built-in recipe apply
     /// </summary>
-    public async Task CaptureAsync(CaptureMode mode)
+    public Task CaptureAsync(CaptureMode mode)
     {
         if (_captureService == null)
         {
-            await NotifyAsync("Greenshot can't capture", "No way to capture the screen was found, see the log.", NotificationSeverity.Error);
-            return;
+            return NotifyAsync("Greenshot can't capture", "No way to capture the screen was found, see the log.", NotificationSeverity.Error);
         }
 
-        if (_capturing)
+        string recipeId = mode switch
         {
-            Log.Debug($"A capture is running, ignoring {mode}");
-            return;
-        }
-
-        _capturing = true;
-        try
-        {
-            using var capture = await TakeCaptureAsync(_captureService, mode);
-            if (capture == null)
-            {
-                return;
-            }
-
-            _settings.Save();
-            if (_settings.PlayCameraSound)
-            {
-                ProcessRunner.StartDetached("canberra-gtk-play", "-i", "camera-shutter", "-d", "Greenshot");
-            }
-
-            if (capture.Details.Mode == CaptureMode.Text)
-            {
-                // T on the capture screen: the text goes to the clipboard, not the image to the destinations
-                var ocr = _destinations.First(d => d.Designation == WellKnownDestinations.Ocr);
-                await ReportAsync(ocr, await ocr.ExportAsync(capture));
-                return;
-            }
-
-            await ExportAsync(capture);
-        }
-        catch (OperationCanceledException)
-        {
-            Log.Info("The capture was cancelled");
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Capturing {mode} failed", ex);
-            await NotifyAsync(Texts.Core("error"), ex.Message, NotificationSeverity.Error);
-        }
-        finally
-        {
-            _capturing = false;
-        }
+            CaptureMode.Window => RecipeManager.RecipeIdWindow,
+            CaptureMode.ActiveWindow => RecipeManager.RecipeIdActiveWindow,
+            CaptureMode.FullScreen => RecipeManager.RecipeIdFullScreen,
+            CaptureMode.LastRegion => RecipeManager.RecipeIdLastRegion,
+            CaptureMode.Text => RecipeManager.RecipeIdOcr,
+            _ => RecipeManager.RecipeIdRegion,
+        };
+        StartRecipe(recipeId, new ManualTrigger(mode.ToString(), recipeId), null);
+        return Task.CompletedTask;
     }
 
-    private async Task<Capture?> TakeCaptureAsync(ScreenCaptureService service, CaptureMode mode)
+    /// <summary>
+    /// Run a recipe in the flow runner, with the values for its variables
+    /// </summary>
+    public void StartRecipe(string recipeId, ITrigger trigger, IDictionary<string, object>? parameters)
     {
-        // Ask before the picture is taken, the delay must not change which window is active
-        var active = mode == CaptureMode.ActiveWindow && _compositor.KnowsWindows ? await _compositor.GetActiveWindowAsync() : null;
-        if (mode == CaptureMode.ActiveWindow && active == null)
+        var recipe = RecipeManager.Instance.GetRecipeById(recipeId);
+        if (recipe == null || !recipe.IsEnabled)
         {
-            mode = CaptureMode.Window;
+            Log.Warn($"The recipe {recipeId} doesn't exist or is switched off");
+            _ = NotifyAsync("Greenshot", Texts.Linux("recipe_unknown", recipeId), NotificationSeverity.Warning);
+            return;
         }
 
-        switch (mode)
+        var prepared = TriggerRecipePreparer.Prepare(recipe, trigger);
+        RecipeServices.Runner.Start(prepared, FlowTriggerContext.Empty(trigger), context =>
         {
-            case CaptureMode.FullScreen:
+            foreach (var parameter in parameters ?? new Dictionary<string, object>())
             {
-                using var snapshot = await service.SnapshotAsync();
-                return await service.CreateFullScreenCaptureAsync(snapshot);
+                context.Properties[parameter.Key] = parameter.Value;
             }
-            case CaptureMode.LastRegion when !_settings.LastCapturedRegion.IsEmpty:
-            {
-                using var snapshot = await service.SnapshotAsync();
-                return await service.CreateCaptureAsync(snapshot, snapshot.ToPixels(_settings.LastCapturedRegion), CaptureMode.LastRegion);
-            }
-            case CaptureMode.ActiveWindow when active != null:
-            {
-                using var snapshot = await service.SnapshotAsync();
-                return await service.CreateCaptureAsync(snapshot, snapshot.ToPixels(active.Bounds), CaptureMode.ActiveWindow, active.Title);
-            }
-            default:
-            {
-                // Region and window, and the fallbacks: no last region yet, or no window information on this desktop
-                var interactiveMode = mode == CaptureMode.Window ? CaptureMode.Window : CaptureMode.Region;
-                var windows = _compositor.KnowsWindows ? await _compositor.GetVisibleWindowsAsync() : Array.Empty<WindowInfo>();
-                using var snapshot = await service.SnapshotAsync();
-                var selection = await CaptureOverlay.SelectAsync(snapshot, interactiveMode, windows, _compositor, GetPlatformScreens(), _settings);
-                if (selection == null)
-                {
-                    return null;
-                }
+        });
+    }
 
-                return await service.CreateCaptureAsync(snapshot, selection.Pixels, selection.Mode, selection.Title);
+    /// <summary>
+    /// The recipe engine: the services for the steps, the steps of the plugins, the approvals, the recipes and their triggers
+    /// </summary>
+    private async Task InitializeRecipesAsync()
+    {
+        RecipeServices.Settings = _settings;
+        RecipeServices.Ui = new AvaloniaUiDispatcher();
+        _recipeHost = new AppRecipeHost(this);
+        RecipeServices.Host = _recipeHost;
+        RecipeServices.UserInteraction = _recipeHost;
+        RecipeServices.ApprovalUi = new RecipeApprovalUi();
+        RecipeServices.Hotkeys = this;
+        RecipeServices.StepProviders = [.. _plugins.Where(p => Policy.IsPluginEnabled(p.Name)).OfType<IRecipeStepProvider>(), new BuiltInPluginSteps()];
+        RecipeServices.AuthorizationDestinations = designation =>
+            _destinations.Concat(_plugins.SelectMany(p => p.Destinations)).FirstOrDefault(d => DestinationExportStep.Matches(d, designation))!;
+        RecipeValidator.ExtensionAvailabilityCheck = IsRequirementAvailable;
+        RecipeTrustStore.ProtectionKey = await LoadTrustKeyAsync();
+
+        var pipeline = CapturePipeline.Instance;
+        RecipeServices.Pipeline = pipeline;
+        RecipeServices.Runner = new CaptureFlowRunner(pipeline, RecipeServices.Ui);
+        var manager = RecipeManager.Instance;
+        RecipeServices.Manager = manager;
+        _heldBackRecipeFiles = manager.LoadRecipesAtStartup();
+        manager.RecipesChanged += (_, _) => Dispatcher.UIThread.Post(() =>
+        {
+            if (_trayIcon != null)
+            {
+                _trayIcon.Menu = CreateTrayMenu();
             }
+        });
+        TriggerManager.Instance.SyncRecipeTriggers(manager.GetAllRecipes());
+        TriggerManager.Instance.StartAll();
+        Log.Info($"Recipes: {manager.GetAllRecipes().Count}, automatic steps: {manager.GetAllExtensions().Count}");
+    }
+
+    /// <summary>
+    /// A recipe's "requires": the plugins of Windows are built in here (ZXing, the recipe editor) or plugins which can be switched off
+    /// </summary>
+    private (bool, string) IsRequirementAvailable(RecipeRequirement requirement)
+    {
+        string version = typeof(GreenshotController).Assembly.GetName().Version?.ToString(3) ?? "1.4.0";
+        string id = requirement.Id.Replace("Greenshot.Plugin.", string.Empty, StringComparison.OrdinalIgnoreCase);
+        if (id.Equals("Zxing", StringComparison.OrdinalIgnoreCase) || id.Equals("RecipeEditor", StringComparison.OrdinalIgnoreCase))
+        {
+            return (true, version);
+        }
+
+        var plugin = _plugins.FirstOrDefault(p => p.Name.Equals(id, StringComparison.OrdinalIgnoreCase));
+        return (plugin != null && Policy.IsPluginEnabled(plugin.Name), version);
+    }
+
+    /// <summary>
+    /// The key of the trust store of approved recipe files, kept in the keyring (Windows uses DPAPI)
+    /// </summary>
+    private async Task<byte[]?> LoadTrustKeyAsync()
+    {
+        const string key = "recipes/trust-key";
+        try
+        {
+            if (await _secrets.GetAsync(key) is { Length: > 0 } stored)
+            {
+                return Convert.FromBase64String(stored.Trim());
+            }
+
+            var created = System.Security.Cryptography.RandomNumberGenerator.GetBytes(32);
+            await _secrets.SetAsync(key, "Recipe approvals", Convert.ToBase64String(created));
+            return created;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or FormatException or IOException)
+        {
+            Log.Warn("No key for the recipe approvals in the keyring, using one derived from the machine", ex);
+            return null;
         }
     }
 
     /// <summary>
-    /// Send the capture to the configured destinations, or let the user pick one
+    /// Import a recipe file: the approval window, then it is in RecipeFiles
     /// </summary>
-    private async Task ExportAsync(Capture capture)
+    private void ImportRecipe(string path)
     {
-        var configured = _settings.OutputDestinations;
-        List<IDestination> targets;
-        if (configured.Contains(WellKnownDestinations.Picker, StringComparer.OrdinalIgnoreCase))
+        var result = RecipeManager.Instance.LoadRecipeFromFile(path);
+        if (!result.IsValid)
         {
-            var picked = await PickerWindow.PickAsync(capture, AllDestinations());
-            if (picked == null)
-            {
-                return;
-            }
-
-            targets = [picked];
-        }
-        else
-        {
-            var available = AllDestinations();
-            targets = configured
-                .Select(designation => available.FirstOrDefault(d => Matches(d, designation)))
-                .OfType<IDestination>()
-                .ToList();
-            foreach (var missing in configured.Where(c => available.All(d => !Matches(d, c))))
-            {
-                Log.Warn($"The destination {missing} is not available (switched off, or not on Linux)");
-            }
-
-            // Like on Windows: when none of them is there, the capture opens in the editor
-            if (targets.Count == 0)
-            {
-                targets = [_destinations.First(d => d.Designation == WellKnownDestinations.Editor)];
-            }
-        }
-
-        foreach (var destination in targets)
-        {
-            var result = await destination.ExportAsync(capture);
-            await ReportAsync(destination, result);
+            Log.Warn($"Importing {path} failed: {string.Join("; ", result.Errors)}");
         }
     }
+
+    private async Task AskImportRecipeAsync()
+    {
+        if (_fileChooser == null)
+        {
+            await NotifyAsync("Greenshot", "There is no file dialog (FileChooser portal), use: greenshot open <file.gsrecipe.json>", NotificationSeverity.Warning);
+            return;
+        }
+
+        var path = await _fileChooser.OpenFileAsync(Texts.Get("Recipe", "import_title"), [("Greenshot recipes", "*.gsrecipe.json;*.json")]);
+        if (path != null)
+        {
+            ImportRecipe(path);
+        }
+    }
+
+    /// <summary>
+    /// One notification for the exports of a recipe run, with the error of the flow, like the toast of Windows
+    /// </summary>
+    public async Task ReportRecipeAsync(IReadOnlyList<ExportOutcome> outcomes, string? error)
+    {
+        var shown = outcomes.Where(o => !o.Result.Cancelled && !(o.Result.Success && o.Destination.Designation == WellKnownDestinations.Editor)).ToList();
+        if (shown.Count == 1 && string.IsNullOrEmpty(error))
+        {
+            await ReportAsync(shown[0].Destination, shown[0].Result);
+            return;
+        }
+
+        if (shown.Count == 0 && string.IsNullOrEmpty(error))
+        {
+            return;
+        }
+
+        var lines = shown.Select(o => o.Result.Success
+            ? o.Result.FilePath != null ? Texts.Editor("imagesaved", o.Result.FilePath) : o.Result.Message ?? o.Result.Link ?? o.Target
+            : $"{Texts.Core("exported_to_error", o.Target)} {o.Result.Message}").ToList();
+        if (!string.IsNullOrEmpty(error))
+        {
+            lines.Add(error);
+        }
+
+        bool failed = !string.IsNullOrEmpty(error) || shown.Any(o => !o.Result.Success);
+        var last = shown.LastOrDefault(o => o.Result.Success && (o.Result.Link != null || o.Result.FilePath != null))?.Result;
+        string? open = last?.Link ?? last?.FilePath;
+        await NotifyAsync(shown.LastOrDefault()?.CaptureDetails?.Title ?? "Greenshot", string.Join("\n", lines),
+            failed ? NotificationSeverity.Error : NotificationSeverity.Info, last?.FilePath,
+            open == null ? null : () => ProcessRunner.StartDetached("xdg-open", open));
+    }
+
+    public Task NotifyRecipeAsync(NotificationKind kind, string message, string? link) =>
+        NotifyAsync("Greenshot", message, kind switch
+        {
+            NotificationKind.Error => NotificationSeverity.Error,
+            NotificationKind.Warning => NotificationSeverity.Warning,
+            _ => NotificationSeverity.Info,
+        }, onClick: link == null ? null : () => ProcessRunner.StartDetached("xdg-open", link));
+
+    #region Recipe hotkeys
+
+    public void Register(string id, string description, string hotkey, Action pressed)
+    {
+        _recipeHotkeys[id] = (description, hotkey, () => Dispatcher.UIThread.Post(pressed));
+        ScheduleRebind();
+    }
+
+    public void Unregister(string id)
+    {
+        if (_recipeHotkeys.Remove(id))
+        {
+            ScheduleRebind();
+        }
+    }
+
+    /// <summary>
+    /// The recipes changed: the portal gets all hotkeys again, once when several change
+    /// </summary>
+    private void ScheduleRebind() => Dispatcher.UIThread.Post(() =>
+    {
+        if (_shortcuts == null)
+        {
+            return;
+        }
+
+        _rebindTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _rebindTimer.Stop();
+        _rebindTimer.Tick -= OnRebind;
+        _rebindTimer.Tick += OnRebind;
+        _rebindTimer.Start();
+    });
+
+    private void OnRebind(object? sender, EventArgs e)
+    {
+        _rebindTimer?.Stop();
+        _ = BindShortcutsAsync();
+    }
+
+    #endregion
 
     public async Task ReportAsync(IDestination destination, ExportResult result)
     {
@@ -524,12 +678,219 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         AddItem(menu, Texts.Core("contextmenu_captureclipboard"), () => _ = OpenClipboardAsync(), null);
         AddItem(menu, Texts.Core("contextmenu_openrecentcapture"), OpenCaptureFolder, null);
         menu.Items.Add(new NativeMenuItemSeparator());
+        menu.Items.Add(CreateQuickSettingsMenu());
+        menu.Items.Add(CreateRecipesMenu());
         AddItem(menu, Texts.Core("contextmenu_settings"), ShowSettings, null);
         AddItem(menu, Texts.Linux("open_log"), () => ProcessRunner.StartDetached("xdg-open", Log.FilePath), null);
         menu.Items.Add(new NativeMenuItemSeparator());
         AddItem(menu, $"{Texts.Core("contextmenu_about")} ({Program.Version})", () => ProcessRunner.StartDetached("xdg-open", "https://getgreenshot.org/"), null);
         AddItem(menu, Texts.Core("contextmenu_exit"), Exit, null);
         return menu;
+    }
+
+    /// <summary>
+    /// At most this many recipe options in the "Automatic steps" block of the quick settings, the others are in Settings > Recipes ("More…")
+    /// </summary>
+    private const int MaxRecipeQuickSettings = 6;
+
+    /// <summary>
+    /// The quick settings of Windows: the settings which are changed often, stored right away
+    /// </summary>
+    private NativeMenuItem CreateQuickSettingsMenu()
+    {
+        var quickSettings = new NativeMenu();
+        AddCheckItem(quickSettings, Texts.Settings("capture_mousepointer"), _settings.CaptureMousepointer, v => _settings.CaptureMousepointer = v);
+
+        var destinations = new NativeMenu();
+        var configured = _settings.OutputDestinations;
+        foreach (var destination in RecipeDestinations.OrderBy(d => d.Priority))
+        {
+            var selected = destination;
+            AddCheckItem(destinations, destination.DisplayName, configured.Contains(destination.Designation, StringComparer.OrdinalIgnoreCase),
+                isChecked => QuickSettingDestinationChanged(selected.Designation, isChecked));
+        }
+        quickSettings.Items.Add(new NativeMenuItem(Texts.Settings("destination")) { Menu = destinations });
+
+        var printOptions = new NativeMenu();
+        AddCheckItem(printOptions, Texts.Settings("alwaysshowprintoptionsdialog"), _settings.OutputPrintPromptOptions, v => _settings.OutputPrintPromptOptions = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_allowrotate"), _settings.OutputPrintAllowRotate, v => _settings.OutputPrintAllowRotate = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_allowenlarge"), _settings.OutputPrintAllowEnlarge, v => _settings.OutputPrintAllowEnlarge = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_allowshrink"), _settings.OutputPrintAllowShrink, v => _settings.OutputPrintAllowShrink = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_allowcenter"), _settings.OutputPrintCenter, v => _settings.OutputPrintCenter = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_inverted"), _settings.OutputPrintInverted, v => _settings.OutputPrintInverted = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_printgrayscale"), _settings.OutputPrintGrayscale, v => _settings.OutputPrintGrayscale = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_printmonochrome"), _settings.OutputPrintMonochrome, v => _settings.OutputPrintMonochrome = v);
+        AddCheckItem(printOptions, Texts.Core("printoptions_timestamp"), _settings.OutputPrintFooter, v => _settings.OutputPrintFooter = v);
+        quickSettings.Items.Add(new NativeMenuItem(Texts.Settings("printoptions")) { Menu = printOptions });
+
+        var effects = new NativeMenu();
+        AddCheckItem(effects, Texts.Settings("playsound"), _settings.PlayCameraSound, v => _settings.PlayCameraSound = v);
+        AddCheckItem(effects, Texts.Settings("shownotify"), _settings.ShowTrayNotification, v => _settings.ShowTrayNotification = v);
+        quickSettings.Items.Add(new NativeMenuItem(Texts.Settings("visualization")) { Menu = effects });
+
+        AddRecipeQuickSettings(quickSettings);
+        return new NativeMenuItem(Texts.Core("contextmenu_quicksettings")) { Menu = quickSettings };
+    }
+
+    /// <summary>
+    /// The picker excludes the others, nothing selected means the picker
+    /// </summary>
+    private void QuickSettingDestinationChanged(string designation, bool isChecked)
+    {
+        var destinations = _settings.OutputDestinations.ToList();
+        if (isChecked)
+        {
+            if (designation == WellKnownDestinations.Picker)
+            {
+                destinations.Clear();
+            }
+            else
+            {
+                destinations.RemoveAll(d => d == WellKnownDestinations.Picker);
+            }
+
+            if (!destinations.Contains(designation, StringComparer.OrdinalIgnoreCase))
+            {
+                destinations.Add(designation);
+            }
+        }
+        else
+        {
+            destinations.RemoveAll(d => d.Equals(designation, StringComparison.OrdinalIgnoreCase));
+        }
+
+        _settings.OutputDestinations = destinations.Count > 0 ? destinations : [WellKnownDestinations.Picker];
+    }
+
+    /// <summary>
+    /// The options recipes offer in the quick settings ("quickSettings": true), in one "Automatic steps" block: a switch
+    /// is a checked item, a choice a submenu with one item per value, at most <see cref="MaxRecipeQuickSettings"/> of them,
+    /// and "More…" opens Settings > Recipes. The value is stored right away.
+    /// </summary>
+    private void AddRecipeQuickSettings(NativeMenu quickSettings)
+    {
+        if (RecipeServices.Manager == null)
+        {
+            return;
+        }
+
+        List<(FlowDefinition Recipe, RecipeOption Option)> options;
+        try
+        {
+            // The extensions (border, drop shadow, caption, ...) first, then the recipes
+            var manager = RecipeManager.Instance;
+            options = manager.GetAllExtensions()
+                .OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                .Cast<FlowDefinition>()
+                .Concat(manager.GetAllRecipes().OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
+                .Where(r => r?.Options != null)
+                .SelectMany(r => r.Options
+                    .Where(o => o != null && o.QuickSettings && (o.Type == ContractDataType.Boolean || (o.Type == ContractDataType.Enum && o.Choices != null)))
+                    .Select(o => (Recipe: r, Option: o)))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Couldn't add the options of the recipes to the quick settings", ex);
+            return;
+        }
+
+        if (options.Count == 0)
+        {
+            return;
+        }
+
+        quickSettings.Items.Add(new NativeMenuItemSeparator());
+        quickSettings.Items.Add(new NativeMenuItem(Texts.Core("quicksettings_automaticsteps")) { IsEnabled = false });
+
+        // The same label of two recipes gets the recipe name in front
+        var duplicateLabels = new HashSet<string>(options.GroupBy(o => o.Option.DisplayLabel, StringComparer.CurrentCultureIgnoreCase)
+            .Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.CurrentCultureIgnoreCase);
+        foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
+        {
+            var label = duplicateLabels.Contains(option.DisplayLabel) ? $"{RecipeText.Translate(recipe.Name ?? recipe.Id)}: {option.DisplayLabel}" : option.DisplayLabel;
+            var value = RecipeOptionStore.GetValue(recipe, option);
+            if (option.Type == ContractDataType.Boolean)
+            {
+                var switchItem = AddCheckItem(quickSettings, label, value is true, isChecked => RecipeOptionStore.SetValue(recipe.Id, option, isChecked));
+                if (!string.IsNullOrEmpty(option.DisplayDescription))
+                {
+                    switchItem.ToolTip = option.DisplayDescription;
+                }
+                continue;
+            }
+
+            var choiceList = new NativeMenu();
+            foreach (var choice in option.Choices.Where(c => c != null))
+            {
+                var selectedChoice = choice;
+                var isCurrent = string.Equals(choice.Value, value as string, StringComparison.OrdinalIgnoreCase);
+                // Like a radio button: clicking the current value keeps it
+                AddCheckItem(choiceList, choice.DisplayLabel, isCurrent, _ => RecipeOptionStore.SetValue(recipe.Id, option, selectedChoice.Value), MenuItemToggleType.Radio);
+            }
+            quickSettings.Items.Add(new NativeMenuItem(label) { Menu = choiceList });
+        }
+
+        AddItem(quickSettings, Texts.Core("quicksettings_automaticsteps_more"), () => ShowSettings("recipes"), null);
+    }
+
+    /// <summary>
+    /// A checked item: the value is stored right away and the menu is built again, so it shows the new state
+    /// </summary>
+    private NativeMenuItem AddCheckItem(NativeMenu menu, string header, bool isChecked, Action<bool> setter,
+        MenuItemToggleType toggleType = MenuItemToggleType.CheckBox)
+    {
+        var item = new NativeMenuItem(Texts.WithoutAccessKey(header)) { ToggleType = toggleType, IsChecked = isChecked };
+        item.Click += (_, _) =>
+        {
+            setter(!isChecked);
+            _settings.Save();
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (_trayIcon != null)
+                {
+                    _trayIcon.Menu = CreateTrayMenu();
+                }
+            });
+        };
+        menu.Items.Add(item);
+        return item;
+    }
+
+    /// <summary>
+    /// The Recipes menu of Windows: the recipes of ContextMenu triggers (groups as submenus, Recipes first), Import and Reload
+    /// </summary>
+    private NativeMenuItem CreateRecipesMenu()
+    {
+        var recipes = new NativeMenu();
+        var triggers = RecipeServices.Manager == null ? [] : TriggerManager.Instance.GetContextMenuTriggers();
+        foreach (var group in triggers.GroupBy(t => t.Group ?? "Recipes")
+                     .OrderBy(g => g.Key == "Recipes" ? 0 : 1).ThenBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase))
+        {
+            var target = recipes;
+            if (group.Key != "Recipes")
+            {
+                var sub = new NativeMenuItem(group.Key) { Menu = new NativeMenu() };
+                recipes.Items.Add(sub);
+                target = sub.Menu;
+            }
+
+            foreach (var trigger in group.OrderBy(t => t.Order).ThenBy(t => t.MenuItemText, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var item = new NativeMenuItem(trigger.MenuItemText);
+                item.Click += (_, _) => trigger.Fire();
+                target.Items.Add(item);
+            }
+        }
+
+        if (recipes.Items.Count > 0)
+        {
+            recipes.Items.Add(new NativeMenuItemSeparator());
+        }
+
+        AddItem(recipes, Texts.Linux("recipe_import"), () => _ = AskImportRecipeAsync(), null);
+        AddItem(recipes, Texts.Linux("recipe_reload"), () => RecipeManager.Instance.ReloadRecipes(), null);
+        return new NativeMenuItem(Texts.Linux("recipes")) { Menu = recipes };
     }
 
     private void CreateTrayIcon()
@@ -563,7 +924,7 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
         ShowEditor(surface, capture.Details, null);
     }
 
-    private void ShowEditor(EditorSurface surface, CaptureDetails details, string? filePath)
+    public void ShowEditor(EditorSurface surface, CaptureDetails details, string? filePath)
     {
         var window = new EditorWindow(this, surface, details, filePath);
         window.Show();
@@ -676,19 +1037,45 @@ internal sealed class GreenshotController : ISettingsHost, IDisposable
                 {
                     _ = CaptureAsync(mode.Value);
                 }
+                else if (_recipeHotkeys.TryGetValue(id, out var recipe))
+                {
+                    recipe.Pressed();
+                }
             });
-            var assigned = await _shortcuts.BindAsync(
-            [
-                new ShortcutRequest(ShortcutRegion, "Capture region", GlobalShortcutsPortal.ToXdgTrigger(_settings.RegionHotkey)),
-                new ShortcutRequest(ShortcutWindow, "Capture window", GlobalShortcutsPortal.ToXdgTrigger(_settings.WindowHotkey)),
-                new ShortcutRequest(ShortcutFullscreen, "Capture full screen", GlobalShortcutsPortal.ToXdgTrigger(_settings.FullscreenHotkey)),
-                new ShortcutRequest(ShortcutLastRegion, "Capture last region", GlobalShortcutsPortal.ToXdgTrigger(_settings.LastregionHotkey)),
-            ]);
-            Log.Info("Global shortcuts: " + string.Join(", ", assigned.Select(a => $"{a.Key}={a.Value}")));
+            await BindShortcutsAsync();
         }
         catch (Exception ex)
         {
             Log.Warn("Registering the global shortcuts failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// The capture hotkeys and those of recipe triggers
+    /// </summary>
+    private async Task BindShortcutsAsync()
+    {
+        if (_shortcuts == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var requests = new List<ShortcutRequest>
+            {
+                new(ShortcutRegion, "Capture region", GlobalShortcutsPortal.ToXdgTrigger(_settings.RegionHotkey)),
+                new(ShortcutWindow, "Capture window", GlobalShortcutsPortal.ToXdgTrigger(_settings.WindowHotkey)),
+                new(ShortcutFullscreen, "Capture full screen", GlobalShortcutsPortal.ToXdgTrigger(_settings.FullscreenHotkey)),
+                new(ShortcutLastRegion, "Capture last region", GlobalShortcutsPortal.ToXdgTrigger(_settings.LastregionHotkey)),
+            };
+            requests.AddRange(_recipeHotkeys.Select(h => new ShortcutRequest(h.Key, h.Value.Description, GlobalShortcutsPortal.ToXdgTrigger(h.Value.Hotkey))));
+            var assigned = await _shortcuts.BindAsync(requests);
+            Log.Info("Global shortcuts: " + string.Join(", ", assigned.Select(a => $"{a.Key}={a.Value}")));
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Binding the global shortcuts failed", ex);
         }
     }
 

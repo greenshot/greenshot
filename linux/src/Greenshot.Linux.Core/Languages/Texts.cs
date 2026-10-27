@@ -152,6 +152,19 @@ public static partial class Texts
         }
     }
 
+    /// <summary>
+    /// The text of the section, false when no language has it
+    /// </summary>
+    public static bool TryGet(string section, string key, out string text)
+    {
+        lock (Lock)
+        {
+            text = Lookup(_current, section, key) ?? Lookup(_fallback, section, key) ?? string.Empty;
+        }
+
+        return text.Length > 0;
+    }
+
     public static string Core(string key, params object?[] arguments) => Get("Core", key, arguments);
 
     public static string Editor(string key, params object?[] arguments) => Get("Editor", key, arguments);

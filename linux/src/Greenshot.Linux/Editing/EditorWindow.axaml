@@ -63,6 +63,7 @@
         <MenuItem Header="{l:Text Linux.zoom_actual}" InputGesture="Ctrl+D0" Click="OnZoomActual" />
         <MenuItem Header="{l:Text Linux.zoom_fit}" InputGesture="Ctrl+D9" Click="OnZoomFit" />
       </MenuItem>
+      <MenuItem x:Name="RecipesMenu" Header="{l:Text Linux.recipes}" />
     </Menu>
 
     <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,0,1">

@@ -8,4 +8,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Greenshot.Linux.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Svg.Skia" Version="3.2.1" />
+  </ItemGroup>
 </Project>

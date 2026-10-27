@@ -64,18 +64,19 @@ public sealed class ScreenCaptureService(CoreSettings settings, ICompositor comp
     public async Task<ScreenLayout> GetLayoutAsync() => await compositor.GetLayoutAsync().ConfigureAwait(false) ?? uiLayout();
 
     /// <summary>
-    /// Wait the CaptureDelay, so menus and the hotkey overlay of the desktop are gone, and take the picture of all screens
+    /// Wait the CaptureDelay, so menus and the hotkey overlay of the desktop are gone, and take the picture of all screens.
+    /// A recipe waits itself (applyDelay false) and can decide about the cursor.
     /// </summary>
-    public async Task<ScreenSnapshot> SnapshotAsync(CancellationToken cancellationToken = default)
+    public async Task<ScreenSnapshot> SnapshotAsync(CancellationToken cancellationToken = default, bool? includeCursor = null, bool applyDelay = true)
     {
         var layout = await GetLayoutAsync().ConfigureAwait(false);
-        if (settings.CaptureDelay > 0)
+        if (applyDelay && settings.CaptureDelay > 0)
         {
             await Task.Delay(settings.CaptureDelay, cancellationToken).ConfigureAwait(false);
         }
 
         var takenAt = DateTime.Now;
-        var image = await grabber.GrabAsync(layout, settings.CaptureMousepointer && grabber.SupportsCursor, cancellationToken).ConfigureAwait(false);
+        var image = await grabber.GrabAsync(layout, (includeCursor ?? settings.CaptureMousepointer) && grabber.SupportsCursor, cancellationToken).ConfigureAwait(false);
         Log.Debug($"{grabber.Name} captured {image.Width}x{image.Height} for the layout {layout.Bounds}");
         return new ScreenSnapshot(image, layout, takenAt);
     }

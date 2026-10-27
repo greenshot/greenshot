@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\src\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
     <ProjectReference Include="..\..\src\Greenshot.Linux.Editor\Greenshot.Linux.Editor.csproj" />
     <ProjectReference Include="..\..\src\Greenshot.Linux.Plugins\Greenshot.Linux.Plugins.csproj" />
+    <ProjectReference Include="..\..\src\Greenshot.Linux.Recipes\Greenshot.Linux.Recipes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

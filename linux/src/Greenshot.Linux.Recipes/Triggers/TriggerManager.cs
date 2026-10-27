@@ -1,0 +1,363 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#nullable disable
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Greenshot.Linux.Recipes;
+using Greenshot.Linux.Recipes.Pipeline;
+using Greenshot.Linux.Recipes.Triggers;
+
+namespace Greenshot.Linux.Recipes.Triggers
+{
+    /// <summary>
+    /// Default implementation of ITriggerManager managing hotkeys, clipboard watchers, and manual triggers.
+    /// </summary>
+    public class TriggerManager : ITriggerManager
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(TriggerManager));
+        private readonly Dictionary<string, ITrigger> _triggers = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
+        private bool _disposed;
+        // The triggers only start with StartAll: a hotkey pressed while Greenshot starts would run a recipe before it is ready
+        private bool _started;
+
+        public event EventHandler<TriggerEventArgs> TriggerFired;
+
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<TriggerManager> LazyInstance = new Lazy<TriggerManager>(() => new TriggerManager(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static TriggerManager Instance => LazyInstance.Value;
+
+        public TriggerManager()
+        {
+            InitializeDefaultTriggers();
+        }
+
+        /// <summary>
+        /// The hotkeys of the capture modes (RegionHotkey, ...) are bound by the app with the GlobalShortcuts portal or in the
+        /// compositor, they run the built-in recipes there
+        /// </summary>
+        public void InitializeDefaultTriggers()
+        {
+        }
+
+        public void RestartHotkeyTriggers()
+        {
+            InitializeDefaultTriggers();
+            lock (_triggers)
+            {
+                if (!_started)
+                {
+                    return;
+                }
+                foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
+                {
+                    trigger.Start();
+                }
+            }
+        }
+
+        public IReadOnlyList<ITrigger> GetAllTriggers()
+        {
+            lock (_triggers)
+            {
+                return _triggers.Values.ToList();
+            }
+        }
+
+        public IReadOnlyList<ContextMenuTrigger> GetContextMenuTriggers()
+        {
+            lock (_triggers)
+            {
+                return _triggers.Values.OfType<ContextMenuTrigger>().ToList();
+            }
+        }
+
+        public IReadOnlyList<IEditorTrigger> GetEditorTriggers()
+        {
+            lock (_triggers)
+            {
+                return _triggers.Values.OfType<IEditorTrigger>().ToList();
+            }
+        }
+
+        public HotkeyTrigger FindHotkeyTriggerForRecipe(string recipeId)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return null;
+            lock (_triggers)
+            {
+                return _triggers.Values.OfType<HotkeyTrigger>()
+                    .FirstOrDefault(h => string.Equals(h.TargetRecipeId, recipeId, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        /// <summary>
+        /// Synchronizes modular triggers attached to registered recipes.
+        /// Unregisters any previous recipe-attached triggers and registers new ones.
+        /// </summary>
+        public void SyncRecipeTriggers(IEnumerable<CaptureRecipe> recipes)
+        {
+            if (recipes == null) return;
+
+            lock (_triggers)
+            {
+                // Remove all triggers previously registered for recipes
+                var recipeTriggerIds = _triggers.Keys
+                    .Where(k => k.StartsWith("trigger_recipe_", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                foreach (var tid in recipeTriggerIds)
+                {
+                    UnregisterTrigger(tid);
+                }
+
+                foreach (var recipe in recipes)
+                {
+                    if (!recipe.IsEnabled) continue;
+
+                    if (recipe.Triggers == null || recipe.Triggers.Count == 0)
+                    {
+                        if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
+                        {
+                            string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                        }
+                        continue;
+                    }
+
+                    bool hasMenuTrigger = false;
+                    for (int i = 0; i < recipe.Triggers.Count; i++)
+                    {
+                        var tc = recipe.Triggers[i];
+                        if (!tc.IsActive) continue;
+
+                        if (string.Equals(tc.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string hotkey = tc.GetParameter<string>("Hotkey");
+                            if (!string.IsNullOrWhiteSpace(hotkey))
+                            {
+                                string triggerId = $"trigger_recipe_{recipe.Id}_hotkey_{i}";
+                                RegisterTrigger(new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
+                            }
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
+                        {
+                            hasMenuTrigger = true;
+                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string group = tc.GetParameter<string>("Group", "Recipes");
+                            int order = tc.GetParameter<int>("Order", 0);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string group = tc.GetParameter<string>("Group", "Recipes");
+                            int order = tc.GetParameter<int>("Order", 0);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
+                            RegisterTrigger(new EditorTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
+                        {
+                            bool onImageCopied = tc.GetParameter<bool>("OnImageCopied", true);
+                            string formatFilter = tc.GetParameter<string>("FormatFilter");
+                            string triggerId = $"trigger_recipe_{recipe.Id}_clipboard_{i}";
+                            RegisterTrigger(new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
+                            string desc = tc.GetParameter<string>("Description") ?? recipe.Description;
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string stdout = tc.GetParameter<string>("Stdout");
+                            var args = tc.GetParameter<System.Collections.Generic.List<CommandlineArgument>>("Arguments");
+                            string triggerId = $"trigger_recipe_{recipe.Id}_cmd_{i}";
+                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf, stdout, args));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string filter = tc.GetParameter<string>("Filter");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_openfile_{i}";
+                            RegisterTrigger(new OpenFileTrigger(triggerId, tc.Name ?? $"{recipe.Name} OpenFile", recipe.Id, filter, fnf));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string browser = tc.GetParameter<string>("Browser");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_extension_{i}";
+                            RegisterTrigger(new ExtensionTrigger(triggerId, tc.Name ?? $"{recipe.Name} Browser Extension", recipe.Id, browser, fnf));
+                        }
+                    }
+
+                    if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
+                    {
+                        string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
+                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                    }
+                }
+            }
+        }
+
+        public void RegisterTrigger(ITrigger trigger)
+        {
+            if (trigger == null || string.IsNullOrEmpty(trigger.Id)) throw new ArgumentException("Trigger or Trigger.Id cannot be null/empty");
+
+            lock (_triggers)
+            {
+                if (_triggers.TryGetValue(trigger.Id, out var existing))
+                {
+                    existing.Stop();
+                    existing.Triggered -= OnTriggerFired;
+                    existing.Dispose();
+                }
+
+                _triggers[trigger.Id] = trigger;
+                trigger.Triggered += OnTriggerFired;
+                if (_started && trigger.IsEnabled)
+                {
+                    trigger.Start();
+                }
+            }
+
+            Log.InfoFormat("Registered trigger: {0} ({1}) -> Recipe: {2}", trigger.Name, trigger.Id, trigger.TargetRecipeId);
+        }
+
+        public bool UnregisterTrigger(string triggerId)
+        {
+            if (string.IsNullOrEmpty(triggerId)) return false;
+
+            lock (_triggers)
+            {
+                if (_triggers.TryGetValue(triggerId, out var trigger))
+                {
+                    trigger.Stop();
+                    trigger.Triggered -= OnTriggerFired;
+                    trigger.Dispose();
+                    _triggers.Remove(triggerId);
+                    Log.InfoFormat("Unregistered trigger: {0}", triggerId);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void StartAll()
+        {
+            lock (_triggers)
+            {
+                _started = true;
+                foreach (var trigger in _triggers.Values)
+                {
+                    if (trigger.IsEnabled)
+                    {
+                        trigger.Start();
+                    }
+                }
+            }
+        }
+
+        public void StopAll()
+        {
+            lock (_triggers)
+            {
+                foreach (var trigger in _triggers.Values)
+                {
+                    trigger.Stop();
+                }
+            }
+        }
+
+        private void OnTriggerFired(object sender, TriggerEventArgs e)
+        {
+            TriggerFired?.Invoke(sender, e);
+
+            var recipeManager = RecipeServices.Manager ?? RecipeManager.Instance;
+            var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
+
+            if (recipe != null)
+            {
+                if (!recipe.IsEnabled)
+                {
+                    Log.WarnFormat("Trigger fired for deactivated recipe '{0}', ignoring.", recipe.Id);
+                    return;
+                }
+
+                var runner = RecipeServices.Runner;
+                if (runner != null)
+                {
+                    var trigger = sender as ITrigger;
+                    var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+                    // Snapshot foreground window and cursor now, the flow runs later on the thread pool
+                    runner.Start(recipeToExecute, FlowTriggerContext.Empty(trigger), ctx =>
+                    {
+                        if (e.Parameters != null)
+                        {
+                            foreach (var kvp in e.Parameters)
+                            {
+                                ctx.Properties[kvp.Key] = kvp.Value;
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", (sender as ITrigger)?.Name, e.TargetRecipeId);
+                }
+            }
+            else
+            {
+                Log.WarnFormat("Target recipe '{0}' not found for trigger '{1}'", e.TargetRecipeId, (sender as ITrigger)?.Name);
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            if (disposing)
+            {
+                StopAll();
+                lock (_triggers)
+                {
+                    foreach (var trigger in _triggers.Values)
+                    {
+                        trigger.Triggered -= OnTriggerFired;
+                        trigger.Dispose();
+                    }
+                    _triggers.Clear();
+                }
+            }
+        }
+    }
+}

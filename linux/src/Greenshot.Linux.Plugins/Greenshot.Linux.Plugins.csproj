@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Linux.Core\Greenshot.Linux.Core.csproj" />
+    <ProjectReference Include="..\Greenshot.Linux.Recipes\Greenshot.Linux.Recipes.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Greenshot.Linux.Tests" />

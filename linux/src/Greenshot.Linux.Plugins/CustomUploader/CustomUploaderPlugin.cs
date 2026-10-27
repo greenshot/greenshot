@@ -31,6 +31,7 @@ using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Naming;
 using Greenshot.Linux.Core.Output;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Recipes.Pipeline;
 using Greenshot.Linux.Plugins.CustomUploader.Sxcu;
 using Capture = Greenshot.Linux.Core.Capturing.Capture;
 
@@ -301,9 +302,14 @@ public sealed class CustomUploaderDestination(
     CoreSettings settings,
     UploaderStore store,
     UploaderDefinition definition,
-    Func<Capture, string, string, Task<UploadReminderAnswer>>? remind) : IDestination
+    Func<Capture, string, string, Task<UploadReminderAnswer>>? remind) : IDestination, IRequiresRecipeAuthorization
 {
+    public IEnumerable<RecipeGatedAction> GetGatedActions() =>
+        [new RecipeGatedAction(RecipeGateType.NetworkAccess, $"{definition.Name} ({UploaderFile.GetServer(definition).Host})")];
+
     public const string DesignationPrefix = "CustomUploader";
+
+    public UploaderDefinition Definition => definition;
 
     public string Designation => $"{DesignationPrefix}:{definition.Name}";
 
@@ -368,8 +374,14 @@ public sealed class CustomUploaderDestination(
 /// The CustomUploader plugin: one destination for every imported uploader
 /// </summary>
 public sealed class CustomUploaderPlugin(CoreSettings settings, ISecretStore secrets, Func<Capture, string, string, Task<UploadReminderAnswer>>? remind)
-    : IGreenshotPlugin
+    : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        Recipes.UploaderNames.Names = () => Store.Names;
+        registry.Register<Recipes.CustomUploaderStep>(config => new Recipes.CustomUploaderStep(config, this));
+    }
+
     public UploaderStore Store { get; } = new(settings, secrets);
 
     public string Name => "CustomUploader";
