@@ -45,7 +45,8 @@ namespace Greenshot.Capturing.Tools
     /// and of the monitor, with Alt held it is placed freely. The sizes are those of the settings (FixedCaptureSizes), followed by the sizes
     /// of the last region captures (RecentCaptureAreas); a panel lists them, 1-9 and 0 pick one, PageUp and PageDown go up and down the list.
     /// An entry can have a place (a configured one, or where a recent capture was): when it fits on the screens, picking the entry moves the
-    /// cursor so the area is there, it is drawn as an outline, and the area snaps back onto it when it comes close.
+    /// cursor so the area is there, it is drawn as an outline, and the area snaps back onto it when it comes close. When the place isn't on
+    /// the screens (e.g. its monitor is switched off), the same place on the monitor with the cursor is used, e.g. for a full screen window.
     /// </summary>
     public class FixedSizeCaptureTool : CaptureTool
     {
@@ -185,17 +186,44 @@ namespace Greenshot.Capturing.Tools
         /// </summary>
         private NativeRect? GetPlace()
         {
-            if (_sizes.Count == 0 || _sizes[_index].Area.Bounds is not { } bounds)
+            if (_sizes.Count == 0 || GetPlace(_sizes[_index].Area) is not { } bounds)
             {
                 return null;
             }
-            // On the screens, and in the capture (it covers all screens, but the screens can have changed since it was taken)
             var screenBounds = Host.ScreenBounds;
-            if (!FitsOnScreens(bounds, GetScreens()) || screenBounds.Intersect(bounds) != bounds)
+            return bounds.Offset(-screenBounds.X, -screenBounds.Y);
+        }
+
+        /// <summary>
+        /// The place of an entry in screen coordinates, null when it has none which fits
+        /// </summary>
+        private NativeRect? GetPlace(FixedCaptureArea area)
+        {
+            var screenBounds = Host.ScreenBounds;
+            var place = ResolvePlace(area, GetScreens().ToList(), Host.GetMonitorBounds().Offset(screenBounds.X, screenBounds.Y));
+            // In the capture too: it covers all screens, but the screens can have changed since it was taken
+            return place is { } bounds && screenBounds.Intersect(bounds) == bounds ? place : null;
+        }
+
+        /// <summary>
+        /// Where an entry goes, in screen coordinates: at its place when that is on the screens, else at the same place on the monitor
+        /// with the cursor (a full screen window is at the same place on every monitor), null when it has no place or neither fits
+        /// </summary>
+        /// <param name="area">The entry</param>
+        /// <param name="screens">The bounds of the monitors</param>
+        /// <param name="cursorMonitor">The bounds of the monitor with the cursor</param>
+        public static NativeRect? ResolvePlace(FixedCaptureArea area, IList<NativeRect> screens, NativeRect cursorMonitor)
+        {
+            if (area.Bounds is not { } bounds || area.OffsetOnMonitor is not { } offset)
             {
                 return null;
             }
-            return bounds.Offset(-screenBounds.X, -screenBounds.Y);
+            if (FitsOnScreens(bounds, screens))
+            {
+                return bounds;
+            }
+            var moved = new NativeRect(cursorMonitor.X + offset.X, cursorMonitor.Y + offset.Y, area.Size.Width, area.Size.Height);
+            return cursorMonitor.Intersect(moved) == moved ? moved : null;
         }
 
         /// <summary>
@@ -331,7 +359,9 @@ namespace Greenshot.Capturing.Tools
             {
                 return;
             }
-            Conf.RecentCaptureAreas = AddRecent(Conf.RecentCaptureAreas, new FixedCaptureArea(bounds.Size, bounds.Location));
+            // With the monitor of its top left corner, to find the same place on another monitor when this one is gone
+            var monitor = DisplayInfo.GetBounds(bounds.Location).Location;
+            Conf.RecentCaptureAreas = AddRecent(Conf.RecentCaptureAreas, new FixedCaptureArea(bounds.Size, bounds.Location, monitor));
         }
 
         /// <summary>
@@ -451,7 +481,7 @@ namespace Greenshot.Capturing.Tools
             var texts = _sizes.Select((entry, index) => index == _index
                 ? style.CreateText(entry.Area.DisplayText, 9, style.Accent, true)
                 // A place which doesn't fit on the screens is not used
-                : style.CreateText(entry.Area.DisplayText, 9, entry.Area.Bounds is { } bounds && !FitsOnScreens(bounds, GetScreens()) ? style.MutedForeground : null)).ToList();
+                : style.CreateText(entry.Area.DisplayText, 9, entry.Area.Location.HasValue && GetPlace(entry.Area) == null ? style.MutedForeground : null)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
 
             double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();

@@ -430,7 +430,7 @@ namespace Greenshot.Base.Core
         [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
         List<string> FixedCaptureSizes { get; set; }
 
-        [Description("The sizes and places of the last region captures (e.g. 1280x720@100:200), the fixed size capture offers them below its own sizes")]
+        [Description("The sizes and places of the last region captures, with the top left corner of their monitor (e.g. 1280x720@2020:200@1920:0), the fixed size capture offers them below its own sizes")]
         List<string> RecentCaptureAreas { get; set; }
 
         [Description("The size and place of the last fixed size capture (e.g. 1280x720@100:200), the fixed size capture starts with it")]

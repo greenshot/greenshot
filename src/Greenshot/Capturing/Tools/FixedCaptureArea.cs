@@ -26,15 +26,17 @@ using Dapplo.Windows.Common.Structs;
 namespace Greenshot.Capturing.Tools
 {
     /// <summary>
-    /// An entry of the fixed size capture: a size and, optionally, where its top left corner was, in screen pixels.
-    /// In greenshot.ini "1280x720" or "1280x720@100:200" (also "1280x720@-1920:0" for a monitor left of the main one).
+    /// An entry of the fixed size capture: a size and, optionally, where its top left corner was, in screen pixels,
+    /// and the top left corner of the monitor it was on. In greenshot.ini "1280x720", "1280x720@100:200"
+    /// (also "1280x720@-1920:0" for a monitor left of the main one) or "1280x720@2020:200@1920:0" with the monitor.
     /// </summary>
     public readonly struct FixedCaptureArea : IEquatable<FixedCaptureArea>
     {
-        public FixedCaptureArea(NativeSize size, NativePoint? location = null)
+        public FixedCaptureArea(NativeSize size, NativePoint? location = null, NativePoint? monitor = null)
         {
             Size = size;
             Location = location;
+            Monitor = location.HasValue ? monitor : null;
         }
 
         public NativeSize Size { get; }
@@ -43,6 +45,19 @@ namespace Greenshot.Capturing.Tools
         /// The top left corner in screen coordinates, null when the area has no place
         /// </summary>
         public NativePoint? Location { get; }
+
+        /// <summary>
+        /// The top left corner of the monitor the area was on, in screen coordinates; null when it isn't known,
+        /// then the area counts as being on the main monitor (0,0)
+        /// </summary>
+        public NativePoint? Monitor { get; }
+
+        /// <summary>
+        /// Where the area is on its monitor, null when it has no place
+        /// </summary>
+        public NativePoint? OffsetOnMonitor => Location is { } location
+            ? new NativePoint(location.X - (Monitor?.X ?? 0), location.Y - (Monitor?.Y ?? 0))
+            : null;
 
         public bool IsEmpty => Size.IsEmpty;
 
@@ -59,12 +74,12 @@ namespace Greenshot.Capturing.Tools
             : $"{Size.Width} × {Size.Height}";
 
         /// <summary>
-        /// "1280x720" or "1280x720@100:200" (also with × or spaces) to an area, empty when it isn't one
+        /// "1280x720", "1280x720@100:200" or "1280x720@100:200@0:0" (also with × or spaces) to an area, empty when it isn't one
         /// </summary>
         public static FixedCaptureArea Parse(string text)
         {
             var parts = text?.Split('@');
-            if (parts == null || parts.Length > 2)
+            if (parts == null || parts.Length > 3)
             {
                 return default;
             }
@@ -77,24 +92,55 @@ namespace Greenshot.Capturing.Tools
             {
                 return new FixedCaptureArea(size);
             }
-            var coordinates = parts[1].Split(':');
+            if (!TryParsePoint(parts[1], out var location))
+            {
+                return default;
+            }
+            if (parts.Length == 2)
+            {
+                return new FixedCaptureArea(size, location);
+            }
+            return TryParsePoint(parts[2], out var monitor) ? new FixedCaptureArea(size, location, monitor) : default;
+        }
+
+        /// <summary>
+        /// "100:200" to a point
+        /// </summary>
+        private static bool TryParsePoint(string text, out NativePoint point)
+        {
+            var coordinates = text.Split(':');
             if (coordinates.Length == 2 && TryParseCoordinate(coordinates[0], out int x) && TryParseCoordinate(coordinates[1], out int y))
             {
-                return new FixedCaptureArea(size, new NativePoint(x, y));
+                point = new NativePoint(x, y);
+                return true;
             }
-            return default;
+            point = default;
+            return false;
         }
 
         private static bool TryParseCoordinate(string text, out int value) =>
             int.TryParse(text.Trim(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
 
         /// <summary>
-        /// The area as it is stored in greenshot.ini, e.g. "1280x720" or "1280x720@100:200"
+        /// The area as it is stored in greenshot.ini, e.g. "1280x720", "1280x720@100:200" or "1280x720@2020:200@1920:0"
         /// </summary>
-        public override string ToString() => Location is { } location
-            ? FormattableString.Invariant($"{Size.Width}x{Size.Height}@{location.X}:{location.Y}")
-            : FormattableString.Invariant($"{Size.Width}x{Size.Height}");
+        public override string ToString()
+        {
+            var text = FormattableString.Invariant($"{Size.Width}x{Size.Height}");
+            if (Location is { } location)
+            {
+                text += FormattableString.Invariant($"@{location.X}:{location.Y}");
+            }
+            if (Monitor is { } monitor)
+            {
+                text += FormattableString.Invariant($"@{monitor.X}:{monitor.Y}");
+            }
+            return text;
+        }
 
+        /// <summary>
+        /// The same size at the same place; the monitor only tells where the area goes when its place isn't on the screens
+        /// </summary>
         public bool Equals(FixedCaptureArea other) => Size == other.Size && Nullable.Equals(Location, other.Location);
 
         public override bool Equals(object obj) => obj is FixedCaptureArea other && Equals(other);

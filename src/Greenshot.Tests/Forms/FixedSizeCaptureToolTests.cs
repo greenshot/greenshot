@@ -80,7 +80,8 @@ public class FixedSizeCaptureToolTests
     [Theory]
     [InlineData("1280x720@100")]
     [InlineData("1280x720@a:b")]
-    [InlineData("1280x720@1:2@3:4")]
+    [InlineData("1280x720@1:2@3:4@5:6")]
+    [InlineData("1280x720@1:2@3")]
     [InlineData("0x720@1:2")]
     [InlineData(null)]
     public void FixedCaptureArea_Parse_NoArea(string text)
@@ -91,9 +92,38 @@ public class FixedSizeCaptureToolTests
     [Theory]
     [InlineData("1280x720")]
     [InlineData("1280x720@-1920:-10")]
+    [InlineData("1280x720@2020:200@1920:0")]
     public void FixedCaptureArea_ToString_IsWhatParseReads(string text)
     {
         Assert.Equal(text, FixedCaptureArea.Parse(text).ToString());
+    }
+
+    [Fact]
+    public void FixedCaptureArea_TheMonitor_OnlyGivesTheOffset()
+    {
+        var withMonitor = FixedCaptureArea.Parse("1280x720@2020:200@1920:0");
+
+        Assert.Equal(FixedCaptureArea.Parse("1280x720@2020:200"), withMonitor);
+        Assert.Equal((NativePoint?)new NativePoint(100, 200), withMonitor.OffsetOnMonitor);
+        // Without a monitor the main monitor counts
+        Assert.Equal((NativePoint?)new NativePoint(2020, 200), FixedCaptureArea.Parse("1280x720@2020:200").OffsetOnMonitor);
+    }
+
+    [Fact]
+    public void ResolvePlace_ThePlace_WhenItIsOnTheScreens_ElseTheSamePlaceOnTheMonitorWithTheCursor()
+    {
+        var main = new NativeRect(0, 0, 1920, 1080);
+        var second = new NativeRect(1920, 0, 1920, 1080);
+        var area = FixedCaptureArea.Parse("800x600@2020:200@1920:0");
+
+        // Both monitors: the place itself, also with the cursor on the main monitor
+        Assert.Equal((NativeRect?)new NativeRect(2020, 200, 800, 600), FixedSizeCaptureTool.ResolvePlace(area, new[] { main, second }, main));
+        // The second monitor is off: the same place on the main monitor
+        Assert.Equal((NativeRect?)new NativeRect(100, 200, 800, 600), FixedSizeCaptureTool.ResolvePlace(area, new[] { main }, main));
+        // It doesn't fit on the monitor with the cursor
+        Assert.Null(FixedSizeCaptureTool.ResolvePlace(area, new[] { main }, new NativeRect(0, 0, 800, 600)));
+        // No place
+        Assert.Null(FixedSizeCaptureTool.ResolvePlace(FixedCaptureArea.Parse("800x600"), new[] { main }, main));
     }
 
     [Fact]

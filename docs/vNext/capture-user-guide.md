@@ -220,12 +220,16 @@ A panel lists the sizes:
   entry (after the last one comes the first again), also to those after the tenth.
 - **The same place again:** when an entry has a place, picking it moves the mouse so the rectangle is exactly there, and a dashed outline
   shows the place. Click or press `Enter` to capture the same area as before. The rectangle still follows the mouse: move it away to capture
-  somewhere else, bring it close to the outline and it snaps back onto it (hold `Alt` to stop that). A place is only used when the whole
-  rectangle is on your screens; after a change of the monitors it may not be, then the place is grey in the list and the rectangle simply
-  follows the mouse. The mode starts with the entry you captured last, so `F` and `Enter` capture the last fixed size area again.
+  somewhere else, bring it close to the outline and it snaps back onto it (hold `Alt` to stop that). The mode starts with the entry you
+  captured last, so `F` and `Enter` capture the last fixed size area again.
+- **When the monitor is gone:** a place is used when the whole rectangle is on your screens. When it isn't, e.g. you captured on a second
+  monitor which is now switched off, the rectangle goes to the same place on the monitor with the mouse: a full screen window is at the same
+  place on every monitor. When it doesn't fit there either, the place is grey in the list and the rectangle simply follows the mouse.
 - **Your own places:** in greenshot.ini an entry of `FixedCaptureSizes` can have a place: `1280x720@100:200` puts the top left corner at
   100, 200. The coordinates are screen pixels as Windows counts them: the main monitor starts at `0:0`, a monitor on its left has
   negative ones, e.g. `1920x1080@-1920:0`. The settings window shows these places and keeps them; its *Add a size* adds sizes without one.
+  Greenshot stores the recent ones with a second `@` for the top left corner of the monitor they were on, e.g. `1280x720@2020:200@1920:0`;
+  an entry without it counts as being on the main monitor.
 - **Where the mouse holds the rectangle:** at the top left corner at first. **`C`** changes it to the top right corner, the bottom right,
   the bottom left, the middle, and back to the top left. At a corner the pixel under the mouse is the corner pixel of the capture, so the
   zoomer shows you exactly where the capture starts or ends. The panel shows the current choice as a dot in a small rectangle.
