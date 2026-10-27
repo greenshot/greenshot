@@ -85,6 +85,24 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
+        /// Changes an entry in its place; when the new one is already in the list the changed one goes
+        /// </summary>
+        public void ChangeFixedCaptureSize(FixedCaptureSizeItem item, FixedCaptureArea area)
+        {
+            int index = FixedCaptureSizes.IndexOf(item);
+            if (index < 0 || area.IsEmpty || item.Area == area)
+            {
+                return;
+            }
+            if (FixedCaptureSizes.Any(other => other.Area == area))
+            {
+                FixedCaptureSizes.RemoveAt(index);
+                return;
+            }
+            FixedCaptureSizes[index] = new FixedCaptureSizeItem(area);
+        }
+
+        /// <summary>
         /// Writes the sizes of the fixed size capture back to the configuration
         /// </summary>
         public void SaveFixedCaptureSizes()
@@ -108,7 +126,8 @@ namespace Greenshot.Settings.ViewModels
         /// <summary>
         /// What a place of a new size is relative to: the main screen, each other screen which is connected now, or a program's window
         /// </summary>
-        public static IList<FixedCapturePlaceChoice> GetFixedCapturePlaceChoices()
+        /// <param name="monitor">The screen of an entry which is changed, it is offered also when it isn't connected now</param>
+        public static IList<FixedCapturePlaceChoice> GetFixedCapturePlaceChoices(NativePoint? monitor = null)
         {
             var choices = new List<FixedCapturePlaceChoice> { new FixedCapturePlaceChoice(Texts.Settings.FixedCaptureSizesMainScreen, null, false) };
             var displays = DisplayInfo.AllDisplayInfos;
@@ -122,6 +141,10 @@ namespace Greenshot.Settings.ViewModels
                 string name = string.Format(CultureInfo.CurrentCulture, "{0} ({1} × {2})",
                     FormatScreen(i + 1), displays[i].Bounds.Width, displays[i].Bounds.Height);
                 choices.Add(new FixedCapturePlaceChoice(name, origin, false));
+            }
+            if (monitor is { } entryMonitor && !choices.Any(choice => choice.Monitor == entryMonitor))
+            {
+                choices.Add(new FixedCapturePlaceChoice(FormatScreen(string.Format(CultureInfo.CurrentCulture, "({0}, {1})", entryMonitor.X, entryMonitor.Y)), entryMonitor, false));
             }
             choices.Add(new FixedCapturePlaceChoice(Texts.Settings.FixedCaptureSizesProgram, null, true));
             return choices;
@@ -139,7 +162,7 @@ namespace Greenshot.Settings.ViewModels
                 .OrderBy(name => name, System.StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-        private static string FormatScreen(int number)
+        private static string FormatScreen(object number)
         {
             try
             {
@@ -147,7 +170,7 @@ namespace Greenshot.Settings.ViewModels
             }
             catch (System.FormatException)
             {
-                return number.ToString(CultureInfo.CurrentCulture);
+                return System.Convert.ToString(number, CultureInfo.CurrentCulture);
             }
         }
     }

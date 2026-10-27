@@ -392,7 +392,11 @@
                                                 <DataTemplate>
                                                     <Border Style="{StaticResource PillStyle}">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock VerticalAlignment="Center" Text="{Binding DisplayText}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                            <!-- A click on the size changes it -->
+                                                            <Button Style="{StaticResource EditEntryButtonStyle}" Content="{Binding DisplayText}"
+                                                                    ToolTip="{wpf:Text Settings.FixedCaptureSizesChange}"
+                                                                    AutomationProperties.HelpText="{wpf:Text Settings.FixedCaptureSizesChange}"
+                                                                    Click="ChangeFixedCaptureSize_Click"/>
                                                             <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
                                                                     Click="RemoveFixedCaptureSize_Click"/>
                                                         </StackPanel>
@@ -491,7 +495,8 @@
                                                 <ComboBox x:Name="FixedCaptureSizeProgram" Grid.Row="7" Grid.ColumnSpan="3" IsEditable="True"
                                                           Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
                                                           AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeProgramLabel}"/>
-                                                <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
+                                                <!-- "+" adds, "✓" when an entry is changed (set in code) -->
+                                                <Button x:Name="FixedCaptureSizeConfirm" Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
                                                         ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                         AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                         Click="AddFixedCaptureSizeConfirm_Click"/>

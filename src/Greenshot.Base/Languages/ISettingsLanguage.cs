@@ -948,6 +948,11 @@ namespace Greenshot.Base.Languages
         string FixedCaptureSizesKeep { get; }
 
         /// <summary>
+        /// Change this size (a click on a fixed capture size in the settings)
+        /// </summary>
+        string FixedCaptureSizesChange { get; }
+
+        /// <summary>
         /// Recent captures keep
         /// </summary>
         string FixedCaptureRemembers { get; }

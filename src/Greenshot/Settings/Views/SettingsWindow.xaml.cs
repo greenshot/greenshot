@@ -21,8 +21,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Input;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
@@ -301,24 +303,59 @@ namespace Greenshot.Settings.Views
             }
         }
 
+        // The fixed capture size which the popup changes, null when it adds one
+        private FixedCaptureSizeItem _changedFixedCaptureSize;
+
         private void AddFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
+            OpenFixedCaptureSizePopup(null, AddFixedCaptureSizeButton);
+        }
+
+        // A click on a size opens the popup with its values below it
+        private void ChangeFixedCaptureSize_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is FixedCaptureSizeItem item)
+            {
+                OpenFixedCaptureSizePopup(item, element);
+            }
+        }
+
+        /// <summary>
+        /// The popup to add a size (empty) or to change one (with its values)
+        /// </summary>
+        private void OpenFixedCaptureSizePopup(FixedCaptureSizeItem item, UIElement target)
+        {
+            _changedFixedCaptureSize = item;
+            var area = item?.Area ?? default;
+            string Number(int value) => value.ToString(CultureInfo.CurrentCulture);
+            FixedCaptureSizeWidth.Text = item == null ? string.Empty : Number(area.Size.Width);
+            FixedCaptureSizeHeight.Text = item == null ? string.Empty : Number(area.Size.Height);
+            FixedCaptureSizeX.Text = area.Offset is { } offsetX ? Number(offsetX.X) : string.Empty;
+            FixedCaptureSizeY.Text = area.Offset is { } offsetY ? Number(offsetY.Y) : string.Empty;
+            FixedCaptureSizeProgram.ItemsSource = SettingsViewModel.GetProgramsOfOpenWindows();
+            FixedCaptureSizeProgram.Text = area.Program ?? string.Empty;
+            // The screens connected now, and that of the entry
+            var choices = SettingsViewModel.GetFixedCapturePlaceChoices(area.Monitor);
+            FixedCaptureSizeRelativeTo.ItemsSource = choices;
+            FixedCaptureSizeRelativeTo.SelectedItem = area.Program != null
+                ? choices.First(choice => choice.IsProgram)
+                : choices.FirstOrDefault(choice => !choice.IsProgram && choice.Monitor == area.Monitor) ?? choices[0];
+            string confirmText = item == null ? Texts.Settings.FixedCaptureSizesAdd : Texts.Settings.FixedCaptureSizesChange;
+            FixedCaptureSizeConfirm.Content = item == null ? "+" : "✓";
+            FixedCaptureSizeConfirm.ToolTip = confirmText;
+            AutomationProperties.SetName(FixedCaptureSizeConfirm, confirmText);
+            AddFixedCaptureSizePopup.PlacementTarget = target;
             AddFixedCaptureSizePopup.IsOpen = true;
         }
 
-        // The popup starts empty, the cursor in the width
+        // The cursor in the width
         private void AddFixedCaptureSizePopup_Opened(object sender, EventArgs e)
         {
-            FixedCaptureSizeWidth.Text = string.Empty;
-            FixedCaptureSizeHeight.Text = string.Empty;
-            FixedCaptureSizeX.Text = string.Empty;
-            FixedCaptureSizeY.Text = string.Empty;
-            FixedCaptureSizeProgram.Text = string.Empty;
-            FixedCaptureSizeProgram.ItemsSource = SettingsViewModel.GetProgramsOfOpenWindows();
-            // The screens connected now
-            FixedCaptureSizeRelativeTo.ItemsSource = SettingsViewModel.GetFixedCapturePlaceChoices();
-            FixedCaptureSizeRelativeTo.SelectedIndex = 0;
-            _ = Dispatcher.BeginInvoke(new Action(() => FixedCaptureSizeWidth.Focus()), System.Windows.Threading.DispatcherPriority.Input);
+            _ = Dispatcher.BeginInvoke(new Action(() =>
+            {
+                FixedCaptureSizeWidth.Focus();
+                FixedCaptureSizeWidth.SelectAll();
+            }), System.Windows.Threading.DispatcherPriority.Input);
         }
 
         // Enter adds the size, Esc closes the popup
@@ -401,8 +438,16 @@ namespace Greenshot.Settings.Views
                     return;
                 }
             }
-            _viewModel.AddFixedCaptureSize(area);
             AddFixedCaptureSizePopup.IsOpen = false;
+            if (_changedFixedCaptureSize != null)
+            {
+                _viewModel.ChangeFixedCaptureSize(_changedFixedCaptureSize, area);
+                _changedFixedCaptureSize = null;
+            }
+            else
+            {
+                _viewModel.AddFixedCaptureSize(area);
+            }
             AddFixedCaptureSizeButton.Focus();
         }
 
