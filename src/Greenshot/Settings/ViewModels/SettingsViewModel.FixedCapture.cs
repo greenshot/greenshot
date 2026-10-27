@@ -127,6 +127,18 @@ namespace Greenshot.Settings.ViewModels
             return choices;
         }
 
+        /// <summary>
+        /// The programs (e.g. notepad.exe) of the open application windows, to pick one for a place in its windows
+        /// </summary>
+        public static IList<string> GetProgramsOfOpenWindows() =>
+            WindowHelper.GetTopLevelWindows()
+                .Select(window => window.GetProcessName())
+                .Where(name => !string.IsNullOrEmpty(name))
+                .Select(name => name + ".exe")
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, System.StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
         private static string FormatScreen(int number)
         {
             try

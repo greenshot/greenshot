@@ -456,6 +456,7 @@
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
                                                 <TextBlock x:Name="FixedCaptureSizeWidthLabel" Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
@@ -486,9 +487,10 @@
                                                 <TextBlock x:Name="FixedCaptureSizeProgramLabel" Grid.Row="6" Grid.ColumnSpan="3" Text="{wpf:Text Settings.FixedCaptureSizesProgramName}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,3"
                                                            Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                <TextBox x:Name="FixedCaptureSizeProgram" Grid.Row="7" Grid.ColumnSpan="3"
-                                                         Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
-                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeProgramLabel}"/>
+                                                <!-- The programs of the open windows to pick from, another name can be typed -->
+                                                <ComboBox x:Name="FixedCaptureSizeProgram" Grid.Row="7" Grid.ColumnSpan="3" IsEditable="True"
+                                                          Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+                                                          AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeProgramLabel}"/>
                                                 <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
                                                         ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                         AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesAdd}"

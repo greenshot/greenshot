@@ -314,6 +314,7 @@ namespace Greenshot.Settings.Views
             FixedCaptureSizeX.Text = string.Empty;
             FixedCaptureSizeY.Text = string.Empty;
             FixedCaptureSizeProgram.Text = string.Empty;
+            FixedCaptureSizeProgram.ItemsSource = SettingsViewModel.GetProgramsOfOpenWindows();
             // The screens connected now
             FixedCaptureSizeRelativeTo.ItemsSource = SettingsViewModel.GetFixedCapturePlaceChoices();
             FixedCaptureSizeRelativeTo.SelectedIndex = 0;
@@ -397,7 +398,6 @@ namespace Greenshot.Settings.Views
                 if (relativeTo?.IsProgram == true && (area.Program == null || FixedCaptureArea.Parse(area.ToString()) != area))
                 {
                     FixedCaptureSizeProgram.Focus();
-                    FixedCaptureSizeProgram.SelectAll();
                     return;
                 }
             }
