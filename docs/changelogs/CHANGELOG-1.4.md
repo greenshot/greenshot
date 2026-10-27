@@ -79,6 +79,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The mouse holds the area at its top left corner, so the magnifier shows exactly where it starts; press C for another corner or the middle
 - The magnifier shows the edges of the area (and of a region you drag), so even a 16 × 16 area can be placed to the pixel
 - A list shows the sizes: pick one with 1 to 9 and 0 (also on the number pad), or go through them with Page Up and Page Down
+- Press S to type a width and height for the area
 - The sizes of your last region and window captures are in the list too, with where they were: picking one puts the area at the same place again, on the screen or in the window of the same program, wherever that window is now
 - Your own sizes can have a place too, on a screen or in the window of a program; the Capture tab sets what your captures remember and whether the mouse moves there, and keeps a recent capture as one of your own sizes
 - Add and remove your own sizes in the settings, on the Capture tab

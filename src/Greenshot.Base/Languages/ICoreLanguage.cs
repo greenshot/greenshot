@@ -621,6 +621,16 @@ namespace Greenshot.Base.Languages
         string CaptureKeyFixedSizeCorner { get; }
 
         /// <summary>
+        /// Help text of the key which starts and stops typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeType { get; }
+
+        /// <summary>
+        /// Help text shown while a size is typed in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeTyping { get; }
+
+        /// <summary>
         /// Cursor at the top left corner
         /// </summary>
         string CaptureFixedSizesAnchorTopLeft { get; }
@@ -674,6 +684,11 @@ namespace Greenshot.Base.Languages
         /// {0} at {1}, {2} in {3}
         /// </summary>
         string CaptureFixedSizesAtProgram { get; }
+
+        /// <summary>
+        /// The size being typed in the fixed size capture list, {0} is the size.
+        /// </summary>
+        string CaptureFixedSizesTyping { get; }
 
         /// <summary>
         /// Start or finish the selection

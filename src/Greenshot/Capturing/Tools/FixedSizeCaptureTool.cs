@@ -49,6 +49,7 @@ namespace Greenshot.Capturing.Tools
     /// of a program. Picking the entry moves the cursor so the area is there (FixedCaptureMovesCursor), the places are drawn as outlines,
     /// and the area snaps onto one when it comes close. When a place on a monitor isn't on the screens (e.g. its monitor is switched off),
     /// the same place on the monitor with the cursor is used, e.g. for a full screen window.
+    /// S starts typing a size: digits, X to the height, Backspace, Enter takes it, S again stops.
     /// </summary>
     public class FixedSizeCaptureTool : CaptureTool
     {
@@ -71,6 +72,14 @@ namespace Greenshot.Capturing.Tools
         // Windows of the shell (desktop, taskbar) aren't windows of a program to remember a place in
         private static readonly string[] ShellWindowClasses = { "Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd" };
         private NativeRect _selection = NativeRect.Empty;
+        // Typing a size (S): the digits of the width and the height, null when not typing
+        private string _typedWidth;
+        private string _typedHeight;
+        private bool _typingHeight;
+        // The largest width or height which can be typed
+        private const int TypedDigitsCount = 5;
+
+        private bool IsTyping => _typedWidth != null;
 
         public override CaptureMode Mode => CaptureMode.Region;
 
@@ -92,6 +101,9 @@ namespace Greenshot.Capturing.Tools
             host.RegisterToolKey(this, Key.PageUp, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(-1));
             host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(1));
             host.RegisterToolKey(this, Key.C, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeCorner, NextAnchor);
+            host.RegisterToolKey(this, Key.S, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeType, ToggleTyping);
+            host.RegisterToolKey(this, Key.X, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeTyping, TypeHeight);
+            host.RegisterToolKey(this, Key.Back, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeTyping, DeleteTypedDigit);
         }
 
         public override void Activate(ICaptureToolHost host)
@@ -106,6 +118,7 @@ namespace Greenshot.Capturing.Tools
                 _index = Math.Max(0, _sizes.FindIndex(entry => entry.Area.Size == last.Size));
             }
             _processNames.Clear();
+            _typedWidth = _typedHeight = null;
             _places = GetPlaces(_sizes.Count == 0 ? default : _sizes[_index].Area);
             _selection = NativeRect.Empty;
             OnMouseMove();
@@ -153,6 +166,12 @@ namespace Greenshot.Capturing.Tools
 
         private void AcceptSelection()
         {
+            if (IsTyping)
+            {
+                // Enter takes the typed size, the capture follows with the next Enter or click
+                TakeTypedSize();
+                return;
+            }
             if (_selection.IsEmpty)
             {
                 return;
@@ -167,6 +186,11 @@ namespace Greenshot.Capturing.Tools
         /// </summary>
         private void PickSize(int index)
         {
+            if (IsTyping)
+            {
+                TypeDigit(index < 9 ? index + 1 : 0);
+                return;
+            }
             if (index < _sizes.Count)
             {
                 _index = index;
@@ -176,6 +200,102 @@ namespace Greenshot.Capturing.Tools
                 MoveCursorToPlace();
                 OnMouseMove();
             }
+        }
+
+        /// <summary>
+        /// S: start typing a size, or stop it without changing the size
+        /// </summary>
+        private void ToggleTyping()
+        {
+            if (IsTyping)
+            {
+                _typedWidth = _typedHeight = null;
+            }
+            else
+            {
+                _typedWidth = _typedHeight = string.Empty;
+                _typingHeight = false;
+            }
+            ShowSizes();
+        }
+
+        private void TypeDigit(int digit)
+        {
+            if (_typingHeight)
+            {
+                _typedHeight = AddDigit(_typedHeight, digit);
+            }
+            else
+            {
+                _typedWidth = AddDigit(_typedWidth, digit);
+            }
+            ShowSizes();
+        }
+
+        private static string AddDigit(string text, int digit) =>
+            text.Length >= TypedDigitsCount || (text.Length == 0 && digit == 0) ? text : text + digit.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// X while typing: on to the height, once there is a width
+        /// </summary>
+        private void TypeHeight()
+        {
+            if (IsTyping && !_typingHeight && _typedWidth.Length > 0)
+            {
+                _typingHeight = true;
+                ShowSizes();
+            }
+        }
+
+        /// <summary>
+        /// Backspace while typing: the last digit goes, from an empty height back to the width
+        /// </summary>
+        private void DeleteTypedDigit()
+        {
+            if (!IsTyping)
+            {
+                return;
+            }
+            if (_typingHeight && _typedHeight.Length == 0)
+            {
+                _typingHeight = false;
+            }
+            else if (_typingHeight)
+            {
+                _typedHeight = _typedHeight.Substring(0, _typedHeight.Length - 1);
+            }
+            else if (_typedWidth.Length > 0)
+            {
+                _typedWidth = _typedWidth.Substring(0, _typedWidth.Length - 1);
+            }
+            ShowSizes();
+        }
+
+        /// <summary>
+        /// Enter while typing: the typed size becomes the current entry, it follows the cursor
+        /// </summary>
+        private void TakeTypedSize()
+        {
+            var size = ParseSize($"{_typedWidth}x{_typedHeight}");
+            if (size.IsEmpty)
+            {
+                return;
+            }
+            _typedWidth = _typedHeight = null;
+            var area = new FixedCaptureArea(size);
+            int index = _sizes.FindIndex(entry => entry.Area == area);
+            if (index < 0)
+            {
+                // Before the recent ones, it becomes one of them when it is captured
+                index = _sizes.FindIndex(entry => entry.Recent);
+                index = index < 0 ? _sizes.Count : index;
+                _sizes.Insert(index, (area, true));
+            }
+            _index = index;
+            _places = new List<NativeRect>();
+            ShowSizes();
+            Host.Redraw();
+            OnMouseMove();
         }
 
         /// <summary>
@@ -572,14 +692,24 @@ namespace Greenshot.Capturing.Tools
                 // A place which doesn't fit now is not used
                 : style.CreateText(GetDisplayText(entry.Area), 9, entry.Area.HasPlace && GetPlaces(entry.Area).Count == 0 ? style.MutedForeground : null)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
+            // While typing a size: what is typed so far, the cursor where the next digit goes
+            var typed = IsTyping
+                ? style.CreateText(Format(Texts.Core.CaptureFixedSizesTyping, _typingHeight ? $"{_typedWidth} × {_typedHeight}▏" : $"{_typedWidth}▏", 0, 0, null), 9, style.Accent, true)
+                : null;
+            double typedHeight = typed == null ? 0 : typed.Height + gap;
 
-            double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
-            double height = title.Height + gap + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + anchorHeight + gap + hint.Height;
+            double width = new[] { title.Width, hint.Width, anchorWidth, typed?.Width ?? 0, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
+            double height = title.Height + gap + typedHeight + _sizes.Count * rowHeight + (hasRecent ? recentTitle.Height + gap / 2 : 0) + gap + anchorHeight + gap + hint.Height;
 
             Host.ShowPanel(this, new Size(width, height), dc =>
             {
                 dc.DrawText(title, new Point(0, 0));
                 double y = title.Height + gap;
+                if (typed != null)
+                {
+                    dc.DrawText(typed, new Point(0, y));
+                    y += typedHeight;
+                }
                 for (int i = 0; i < _sizes.Count; i++)
                 {
                     if (_sizes[i].Recent && (i == 0 || !_sizes[i - 1].Recent))

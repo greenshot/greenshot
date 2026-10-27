@@ -219,6 +219,9 @@ A panel lists the sizes:
   already in your own list (same size and place) isn't repeated.
 - **`1` – `9` and `0`** (also on the number pad) pick an entry from the list, `0` the tenth. **`PgUp`** and **`PgDn`** go to the previous or next
   entry (after the last one comes the first again), also to those after the tenth.
+- **A size of your own right now:** press **`S`** and type the width, **`X`**, then the height (`Backspace` deletes a digit). The panel
+  shows what you type, `Enter` takes the size: the rectangle follows the mouse with it, and the next click or `Enter` captures. `S` again stops
+  typing without changing the size. Once captured, the size is under *Recently captured*.
 - **The same place again:** when an entry has a place, picking it moves the mouse so the rectangle is exactly there, and a dashed outline
   shows the place. Click or press `Enter` to capture the same area as before. The rectangle still follows the mouse: move it away to capture
   somewhere else, bring it close to the outline and it snaps back onto it (hold `Alt` to stop that). The mode starts with the entry you
@@ -419,6 +422,7 @@ The **Keys** panel (`F1`) always shows the keys which work at that moment. This 
 | `1` – `9`, `0` | Pick a size from the list, `0` the tenth (also on the number pad) |
 | `PgUp` / `PgDn` | The previous or next size |
 | `C` | Hold the area at another corner or in the middle |
+| `S` | Type a size: digits for the width, `X`, digits for the height, `Backspace` deletes, `Enter` takes it; `S` again stops |
 | hold `Alt` | Place the area without snapping |
 
 **With the mouse**
