@@ -469,7 +469,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
 | Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). `L` switches while selecting. |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
-| Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` and `0` pick them. Add a size with width and height, and optionally a place on a screen or in a window of a program; click a size to change it, or remove one from the list. |
+| Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` and `0` pick them. Add a size with width and height, and optionally a place on a screen or in a window of a program (without X and Y: its top left corner); click a size to change it, or remove one from the list. |
 | Capture tab | *Recent captures keep* | What the fixed size mode offers of your last captures: only the size, the place on the screen, or the place in the window of the program (the default). |
 | Capture tab | *Move the mouse to the place of a size* | Picking a size with a place moves the mouse there (the default); off, only the outline shows it. |
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |

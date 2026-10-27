@@ -397,6 +397,7 @@ namespace Greenshot.Settings.Views
         /// <summary>
         /// Adds the size of the popup and closes it, a value which isn't a positive number keeps it open with that box focused.
         /// X and Y are optional, both or none; with them the place is relative to the chosen screen or to a window of the program.
+        /// Without them a program or another screen than the main one means its top left corner.
         /// </summary>
         private void AddFixedCaptureSize()
         {
@@ -413,22 +414,25 @@ namespace Greenshot.Settings.Views
                 return;
             }
             var area = new FixedCaptureArea(new NativeSize(width, height));
+            var relativeTo = FixedCaptureSizeRelativeTo.SelectedItem as FixedCapturePlaceChoice;
+            // A program or another screen without X and Y is its top left corner, only the main screen without them is "no place"
+            bool hasPlace = relativeTo?.IsProgram == true || relativeTo?.Monitor != null;
             bool hasX = !string.IsNullOrWhiteSpace(FixedCaptureSizeX.Text), hasY = !string.IsNullOrWhiteSpace(FixedCaptureSizeY.Text);
-            if (hasX || hasY)
+            if (hasX || hasY || hasPlace)
             {
-                if (!int.TryParse(FixedCaptureSizeX.Text.Trim(), out int x))
+                int x = 0, y = 0;
+                if ((hasX || hasY) && !int.TryParse(FixedCaptureSizeX.Text.Trim(), out x))
                 {
                     FixedCaptureSizeX.Focus();
                     FixedCaptureSizeX.SelectAll();
                     return;
                 }
-                if (!int.TryParse(FixedCaptureSizeY.Text.Trim(), out int y))
+                if ((hasX || hasY) && !int.TryParse(FixedCaptureSizeY.Text.Trim(), out y))
                 {
                     FixedCaptureSizeY.Focus();
                     FixedCaptureSizeY.SelectAll();
                     return;
                 }
-                var relativeTo = FixedCaptureSizeRelativeTo.SelectedItem as FixedCapturePlaceChoice;
                 string program = relativeTo?.IsProgram == true ? FixedCaptureSizeProgram.Text.Trim() : null;
                 area = new FixedCaptureArea(area.Size, new NativePoint(x, y), relativeTo?.Monitor, program);
                 // A program needs a name which can be stored, e.g. notepad.exe
