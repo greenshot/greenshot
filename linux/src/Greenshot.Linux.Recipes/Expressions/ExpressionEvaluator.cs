@@ -553,6 +553,21 @@ namespace Greenshot.Linux.Recipes.Expressions
                 return ctxPropVal;
             }
 
+            // The values of the capture which file name patterns know: ${title}, and ${dirname}, ${basename}, ${extension}
+            // of a file the Source step loaded. Without this they would be empty before the step fills its pattern.
+            if (context?.Payload?.Details is { } details)
+            {
+                if (details.MetaData.TryGetValue(token, out var metaValue))
+                {
+                    return metaValue;
+                }
+
+                if (string.Equals(token, "title", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(details.Title))
+                {
+                    return details.Title;
+                }
+            }
+
             return null;
         }
 

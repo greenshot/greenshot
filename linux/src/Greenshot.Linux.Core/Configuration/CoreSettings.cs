@@ -32,7 +32,7 @@ public sealed class CoreSettings
 {
     public const string SectionName = "Core";
 
-    private readonly IniFile _ini;
+    private IniFile _ini;
     private readonly string _path;
     private readonly object _lock = new();
 
@@ -65,6 +65,18 @@ public sealed class CoreSettings
     }
 
     public string FilePath => _path;
+
+    /// <summary>
+    /// Reads greenshot.ini again, after it was changed outside Greenshot (greenshot --reload)
+    /// </summary>
+    public void Reload()
+    {
+        var ini = IniFile.Load(_path);
+        lock (_lock)
+        {
+            _ini = ini;
+        }
+    }
 
     public void Save()
     {

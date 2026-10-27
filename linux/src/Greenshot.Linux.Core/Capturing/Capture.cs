@@ -57,7 +57,7 @@ public sealed class CaptureDetails
 {
     public DateTime DateTime { get; init; } = DateTime.Now;
 
-    public string? Title { get; init; }
+    public string? Title { get; set; }
 
     public CaptureMode Mode { get; init; }
 

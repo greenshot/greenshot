@@ -88,23 +88,85 @@ public sealed class IpcTests : IDisposable
     [Fact]
     public async Task A_second_instance_talks_to_the_first()
     {
-        var received = new List<string>();
-        using var channel = InstanceChannel.TryListen(line =>
+        var received = new List<IpcEnvelope>();
+        using var channel = InstanceChannel.TryListen(async context =>
         {
-            received.Add(line);
-            return Task.FromResult("ok");
+            received.Add(context.Envelope);
+            await context.ReplyAsync(new { status = "ok", exit_code = 0 });
         }, SocketPath);
         Assert.NotNull(channel);
 
-        Assert.Null(InstanceChannel.TryListen(_ => Task.FromResult("second"), SocketPath));
-        Assert.Equal("ok", await InstanceChannel.TrySendAsync("capture region", SocketPath));
-        Assert.Equal(["capture region"], received);
+        Assert.Null(InstanceChannel.TryListen(_ => Task.CompletedTask, SocketPath));
+        var code = await InstanceClient.RunCommandLineAsync(["capture", "region"], "/tmp", TextWriter.Null, TextWriter.Null, SocketPath);
+        Assert.Equal(0, code);
+        var envelope = Assert.Single(received);
+        Assert.Equal(IpcSources.CliCommand, envelope.Command);
+        Assert.Equal(IpcSources.Cli, envelope.Source);
+        Assert.Equal(["capture", "region"], envelope.Argv);
+        Assert.Equal("/tmp", envelope.Cwd);
+    }
+
+    [Fact]
+    public async Task Output_is_streamed_and_the_exit_code_returned()
+    {
+        using var channel = InstanceChannel.TryListen(async context =>
+        {
+            await context.ReplyAsync(new { stream = "stdout", text = "line 1" });
+            await context.ReplyAsync(new { stream = "stderr", text = "warning" });
+            await context.ReplyAsync(new { status = "error", exit_code = 3, stdout = "done" });
+        }, SocketPath);
+
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+        var code = await InstanceClient.RunCommandLineAsync(["-r", "x"], null, stdout, stderr, SocketPath);
+
+        Assert.Equal(3, code);
+        Assert.Equal("line 1\ndone\n", stdout.ToString());
+        Assert.Equal("warning\n", stderr.ToString());
+    }
+
+    [Fact]
+    public async Task The_source_of_the_hello_binds_the_connection()
+    {
+        var sources = new List<string?>();
+        using var channel = InstanceChannel.TryListen(async context =>
+        {
+            sources.Add(context.Envelope.Source);
+            await context.ReplyAsync(new { status = "ok" });
+        }, SocketPath);
+
+        await using var client = await InstanceClient.ConnectAsync(IpcSources.OpenWith, IpcSources.ReplyFormatJson, path: SocketPath);
+        Assert.NotNull(client);
+        // The envelope claims to be the terminal, the connection said it is a file manager
+        await client.SendAsync(new IpcEnvelope { Command = "LIST_RECIPES", Source = IpcSources.Cli });
+        var reply = await client.ReadFrameAsync();
+        Assert.NotNull(reply);
+        Assert.Equal([IpcSources.OpenWith], sources);
+    }
+
+    [Fact]
+    public async Task A_connection_without_hello_gets_nothing()
+    {
+        var handled = false;
+        using var channel = InstanceChannel.TryListen(_ =>
+        {
+            handled = true;
+            return Task.CompletedTask;
+        }, SocketPath);
+
+        using var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.Unix, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Unspecified);
+        await socket.ConnectAsync(new System.Net.Sockets.UnixDomainSocketEndPoint(SocketPath));
+        await using var stream = new System.Net.Sockets.NetworkStream(socket);
+        await IpcFraming.WriteFrameAsync(stream, new IpcEnvelope { Command = "EXIT", Source = "cli" }.ToBytes());
+        Assert.Null(await IpcFraming.ReadFrameAsync(stream));
+        Assert.False(handled);
     }
 
     [Fact]
     public async Task Nothing_answers_when_no_instance_runs()
     {
-        Assert.Null(await InstanceChannel.TrySendAsync("capture region", SocketPath));
+        Assert.Null(await InstanceClient.RunCommandLineAsync(["capture", "region"], null, TextWriter.Null, TextWriter.Null, SocketPath));
+        Assert.False(InstanceChannel.IsRunning(SocketPath));
     }
 
     [Fact]
@@ -115,9 +177,9 @@ public sealed class IpcTests : IDisposable
         Directory.CreateDirectory(_folder);
         await File.WriteAllTextAsync(SocketPath, string.Empty);
 
-        using var second = InstanceChannel.TryListen(_ => Task.FromResult("second"), SocketPath);
+        using var second = InstanceChannel.TryListen(context => context.ReplyAsync(new { status = "ok", exit_code = 7 }), SocketPath);
         Assert.NotNull(second);
-        Assert.Equal("second", await InstanceChannel.TrySendAsync("x", SocketPath));
+        Assert.Equal(7, await InstanceClient.RunCommandLineAsync(["x"], null, TextWriter.Null, TextWriter.Null, SocketPath));
     }
 
     [Theory]

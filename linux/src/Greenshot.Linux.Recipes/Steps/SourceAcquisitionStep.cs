@@ -152,6 +152,18 @@ namespace Greenshot.Linux.Recipes.Steps
                     }
 
                     payload.Metadata["Filename"] = filename;
+                    // The parts of the file for the patterns of later steps: ${dirname}/${basename}.png, like on Windows
+                    if (payload.Details is { } fileDetails)
+                    {
+                        fileDetails.Title = Path.GetFileNameWithoutExtension(filename);
+                        fileDetails.MetaData["file"] = filename;
+                        fileDetails.MetaData["source"] = "file";
+                        fileDetails.MetaData["dirname"] = Path.GetDirectoryName(Path.GetFullPath(filename)) ?? string.Empty;
+                        fileDetails.MetaData["filename"] = Path.GetFileNameWithoutExtension(filename);
+                        fileDetails.MetaData["basename"] = Path.GetFileNameWithoutExtension(filename);
+                        fileDetails.MetaData["extension"] = Path.GetExtension(filename);
+                    }
+
                     break;
                 case CaptureSourceType.CurrentEditor:
                     payload = FromEditor(context);

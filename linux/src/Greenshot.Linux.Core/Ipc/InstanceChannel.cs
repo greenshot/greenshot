@@ -26,14 +26,13 @@ using Greenshot.Linux.Core.Configuration;
 namespace Greenshot.Linux.Core.Ipc;
 
 /// <summary>
-/// Keeps Greenshot to one instance per user and session: the first instance listens on a Unix socket
-/// in $XDG_RUNTIME_DIR, later starts send their command line to it and end.
-/// One line per connection: the command, answered with "ok" or "error: ...".
+/// Keeps Greenshot to one instance per user and session, and is the way to talk to it: the first instance listens on a
+/// Unix socket in $XDG_RUNTIME_DIR (a folder only the user may open), the command line, the MCP server and later starts
+/// connect to it. The protocol is the one of the named pipe of Windows: length-prefixed JSON frames, a HELLO frame binds
+/// the source of the connection, then requests; replies are JSON or, for a terminal, text frames.
 /// </summary>
 public sealed class InstanceChannel : IDisposable
 {
-    private const int MaxLineLength = 4096;
-
     private readonly Socket _socket;
     private readonly string _path;
     private readonly CancellationTokenSource _stop = new();
@@ -54,38 +53,14 @@ public sealed class InstanceChannel : IDisposable
     }
 
     /// <summary>
-    /// Send a command to the running instance, null when none runs
+    /// True when a Greenshot listens
     /// </summary>
-    public static async Task<string?> TrySendAsync(string command, string? path = null, CancellationToken cancellationToken = default)
-    {
-        path ??= DefaultPath;
-        if (!File.Exists(path))
-        {
-            return null;
-        }
-
-        using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-        try
-        {
-            await socket.ConnectAsync(new UnixDomainSocketEndPoint(path), cancellationToken).ConfigureAwait(false);
-        }
-        catch (SocketException)
-        {
-            // A socket file without a listener, left by a crashed instance
-            return null;
-        }
-
-        await using var stream = new NetworkStream(socket, ownsSocket: false);
-        var request = Encoding.UTF8.GetBytes(command.ReplaceLineEndings(" ") + "\n");
-        await stream.WriteAsync(request, cancellationToken).ConfigureAwait(false);
-        using var reader = new StreamReader(stream, Encoding.UTF8);
-        return await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false) ?? string.Empty;
-    }
+    public static bool IsRunning(string? path = null) => IsAlive(path ?? DefaultPath);
 
     /// <summary>
     /// Become the running instance, null when another one already listens
     /// </summary>
-    public static InstanceChannel? TryListen(Func<string, Task<string>> handler, string? path = null)
+    public static InstanceChannel? TryListen(Func<IpcRequestContext, Task> handler, string? path = null)
     {
         path ??= DefaultPath;
         var folder = Path.GetDirectoryName(path)!;
@@ -114,7 +89,7 @@ public sealed class InstanceChannel : IDisposable
             socket.Bind(new UnixDomainSocketEndPoint(path));
         }
 
-        socket.Listen(8);
+        socket.Listen(16);
         var channel = new InstanceChannel(socket, path);
         _ = channel.AcceptLoopAsync(handler);
         return channel;
@@ -122,6 +97,11 @@ public sealed class InstanceChannel : IDisposable
 
     private static bool IsAlive(string path)
     {
+        if (!File.Exists(path))
+        {
+            return false;
+        }
+
         using var probe = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
         try
         {
@@ -134,7 +114,7 @@ public sealed class InstanceChannel : IDisposable
         }
     }
 
-    private async Task AcceptLoopAsync(Func<string, Task<string>> handler)
+    private async Task AcceptLoopAsync(Func<IpcRequestContext, Task> handler)
     {
         while (!_stop.IsCancellationRequested)
         {
@@ -143,70 +123,139 @@ public sealed class InstanceChannel : IDisposable
             {
                 client = await _socket.AcceptAsync(_stop.Token).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-            catch (ObjectDisposedException)
+            catch (Exception ex) when (ex is OperationCanceledException or ObjectDisposedException)
             {
                 return;
             }
             catch (SocketException ex)
             {
-                Log.Warn("Accepting a command failed", ex);
+                Log.Warn("Accepting a connection failed", ex);
                 continue;
             }
 
-            _ = HandleClientAsync(client, handler);
+            _ = HandleConnectionAsync(client, handler);
         }
     }
 
-    private async Task HandleClientAsync(Socket client, Func<string, Task<string>> handler)
+    private async Task HandleConnectionAsync(Socket client, Func<IpcRequestContext, Task> handler)
     {
         using (client)
         {
             try
             {
-                await using var stream = new NetworkStream(client, ownsSocket: false);
-                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token);
-                timeout.CancelAfter(TimeSpan.FromSeconds(5));
-                var line = await ReadLineAsync(stream, timeout.Token).ConfigureAwait(false);
-                if (line.Length == 0)
+                var peer = GetPeer(client);
+                if (peer.UserId != GetUserId())
                 {
-                    // A probe of IsAlive, or a client which gave up
+                    // The folder is the user's, this can't happen unless its rights were changed
+                    Log.Warn($"A connection of the user {peer.UserId} (process {peer.ProcessId}) is refused");
                     return;
                 }
 
-                var answer = await handler(line).ConfigureAwait(false);
-                await stream.WriteAsync(Encoding.UTF8.GetBytes(answer.ReplaceLineEndings(" ") + "\n"), _stop.Token).ConfigureAwait(false);
+                await using var stream = new NetworkStream(client, ownsSocket: false);
+                byte[]? helloFrame;
+                using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token))
+                {
+                    timeout.CancelAfter(TimeSpan.FromSeconds(5));
+                    helloFrame = await IpcFraming.ReadFrameAsync(stream, 64 * 1024, timeout.Token).ConfigureAwait(false);
+                }
+
+                if (helloFrame == null)
+                {
+                    // A probe of IsRunning
+                    return;
+                }
+
+                var hello = IpcEnvelope.FromBytes(helloFrame);
+                if (hello is not { IsHello: true } || !IpcSources.IsKnown(hello.Source))
+                {
+                    Log.Warn($"A connection without a valid HELLO is closed (process {peer.ProcessId})");
+                    return;
+                }
+
+                string source = hello.Source!.ToLowerInvariant();
+                bool text = string.Equals(hello.ReplyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
+                object? aiClient = null;
+                while (!_stop.IsCancellationRequested)
+                {
+                    var frame = await IpcFraming.ReadFrameAsync(stream, cancellationToken: _stop.Token).ConfigureAwait(false);
+                    if (frame == null)
+                    {
+                        return;
+                    }
+
+                    var envelope = IpcEnvelope.FromBytes(frame);
+                    if (envelope == null || envelope.IsHello)
+                    {
+                        Log.Warn($"An invalid request of '{source}' closes its connection");
+                        return;
+                    }
+
+                    // The source of the connection, whatever the envelope says
+                    envelope.Source = source;
+                    var context = new IpcRequestContext(envelope, stream, peer, text) { AiClient = aiClient };
+                    if (source == IpcSources.Mcp)
+                    {
+                        context.AiClient ??= new McpHello(hello.Origin);
+                    }
+
+                    await handler(context).ConfigureAwait(false);
+                    aiClient = context.AiClient;
+                    if (context.IsClientGone)
+                    {
+                        return;
+                    }
+                }
             }
-            catch (Exception ex) when (ex is IOException or SocketException or OperationCanceledException)
+            catch (Exception ex) when (ex is IOException or SocketException or OperationCanceledException or ObjectDisposedException)
             {
-                Log.Warn($"A command connection failed: {ex.Message}");
+                Log.Debug($"A connection ended: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("A request failed", ex);
             }
         }
     }
 
     /// <summary>
-    /// Read one line, limited in length so a misbehaving client can't make Greenshot use memory without end
+    /// What greenshot-mcp said in its HELLO, until Greenshot identified the AI tool itself
     /// </summary>
-    private static async Task<string> ReadLineAsync(Stream stream, CancellationToken cancellationToken)
-    {
-        var buffer = new byte[MaxLineLength];
-        int length = 0;
-        while (length < buffer.Length)
-        {
-            int read = await stream.ReadAsync(buffer.AsMemory(length, 1), cancellationToken).ConfigureAwait(false);
-            if (read == 0 || buffer[length] == (byte)'\n')
-            {
-                break;
-            }
+    public sealed record McpHello(string? Origin);
 
-            length++;
+    /// <summary>
+    /// The process and user on the other end, from the kernel
+    /// </summary>
+    public static IpcPeer GetPeer(Socket socket)
+    {
+        try
+        {
+            // struct ucred { pid_t pid; uid_t uid; gid_t gid; }, SOL_SOCKET = 1, SO_PEERCRED = 17
+            Span<byte> credentials = stackalloc byte[12];
+            int length = socket.GetRawSocketOption(1, 17, credentials);
+            if (length >= 8)
+            {
+                return new IpcPeer(BitConverter.ToInt32(credentials[..4]), BitConverter.ToInt32(credentials.Slice(4, 4)));
+            }
+        }
+        catch (SocketException ex)
+        {
+            Log.Warn($"The peer of a connection is unknown: {ex.Message}");
         }
 
-        return Encoding.UTF8.GetString(buffer, 0, length).Trim();
+        return IpcPeer.Unknown;
     }
+
+    private static readonly Lazy<int> UserId = new(() =>
+    {
+        // "Uid:  real  effective  saved  filesystem"
+        var line = File.ReadLines("/proc/self/status").FirstOrDefault(l => l.StartsWith("Uid:", StringComparison.Ordinal));
+        return line != null && int.TryParse(line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)[1], out int uid) ? uid : -1;
+    });
+
+    /// <summary>
+    /// The user Greenshot runs as
+    /// </summary>
+    public static int GetUserId() => UserId.Value;
 
     public void Dispose()
     {
@@ -222,5 +271,107 @@ public sealed class InstanceChannel : IDisposable
         }
 
         _stop.Dispose();
+    }
+}
+
+/// <summary>
+/// A connection to the running Greenshot: the command line and the MCP server
+/// </summary>
+public sealed class InstanceClient : IAsyncDisposable
+{
+    private readonly Socket _socket;
+    private readonly NetworkStream _stream;
+
+    private InstanceClient(Socket socket)
+    {
+        _socket = socket;
+        _stream = new NetworkStream(socket, ownsSocket: false);
+    }
+
+    /// <summary>
+    /// Connect and say who this is, null when no Greenshot runs
+    /// </summary>
+    public static async Task<InstanceClient?> ConnectAsync(string source, string replyFormat, string? origin = null, string? path = null,
+        CancellationToken cancellationToken = default)
+    {
+        path ??= InstanceChannel.DefaultPath;
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
+        var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+        try
+        {
+            await socket.ConnectAsync(new UnixDomainSocketEndPoint(path), cancellationToken).ConfigureAwait(false);
+        }
+        catch (SocketException)
+        {
+            // A socket file without a listener, left by a crashed instance
+            socket.Dispose();
+            return null;
+        }
+
+        var client = new InstanceClient(socket);
+        await client.SendAsync(IpcEnvelope.CreateHello(source, replyFormat, origin), cancellationToken).ConfigureAwait(false);
+        return client;
+    }
+
+    public Task SendAsync(IpcEnvelope envelope, CancellationToken cancellationToken = default) =>
+        IpcFraming.WriteFrameAsync(_stream, envelope.ToBytes(), cancellationToken);
+
+    /// <summary>
+    /// The next frame of the reply, null when Greenshot closed the connection
+    /// </summary>
+    public Task<byte[]?> ReadFrameAsync(CancellationToken cancellationToken = default) =>
+        IpcFraming.ReadFrameAsync(_stream, cancellationToken: cancellationToken);
+
+    /// <summary>
+    /// Runs a command line in the running Greenshot and prints what it answers; the exit code, null when none runs
+    /// </summary>
+    public static async Task<int?> RunCommandLineAsync(IReadOnlyList<string> argv, string? cwd, TextWriter stdout, TextWriter stderr,
+        string? path = null, CancellationToken cancellationToken = default, string source = IpcSources.Cli)
+    {
+        await using var client = await ConnectAsync(source, IpcSources.ReplyFormatText, path: path, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (client == null)
+        {
+            return null;
+        }
+
+        await client.SendAsync(IpcEnvelope.CreateCli(argv, source, cwd), cancellationToken).ConfigureAwait(false);
+        while (true)
+        {
+            var frame = await client.ReadFrameAsync(cancellationToken).ConfigureAwait(false);
+            if (frame == null)
+            {
+                // Greenshot ended (e.g. --exit) without an exit frame
+                return 0;
+            }
+
+            if (frame.Length == 0)
+            {
+                continue;
+            }
+
+            switch (frame[0])
+            {
+                case IpcRequestContext.TextFrameStdout:
+                    await stdout.WriteAsync(Encoding.UTF8.GetString(frame, 1, frame.Length - 1)).ConfigureAwait(false);
+                    await stdout.FlushAsync(cancellationToken).ConfigureAwait(false);
+                    break;
+                case IpcRequestContext.TextFrameStderr:
+                    await stderr.WriteAsync(Encoding.UTF8.GetString(frame, 1, frame.Length - 1)).ConfigureAwait(false);
+                    await stderr.FlushAsync(cancellationToken).ConfigureAwait(false);
+                    break;
+                case IpcRequestContext.TextFrameExit when frame.Length >= 5:
+                    return BitConverter.ToInt32(frame, 1);
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _stream.DisposeAsync().ConfigureAwait(false);
+        _socket.Dispose();
     }
 }

@@ -148,5 +148,43 @@ namespace Greenshot.Linux.Tests.Recipes
 
             Assert.Contains(scope.Host.Calls, c => c.StartsWith("editor:"));
         }
+
+        /// <summary>
+        /// The example cli_convert_format: a file saved next to itself in another format, the path in Destination.Filename
+        /// </summary>
+        [Fact]
+        public async Task SaveFile_NextToTheSourceFile_SetsTheDestinationFilename()
+        {
+            string folder = Path.Combine(Path.GetTempPath(), "gs-save-" + Guid.NewGuid().ToString("N")[..8]);
+            Directory.CreateDirectory(folder);
+            try
+            {
+                string source = Path.Combine(folder, "shot.png");
+                using (var bitmap = new SKBitmap(20, 10))
+                using (var data = bitmap.Encode(SKEncodedImageFormat.Png, 100))
+                {
+                    File.WriteAllBytes(source, data.ToArray());
+                }
+
+                var host = new FakeRecipeHost();
+                using var scope = new HostScope(host);
+                var recipe = new CaptureRecipe("save_next_to_source", "Save next to source")
+                    .AddNode(new RecipeNodeConfig("load", WellKnownStepTypes.Source).Set("SourceType", "File").Set("Filename", source))
+                    .AddNode(new RecipeNodeConfig("save", WellKnownStepTypes.SaveFile).Set("SaveDirectory", "${dirname}").Set("FilenamePattern", "${title}")
+                        .Set("Format", "webp").Set("AllowOverwrite", true));
+                recipe.Flow = new RecipeFlowConfig("load").AddTransition("load", "save");
+                using var context = Context();
+
+                await new DagExecutionEngine(cfg => cfg.StepType == WellKnownStepTypes.Source ? new SourceAcquisitionStep(cfg) : new DestinationExportStep(cfg))
+                    .ExecuteAsync(recipe, context);
+
+                Assert.False(context.IsAborted, context.AbortReason);
+                Assert.Equal(Path.Combine(folder, "shot.webp"), context.Properties["Destination.Filename"]);
+            }
+            finally
+            {
+                Directory.Delete(folder, true);
+            }
+        }
     }
 }

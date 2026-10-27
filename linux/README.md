@@ -27,7 +27,7 @@ and the visual recipe editor. The full command line and the MCP server follow, s
 | Filename patterns (`${capturetime}`, `${title}`, `${NUM}`, `${YYYY}`, padding, substrings, …) | ✅ same as Windows |
 | Notifications with thumbnail; click opens the file | ✅ |
 | Tray icon and menu | ✅ (StatusNotifierItem) |
-| Command line, single instance: `greenshot capture region` etc. | ✅ |
+| Command line, single instance: `greenshot capture region` etc., and the options of greenshot-cli (`-l`, `-i`, `-r`, see [Command line](#command-line)) | ✅ |
 | Global hotkeys via the GlobalShortcuts portal | ✅ KDE, GNOME 48+, Hyprland |
 | `greenshot.ini` in the Windows format, unknown keys are kept | ✅ |
 | Settings window: language, theme, autostart, notifications, hotkeys, capture, output, destinations, editor | ✅ |
@@ -134,7 +134,7 @@ switched on in Settings → Recipes apply to them.
   undo, auto-layout, JSON and Mermaid views and test runs. The canvas pans with a right, middle or empty-space drag and
   the wheel, Ctrl + wheel zooms. Annotations can be taken from an open image editor or a .greenshot file.
 
-Still to come: `--list-recipes`, `--info`, recipe output on stdout, and the MCP server.
+Still to come: the MCP server for AI tools.
 
 ## Build, run, test
 
@@ -148,6 +148,34 @@ dotnet test
 
 `packaging/install.sh` publishes a release build to `~/.local/lib/greenshot`, links `~/.local/bin/greenshot`
 and adds the menu entry and icons. `install.sh --autostart` also starts Greenshot with the session.
+
+## Command line
+
+`greenshot` is also the client of the running Greenshot, like `greenshot-cli` on Windows: it passes its command line on,
+prints what Greenshot answers and exits with its exit code. When Greenshot doesn't run, it is started in the tray first.
+
+```
+greenshot -l                                  # the recipes with a command line trigger (--json for JSON)
+greenshot -i convert                          # what a recipe does, its arguments and outputs
+greenshot -r convert --file shot.png --format webp
+greenshot -r ocr file=scan.png --json         # the result as JSON: status, exit code, output, variables
+greenshot -r ocr file=scan.png -q '${payload.text}'
+greenshot -r upload file=a.png --async        # don't wait
+greenshot -f a.png b.png                      # open in the editor (also: greenshot a.png)
+greenshot --reload                            # read greenshot.ini and the recipes again
+greenshot greenshot://recipe-editor           # a Greenshot link
+```
+
+A recipe runs from the command line when it has an active Commandline trigger: only the arguments it declares are
+accepted, converted to their type (paths are resolved against the current folder), its Stdout and Stderr steps print
+while it runs and a Stderr step sets the exit code; 2 means a wrong command line. `greenshot recipe <id>` (without
+dashes) starts any recipe without waiting, for key bindings.
+
+The socket is the one of the single instance, `$XDG_RUNTIME_DIR/greenshot/`, which only the user can open; Greenshot
+also checks the user of each connection. The protocol is the one of the named pipe of Windows (length-prefixed JSON, a
+HELLO frame with the source, text frames for a terminal). A file manager (`greenshot --open-with`, the desktop file) may
+only open files, a `greenshot:` link (`greenshot --url`, registered for `x-scheme-handler/greenshot` by `install.sh`)
+only show windows and run recipes whose Commandline trigger allows links (`AllowBrowserInvocation`).
 
 ## Hotkeys
 
@@ -244,7 +272,7 @@ linux/
    on the capture screen and the QR generator with its WiFi / vCard / calendar types
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
-   editor ✅; the full command line and the MCP server next
+   editor ✅; the command line ✅; the MCP server next
 7. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
 8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 

@@ -86,13 +86,27 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
           open <file>           Open an image or .greenshot file in the editor, also: greenshot <file>
           clipboard             Open the image on the clipboard in the editor
           recipe <id> [key=value ...]
-                                Run a recipe, with values of its arguments (also: --recipe <id> --key value)
+                                Start a recipe, with values of its variables (for key bindings, doesn't wait)
           recipe-editor [id]    Show the recipe editor, with the recipe
           recipe-manager        Show the recipe manager
           settings              Show the settings
           exit                  Stop the running Greenshot
           --help                Show this text
           --version             Show the version
+
+        Like greenshot-cli of Windows, the running Greenshot answers these with their output and exit code:
+          -l, --list-recipes [--json]
+                                The recipes with a command line trigger
+          -i, --info <recipe> [--json]
+                                What a recipe does, its arguments and outputs
+          -r, --recipe <recipe> [key=value | --key value ...] [--json] [-q <expression>] [--async]
+                                Run a recipe with a command line trigger and wait for it: its output on stdout and
+                                stderr, its exit code. --json prints the result as JSON, -q prints the value of an
+                                expression (e.g. -q '${payload.text}'), --async doesn't wait
+          -f, --file <file> ... Open files in the editor (also: greenshot <file>)
+          --reload              Read greenshot.ini and the recipes again
+          --exit                Stop the running Greenshot
+          greenshot:<link>      A Greenshot link: greenshot:settings, greenshot://recipe/<id>?key=value, ...
 
         Wayland doesn't let applications grab keys. Desktops with the GlobalShortcuts portal (KDE, GNOME 48+, Hyprland)
         ask you to confirm Greenshot's keys at the first start. Elsewhere bind the commands in the compositor, e.g. for Sway:
@@ -110,6 +124,12 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
         }
 
         var verb = args[0].TrimStart('-', '/').ToLowerInvariant();
+        // Options are the ones of greenshot-cli (-r, -l, -i, ...), which the running Greenshot parses
+        if (args[0].StartsWith('-') && verb is not ("help" or "h" or "version" or "exit"))
+        {
+            return null;
+        }
+
         switch (verb)
         {
             case "help" or "h" or "?":
@@ -131,7 +151,7 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
                 return new AppCommand(AppCommandKind.RecipeEditor, RecipeId: args.Count >= 2 ? args[1] : null);
             case "recipe-manager" or "recipemanager":
                 return new AppCommand(AppCommandKind.RecipeManager);
-            case "recipe" or "r" when args.Count >= 2:
+            case "recipe" when args.Count >= 2:
                 return ParseRecipe(args);
             default:
                 // Like Greenshot.exe: a file on the command line is opened in the editor

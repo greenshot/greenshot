@@ -58,6 +58,7 @@ using Greenshot.Linux.Recipes.Contracts;
 using Greenshot.Linux.Recipes.Pipeline;
 using Greenshot.Linux.Recipes.Steps;
 using Greenshot.Linux.Recipes.Triggers;
+using Greenshot.Linux.Recipes.Ipc;
 using CaptureMode = Greenshot.Linux.Core.Capturing.CaptureMode;
 
 namespace Greenshot.Linux;
@@ -87,6 +88,13 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     private GlobalShortcutsPortal? _shortcuts;
     private ScreenCaptureService? _captureService;
     private InstanceChannel? _channel;
+    private IpcDispatcher? _dispatcher;
+    private readonly TaskCompletionSource _ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    /// <summary>
+    /// Completes when the recipes are loaded: requests which come in before wait for it
+    /// </summary>
+    internal Task Ready => _ready.Task;
     private TrayIcon? _trayIcon;
     private Window? _screensHelper;
     private AppRecipeHost? _recipeHost;
@@ -257,11 +265,20 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
     public async Task StartAsync(AppCommand startCommand)
     {
-        _channel = InstanceChannel.TryListen(HandleCommandAsync);
+        _dispatcher = new IpcDispatcher(new IpcApp(this));
+        _channel = InstanceChannel.TryListen(_dispatcher.HandleAsync);
         if (_channel == null)
         {
             // Another Greenshot started at the same moment and won
-            await InstanceChannel.TrySendAsync(startCommand.ToWire());
+            await using (var client = await InstanceClient.ConnectAsync(IpcSources.Cli, IpcSources.ReplyFormatJson))
+            {
+                if (client != null)
+                {
+                    await client.SendAsync(new IpcEnvelope { Command = "APP", RawInput = startCommand.ToWire() });
+                    await client.ReadFrameAsync();
+                }
+            }
+
             _desktop.Shutdown();
             return;
         }
@@ -296,6 +313,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         _destinations.Add(new QrCodeDestination());
         await CreatePluginsAsync(saveDialog);
         await InitializeRecipesAsync();
+        _ready.TrySetResult();
 
         CreateTrayIcon();
         await RegisterShortcutsAsync();
@@ -309,7 +327,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         await RunAsync(startCommand);
     }
 
-    private async Task RunAsync(AppCommand command)
+    internal async Task RunAsync(AppCommand command)
     {
         switch (command.Kind)
         {
@@ -392,16 +410,40 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         }
     }
 
-    private Task<string> HandleCommandAsync(string line)
+    /// <summary>
+    /// What the requests over the socket do in the app
+    /// </summary>
+    private sealed class IpcApp(GreenshotController controller) : IIpcApp
     {
-        var command = AppCommand.ParseWire(line);
-        if (command == null)
-        {
-            return Task.FromResult($"error: unknown command {line}");
-        }
+        public Task Ready => controller.Ready;
 
-        Dispatcher.UIThread.Post(() => _ = RunAsync(command));
-        return Task.FromResult("ok");
+        public string Version => Program.Version;
+
+        public void Run(AppCommand command) => Dispatcher.UIThread.Post(() => _ = controller.RunAsync(command));
+
+        public Task ShowSettingsAsync() => Dispatcher.UIThread.InvokeAsync(controller.ShowSettings).GetTask();
+
+        public Task ShowAboutAsync() => Dispatcher.UIThread.InvokeAsync(() => ProcessRunner.StartDetached("xdg-open", "https://getgreenshot.org/")).GetTask();
+
+        public Task ShowLogAsync() => Dispatcher.UIThread.InvokeAsync(() => ProcessRunner.StartDetached("xdg-open", Log.FilePath)).GetTask();
+
+        public Task OpenRecipeEditorAsync(string? recipeId) => Dispatcher.UIThread.InvokeAsync(() => controller.RecipeEditor.OpenEditor(recipeId)).GetTask();
+
+        public Task OpenRecipeManagerAsync() => Dispatcher.UIThread.InvokeAsync(controller.RecipeEditor.OpenRecipeManager).GetTask();
+
+        public Task ReloadConfigurationAsync() => Dispatcher.UIThread.InvokeAsync(controller.ReloadConfiguration).GetTask();
+
+        public void Exit() => Dispatcher.UIThread.Post(controller.Exit);
+    }
+
+    /// <summary>
+    /// greenshot.ini was changed outside Greenshot (greenshot --reload): read it and the recipes again
+    /// </summary>
+    internal void ReloadConfiguration()
+    {
+        _settings.Reload();
+        ApplySettings();
+        RecipeManager.Instance.ReloadRecipes();
     }
 
     /// <summary>
@@ -1118,7 +1160,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         return _screensHelper.Screens.All;
     }
 
-    private void Exit()
+    internal void Exit()
     {
         _settings.Save();
         _desktop.Shutdown();

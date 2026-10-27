@@ -20,6 +20,8 @@ dotnet publish "$root/src/Greenshot.Linux/Greenshot.Linux.csproj" -c Release -r 
 mkdir -p "$bin" "$data/applications" "$data/icons/hicolor/scalable/apps"
 ln -sf "$lib/greenshot" "$bin/greenshot"
 install -m 644 "$here/greenshot.desktop" "$data/applications/greenshot.desktop"
+install -m 644 "$here/greenshot-url.desktop" "$data/applications/greenshot-url.desktop"
+command -v xdg-mime >/dev/null && xdg-mime default greenshot-url.desktop x-scheme-handler/greenshot || true
 install -m 644 "$root/src/Greenshot.Linux/Assets/greenshot.svg" "$data/icons/hicolor/scalable/apps/greenshot.svg"
 for size in 16 32 48 64 256; do
     mkdir -p "$data/icons/hicolor/${size}x${size}/apps"

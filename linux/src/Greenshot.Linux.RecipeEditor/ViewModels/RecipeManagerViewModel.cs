@@ -180,7 +180,7 @@ namespace Greenshot.Linux.RecipeEditor.ViewModels
             }
             if (Is(TriggerConfig.TypeCommandline))
             {
-                string label = $"⌨ greenshot recipe {t.GetParameter<string>("Command") ?? Recipe.Id}";
+                string label = $"⌨ greenshot -r {t.GetParameter<string>("Command") ?? Recipe.Id}";
                 if (t.GetParameter("AllowBrowserInvocation", false))
                 {
                     label += t.IsBrowserInvocationApproved ? " " + Texts.Get("RecipeEditor", "trigger_suffix_web_pages") : " " + Texts.Get("RecipeEditor", "trigger_suffix_web_pages_not_approved");
