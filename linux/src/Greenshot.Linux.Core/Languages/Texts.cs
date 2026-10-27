@@ -266,7 +266,10 @@ public static partial class Texts
         var files = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         foreach (var folder in searchPaths.Where(Directory.Exists))
         {
-            foreach (var file in Directory.EnumerateFiles(folder, "greenshot*.ini"))
+            // The Linux texts after the shared ones of the folder: they replace texts which only fit Windows
+            foreach (var file in Directory.EnumerateFiles(folder, "greenshot*.ini")
+                         .OrderBy(f => Path.GetFileName(f).StartsWith("greenshot-linux.", StringComparison.OrdinalIgnoreCase) ? 1 : 0)
+                         .ThenBy(f => f, StringComparer.Ordinal))
             {
                 var match = FileNameRegex().Match(Path.GetFileName(file));
                 if (!match.Success)

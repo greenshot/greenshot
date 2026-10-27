@@ -84,14 +84,7 @@ internal sealed class RecipeApprovalUi : IRecipeApprovalUi
     /// <summary>
     /// Show the window and wait for it on the UI thread, like ShowDialog of WPF
     /// </summary>
-    private static void RunModal(Window window)
-    {
-        var frame = new DispatcherFrame();
-        window.Closed += (_, _) => frame.Continue = false;
-        window.Show();
-        window.Activate();
-        Dispatcher.UIThread.PushFrame(frame);
-    }
+    private static void RunModal(Window window) => Greenshot.Linux.RecipeEditing.AppRecipeEditorUi.RunModal(window);
 
     private sealed class ApprovalWindow : Window
     {

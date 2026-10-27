@@ -38,7 +38,7 @@ namespace Greenshot.Linux.Settings;
 /// The Recipes tab of Windows: the automatic steps (border, caption, drop shadow, ...) with their switch, options and where they
 /// are used, the options of the recipes, which recipes are changed, and the approved recipe files
 /// </summary>
-internal sealed class RecipeSettingsPage(Window owner, IReadOnlyList<IDestination> destinations, List<Action> apply)
+internal sealed class RecipeSettingsPage(Window owner, IReadOnlyList<IDestination> destinations, IRecipeEditorService editor, List<Action> apply)
 {
     private static string T(string key, params object?[] args) => Texts.Settings(key, args);
 
@@ -54,6 +54,8 @@ internal sealed class RecipeSettingsPage(Window owner, IReadOnlyList<IDestinatio
         {
             return page;
         }
+
+        page.Children.Add(GeneralSection(manager));
 
         _recipes = manager.GetAllRecipes().Where(r => r != null).OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
         foreach (var extension in manager.GetAllExtensions().Where(e => e != null).OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase))
@@ -83,6 +85,35 @@ internal sealed class RecipeSettingsPage(Window owner, IReadOnlyList<IDestinatio
             }
         });
         return page;
+    }
+
+    /// <summary>
+    /// Recipes on or off and the recipe files, the settings of the Recipe Editor plugin of Windows, and its two windows
+    /// </summary>
+    private Control GeneralSection(IRecipeManager manager)
+    {
+        var configuration = new RecipeConfiguration();
+        var enabled = Ui.Check(T("expert_enablerecipes"), configuration.Enabled);
+        var files = new TextBox { Text = configuration.RecipeFiles ?? string.Empty, TextWrapping = Avalonia.Media.TextWrapping.Wrap, MinWidth = 420 };
+        var managerButton = new Button { Content = Texts.WithoutAccessKey(Texts.Core("contextmenu_managerecipes")) };
+        managerButton.Click += (_, _) => editor.OpenRecipeManager();
+        var editorButton = new Button { Content = Texts.WithoutAccessKey(Texts.Core("contextmenu_recipeeditor")) };
+        editorButton.Click += (_, _) => editor.OpenEditor();
+        apply.Add(() =>
+        {
+            bool reload = configuration.Enabled != (enabled.IsChecked == true) || (configuration.RecipeFiles ?? string.Empty) != (files.Text ?? string.Empty).Trim();
+            configuration.Enabled = enabled.IsChecked == true;
+            configuration.RecipeFiles = (files.Text ?? string.Empty).Trim();
+            if (reload)
+            {
+                manager.ReloadRecipes();
+            }
+        });
+        return Ui.Section(Texts.Settings("recipes"),
+            enabled,
+            new TextBlock { Text = Texts.Get("RecipeEditor", "config_recipe_files"), Margin = new Thickness(0, 6, 0, 0) },
+            files,
+            new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, Children = { managerButton, editorButton } });
     }
 
     /// <summary>

@@ -27,8 +27,13 @@ namespace Greenshot.Linux.Tests.Languages;
 /// Texts is static, the tests which load languages must not run in parallel with each other
 /// </summary>
 [Collection(nameof(TextsTests))]
-public class TextsTests
+public class TextsTests : IDisposable
 {
+    /// <summary>
+    /// The other tests of the collection expect the English texts of all language packs
+    /// </summary>
+    public void Dispose() => Texts.Initialize("en-US", TestEnvironment.LanguageFolders);
+
     /// <summary>
     /// The language packs shared with Windows, and the Linux ones
     /// </summary>

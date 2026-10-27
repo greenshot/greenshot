@@ -166,7 +166,7 @@ namespace Greenshot.Linux.Recipes.Steps
                 element = Shape(new RectangleElement(), parameters, SKColors.Red, SKColors.Transparent, true);
             }
 
-            bool rational = type is "StepLabel" or "Emoji" or "QRCode";
+            bool rational = RecipeDrawableRegistry.IsRational(type);
             ApplyPositioning(element, surface, parameters, rational);
             if (element is SpeechBubbleElement bubble)
             {

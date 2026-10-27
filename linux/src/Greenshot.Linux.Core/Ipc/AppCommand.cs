@@ -53,6 +53,16 @@ public enum AppCommandKind
     /// Run a recipe, with the values of its arguments
     /// </summary>
     Recipe,
+
+    /// <summary>
+    /// Show the recipe editor, with a recipe when one is given
+    /// </summary>
+    RecipeEditor,
+
+    /// <summary>
+    /// Show the recipe manager
+    /// </summary>
+    RecipeManager,
 }
 
 /// <summary>
@@ -77,6 +87,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
           clipboard             Open the image on the clipboard in the editor
           recipe <id> [key=value ...]
                                 Run a recipe, with values of its arguments (also: --recipe <id> --key value)
+          recipe-editor [id]    Show the recipe editor, with the recipe
+          recipe-manager        Show the recipe manager
           settings              Show the settings
           exit                  Stop the running Greenshot
           --help                Show this text
@@ -115,6 +127,10 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
                 return new AppCommand(AppCommandKind.OpenClipboard);
             case "settings" or "preferences":
                 return new AppCommand(AppCommandKind.Settings);
+            case "recipe-editor" or "recipeeditor":
+                return new AppCommand(AppCommandKind.RecipeEditor, RecipeId: args.Count >= 2 ? args[1] : null);
+            case "recipe-manager" or "recipemanager":
+                return new AppCommand(AppCommandKind.RecipeManager);
             case "recipe" or "r" when args.Count >= 2:
                 return ParseRecipe(args);
             default:
@@ -207,6 +223,8 @@ public sealed record AppCommand(AppCommandKind Kind, CaptureMode? Mode = null, s
         // The values are escaped, they can contain spaces
         AppCommandKind.Recipe => "recipe " + RecipeId + string.Concat((Parameters ?? new Dictionary<string, string>())
             .Select(p => $" {Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}")),
+        AppCommandKind.RecipeEditor => RecipeId == null ? "recipe-editor" : "recipe-editor " + RecipeId,
+        AppCommandKind.RecipeManager => "recipe-manager",
         AppCommandKind.Exit => "exit",
         _ => "start",
     };

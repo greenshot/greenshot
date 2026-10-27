@@ -101,6 +101,15 @@ namespace Greenshot.Linux.Recipes.Steps
                 directory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 if (string.IsNullOrEmpty(directory)) directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
             }
+            else
+            {
+                // "~/Videos" and environment variables like the shell
+                directory = Environment.ExpandEnvironmentVariables(directory);
+                if (directory == "~" || directory.StartsWith("~/", StringComparison.Ordinal))
+                {
+                    directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), directory.TrimStart('~').TrimStart('/'));
+                }
+            }
 
             var start = DateTime.Now;
             string pattern = Config.GetParameter<string>("FilenamePattern") ?? "Greenshot_{yyyyMMdd_HHmmss}.mp4";

@@ -212,6 +212,50 @@ namespace Greenshot.Linux.Tests.Recipes
         }
 
         // docs/vNext/examples is three levels below the repository
+        [Fact]
+        public void RecipeEditor_ToolboxAndDefaults_MatchTheStepContracts()
+        {
+            var registry = CreatePipelineRegistry();
+            var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
+            foreach (var pluginStep in new[]
+                     {
+                         typeof(Greenshot.Linux.Plugins.Recipes.JiraStep), typeof(Greenshot.Linux.Plugins.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Linux.Plugins.Recipes.BoxStep), typeof(Greenshot.Linux.Plugins.Recipes.DropboxStep),
+                         typeof(Greenshot.Linux.Plugins.Recipes.PdfStep)
+                     })
+            {
+                var contract = StepContractBuilder.FromType(pluginStep);
+                contracts[contract.StepType] = contract;
+            }
+
+            string xaml = File.ReadAllText(Path.Combine(FindRepositoryDirectory(), "linux", "src", "Greenshot.Linux", "RecipeEditing", "RecipeEditorWindow.axaml"));
+            var toolboxStepTypes = System.Text.RegularExpressions.Regex.Matches(xaml, "Command=\"\\{Binding AddStepCommand\\}\" CommandParameter=\"(\\w+)\"")
+                .Select(m => m.Groups[1].Value)
+                .Distinct()
+                .ToList();
+            Assert.NotEmpty(toolboxStepTypes);
+
+            var setDefaults = typeof(Greenshot.Linux.RecipeEditor.ViewModels.RecipeEditorViewModel)
+                .GetMethod("SetDefaultParametersForStep", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(setDefaults);
+
+            foreach (string stepType in toolboxStepTypes)
+            {
+                Assert.True(contracts.TryGetValue(stepType, out var contract), $"The toolbox offers '{stepType}', which is not a step type");
+                var node = new RecipeNodeConfig("node", stepType);
+                setDefaults.Invoke(null, new object[] { node });
+                foreach (var parameter in node.Parameters)
+                {
+                    var declared = contract.FindParameter(parameter.Key);
+                    Assert.True(declared != null, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
+                    if (declared != null && declared.AllowedValues.Count > 0 && parameter.Value is string value)
+                    {
+                        Assert.Contains(value, declared.AllowedValues, StringComparer.OrdinalIgnoreCase);
+                    }
+                }
+            }
+        }
+
         private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()

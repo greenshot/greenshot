@@ -58,6 +58,11 @@ namespace Greenshot.Linux.Recipes
             }
         }
 
+        /// <summary>
+        /// Types which keep their aspect ratio when they are sized (a step label stays a circle, an emoji or QR code square)
+        /// </summary>
+        public static bool IsRational(string drawableType) => drawableType is "StepLabel" or "Emoji" or "QRCode";
+
         public bool IsRegistered(string drawableType) => !string.IsNullOrEmpty(drawableType) && _factories.ContainsKey(drawableType);
 
         public IReadOnlyCollection<string> RegisteredDrawableTypes => _factories.Keys.ToList();
@@ -70,6 +75,23 @@ namespace Greenshot.Linux.Recipes
             if (string.IsNullOrEmpty(drawableType)) return null;
             return AnnotationProperties.ForBuiltIn(drawableType) ?? (_properties.TryGetValue(drawableType, out var properties) ? properties : null);
         }
+
+        private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
+            new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// A dialog which configures an annotation of the type in the recipe editor (the QR code dialog of the ZXing plugin on Windows)
+        /// </summary>
+        public void RegisterDrawableConfigurator(string drawableType, Func<IDictionary<string, object>, object, bool> configurator)
+        {
+            if (string.IsNullOrEmpty(drawableType)) throw new ArgumentNullException(nameof(drawableType));
+            _configurators[drawableType] = configurator ?? throw new ArgumentNullException(nameof(configurator));
+        }
+
+        public bool CanConfigureDrawable(string drawableType) => !string.IsNullOrEmpty(drawableType) && _configurators.ContainsKey(drawableType);
+
+        public bool ConfigureDrawable(string drawableType, IDictionary<string, object> parameters, object owner = null) =>
+            !string.IsNullOrEmpty(drawableType) && parameters != null && _configurators.TryGetValue(drawableType, out var configurator) && configurator(parameters, owner);
 
         public DrawableElement CreateDrawable(string drawableType, EditorSurface surface, Dictionary<string, object> parameters, CaptureFlowContext context) =>
             _factories.TryGetValue(drawableType, out var factory) ? factory(surface, parameters, context) : null;

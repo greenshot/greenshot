@@ -25,6 +25,7 @@ using Greenshot.Linux.Recipes.ViewModels;
 
 namespace Greenshot.Linux.Tests.Recipes
 {
+    [Collection(TestCollections.RecipeManager)]
     public class RecipeValidationErrorItemTests
     {
         // The hints come from the language packs, the tests check the English texts

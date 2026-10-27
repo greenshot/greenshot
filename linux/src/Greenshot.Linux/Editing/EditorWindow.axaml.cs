@@ -177,7 +177,6 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private void CreateRecipesMenu()
     {
         var triggers = _host.EditorRecipeTriggers;
-        RecipesMenu.IsVisible = triggers.Count > 0;
         foreach (var group in triggers.GroupBy(t => t.Group ?? "Recipes")
                      .OrderBy(g => g.Key == "Recipes" ? 0 : 1).ThenBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase))
         {
@@ -199,6 +198,19 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                 target.Items.Add(item);
             }
         }
+
+        // The recipe manager and the recipe editor, like the Recipe Editor plugin adds them on Windows
+        if (triggers.Count > 0)
+        {
+            RecipesMenu.Items.Add(new Separator());
+        }
+
+        var manager = new MenuItem { Header = Texts.WithoutAccessKey(Texts.Core("contextmenu_managerecipes")) };
+        manager.Click += (_, _) => _host.RecipeEditor.OpenRecipeManager();
+        RecipesMenu.Items.Add(manager);
+        var editor = new MenuItem { Header = Texts.WithoutAccessKey(Texts.Core("contextmenu_recipeeditor")) };
+        editor.Click += (_, _) => _host.RecipeEditor.OpenEditor();
+        RecipesMenu.Items.Add(editor);
     }
 
     /// <summary>

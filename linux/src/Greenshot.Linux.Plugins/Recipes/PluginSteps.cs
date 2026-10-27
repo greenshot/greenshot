@@ -34,6 +34,7 @@ using Greenshot.Linux.Plugins.Atlassian;
 using Greenshot.Linux.Plugins.Cloud;
 using Greenshot.Linux.Plugins.CustomUploader;
 using Greenshot.Linux.Plugins.ExternalCommand;
+using Greenshot.Linux.Plugins.Pdf;
 using Greenshot.Linux.Recipes;
 using Greenshot.Linux.Recipes.Contracts;
 using Greenshot.Linux.Recipes.Pipeline;
@@ -233,6 +234,64 @@ namespace Greenshot.Linux.Plugins.Recipes
             }
 
             context.LogStep($"External command finished with exit code {result.ExitCode}.");
+        }
+    }
+
+    [StepInfo("Pdf", "Save as PDF", "Saves the capture as a PDF file.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("PageSize", ContractDataType.Enum, Description = "PDF page size (default: PDF settings)", AllowedValues = new[] { "Image", "Custom", "A3", "A4", "A5", "A6", "Letter" })]
+    [StepParameter("PageWidthMm", ContractDataType.Decimal, Description = "Custom page width in millimeters (default: PDF settings)")]
+    [StepParameter("PageHeightMm", ContractDataType.Decimal, Description = "Custom page height in millimeters (default: PDF settings)")]
+    [StepParameter("MarginTopMm", ContractDataType.Decimal, Description = "Top margin in millimeters (default: PDF settings)")]
+    [StepParameter("MarginBottomMm", ContractDataType.Decimal, Description = "Bottom margin in millimeters (default: PDF settings)")]
+    [StepParameter("MarginLeftMm", ContractDataType.Decimal, Description = "Left margin in millimeters (default: PDF settings)")]
+    [StepParameter("MarginRightMm", ContractDataType.Decimal, Description = "Right margin in millimeters (default: PDF settings)")]
+    [StepParameter("ScalingMode", ContractDataType.Enum, Description = "How to scale the image on a fixed page (default: PDF settings)", AllowedValues = new[] { "OnlyShrinkToFit", "FitToPage" })]
+    [StepParameter("ShowSaveDialog", ContractDataType.Boolean, DefaultValue = true, Description = "Show the PDF save dialog")]
+    [StepOutputVariable("Pdf.FilePath", ContractDataType.FilePath, "Path of the saved PDF file", Conditional = true)]
+    public sealed class PdfStep(RecipeNodeConfig config, PdfPlugin plugin) : ICaptureStep
+    {
+        public string Name { get; } = config.Name ?? "PdfExportStep";
+
+        public RecipeNodeConfig NodeConfig { get; } = config;
+
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        {
+            var source = await PluginStepHelper.SourceAsync(context, cancellationToken).ConfigureAwait(false);
+            if (source == null)
+            {
+                context.LogStep("PdfStep: No surface available to export.");
+                return;
+            }
+
+            // The settings of the plugin, changed by the parameters of the step
+            var defaults = plugin.Settings.Options;
+            string scaling = NodeConfig.GetParameter<string>("ScalingMode");
+            var page = new PdfPageOptions(
+                PdfSettings.PageSizes.FirstOrDefault(p => p.Equals(NodeConfig.GetParameter<string>("PageSize"), StringComparison.OrdinalIgnoreCase)) ?? defaults.PageSize,
+                NodeConfig.GetParameter("PageWidthMm", defaults.PageWidthMm),
+                NodeConfig.GetParameter("PageHeightMm", defaults.PageHeightMm),
+                NodeConfig.GetParameter("MarginTopMm", defaults.MarginTopMm),
+                NodeConfig.GetParameter("MarginBottomMm", defaults.MarginBottomMm),
+                NodeConfig.GetParameter("MarginLeftMm", defaults.MarginLeftMm),
+                NodeConfig.GetParameter("MarginRightMm", defaults.MarginRightMm),
+                scaling == null ? defaults.FitToPage : scaling.Equals("FitToPage", StringComparison.OrdinalIgnoreCase));
+            var destination = plugin.CreateDestination(page, NodeConfig.GetParameter("ShowSaveDialog", true));
+            var result = await destination.ExportAsync(source, cancellationToken).ConfigureAwait(false);
+            PluginStepHelper.Record(context, destination, result, source);
+            if (result.Success)
+            {
+                context.Properties["Pdf.FilePath"] = result.FilePath;
+                context.LogStep($"Saved capture as PDF: {result.FilePath}");
+            }
+            else if (result.Cancelled)
+            {
+                context.LogStep("PdfStep: PDF export was declined.");
+            }
+            else
+            {
+                context.LogStep($"PdfStep: Could not save capture as PDF: {result.Message}");
+            }
         }
     }
 

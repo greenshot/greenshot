@@ -1,0 +1,240 @@
+<!--
+  The recipe manager: all recipes and automatic steps as cards, with filters, search and their actions
+  (edit, test run, details, permissions, unload). Ported from the RecipeManagerWindow of the Windows plugin.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:r="using:Greenshot.Linux.RecipeEditing"
+        xmlns:re="using:Greenshot.Linux.RecipeEditing"
+        xmlns:vm="using:Greenshot.Linux.RecipeEditor.ViewModels"
+        x:Class="Greenshot.Linux.RecipeEditing.RecipeManagerWindow"
+        x:DataType="vm:RecipeManagerViewModel"
+        Title="{r:Text RecipeEditor.manager_title}"
+        Height="680" Width="920"
+        MinHeight="480" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource RE.WindowBackground}">
+
+    <Window.Styles>
+        <StyleInclude Source="avares://greenshot/RecipeEditing/RecipeEditorStyles.axaml"/>
+    </Window.Styles>
+
+    <Window.Resources>
+        <DataTemplate x:Key="RecipeItemTemplate" x:DataType="vm:RecipeManagerItemViewModel">
+                            <Border Background="{DynamicResource RE.CardBackground}"
+                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                    BorderThickness="1" CornerRadius="6" Margin="0,0,0,10" Padding="14,12"
+                                   >
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/> <!-- Active Switch Column -->
+                                        <ColumnDefinition Width="*"/>    <!-- Details Column -->
+                                        <ColumnDefinition Width="Auto"/> <!-- Action Buttons Column -->
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Active / Deactivate Toggle Switch -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center" Width="85" HorizontalAlignment="Center">
+                                        <Button Classes="secondary" Command="{Binding ToggleActiveCommand}" AutomationProperties.Name="{Binding StatusBadgeText, TargetNullValue=''}"
+                                                Padding="6,4" HorizontalAlignment="Stretch" ToolTip.Tip="{r:Text RecipeEditor.manager_toggle_active_tooltip}">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Ellipse Width="8" Height="8" Margin="0,0,5,0" VerticalAlignment="Center"
+                                                         Fill="{Binding IsEnabled, Converter={x:Static re:BoolToStatusBrushConverter.Instance}}"/>
+                                                <TextBlock Text="{Binding StatusBadgeText}" FontSize="10" FontWeight="Bold"
+                                                           Foreground="{Binding IsEnabled, Converter={x:Static re:BoolToStatusBrushConverter.Instance}}"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <!-- Recipe Details -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <!-- Header Row: Name, Version, Type Badges -->
+                                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13"
+                                                       Foreground="{DynamicResource RE.TextPrimary}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <Border Background="{DynamicResource RE.BadgeBackground}"
+                                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="5,1" Margin="0,0,6,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding RecipeTypeBadge}" FontSize="9" FontWeight="Bold"
+                                                           Foreground="{DynamicResource RE.TextSecondary}"/>
+                                            </Border>
+                                            <Border Background="{DynamicResource RE.BadgeBackground}"
+                                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="5,1" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                    IsVisible="{Binding IsAiCreated}"
+                                                    ToolTip.Tip="{r:Text RecipeEditor.manager_ai_badge_tooltip}">
+                                                <TextBlock Text="{Binding AiBadge}" FontSize="9" FontWeight="Bold"
+                                                           Foreground="{DynamicResource RE.TextSecondary}"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Version, StringFormat='v{0}'}" FontSize="10"
+                                                       Foreground="{DynamicResource RE.TextSecondary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Id, StringFormat='({0})'}" FontSize="10" FontFamily="monospace"
+                                                       Foreground="{DynamicResource RE.TextSecondary}" VerticalAlignment="Center"/>
+                                        </WrapPanel>
+
+                                        <!-- Description -->
+                                        <TextBlock Text="{Binding Description}" FontSize="11"
+                                                   Foreground="{DynamicResource RE.TextPrimary}"
+                                                   TextWrapping="Wrap" Margin="0,0,0,6"
+                                                   IsVisible="{Binding Description, Converter={x:Static re:HasTextConverter.Instance}}"/>
+
+                                        <!-- Triggers & Pipeline Summary Badges -->
+                                        <WrapPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Background="{DynamicResource RE.BadgeBackground}"
+                                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4">
+                                                <TextBlock Text="{Binding TriggersSummary}" FontSize="10"
+                                                           Foreground="{DynamicResource RE.TextSecondary}"/>
+                                            </Border>
+                                            <Border Background="{DynamicResource RE.BadgeBackground}"
+                                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4">
+                                                <TextBlock FontSize="10"
+                                                           Foreground="{DynamicResource RE.TextSecondary}"><Run Text="{Binding StepCount, Mode=OneWay}"/> <Run Text="{r:Text RecipeEditor.manager_steps}"/></TextBlock>
+                                            </Border>
+                                            <Border Background="{DynamicResource RE.BadgeBackground}"
+                                                    BorderBrush="{DynamicResource RE.CardBorder}"
+                                                    BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,4"
+                                                    IsVisible="{Binding HasFilePath}"
+                                                    ToolTip.Tip="{Binding FilePath}">
+                                                <TextBlock Text="{Binding FilePath}" FontSize="10" FontFamily="monospace"
+                                                           Foreground="{DynamicResource RE.TextSecondary}" MaxWidth="280" TextTrimming="CharacterEllipsis"/>
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
+
+                                    <!-- Actions Column -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                                        <Button Content="{r:Text RecipeEditor.manager_btn_edit}" Classes="primary" Command="{Binding EditCommand}"
+                                                ToolTip.Tip="{r:Text RecipeEditor.manager_btn_edit_tooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{r:Text RecipeEditor.manager_btn_test_run}" Classes="secondary" Command="{Binding TestRunCommand}"
+                                                ToolTip.Tip="{r:Text RecipeEditor.manager_btn_test_run_tooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{r:Text RecipeEditor.manager_btn_details}" Classes="secondary" Command="{Binding DetailsCommand}"
+                                                ToolTip.Tip="{r:Text RecipeEditor.manager_btn_details_tooltip}" Margin="0,0,6,0"/>
+                                        <Button Content="{r:Text RecipeEditor.manager_btn_permissions}" Classes="secondary" Command="{Binding ReviewApprovalCommand}"
+                                                ToolTip.Tip="{r:Text RecipeEditor.manager_btn_permissions_tooltip}"
+                                                IsVisible="{Binding HasFilePath}" Margin="0,0,6,0"/>
+                                        <Button Content="{Binding UnloadButtonText}" Classes="error" Command="{Binding UnloadCommand}"
+                                                ToolTip.Tip="{Binding UnloadToolTip}"
+                                                IsVisible="{Binding CanUnload}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+    </Window.Resources>
+
+    <Border BorderThickness="1" BorderBrush="{DynamicResource RE.CardBorder}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Header & Controls -->
+                <RowDefinition Height="*"/>    <!-- Recipe Cards List -->
+                <RowDefinition Height="Auto"/> <!-- Footer Status Bar -->
+            </Grid.RowDefinitions>
+
+            <!-- Controls & Filter Header -->
+            <Border Grid.Row="1" Background="{DynamicResource RE.CardBackground}"
+                    BorderBrush="{DynamicResource RE.CardBorder}" BorderThickness="0,0,0,1" Padding="14,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Bar: Action Buttons & Search Box -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Search Box -->
+                        <Border Grid.Column="0" Background="{DynamicResource RE.WindowBackground}"
+                                BorderBrush="{DynamicResource RE.CardBorder}" BorderThickness="1"
+                                CornerRadius="4" Padding="6,4" MaxWidth="360" HorizontalAlignment="Left">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="🔍 " FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource RE.TextSecondary}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SearchText}" AutomationProperties.Name="{r:Text RecipeEditor.manager_search}"
+                                         Background="Transparent" BorderThickness="0"
+                                        
+                                         VerticalAlignment="Center" FontSize="11" Width="280"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Actions: Load Recipe from Disk, Create New, Reload -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{r:Text RecipeEditor.manager_btn_load}" Classes="primary" Command="{Binding LoadRecipeFromFileCommand}"
+                                    ToolTip.Tip="{r:Text RecipeEditor.manager_btn_load_tooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{r:Text RecipeEditor.manager_btn_new}" Classes="secondary" Command="{Binding CreateNewRecipeCommand}"
+                                    ToolTip.Tip="{r:Text RecipeEditor.manager_btn_new_tooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{r:Text RecipeEditor.manager_btn_reload_all}" Classes="secondary" Command="{Binding ReloadAllCommand}"
+                                    ToolTip.Tip="{r:Text RecipeEditor.manager_btn_reload_all_tooltip}" Margin="0,0,6,0"/>
+                            <Button Content="{r:Text RecipeEditor.manager_btn_reset_all}" Classes="secondary" Command="{Binding ResetAllCommand}"
+                                    ToolTip.Tip="{r:Text RecipeEditor.manager_btn_reset_all_tooltip}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Filter Category Chips -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_all}" Classes="chip" IsChecked="True"
+                                     GroupName="filter" Tag="All" IsCheckedChanged="OnFilterChanged"/>
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_active}" Classes="chip"
+                                     GroupName="filter" Tag="Active" IsCheckedChanged="OnFilterChanged"/>
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_deactivated}" Classes="chip"
+                                     GroupName="filter" Tag="Deactivated" IsCheckedChanged="OnFilterChanged"/>
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_built_in}" Classes="chip"
+                                     GroupName="filter" Tag="Built-in" IsCheckedChanged="OnFilterChanged"/>
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_custom}" Classes="chip"
+                                     GroupName="filter" Tag="Custom" IsCheckedChanged="OnFilterChanged"/>
+                        <RadioButton Content="{r:Text RecipeEditor.manager_filter_ai}" Classes="chip" ToolTip.Tip="{r:Text RecipeEditor.manager_filter_ai_tooltip}"
+                                     GroupName="filter" Tag="AI" IsCheckedChanged="OnFilterChanged"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Recipe List -->
+            <ScrollViewer Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="14,10">
+                <StackPanel>
+                    <TextBlock Text="{r:Text RecipeEditor.manager_header_recipes}" FontWeight="SemiBold" FontSize="10" Margin="2,0,0,6" Foreground="{DynamicResource RE.TextSecondary}"/>
+                    <ItemsControl ItemsSource="{Binding FilteredRecipes}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
+                    <!-- Automatic steps (recipe extensions): they change other recipes, they have no triggers of their own -->
+                    <StackPanel IsVisible="{Binding HasFilteredExtensions}">
+                        <TextBlock Text="{r:Text RecipeEditor.manager_header_automatic_steps}" FontWeight="SemiBold" FontSize="10" Margin="2,8,0,2" Foreground="{DynamicResource RE.TextSecondary}"/>
+                        <TextBlock Text="{r:Text RecipeEditor.manager_automatic_steps_hint}" FontSize="10" Margin="2,0,0,6"
+                                   Foreground="{DynamicResource RE.TextSecondary}"/>
+                        <ItemsControl ItemsSource="{Binding FilteredExtensions}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Bottom Status Footer -->
+            <Border Grid.Row="3" Background="{DynamicResource RE.CardBackground}"
+                    BorderBrush="{DynamicResource RE.CardBorder}" BorderThickness="0,1,0,0" Padding="14,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource RE.TextPrimary}" Margin="0,0,12,0"><Run Text="{r:Text RecipeEditor.manager_total}"/> <Run Text="{Binding TotalCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock FontSize="11"
+                                   Foreground="{DynamicResource RE.Success}" FontWeight="SemiBold" Margin="0,0,12,0"><Run Text="{r:Text RecipeEditor.manager_active}"/> <Run Text="{Binding ActiveCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock FontSize="11"
+                                   Foreground="{DynamicResource RE.TextSecondary}" Margin="0,0,16,0"><Run Text="{r:Text RecipeEditor.manager_deactivated}"/> <Run Text="{Binding DeactivatedCount, Mode=OneWay}"/></TextBlock>
+                        <TextBlock Text="{Binding StatusMessage}" AutomationProperties.LiveSetting="Polite" FontSize="11" FontStyle="Italic"
+                                   Foreground="{DynamicResource RE.TextSecondary}"/>
+                    </StackPanel>
+
+                    <!-- IsCancel: Escape closes the manager -->
+                    <Button Grid.Column="1" Content="{r:Text Core.accessible_close}" Classes="secondary" Command="{Binding CloseCommand}" IsCancel="True"
+                            Padding="16,6" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

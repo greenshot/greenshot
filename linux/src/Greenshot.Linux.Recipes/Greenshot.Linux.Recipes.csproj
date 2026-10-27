@@ -8,5 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Greenshot.Linux.Tests" />
+    <InternalsVisibleTo Include="Greenshot.Linux.RecipeEditor" />
   </ItemGroup>
 </Project>

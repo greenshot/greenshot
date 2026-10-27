@@ -96,7 +96,7 @@ internal sealed class SettingsWindow : Window
         tabs.Items.Add(Tab(Texts.Settings("editor"), EditorPage()));
         tabs.Items.Add(Tab(Texts.Settings("printer"), PrinterPage()));
         tabs.Items.Add(Tab(Texts.Linux("plugins"), new PluginSettingsPage(host, this, _apply).Create()));
-        _recipesTab = Tab(Texts.Settings("recipes"), new RecipeSettingsPage(this, host.RecipeDestinations, _apply).Create());
+        _recipesTab = Tab(Texts.Settings("recipes"), new RecipeSettingsPage(this, host.RecipeDestinations, host.RecipeEditor, _apply).Create());
         tabs.Items.Add(_recipesTab);
 
         var ok = new Button { Content = Texts.Linux("ok"), IsDefault = true, MinWidth = 90, HorizontalContentAlignment = HorizontalAlignment.Center };

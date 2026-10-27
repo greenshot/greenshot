@@ -7,8 +7,8 @@ compositor or the xdg-desktop-portal.
 
 The goal is every feature of Greenshot 1.4 that Wayland allows, with the closest equivalent for the ones it doesn't.
 Done so far: **milestone 1, capturing**, **milestone 2, the image editor**, **milestone 3, settings and languages** and
-**milestone 4, more destinations**, **milestone 5, plugins** and the engine of **milestone 6, recipes**. The recipe editor,
-the full command line and the MCP server follow, see [Roadmap](#roadmap).
+**milestone 4, more destinations**, **milestone 5, plugins** and of **milestone 6, recipes** the engine, the recipe manager
+and the visual recipe editor. The full command line and the MCP server follow, see [Roadmap](#roadmap).
 
 ## What works now
 
@@ -126,9 +126,15 @@ switched on in Settings → Recipes apply to them.
   menu, editor menu, clipboard change (`wl-paste --watch`), command line.
 - Steps the Linux version does differently: `RecordVideo` uses `wf-recorder`; window sources need Sway or Hyprland, like
   window capture.
+- The **recipe manager** (tray *Recipes → Recipe Manager…*, the editor's Recipes menu or `greenshot recipe-manager`) lists
+  the recipes and automatic steps with filters and search: edit, test run, details, permissions, unload, reset.
+- The **recipe editor** (*Recipes → Recipe Editor…* or `greenshot recipe-editor [id]`) is the visual editor of Windows: the
+  steps from the toolbox on a canvas, connected by dragging from a pin to a pin (Alt + click on a pin removes its arrows),
+  the inspector of every step, the recipe with its options, start steps, triggers and error routes, automatic steps,
+  undo, auto-layout, JSON and Mermaid views and test runs. The canvas pans with a right, middle or empty-space drag and
+  the wheel, Ctrl + wheel zooms. Annotations can be taken from an open image editor or a .greenshot file.
 
-Still to come: the recipe manager and the visual recipe editor, `--list-recipes`, `--info`, recipe output on stdout, and
-the MCP server.
+Still to come: `--list-recipes`, `--info`, recipe output on stdout, and the MCP server.
 
 ## Build, run, test
 
@@ -210,6 +216,8 @@ linux/
                                D-Bus portals and notifications, destinations, single instance socket
   src/Greenshot.Linux.Editor   no UI: the editor model, drawing elements, Skia rendering, undo, effects, .greenshot files
   src/Greenshot.Linux.Recipes  no UI: the recipe engine of Windows (model, validation, DAG engine, steps, triggers, approval)
+  src/Greenshot.Linux.RecipeEditor  no UI: the view models of the recipe manager and the recipe editor (their windows are in
+                               Greenshot.Linux/RecipeEditing, the canvas is RecipeGraphCanvas instead of Nodify)
   src/Greenshot.Linux.Plugins  no UI: the plugins (external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence)
   src/Greenshot.Linux          Avalonia: tray, capture screen, picker, editor window, the capture flow (GreenshotController)
   tests/Greenshot.Linux.Tests  xunit
@@ -236,7 +244,7 @@ linux/
    on the capture screen and the QR generator with its WiFi / vCard / calendar types
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
-   editor, the full command line and the MCP server next
+   editor ✅; the full command line and the MCP server next
 7. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
 8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 

@@ -143,7 +143,7 @@ public sealed class PluginTests : IDisposable
     public void An_uploader_file_is_read_and_its_values_can_be_filled_in()
     {
         Core.Languages.Texts.Initialize("en-US",
-            [Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../src/Greenshot.Plugin.CustomUploader/Languages"))]);
+            [.. TestEnvironment.LanguageFolders, Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../src/Greenshot.Plugin.CustomUploader/Languages"))]);
         var definition = UploaderFile.Read(Sxcu);
         Assert.Equal("Example host", definition.Name);
         Assert.Equal("api.example.com", UploaderFile.GetServer(definition).Host);

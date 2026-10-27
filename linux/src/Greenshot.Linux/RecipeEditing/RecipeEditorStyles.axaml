@@ -1,0 +1,198 @@
+<!--
+  The look of the recipe editor and the recipe manager: the palette of the Windows version (light and dark),
+  the button styles (primary, secondary, error), the filter chips and the labels of the inspector.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="RE.WindowBackground" Color="#F5F5F5" />
+          <SolidColorBrush x:Key="RE.CardBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="RE.CardBorder" Color="#E5E5EA" />
+          <SolidColorBrush x:Key="RE.TextPrimary" Color="#282828" />
+          <SolidColorBrush x:Key="RE.TextSecondary" Color="#646464" />
+          <SolidColorBrush x:Key="RE.Accent" Color="#005A9E" />
+          <SolidColorBrush x:Key="RE.AccentForeground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="RE.BadgeBackground" Color="#EBEBED" />
+          <SolidColorBrush x:Key="RE.NodeCardBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="RE.NodeCardBorder" Color="#D0D0D6" />
+          <SolidColorBrush x:Key="RE.Success" Color="#0F7B0F" />
+          <SolidColorBrush x:Key="RE.Muted" Color="#646464" />
+          <SolidColorBrush x:Key="RE.Error" Color="#842029" />
+          <SolidColorBrush x:Key="RE.ErrorBackground" Color="#FDEDED" />
+          <SolidColorBrush x:Key="RE.ErrorBorder" Color="#F5C2C7" />
+          <SolidColorBrush x:Key="RE.Warning" Color="#664D03" />
+          <SolidColorBrush x:Key="RE.WarningBackground" Color="#FFF3CD" />
+          <SolidColorBrush x:Key="RE.WarningBorder" Color="#FFE69C" />
+          <SolidColorBrush x:Key="RE.ButtonBackground" Color="#E6E6E6" />
+          <SolidColorBrush x:Key="RE.ButtonHover" Color="#D2D2D2" />
+          <SolidColorBrush x:Key="RE.ControlBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="RE.GridDot" Color="#22000000" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="RE.WindowBackground" Color="#202020" />
+          <SolidColorBrush x:Key="RE.CardBackground" Color="#2C2C2E" />
+          <SolidColorBrush x:Key="RE.CardBorder" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="RE.TextPrimary" Color="#E6E6E6" />
+          <SolidColorBrush x:Key="RE.TextSecondary" Color="#AFAFAF" />
+          <SolidColorBrush x:Key="RE.Accent" Color="#99EBFF" />
+          <SolidColorBrush x:Key="RE.AccentForeground" Color="#000000" />
+          <SolidColorBrush x:Key="RE.BadgeBackground" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="RE.NodeCardBackground" Color="#28282A" />
+          <SolidColorBrush x:Key="RE.NodeCardBorder" Color="#48484C" />
+          <SolidColorBrush x:Key="RE.Success" Color="#6CCB5F" />
+          <SolidColorBrush x:Key="RE.Muted" Color="#AFAFAF" />
+          <SolidColorBrush x:Key="RE.Error" Color="#FF6B6B" />
+          <SolidColorBrush x:Key="RE.ErrorBackground" Color="#3B1818" />
+          <SolidColorBrush x:Key="RE.ErrorBorder" Color="#7F2A2A" />
+          <SolidColorBrush x:Key="RE.Warning" Color="#FFBA42" />
+          <SolidColorBrush x:Key="RE.WarningBackground" Color="#382405" />
+          <SolidColorBrush x:Key="RE.WarningBorder" Color="#66420A" />
+          <SolidColorBrush x:Key="RE.ButtonBackground" Color="#373737" />
+          <SolidColorBrush x:Key="RE.ButtonHover" Color="#464646" />
+          <SolidColorBrush x:Key="RE.ControlBackground" Color="#181818" />
+          <SolidColorBrush x:Key="RE.GridDot" Color="#22FFFFFF" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <!-- Buttons: "primary" in the accent color, "secondary" plain, "error" for removing -->
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{DynamicResource RE.Accent}" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.AccentForeground}" />
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="CornerRadius" Value="4" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource RE.Accent}" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.AccentForeground}" />
+    <Setter Property="Opacity" Value="0.88" />
+  </Style>
+  <Style Selector="Button.secondary">
+    <Setter Property="Background" Value="{DynamicResource RE.ButtonBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextPrimary}" />
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="CornerRadius" Value="4" />
+  </Style>
+  <Style Selector="Button.secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource RE.ButtonHover}" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextPrimary}" />
+  </Style>
+  <Style Selector="Button.error">
+    <Setter Property="Background" Value="#C42B1C" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="CornerRadius" Value="4" />
+  </Style>
+  <Style Selector="Button.error:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E81123" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <!-- Small buttons in the inspector: remove, browse, pick -->
+  <Style Selector="Button.small">
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+  <!-- A color swatch which opens the color picker -->
+  <Style Selector="Button.swatch">
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.CardBorder}" />
+    <Setter Property="CornerRadius" Value="3" />
+  </Style>
+  <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.Accent}" />
+  </Style>
+  <!-- The toolbox of the editor: one button per step -->
+  <Style Selector="Button.tool">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextPrimary}" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource RE.BadgeBackground}" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextPrimary}" />
+  </Style>
+  <!-- Filter chips of the recipe manager -->
+  <Style Selector="RadioButton.chip">
+    <Setter Property="Margin" Value="0,0,6,0" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="chip" Background="{DynamicResource RE.BadgeBackground}" BorderBrush="{DynamicResource RE.CardBorder}"
+                BorderThickness="1" CornerRadius="12" Padding="12,3">
+          <ContentPresenter Content="{TemplateBinding Content}" Foreground="{DynamicResource RE.TextPrimary}" FontSize="11" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.chip:checked /template/ Border#chip">
+    <Setter Property="Background" Value="{DynamicResource RE.Accent}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.Accent}" />
+  </Style>
+  <Style Selector="RadioButton.chip:checked /template/ ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource RE.AccentForeground}" />
+  </Style>
+  <Style Selector="RadioButton.chip:focus-visible /template/ Border#chip">
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.TextPrimary}" />
+  </Style>
+  <!-- The labels and fields of the inspector -->
+  <Style Selector="TextBlock.label">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextSecondary}" />
+    <Setter Property="Margin" Value="0,0,0,2" />
+  </Style>
+  <Style Selector="TextBlock.hint">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextSecondary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Margin" Value="0,0,0,8" />
+  </Style>
+  <Style Selector="TextBlock.section">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource RE.TextPrimary}" />
+    <Setter Property="Margin" Value="0,6,0,6" />
+  </Style>
+  <Style Selector="TextBox.field">
+    <Setter Property="Margin" Value="0,0,0,8" />
+    <Setter Property="MinHeight" Value="28" />
+    <Setter Property="Padding" Value="6,4" />
+  </Style>
+  <Style Selector="TextBox.code">
+    <Setter Property="FontFamily" Value="monospace" />
+  </Style>
+  <Style Selector="ComboBox.field">
+    <Setter Property="Margin" Value="0,0,0,8" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+  <Style Selector="CheckBox.field">
+    <Setter Property="Margin" Value="0,0,0,6" />
+  </Style>
+  <Style Selector="NumericUpDown.field">
+    <Setter Property="Margin" Value="0,0,0,8" />
+  </Style>
+  <Style Selector="Border.badge">
+    <Setter Property="Background" Value="{DynamicResource RE.BadgeBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.CardBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="5,1" />
+  </Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource RE.CardBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource RE.CardBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+</Styles>

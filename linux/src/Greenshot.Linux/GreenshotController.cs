@@ -51,6 +51,8 @@ using Avalonia.Styling;
 using Greenshot.Linux.Plugins.Recipes;
 using Greenshot.Linux.Recipes;
 using Greenshot.Linux.RecipeUi;
+using Greenshot.Linux.RecipeEditing;
+using Greenshot.Linux.RecipeEditor;
 using Greenshot.Linux.Recipes.Approval;
 using Greenshot.Linux.Recipes.Contracts;
 using Greenshot.Linux.Recipes.Pipeline;
@@ -133,6 +135,13 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     }
 
     private SettingsWindow? _settingsWindow;
+
+    private readonly RecipeEditorService _recipeEditor = new();
+
+    /// <summary>
+    /// The recipe manager and the recipe editor
+    /// </summary>
+    public IRecipeEditorService RecipeEditor => _recipeEditor;
 
     public void ShowSettings() => ShowSettings(null);
 
@@ -323,6 +332,12 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
             case AppCommandKind.Settings:
                 ShowSettings();
                 break;
+            case AppCommandKind.RecipeEditor:
+                _recipeEditor.OpenEditor(command.RecipeId);
+                break;
+            case AppCommandKind.RecipeManager:
+                _recipeEditor.OpenRecipeManager();
+                break;
             case AppCommandKind.Exit:
                 Exit();
                 break;
@@ -447,6 +462,9 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         RecipeServices.Host = _recipeHost;
         RecipeServices.UserInteraction = _recipeHost;
         RecipeServices.ApprovalUi = new RecipeApprovalUi();
+        var editorUi = new AppRecipeEditorUi(this);
+        editorUi.Attach();
+        RecipeEditorUi.Current = editorUi;
         RecipeServices.Hotkeys = this;
         RecipeServices.StepProviders = [.. _plugins.Where(p => Policy.IsPluginEnabled(p.Name)).OfType<IRecipeStepProvider>(), new BuiltInPluginSteps()];
         RecipeServices.AuthorizationDestinations = designation =>
@@ -890,6 +908,8 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
         AddItem(recipes, Texts.Linux("recipe_import"), () => _ = AskImportRecipeAsync(), null);
         AddItem(recipes, Texts.Linux("recipe_reload"), () => RecipeManager.Instance.ReloadRecipes(), null);
+        AddItem(recipes, Texts.Core("contextmenu_managerecipes"), _recipeEditor.OpenRecipeManager, null);
+        AddItem(recipes, Texts.Core("contextmenu_recipeeditor"), () => _recipeEditor.OpenEditor(), null);
         return new NativeMenuItem(Texts.Linux("recipes")) { Menu = recipes };
     }
 

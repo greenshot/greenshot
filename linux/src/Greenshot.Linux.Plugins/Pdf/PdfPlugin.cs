@@ -26,6 +26,7 @@ using Greenshot.Linux.Core.Configuration;
 using Greenshot.Linux.Core.Destinations;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Plugins;
+using Greenshot.Linux.Recipes.Pipeline;
 using SkiaSharp;
 
 namespace Greenshot.Linux.Plugins.Pdf;
@@ -72,6 +73,28 @@ public sealed class PdfSettings(CoreSettings settings)
     /// <summary>
     /// The page in mm for a fixed size, null for Image
     /// </summary>
+    public (double Width, double Height)? PageSizeMm => Options.PageSizeMm;
+
+    /// <summary>
+    /// The page as it is set now; a PDF step of a recipe changes some of it
+    /// </summary>
+    public PdfPageOptions Options => new(PageSize, PageWidthMm, PageHeightMm, MarginTopMm, MarginBottomMm, MarginLeftMm, MarginRightMm, FitToPage);
+
+    private double Get(string key, double fallback) =>
+        double.TryParse(settings.GetValue(SectionName, key), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && value >= 0 ? value : fallback;
+
+    private void Set(string key, double value) => settings.SetValue(SectionName, key, value.ToString(CultureInfo.InvariantCulture));
+}
+
+/// <summary>
+/// The page of a PDF: its size (Image, Custom, A3, A4, A5, A6, Letter), the margins in mm and whether a smaller capture is enlarged
+/// </summary>
+public sealed record PdfPageOptions(string PageSize, double PageWidthMm, double PageHeightMm, double MarginTopMm, double MarginBottomMm,
+    double MarginLeftMm, double MarginRightMm, bool FitToPage)
+{
+    /// <summary>
+    /// The page in mm for a fixed size, null for Image
+    /// </summary>
     public (double Width, double Height)? PageSizeMm => PageSize switch
     {
         "A3" => (297, 420),
@@ -82,11 +105,6 @@ public sealed class PdfSettings(CoreSettings settings)
         "Custom" => (PageWidthMm, PageHeightMm),
         _ => null,
     };
-
-    private double Get(string key, double fallback) =>
-        double.TryParse(settings.GetValue(SectionName, key), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && value >= 0 ? value : fallback;
-
-    private void Set(string key, double value) => settings.SetValue(SectionName, key, value.ToString(CultureInfo.InvariantCulture));
 }
 
 /// <summary>
@@ -98,7 +116,7 @@ public static class PdfWriter
     private const float PointsPerMm = 72f / 25.4f;
     private const float PointsPerPixel = 72f / 96f;
 
-    public static byte[] Create(SKBitmap image, PdfSettings settings, string title)
+    public static byte[] Create(SKBitmap image, PdfPageOptions settings, string title)
     {
         var (page, imageRect) = Layout(image.Width, image.Height, settings);
         using var stream = new MemoryStream();
@@ -114,7 +132,9 @@ public static class PdfWriter
         return stream.ToArray();
     }
 
-    internal static (SKSize Page, SKRect Image) Layout(int width, int height, PdfSettings settings)
+    internal static (SKSize Page, SKRect Image) Layout(int width, int height, PdfSettings settings) => Layout(width, height, settings.Options);
+
+    internal static (SKSize Page, SKRect Image) Layout(int width, int height, PdfPageOptions settings)
     {
         float left = (float)settings.MarginLeftMm * PointsPerMm, right = (float)settings.MarginRightMm * PointsPerMm;
         float top = (float)settings.MarginTopMm * PointsPerMm, bottom = (float)settings.MarginBottomMm * PointsPerMm;
@@ -138,9 +158,10 @@ public static class PdfWriter
 }
 
 /// <summary>
-/// "Save as PDF": asks where, like the Windows destination does by default
+/// "Save as PDF": asks where, like the Windows destination does by default. A PDF step of a recipe can change the page
+/// and save to the output folder without asking.
 /// </summary>
-public sealed class PdfDestination(CoreSettings settings, PdfSettings pdf, Func<string, Task<string?>> askPath) : IDestination
+public sealed class PdfDestination(CoreSettings settings, PdfSettings pdf, Func<string, Task<string?>> askPath, PdfPageOptions? page = null, bool ask = true) : IDestination
 {
     public string Designation => "Pdf";
 
@@ -153,7 +174,7 @@ public sealed class PdfDestination(CoreSettings settings, PdfSettings pdf, Func<
     public async Task<ExportResult> ExportAsync(Capture capture, CancellationToken cancellationToken = default)
     {
         var suggested = Path.ChangeExtension(FileDestination.GetDefaultPath(settings, capture.Details), ".pdf");
-        var path = await askPath(suggested).ConfigureAwait(true);
+        var path = ask ? await askPath(suggested).ConfigureAwait(true) : suggested;
         if (path == null)
         {
             return ExportResult.Aborted;
@@ -167,7 +188,7 @@ public sealed class PdfDestination(CoreSettings settings, PdfSettings pdf, Func<
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            await File.WriteAllBytesAsync(path, PdfWriter.Create(capture.Image, pdf, capture.Details.Title ?? "Greenshot"), cancellationToken).ConfigureAwait(false);
+            await File.WriteAllBytesAsync(path, PdfWriter.Create(capture.Image, page ?? pdf.Options, capture.Details.Title ?? "Greenshot"), cancellationToken).ConfigureAwait(false);
             Log.Info($"Saved the capture as PDF to {path}");
             return ExportResult.Done(path);
         }
@@ -179,8 +200,15 @@ public sealed class PdfDestination(CoreSettings settings, PdfSettings pdf, Func<
     }
 }
 
-public sealed class PdfPlugin(CoreSettings settings, Func<string, Task<string?>> askPath) : IGreenshotPlugin
+public sealed class PdfPlugin(CoreSettings settings, Func<string, Task<string?>> askPath) : IGreenshotPlugin, IRecipeStepProvider
 {
+    public void RegisterSteps(IStepRegistry registry) => registry.Register<Recipes.PdfStep>(config => new Recipes.PdfStep(config, this));
+
+    /// <summary>
+    /// The destination of a PDF step: the page of the step, asking where or not
+    /// </summary>
+    internal PdfDestination CreateDestination(PdfPageOptions page, bool ask) => new(settings, Settings, askPath, page, ask);
+
     public PdfSettings Settings { get; } = new(settings);
 
     public string Name => "Pdf";

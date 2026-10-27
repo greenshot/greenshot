@@ -44,6 +44,7 @@ public static class TestEnvironment
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../src/Greenshot/Languages")),
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../src/Greenshot.Linux/Languages")),
         Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../src/Greenshot.Plugin.ExternalCommand/Languages")),
+        Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../src/Greenshot.Plugin.RecipeEditor/Languages")),
     ];
 
     public static void EnsureInitialized()

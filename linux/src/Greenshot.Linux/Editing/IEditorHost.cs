@@ -56,4 +56,9 @@ internal interface IEditorHost
     /// The recipes of the editor's Recipes menu (Editor triggers)
     /// </summary>
     IReadOnlyList<Greenshot.Linux.Recipes.Triggers.IEditorTrigger> EditorRecipeTriggers { get; }
+
+    /// <summary>
+    /// The recipe manager and the recipe editor
+    /// </summary>
+    Greenshot.Linux.Recipes.IRecipeEditorService RecipeEditor { get; }
 }
