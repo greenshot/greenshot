@@ -83,7 +83,7 @@ looks the same and a change of the design is made in one place. Merge the dictio
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
 | `ExpanderStyles.xaml` | `ExpanderStyle`: a header with an arrow which turns when the content is shown (settings groups, error details). |
 | `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`. |
-| `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `RemoveEntryButtonStyle` (the small x in it), `AddPillButtonStyle` (the + at the end of the list). |
+| `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `EditEntryButtonStyle` (its text as a button, e.g. a click changes the entry), `RemoveEntryButtonStyle` (the small x in it), `TakeEntryButtonStyle` (a small + which takes the entry into another list), `AddPillButtonStyle` (the + at the end of the list). |
 | `MenuStyles.xaml` | `GreenshotContextMenuStyle`, `GreenshotMenuItemStyle`, `GreenshotMenuSeparatorStyle`; `ThemedMenu` uses them for the tray menu and the other menus. |
 
 ```xaml
