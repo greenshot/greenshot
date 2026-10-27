@@ -286,9 +286,9 @@ namespace Greenshot.Settings.Views
 
         private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as FrameworkElement)?.DataContext is FixedCaptureArea area)
+            if ((sender as FrameworkElement)?.DataContext is FixedCaptureSizeItem item)
             {
-                _viewModel.FixedCaptureSizes.Remove(area);
+                _viewModel.FixedCaptureSizes.Remove(item);
             }
         }
 
@@ -302,6 +302,12 @@ namespace Greenshot.Settings.Views
         {
             FixedCaptureSizeWidth.Text = string.Empty;
             FixedCaptureSizeHeight.Text = string.Empty;
+            FixedCaptureSizeX.Text = string.Empty;
+            FixedCaptureSizeY.Text = string.Empty;
+            FixedCaptureSizeProgram.Text = string.Empty;
+            // The screens connected now
+            FixedCaptureSizeRelativeTo.ItemsSource = SettingsViewModel.GetFixedCapturePlaceChoices();
+            FixedCaptureSizeRelativeTo.SelectedIndex = 0;
             _ = Dispatcher.BeginInvoke(new Action(() => FixedCaptureSizeWidth.Focus()), System.Windows.Threading.DispatcherPriority.Input);
         }
 
@@ -342,7 +348,8 @@ namespace Greenshot.Settings.Views
         }
 
         /// <summary>
-        /// Adds the size of the popup and closes it, a value which isn't a positive number keeps it open with that box focused
+        /// Adds the size of the popup and closes it, a value which isn't a positive number keeps it open with that box focused.
+        /// X and Y are optional, both or none; with them the place is relative to the chosen screen or to a window of the program.
         /// </summary>
         private void AddFixedCaptureSize()
         {
@@ -358,7 +365,34 @@ namespace Greenshot.Settings.Views
                 FixedCaptureSizeHeight.SelectAll();
                 return;
             }
-            _viewModel.AddFixedCaptureSize(new NativeSize(width, height));
+            var area = new FixedCaptureArea(new NativeSize(width, height));
+            bool hasX = !string.IsNullOrWhiteSpace(FixedCaptureSizeX.Text), hasY = !string.IsNullOrWhiteSpace(FixedCaptureSizeY.Text);
+            if (hasX || hasY)
+            {
+                if (!int.TryParse(FixedCaptureSizeX.Text.Trim(), out int x))
+                {
+                    FixedCaptureSizeX.Focus();
+                    FixedCaptureSizeX.SelectAll();
+                    return;
+                }
+                if (!int.TryParse(FixedCaptureSizeY.Text.Trim(), out int y))
+                {
+                    FixedCaptureSizeY.Focus();
+                    FixedCaptureSizeY.SelectAll();
+                    return;
+                }
+                var relativeTo = FixedCaptureSizeRelativeTo.SelectedItem as FixedCapturePlaceChoice;
+                string program = relativeTo?.IsProgram == true ? FixedCaptureSizeProgram.Text.Trim() : null;
+                area = new FixedCaptureArea(area.Size, new NativePoint(x, y), relativeTo?.Monitor, program);
+                // A program needs a name which can be stored, e.g. notepad.exe
+                if (relativeTo?.IsProgram == true && (area.Program == null || FixedCaptureArea.Parse(area.ToString()) != area))
+                {
+                    FixedCaptureSizeProgram.Focus();
+                    FixedCaptureSizeProgram.SelectAll();
+                    return;
+                }
+            }
+            _viewModel.AddFixedCaptureSize(area);
             AddFixedCaptureSizePopup.IsOpen = false;
             AddFixedCaptureSizeButton.Focus();
         }

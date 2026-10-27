@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -44,9 +45,10 @@ namespace Greenshot.Capturing.Tools
     /// C changes it, FixedCaptureAnchor), so the zoomer shows that corner. Its edges snap to the edges of the windows under the cursor
     /// and of the monitor, with Alt held it is placed freely. The sizes are those of the settings (FixedCaptureSizes), followed by the sizes
     /// of the last region captures (RecentCaptureAreas); a panel lists them, 1-9 and 0 pick one, PageUp and PageDown go up and down the list.
-    /// An entry can have a place (a configured one, or where a recent capture was): when it fits on the screens, picking the entry moves the
-    /// cursor so the area is there, it is drawn as an outline, and the area snaps back onto it when it comes close. When the place isn't on
-    /// the screens (e.g. its monitor is switched off), the same place on the monitor with the cursor is used, e.g. for a full screen window.
+    /// An entry can have a place (a configured one, or where a recent capture was, FixedCaptureRemembers): on a monitor, or in the windows
+    /// of a program. Picking the entry moves the cursor so the area is there (FixedCaptureMovesCursor), the places are drawn as outlines,
+    /// and the area snaps onto one when it comes close. When a place on a monitor isn't on the screens (e.g. its monitor is switched off),
+    /// the same place on the monitor with the cursor is used, e.g. for a full screen window.
     /// </summary>
     public class FixedSizeCaptureTool : CaptureTool
     {
@@ -62,8 +64,12 @@ namespace Greenshot.Capturing.Tools
 
         private List<(FixedCaptureArea Area, bool Recent)> _sizes = new List<(FixedCaptureArea Area, bool Recent)>();
         private int _index;
-        // The place of the current entry in capture coordinates, null when it has none or it doesn't fit on the screens
-        private NativeRect? _place;
+        // The places of the current entry in capture coordinates which fit, the one the cursor goes to first
+        private List<NativeRect> _places = new List<NativeRect>();
+        // The program names of the windows, read once per activation
+        private readonly Dictionary<IntPtr, string> _processNames = new Dictionary<IntPtr, string>();
+        // Windows of the shell (desktop, taskbar) aren't windows of a program to remember a place in
+        private static readonly string[] ShellWindowClasses = { "Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd" };
         private NativeRect _selection = NativeRect.Empty;
 
         public override CaptureMode Mode => CaptureMode.Region;
@@ -99,7 +105,8 @@ namespace Greenshot.Capturing.Tools
             {
                 _index = Math.Max(0, _sizes.FindIndex(entry => entry.Area.Size == last.Size));
             }
-            _place = GetPlace();
+            _processNames.Clear();
+            _places = GetPlaces(_sizes.Count == 0 ? default : _sizes[_index].Area);
             _selection = NativeRect.Empty;
             OnMouseMove();
             // Once the window is shown, when it starts with this tool: then the monitor and its DPI are known
@@ -127,16 +134,15 @@ namespace Greenshot.Capturing.Tools
                 return;
             }
             var rect = Place(Host.CursorPosition, _sizes[_index].Area.Size, Conf.FixedCaptureAnchor);
-            var place = _place;
             if ((Keyboard.Modifiers & ModifierKeys.Alt) == 0)
             {
-                rect = place is { } placeBounds && IsClose(rect, placeBounds, Scale(PlaceSnapDistance))
-                    ? placeBounds
-                    : Snap(rect, GetSnapBounds(), Scale(SnapDistance));
+                int placeDistance = Scale(PlaceSnapDistance);
+                var places = _places.Where(place => IsClose(rect, place, placeDistance)).ToList();
+                rect = places.Count > 0 ? places[0] : Snap(rect, GetSnapBounds(), Scale(SnapDistance));
             }
             var captureBounds = new NativeRect(0, 0, Host.ScreenBounds.Width, Host.ScreenBounds.Height);
-            // At its place the area may be on more than one monitor, it fits on the screens
-            _selection = rect == place
+            // At a place the area may be on more than one monitor, it fits on the screens
+            _selection = _places.Contains(rect)
                 ? rect
                 : KeepInside(KeepInside(rect, Host.GetMonitorBounds()), captureBounds).Intersect(captureBounds);
             Host.ShowSelection(_selection);
@@ -152,7 +158,7 @@ namespace Greenshot.Capturing.Tools
                 return;
             }
             Conf.FixedCaptureArea = _sizes[_index].Area.ToString();
-            RememberArea(_selection.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y));
+            RememberArea(_selection.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y), Host.Windows);
             Host.Accept(_selection);
         }
 
@@ -164,7 +170,7 @@ namespace Greenshot.Capturing.Tools
             if (index < _sizes.Count)
             {
                 _index = index;
-                _place = GetPlace();
+                _places = GetPlaces(_sizes[_index].Area);
                 ShowSizes();
                 Host.Redraw();
                 MoveCursorToPlace();
@@ -182,39 +188,61 @@ namespace Greenshot.Capturing.Tools
         private int Scale(double units) => (int)Math.Round(Host.ToolStyle?.Scale(units) ?? units);
 
         /// <summary>
-        /// The place of the current entry in capture coordinates, null when it has none or it doesn't fit on the screens
+        /// The places of an entry in capture coordinates which fit on the screens and in the capture, the one the cursor goes to first
         /// </summary>
-        private NativeRect? GetPlace()
+        private List<NativeRect> GetPlaces(FixedCaptureArea area)
         {
-            if (_sizes.Count == 0 || GetPlace(_sizes[_index].Area) is not { } bounds)
+            if (!area.HasPlace)
             {
-                return null;
+                return new List<NativeRect>();
             }
             var screenBounds = Host.ScreenBounds;
-            return bounds.Offset(-screenBounds.X, -screenBounds.Y);
-        }
-
-        /// <summary>
-        /// The place of an entry in screen coordinates, null when it has none which fits
-        /// </summary>
-        private NativeRect? GetPlace(FixedCaptureArea area)
-        {
-            var screenBounds = Host.ScreenBounds;
-            var place = ResolvePlace(area, GetScreens().ToList(), Host.GetMonitorBounds().Offset(screenBounds.X, screenBounds.Y));
+            var screens = GetScreens().ToList();
+            var cursor = Host.CursorPosition.Offset(screenBounds.X, screenBounds.Y);
+            IEnumerable<NativeRect> places;
+            if (area.Program != null)
+            {
+                var windows = Host.Windows
+                    .Where(window => window.IsVisible() && !window.IsMinimized())
+                    .Select(window => (Info: window.GetInfo(), Window: window))
+                    .ToList();
+                // Every window counts for covering the windows below it, only those of the program for a place
+                var windowBounds = windows.Select(window => (window.Info.Bounds, window.Info.ClientBounds, IsProgram: area.IsProgram(GetProcessName(window.Window)))).ToList();
+                places = ResolveWindowPlaces(area, windowBounds, screens, cursor);
+            }
+            else
+            {
+                places = ResolveMonitorPlace(area, screens, Host.GetMonitorBounds().Offset(screenBounds.X, screenBounds.Y)) is { } place
+                    ? new[] { place }
+                    : Enumerable.Empty<NativeRect>();
+            }
             // In the capture too: it covers all screens, but the screens can have changed since it was taken
-            return place is { } bounds && screenBounds.Intersect(bounds) == bounds ? place : null;
+            return places
+                .Where(place => screenBounds.Intersect(place) == place)
+                .Select(place => place.Offset(-screenBounds.X, -screenBounds.Y))
+                .ToList();
+        }
+
+        private string GetProcessName(IInteropWindow window)
+        {
+            if (!_processNames.TryGetValue(window.Handle, out var name))
+            {
+                name = window.GetProcessName();
+                _processNames[window.Handle] = name;
+            }
+            return name;
         }
 
         /// <summary>
-        /// Where an entry goes, in screen coordinates: at its place when that is on the screens, else at the same place on the monitor
-        /// with the cursor (a full screen window is at the same place on every monitor), null when it has no place or neither fits
+        /// Where an entry with a place on a monitor goes, in screen coordinates: at its place when that is on the screens, else at the
+        /// same place on the monitor with the cursor (a full screen window is at the same place on every monitor), null when neither fits
         /// </summary>
         /// <param name="area">The entry</param>
         /// <param name="screens">The bounds of the monitors</param>
         /// <param name="cursorMonitor">The bounds of the monitor with the cursor</param>
-        public static NativeRect? ResolvePlace(FixedCaptureArea area, IList<NativeRect> screens, NativeRect cursorMonitor)
+        public static NativeRect? ResolveMonitorPlace(FixedCaptureArea area, IList<NativeRect> screens, NativeRect cursorMonitor)
         {
-            if (area.Bounds is not { } bounds || area.OffsetOnMonitor is not { } offset)
+            if (area.MonitorBounds is not { } bounds || area.Offset is not { } offset)
             {
                 return null;
             }
@@ -227,6 +255,43 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
+        /// Where an entry with a place in the windows of a program goes, in screen coordinates: in each window of the program it fits in,
+        /// on the screens, and not completely behind one window above it; the window with the cursor first, then in z-order
+        /// </summary>
+        /// <param name="area">The entry</param>
+        /// <param name="windows">The visible windows, the top one first: their bounds, the bounds of their content, and if they are of the program</param>
+        /// <param name="screens">The bounds of the monitors</param>
+        /// <param name="cursor">The cursor in screen coordinates</param>
+        public static List<NativeRect> ResolveWindowPlaces(FixedCaptureArea area, IList<(NativeRect Bounds, NativeRect Client, bool IsProgram)> windows,
+            IList<NativeRect> screens, NativePoint cursor)
+        {
+            var places = new List<(NativeRect Place, bool UnderCursor)>();
+            if (area.Offset is not { } offset)
+            {
+                return new List<NativeRect>();
+            }
+            bool cursorTaken = false;
+            for (int i = 0; i < windows.Count; i++)
+            {
+                var window = windows[i];
+                // The top window under the cursor is the one the cursor is over
+                bool underCursor = !cursorTaken && window.Bounds.Contains(cursor);
+                cursorTaken |= underCursor;
+                if (!window.IsProgram)
+                {
+                    continue;
+                }
+                var place = new NativeRect(window.Client.X + offset.X, window.Client.Y + offset.Y, area.Size.Width, area.Size.Height);
+                bool covered = windows.Take(i).Any(above => above.Bounds.Intersect(place) == place);
+                if (window.Bounds.Intersect(place) == place && FitsOnScreens(place, screens) && !covered)
+                {
+                    places.Add((place, underCursor));
+                }
+            }
+            return places.OrderBy(entry => entry.UnderCursor ? 0 : 1).Select(entry => entry.Place).ToList();
+        }
+
+        /// <summary>
         /// The bounds of the monitors in screen coordinates
         /// </summary>
         private static IEnumerable<NativeRect> GetScreens() => DisplayInfo.AllDisplayInfos.Select(display => display.Bounds);
@@ -236,26 +301,29 @@ namespace Greenshot.Capturing.Tools
         /// </summary>
         private void MoveCursorToPlace()
         {
-            if (_place is not { } place)
+            if (!Conf.FixedCaptureMovesCursor || _places.Count == 0)
             {
                 return;
             }
-            var cursor = GetAnchorPoint(place, Conf.FixedCaptureAnchor).Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y);
+            var cursor = GetAnchorPoint(_places[0], Conf.FixedCaptureAnchor).Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y);
             System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X, cursor.Y);
         }
 
         /// <summary>
-        /// The outline of the place of the current entry, when it fits on the screens
+        /// The outlines of the places of the current entry
         /// </summary>
         public override void Draw(DrawingContext drawingContext)
         {
-            if (_place is not { } place || Host.ToolStyle is not { } style)
+            if (_places.Count == 0 || Host.ToolStyle is not { } style)
             {
                 return;
             }
             var pen = new Pen(style.Accent, 1) { DashStyle = DashStyles.Dash };
             pen.Freeze();
-            drawingContext.DrawRectangle(null, pen, new Rect(place.X + 0.5, place.Y + 0.5, place.Width - 1, place.Height - 1));
+            foreach (var place in _places)
+            {
+                drawingContext.DrawRectangle(null, pen, new Rect(place.X + 0.5, place.Y + 0.5, place.Width - 1, place.Height - 1));
+            }
         }
 
         /// <summary>
@@ -351,17 +419,38 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// Remember the size and place (screen coordinates) of a region capture, the newest first, for the list of this tool
+        /// Remember the size and place (screen coordinates) of a region capture, the newest first, for the list of this tool;
+        /// as FixedCaptureRemembers says: only the size, the place on its monitor, or the place in the window of the program it is in
         /// </summary>
-        public static void RememberArea(NativeRect bounds)
+        /// <param name="bounds">The capture in screen coordinates</param>
+        /// <param name="windows">The visible windows, the top one first</param>
+        public static void RememberArea(NativeRect bounds, IEnumerable<IInteropWindow> windows)
         {
             if (bounds.IsEmpty)
             {
                 return;
             }
-            // With the monitor of its top left corner, to find the same place on another monitor when this one is gone
-            var monitor = DisplayInfo.GetBounds(bounds.Location).Location;
-            Conf.RecentCaptureAreas = AddRecent(Conf.RecentCaptureAreas, new FixedCaptureArea(bounds.Size, bounds.Location, monitor));
+            var area = new FixedCaptureArea(bounds.Size);
+            if (Conf.FixedCaptureRemembers == FixedCaptureRemember.Window && windows != null)
+            {
+                // The top window at the middle of the area, when the area is in it
+                var center = new NativePoint(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+                var window = windows.FirstOrDefault(candidate => candidate.IsVisible() && !candidate.IsMinimized() && candidate.GetInfo().Bounds.Contains(center));
+                var info = window?.GetInfo();
+                string program = window?.GetProcessName();
+                if (info is { } windowInfo && windowInfo.Bounds.Intersect(bounds) == bounds && !string.IsNullOrEmpty(program)
+                    && !ShellWindowClasses.Contains(window.GetClassname()))
+                {
+                    area = new FixedCaptureArea(bounds.Size, new NativePoint(bounds.X - windowInfo.ClientBounds.X, bounds.Y - windowInfo.ClientBounds.Y), program: program + ".exe");
+                }
+            }
+            if (!area.HasPlace && Conf.FixedCaptureRemembers != FixedCaptureRemember.Size)
+            {
+                // On the monitor of its top left corner
+                var monitor = DisplayInfo.GetBounds(bounds.Location);
+                area = new FixedCaptureArea(bounds.Size, new NativePoint(bounds.X - monitor.X, bounds.Y - monitor.Y), monitor.Location);
+            }
+            Conf.RecentCaptureAreas = AddRecent(Conf.RecentCaptureAreas, area);
         }
 
         /// <summary>
@@ -479,9 +568,9 @@ namespace Greenshot.Capturing.Tools
             var keyCapSize = style.MeasureKeyCap("9");
             double rowHeight = keyCapSize.Height + style.Scale(4);
             var texts = _sizes.Select((entry, index) => index == _index
-                ? style.CreateText(entry.Area.DisplayText, 9, style.Accent, true)
-                // A place which doesn't fit on the screens is not used
-                : style.CreateText(entry.Area.DisplayText, 9, entry.Area.Location.HasValue && GetPlace(entry.Area) == null ? style.MutedForeground : null)).ToList();
+                ? style.CreateText(GetDisplayText(entry.Area), 9, style.Accent, true)
+                // A place which doesn't fit now is not used
+                : style.CreateText(GetDisplayText(entry.Area), 9, entry.Area.HasPlace && GetPlaces(entry.Area).Count == 0 ? style.MutedForeground : null)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
 
             double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
@@ -518,6 +607,56 @@ namespace Greenshot.Capturing.Tools
                 y += anchorHeight;
                 dc.DrawText(hint, new Point(0, y + gap));
             });
+        }
+
+        /// <summary>
+        /// How the settings and the panel show an entry: "1280 × 720", "1280 × 720 at 100, 200", "... on screen 2", "... in notepad.exe"
+        /// </summary>
+        public static string GetDisplayText(FixedCaptureArea area)
+        {
+            string size = $"{area.Size.Width} × {area.Size.Height}";
+            if (area.Offset is not { } offset)
+            {
+                return size;
+            }
+            if (area.Program != null)
+            {
+                return Format(Texts.Core.CaptureFixedSizesAtProgram, size, offset.X, offset.Y, area.Program);
+            }
+            if (area.Monitor is { } monitor)
+            {
+                return Format(Texts.Core.CaptureFixedSizesAtScreen, size, offset.X, offset.Y, GetScreenName(monitor));
+            }
+            return Format(Texts.Core.CaptureFixedSizesAt, size, offset.X, offset.Y, null);
+        }
+
+        private static string Format(string format, string size, int x, int y, string relativeTo)
+        {
+            try
+            {
+                return string.Format(CultureInfo.CurrentCulture, format, size, x, y, relativeTo);
+            }
+            catch (FormatException)
+            {
+                // A translation with a wrong placeholder
+                return $"{size} @ {x}, {y} {relativeTo}".TrimEnd();
+            }
+        }
+
+        /// <summary>
+        /// The number of the monitor at that top left corner, counting from 1 as ScreenToCapture does, its coordinates when it isn't connected
+        /// </summary>
+        public static string GetScreenName(NativePoint monitor)
+        {
+            var displays = DisplayInfo.AllDisplayInfos;
+            for (int i = 0; i < displays.Length; i++)
+            {
+                if (displays[i].Bounds.Location == monitor)
+                {
+                    return (i + 1).ToString(CultureInfo.CurrentCulture);
+                }
+            }
+            return $"{monitor.X}, {monitor.Y}";
         }
 
         private static string GetAnchorText(FixedCaptureAnchor anchor) => anchor switch

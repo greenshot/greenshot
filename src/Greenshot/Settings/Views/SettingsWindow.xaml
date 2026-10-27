@@ -426,6 +426,11 @@
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
                                                 <TextBlock x:Name="FixedCaptureSizeWidthLabel" Text="{wpf:Text Settings.FixedCaptureSizesWidth}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,3"
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
@@ -437,6 +442,28 @@
                                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                                 <TextBox x:Name="FixedCaptureSizeHeight" Grid.Row="1" Grid.Column="2" TextAlignment="Right"
                                                          AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeHeightLabel}"/>
+                                                <!-- Optionally a place: X and Y from the top left of a screen or of the content of a program's window -->
+                                                <TextBlock x:Name="FixedCaptureSizeXLabel" Grid.Row="2" Text="{wpf:Text Settings.FixedCaptureSizesX}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBlock x:Name="FixedCaptureSizeYLabel" Grid.Row="2" Grid.Column="2" Text="{wpf:Text Settings.FixedCaptureSizesY}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeX" Grid.Row="3" TextAlignment="Right"
+                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeXLabel}"/>
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="," Margin="6,0" VerticalAlignment="Center"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeY" Grid.Row="3" Grid.Column="2" TextAlignment="Right"
+                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeYLabel}"/>
+                                                <TextBlock x:Name="FixedCaptureSizeRelativeToLabel" Grid.Row="4" Grid.ColumnSpan="3" Text="{wpf:Text Settings.FixedCaptureSizesRelativeTo}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,3"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <ComboBox x:Name="FixedCaptureSizeRelativeTo" Grid.Row="5" Grid.ColumnSpan="3"
+                                                          DisplayMemberPath="DisplayName"
+                                                          AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeRelativeToLabel}"/>
+                                                <TextBlock x:Name="FixedCaptureSizeProgramLabel" Grid.Row="6" Grid.ColumnSpan="3" Text="{wpf:Text Settings.FixedCaptureSizesProgramName}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,3"
+                                                           Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                <TextBox x:Name="FixedCaptureSizeProgram" Grid.Row="7" Grid.ColumnSpan="3"
+                                                         Visibility="{Binding SelectedItem.IsProgram, ElementName=FixedCaptureSizeRelativeTo, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+                                                         AutomationProperties.LabeledBy="{Binding ElementName=FixedCaptureSizeProgramLabel}"/>
                                                 <Button Grid.Row="1" Grid.Column="3" Content="+" Margin="8,0,0,0" Padding="10,2"
                                                         ToolTip="{wpf:Text Settings.FixedCaptureSizesAdd}"
                                                         AutomationProperties.Name="{wpf:Text Settings.FixedCaptureSizesAdd}"
@@ -445,6 +472,27 @@
                                         </Border>
                                     </Popup>
                                 </StackPanel>
+
+                                <!-- What the fixed size capture remembers of the last captures, and whether picking a place moves the mouse -->
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.FixedCaptureRemembers}" Target="{Binding ElementName=FixedCaptureRemembersComboBox}"
+                                           ToolTip="{wpf:Text Settings.TooltipFixedCaptureRemembers}"/>
+                                    <ComboBox x:Name="FixedCaptureRemembersComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding FixedCaptureRememberChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding CoreConfiguration.FixedCaptureRemembers, Mode=TwoWay}"
+                                              ToolTip="{wpf:Text Settings.TooltipFixedCaptureRemembers}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FixedCaptureRemembers}"/>
+                                </Grid>
+                                <CheckBox Content="{wpf:Text Settings.FixedCaptureMovesCursor}"
+                                          ToolTip="{wpf:Text Settings.TooltipFixedCaptureMovesCursor}"
+                                          IsChecked="{Binding CoreConfiguration.FixedCaptureMovesCursor, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FixedCaptureMovesCursor}"/>
                             </StackPanel>
                         </GroupBox>
                         

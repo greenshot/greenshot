@@ -155,7 +155,7 @@ namespace Greenshot.Capturing.Tools
             // The fixed size capture offers the sizes and places of the last region captures
             if (Mode == CaptureMode.Region)
             {
-                FixedSizeCaptureTool.RememberArea(rect.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y));
+                FixedSizeCaptureTool.RememberArea(rect.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y), Host.Windows);
             }
             Host.Accept(rect);
         }

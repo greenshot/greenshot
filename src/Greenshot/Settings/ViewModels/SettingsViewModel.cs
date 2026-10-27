@@ -74,7 +74,7 @@ namespace Greenshot.Settings.ViewModels
             // Initialize image formats
             InitializeImageFormats();
 
-            FixedCaptureSizes = new ObservableCollection<FixedCaptureArea>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Area));
+            InitializeFixedCaptureSizes();
 
             // Initialize window capture modes
             
@@ -257,36 +257,6 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
-
-        /// <summary>
-        /// The sizes of the fixed size capture (some with a place, from greenshot.ini), in the order the number keys pick them, written back on save
-        /// </summary>
-        public ObservableCollection<FixedCaptureArea> FixedCaptureSizes { get; }
-
-        /// <summary>
-        /// Adds a size at the end; false when it isn't a size or is already there
-        /// </summary>
-        public bool AddFixedCaptureSize(NativeSize size)
-        {
-            var area = new FixedCaptureArea(size);
-            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(area))
-            {
-                return false;
-            }
-            FixedCaptureSizes.Add(area);
-            return true;
-        }
-
-        /// <summary>
-        /// Writes the sizes of the fixed size capture back to the configuration
-        /// </summary>
-        public void SaveFixedCaptureSizes()
-        {
-            if (!CoreConfiguration.IsConstant(nameof(ICoreConfiguration.FixedCaptureSizes)))
-            {
-                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(area => area.ToString()).ToList();
-            }
-        }
 
         /// <summary>
         /// The largest width or height of a new image in the editor

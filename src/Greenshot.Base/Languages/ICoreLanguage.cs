@@ -661,6 +661,21 @@ namespace Greenshot.Base.Languages
         string CaptureFixedSizesNoSnap { get; }
 
         /// <summary>
+        /// {0} at {1}, {2}
+        /// </summary>
+        string CaptureFixedSizesAt { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} on screen {3}
+        /// </summary>
+        string CaptureFixedSizesAtScreen { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} in {3}
+        /// </summary>
+        string CaptureFixedSizesAtProgram { get; }
+
+        /// <summary>
         /// Start or finish the selection
         /// </summary>
         string CaptureKeyRegionSelect { get; }
