@@ -30,6 +30,7 @@ using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces.Capture;
@@ -42,18 +43,26 @@ namespace Greenshot.Capturing.Tools
     /// A rectangle of a chosen size follows the mouse, a click or Enter captures it. The cursor holds it at a corner (or in the middle,
     /// C changes it, FixedCaptureAnchor), so the zoomer shows that corner. Its edges snap to the edges of the windows under the cursor
     /// and of the monitor, with Alt held it is placed freely. The sizes are those of the settings (FixedCaptureSizes), followed by the sizes
-    /// of the last region captures (RecentCaptureSizes); a panel lists them, 1-9 pick one, PageUp and PageDown go up and down the list.
+    /// of the last region captures (RecentCaptureAreas); a panel lists them, 1-9 and 0 pick one, PageUp and PageDown go up and down the list.
+    /// An entry can have a place (a configured one, or where a recent capture was): when it fits on the screens, picking the entry moves the
+    /// cursor so the area is there, it is drawn as an outline, and the area snaps back onto it when it comes close.
     /// </summary>
     public class FixedSizeCaptureTool : CaptureTool
     {
         private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         // The number of remembered sizes of region captures
         private const int RecentSizesCount = 5;
+        // The number keys 1-9 and 0 pick the first ten entries
+        private const int NumberKeysCount = 10;
         // An edge closer than this (device independent units) to the edge of a window snaps to it
         private const double SnapDistance = 8;
+        // The area closer than this (device independent units) to the place of its entry snaps onto it
+        private const double PlaceSnapDistance = 24;
 
-        private List<(NativeSize Size, bool Recent)> _sizes = new List<(NativeSize Size, bool Recent)>();
+        private List<(FixedCaptureArea Area, bool Recent)> _sizes = new List<(FixedCaptureArea Area, bool Recent)>();
         private int _index;
+        // The place of the current entry in capture coordinates, null when it has none or it doesn't fit on the screens
+        private NativeRect? _place;
         private NativeRect _selection = NativeRect.Empty;
 
         public override CaptureMode Mode => CaptureMode.Region;
@@ -68,10 +77,10 @@ namespace Greenshot.Capturing.Tools
             base.Attach(host);
             host.RegisterKey(this, Key.F, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSize, () => host.ActivateTool(this));
             host.RegisterToolKey(this, Key.Return, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeAccept, AcceptSelection);
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < NumberKeysCount; i++)
             {
                 int index = i;
-                host.RegisterToolKey(this, Key.D1 + i, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizePick, () => PickSize(index));
+                host.RegisterToolKey(this, GetNumberKey(i), ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizePick, () => PickSize(index));
             }
             host.RegisterToolKey(this, Key.PageUp, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(-1));
             host.RegisterToolKey(this, Key.PageDown, ModifierKeys.None, () => Texts.Core.CaptureKeyFixedSizeStep, () => StepSize(1));
@@ -81,9 +90,15 @@ namespace Greenshot.Capturing.Tools
         public override void Activate(ICaptureToolHost host)
         {
             base.Activate(host);
-            _sizes = GetSizes(Conf.FixedCaptureSizes, Conf.RecentCaptureSizes);
-            // The size of the last fixed size capture again
-            _index = Math.Max(0, _sizes.FindIndex(entry => entry.Size == Conf.FixedCaptureSize));
+            _sizes = GetSizes(Conf.FixedCaptureSizes, Conf.RecentCaptureAreas);
+            // The entry of the last fixed size capture again, or one of its size
+            var last = FixedCaptureArea.Parse(Conf.FixedCaptureArea);
+            _index = _sizes.FindIndex(entry => entry.Area == last);
+            if (_index < 0)
+            {
+                _index = Math.Max(0, _sizes.FindIndex(entry => entry.Area.Size == last.Size));
+            }
+            _place = GetPlace();
             _selection = NativeRect.Empty;
             OnMouseMove();
             // Once the window is shown, when it starts with this tool: then the monitor and its DPI are known
@@ -92,6 +107,7 @@ namespace Greenshot.Capturing.Tools
                 if (Host.ActiveTool == this)
                 {
                     ShowSizes();
+                    MoveCursorToPlace();
                 }
             }), DispatcherPriority.ContextIdle);
         }
@@ -109,13 +125,19 @@ namespace Greenshot.Capturing.Tools
             {
                 return;
             }
-            var rect = Place(Host.CursorPosition, _sizes[_index].Size, Conf.FixedCaptureAnchor);
+            var rect = Place(Host.CursorPosition, _sizes[_index].Area.Size, Conf.FixedCaptureAnchor);
+            var place = _place;
             if ((Keyboard.Modifiers & ModifierKeys.Alt) == 0)
             {
-                rect = Snap(rect, GetSnapBounds(), (int)Math.Round(Host.ToolStyle?.Scale(SnapDistance) ?? SnapDistance));
+                rect = place is { } placeBounds && IsClose(rect, placeBounds, Scale(PlaceSnapDistance))
+                    ? placeBounds
+                    : Snap(rect, GetSnapBounds(), Scale(SnapDistance));
             }
             var captureBounds = new NativeRect(0, 0, Host.ScreenBounds.Width, Host.ScreenBounds.Height);
-            _selection = KeepInside(KeepInside(rect, Host.GetMonitorBounds()), captureBounds).Intersect(captureBounds);
+            // At its place the area may be on more than one monitor, it fits on the screens
+            _selection = rect == place
+                ? rect
+                : KeepInside(KeepInside(rect, Host.GetMonitorBounds()), captureBounds).Intersect(captureBounds);
             Host.ShowSelection(_selection);
             Host.ShowLabels(_selection, _selection.Size);
         }
@@ -128,8 +150,8 @@ namespace Greenshot.Capturing.Tools
             {
                 return;
             }
-            Conf.FixedCaptureSize = _sizes[_index].Size;
-            RememberSize(_selection.Size);
+            Conf.FixedCaptureArea = _sizes[_index].Area.ToString();
+            RememberArea(_selection.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y));
             Host.Accept(_selection);
         }
 
@@ -141,9 +163,71 @@ namespace Greenshot.Capturing.Tools
             if (index < _sizes.Count)
             {
                 _index = index;
+                _place = GetPlace();
                 ShowSizes();
+                Host.Redraw();
+                MoveCursorToPlace();
                 OnMouseMove();
             }
+        }
+
+        /// <summary>
+        /// 1-9 for the first nine entries, 0 for the tenth, as on the keyboard
+        /// </summary>
+        private static Key GetNumberKey(int index) => index < 9 ? Key.D1 + index : Key.D0;
+
+        private static string GetNumberKeyText(int index) => index < 9 ? (index + 1).ToString() : "0";
+
+        private int Scale(double units) => (int)Math.Round(Host.ToolStyle?.Scale(units) ?? units);
+
+        /// <summary>
+        /// The place of the current entry in capture coordinates, null when it has none or it doesn't fit on the screens
+        /// </summary>
+        private NativeRect? GetPlace()
+        {
+            if (_sizes.Count == 0 || _sizes[_index].Area.Bounds is not { } bounds)
+            {
+                return null;
+            }
+            // On the screens, and in the capture (it covers all screens, but the screens can have changed since it was taken)
+            var screenBounds = Host.ScreenBounds;
+            if (!FitsOnScreens(bounds, GetScreens()) || screenBounds.Intersect(bounds) != bounds)
+            {
+                return null;
+            }
+            return bounds.Offset(-screenBounds.X, -screenBounds.Y);
+        }
+
+        /// <summary>
+        /// The bounds of the monitors in screen coordinates
+        /// </summary>
+        private static IEnumerable<NativeRect> GetScreens() => DisplayInfo.AllDisplayInfos.Select(display => display.Bounds);
+
+        /// <summary>
+        /// The entry has a place which fits: move the cursor so the area is there, it still follows the cursor
+        /// </summary>
+        private void MoveCursorToPlace()
+        {
+            if (_place is not { } place)
+            {
+                return;
+            }
+            var cursor = GetAnchorPoint(place, Conf.FixedCaptureAnchor).Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y);
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(cursor.X, cursor.Y);
+        }
+
+        /// <summary>
+        /// The outline of the place of the current entry, when it fits on the screens
+        /// </summary>
+        public override void Draw(DrawingContext drawingContext)
+        {
+            if (_place is not { } place || Host.ToolStyle is not { } style)
+            {
+                return;
+            }
+            var pen = new Pen(style.Accent, 1) { DashStyle = DashStyles.Dash };
+            pen.Freeze();
+            drawingContext.DrawRectangle(null, pen, new Rect(place.X + 0.5, place.Y + 0.5, place.Width - 1, place.Height - 1));
         }
 
         /// <summary>
@@ -167,6 +251,42 @@ namespace Greenshot.Capturing.Tools
             ShowSizes();
             OnMouseMove();
         }
+
+        /// <summary>
+        /// Where the cursor is when the area is at the rectangle, the opposite of Place
+        /// </summary>
+        public static NativePoint GetAnchorPoint(NativeRect rect, FixedCaptureAnchor anchor) => new NativePoint(
+            anchor switch
+            {
+                FixedCaptureAnchor.TopRight or FixedCaptureAnchor.BottomRight => rect.Right - 1,
+                FixedCaptureAnchor.Center => rect.Left + rect.Width / 2,
+                _ => rect.Left
+            },
+            anchor switch
+            {
+                FixedCaptureAnchor.BottomLeft or FixedCaptureAnchor.BottomRight => rect.Bottom - 1,
+                FixedCaptureAnchor.Center => rect.Top + rect.Height / 2,
+                _ => rect.Top
+            });
+
+        /// <summary>
+        /// True when the rectangle is completely on the screens: every pixel of it is on one of them (monitors don't overlap)
+        /// </summary>
+        public static bool FitsOnScreens(NativeRect rect, IEnumerable<NativeRect> screens)
+        {
+            if (rect.IsEmpty)
+            {
+                return false;
+            }
+            long covered = screens.Select(screen => screen.Intersect(rect)).Where(part => !part.IsEmpty).Sum(part => (long)part.Width * part.Height);
+            return covered >= (long)rect.Width * rect.Height;
+        }
+
+        /// <summary>
+        /// True when the rectangle is at most the distance away from the target in each direction
+        /// </summary>
+        public static bool IsClose(NativeRect rect, NativeRect target, int distance) =>
+            Math.Abs(rect.Left - target.Left) <= distance && Math.Abs(rect.Top - target.Top) <= distance;
 
         /// <summary>
         /// The area of the size with the cursor at the anchor: at a corner the cursor's pixel is the corner pixel of the area,
@@ -203,37 +323,45 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// Remember the size of a region capture, the newest first, for the list of this tool
+        /// Remember the size and place (screen coordinates) of a region capture, the newest first, for the list of this tool
         /// </summary>
-        public static void RememberSize(NativeSize size)
+        public static void RememberArea(NativeRect bounds)
         {
-            if (size.IsEmpty)
+            if (bounds.IsEmpty)
             {
                 return;
             }
-            var recent = (Conf.RecentCaptureSizes ?? new List<string>())
-                .Select(ParseSize)
-                .Where(recentSize => !recentSize.IsEmpty && recentSize != size)
-                .Take(RecentSizesCount - 1)
-                .Select(FormatSize)
-                .ToList();
-            recent.Insert(0, FormatSize(size));
-            Conf.RecentCaptureSizes = recent;
+            Conf.RecentCaptureAreas = AddRecent(Conf.RecentCaptureAreas, new FixedCaptureArea(bounds.Size, bounds.Location));
         }
 
         /// <summary>
-        /// The configured sizes, then the recent sizes which aren't configured
+        /// The recent areas with the area in front, without an older copy of it, at most RecentSizesCount
         /// </summary>
-        public static List<(NativeSize Size, bool Recent)> GetSizes(IEnumerable<string> configured, IEnumerable<string> recent)
+        public static List<string> AddRecent(IEnumerable<string> recent, FixedCaptureArea area)
         {
-            var sizes = new List<(NativeSize Size, bool Recent)>();
+            var areas = (recent ?? Enumerable.Empty<string>())
+                .Select(FixedCaptureArea.Parse)
+                .Where(recentArea => !recentArea.IsEmpty && recentArea != area)
+                .Take(RecentSizesCount - 1)
+                .Select(recentArea => recentArea.ToString())
+                .ToList();
+            areas.Insert(0, area.ToString());
+            return areas;
+        }
+
+        /// <summary>
+        /// The configured entries, then the recent ones which aren't configured (same size and place)
+        /// </summary>
+        public static List<(FixedCaptureArea Area, bool Recent)> GetSizes(IEnumerable<string> configured, IEnumerable<string> recent)
+        {
+            var sizes = new List<(FixedCaptureArea Area, bool Recent)>();
             void Add(IEnumerable<string> texts, bool isRecent)
             {
-                foreach (var size in (texts ?? Enumerable.Empty<string>()).Select(ParseSize))
+                foreach (var area in (texts ?? Enumerable.Empty<string>()).Select(FixedCaptureArea.Parse))
                 {
-                    if (!size.IsEmpty && sizes.All(entry => entry.Size != size))
+                    if (!area.IsEmpty && sizes.All(entry => entry.Area != area))
                     {
-                        sizes.Add((size, isRecent));
+                        sizes.Add((area, isRecent));
                     }
                 }
             }
@@ -254,11 +382,6 @@ namespace Greenshot.Capturing.Tools
             }
             return NativeSize.Empty;
         }
-
-        /// <summary>
-        /// A size as it is stored in greenshot.ini, e.g. "1280x720"
-        /// </summary>
-        public static string FormatSize(NativeSize size) => $"{size.Width}x{size.Height}";
 
         /// <summary>
         /// Move the rectangle so the edge closest to an edge of the bounds lies on it, for each direction, when it is within the distance
@@ -326,8 +449,9 @@ namespace Greenshot.Capturing.Tools
             var keyCapSize = style.MeasureKeyCap("9");
             double rowHeight = keyCapSize.Height + style.Scale(4);
             var texts = _sizes.Select((entry, index) => index == _index
-                ? style.CreateText($"{entry.Size.Width} × {entry.Size.Height}", 9, style.Accent, true)
-                : style.CreateText($"{entry.Size.Width} × {entry.Size.Height}", 9)).ToList();
+                ? style.CreateText(entry.Area.DisplayText, 9, style.Accent, true)
+                // A place which doesn't fit on the screens is not used
+                : style.CreateText(entry.Area.DisplayText, 9, entry.Area.Bounds is { } bounds && !FitsOnScreens(bounds, GetScreens()) ? style.MutedForeground : null)).ToList();
             bool hasRecent = _sizes.Any(entry => entry.Recent);
 
             double width = new[] { title.Width, hint.Width, anchorWidth, hasRecent ? recentTitle.Width : 0, keyCapSize.Width + gap + texts.Select(text => text.Width).DefaultIfEmpty(0).Max() }.Max();
@@ -344,9 +468,9 @@ namespace Greenshot.Capturing.Tools
                         dc.DrawText(recentTitle, new Point(0, y + gap / 2));
                         y += recentTitle.Height + gap / 2;
                     }
-                    if (i < 9)
+                    if (i < NumberKeysCount)
                     {
-                        style.DrawKeyCap(dc, (i + 1).ToString(), new Point(0, y + (rowHeight - keyCapSize.Height) / 2));
+                        style.DrawKeyCap(dc, GetNumberKeyText(i), new Point(0, y + (rowHeight - keyCapSize.Height) / 2));
                     }
                     dc.DrawText(texts[i], new Point(keyCapSize.Width + gap, y + (rowHeight - texts[i].Height) / 2));
                     y += rowHeight;

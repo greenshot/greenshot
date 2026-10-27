@@ -30,6 +30,7 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
+using Greenshot.Capturing.Tools;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.Triggers;
@@ -285,9 +286,9 @@ namespace Greenshot.Settings.Views
 
         private void RemoveFixedCaptureSize_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as FrameworkElement)?.DataContext is NativeSize size)
+            if ((sender as FrameworkElement)?.DataContext is FixedCaptureArea area)
             {
-                _viewModel.FixedCaptureSizes.Remove(size);
+                _viewModel.FixedCaptureSizes.Remove(area);
             }
         }
 

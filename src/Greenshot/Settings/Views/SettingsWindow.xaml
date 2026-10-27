@@ -392,14 +392,7 @@
                                                 <DataTemplate>
                                                     <Border Style="{StaticResource PillStyle}">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
-                                                                <TextBlock.Text>
-                                                                    <MultiBinding StringFormat="{}{0} × {1}">
-                                                                        <Binding Path="Width"/>
-                                                                        <Binding Path="Height"/>
-                                                                    </MultiBinding>
-                                                                </TextBlock.Text>
-                                                            </TextBlock>
+                                                            <TextBlock VerticalAlignment="Center" Text="{Binding DisplayText}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                                             <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
                                                                     Click="RemoveFixedCaptureSize_Click"/>
                                                         </StackPanel>

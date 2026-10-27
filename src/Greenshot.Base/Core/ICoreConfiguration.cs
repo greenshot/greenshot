@@ -426,15 +426,15 @@ namespace Greenshot.Base.Core
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
-        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas")]
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas. Optionally with the top left corner in screen pixels, e.g. 1280x720@100:200, the capture goes there when it fits on the screen")]
         [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
         List<string> FixedCaptureSizes { get; set; }
 
-        [Description("The sizes of the last region captures, the fixed size capture offers them below its own sizes")]
-        List<string> RecentCaptureSizes { get; set; }
+        [Description("The sizes and places of the last region captures (e.g. 1280x720@100:200), the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureAreas { get; set; }
 
-        [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
-        NativeSize FixedCaptureSize { get; set; }
+        [Description("The size and place of the last fixed size capture (e.g. 1280x720@100:200), the fixed size capture starts with it")]
+        string FixedCaptureArea { get; set; }
 
         [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
         [DefaultValue("TopLeft")]

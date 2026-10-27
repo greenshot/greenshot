@@ -74,7 +74,7 @@ namespace Greenshot.Settings.ViewModels
             // Initialize image formats
             InitializeImageFormats();
 
-            FixedCaptureSizes = new ObservableCollection<NativeSize>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Size));
+            FixedCaptureSizes = new ObservableCollection<FixedCaptureArea>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Area));
 
             // Initialize window capture modes
             
@@ -259,20 +259,21 @@ namespace Greenshot.Settings.ViewModels
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
 
         /// <summary>
-        /// The sizes of the fixed size capture, in the order the number keys pick them, written back on save
+        /// The sizes of the fixed size capture (some with a place, from greenshot.ini), in the order the number keys pick them, written back on save
         /// </summary>
-        public ObservableCollection<NativeSize> FixedCaptureSizes { get; }
+        public ObservableCollection<FixedCaptureArea> FixedCaptureSizes { get; }
 
         /// <summary>
         /// Adds a size at the end; false when it isn't a size or is already there
         /// </summary>
         public bool AddFixedCaptureSize(NativeSize size)
         {
-            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(size))
+            var area = new FixedCaptureArea(size);
+            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(area))
             {
                 return false;
             }
-            FixedCaptureSizes.Add(size);
+            FixedCaptureSizes.Add(area);
             return true;
         }
 
@@ -283,7 +284,7 @@ namespace Greenshot.Settings.ViewModels
         {
             if (!CoreConfiguration.IsConstant(nameof(ICoreConfiguration.FixedCaptureSizes)))
             {
-                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(FixedSizeCaptureTool.FormatSize).ToList();
+                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(area => area.ToString()).ToList();
             }
         }
 

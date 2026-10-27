@@ -51,8 +51,96 @@ public class FixedSizeCaptureToolTests
     {
         var sizes = FixedSizeCaptureTool.GetSizes(new[] { "1280x720", "bad", "32x32" }, new[] { "32x32", "500x400", "500x400" });
 
-        Assert.Equal(new[] { new NativeSize(1280, 720), new NativeSize(32, 32), new NativeSize(500, 400) }, sizes.Select(entry => entry.Size));
+        Assert.Equal(new[] { new NativeSize(1280, 720), new NativeSize(32, 32), new NativeSize(500, 400) }, sizes.Select(entry => entry.Area.Size));
         Assert.Equal(new[] { false, false, true }, sizes.Select(entry => entry.Recent));
+    }
+
+    [Fact]
+    public void GetSizes_TheSameSizeAtAnotherPlace_IsAnotherEntry()
+    {
+        var sizes = FixedSizeCaptureTool.GetSizes(new[] { "1280x720", "1280x720@0:0" }, new[] { "1280x720@0:0", "1280x720@10:20" });
+
+        Assert.Equal(new[] { "1280x720", "1280x720@0:0", "1280x720@10:20" }, sizes.Select(entry => entry.Area.ToString()));
+        Assert.Equal(new[] { false, false, true }, sizes.Select(entry => entry.Recent));
+    }
+
+    [Theory]
+    [InlineData("1280x720", 1280, 720, null, null)]
+    [InlineData("1280x720@100:200", 1280, 720, 100, 200)]
+    [InlineData(" 800 x 600 @ -1920 : 0 ", 800, 600, -1920, 0)]
+    public void FixedCaptureArea_Parse(string text, int width, int height, int? x, int? y)
+    {
+        var area = FixedCaptureArea.Parse(text);
+
+        Assert.Equal(new NativeSize(width, height), area.Size);
+        NativePoint? location = x.HasValue ? new NativePoint(x.Value, y.Value) : null;
+        Assert.Equal(location, area.Location);
+    }
+
+    [Theory]
+    [InlineData("1280x720@100")]
+    [InlineData("1280x720@a:b")]
+    [InlineData("1280x720@1:2@3:4")]
+    [InlineData("0x720@1:2")]
+    [InlineData(null)]
+    public void FixedCaptureArea_Parse_NoArea(string text)
+    {
+        Assert.True(FixedCaptureArea.Parse(text).IsEmpty);
+    }
+
+    [Theory]
+    [InlineData("1280x720")]
+    [InlineData("1280x720@-1920:-10")]
+    public void FixedCaptureArea_ToString_IsWhatParseReads(string text)
+    {
+        Assert.Equal(text, FixedCaptureArea.Parse(text).ToString());
+    }
+
+    [Fact]
+    public void AddRecent_NewestFirst_WithoutAnOlderCopy_AtMostFive()
+    {
+        var recent = new[] { "10x10@0:0", "20x20@0:0", "10x10@5:5", "30x30@0:0", "40x40@0:0", "50x50@0:0" };
+
+        var areas = FixedSizeCaptureTool.AddRecent(recent, FixedCaptureArea.Parse("10x10@5:5"));
+
+        Assert.Equal(new[] { "10x10@5:5", "10x10@0:0", "20x20@0:0", "30x30@0:0", "40x40@0:0" }, areas);
+    }
+
+    [Fact]
+    public void FitsOnScreens_EveryPixelOnAMonitor()
+    {
+        // A main monitor and a smaller one on its left, aligned at the top: below the small one is no screen
+        var screens = new[] { new NativeRect(0, 0, 1920, 1080), new NativeRect(-1280, 0, 1280, 720) };
+
+        Assert.True(FixedSizeCaptureTool.FitsOnScreens(new NativeRect(100, 100, 800, 600), screens));
+        // Over both monitors
+        Assert.True(FixedSizeCaptureTool.FitsOnScreens(new NativeRect(-200, 100, 400, 300), screens));
+        // Partly below the small monitor
+        Assert.False(FixedSizeCaptureTool.FitsOnScreens(new NativeRect(-200, 600, 400, 300), screens));
+        // Partly beyond the right edge
+        Assert.False(FixedSizeCaptureTool.FitsOnScreens(new NativeRect(1800, 0, 200, 100), screens));
+    }
+
+    [Theory]
+    [InlineData(FixedCaptureAnchor.TopLeft)]
+    [InlineData(FixedCaptureAnchor.TopRight)]
+    [InlineData(FixedCaptureAnchor.BottomRight)]
+    [InlineData(FixedCaptureAnchor.BottomLeft)]
+    [InlineData(FixedCaptureAnchor.Center)]
+    public void GetAnchorPoint_PlacesTheAreaThereAgain(FixedCaptureAnchor anchor)
+    {
+        var rect = new NativeRect(100, 200, 61, 41);
+
+        Assert.Equal(rect, FixedSizeCaptureTool.Place(FixedSizeCaptureTool.GetAnchorPoint(rect, anchor), rect.Size, anchor));
+    }
+
+    [Fact]
+    public void IsClose_WithinTheDistanceInEachDirection()
+    {
+        var place = new NativeRect(100, 100, 50, 50);
+
+        Assert.True(FixedSizeCaptureTool.IsClose(new NativeRect(120, 80, 50, 50), place, 24));
+        Assert.False(FixedSizeCaptureTool.IsClose(new NativeRect(125, 100, 50, 50), place, 24));
     }
 
     [Fact]
