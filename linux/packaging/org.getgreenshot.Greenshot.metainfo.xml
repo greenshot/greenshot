@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.getgreenshot.Greenshot</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Greenshot</name>
+  <summary>Take screenshots, annotate them and send them where they belong</summary>
+  <developer id="org.getgreenshot">
+    <name>Greenshot</name>
+  </developer>
+  <description>
+    <p>
+      Greenshot captures a region, a window or the whole screen, lets you annotate, highlight or obfuscate parts of it
+      and sends it on: to a file, the clipboard, the printer, an e-mail, Box, Dropbox, Jira, Confluence or your own uploader.
+    </p>
+    <ul>
+      <li>An editor with shapes, arrows, text, speech bubbles, step labels, emoji, highlighting, blurring and pixelation</li>
+      <li>Cropping, crop out with cut edges, torn edges, drop shadows and borders</li>
+      <li>Text recognition (OCR) and QR codes: read them from the screen, or create them</li>
+      <li>Recipes: automate what happens with a capture, with a visual editor</li>
+      <li>A command line, and access for AI tools through an MCP server, which you switch on and allow per program</li>
+    </ul>
+    <p>
+      This is the Linux version of Greenshot for Wayland desktops: Sway, Hyprland and other wlroots compositors, GNOME and KDE.
+    </p>
+  </description>
+  <launchable type="desktop-id">org.getgreenshot.Greenshot.desktop</launchable>
+  <url type="homepage">https://getgreenshot.org/</url>
+  <url type="bugtracker">https://github.com/greenshot/greenshot/issues</url>
+  <url type="vcs-browser">https://github.com/greenshot/greenshot</url>
+  <categories>
+    <category>Graphics</category>
+  </categories>
+  <keywords>
+    <keyword>screenshot</keyword>
+    <keyword>capture</keyword>
+    <keyword>annotate</keyword>
+    <keyword>OCR</keyword>
+  </keywords>
+  <provides>
+    <binary>greenshot</binary>
+    <binary>greenshot-mcp</binary>
+  </provides>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.4.0" date="2026-10-28"/>
+  </releases>
+</component>

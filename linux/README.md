@@ -158,6 +158,17 @@ dotnet test
 `packaging/install.sh` publishes a release build to `~/.local/lib/greenshot`, links `~/.local/bin/greenshot`
 and adds the menu entry and icons. `install.sh --autostart` also starts Greenshot with the session.
 
+## Packages
+
+The desktop knows Greenshot as `org.getgreenshot.Greenshot` (desktop file, icon, AppStream data). All packages use
+`packaging/stage.sh`, which publishes the program and puts the files under a prefix:
+
+| Package | Files | Notes |
+|---|---|---|
+| RPM (Fedora, openSUSE) | `packaging/rpm/greenshot.spec` | `packaging/source-tarball.sh` makes the source; the build restores NuGet packages (COPR: enable networking). Needs `dotnet-runtime-10.0`, `wl-clipboard`. Tested with rpmbuild on Fedora 44 |
+| AUR (Arch) | `packaging/aur/PKGBUILD` | The source tarball of `source-tarball.sh` attached to the release; checksum to fill in per release. Not tested (no makepkg here) |
+| Flatpak | `packaging/flatpak/org.getgreenshot.Greenshot.yml` | `flatpak/generate-sources.sh` lists the NuGet packages for the offline build; screenshots through the portal (no grim in the sandbox), wl-clipboard bundled. Not tested yet (no flatpak-builder here). In the sandbox Greenshot probably can't identify AI tools (their processes are in another PID namespace), it then refuses them |
+
 ## Command line
 
 `greenshot` is also the client of the running Greenshot, like `greenshot-cli` on Windows: it passes its command line on,
@@ -247,8 +258,9 @@ The log is `~/.local/state/greenshot/greenshot.log`; `GREENSHOT_DEBUG=1` adds de
 
 The language packs are the ones of the Windows version, `src/Greenshot/Languages/greenshot.<language>.ini`, linked into
 the build, so a translation helps both. Texts only Linux has are in
-`linux/src/Greenshot.Linux/Languages/greenshot-linux.<language>.ini` (section `[Linux]`); a missing text falls back to
-English. Without a `Language` in the settings, the language of the system (`LANGUAGE`, `LC_MESSAGES`, `LANG`) is used,
+`linux/src/Greenshot.Linux/Languages/greenshot-linux.<language>.ini` (section `[Linux]`), translated into all 39
+languages of the Windows version; a missing text falls back to English. These translations were made with an AI model
+following the terms of each Windows language file, a native speaker's review is welcome (Kabyle above all). Without a `Language` in the settings, the language of the system (`LANGUAGE`, `LC_MESSAGES`, `LANG`) is used,
 the closest one available (de-AT finds de-DE). Own files can go to `~/.config/greenshot/Languages`.
 
 Texts which mention Windows (e.g. the autostart) have a Linux text instead. XAML uses `{l:Text Editor.save}`,
@@ -295,13 +307,13 @@ linux/
 
 1. **Capturing** ✅
 2. **Editor** ✅ (tabs, emoji, crop out, torn edges and reading Windows `.greenshot` files included)
-3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
+3. **Settings window, welcome window, languages** ✅ (the Linux only texts in all 39 languages)
 4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net) with the frames on the
    capture screen and the QR generator
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
    editor ✅; the command line ✅; the MCP server for AI tools ✅
 7. **Window capture on GNOME and KDE** (the desktop's screenshot dialog) ✅, fixed size capture ✅
-8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
+8. **Packaging**: RPM ✅, AUR and Flatpak written, not tested yet
 
 Not possible on Linux: the Office plugin (COM automation of Microsoft Office). LibreOffice could take its place.

@@ -1,0 +1,27 @@
+# Greenshot for Linux (Wayland), for the AUR. The source tarball is made with linux/packaging/source-tarball.sh
+# and attached to the release; update pkgver and the checksum for every release.
+pkgname=greenshot
+pkgver=1.4.0
+pkgrel=1
+pkgdesc="Take screenshots, annotate them and send them where they belong (Wayland)"
+arch=('x86_64' 'aarch64')
+url="https://getgreenshot.org/"
+license=('GPL-3.0-or-later')
+depends=('dotnet-runtime>=10.0' 'wl-clipboard' 'hicolor-icon-theme')
+makedepends=('dotnet-sdk>=10.0')
+optdepends=(
+    'grim: fast screenshots on Sway, Hyprland and other wlroots compositors'
+    'xdg-desktop-portal: screenshots on GNOME and KDE, file dialogs, global shortcuts'
+    'tesseract: text recognition (OCR)'
+    'tesseract-data-eng: English for text recognition'
+)
+options=('!strip' '!debug')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/greenshot/greenshot/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
+    linux/packaging/stage.sh --prefix /usr --destdir "$pkgdir"
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

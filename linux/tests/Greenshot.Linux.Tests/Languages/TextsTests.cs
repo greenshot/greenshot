@@ -59,8 +59,9 @@ public class TextsTests : IDisposable
         Texts.Initialize("de-DE", Folders);
         Assert.Equal("de-DE", Texts.Current);
         Assert.Equal("Bereich abfotografieren", Texts.Core("contextmenu_capturearea"));
-        // Only in the Linux file, which has no German yet
-        Assert.Equal("Same as the desktop", Texts.Linux("theme_system"));
+        // The texts of the Linux version are translated too
+        Assert.NotEqual("Same as the desktop", Texts.Linux("theme_system"));
+        Assert.NotEqual("theme_system", Texts.Linux("theme_system"));
         Assert.Equal("no_such_key", Texts.Core("no_such_key"));
         Texts.SetLanguage("en-US");
         Assert.Equal("Capture region", Texts.Core("contextmenu_capturearea"));

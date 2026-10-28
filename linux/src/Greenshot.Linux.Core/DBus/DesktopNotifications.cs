@@ -113,13 +113,13 @@ public sealed class DesktopNotifications : IDisposable
                 member: "Notify", signature: "susssasa{sv}i");
             writer.WriteString("Greenshot");
             writer.WriteUInt32(0);
-            writer.WriteString(severity == NotificationSeverity.Info ? "greenshot" : "dialog-" + severity.ToString().ToLowerInvariant());
+            writer.WriteString(severity == NotificationSeverity.Info ? AppIdentity.Id : "dialog-" + severity.ToString().ToLowerInvariant());
             writer.WriteString(summary);
             writer.WriteString(body);
             writer.WriteArray(clickable ? new[] { "default", summary } : Array.Empty<string>());
             var hints = new Dictionary<string, object>
             {
-                ["desktop-entry"] = "greenshot",
+                ["desktop-entry"] = AppIdentity.Id,
                 ["urgency"] = severity == NotificationSeverity.Error ? (byte)2 : (byte)1,
             };
             if (imagePath != null)

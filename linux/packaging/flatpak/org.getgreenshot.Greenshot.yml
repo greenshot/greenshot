@@ -1,0 +1,54 @@
+# Flatpak of Greenshot for Linux. Build from the repository root:
+#   linux/packaging/flatpak/generate-sources.sh        (once, and when NuGet packages change: nuget-sources.json)
+#   flatpak-builder --user --install --force-clean build-dir linux/packaging/flatpak/org.getgreenshot.Greenshot.yml
+# Screenshots go through the Screenshot portal (grim is not in the sandbox), the clipboard through the bundled wl-clipboard.
+app-id: org.getgreenshot.Greenshot
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.dotnet10
+command: greenshot
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  # Uploads (Box, Dropbox, Jira, Confluence, custom uploaders) and their sign-in on 127.0.0.1
+  - --share=network
+  - --talk-name=org.freedesktop.Notifications
+  # The tray icon
+  - --talk-name=org.kde.StatusNotifierWatcher
+  # Tokens of the uploaders in the keyring
+  - --talk-name=org.freedesktop.secrets
+  # The default folder of the captures, ~/Pictures
+  - --filesystem=xdg-pictures
+modules:
+  - name: wl-clipboard
+    buildsystem: meson
+    config-opts:
+      - -Dfishcompletiondir=no
+      - -Dzshcompletiondir=no
+    sources:
+      - type: archive
+        url: https://github.com/bugaevc/wl-clipboard/archive/refs/tags/v2.2.1.tar.gz
+        sha256: 6eb8081207fb5581d1d82c4bcd9587205a31a3d47bea3ebeb7f41aa1143783eb
+
+  - name: greenshot
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/dotnet10/bin
+      append-ld-library-path: /usr/lib/sdk/dotnet10/lib
+      env:
+        DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+        DOTNET_NOLOGO: 'true'
+    build-commands:
+      - linux/packaging/stage.sh --prefix /app --self-contained --nuget-source ./nuget-sources
+    sources:
+      - type: dir
+        path: ../../..
+        skip:
+          - .git
+          - linux/src/Greenshot.Linux/bin
+          - linux/src/Greenshot.Linux/obj
+      - nuget-sources.json

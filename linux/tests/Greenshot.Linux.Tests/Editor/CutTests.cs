@@ -237,7 +237,8 @@ public class CutTests
         var settings = new TornEdgeSettings { GenerateShadow = false, BackgroundColor = SKColors.Yellow, Edges = [true, false, false, false] };
         using var torn = ImageEffects.TornEdge(source, settings).Image;
         Assert.Equal((50, 40), (torn.Width, torn.Height));
-        Assert.Equal(SKColors.Yellow, torn.GetPixel(25, 0));
+        // The top edge is torn at a random depth: the background shows along it, the other sides are kept
+        Assert.Contains(SKColors.Yellow, Enumerable.Range(0, 50).Select(x => torn.GetPixel(x, 0)));
         Assert.Equal(Row(39), torn.GetPixel(25, 39));
     }
 }
