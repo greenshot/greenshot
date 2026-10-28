@@ -69,7 +69,12 @@ internal sealed class CaptureOverlayWindow : Window
 
         _model.Changed += OnModelChanged;
         _model.HotspotClicked += OnHotspotClicked;
-        _surface.PointerMoved += (_, e) => _model.MoveTo(_surface.ToImage(e.GetPosition(_surface)));
+        _surface.PointerMoved += (_, e) =>
+        {
+            // Alt places the fixed size area without snapping
+            _model.SnapDisabled = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+            _model.MoveTo(_surface.ToImage(e.GetPosition(_surface)));
+        };
         _surface.PointerEntered += (_, e) => _model.MoveTo(_surface.ToImage(e.GetPosition(_surface)));
         _surface.PointerPressed += OnPointerPressed;
         _surface.PointerReleased += OnPointerReleased;
@@ -171,12 +176,59 @@ internal sealed class CaptureOverlayWindow : Window
         e.Handled = true;
     }
 
+    /// <summary>
+    /// The keys of the fixed size capture: 1-9 pick a size, PageUp / PageDown step through them, C moves the cursor's corner
+    /// </summary>
+    private bool HandleFixedSizeKey(Key key)
+    {
+        switch (key)
+        {
+            case >= Key.D1 and <= Key.D9:
+                _model.PickFixedSize(key - Key.D1);
+                return true;
+            case >= Key.NumPad1 and <= Key.NumPad9:
+                _model.PickFixedSize(key - Key.NumPad1);
+                return true;
+            case Key.PageUp:
+                _model.StepFixedSize(-1);
+                return true;
+            case Key.PageDown:
+                _model.StepFixedSize(1);
+                return true;
+            case Key.C:
+                _model.NextFixedAnchor();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        if (e.Key is Key.LeftAlt or Key.RightAlt && _model.SnapDisabled)
+        {
+            _model.SnapDisabled = false;
+            _model.MoveBy(0, 0);
+            OnModelChanged();
+        }
+
+        base.OnKeyUp(e);
+    }
+
     protected override void OnKeyDown(KeyEventArgs e)
     {
         int step = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 10 : 1;
         e.Handled = true;
+        if (_model.IsFixedSize && HandleFixedSizeKey(e.Key))
+        {
+            return;
+        }
+
         switch (e.Key)
         {
+            case Key.F:
+                _model.ToggleFixedSize();
+                break;
             case Key.Escape:
                 _model.Cancel();
                 break;

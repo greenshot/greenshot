@@ -259,10 +259,16 @@ internal sealed class CaptureSurface : Control
             DrawPanel(context, bounds, cursor, info, alignRight: true);
         }
 
+        if (_model.IsFixedSize && !_model.ShowHelp)
+        {
+            DrawPanel(context, bounds, cursor, Text(FixedSizesText(), 13), alignRight: true);
+        }
+
         if (!_model.ShowHelp)
         {
             var mode = _model.Mode switch
             {
+                _ when _model.IsFixedSize => Texts.Core("capture_key_fixed_size"),
                 CaptureMode.Window => Texts.Label(Texts.Core("contextmenu_capturewindow")),
                 CaptureMode.Text when !string.IsNullOrEmpty(_model.TextStatus) => $"{Texts.Core("capture_key_text")}: {_model.TextStatus}",
                 CaptureMode.Text => Texts.Core("capture_key_text"),
@@ -309,6 +315,18 @@ internal sealed class CaptureSurface : Control
             lines.Add($"Z\t{Texts.Core("capture_key_zoomer")}");
         }
 
+        if (_model.IsFixedSize)
+        {
+            lines.Add($"1-9\t{Texts.Core("capture_key_fixed_size_pick")}");
+            lines.Add($"PgUp PgDn\t{Texts.Core("capture_key_fixed_size_step")}");
+            lines.Add($"C\t{Texts.Core("capture_key_fixed_size_corner")}");
+        }
+
+        if (_model.FixedSizes.Count > 0)
+        {
+            lines.Add($"F\t{Texts.Core("capture_key_fixed_size")}");
+        }
+
         lines.Add($"T\t{Texts.Core("capture_key_text")}");
 
         if (_model.CanSelectWindows)
@@ -318,6 +336,38 @@ internal sealed class CaptureSurface : Control
 
         lines.Add($"I\t{Texts.Core("capture_key_info")}");
         lines.Add($"F1\t{Texts.Core("capture_key_help")}");
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>
+    /// The sizes of the fixed size capture with their number keys, the current one marked, and where the cursor holds the area
+    /// </summary>
+    private string FixedSizesText()
+    {
+        var lines = new List<string> { Texts.Core("capture_fixed_sizes_title") };
+        for (int i = 0; i < _model.FixedSizes.Count; i++)
+        {
+            var entry = _model.FixedSizes[i];
+            if (entry.Recent && (i == 0 || !_model.FixedSizes[i - 1].Recent))
+            {
+                lines.Add(Texts.Core("capture_fixed_sizes_recent"));
+            }
+
+            string key = i < 9 ? (i + 1).ToString(CultureInfo.InvariantCulture) : " ";
+            string marker = i == _model.FixedSizeIndex ? "▶ " : "   ";
+            lines.Add(string.Create(CultureInfo.InvariantCulture, $"{key}\t{marker}{entry.Size.Width} × {entry.Size.Height}"));
+        }
+
+        lines.Add(string.Empty);
+        lines.Add($"C\t" + Texts.Core(_model.FixedAnchor switch
+        {
+            FixedCaptureAnchor.TopRight => "capture_fixed_sizes_anchor_top_right",
+            FixedCaptureAnchor.BottomRight => "capture_fixed_sizes_anchor_bottom_right",
+            FixedCaptureAnchor.BottomLeft => "capture_fixed_sizes_anchor_bottom_left",
+            FixedCaptureAnchor.Center => "capture_fixed_sizes_anchor_center",
+            _ => "capture_fixed_sizes_anchor_top_left",
+        }));
+        lines.Add(Texts.Core("capture_fixed_sizes_no_snap"));
         return string.Join('\n', lines);
     }
 

@@ -86,6 +86,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     private readonly EditorSettings _editorSettings;
     private FileChooserPortal? _fileChooser;
     private DesktopPortal? _portal;
+    private PortalScreenGrabber? _windowPicker;
     private DesktopNotifications? _notifications;
     private GlobalShortcutsPortal? _shortcuts;
     private ScreenCaptureService? _captureService;
@@ -238,6 +239,11 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
     public EditorSettings EditorSettings => _editorSettings;
 
+    /// <summary>
+    /// The desktop's screenshot dialog for picking a window, where the compositor doesn't tell where windows are; else null
+    /// </summary>
+    internal PortalScreenGrabber? WindowPicker => _windowPicker;
+
     public FileChooserPortal? FileChooser => _fileChooser;
 
     public IReadOnlyList<IDestination> ExportDestinations =>
@@ -303,6 +309,8 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         }
 
         _fileChooser = _portal != null && await FileChooserPortal.IsAvailableAsync(_portal) ? new FileChooserPortal(_portal) : null;
+        // GNOME, KDE: the windows are picked in the desktop's own screenshot dialog
+        _windowPicker = !_compositor.KnowsWindows && _portal != null && await PortalScreenGrabber.IsAvailableAsync(_portal) ? new PortalScreenGrabber(_portal) : null;
         var saveDialog = new SaveDialog(_fileChooser);
         _destinations.Add(new EditorDestination(OpenEditor));
         _destinations.Add(new FileDestination(_settings, saveDialog.AskAsync));
@@ -763,7 +771,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         var menu = new NativeMenu();
         AddItem(menu, Texts.Core("contextmenu_capturearea"), () => _ = CaptureAsync(CaptureMode.Region), _settings.RegionHotkey);
         AddItem(menu, Texts.Core("contextmenu_capturelastregion"), () => _ = CaptureAsync(CaptureMode.LastRegion), _settings.LastregionHotkey);
-        if (_compositor.KnowsWindows)
+        if (_compositor.KnowsWindows || _windowPicker != null)
         {
             AddItem(menu, Texts.Core("contextmenu_capturewindow"), () => _ = CaptureAsync(CaptureMode.Window), null);
             AddItem(menu, Texts.Linux("contextmenu_captureactivewindow"), () => _ = CaptureAsync(CaptureMode.ActiveWindow), _settings.WindowHotkey);
@@ -1201,9 +1209,15 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
     private IReadOnlyList<Screen> GetPlatformScreens()
     {
+        // The recipe engine asks from its own thread, the toolkit only answers on the UI thread
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            return Dispatcher.UIThread.Invoke(GetPlatformScreens);
+        }
+
         // Screens are only available on a top level, a window which is never shown is enough
         _screensHelper ??= new Window();
-        return _screensHelper.Screens.All;
+        return _screensHelper.Screens.All.ToList();
     }
 
     internal void Exit()

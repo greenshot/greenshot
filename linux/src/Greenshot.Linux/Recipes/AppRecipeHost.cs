@@ -240,6 +240,11 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
         try
         {
             var compositor = controller.Compositor;
+            if (mode == RecipeCaptureMode.Window && !compositor.KnowsWindows && controller.WindowPicker is { } picker)
+            {
+                return await PickWindowAsync(payload, snapshot, picker, cancellationToken).ConfigureAwait(false);
+            }
+
             var windows = allowWindowSnapping && compositor.KnowsWindows ? await compositor.GetVisibleWindowsAsync().ConfigureAwait(false) : Array.Empty<WindowInfo>();
             var coreMode = mode switch
             {
@@ -270,6 +275,32 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
         {
             Interlocked.Decrement(ref _selecting);
         }
+    }
+
+    /// <summary>
+    /// GNOME, KDE: the user picks the window in the desktop's screenshot dialog, its picture replaces the one of the screen
+    /// </summary>
+    private static async Task<SelectionOutcome> PickWindowAsync(ICapturePayload payload, ScreenSnapshot snapshot, PortalScreenGrabber picker,
+        CancellationToken cancellationToken)
+    {
+        SKBitmap image;
+        try
+        {
+            image = await picker.GrabInteractiveAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return null!;
+        }
+
+        var details = new CaptureDetails { DateTime = DateTime.Now, Mode = CaptureMode.Window, Title = Greenshot.Linux.Core.Naming.FilenamePattern.DefaultTitle };
+        payload.RawCapture?.Dispose();
+        payload.RawCapture = new Capture(image, details);
+        payload.Surface?.Dispose();
+        payload.Surface = null;
+        payload.Metadata.Remove(SnapshotKey);
+        snapshot.Dispose();
+        return new SelectionOutcome(RecipeCaptureMode.Window, details.Title);
     }
 
     #endregion

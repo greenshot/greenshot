@@ -206,4 +206,62 @@ public class SelectionModelTests
         var result = Assert.Single(results);
         Assert.Same(Code, Assert.Single(result!.Barcodes));
     }
+
+    private static IReadOnlyList<FixedCaptureSize> Sizes => FixedSizeCapture.GetSizes(["640x480", "100x50"], ["300x200", "640x480"]);
+
+    [Fact]
+    public void Fixed_sizes_are_the_configured_ones_then_new_recent_ones()
+    {
+        Assert.Equal([new FixedCaptureSize(new SKSizeI(640, 480), false), new FixedCaptureSize(new SKSizeI(100, 50), false), new FixedCaptureSize(new SKSizeI(300, 200), true)], Sizes);
+        Assert.Equal(new SKSizeI(1280, 720), FixedSizeCapture.ParseSize(" 1280 × 720 "));
+        Assert.True(FixedSizeCapture.ParseSize("12x").IsEmpty);
+        Assert.Equal(["10x10", "1x2", "3x4", "5x6", "7x8"], FixedSizeCapture.RememberSize(["1x2", "10x10", "3x4", "5x6", "7x8", "9x9"], new SKSizeI(10, 10)));
+    }
+
+    [Theory]
+    [InlineData(FixedCaptureAnchor.TopLeft, 500, 400)]
+    [InlineData(FixedCaptureAnchor.BottomRight, 401, 351)]
+    [InlineData(FixedCaptureAnchor.Center, 450, 375)]
+    public void The_cursor_holds_the_fixed_size_area_at_its_anchor(FixedCaptureAnchor anchor, int left, int top) =>
+        Assert.Equal(SKRectI.Create(left, top, 100, 50), FixedSizeCapture.Place(new SKPointI(500, 400), new SKSizeI(100, 50), anchor));
+
+    [Fact]
+    public void The_fixed_size_area_snaps_to_the_window_and_stays_on_the_monitor()
+    {
+        var (model, results) = Create(CaptureMode.Region, Floating);
+        model.Screens = [new SKRectI(0, 0, 1000, 800)];
+        model.SetFixedSizes(Sizes, new SKSizeI(100, 50), FixedCaptureAnchor.TopLeft);
+        model.ToggleFixedSize();
+        Assert.Equal(1, model.FixedSizeIndex);
+
+        // 4 pixels from the left edge of the window: it snaps there
+        model.MoveTo(new SKPointI(104, 150));
+        Assert.Equal(SKRectI.Create(100, 150, 100, 50), model.Highlight);
+        model.SnapDisabled = true;
+        model.MoveBy(0, 0);
+        Assert.Equal(SKRectI.Create(104, 150, 100, 50), model.Highlight);
+
+        // At the bottom right of the monitor it is moved inside
+        model.MoveTo(new SKPointI(990, 790));
+        Assert.Equal(SKRectI.Create(900, 750, 100, 50), model.Highlight);
+
+        model.StepFixedSize(1);
+        Assert.Equal(new SKSizeI(300, 200), model.FixedSizes[model.FixedSizeIndex].Size);
+        model.NextFixedAnchor();
+        Assert.Equal(FixedCaptureAnchor.TopRight, model.FixedAnchor);
+
+        model.Press();
+        model.Release();
+        var result = Assert.Single(results)!;
+        Assert.True(result.IsFixedSize);
+        Assert.Equal(new SKSizeI(300, 200), new SKSizeI(result.Pixels.Width, result.Pixels.Height));
+    }
+
+    [Fact]
+    public void Without_sizes_there_is_no_fixed_size_capture()
+    {
+        var (model, _) = Create();
+        model.ToggleFixedSize();
+        Assert.False(model.IsFixedSize);
+    }
 }

@@ -50,6 +50,9 @@ internal static class CaptureOverlay
         var model = new SelectionModel(new SKRectI(0, 0, snapshot.Image.Width, snapshot.Image.Height), selectable, mode,
             new SKPointI(startPixels.MidX, startPixels.MidY));
         model.SetZoomer(settings.ZoomerEnabled);
+        model.Screens = snapshot.Layout.Screens.Select(s => snapshot.ToPixels(s.Bounds)).ToList();
+        model.SetFixedSizes(FixedSizeCapture.GetSizes(settings.FixedCaptureSizes, settings.RecentCaptureSizes), settings.FixedCaptureSize,
+            settings.FixedCaptureAnchor);
         model.TextRecognitionRequested += () => _ = RecognizeTextAsync(model, snapshot, settings);
         if (settings.ZxingScanOnCapture)
         {
@@ -66,6 +69,17 @@ internal static class CaptureOverlay
         model.Completed += selection =>
         {
             settings.ZoomerEnabled = model.ShowZoomer;
+            settings.FixedCaptureAnchor = model.FixedAnchor;
+            if (selection is { Mode: CaptureMode.Region } region)
+            {
+                // The fixed size capture offers the sizes of the last region captures, and starts with the size used last
+                settings.RecentCaptureSizes = FixedSizeCapture.RememberSize(settings.RecentCaptureSizes, new SKSizeI(region.Pixels.Width, region.Pixels.Height));
+                if (region.IsFixedSize)
+                {
+                    settings.FixedCaptureSize = model.FixedSizes[model.FixedSizeIndex].Size;
+                }
+            }
+
             foreach (var window in overlayWindows)
             {
                 window.Close();

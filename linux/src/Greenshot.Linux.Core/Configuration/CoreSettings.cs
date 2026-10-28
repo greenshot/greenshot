@@ -174,6 +174,42 @@ public sealed class CoreSettings
     }
 
     /// <summary>
+    /// The sizes of the fixed size capture (F on the capture screen), "640x480,800x600,..." like on Windows
+    /// </summary>
+    public IReadOnlyList<string> FixedCaptureSizes
+    {
+        get => GetList(nameof(FixedCaptureSizes), Capturing.Interactive.FixedSizeCapture.DefaultSizes);
+        set => SetString(nameof(FixedCaptureSizes), string.Join(',', value));
+    }
+
+    /// <summary>
+    /// The sizes of the last region captures, offered by the fixed size capture below its own sizes
+    /// </summary>
+    public IReadOnlyList<string> RecentCaptureSizes
+    {
+        get => GetList(nameof(RecentCaptureSizes), string.Empty);
+        set => SetString(nameof(RecentCaptureSizes), string.Join(',', value));
+    }
+
+    /// <summary>
+    /// The size of the last fixed size capture, the fixed size capture starts with it
+    /// </summary>
+    public SkiaSharp.SKSizeI FixedCaptureSize
+    {
+        get => Capturing.Interactive.FixedSizeCapture.ParseSize(GetString(nameof(FixedCaptureSize), string.Empty));
+        set => SetString(nameof(FixedCaptureSize), Capturing.Interactive.FixedSizeCapture.FormatSize(value));
+    }
+
+    /// <summary>
+    /// Where the cursor holds the area of the fixed size capture
+    /// </summary>
+    public Capturing.Interactive.FixedCaptureAnchor FixedCaptureAnchor
+    {
+        get => Enum.TryParse<Capturing.Interactive.FixedCaptureAnchor>(GetString(nameof(FixedCaptureAnchor), string.Empty), true, out var anchor) ? anchor : default;
+        set => SetString(nameof(FixedCaptureAnchor), value.ToString());
+    }
+
+    /// <summary>
     /// Scan the screen for QR codes while selecting: they are framed and listed in the notification ([Zxing] ScanOnCapture of Windows)
     /// </summary>
     public bool ZxingScanOnCapture

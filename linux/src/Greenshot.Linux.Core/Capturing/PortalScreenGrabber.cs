@@ -40,7 +40,17 @@ public sealed class PortalScreenGrabber(DesktopPortal portal) : IScreenGrabber
     public static async Task<bool> IsAvailableAsync(DesktopPortal portal) =>
         await portal.GetVersionAsync(ScreenshotInterface).ConfigureAwait(false) != null;
 
-    public async Task<SKBitmap> GrabAsync(ScreenLayout layout, bool includeCursor, CancellationToken cancellationToken = default)
+    public Task<SKBitmap> GrabAsync(ScreenLayout layout, bool includeCursor, CancellationToken cancellationToken = default) =>
+        RequestAsync(interactive: false, cancellationToken);
+
+    /// <summary>
+    /// The desktop's own screenshot dialog, where the user picks a window or an area (GNOME and KDE): window capture on desktops
+    /// which don't tell applications where windows are
+    /// </summary>
+    /// <exception cref="OperationCanceledException">The user cancelled the dialog</exception>
+    public Task<SKBitmap> GrabInteractiveAsync(CancellationToken cancellationToken = default) => RequestAsync(interactive: true, cancellationToken);
+
+    private async Task<SKBitmap> RequestAsync(bool interactive, CancellationToken cancellationToken)
     {
         var requestedAt = DateTime.UtcNow;
         var response = await portal.RequestAsync(ScreenshotInterface, "Screenshot", "sa{sv}", (ref MessageWriter writer, string token) =>
@@ -49,12 +59,13 @@ public sealed class PortalScreenGrabber(DesktopPortal portal) : IScreenGrabber
             writer.WriteOptions(new Dictionary<string, object>
             {
                 ["handle_token"] = token,
-                ["modal"] = false,
-                ["interactive"] = false,
+                ["modal"] = interactive,
+                ["interactive"] = interactive,
             });
         }, cancellationToken).ConfigureAwait(false);
 
-        if (response.IsCancelled)
+        // The dialog closed in another way (code 2), e.g. the area picker of wlroots was ended: nothing is captured either
+        if (response.IsCancelled || (interactive && !response.IsSuccess))
         {
             throw new OperationCanceledException("The screenshot was cancelled or not allowed");
         }

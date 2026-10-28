@@ -42,6 +42,11 @@ public sealed record SelectionResult(SKRectI Pixels, CaptureMode Mode, string? T
     /// The QR codes found in the selection
     /// </summary>
     public IReadOnlyList<Barcodes.DetectedBarcode> Barcodes { get; init; } = [];
+
+    /// <summary>
+    /// Captured with the fixed size capture
+    /// </summary>
+    public bool IsFixedSize { get; init; }
 }
 
 /// <summary>
@@ -134,6 +139,126 @@ public sealed class SelectionModel
         Changed?.Invoke();
     }
 
+    /// <summary>
+    /// The monitors in image pixels, for the fixed size capture which stays on the monitor of the cursor
+    /// </summary>
+    public IReadOnlyList<SKRectI> Screens { get; set; } = [];
+
+    /// <summary>
+    /// The fixed size capture (F): an area of the chosen size follows the cursor
+    /// </summary>
+    public bool IsFixedSize { get; private set; }
+
+    public IReadOnlyList<FixedCaptureSize> FixedSizes { get; private set; } = [];
+
+    public int FixedSizeIndex { get; private set; }
+
+    public FixedCaptureAnchor FixedAnchor { get; private set; }
+
+    /// <summary>
+    /// Alt is held: the fixed size area is placed without snapping
+    /// </summary>
+    public bool SnapDisabled { get; set; }
+
+    /// <summary>
+    /// The sizes of the settings and of the last region captures, the size used last and where the cursor holds the area
+    /// </summary>
+    public void SetFixedSizes(IReadOnlyList<FixedCaptureSize> sizes, SKSizeI lastSize, FixedCaptureAnchor anchor)
+    {
+        FixedSizes = sizes;
+        FixedSizeIndex = Math.Max(0, sizes.ToList().FindIndex(s => s.Size == lastSize));
+        FixedAnchor = anchor;
+        Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// F: the fixed size capture, again F goes back to the region selection
+    /// </summary>
+    public void ToggleFixedSize()
+    {
+        if (FixedSizes.Count == 0)
+        {
+            return;
+        }
+
+        IsFixedSize = !IsFixedSize;
+        Mode = CaptureMode.Region;
+        Anchor = null;
+        Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// 1-9: the size at that place in the list
+    /// </summary>
+    public void PickFixedSize(int index)
+    {
+        if (IsFixedSize && index >= 0 && index < FixedSizes.Count)
+        {
+            FixedSizeIndex = index;
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// PageUp / PageDown: the size above or below in the list, which wraps around
+    /// </summary>
+    public void StepFixedSize(int change)
+    {
+        if (FixedSizes.Count > 0)
+        {
+            PickFixedSize((FixedSizeIndex + change + FixedSizes.Count) % FixedSizes.Count);
+        }
+    }
+
+    /// <summary>
+    /// C: the cursor holds the area at the next corner, after the corners in the middle
+    /// </summary>
+    public void NextFixedAnchor()
+    {
+        if (IsFixedSize)
+        {
+            FixedAnchor = (FixedCaptureAnchor)(((int)FixedAnchor + 1) % Enum.GetValues<FixedCaptureAnchor>().Length);
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// The area the fixed size capture would take: at the cursor, snapped to the window under it and the monitor, inside the monitor
+    /// </summary>
+    public SKRectI FixedSelection
+    {
+        get
+        {
+            if (!IsFixedSize || FixedSizes.Count == 0)
+            {
+                return SKRectI.Empty;
+            }
+
+            var rect = FixedSizeCapture.Place(Cursor, FixedSizes[FixedSizeIndex].Size, FixedAnchor);
+            var screen = Screens.FirstOrDefault(s => s.Contains(Cursor.X, Cursor.Y));
+            if (screen.IsEmpty)
+            {
+                screen = _bounds;
+            }
+
+            if (!SnapDisabled)
+            {
+                var snapTo = new List<SKRectI> { screen };
+                if (HoveredWindow is { } window)
+                {
+                    snapTo.Add(window.Pixels);
+                }
+
+                rect = FixedSizeCapture.Snap(rect, snapTo, FixedSizeCapture.SnapDistance);
+            }
+
+            rect = FixedSizeCapture.KeepInside(FixedSizeCapture.KeepInside(rect, screen), _bounds);
+            return SKRectI.Intersect(rect, _bounds);
+        }
+    }
+
+    private void CompleteFixedSize() => Complete(new SelectionResult(FixedSelection, CaptureMode.Region, null) { IsFixedSize = true });
+
     public void SetTextStatus(string status)
     {
         TextStatus = status;
@@ -198,7 +323,9 @@ public sealed class SelectionModel
     /// <summary>
     /// What would be captured right now: the selection, or the window under the cursor
     /// </summary>
-    public SKRectI Highlight => IsSelecting
+    public SKRectI Highlight => IsFixedSize
+        ? FixedSelection
+        : IsSelecting
         ? Selection
         : Mode == CaptureMode.Text ? HoveredLine?.Bounds ?? SKRectI.Empty : HoveredWindow?.Pixels ?? SKRectI.Empty;
 
@@ -242,6 +369,12 @@ public sealed class SelectionModel
             return;
         }
 
+        if (IsFixedSize)
+        {
+            // The release captures
+            return;
+        }
+
         if (Mode == CaptureMode.Window)
         {
             CompleteWithWindow();
@@ -254,6 +387,12 @@ public sealed class SelectionModel
 
     public void Release()
     {
+        if (IsFixedSize && !IsCompleted)
+        {
+            CompleteFixedSize();
+            return;
+        }
+
         if (IsCompleted || !SelectsRectangle || Anchor is not { } anchor)
         {
             return;
@@ -294,7 +433,11 @@ public sealed class SelectionModel
             return;
         }
 
-        if (Mode == CaptureMode.Window)
+        if (IsFixedSize)
+        {
+            CompleteFixedSize();
+        }
+        else if (Mode == CaptureMode.Window)
         {
             CompleteWithWindow();
         }
@@ -331,7 +474,8 @@ public sealed class SelectionModel
         }
 
         // Like on Windows: from the text mode Space goes back to the region mode
-        Mode = Mode == CaptureMode.Region ? CaptureMode.Window : CaptureMode.Region;
+        Mode = Mode == CaptureMode.Region && !IsFixedSize ? CaptureMode.Window : CaptureMode.Region;
+        IsFixedSize = false;
         Anchor = null;
         UpdateHoveredWindow();
         Changed?.Invoke();
@@ -343,6 +487,7 @@ public sealed class SelectionModel
     public void ToggleTextMode()
     {
         Mode = Mode == CaptureMode.Text ? CaptureMode.Region : CaptureMode.Text;
+        IsFixedSize = false;
         Anchor = null;
         if (Mode == CaptureMode.Text && TextLines == null && TextStatus == null)
         {

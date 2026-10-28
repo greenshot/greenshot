@@ -25,6 +25,7 @@ and the visual recipe editor. The full command line and the MCP server follow, s
 | Destinations: copy the text (OCR), copy the text of QR codes and barcodes (the link opens from the notification) | ✅ OCR needs tesseract |
 | QR codes on the capture screen: found while selecting and framed, a click copies the text or opens the link; the ones in the selection are listed in the notification (Settings > Capture) | ✅ |
 | Capture text: `T` on the capture screen, the text of the selection goes to the clipboard | ✅ needs tesseract |
+| Fixed size: `F` on the capture screen, an area of a chosen size follows the cursor (1-9 and PageUp/PageDown pick the size, C the corner the cursor holds, Alt places it without snapping); the sizes are `FixedCaptureSizes` and the last region captures | ✅ |
 | Filename patterns (`${capturetime}`, `${title}`, `${NUM}`, `${YYYY}`, padding, substrings, …) | ✅ same as Windows |
 | Notifications with thumbnail; click opens the file | ✅ |
 | Tray icon and menu | ✅ (StatusNotifierItem) |
@@ -259,7 +260,7 @@ like `wpf:Text` on Windows.
 |---|---|---|
 | One capture window over all monitors | One per monitor, sharing the selection | Wayland places each window on one output |
 | The crosshair is at the mouse at once | It appears when the mouse or an arrow key moves | Applications can't ask where the pointer is |
-| Window capture everywhere | Sway and Hyprland; GNOME and KDE later through the portal window picker | Applications can't list other windows |
+| Window capture everywhere | Sway and Hyprland pick the window on the capture screen; GNOME and KDE in the desktop's own screenshot dialog (Screenshot portal) | Applications can't list other windows |
 | Hotkeys always | GlobalShortcuts portal or compositor bindings | Applications can't grab keys |
 | Capture a window behind others | Only what is visible | The compositor only gives the composed screen |
 
@@ -300,7 +301,7 @@ linux/
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
    editor ✅; the command line ✅; the MCP server for AI tools ✅
-7. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
+7. **Window capture on GNOME and KDE** (the desktop's screenshot dialog) ✅, fixed size capture ✅
 8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 
 Not possible on Linux: the Office plugin (COM automation of Microsoft Office). LibreOffice could take its place.
