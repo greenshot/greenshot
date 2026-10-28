@@ -27,6 +27,7 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Greenshot.Linux.Editor;
+using Greenshot.Linux.Editor.Fields;
 using Greenshot.Linux.Editor.Elements;
 using Greenshot.Linux.Editor.Rendering;
 using SkiaSharp;
@@ -124,7 +125,8 @@ internal sealed class EditorCanvas : Control
         }
 
         var cropHandles = _controller.CropHandles.Select(h => h.Location).ToList();
-        return new Overlay(outlines, handles, _controller.CropArea, cropHandles, _controller.RubberBand?.Standardized, Surface.Width, Surface.Height);
+        return new Overlay(outlines, handles, _controller.CropArea, cropHandles, _controller.RubberBand?.Standardized, Surface.Width, Surface.Height,
+            _controller.CropMode != CropMode.Default);
     }
 
     private sealed record Overlay(
@@ -134,7 +136,8 @@ internal sealed class EditorCanvas : Control
         List<SKPoint> CropHandles,
         SKRect? RubberBand,
         int ImageWidth,
-        int ImageHeight);
+        int ImageHeight,
+        bool CropOut);
 
     #region Mouse
 
@@ -294,10 +297,18 @@ internal sealed class EditorCanvas : Control
             {
                 var scaled = Scale(crop);
                 using var dim = new SKPaint { Color = new SKColor(0, 0, 0, 0x90) };
-                canvas.Save();
-                canvas.ClipRect(scaled, SKClipOperation.Difference);
-                canvas.DrawRect(new SKRect(0, 0, overlay.ImageWidth * zoom, overlay.ImageHeight * zoom), dim);
-                canvas.Restore();
+                if (overlay.CropOut)
+                {
+                    // A crop out removes what is inside
+                    canvas.DrawRect(scaled, dim);
+                }
+                else
+                {
+                    canvas.Save();
+                    canvas.ClipRect(scaled, SKClipOperation.Difference);
+                    canvas.DrawRect(new SKRect(0, 0, overlay.ImageWidth * zoom, overlay.ImageHeight * zoom), dim);
+                    canvas.Restore();
+                }
                 using var cropPen = new SKPaint { Color = SKColors.White, Style = SKPaintStyle.Stroke, StrokeWidth = 1 };
                 canvas.DrawRect(scaled, cropPen);
                 DrawHandles(canvas, overlay.CropHandles, zoom);

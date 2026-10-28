@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <!-- The emoji font for the emoji picker, the same one draws the emoji elements -->
+    <AvaloniaResource Include="..\..\..\src\Greenshot.Editor\Drawing\Emoji\Twemoji.Mozilla.ttf" Link="Assets\Fonts\Twemoji.Mozilla.ttf" />
   </ItemGroup>
   <ItemGroup>
     <!-- The language packs are shared with the Windows version -->

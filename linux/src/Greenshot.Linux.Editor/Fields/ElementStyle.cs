@@ -62,6 +62,12 @@ public sealed class ElementStyle
 
     public int MagnificationFactor { get; set; } = 2;
 
+    public CutMarkStyle CutMarkStyle { get; set; } = CutMarkStyle.Torn;
+
+    public int ToothHeight { get; set; } = 12;
+
+    public int ToothRange { get; set; } = 20;
+
     public ElementStyle Clone() => (ElementStyle)MemberwiseClone();
 
     public object Get(FieldType field) => field switch
@@ -82,6 +88,9 @@ public sealed class ElementStyle
         FieldType.BlurRadius => BlurRadius,
         FieldType.PixelSize => PixelSize,
         FieldType.MagnificationFactor => MagnificationFactor,
+        FieldType.CutMarkStyle => CutMarkStyle,
+        FieldType.ToothHeight => ToothHeight,
+        FieldType.ToothRange => ToothRange,
         _ => throw new ArgumentOutOfRangeException(nameof(field)),
     };
 
@@ -136,6 +145,15 @@ public sealed class ElementStyle
                 break;
             case FieldType.MagnificationFactor:
                 MagnificationFactor = Math.Clamp(Convert.ToInt32(value, CultureInfo.InvariantCulture), 2, 8);
+                break;
+            case FieldType.CutMarkStyle:
+                CutMarkStyle = (CutMarkStyle)value;
+                break;
+            case FieldType.ToothHeight:
+                ToothHeight = Math.Clamp(Convert.ToInt32(value, CultureInfo.InvariantCulture), 1, 100);
+                break;
+            case FieldType.ToothRange:
+                ToothRange = Math.Clamp(Convert.ToInt32(value, CultureInfo.InvariantCulture), 2, 100);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(field));

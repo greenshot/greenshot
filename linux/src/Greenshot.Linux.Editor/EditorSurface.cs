@@ -31,7 +31,7 @@ namespace Greenshot.Linux.Editor;
 /// The Surface of the Windows editor without the UI.
 /// The image is never changed in place, effects replace it; so undo can keep the old image.
 /// </summary>
-public sealed class EditorSurface : IDisposable
+public sealed partial class EditorSurface : IDisposable
 {
     public const int MaxUndoSteps = 50;
 
@@ -133,6 +133,7 @@ public sealed class EditorSurface : IDisposable
 
     public void Add(DrawableElement element, bool select = true)
     {
+        element.FitToImage(Width, Height);
         _elements.Add(element);
         if (select)
         {
@@ -311,6 +312,11 @@ public sealed class EditorSurface : IDisposable
             }
         }
 
+        foreach (var element in _elements)
+        {
+            element.FitToImage(Width, Height);
+        }
+
         Changed?.Invoke();
     }
 
@@ -322,7 +328,7 @@ public sealed class EditorSurface : IDisposable
         using var canvas = new SKCanvas(target);
         canvas.Clear(SKColors.Transparent);
         canvas.DrawBitmap(Image, 0, 0);
-        var context = new RenderContext(canvas, target, mode, StepNumber);
+        var context = new RenderContext(canvas, target, mode, StepNumber, _elements);
         foreach (var element in _elements)
         {
             element.Draw(context);
@@ -352,6 +358,11 @@ public sealed class EditorSurface : IDisposable
         DisposeElements(_elements);
         _elements.Clear();
         _elements.AddRange(elements);
+        foreach (var element in _elements)
+        {
+            element.FitToImage(Width, Height);
+        }
+
         _selection.Clear();
         CounterStart = counterStart;
         SelectionChanged?.Invoke();

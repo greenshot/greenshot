@@ -25,6 +25,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Editor;
+using Greenshot.Linux.Editor.Elements;
 using Greenshot.Linux.Editor.Fields;
 using SkiaSharp;
 
@@ -42,6 +43,7 @@ internal sealed class PropertyBar : StackPanel
     private readonly EditorSettings? _settings;
     private readonly Dictionary<FieldType, Action<object>> _refreshers = new();
     private IReadOnlyList<FieldType> _shownFields = [];
+    private bool _shownCutButtons;
     private bool _refreshing;
 
     public PropertyBar(EditorController controller, EditorSettings? settings)
@@ -59,12 +61,23 @@ internal sealed class PropertyBar : StackPanel
     private static IReadOnlyList<string> FontFamilies => _fontFamilies ??=
         SKFontManager.Default.FontFamilies.Distinct().OrderBy(f => f, StringComparer.CurrentCultureIgnoreCase).ToList();
 
+    /// <summary>
+    /// The settings window of the selected cut edges or torn edges should open
+    /// </summary>
+    public event Action<CutElement>? CutSettingsRequested;
+
+    /// <summary>
+    /// A value was picked from a drop-down: the keys go back to the image, so Enter confirms a crop again
+    /// </summary>
+    public event Action? FocusReturned;
+
     public void Update()
     {
         var fields = _controller.VisibleFields;
-        if (!fields.SequenceEqual(_shownFields))
+        bool cutButtons = _controller.SelectedCuts.Count > 0;
+        if (!fields.SequenceEqual(_shownFields) || cutButtons != _shownCutButtons)
         {
-            Rebuild(fields);
+            Rebuild(fields, cutButtons);
         }
 
         _refreshing = true;
@@ -81,9 +94,10 @@ internal sealed class PropertyBar : StackPanel
         }
     }
 
-    private void Rebuild(IReadOnlyList<FieldType> fields)
+    private void Rebuild(IReadOnlyList<FieldType> fields, bool cutButtons)
     {
         _shownFields = fields;
+        _shownCutButtons = cutButtons;
         Children.Clear();
         _refreshers.Clear();
         foreach (var field in fields)
@@ -93,6 +107,25 @@ internal sealed class PropertyBar : StackPanel
             {
                 Children.Add(control);
             }
+        }
+
+        if (cutButtons)
+        {
+            // The context menu of the cut edges and torn edges of Windows
+            var reseed = new Button { Content = Texts.Label(Texts.Editor("cut_mark_reseed")) };
+            reseed.Click += (_, _) => _controller.NewRandomEdges();
+            var settings = new Button { Content = Texts.Label(Texts.Editor("cut_mark_settings")) };
+            settings.Click += (_, _) =>
+            {
+                if (_controller.SelectedCuts.FirstOrDefault() is { } cut)
+                {
+                    CutSettingsRequested?.Invoke(cut);
+                }
+            };
+            var apply = new Button { Content = Texts.Label(Texts.Editor("apply_to_image")) };
+            apply.Click += (_, _) => _controller.ApplyCutsToImage();
+            // First, the fields don't always fit
+            Children.InsertRange(0, [reseed, settings, apply, new Separator { Width = 1, Margin = new Thickness(4, 2) }]);
         }
     }
 
@@ -139,6 +172,7 @@ internal sealed class PropertyBar : StackPanel
                     FieldType.LineThickness => (0, 100),
                     FieldType.PixelSize => (2, 100),
                     FieldType.MagnificationFactor => (2, 8),
+                    FieldType.ToothRange => (2, 100),
                     _ => (1, 100),
                 };
                 var numeric = new NumericUpDown
@@ -181,6 +215,7 @@ internal sealed class PropertyBar : StackPanel
                         Set(field, selected);
                     }
                 };
+                fonts.DropDownClosed += (_, _) => FocusReturned?.Invoke();
                 _refreshers[field] = v => fonts.SelectedItem = FontFamilies.Contains((string)v) ? v : null;
                 return Labeled(FieldText(field), fonts);
 
@@ -199,6 +234,7 @@ internal sealed class PropertyBar : StackPanel
                         Set(field, values[combo.SelectedIndex]);
                     }
                 };
+                combo.DropDownClosed += (_, _) => FocusReturned?.Invoke();
                 _refreshers[field] = v => combo.SelectedIndex = values.IndexOf(v);
                 return Labeled(FieldText(field), combo);
 
@@ -236,6 +272,10 @@ internal sealed class PropertyBar : StackPanel
         FieldType.BlurRadius => Texts.Editor("blur_radius"),
         FieldType.PixelSize => Texts.Editor("pixel_size"),
         FieldType.MagnificationFactor => Texts.Editor("magnification_factor"),
+        FieldType.CutMarkStyle => Texts.Editor("cut_mark"),
+        FieldType.ToothHeight => Texts.Editor("tornedge_toothsize"),
+        FieldType.ToothRange => Texts.Editor("cut_mark_tooth_range"),
+        FieldType.CropMode => Texts.Editor("crop_mode"),
         _ => field.DisplayName(),
     });
 
@@ -257,6 +297,14 @@ internal sealed class PropertyBar : StackPanel
         TextVerticalAlignment.Top => Texts.Editor("align_top"),
         TextVerticalAlignment.Center => Texts.Editor("align_middle"),
         TextVerticalAlignment.Bottom => Texts.Editor("align_bottom"),
+        CutMarkStyle.None => Texts.Editor("cut_mark_none"),
+        CutMarkStyle.Line => Texts.Editor("cut_mark_line"),
+        CutMarkStyle.ZigZag => Texts.Editor("cut_mark_zigzag"),
+        CutMarkStyle.Wave => Texts.Editor("cut_mark_wave"),
+        CutMarkStyle.Torn => Texts.Editor("cut_mark_torn"),
+        CropMode.Default => Texts.Editor("cropmode_default"),
+        CropMode.Vertical => Texts.Editor("cropmode_vertical"),
+        CropMode.Horizontal => Texts.Editor("cropmode_horizontal"),
         _ => value.ToString() ?? string.Empty,
     });
 }

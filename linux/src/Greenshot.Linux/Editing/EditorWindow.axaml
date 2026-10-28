@@ -52,6 +52,8 @@
         <MenuItem Header="{l:Text Editor.border}" InputGesture="Ctrl+B" Click="OnBorder" />
         <MenuItem Header="{l:Text Editor.image_shadow}" InputGesture="Ctrl+Q" Click="OnDropShadow" />
         <MenuItem Header="{l:Text Editor.torn_edge}" InputGesture="Ctrl+T" Click="OnTornEdge" />
+        <MenuItem Header="{l:Text Editor.dropshadow_settings}" Click="OnDropShadowSettings" />
+        <MenuItem Header="{l:Text Editor.tornedge_settings}" Click="OnTornEdgeSettings" />
         <MenuItem Header="{l:Text Editor.grayscale}" InputGesture="Ctrl+G" Click="OnGrayscale" />
         <MenuItem Header="{l:Text Editor.invert}" InputGesture="Ctrl+I" Click="OnInvert" />
         <Separator />

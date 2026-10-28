@@ -44,6 +44,7 @@ public enum EditorTool
     Highlight, // H
     Obfuscate, // O
     Crop, // C
+    Emoji, // M
 }
 
 [Flags]
@@ -91,6 +92,8 @@ public sealed class EditorController
     private DrawableElement? _textElementNew;
     private string? _pastedJson;
     private int _pasteCount;
+    private CropMode _cropMode = CropMode.Default;
+    private CutMarkStyle? _cropCutMarkStyle;
 
     private enum Drag
     {
@@ -128,6 +131,11 @@ public sealed class EditorController
     /// </summary>
     public event Action<DrawableElement>? TextEditRequested;
 
+    /// <summary>
+    /// The emoji of an element should be chosen, the view shows the emoji picker
+    /// </summary>
+    public event Action<EmojiElement>? EmojiPickRequested;
+
     public EditorTool Tool
     {
         get => _tool;
@@ -160,6 +168,48 @@ public sealed class EditorController
     public SKRect? CropArea { get; private set; }
 
     /// <summary>
+    /// Keep the area, or cut out its columns (vertical) or rows (horizontal)
+    /// </summary>
+    public CropMode CropMode
+    {
+        get => _cropMode;
+        set
+        {
+            _cropMode = value;
+            if (CropArea is { } crop)
+            {
+                CropArea = SpanCrop(crop);
+            }
+
+            StateChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// The edges where the crop cut the image: none, or the style of the edges (the last used one is remembered)
+    /// </summary>
+    public CutMarkStyle CropCutMarkStyle
+    {
+        get => _cropCutMarkStyle ??= _settings?.GetLastUsed(CropTypeName, FieldType.CutMarkStyle) is CutMarkStyle style ? style : CutMarkStyle.None;
+        set
+        {
+            _cropCutMarkStyle = value;
+            _settings?.RememberField(CropTypeName, FieldType.CutMarkStyle, value);
+            StateChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// The crop tool's name for the last used values, the CropContainer of Windows
+    /// </summary>
+    private const string CropTypeName = "CropContainer";
+
+    /// <summary>
+    /// The settings of the torn edges, also for the cut edges of a crop
+    /// </summary>
+    public TornEdgeSettings TornEdgeSettings => _settings?.TornEdgeEffectSettings ?? new TornEdgeSettings();
+
+    /// <summary>
     /// The rectangle while selecting with the mouse
     /// </summary>
     public SKRect? RubberBand { get; private set; }
@@ -183,6 +233,7 @@ public sealed class EditorController
         EditorTool.StepLabel => new StepLabelElement(),
         EditorTool.Highlight => new HighlightElement(),
         EditorTool.Obfuscate => new ObfuscateElement(),
+        EditorTool.Emoji => new EmojiElement(),
         _ => null,
     };
 
@@ -221,6 +272,11 @@ public sealed class EditorController
                 return fields.ToList();
             }
 
+            if (_tool == EditorTool.Crop)
+            {
+                return [FieldType.CropMode, FieldType.CutMarkStyle];
+            }
+
             var prototype = CreateElement(_tool);
             if (prototype == null)
             {
@@ -232,20 +288,36 @@ public sealed class EditorController
         }
     }
 
-    public object GetFieldValue(FieldType field) =>
-        Surface.Selection.Count > 0 ? Surface.Selection[0].Style.Get(field) : ToolStyle(_tool).Get(field);
+    public object GetFieldValue(FieldType field) => field switch
+    {
+        FieldType.CropMode => CropMode,
+        FieldType.CutMarkStyle when Surface.Selection.Count == 0 && _tool == EditorTool.Crop => CropCutMarkStyle,
+        _ => Surface.Selection.Count > 0 ? Surface.Selection[0].Style.Get(field) : ToolStyle(_tool).Get(field),
+    };
 
     /// <summary>
     /// Change a field of the selected elements, or of the tool when nothing is selected; the value is remembered
     /// </summary>
     public void SetFieldValue(FieldType field, object value)
     {
+        if (field == FieldType.CropMode)
+        {
+            CropMode = (CropMode)value;
+            return;
+        }
+
+        if (field == FieldType.CutMarkStyle && Surface.Selection.Count == 0 && _tool == EditorTool.Crop)
+        {
+            CropCutMarkStyle = (CutMarkStyle)value;
+            return;
+        }
+
         if (Surface.Selection.Count > 0)
         {
             Surface.Checkpoint();
             foreach (var element in Surface.Selection.Where(e => e.Fields.Contains(field)))
             {
-                element.Style.Set(field, value);
+                element.SetField(field, value);
                 _settings?.RememberField(element, field, value);
                 var tool = ToolFor(element);
                 if (tool != null)
@@ -282,6 +354,7 @@ public sealed class EditorController
         StepLabelElement => EditorTool.StepLabel,
         HighlightElement => EditorTool.Highlight,
         ObfuscateElement => EditorTool.Obfuscate,
+        EmojiElement => EditorTool.Emoji,
         _ => null,
     };
 
@@ -317,6 +390,13 @@ public sealed class EditorController
         {
             Surface.Select(element);
             TextEditRequested?.Invoke(element);
+            return;
+        }
+
+        if (clickCount >= 2 && element is EmojiElement emoji)
+        {
+            Surface.Select(emoji);
+            EmojiPickRequested?.Invoke(emoji);
             return;
         }
 
@@ -391,18 +471,18 @@ public sealed class EditorController
                 StateChanged?.Invoke();
                 break;
             case Drag.Cropping:
-                CropArea = ClampToImage(new SKRect(_dragStart.X, _dragStart.Y, point.X, point.Y).Standardized);
+                CropArea = SpanCrop(ClampToImage(new SKRect(_dragStart.X, _dragStart.Y, point.X, point.Y).Standardized));
                 StateChanged?.Invoke();
                 break;
             case Drag.MovingCrop when CropArea is { } crop:
-                crop.Offset(dx, dy);
+                crop.Offset(_cropMode == CropMode.Horizontal ? 0 : dx, _cropMode == CropMode.Vertical ? 0 : dy);
                 CropArea = crop;
                 StateChanged?.Invoke();
                 break;
             case Drag.ResizingCrop when CropArea is { } crop:
                 var resized = new RectangleElement { Bounds = crop };
                 resized.DragHandle(_activeHandle, point, shift);
-                CropArea = ClampToImage(resized.NormalizedBounds);
+                CropArea = SpanCrop(ClampToImage(resized.NormalizedBounds));
                 StateChanged?.Invoke();
                 break;
         }
@@ -428,7 +508,7 @@ public sealed class EditorController
                 RubberBand = null;
                 StateChanged?.Invoke();
                 break;
-            case Drag.Cropping when CropArea is { } crop && (crop.Width < 2 || crop.Height < 2):
+            case Drag.Cropping when CropArea is { } crop && (_cropMode == CropMode.Horizontal ? crop.Height < 2 : crop.Width < 2 || (_cropMode == CropMode.Default && crop.Height < 2)):
                 CropArea = null;
                 StateChanged?.Invoke();
                 break;
@@ -487,6 +567,11 @@ public sealed class EditorController
             freehand.Sensitivity = _settings.FreehandSensitivity;
         }
 
+        if (element is EmojiElement emoji)
+        {
+            emoji.Emoji = _settings?.RecentEmoji ?? EmojiElement.DefaultEmoji;
+        }
+
         Surface.Checkpoint();
         element.BeginCreate(point);
         Surface.ClearSelection();
@@ -509,6 +594,11 @@ public sealed class EditorController
         {
             _textElementNew = element;
             TextEditRequested?.Invoke(element);
+        }
+        else if (element is EmojiElement emoji)
+        {
+            // Choose the emoji right after placing it, like on Windows
+            EmojiPickRequested?.Invoke(emoji);
         }
     }
 
@@ -612,14 +702,14 @@ public sealed class EditorController
             }
         }
 
-        CropArea = new SKRect(point.X, point.Y, point.X, point.Y);
+        CropArea = SpanCrop(new SKRect(point.X, point.Y, point.X, point.Y));
         _drag = Drag.Cropping;
         StateChanged?.Invoke();
     }
 
     private HandlePosition? FindCropHandle(SKRect crop, SKPoint point)
     {
-        var handles = new RectangleElement { Bounds = crop }.GetHandles();
+        var handles = CropHandlesOf(crop);
         foreach (var handle in handles)
         {
             if ((handle.Location - point).Length <= HandleRadius)
@@ -631,7 +721,39 @@ public sealed class EditorController
         return null;
     }
 
-    public IReadOnlyList<Handle> CropHandles => CropArea is { } crop ? new RectangleElement { Bounds = crop }.GetHandles() : [];
+    public IReadOnlyList<Handle> CropHandles => CropArea is { } crop ? CropHandlesOf(crop) : [];
+
+    /// <summary>
+    /// The handles of the crop area: a cut out can only be sized across the cut
+    /// </summary>
+    private IReadOnlyList<Handle> CropHandlesOf(SKRect crop) => new RectangleElement { Bounds = crop }.GetHandles()
+        .Where(h => _cropMode switch
+        {
+            CropMode.Vertical => h.Position is HandlePosition.Left or HandlePosition.Right,
+            CropMode.Horizontal => h.Position is HandlePosition.Top or HandlePosition.Bottom,
+            _ => true,
+        })
+        .ToList();
+
+    /// <summary>
+    /// A cut out spans the whole image along the cut
+    /// </summary>
+    private SKRect SpanCrop(SKRect crop) => _cropMode switch
+    {
+        CropMode.Vertical => new SKRect(crop.Left, 0, crop.Right, Surface.Height),
+        CropMode.Horizontal => new SKRect(0, crop.Top, Surface.Width, crop.Bottom),
+        _ => crop,
+    };
+
+    /// <summary>
+    /// C again while cropping: the next crop mode
+    /// </summary>
+    public void CycleCropMode() => CropMode = _cropMode switch
+    {
+        CropMode.Default => CropMode.Vertical,
+        CropMode.Vertical => CropMode.Horizontal,
+        _ => CropMode.Default,
+    };
 
     /// <summary>
     /// Enter or the confirm button: crop to the area
@@ -652,9 +774,14 @@ public sealed class EditorController
             return false;
         }
 
-        ApplyEffect(image => ImageEffects.Crop(image, area));
+        bool done = _cropMode switch
+        {
+            CropMode.Vertical => Surface.ApplyCutOut(area, horizontal: false, CropCutMarkStyle, TornEdgeSettings),
+            CropMode.Horizontal => Surface.ApplyCutOut(area, horizontal: true, CropCutMarkStyle, TornEdgeSettings),
+            _ => Surface.ApplyCrop(area, CropCutMarkStyle, TornEdgeSettings),
+        };
         Tool = EditorTool.Select;
-        return true;
+        return done;
     }
 
     public void CancelCrop()
@@ -699,6 +826,88 @@ public sealed class EditorController
         var result = effect(Surface.Image);
         Surface.Checkpoint();
         Surface.ReplaceImage(result.Image, result.ElementTransform);
+    }
+
+    /// <summary>
+    /// The emoji chosen in the picker for the element; it is remembered for the next one
+    /// </summary>
+    public void SetEmoji(EmojiElement element, string emoji)
+    {
+        if (_settings != null)
+        {
+            _settings.RecentEmoji = emoji;
+        }
+
+        if (element.Emoji == emoji)
+        {
+            return;
+        }
+
+        Surface.Checkpoint();
+        element.Emoji = emoji;
+        Surface.Invalidate();
+    }
+
+    /// <summary>
+    /// The drop shadow effect with its settings
+    /// </summary>
+    public void DropShadow() => ApplyEffect(image => ImageEffects.DropShadow(image, _settings?.DropShadowEffectSettings ?? new DropShadowSettings()));
+
+    /// <summary>
+    /// Torn edges as an element, which can be changed or removed later
+    /// </summary>
+    public void TornEdges()
+    {
+        Tool = EditorTool.Select;
+        Surface.AddTornEdges(TornEdgeSettings);
+    }
+
+    /// <summary>
+    /// The selected cut edges or torn edges, null when none is selected
+    /// </summary>
+    public IReadOnlyList<CutElement> SelectedCuts => Surface.Selection.OfType<CutElement>().ToList();
+
+    /// <summary>
+    /// New random edges for the selected cuts
+    /// </summary>
+    public void NewRandomEdges()
+    {
+        if (SelectedCuts.Count == 0)
+        {
+            return;
+        }
+
+        Surface.Checkpoint();
+        foreach (var cut in SelectedCuts)
+        {
+            cut.NewSeed();
+        }
+
+        Surface.Invalidate();
+    }
+
+    /// <summary>
+    /// Change a cut with the settings of the settings window
+    /// </summary>
+    public void ApplyCutSettings(CutElement cut, TornEdgeSettings settings)
+    {
+        Surface.Checkpoint();
+        cut.ApplySettings(settings);
+        Surface.Invalidate();
+        StateChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Draw the selected cuts into the image
+    /// </summary>
+    public void ApplyCutsToImage()
+    {
+        foreach (var cut in SelectedCuts)
+        {
+            Surface.ApplyElementToImage(cut);
+        }
+
+        StateChanged?.Invoke();
     }
 
     public void SelectAll()

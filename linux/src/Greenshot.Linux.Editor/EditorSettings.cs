@@ -21,6 +21,7 @@
 
 using System.Globalization;
 using Greenshot.Linux.Core.Configuration;
+using Greenshot.Linux.Editor.Effects;
 using Greenshot.Linux.Editor.Elements;
 using Greenshot.Linux.Editor.Fields;
 using SkiaSharp;
@@ -53,6 +54,33 @@ public sealed class EditorSettings(CoreSettings settings)
     {
         get => !bool.TryParse(settings.GetValue(SectionName, nameof(MatchSizeToCapture)), out var value) || value;
         set => settings.SetValue(SectionName, nameof(MatchSizeToCapture), value ? "True" : "False");
+    }
+
+    /// <summary>
+    /// The emoji used last, new emoji elements start with it
+    /// </summary>
+    public string RecentEmoji
+    {
+        get => settings.GetValue(SectionName, nameof(RecentEmoji)) is { Length: > 0 } emoji ? emoji : Elements.EmojiElement.DefaultEmoji;
+        set => settings.SetValue(SectionName, nameof(RecentEmoji), value);
+    }
+
+    /// <summary>
+    /// The settings of the drop shadow effect (Ctrl+Q), DropShadowEffectSettings of Windows
+    /// </summary>
+    public DropShadowSettings DropShadowEffectSettings
+    {
+        get => DropShadowSettings.Parse(settings.GetValue(SectionName, nameof(DropShadowEffectSettings)));
+        set => settings.SetValue(SectionName, nameof(DropShadowEffectSettings), value.ToString());
+    }
+
+    /// <summary>
+    /// The settings of the torn edges (Ctrl+T), also for the edges of the crop, TornEdgeEffectSettings of Windows
+    /// </summary>
+    public TornEdgeSettings TornEdgeEffectSettings
+    {
+        get => TornEdgeSettings.Parse(settings.GetValue(SectionName, nameof(TornEdgeEffectSettings)));
+        set => settings.SetValue(SectionName, nameof(TornEdgeEffectSettings), value.ToString());
     }
 
     /// <summary>
@@ -97,6 +125,15 @@ public sealed class EditorSettings(CoreSettings settings)
     /// </summary>
     public void RememberField(DrawableElement element, FieldType field, object value) =>
         settings.SetValue(LastUsedSectionName, Key(element, field), ElementStyle.Format(value));
+
+    /// <summary>
+    /// A last used value of something which is no element, e.g. the cut edges of the crop tool; null when there is none
+    /// </summary>
+    public object? GetLastUsed(string typeName, FieldType field) =>
+        settings.GetValue(LastUsedSectionName, $"{typeName}.{field.WindowsName()}") is { } text ? ElementStyle.Parse(field, text) : null;
+
+    public void RememberField(string typeName, FieldType field, object value) =>
+        settings.SetValue(LastUsedSectionName, $"{typeName}.{field.WindowsName()}", ElementStyle.Format(value));
 
     public void Save() => settings.Save();
 

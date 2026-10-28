@@ -158,6 +158,41 @@ public static class ImageEffects
         return new EffectResult(result, SKMatrix.CreateTranslation(imageX, imageY));
     }
 
+    public static EffectResult DropShadow(SKBitmap source, DropShadowSettings settings) =>
+        DropShadow(source, settings.Darkness, Math.Max(1, settings.ShadowSize), settings.ShadowOffset);
+
+    /// <summary>
+    /// The TornEdgeEffect with its settings: torn edges, the shadow, then the background color behind it
+    /// </summary>
+    public static EffectResult TornEdge(SKBitmap source, TornEdgeSettings settings)
+    {
+        var torn = TornEdge(source, settings.ToothHeight, settings.HorizontalToothRange, settings.VerticalToothRange, settings.Edges, shadow: false,
+            seed: settings.Seed == 0 ? null : settings.Seed);
+        var result = torn;
+        if (settings.GenerateShadow)
+        {
+            using (torn.Image)
+            {
+                result = DropShadow(torn.Image, settings);
+            }
+        }
+
+        if (settings.BackgroundColor.Alpha == 0)
+        {
+            return result;
+        }
+
+        var withBackground = NewBitmap(result.Image.Width, result.Image.Height);
+        using (var canvas = new SKCanvas(withBackground))
+        {
+            canvas.Clear(settings.BackgroundColor);
+            canvas.DrawBitmap(result.Image, 0, 0);
+        }
+
+        result.Image.Dispose();
+        return new EffectResult(withBackground, result.ElementTransform);
+    }
+
     /// <summary>
     /// The TornEdgeEffect: the edges are cut with random teeth (height 12, every 20 pixels), then the drop shadow is added.
     /// Edges are top, right, bottom, left.

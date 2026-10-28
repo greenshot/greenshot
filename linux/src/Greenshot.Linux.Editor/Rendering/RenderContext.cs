@@ -41,8 +41,14 @@ public enum RenderMode
 /// What an element needs to draw itself: the canvas, the bitmap behind it (filters read what was drawn so far)
 /// and the number of a step label
 /// </summary>
-public sealed class RenderContext(SKCanvas canvas, SKBitmap target, RenderMode mode, Func<StepLabelElement, int> stepNumber)
+public sealed class RenderContext(SKCanvas canvas, SKBitmap target, RenderMode mode, Func<StepLabelElement, int> stepNumber,
+    IReadOnlyList<DrawableElement>? elements = null)
 {
+    /// <summary>
+    /// All elements of the surface in drawing order, the cut edges need the other cuts
+    /// </summary>
+    public IReadOnlyList<DrawableElement> Elements { get; } = elements ?? [];
+
     public SKCanvas Canvas { get; } = canvas;
 
     public SKBitmap Target { get; } = target;

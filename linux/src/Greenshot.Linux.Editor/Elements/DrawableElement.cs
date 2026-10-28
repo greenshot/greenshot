@@ -75,6 +75,9 @@ public readonly record struct Handle(HandlePosition Position, SKPoint Location);
 [JsonDerivedType(typeof(HighlightElement), "highlight")]
 [JsonDerivedType(typeof(ObfuscateElement), "obfuscate")]
 [JsonDerivedType(typeof(ImageElement), "image")]
+[JsonDerivedType(typeof(CutMarkElement), "cutmark")]
+[JsonDerivedType(typeof(TornEdgeElement), "tornedge")]
+[JsonDerivedType(typeof(EmojiElement), "emoji")]
 public abstract class DrawableElement
 {
     /// <summary>
@@ -119,6 +122,18 @@ public abstract class DrawableElement
     public abstract ElementStyle CreateDefaultStyle();
 
     public abstract void Draw(RenderContext context);
+
+    /// <summary>
+    /// Change a field from the property bar; elements which keep something in step with a field override it
+    /// </summary>
+    public virtual void SetField(FieldType field, object value) => Style.Set(field, value);
+
+    /// <summary>
+    /// The image has this size now (it was loaded, cropped, rotated, ...); elements which span the image follow it
+    /// </summary>
+    public virtual void FitToImage(int width, int height)
+    {
+    }
 
     /// <summary>
     /// Is the point on the element? tolerance is in image pixels, it grows when zoomed out

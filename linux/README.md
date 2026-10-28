@@ -70,7 +70,10 @@ and Hyprland Greenshot asks the compositor for the titles every 5 seconds, elsew
 
 | Feature | Status |
 |---|---|
-| Tools: select, rectangle, ellipse, line, arrow, freehand, text, speech bubble, step label, highlight, obfuscate, crop | ✅ |
+| Tools: select, rectangle, ellipse, line, arrow, freehand, text, speech bubble, step label, highlight, obfuscate, crop, emoji | ✅ |
+| Emoji: the picker with all Unicode emoji by group and their skin tones, drawn with the Twemoji font of Windows | ✅ |
+| Crop out vertically / horizontally (C again cycles the crop mode), cut edges: straight, zig-zag, wavy or torn, with a gap and shadow | ✅ |
+| Torn edges as element (Ctrl+T): change its sides, teeth, shadow and color later, new random edges, apply to the image | ✅ |
 | Highlight: text marker, area (blur and darken the rest), grayscale the rest, magnify | ✅ |
 | Obfuscate: pixelate, blur | ✅ |
 | Properties per tool: line, fill, thickness, shadow, arrow heads, font, size, bold, italic, alignment, …, the last used values are remembered | ✅ |
@@ -78,18 +81,20 @@ and Hyprland Greenshot asks the compositor for the titles every 5 seconds, elsew
 | Undo / redo, cut / copy / paste / duplicate of elements, paste an image from the clipboard | ✅ |
 | Bring to front / forward / backward / back, step label counter start | ✅ |
 | Image: crop, auto crop, resize, rotate, enlarge / shrink the canvas, border, drop shadow, torn edges, grayscale, invert, clear | ✅ |
+| Settings of the drop shadow and the torn edges (Image menu), stored like on Windows | ✅ |
 | Zoom (Ctrl + wheel, Ctrl +/-/0/9) | ✅ |
 | Save, save as (also as editable `.greenshot`), copy, export to every destination, ask to save when closing | ✅ |
 | Open images and `.greenshot` files: tray menu, `greenshot <file>`, "Open with" in file managers, the clipboard | ✅ |
 | `.greenshot` files of the Windows editor | ⚠️ the image opens, its elements can't be read yet |
 | Redact text (OCR): find text and pixelate or blur it; insert a QR code | ✅ |
-| Tabs, emoji, cut out, settings of drop shadow and torn edges | ⏳ later |
+| Tabs | ⏳ later |
 
 The keys are the ones of the Windows editor: R rectangle, E ellipse, L line, A arrow, F freehand, T text, S speech bubble,
-I step label, H highlight, O obfuscate, C crop (Enter applies, Esc cancels), Z resize, Esc select tool;
+I step label, H highlight, O obfuscate, M emoji, C crop (C again: crop out vertically, horizontally; Enter applies, Esc cancels),
+Z resize, Esc select tool;
 Ctrl+Z/Y undo/redo, Ctrl+C/X/V/D copy/cut/paste/duplicate, Delete, Ctrl+A, arrows move (Shift or Ctrl: 10 pixels),
 PageUp/PageDown/Home/End arrange, Ctrl+S save, Ctrl+Shift+S save as, Ctrl+Shift+C copy the image,
-Ctrl+Q drop shadow, Ctrl+B border, Ctrl+T torn edges, Ctrl+G grayscale, Ctrl+I invert, Ctrl+, / Ctrl+. rotate,
+Ctrl+Q drop shadow, Ctrl+B border, Ctrl+T torn edges (an element), Ctrl+G grayscale, Ctrl+I invert, Ctrl+, / Ctrl+. rotate,
 Ctrl+Shift++ / Ctrl+Shift+- enlarge / shrink the canvas.
 
 Linux `.greenshot` files have the layout of the Windows ones (a PNG, then the elements and a marker), but store the
@@ -285,7 +290,7 @@ linux/
 ## Roadmap
 
 1. **Capturing** ✅
-2. **Editor** ✅ (see above for what is left: tabs, emoji, cut out, effect settings, reading Windows `.greenshot` elements
+2. **Editor** ✅ (see above for what is left: tabs, reading Windows `.greenshot` elements
    with `System.Formats.Nrbf`)
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
 4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames

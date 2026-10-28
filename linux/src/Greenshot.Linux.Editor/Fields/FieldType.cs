@@ -43,6 +43,14 @@ public enum FieldType
     BlurRadius,
     PixelSize,
     MagnificationFactor,
+    CutMarkStyle,
+    ToothHeight,
+    ToothRange,
+
+    /// <summary>
+    /// Of the crop tool, not of an element
+    /// </summary>
+    CropMode,
 }
 
 /// <summary>
@@ -74,6 +82,58 @@ public enum ObfuscateFilter
 {
     Pixelize,
     Blur,
+}
+
+/// <summary>
+/// How the parts look where the image was cut: the CutMarkStyle of the Windows editor
+/// </summary>
+public enum CutMarkStyle
+{
+    /// <summary>
+    /// The parts are joined seamlessly, straight sides
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Straight edges with a gap
+    /// </summary>
+    Line,
+
+    /// <summary>
+    /// Zig-zag edges with a gap, like a break line in a technical drawing
+    /// </summary>
+    ZigZag,
+
+    /// <summary>
+    /// Wavy edges with a gap
+    /// </summary>
+    Wave,
+
+    /// <summary>
+    /// Torn edges with a gap, like the torn edge effect
+    /// </summary>
+    Torn,
+}
+
+/// <summary>
+/// The CropModes of the Windows editor, auto crop is a command of its own here
+/// </summary>
+public enum CropMode
+{
+    /// <summary>
+    /// Keep what is inside the area
+    /// </summary>
+    Default,
+
+    /// <summary>
+    /// Cut out the columns of the area and join the left and right parts
+    /// </summary>
+    Vertical,
+
+    /// <summary>
+    /// Cut out the rows of the area and join the parts above and below
+    /// </summary>
+    Horizontal,
 }
 
 public enum TextHorizontalAlignment
@@ -113,6 +173,10 @@ public static class FieldTypeExtensions
         FieldType.BlurRadius => "BLUR_RADIUS",
         FieldType.PixelSize => "PIXEL_SIZE",
         FieldType.MagnificationFactor => "MAGNIFICATION_FACTOR",
+        FieldType.CutMarkStyle => "CUT_MARK_STYLE",
+        FieldType.ToothHeight => "TOOTH_HEIGHT",
+        FieldType.ToothRange => "TOOTH_RANGE",
+        FieldType.CropMode => "CROPMODE",
         _ => field.ToString(),
     };
 
@@ -137,6 +201,10 @@ public static class FieldTypeExtensions
         FieldType.BlurRadius => "Blur radius",
         FieldType.PixelSize => "Pixel size",
         FieldType.MagnificationFactor => "Magnification",
+        FieldType.CutMarkStyle => "Cut edges",
+        FieldType.ToothHeight => "Tooth size",
+        FieldType.ToothRange => "Tooth range",
+        FieldType.CropMode => "Crop mode",
         _ => field.ToString(),
     };
 }

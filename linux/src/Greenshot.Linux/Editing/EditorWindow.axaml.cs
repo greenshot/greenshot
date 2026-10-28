@@ -61,6 +61,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private readonly EditorSurface _surface;
     private readonly EditorController _controller;
     private readonly EditorCanvas _canvas;
+    private readonly Lazy<EmojiPicker> _emojiPicker = new(() => new EmojiPicker());
     private readonly Dictionary<EditorTool, ToggleButton> _toolButtons = new();
     private readonly CaptureDetails _details;
     private string? _filePath;
@@ -91,7 +92,10 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         _controller = new EditorController(surface, host.EditorSettings);
         _canvas = new EditorCanvas(_controller);
         CanvasHost.Children.Insert(0, _canvas);
-        PropertyBarHost.Content = new PropertyBar(_controller, host.EditorSettings);
+        var propertyBar = new PropertyBar(_controller, host.EditorSettings);
+        propertyBar.CutSettingsRequested += cut => _ = EditCutSettingsAsync(cut);
+        propertyBar.FocusReturned += () => _canvas.Focus();
+        PropertyBarHost.Content = propertyBar;
         CreateToolButtons();
         CreateExportMenu();
         CreateRecipesMenu();
@@ -99,6 +103,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         _surface.Changed += OnSurfaceChanged;
         _controller.StateChanged += UpdateToolButtons;
         _controller.TextEditRequested += BeginTextEdit;
+        _controller.EmojiPickRequested += element => _emojiPicker.Value.Show(_canvas, emoji => _controller.SetEmoji(element, emoji));
         AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
         Scroller.AddHandler(PointerWheelChangedEvent, OnPointerWheel, RoutingStrategies.Tunnel);
         Opened += (_, _) => FitWindowToImage();
@@ -122,6 +127,8 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         AddTool(EditorTool.Text, "layer-shape-text", Texts.Editor("drawtextbox"));
         AddTool(EditorTool.SpeechBubble, "balloon", Texts.Editor("speechbubble"));
         AddTool(EditorTool.StepLabel, "notification-counter-01", Texts.Editor("counter"));
+        AddTool(EditorTool.Emoji, new TextBlock { Text = EmojiElement.DefaultEmoji, FontFamily = EmojiPicker.EmojiFont, FontSize = 15, Width = 16, Height = 18 },
+            Texts.Editor("element_emoji") + " (M)");
         AddTool(EditorTool.Highlight, "highlighter-text", Texts.Editor("drawhighlighter"));
         AddTool(EditorTool.Obfuscate, "image-pixelate", Texts.Editor("obfuscate"));
         AddTool(EditorTool.Crop, "ruler-crop", Texts.Editor("crop"));
@@ -138,9 +145,11 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         UpdateToolButtons();
     }
 
-    private void AddTool(EditorTool tool, string icon, string tooltip)
+    private void AddTool(EditorTool tool, string icon, string tooltip) => AddTool(tool, IconImage(icon), tooltip);
+
+    private void AddTool(EditorTool tool, Control content, string tooltip)
     {
-        var button = new ToggleButton { Content = IconImage(icon), Padding = new Thickness(6), Focusable = false };
+        var button = new ToggleButton { Content = content, Padding = new Thickness(6), Focusable = false };
         ToolTip.SetTip(button, tooltip);
         button.Click += (_, _) =>
         {
@@ -388,13 +397,16 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                     Close();
                     return true;
                 case Key.Q:
-                    ApplyImageEffect(image => ImageEffects.DropShadow(image));
+                    CommitTextEdit();
+                    _controller.DropShadow();
                     return true;
                 case Key.B:
                     ApplyImageEffect(image => ImageEffects.Border(image));
                     return true;
                 case Key.T:
-                    ApplyImageEffect(image => ImageEffects.TornEdge(image));
+                    CommitTextEdit();
+                    _controller.TornEdges();
+                    UpdateToolButtons();
                     return true;
                 case Key.I:
                     ApplyImageEffect(ImageEffects.Invert);
@@ -482,8 +494,16 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             Key.H => EditorTool.Highlight,
             Key.O => EditorTool.Obfuscate,
             Key.C => EditorTool.Crop,
+            Key.M => EditorTool.Emoji,
             _ => null,
         };
+        if (tool == EditorTool.Crop && _controller.Tool == EditorTool.Crop)
+        {
+            // C again: the next crop mode, like on Windows
+            _controller.CycleCropMode();
+            return true;
+        }
+
         if (tool != null)
         {
             _controller.Tool = tool.Value;
@@ -924,9 +944,64 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void OnBorder(object? sender, RoutedEventArgs e) => ApplyImageEffect(image => ImageEffects.Border(image));
 
-    private void OnDropShadow(object? sender, RoutedEventArgs e) => ApplyImageEffect(image => ImageEffects.DropShadow(image));
+    private void OnDropShadow(object? sender, RoutedEventArgs e)
+    {
+        CommitTextEdit();
+        _controller.DropShadow();
+    }
 
-    private void OnTornEdge(object? sender, RoutedEventArgs e) => ApplyImageEffect(image => ImageEffects.TornEdge(image));
+    private void OnTornEdge(object? sender, RoutedEventArgs e)
+    {
+        CommitTextEdit();
+        _controller.TornEdges();
+        UpdateToolButtons();
+    }
+
+    /// <summary>
+    /// The settings of the drop shadow, stored and applied with OK (the right click of Windows)
+    /// </summary>
+    private async void OnDropShadowSettings(object? sender, RoutedEventArgs e)
+    {
+        var settings = _host.EditorSettings.DropShadowEffectSettings;
+        if (await EffectSettingsDialogs.EditDropShadowAsync(this, settings))
+        {
+            _host.EditorSettings.DropShadowEffectSettings = settings;
+            _host.EditorSettings.Save();
+            OnDropShadow(sender, e);
+        }
+    }
+
+    /// <summary>
+    /// The settings of the torn edges, stored and applied with OK; with torn edges selected their settings are changed
+    /// </summary>
+    private async void OnTornEdgeSettings(object? sender, RoutedEventArgs e)
+    {
+        if (_surface.Selection.OfType<TornEdgeElement>().FirstOrDefault() is { } selected)
+        {
+            await EditCutSettingsAsync(selected);
+            return;
+        }
+
+        var settings = _host.EditorSettings.TornEdgeEffectSettings;
+        if (await EffectSettingsDialogs.EditTornEdgeAsync(this, settings, showEdges: true, () => _host.EditorSettings.RecentColors))
+        {
+            _host.EditorSettings.TornEdgeEffectSettings = settings;
+            _host.EditorSettings.Save();
+            OnTornEdge(sender, e);
+        }
+    }
+
+    /// <summary>
+    /// The settings of selected cut edges or torn edges
+    /// </summary>
+    private async Task EditCutSettingsAsync(CutElement cut)
+    {
+        var settings = cut.GetSettings();
+        if (await EffectSettingsDialogs.EditTornEdgeAsync(this, settings, showEdges: cut is TornEdgeElement, () => _host.EditorSettings.RecentColors))
+        {
+            _controller.ApplyCutSettings(cut, settings);
+        }
+    }
 
     private void OnGrayscale(object? sender, RoutedEventArgs e) => ApplyImageEffect(ImageEffects.Grayscale);
 

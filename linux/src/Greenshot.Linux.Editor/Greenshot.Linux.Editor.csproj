@@ -10,5 +10,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Svg.Skia" Version="3.2.1" />
+    <!-- Shaping for emoji sequences (skin tones, families), Avalonia uses the same HarfBuzz -->
+    <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.4" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The emoji font and the emoji list of the Windows editor -->
+    <None Include="..\..\..\src\Greenshot.Editor\Drawing\Emoji\Twemoji.Mozilla.ttf" Link="Emoji\Twemoji.Mozilla.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\src\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Link="Emoji\emoji-test.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
