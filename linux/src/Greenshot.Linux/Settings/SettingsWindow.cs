@@ -75,6 +75,7 @@ internal sealed class SettingsWindow : Window
     private readonly CoreSettings _settings;
     private readonly List<Action> _apply = new();
     private readonly TabItem _recipesTab;
+    private readonly TabItem _aiToolsTab;
 
     public SettingsWindow(ISettingsHost host)
     {
@@ -98,6 +99,8 @@ internal sealed class SettingsWindow : Window
         tabs.Items.Add(Tab(Texts.Linux("plugins"), new PluginSettingsPage(host, this, _apply).Create()));
         _recipesTab = Tab(Texts.Settings("recipes"), new RecipeSettingsPage(this, host.RecipeDestinations, host.RecipeEditor, _apply).Create());
         tabs.Items.Add(_recipesTab);
+        _aiToolsTab = Tab(Texts.Settings("aitools"), new AiToolsSettingsPage(_settings, _apply).Create());
+        tabs.Items.Add(_aiToolsTab);
 
         var ok = new Button { Content = Texts.Linux("ok"), IsDefault = true, MinWidth = 90, HorizontalContentAlignment = HorizontalAlignment.Center };
         ok.Click += (_, _) => Save();
@@ -125,13 +128,17 @@ internal sealed class SettingsWindow : Window
     };
 
     /// <summary>
-    /// Selects a page, "recipes" is the only one asked for by name (the "More…" of the quick settings)
+    /// Selects a page by name: "recipes" (the "More…" of the quick settings) or "aitools"
     /// </summary>
     public void ShowPage(string? page)
     {
         if (page == "recipes")
         {
             _recipesTab.IsSelected = true;
+        }
+        else if (page == "aitools")
+        {
+            _aiToolsTab.IsSelected = true;
         }
     }
 

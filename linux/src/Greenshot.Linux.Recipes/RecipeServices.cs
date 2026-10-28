@@ -39,6 +39,11 @@ namespace Greenshot.Linux.Recipes
         public static IUiDispatcher Ui { get; set; }
 
         /// <summary>
+        /// Where the windows are, as far as the compositor tells (Sway, Hyprland); for the AI tools
+        /// </summary>
+        public static Greenshot.Linux.Core.Compositor.ICompositor Compositor { get; set; }
+
+        /// <summary>
         /// The app, for the steps which capture, select, export and show windows
         /// </summary>
         public static IRecipeHost Host { get; set; }

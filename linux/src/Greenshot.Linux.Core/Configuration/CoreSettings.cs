@@ -142,8 +142,59 @@ public sealed class CoreSettings
     /// </summary>
     public IReadOnlyList<string> OutputDestinations
     {
-        get => GetList(nameof(OutputDestinations), "Picker").Select(Destinations.WellKnownDestinations.Normalize).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        get => GetList(nameof(OutputDestinations), "Picker", emptyIsDefault: true).Select(Destinations.WellKnownDestinations.Normalize).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         set => SetString(nameof(OutputDestinations), string.Join(',', value));
+    }
+
+    /// <summary>
+    /// Let AI tools use Greenshot through greenshot-mcp (opt-in): when false, every request of greenshot-mcp is refused
+    /// </summary>
+    public bool AiToolsEnabled
+    {
+        get => GetBool(nameof(AiToolsEnabled), false);
+        set => SetBool(nameof(AiToolsEnabled), value);
+    }
+
+    /// <summary>
+    /// Let allowed AI tools propose new or changed recipes, each one is still shown for approval
+    /// </summary>
+    public bool AiToolsAllowRecipeProposals
+    {
+        get => GetBool(nameof(AiToolsAllowRecipeProposals), true);
+        set => SetBool(nameof(AiToolsAllowRecipeProposals), value);
+    }
+
+    /// <summary>
+    /// The programs the user allowed to list windows, take screenshots and run recipes through greenshot-mcp
+    /// </summary>
+    public IReadOnlyList<string> AiToolsAllowedClients
+    {
+        get => GetList(nameof(AiToolsAllowedClients), string.Empty);
+        set => SetString(nameof(AiToolsAllowedClients), string.Join(',', value));
+    }
+
+    /// <summary>
+    /// More places of greenshot-mcp which may connect besides Greenshot's folder, for development builds
+    /// </summary>
+    public IReadOnlyList<string> AiToolsMcpServerPaths => GetList(nameof(AiToolsMcpServerPaths), string.Empty);
+
+    /// <summary>
+    /// Processes (or application ids) whose windows are never listed or captured for AI tools
+    /// </summary>
+    public IReadOnlyList<string> AiToolsExcludedProcesses
+    {
+        get => GetList(nameof(AiToolsExcludedProcesses),
+            "KeePass,KeePassXC,1Password,Bitwarden,LastPass,Dashlane,Enpass,RoboForm,NordPass,ProtonPass,proton-pass,seahorse,kwalletmanager5,kwalletmanager6");
+        set => SetString(nameof(AiToolsExcludedProcesses), string.Join(',', value));
+    }
+
+    /// <summary>
+    /// A notification every time an AI tool takes a screenshot
+    /// </summary>
+    public bool AiToolsNotifyOnCapture
+    {
+        get => GetBool(nameof(AiToolsNotifyOnCapture), true);
+        set => SetBool(nameof(AiToolsNotifyOnCapture), value);
     }
 
     public bool CaptureMousepointer
@@ -382,10 +433,14 @@ public sealed class CoreSettings
 
     private void SetInt(string key, int value) => SetString(key, value.ToString(CultureInfo.InvariantCulture));
 
-    private IReadOnlyList<string> GetList(string key, string defaultValue)
+    /// <summary>
+    /// A comma separated list; the default when the key is missing, an empty list is kept (the user emptied it)
+    /// unless emptyIsDefault
+    /// </summary>
+    private IReadOnlyList<string> GetList(string key, string defaultValue, bool emptyIsDefault = false)
     {
-        var value = GetString(key, defaultValue);
-        var items = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return items.Length > 0 ? items : [defaultValue];
+        static string[] Split(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var items = Split(GetString(key, defaultValue));
+        return items.Length == 0 && emptyIsDefault ? Split(defaultValue) : items;
     }
 }

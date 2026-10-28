@@ -59,6 +59,8 @@ using Greenshot.Linux.Recipes.Pipeline;
 using Greenshot.Linux.Recipes.Steps;
 using Greenshot.Linux.Recipes.Triggers;
 using Greenshot.Linux.Recipes.Ipc;
+using Greenshot.Linux.Ai;
+using Greenshot.Linux.Recipes.Ai;
 using CaptureMode = Greenshot.Linux.Core.Capturing.CaptureMode;
 
 namespace Greenshot.Linux;
@@ -266,6 +268,7 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     public async Task StartAsync(AppCommand startCommand)
     {
         _dispatcher = new IpcDispatcher(new IpcApp(this));
+        AiToolsIpc.Register(_dispatcher);
         _channel = InstanceChannel.TryListen(_dispatcher.HandleAsync);
         if (_channel == null)
         {
@@ -500,6 +503,10 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     {
         RecipeServices.Settings = _settings;
         RecipeServices.Ui = new AvaloniaUiDispatcher();
+        RecipeServices.Compositor = _compositor;
+        RecipeServices.BuiltInRecipeProviders = [new AiToolRecipes()];
+        AiToolAccess.ConsentPrompt = AiConsentDialog.AskAsync;
+        AiRecipeIpcHandler.RecipeEditorService = _recipeEditor;
         _recipeHost = new AppRecipeHost(this);
         RecipeServices.Host = _recipeHost;
         RecipeServices.UserInteraction = _recipeHost;
@@ -522,6 +529,8 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
         _heldBackRecipeFiles = manager.LoadRecipesAtStartup();
         manager.RecipesChanged += (_, _) => Dispatcher.UIThread.Post(() =>
         {
+            // greenshot-mcp offers the recipes with an AI tool trigger as tools
+            _ = _channel?.NotifyWatchersAsync(new { @event = "tools_changed" });
             if (_trayIcon != null)
             {
                 _trayIcon.Menu = CreateTrayMenu();
@@ -1163,6 +1172,8 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     internal void Exit()
     {
         _settings.Save();
+        // greenshot-mcp waits for the next start instead of starting Greenshot again
+        _channel?.NotifyShutdownAsync("exit").Wait(TimeSpan.FromSeconds(1));
         _desktop.Shutdown();
     }
 

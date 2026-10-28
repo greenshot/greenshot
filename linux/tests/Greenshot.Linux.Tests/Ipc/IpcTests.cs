@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Text;
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.DBus;
 using Greenshot.Linux.Core.Ipc;
@@ -142,6 +143,26 @@ public sealed class IpcTests : IDisposable
         var reply = await client.ReadFrameAsync();
         Assert.NotNull(reply);
         Assert.Equal([IpcSources.OpenWith], sources);
+    }
+
+    [Fact]
+    public async Task Watchers_get_the_events_and_the_shutdown()
+    {
+        using var channel = InstanceChannel.TryListen(context => context.ReplyAsync(new { status = "ok" }), SocketPath)!;
+        await using var watcher = await InstanceClient.ConnectAsync(IpcSources.Mcp, IpcSources.ReplyFormatJson, path: SocketPath);
+        await using var other = await InstanceClient.ConnectAsync(IpcSources.Mcp, IpcSources.ReplyFormatJson, path: SocketPath);
+        await watcher!.SendAsync(new IpcEnvelope { Command = InstanceChannel.WatchCommand });
+        Assert.Contains("\"watching\":true", Encoding.UTF8.GetString((await watcher.ReadFrameAsync())!));
+        await other!.SendAsync(new IpcEnvelope { Command = "VERSION" });
+        Assert.NotNull(await other.ReadFrameAsync());
+
+        await channel.NotifyWatchersAsync(new { @event = "tools_changed" });
+        Assert.Contains("tools_changed", Encoding.UTF8.GetString((await watcher.ReadFrameAsync())!));
+
+        // Every connection hears that Greenshot exits, a request waiting for its reply too
+        await channel.NotifyShutdownAsync("exit");
+        Assert.Contains("\"shutdown\"", Encoding.UTF8.GetString((await watcher.ReadFrameAsync())!));
+        Assert.Contains("\"shutdown\"", Encoding.UTF8.GetString((await other.ReadFrameAsync())!));
     }
 
     [Fact]

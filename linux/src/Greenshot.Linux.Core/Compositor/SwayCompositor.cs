@@ -126,8 +126,10 @@ public sealed class SwayCompositor : ICompositor
                 appId = windowClass.GetString();
             }
 
-            var window = new TreeWindow(new WindowInfo(title, appId, ReadRect(node.GetProperty("rect"))),
-                node.TryGetProperty("focused", out var focused) && focused.GetBoolean());
+            bool isFocused = node.TryGetProperty("focused", out var focused) && focused.GetBoolean();
+            int processId = node.TryGetProperty("pid", out var pid) && pid.ValueKind == JsonValueKind.Number ? pid.GetInt32() : 0;
+            string? id = node.TryGetProperty("id", out var idValue) && idValue.ValueKind == JsonValueKind.Number ? idValue.GetInt64().ToString(System.Globalization.CultureInfo.InvariantCulture) : null;
+            var window = new TreeWindow(new WindowInfo(title, appId, ReadRect(node.GetProperty("rect")), processId, id, isFocused), isFocused);
             var isFullscreen = node.TryGetProperty("fullscreen_mode", out var mode) && mode.GetInt32() > 0;
             (isFullscreen ? fullscreen : isFloating ? floating : tiled).Add(window);
         }

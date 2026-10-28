@@ -60,8 +60,8 @@ public sealed class IpcRequestContext
     private readonly SemaphoreSlim _writeLock;
     private readonly ReplyState _state;
 
-    public IpcRequestContext(IpcEnvelope envelope, Stream stream, IpcPeer peer, bool usesTextFrames)
-        : this(envelope, stream, peer, usesTextFrames, new SemaphoreSlim(1, 1), new ReplyState())
+    public IpcRequestContext(IpcEnvelope envelope, Stream stream, IpcPeer peer, bool usesTextFrames, SemaphoreSlim? connectionWriteLock = null)
+        : this(envelope, stream, peer, usesTextFrames, connectionWriteLock ?? new SemaphoreSlim(1, 1), new ReplyState())
     {
     }
 

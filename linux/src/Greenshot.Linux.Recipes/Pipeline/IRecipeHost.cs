@@ -57,6 +57,33 @@ namespace Greenshot.Linux.Recipes.Pipeline
         Task<ICapturePayload> CaptureLastRegionAsync(bool captureMouse, CancellationToken cancellationToken);
 
         /// <summary>
+        /// A given part of the screens, in layout coordinates (command line, AI tools); null when it is on no screen
+        /// </summary>
+        async Task<ICapturePayload> CaptureRegionAsync(SKRectI region, bool captureMouse, CancellationToken cancellationToken)
+        {
+            var payload = await CaptureScreenAsync(false, captureMouse, cancellationToken).ConfigureAwait(false);
+            var image = payload.RawCapture.Image;
+            var area = SKRectI.Intersect(region, SKRectI.Create(image.Width, image.Height));
+            if (area.IsEmpty)
+            {
+                payload.Dispose();
+                return null;
+            }
+
+            var cropped = new SKBitmap(area.Width, area.Height, image.ColorType, image.AlphaType);
+            image.ExtractSubset(cropped, area);
+            payload.RawCapture = new Capture(cropped.Copy(), payload.RawCapture.Details);
+            cropped.Dispose();
+            return payload;
+        }
+
+        /// <summary>
+        /// A window the compositor told about (a Window argument of an AI tool), without activating it
+        /// </summary>
+        Task<ICapturePayload> CaptureGivenWindowAsync(Greenshot.Linux.Core.Compositor.WindowInfo window, bool captureMouse, CancellationToken cancellationToken) =>
+            CaptureRegionAsync(new SKRectI(window.Bounds.X, window.Bounds.Y, window.Bounds.Right, window.Bounds.Bottom), captureMouse, cancellationToken);
+
+        /// <summary>
         /// The image of the clipboard, null when there is none
         /// </summary>
         Task<ICapturePayload> CaptureClipboardAsync(CancellationToken cancellationToken);

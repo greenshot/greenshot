@@ -177,6 +177,25 @@ HELLO frame with the source, text frames for a terminal). A file manager (`green
 only open files, a `greenshot:` link (`greenshot --url`, registered for `x-scheme-handler/greenshot` by `install.sh`)
 only show windows and run recipes whose Commandline trigger allows links (`AllowBrowserInvocation`).
 
+## AI tools (MCP)
+
+`greenshot-mcp`, installed next to `greenshot`, is an MCP server (stdio) for AI tools like Claude Code or an editor with an
+AI assistant, the `greenshot-mcp.exe` of Windows. Switch AI tools on in Settings → AI tools and add the server to the AI
+tool, e.g. `claude mcp add greenshot -- ~/.local/lib/greenshot/greenshot-mcp`. It offers `list_windows`, the recipes with
+an AI tool trigger (built in: `capture_window`, `capture_region`, `capture_screen`, each with optional OCR) and the recipe
+authoring tools (`get_recipe_catalog`, `validate_recipe`, `propose_recipe`, `update_recipe`).
+
+- Off until switched on; then every program is asked once ("Allow" / "Don't Allow", on top, without the keyboard focus,
+  the buttons only react after a second). Greenshot identifies the program itself from `/proc`: the peer of the socket
+  must be `greenshot-mcp` from Greenshot's folder, the AI tool is the program which started it (shells skipped, for
+  `node` or `python` with its script).
+- Windows of excluded applications (password managers by default; process name or app id) are never listed and are
+  blacked out in every screenshot an AI tool takes. Only Sway and Hyprland tell where windows are: on other desktops
+  `list_windows` has only the displays, and AI tools can't take screenshots while the exclusion list isn't empty.
+- On Wayland a window is captured as it is on the screen, what covers it is in the picture (blacked out when excluded).
+- A proposed recipe is shown in the approval window and saved to `Recipes/AI` next to greenshot.ini only when approved,
+  with its triggers switched off.
+
 ## Hotkeys
 
 Wayland doesn't let an application grab keys. Greenshot uses the GlobalShortcuts portal where the desktop offers it
@@ -247,6 +266,7 @@ linux/
   src/Greenshot.Linux.RecipeEditor  no UI: the view models of the recipe manager and the recipe editor (their windows are in
                                Greenshot.Linux/RecipeEditing, the canvas is RecipeGraphCanvas instead of Nodify)
   src/Greenshot.Linux.Plugins  no UI: the plugins (external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence)
+  src/Greenshot.Linux.Mcp      greenshot-mcp, the MCP server for AI tools (talks to Greenshot over its socket)
   src/Greenshot.Linux          Avalonia: tray, capture screen, picker, editor window, the capture flow (GreenshotController)
   tests/Greenshot.Linux.Tests  xunit
   packaging/                   desktop file, install script
@@ -272,7 +292,7 @@ linux/
    on the capture screen and the QR generator with its WiFi / vCard / calendar types
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
-   editor ✅; the command line ✅; the MCP server next
+   editor ✅; the command line ✅; the MCP server for AI tools ✅
 7. **Window capture on GNOME and KDE** through the ScreenCast portal (PipeWire), fixed size and text capture modes
 8. **Packaging**: Flatpak (portals make it a good fit), RPM, AUR
 

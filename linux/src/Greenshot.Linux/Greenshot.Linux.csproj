@@ -18,6 +18,8 @@
     <ProjectReference Include="..\Greenshot.Linux.Plugins\Greenshot.Linux.Plugins.csproj" />
     <ProjectReference Include="..\Greenshot.Linux.Recipes\Greenshot.Linux.Recipes.csproj" />
     <ProjectReference Include="..\Greenshot.Linux.RecipeEditor\Greenshot.Linux.RecipeEditor.csproj" />
+    <!-- greenshot-mcp next to greenshot: Greenshot only accepts it from its own folder -->
+    <ProjectReference Include="..\Greenshot.Linux.Mcp\Greenshot.Linux.Mcp.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

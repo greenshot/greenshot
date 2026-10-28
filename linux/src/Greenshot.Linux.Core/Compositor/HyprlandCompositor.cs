@@ -124,7 +124,10 @@ public sealed class HyprlandCompositor : ICompositor
         var at = client.GetProperty("at");
         var size = client.GetProperty("size");
         var bounds = new LayoutRect(at[0].GetInt32(), at[1].GetInt32(), size[0].GetInt32(), size[1].GetInt32());
-        return new WindowInfo(client.GetProperty("title").GetString() ?? string.Empty, client.GetProperty("class").GetString(), bounds);
+        int processId = client.TryGetProperty("pid", out var pid) && pid.ValueKind == JsonValueKind.Number ? pid.GetInt32() : 0;
+        string? id = client.TryGetProperty("address", out var address) ? address.GetString() : null;
+        bool focused = client.TryGetProperty("focusHistoryID", out var history) && history.ValueKind == JsonValueKind.Number && history.GetInt32() == 0;
+        return new WindowInfo(client.GetProperty("title").GetString() ?? string.Empty, client.GetProperty("class").GetString(), bounds, processId, id, focused);
     }
 
     private static async Task<JsonDocument?> QueryAsync(string command)

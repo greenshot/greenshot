@@ -97,11 +97,12 @@ namespace Greenshot.Linux.Recipes.Steps
                 return;
             }
 
+            // What an AI tool captures has the windows of excluded applications blacked out (by the app, in the picture of the screen)
+            using var aiCapture = Ai.AiToolCapture.IsAiToolRun(context) ? Ai.AiToolCapture.Enter() : null;
             CaptureSourceType sourceType = Config.GetParameter("SourceType", CaptureSourceType.Region);
             if (sourceType == CaptureSourceType.Window && Config.GetParameter<object>("WindowHandle") is { } windowHandle)
             {
-                // Wayland gives applications no handles of other windows
-                context.Fail($"Capturing a given window ({windowHandle}) is not possible on Linux.");
+                await AcquireWindowAsync(context, host, windowHandle, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -116,8 +117,21 @@ namespace Greenshot.Linux.Recipes.Steps
             bool matchCase = Config.GetParameter("MatchCase", context.Properties.TryGetValue("MatchCase", out var m) && m is true);
 
             ICapturePayload payload;
+            // A region given by the caller (command line, AI tools), in layout coordinates: no selection
+            SKRectI? givenRegion = fromScreen && context.Properties.TryGetValue("PreSuppliedRegion", out var regionObject) && regionObject is SKRectI { IsEmpty: false } region
+                ? region
+                : null;
             switch (sourceType)
             {
+                case var _ when givenRegion.HasValue:
+                    payload = await host.CaptureRegionAsync(givenRegion.Value, captureMouse, cancellationToken).ConfigureAwait(false);
+                    if (payload == null)
+                    {
+                        context.Fail($"The region {givenRegion.Value} is not on any screen.");
+                        return;
+                    }
+
+                    break;
                 case CaptureSourceType.Window when !string.IsNullOrEmpty(titlePattern):
                 case CaptureSourceType.ActiveWindow:
                     payload = await host.CaptureWindowAsync(titlePattern, matchCase, captureMouse, cancellationToken).ConfigureAwait(false);
@@ -187,21 +201,37 @@ namespace Greenshot.Linux.Recipes.Steps
                 return;
             }
 
-            // A region given by the caller (command line, AI tools): no selection
-            if (fromScreen && context.Properties.TryGetValue("PreSuppliedRegion", out var regionObject) && regionObject is SKRectI region && !region.IsEmpty)
+            payload.Metadata["source"] = fromScreen ? "Screen" : sourceType.ToString();
+            context.Payload = payload;
+        }
+
+        /// <summary>
+        /// Captures the window of the WindowHandle parameter: a window from a Window argument of an AI tool. Wayland gives
+        /// applications no handles of other windows, only Sway and Hyprland tell where windows are.
+        /// </summary>
+        private async Task AcquireWindowAsync(CaptureFlowContext context, IRecipeHost host, object windowHandle, CancellationToken cancellationToken)
+        {
+            if (windowHandle is not Greenshot.Linux.Core.Compositor.WindowInfo window)
             {
-                var image = payload.RawCapture.Image;
-                var area = SKRectI.Intersect(region, SKRectI.Create(image.Width, image.Height));
-                if (!area.IsEmpty)
-                {
-                    var cropped = new SKBitmap(area.Width, area.Height, image.ColorType, image.AlphaType);
-                    image.ExtractSubset(cropped, area);
-                    payload.RawCapture = new Capture(cropped.Copy(), payload.RawCapture.Details);
-                    cropped.Dispose();
-                }
+                context.Fail($"Capturing a given window ({windowHandle}) is only possible for AI tools, with a window id from list_windows.");
+                return;
             }
 
-            payload.Metadata["source"] = fromScreen ? "Screen" : sourceType.ToString();
+            if (Ai.AiToolCapture.IsAiToolRun(context) && Ai.AiToolAccess.IsWindowExcluded(window))
+            {
+                context.Fail($"Windows of '{Ai.AiToolAccess.GetApplicationName(window)}' are excluded from AI tools.");
+                return;
+            }
+
+            var payload = await host.CaptureGivenWindowAsync(window, ResolveCaptureMouse(context), cancellationToken).ConfigureAwait(false);
+            if (payload?.RawCapture == null)
+            {
+                payload?.Dispose();
+                context.Fail($"Capturing the window '{window.Title}' failed, it is not on a screen.");
+                return;
+            }
+
+            payload.Metadata["source"] = "Window";
             context.Payload = payload;
         }
 

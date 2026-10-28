@@ -24,9 +24,10 @@ using Greenshot.Linux.Core.Capturing;
 namespace Greenshot.Linux.Core.Compositor;
 
 /// <summary>
-/// A window of another application, as far as the compositor tells
+/// A window of another application, as far as the compositor tells: its process, and the id the compositor gives it
+/// (Sway's container id, Hyprland's address), which stays the same while the window is open
 /// </summary>
-public sealed record WindowInfo(string Title, string? AppId, LayoutRect Bounds);
+public sealed record WindowInfo(string Title, string? AppId, LayoutRect Bounds, int ProcessId = 0, string? Id = null, bool Focused = false);
 
 /// <summary>
 /// What Greenshot can learn from the compositor. Wayland doesn't let applications see each other's windows,

@@ -60,7 +60,11 @@ public static class IpcPolicy
         foreach (var command in commands)
         {
             set.Add(command);
-            ExtraCommands.Add(command);
+            // A command the terminal has too (VERSION) stays the terminal's
+            if (!AllowedCommands.Contains(command))
+            {
+                ExtraCommands.Add(command);
+            }
         }
     }
 

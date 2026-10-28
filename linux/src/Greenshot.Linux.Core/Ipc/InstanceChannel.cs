@@ -33,9 +33,27 @@ namespace Greenshot.Linux.Core.Ipc;
 /// </summary>
 public sealed class InstanceChannel : IDisposable
 {
+    /// <summary>
+    /// The command which keeps a connection open for Greenshot's events (tools changed, Greenshot exits)
+    /// </summary>
+    public const string WatchCommand = "WATCH";
+
     private readonly Socket _socket;
     private readonly string _path;
     private readonly CancellationTokenSource _stop = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<OpenConnection, bool> _connections = new();
+
+    /// <summary>
+    /// A connection while it is open: its stream, the lock its frames are written with, and whether it watches
+    /// </summary>
+    private sealed class OpenConnection(Stream stream)
+    {
+        public Stream Stream { get; } = stream;
+
+        public SemaphoreSlim WriteLock { get; } = new(1, 1);
+
+        public bool IsWatching { get; set; }
+    }
 
     private InstanceChannel(Socket socket, string path)
     {
@@ -152,6 +170,7 @@ public sealed class InstanceChannel : IDisposable
                 }
 
                 await using var stream = new NetworkStream(client, ownsSocket: false);
+                var connection = new OpenConnection(stream);
                 byte[]? helloFrame;
                 using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token))
                 {
@@ -175,6 +194,9 @@ public sealed class InstanceChannel : IDisposable
                 string source = hello.Source!.ToLowerInvariant();
                 bool text = string.Equals(hello.ReplyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
                 object? aiClient = null;
+                _connections[connection] = true;
+                try
+                {
                 while (!_stop.IsCancellationRequested)
                 {
                     var frame = await IpcFraming.ReadFrameAsync(stream, cancellationToken: _stop.Token).ConfigureAwait(false);
@@ -192,7 +214,15 @@ public sealed class InstanceChannel : IDisposable
 
                     // The source of the connection, whatever the envelope says
                     envelope.Source = source;
-                    var context = new IpcRequestContext(envelope, stream, peer, text) { AiClient = aiClient };
+                    if (string.Equals(envelope.Command, WatchCommand, StringComparison.OrdinalIgnoreCase) && !text)
+                    {
+                        // Only events are sent on it, nothing about the user's windows or recipes
+                        connection.IsWatching = true;
+                        await SendAsync(connection, new { status = "ok", exit_code = 0, watching = true }).ConfigureAwait(false);
+                        continue;
+                    }
+
+                    var context = new IpcRequestContext(envelope, stream, peer, text, connection.WriteLock) { AiClient = aiClient };
                     if (source == IpcSources.Mcp)
                     {
                         context.AiClient ??= new McpHello(hello.Origin);
@@ -205,6 +235,11 @@ public sealed class InstanceChannel : IDisposable
                         return;
                     }
                 }
+                }
+                finally
+                {
+                    _connections.TryRemove(connection, out _);
+                }
             }
             catch (Exception ex) when (ex is IOException or SocketException or OperationCanceledException or ObjectDisposedException)
             {
@@ -214,6 +249,36 @@ public sealed class InstanceChannel : IDisposable
             {
                 Log.Error("A request failed", ex);
             }
+        }
+    }
+
+    /// <summary>
+    /// Sends an event (e.g. {"event":"tools_changed"}) to every watching connection
+    /// </summary>
+    public Task NotifyWatchersAsync(object message) =>
+        Task.WhenAll(_connections.Keys.Where(c => c.IsWatching).Select(c => SendAsync(c, message)));
+
+    /// <summary>
+    /// Tells every open connection that Greenshot exits: the MCP server doesn't start it again then
+    /// </summary>
+    public Task NotifyShutdownAsync(string reason) =>
+        Task.WhenAll(_connections.Keys.Select(c => SendAsync(c, new { @event = "shutdown", reason, greenshot_running = false })));
+
+    private static async Task SendAsync(OpenConnection connection, object message)
+    {
+        await connection.WriteLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            await IpcFraming.WriteFrameAsync(connection.Stream, System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(message, message.GetType()), timeout.Token).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is IOException or ObjectDisposedException or OperationCanceledException)
+        {
+            Log.Debug($"An event could not be sent: {ex.Message}");
+        }
+        finally
+        {
+            connection.WriteLock.Release();
         }
     }
 

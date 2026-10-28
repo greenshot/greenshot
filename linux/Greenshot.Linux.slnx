@@ -5,6 +5,7 @@
     <Project Path="src/Greenshot.Linux.Plugins/Greenshot.Linux.Plugins.csproj" />
     <Project Path="src/Greenshot.Linux.Recipes/Greenshot.Linux.Recipes.csproj" />
     <Project Path="src/Greenshot.Linux.RecipeEditor/Greenshot.Linux.RecipeEditor.csproj" />
+    <Project Path="src/Greenshot.Linux.Mcp/Greenshot.Linux.Mcp.csproj" />
     <Project Path="src/Greenshot.Linux/Greenshot.Linux.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -33,6 +33,7 @@ using Greenshot.Linux.Destinations;
 using Greenshot.Linux.Editor;
 using Greenshot.Linux.Editor.Serialization;
 using Greenshot.Linux.Recipes;
+using Greenshot.Linux.Recipes.Ai;
 using Greenshot.Linux.Recipes.Pipeline;
 using SkiaSharp;
 using Capture = Greenshot.Linux.Core.Capturing.Capture;
@@ -55,9 +56,61 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
 
     #region Capturing
 
-    public async Task<ICapturePayload> CaptureScreenAsync(bool forSelection, bool captureMouse, CancellationToken cancellationToken)
+    /// <summary>
+    /// The picture of all screens; for an AI tool with the windows of excluded applications blacked out
+    /// </summary>
+    private async Task<ScreenSnapshot> SnapshotAsync(bool captureMouse, CancellationToken cancellationToken)
     {
         var snapshot = await Service.SnapshotAsync(cancellationToken, captureMouse, applyDelay: false).ConfigureAwait(false);
+        if (!AiToolCapture.IsActive)
+        {
+            return snapshot;
+        }
+
+        try
+        {
+            int redacted = await AiToolCapture.RedactExcludedWindowsAsync(snapshot, controller.Compositor).ConfigureAwait(false);
+            if (redacted > 0)
+            {
+                Log.Info($"Blacked out {redacted} window(s) of applications excluded from AI tools.");
+            }
+
+            return snapshot;
+        }
+        catch
+        {
+            snapshot.Dispose();
+            throw;
+        }
+    }
+
+    public async Task<ICapturePayload> CaptureRegionAsync(SKRectI region, bool captureMouse, CancellationToken cancellationToken)
+    {
+        using var snapshot = await SnapshotAsync(captureMouse, cancellationToken).ConfigureAwait(false);
+        var pixels = snapshot.ToPixels(new LayoutRect(region.Left, region.Top, region.Width, region.Height));
+        if (pixels.IsEmpty)
+        {
+            return null!;
+        }
+
+        return new CapturePayload(await Service.CreateCaptureAsync(snapshot, pixels, CaptureMode.Region).ConfigureAwait(false));
+    }
+
+    public async Task<ICapturePayload> CaptureGivenWindowAsync(WindowInfo window, bool captureMouse, CancellationToken cancellationToken)
+    {
+        using var snapshot = await SnapshotAsync(captureMouse, cancellationToken).ConfigureAwait(false);
+        var pixels = snapshot.ToPixels(window.Bounds);
+        if (pixels.IsEmpty)
+        {
+            return null!;
+        }
+
+        return new CapturePayload(await Service.CreateCaptureAsync(snapshot, pixels, CaptureMode.ActiveWindow, window.Title).ConfigureAwait(false));
+    }
+
+    public async Task<ICapturePayload> CaptureScreenAsync(bool forSelection, bool captureMouse, CancellationToken cancellationToken)
+    {
+        var snapshot = await SnapshotAsync(captureMouse, cancellationToken).ConfigureAwait(false);
         if (!forSelection)
         {
             using (snapshot)
@@ -106,7 +159,7 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
             return payload;
         }
 
-        using var snapshot = await Service.SnapshotAsync(cancellationToken, captureMouse, applyDelay: false).ConfigureAwait(false);
+        using var snapshot = await SnapshotAsync(captureMouse, cancellationToken).ConfigureAwait(false);
         var capture = await Service.CreateCaptureAsync(snapshot, snapshot.ToPixels(window.Bounds), CaptureMode.ActiveWindow, window.Title).ConfigureAwait(false);
         return new CapturePayload(capture);
     }
@@ -127,7 +180,7 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
             return payload;
         }
 
-        using var snapshot = await Service.SnapshotAsync(cancellationToken, captureMouse, applyDelay: false).ConfigureAwait(false);
+        using var snapshot = await SnapshotAsync(captureMouse, cancellationToken).ConfigureAwait(false);
         return new CapturePayload(await Service.CreateCaptureAsync(snapshot, snapshot.ToPixels(settings.LastCapturedRegion), CaptureMode.LastRegion).ConfigureAwait(false));
     }
 
