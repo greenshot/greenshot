@@ -57,6 +57,64 @@ public sealed class EditorSettings(CoreSettings settings)
     }
 
     /// <summary>
+    /// Show the images of an editor window as tabs (EditorTabs of Windows); off, a tab only shows when a window has more images
+    /// </summary>
+    public bool EditorTabs
+    {
+        get => !bool.TryParse(settings.GetValue(SectionName, nameof(EditorTabs)), out var value) || value;
+        set => settings.SetValue(SectionName, nameof(EditorTabs), value ? "True" : "False");
+    }
+
+    /// <summary>
+    /// Open a new capture as tab in the editor window used last (OpenCaptureAsTab of Windows)
+    /// </summary>
+    public bool OpenCaptureAsTab
+    {
+        get => !bool.TryParse(settings.GetValue(SectionName, nameof(OpenCaptureAsTab)), out var value) || value;
+        set => settings.SetValue(SectionName, nameof(OpenCaptureAsTab), value ? "True" : "False");
+    }
+
+    /// <summary>
+    /// The size of a new image ("+" of the tabs), "500,500" like DefaultEditorSize of Windows
+    /// </summary>
+    public SKSizeI DefaultEditorSize
+    {
+        get
+        {
+            var parts = (settings.GetValue(SectionName, nameof(DefaultEditorSize)) ?? string.Empty).Split(',');
+            return parts.Length == 2 && int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int width)
+                   && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int height) && width > 0 && height > 0
+                ? new SKSizeI(Math.Min(width, 20000), Math.Min(height, 20000))
+                : new SKSizeI(500, 500);
+        }
+        set => settings.SetValue(SectionName, nameof(DefaultEditorSize), string.Create(CultureInfo.InvariantCulture, $"{value.Width},{value.Height}"));
+    }
+
+    /// <summary>
+    /// The color of a new image, white like NewImageColor of Windows (which has color names, #AARRGGBB works too)
+    /// </summary>
+    public SKColor NewImageColor
+    {
+        get
+        {
+            string? text = settings.GetValue(SectionName, nameof(NewImageColor));
+            if (string.IsNullOrWhiteSpace(text) || text.Equals("White", StringComparison.OrdinalIgnoreCase))
+            {
+                return SKColors.White;
+            }
+
+            if (SKColor.TryParse(text, out var color))
+            {
+                return color;
+            }
+
+            var named = typeof(SKColors).GetField(text.Trim(), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
+            return named?.GetValue(null) is SKColor namedColor ? namedColor : SKColors.White;
+        }
+        set => settings.SetValue(SectionName, nameof(NewImageColor), ElementStyle.Format(value));
+    }
+
+    /// <summary>
     /// The emoji used last, new emoji elements start with it
     /// </summary>
     public string RecentEmoji

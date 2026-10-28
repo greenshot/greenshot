@@ -309,7 +309,7 @@ internal sealed class AppRecipeEditorUi(GreenshotController controller) : IRecip
     public void ShowRecipeManager(RecipeManagerViewModel viewModel) => RunModal(new RecipeManagerWindow(viewModel));
 
     public IReadOnlyList<IImageEditor> OpenEditors =>
-        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Windows.OfType<EditorWindow>().Cast<IImageEditor>().ToList() ?? [];
+        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Windows.OfType<EditorWindow>().SelectMany(w => w.Tabs).Cast<IImageEditor>().ToList() ?? [];
 
     public IImageEditor SelectEditor(IReadOnlyList<IImageEditor> editors) => SelectEditorDialog.Ask(editors)!;
 

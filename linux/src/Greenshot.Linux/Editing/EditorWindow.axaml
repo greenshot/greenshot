@@ -72,6 +72,12 @@
       <ScrollViewer x:Name="PropertyBarHost" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" />
     </Border>
 
+    <Border x:Name="TabStripHost" DockPanel.Dock="Top" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,0,1">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <StackPanel x:Name="TabStrip" Orientation="Horizontal" Spacing="2" Margin="4,3" />
+      </ScrollViewer>
+    </Border>
+
     <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,1,0,0" Padding="8,3">
       <DockPanel>
         <TextBlock x:Name="ZoomText" DockPanel.Dock="Right" Margin="12,0,0,0" />

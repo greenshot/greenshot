@@ -506,12 +506,18 @@ internal sealed class SettingsWindow : Window
         _apply.Add(() => editor.MatchSizeToCapture = matchSize.IsChecked == true);
         var suppress = Ui.Check(Texts.Settings("expert_suppresssavedialogatclose"), editor.SuppressSaveDialogAtClose);
         _apply.Add(() => editor.SuppressSaveDialogAtClose = suppress.IsChecked == true);
+        var tabs = Ui.Check(Texts.Settings("editor_tabs"), editor.EditorTabs);
+        _apply.Add(() => editor.EditorTabs = tabs.IsChecked == true);
+        var openAsTab = Ui.Check(Texts.Settings("open_capture_as_tab"), editor.OpenCaptureAsTab);
+        _apply.Add(() => editor.OpenCaptureAsTab = openAsTab.IsChecked == true);
         var sensitivity = new NumericUpDown { Value = editor.FreehandSensitivity, Minimum = 1, Maximum = 100, FormatString = "0", Width = 160 };
         _apply.Add(() => editor.FreehandSensitivity = (int)(sensitivity.Value ?? 3));
 
         return Ui.Page(Ui.Section(Texts.Settings("editor"),
             matchSize,
             suppress,
+            tabs,
+            openAsTab,
             Ui.Row(Texts.Linux("editor_freehand_sensitivity"), sensitivity)));
     }
 

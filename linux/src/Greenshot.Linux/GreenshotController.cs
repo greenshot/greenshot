@@ -422,7 +422,17 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
         public string Version => Program.Version;
 
-        public void Run(AppCommand command) => Dispatcher.UIThread.Post(() => _ = controller.RunAsync(command));
+        public void Run(AppCommand command) => Dispatcher.UIThread.Post(async () =>
+        {
+            try
+            {
+                await controller.RunAsync(command);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"The command '{command.ToWire()}' failed", ex);
+            }
+        });
 
         public Task ShowSettingsAsync() => Dispatcher.UIThread.InvokeAsync(controller.ShowSettings).GetTask();
 
@@ -997,6 +1007,15 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
 
     public void ShowEditor(EditorSurface surface, CaptureDetails details, string? filePath)
     {
+        // A new tab in the editor window used last, like OpenCaptureAsTab of Windows
+        var editorSettings = EditorSettings;
+        if (editorSettings.EditorTabs && editorSettings.OpenCaptureAsTab && EditorWindow.LastActive is { IsVisible: true } last)
+        {
+            last.AddTab(new EditorTab(this, surface, details, filePath));
+            last.Activate();
+            return;
+        }
+
         var window = new EditorWindow(this, surface, details, filePath);
         window.Show();
         window.Activate();

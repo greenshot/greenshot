@@ -21,6 +21,7 @@
 
 using System.Globalization;
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -48,7 +49,7 @@ namespace Greenshot.Linux.Editing;
 /// The image editor, the ImageEditorForm of Windows: tools on the left, the properties on top, the image in the middle.
 /// The keys are the ones of the Windows editor.
 /// </summary>
-public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
+public partial class EditorWindow : Window
 {
     private static readonly double[] ZoomLevels = [0.25, 0.5, 2.0 / 3, 0.75, 1, 1.5, 2, 3, 4, 6, 8];
 
@@ -58,13 +59,10 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private static string? _elementClipboard;
 
     private readonly IEditorHost _host;
-    private readonly EditorSurface _surface;
-    private readonly EditorController _controller;
-    private readonly EditorCanvas _canvas;
+    private readonly List<EditorTab> _tabs = new();
     private readonly Lazy<EmojiPicker> _emojiPicker = new(() => new EmojiPicker());
     private readonly Dictionary<EditorTool, ToggleButton> _toolButtons = new();
-    private readonly CaptureDetails _details;
-    private string? _filePath;
+    private EditorTab _tab = null!;
     private TextBox? _textEditor;
     private DrawableElement? _editedElement;
     private bool _closeConfirmed;
@@ -74,45 +72,303 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     {
         InitializeComponent();
         _host = null!;
-        _surface = new EditorSurface(ImageEffects.NewBitmap(400, 300));
-        _controller = new EditorController(_surface);
-        _canvas = new EditorCanvas(_controller);
-        _details = new CaptureDetails();
     }
 
     internal EditorWindow(IEditorHost host, EditorSurface surface, CaptureDetails details, string? filePath)
+        : this(host, new EditorTab(host, surface, details, filePath))
+    {
+    }
+
+    /// <summary>
+    /// A window for a tab, also one which comes from another window
+    /// </summary>
+    internal EditorWindow(IEditorHost host, EditorTab tab)
     {
         InitializeComponent();
         _host = host;
-        _surface = surface;
-        _details = details;
-        _filePath = filePath;
         Icon = AppIcons.Window;
-
-        _controller = new EditorController(surface, host.EditorSettings);
-        _canvas = new EditorCanvas(_controller);
-        CanvasHost.Children.Insert(0, _canvas);
-        var propertyBar = new PropertyBar(_controller, host.EditorSettings);
-        propertyBar.CutSettingsRequested += cut => _ = EditCutSettingsAsync(cut);
-        propertyBar.FocusReturned += () => _canvas.Focus();
-        PropertyBarHost.Content = propertyBar;
         CreateToolButtons();
         CreateExportMenu();
         CreateRecipesMenu();
 
-        _surface.Changed += OnSurfaceChanged;
-        _controller.StateChanged += UpdateToolButtons;
-        _controller.TextEditRequested += BeginTextEdit;
-        _controller.EmojiPickRequested += element => _emojiPicker.Value.Show(_canvas, emoji => _controller.SetEmoji(element, emoji));
         AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
         Scroller.AddHandler(PointerWheelChangedEvent, OnPointerWheel, RoutingStrategies.Tunnel);
         Opened += (_, _) => FitWindowToImage();
         Closing += OnClosing;
-        Closed += (_, _) => _surface.Dispose();
+        Activated += (_, _) => LastActive = this;
+        Closed += (_, _) =>
+        {
+            if (LastActive == this)
+            {
+                LastActive = null;
+            }
 
-        UpdateTitle();
-        UpdateStatus(null);
+            foreach (var open in _tabs)
+            {
+                open.Dispose();
+            }
+        };
+
+        AddTab(tab);
     }
+
+    /// <summary>
+    /// The editor window used last, new captures open as a tab in it (OpenCaptureAsTab)
+    /// </summary>
+    internal static EditorWindow? LastActive { get; private set; }
+
+    /// <summary>
+    /// The tab which is shown
+    /// </summary>
+    internal EditorTab Tab => _tab;
+
+    internal IReadOnlyList<EditorTab> Tabs => _tabs;
+
+    #region Tabs
+
+    /// <summary>
+    /// Add an image as tab and show it
+    /// </summary>
+    internal void AddTab(EditorTab tab)
+    {
+        tab.Window = this;
+        _tabs.Add(tab);
+        tab.Surface.Changed += () => OnTabChanged(tab);
+        tab.Controller.StateChanged += () =>
+        {
+            if (tab == _tab)
+            {
+                UpdateToolButtons();
+            }
+        };
+        tab.Controller.TextEditRequested += element =>
+        {
+            if (tab == _tab)
+            {
+                BeginTextEdit(element);
+            }
+        };
+        tab.Controller.EmojiPickRequested += element => _emojiPicker.Value.Show(tab.Canvas, emoji => tab.Controller.SetEmoji(element, emoji));
+        tab.PropertyBar.CutSettingsRequested += cut => _ = EditCutSettingsAsync(cut);
+        tab.PropertyBar.FocusReturned += () => tab.Canvas.Focus();
+        SelectTab(tab);
+        if (IsVisible)
+        {
+            // A tab added to an open window: large images are zoomed out, the window keeps its size
+            Dispatcher.UIThread.Post(() => ZoomToFitIfLarger(), DispatcherPriority.Loaded);
+        }
+    }
+
+    internal void SelectTab(EditorTab tab)
+    {
+        if (_tab == tab)
+        {
+            UpdateTabStrip();
+            return;
+        }
+
+        CommitTextEdit();
+        if (_tab != null)
+        {
+            _tab.ScrollOffset = Scroller.Offset;
+            CanvasHost.Children.Remove(_tab.Canvas);
+        }
+
+        _tab = tab;
+        CanvasHost.Children.Insert(0, tab.Canvas);
+        PropertyBarHost.Content = tab.PropertyBar;
+        tab.PropertyBar.Update();
+        Dispatcher.UIThread.Post(() =>
+        {
+            Scroller.Offset = tab.ScrollOffset;
+            tab.Canvas.Focus();
+        }, DispatcherPriority.Loaded);
+        UpdateTitle();
+        UpdateToolButtons();
+        UpdateStatus(null);
+        UpdateTabStrip();
+    }
+
+    private void OnTabChanged(EditorTab tab)
+    {
+        if (tab == _tab)
+        {
+            OnSurfaceChanged();
+        }
+
+        UpdateTabStrip();
+    }
+
+    /// <summary>
+    /// Close a tab, asking to save it when it has changes; the window closes with its last tab
+    /// </summary>
+    internal async Task<bool> CloseTabAsync(EditorTab tab)
+    {
+        if (!await ConfirmCloseAsync(tab))
+        {
+            return false;
+        }
+
+        if (_tabs.Count == 1)
+        {
+            _closeConfirmed = true;
+            Close();
+            return true;
+        }
+
+        RemoveTab(tab);
+        tab.Dispose();
+        return true;
+    }
+
+    /// <summary>
+    /// Take the tab out of this window, the next tab is shown
+    /// </summary>
+    private void RemoveTab(EditorTab tab)
+    {
+        int index = _tabs.IndexOf(tab);
+        if (tab == _tab)
+        {
+            SelectTab(_tabs[index + 1 < _tabs.Count ? index + 1 : index - 1]);
+        }
+
+        _tabs.Remove(tab);
+        tab.Window = null;
+        UpdateTabStrip();
+    }
+
+    /// <summary>
+    /// The tab gets a window of its own
+    /// </summary>
+    private void MoveToNewWindow(EditorTab tab)
+    {
+        if (_tabs.Count < 2)
+        {
+            return;
+        }
+
+        RemoveTab(tab);
+        var window = new EditorWindow(_host, tab);
+        window.Show();
+        window.Activate();
+    }
+
+    private void MoveTab(EditorTab tab, int delta)
+    {
+        int index = _tabs.IndexOf(tab);
+        int target = index + delta;
+        if (target < 0 || target >= _tabs.Count)
+        {
+            return;
+        }
+
+        (_tabs[index], _tabs[target]) = (_tabs[target], _tabs[index]);
+        UpdateTabStrip();
+    }
+
+    private void SelectNextTab(int delta)
+    {
+        if (_tabs.Count > 1)
+        {
+            SelectTab(_tabs[(_tabs.IndexOf(_tab) + delta + _tabs.Count) % _tabs.Count]);
+        }
+    }
+
+    /// <summary>
+    /// The "+" after the tabs: a new empty image in the size and color of the settings
+    /// </summary>
+    private void NewImage()
+    {
+        var settings = _host.EditorSettings;
+        var size = settings.DefaultEditorSize;
+        var image = ImageEffects.NewBitmap(size.Width, size.Height);
+        image.Erase(settings.NewImageColor);
+        var details = new CaptureDetails { Title = Texts.Editor("new_image"), DateTime = DateTime.Now };
+        AddTab(new EditorTab(_host, new EditorSurface(image), details, null));
+    }
+
+    /// <summary>
+    /// The tabs, like the tab strip of Windows: a click selects, the cross or the middle button closes, the context menu
+    /// moves a tab. Shown when the editor uses tabs or when there are more than one.
+    /// </summary>
+    private void UpdateTabStrip()
+    {
+        TabStripHost.IsVisible = _host.EditorSettings.EditorTabs || _tabs.Count > 1;
+        if (!TabStripHost.IsVisible)
+        {
+            return;
+        }
+
+        TabStrip.Children.Clear();
+        AutomationProperties.SetName(TabStrip, Texts.Editor("tab_list"));
+        foreach (var tab in _tabs)
+        {
+            string title = (tab.Surface.IsModified ? "*" : string.Empty) + tab.Title;
+            var text = new TextBlock { Text = title, MaxWidth = 220, TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            var close = new Button
+            {
+                Content = "✕",
+                Padding = new Thickness(4, 0),
+                MinHeight = 0,
+                Background = Brushes.Transparent,
+                Focusable = false,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+            };
+            ToolTip.SetTip(close, Texts.Editor("close_tab"));
+            AutomationProperties.SetName(close, Texts.Editor("close_tab"));
+            close.Click += (_, _) => _ = CloseTabAsync(tab);
+            var button = new ToggleButton
+            {
+                Content = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 6, Children = { text, close } },
+                IsChecked = tab == _tab,
+                Padding = new Thickness(8, 2, 2, 2),
+                Focusable = false,
+            };
+            ToolTip.SetTip(button, tab.Description);
+            AutomationProperties.SetName(button, tab.Surface.IsModified ? Texts.Editor("tab_modified", tab.Title) : tab.Title);
+            button.Click += (_, _) => SelectTab(tab);
+            button.PointerReleased += (_, e) =>
+            {
+                if (e.InitialPressMouseButton == MouseButton.Middle)
+                {
+                    _ = CloseTabAsync(tab);
+                    e.Handled = true;
+                }
+            };
+            button.ContextMenu = TabMenu(tab);
+            TabStrip.Children.Add(button);
+        }
+
+        var add = new Button { Content = "+", Padding = new Thickness(10, 2), Focusable = false };
+        ToolTip.SetTip(add, Texts.Editor("new_image"));
+        AutomationProperties.SetName(add, Texts.Editor("new_image"));
+        add.Click += (_, _) => NewImage();
+        TabStrip.Children.Add(add);
+    }
+
+    private ContextMenu TabMenu(EditorTab tab)
+    {
+        MenuItem Item(string text, Action action, bool enabled = true)
+        {
+            var item = new MenuItem { Header = Texts.Label(text), IsEnabled = enabled };
+            item.Click += (_, _) => action();
+            return item;
+        }
+
+        int index = _tabs.IndexOf(tab);
+        return new ContextMenu
+        {
+            ItemsSource = new Control[]
+            {
+                Item(Texts.Editor("close_tab"), () => _ = CloseTabAsync(tab)),
+                Item(Texts.Editor("move_tab_left"), () => MoveTab(tab, -1), index > 0),
+                Item(Texts.Editor("move_tab_right"), () => MoveTab(tab, +1), index < _tabs.Count - 1),
+                Item(Texts.Editor("move_tab_to_new_window"), () => MoveToNewWindow(tab), _tabs.Count > 1),
+            },
+        };
+    }
+
+    #endregion
 
     #region Building the window
 
@@ -154,7 +410,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         button.Click += (_, _) =>
         {
             CommitTextEdit();
-            _controller.Tool = tool;
+            _tab.Controller.Tool = tool;
             UpdateToolButtons();
         };
         _toolButtons[tool] = button;
@@ -175,10 +431,6 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         Width = 16,
         Height = 16,
     };
-
-    public EditorSurface Surface => _surface;
-
-    public CaptureDetails CaptureDetails => _details;
 
     /// <summary>
     /// The recipes of Editor triggers, in their groups like the Recipes menu of the Windows editor
@@ -202,7 +454,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                 item.Click += (_, _) =>
                 {
                     CommitTextEdit();
-                    trigger.Fire(this);
+                    trigger.Fire(_tab);
                 };
                 target.Items.Add(item);
             }
@@ -222,18 +474,6 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         RecipesMenu.Items.Add(editor);
     }
 
-    /// <summary>
-    /// A recipe of the Recipes menu sends its result back to this editor (TargetEditor CurrentEditor): it can be undone
-    /// </summary>
-    public void ReplaceContent(EditorSurface result)
-    {
-        _surface.Checkpoint();
-        _surface.ReplaceImage(result.Image.Copy(), SkiaSharp.SKMatrix.Identity);
-        _surface.LoadElements(result.SerializeElements());
-        _surface.IsModified = true;
-        _surface.Invalidate();
-    }
-
     private void CreateExportMenu()
     {
         foreach (var destination in _host.ExportDestinations)
@@ -246,13 +486,19 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void UpdateToolButtons()
     {
-        foreach (var (tool, button) in _toolButtons)
+        // While the window is built there is no tab yet
+        if (_tab is null)
         {
-            button.IsChecked = tool == _controller.Tool;
+            return;
         }
 
-        UndoMenu.IsEnabled = _surface.CanUndo;
-        RedoMenu.IsEnabled = _surface.CanRedo;
+        foreach (var (tool, button) in _toolButtons)
+        {
+            button.IsChecked = tool == _tab.Controller.Tool;
+        }
+
+        UndoMenu.IsEnabled = _tab.Surface.CanUndo;
+        RedoMenu.IsEnabled = _tab.Surface.CanRedo;
     }
 
     /// <summary>
@@ -267,19 +513,14 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             // The chrome: tools on the left, menu, properties and status on top and bottom, and the margin
             double chromeWidth = ToolPanel.Bounds.Width + 80;
             double chromeHeight = 150;
-            Width = Math.Clamp(_surface.Width + chromeWidth, MinWidth, available.Width * 0.95);
-            Height = Math.Clamp(_surface.Height + chromeHeight, MinHeight, available.Height * 0.95);
+            Width = Math.Clamp(_tab.Surface.Width + chromeWidth, MinWidth, available.Width * 0.95);
+            Height = Math.Clamp(_tab.Surface.Height + chromeHeight, MinHeight, available.Height * 0.95);
         }
 
         Dispatcher.UIThread.Post(() =>
         {
-            var viewport = Scroller.Viewport;
-            if (_surface.Width > viewport.Width - 32 || _surface.Height > viewport.Height - 32)
-            {
-                ZoomToFit();
-            }
-
-            _canvas.Focus();
+            ZoomToFitIfLarger();
+            _tab.Canvas.Focus();
         }, DispatcherPriority.Loaded);
     }
 
@@ -296,19 +537,21 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void UpdateTitle()
     {
-        var name = _filePath != null ? Path.GetFileName(_filePath) : _details.Title ?? "Greenshot";
-        Title = $"{(_surface.IsModified ? "*" : string.Empty)}{name} - {Texts.Editor("title")}";
+        Title = $"{(_tab.Surface.IsModified ? "*" : string.Empty)}{_tab.Title} - {Texts.Editor("title")}";
+        UpdateTabStrip();
     }
 
     private void UpdateStatus(string? message)
     {
         if (message != null)
         {
-            StatusText.Text = message;
+            _tab.StatusText = message;
         }
 
-        SizeText.Text = string.Create(CultureInfo.CurrentCulture, $"{_surface.Width} × {_surface.Height}");
-        ZoomText.Text = string.Create(CultureInfo.CurrentCulture, $"{_canvas.Zoom * 100:0}%");
+        StatusText.Text = _tab.StatusText ?? string.Empty;
+
+        SizeText.Text = string.Create(CultureInfo.CurrentCulture, $"{_tab.Surface.Width} × {_tab.Surface.Height}");
+        ZoomText.Text = string.Create(CultureInfo.CurrentCulture, $"{_tab.Canvas.Zoom * 100:0}%");
     }
 
     #endregion
@@ -357,6 +600,9 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                     return true;
                 case Key.Left or Key.Right or Key.Up or Key.Down:
                     return Move(key, 10);
+                case Key.Tab:
+                    SelectNextTab(-1);
+                    return true;
             }
 
             return false;
@@ -367,10 +613,10 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             switch (key)
             {
                 case Key.Z:
-                    _surface.Undo();
+                    _tab.Surface.Undo();
                     return true;
                 case Key.Y:
-                    _surface.Redo();
+                    _tab.Surface.Redo();
                     return true;
                 case Key.C:
                     Copy();
@@ -382,10 +628,10 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                     _ = PasteAsync();
                     return true;
                 case Key.D:
-                    _controller.Duplicate();
+                    _tab.Controller.Duplicate();
                     return true;
                 case Key.A:
-                    _controller.SelectAll();
+                    _tab.Controller.SelectAll();
                     return true;
                 case Key.S:
                     _ = SaveAsync();
@@ -394,18 +640,25 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                     _ = OpenAsync();
                     return true;
                 case Key.W:
-                    Close();
+                    // The tab, the window closes with its last tab
+                    _ = CloseTabAsync(_tab);
+                    return true;
+                case Key.Tab or Key.PageDown:
+                    SelectNextTab(+1);
+                    return true;
+                case Key.PageUp:
+                    SelectNextTab(-1);
                     return true;
                 case Key.Q:
                     CommitTextEdit();
-                    _controller.DropShadow();
+                    _tab.Controller.DropShadow();
                     return true;
                 case Key.B:
                     ApplyImageEffect(image => ImageEffects.Border(image));
                     return true;
                 case Key.T:
                     CommitTextEdit();
-                    _controller.TornEdges();
+                    _tab.Controller.TornEdges();
                     UpdateToolButtons();
                     return true;
                 case Key.I:
@@ -445,30 +698,30 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         switch (key)
         {
             case Key.Escape:
-                _controller.Escape();
+                _tab.Controller.Escape();
                 return true;
-            case Key.Enter when _controller.Tool == EditorTool.Crop:
-                _controller.ConfirmCrop();
+            case Key.Enter when _tab.Controller.Tool == EditorTool.Crop:
+                _tab.Controller.ConfirmCrop();
                 return true;
-            case Key.Enter when _surface.Selection is [{ HasText: true } element]:
+            case Key.Enter when _tab.Surface.Selection is [{ HasText: true } element]:
                 BeginTextEdit(element);
                 return true;
             case Key.Delete or Key.Back:
-                _controller.DeleteSelection();
+                _tab.Controller.DeleteSelection();
                 return true;
             case Key.Left or Key.Right or Key.Up or Key.Down:
                 return Move(key, shift ? 10 : 1);
             case Key.PageUp:
-                _surface.Arrange(EditorSurface.ZOrder.Up);
+                _tab.Surface.Arrange(EditorSurface.ZOrder.Up);
                 return true;
             case Key.PageDown:
-                _surface.Arrange(EditorSurface.ZOrder.Down);
+                _tab.Surface.Arrange(EditorSurface.ZOrder.Down);
                 return true;
             case Key.Home:
-                _surface.Arrange(EditorSurface.ZOrder.Top);
+                _tab.Surface.Arrange(EditorSurface.ZOrder.Top);
                 return true;
             case Key.End:
-                _surface.Arrange(EditorSurface.ZOrder.Bottom);
+                _tab.Surface.Arrange(EditorSurface.ZOrder.Bottom);
                 return true;
             case Key.Z:
                 _ = ResizeAsync();
@@ -497,16 +750,16 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             Key.M => EditorTool.Emoji,
             _ => null,
         };
-        if (tool == EditorTool.Crop && _controller.Tool == EditorTool.Crop)
+        if (tool == EditorTool.Crop && _tab.Controller.Tool == EditorTool.Crop)
         {
             // C again: the next crop mode, like on Windows
-            _controller.CycleCropMode();
+            _tab.Controller.CycleCropMode();
             return true;
         }
 
         if (tool != null)
         {
-            _controller.Tool = tool.Value;
+            _tab.Controller.Tool = tool.Value;
             UpdateToolButtons();
             return true;
         }
@@ -516,10 +769,10 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private bool Move(Key key, int step) => key switch
     {
-        Key.Left => _controller.MoveSelection(-step, 0),
-        Key.Right => _controller.MoveSelection(step, 0),
-        Key.Up => _controller.MoveSelection(0, -step),
-        _ => _controller.MoveSelection(0, step),
+        Key.Left => _tab.Controller.MoveSelection(-step, 0),
+        Key.Right => _tab.Controller.MoveSelection(step, 0),
+        Key.Up => _tab.Controller.MoveSelection(0, -step),
+        _ => _tab.Controller.MoveSelection(0, step),
     };
 
     #endregion
@@ -545,7 +798,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
             FontFamily = new FontFamily(style.FontFamily),
-            FontSize = Math.Max(6, style.FontSize * _canvas.Zoom),
+            FontSize = Math.Max(6, style.FontSize * _tab.Canvas.Zoom),
             FontWeight = style.FontBold ? FontWeight.Bold : FontWeight.Normal,
             FontStyle = style.FontItalic ? FontStyle.Italic : FontStyle.Normal,
             Foreground = new SolidColorBrush(ColorButton.ToAvalonia(style.LineColor.WithAlpha(255))),
@@ -556,18 +809,18 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                 Editor.Fields.TextHorizontalAlignment.Right => TextAlignment.Right,
                 _ => TextAlignment.Center,
             },
-            Width = Math.Max(60, rect.Width * _canvas.Zoom),
-            MinHeight = Math.Max(30, rect.Height * _canvas.Zoom),
+            Width = Math.Max(60, rect.Width * _tab.Canvas.Zoom),
+            MinHeight = Math.Max(30, rect.Height * _tab.Canvas.Zoom),
             Padding = new Thickness(2),
         };
-        Canvas.SetLeft(editor, rect.Left * _canvas.Zoom);
-        Canvas.SetTop(editor, rect.Top * _canvas.Zoom);
+        Canvas.SetLeft(editor, rect.Left * _tab.Canvas.Zoom);
+        Canvas.SetTop(editor, rect.Top * _tab.Canvas.Zoom);
         editor.KeyDown += (_, e) =>
         {
             if (e.Key == Key.Escape || (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Control)))
             {
                 CommitTextEdit();
-                _canvas.Focus();
+                _tab.Canvas.Focus();
                 e.Handled = true;
             }
         };
@@ -592,7 +845,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         _textEditor = null;
         _editedElement = null;
         TextOverlay.Children.Remove(editor);
-        _controller.CommitText(element, editor.Text ?? string.Empty);
+        _tab.Controller.CommitText(element, editor.Text ?? string.Empty);
     }
 
     #endregion
@@ -602,13 +855,13 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private void SetZoom(double zoom)
     {
         CommitTextEdit();
-        _canvas.Zoom = zoom;
+        _tab.Canvas.Zoom = zoom;
         UpdateStatus(null);
     }
 
     private void ZoomStep(int direction)
     {
-        double current = _canvas.Zoom;
+        double current = _tab.Canvas.Zoom;
         double next = direction > 0
             ? ZoomLevels.FirstOrDefault(z => z > current + 0.001, ZoomLevels[^1])
             : ZoomLevels.LastOrDefault(z => z < current - 0.001, ZoomLevels[0]);
@@ -623,8 +876,20 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             return;
         }
 
-        double zoom = Math.Min((viewport.Width - 32) / _surface.Width, (viewport.Height - 32) / _surface.Height);
+        double zoom = Math.Min((viewport.Width - 32) / _tab.Surface.Width, (viewport.Height - 32) / _tab.Surface.Height);
         SetZoom(Math.Clamp(zoom, 0.05, 1));
+    }
+
+    /// <summary>
+    /// Zoom out when the image doesn't fit
+    /// </summary>
+    private void ZoomToFitIfLarger()
+    {
+        var viewport = Scroller.Viewport;
+        if (_tab.Surface.Width > viewport.Width - 32 || _tab.Surface.Height > viewport.Height - 32)
+        {
+            ZoomToFit();
+        }
     }
 
     private void OnPointerWheel(object? sender, PointerWheelEventArgs e)
@@ -645,12 +910,12 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private void ApplyImageEffect(Func<SKBitmap, EffectResult> effect)
     {
         CommitTextEdit();
-        _controller.ApplyEffect(effect);
+        _tab.Controller.ApplyEffect(effect);
     }
 
     private void ShrinkCanvas()
     {
-        if (_surface.Width > 50 && _surface.Height > 50)
+        if (_tab.Surface.Width > 50 && _tab.Surface.Height > 50)
         {
             ApplyImageEffect(image => ImageEffects.ResizeCanvas(image, -25, -25, -25, -25));
         }
@@ -658,8 +923,8 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private async Task ResizeAsync()
     {
-        var size = await Dialogs.AskSizeAsync(this, _surface.Width, _surface.Height);
-        if (size is { } newSize && (newSize.Width != _surface.Width || newSize.Height != _surface.Height))
+        var size = await Dialogs.AskSizeAsync(this, _tab.Surface.Width, _tab.Surface.Height);
+        if (size is { } newSize && (newSize.Width != _tab.Surface.Width || newSize.Height != _tab.Surface.Height))
         {
             ApplyImageEffect(image => ImageEffects.Resize(image, newSize.Width, newSize.Height));
         }
@@ -667,12 +932,12 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void Copy()
     {
-        _elementClipboard = _controller.CopySelection() ?? _elementClipboard;
+        _elementClipboard = _tab.Controller.CopySelection() ?? _elementClipboard;
     }
 
     private void Cut()
     {
-        _elementClipboard = _controller.CutSelection() ?? _elementClipboard;
+        _elementClipboard = _tab.Controller.CutSelection() ?? _elementClipboard;
     }
 
     /// <summary>
@@ -682,7 +947,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     {
         if (_elementClipboard != null)
         {
-            _controller.PasteElements(_elementClipboard);
+            _tab.Controller.PasteElements(_elementClipboard);
             return;
         }
 
@@ -699,7 +964,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             return;
         }
 
-        _controller.PasteImage(bitmap);
+        _tab.Controller.PasteImage(bitmap);
     }
 
     /// <summary>
@@ -708,13 +973,13 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private Capture CreateCapture()
     {
         CommitTextEdit();
-        var details = new CaptureDetails { DateTime = _details.DateTime, Title = _details.Title, Mode = _details.Mode };
-        return new Capture(_surface.Flatten(), details);
+        var details = new CaptureDetails { DateTime = _tab.CaptureDetails.DateTime, Title = _tab.CaptureDetails.Title, Mode = _tab.CaptureDetails.Mode };
+        return new Capture(_tab.Surface.Flatten(), details);
     }
 
     private async Task<bool> SaveAsync()
     {
-        if (_filePath == null)
+        if (_tab.FilePath == null)
         {
             var destination = _host.ExportDestinations.FirstOrDefault(d => d.Designation == WellKnownDestinations.FileDefault);
             if (destination == null)
@@ -725,20 +990,20 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
             var result = await ExportAsync(destination);
             if (result?.FilePath is { } saved)
             {
-                _filePath = saved;
+                _tab.FilePath = saved;
                 UpdateTitle();
             }
 
             return result?.Success == true;
         }
 
-        return await SaveToAsync(_filePath);
+        return await SaveToAsync(_tab.FilePath);
     }
 
     private async Task<bool> SaveAsAsync()
     {
         CommitTextEdit();
-        var suggested = _filePath ?? FileDestination.GetDefaultPath(_host.Settings, _details);
+        var suggested = _tab.FilePath ?? FileDestination.GetDefaultPath(_host.Settings, _tab.CaptureDetails);
         var saveDialog = new SaveDialog(_host.FileChooser);
         var path = await saveDialog.AskAsync(suggested, includeGreenshotFormat: true);
         if (path == null)
@@ -749,7 +1014,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         var success = await SaveToAsync(path);
         if (success)
         {
-            _filePath = path;
+            _tab.FilePath = path;
             UpdateTitle();
         }
 
@@ -766,7 +1031,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         {
             if (Path.GetExtension(path).Equals(GreenshotFile.Extension, StringComparison.OrdinalIgnoreCase))
             {
-                GreenshotFile.Save(path, _surface.Image, _surface.SerializeElements());
+                GreenshotFile.Save(path, _tab.Surface.Image, _tab.Surface.SerializeElements());
                 Log.Info($"Saved the editor to {path}");
             }
             else
@@ -780,7 +1045,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
                 }
             }
 
-            _surface.IsModified = false;
+            _tab.Surface.IsModified = false;
             UpdateTitle();
             UpdateStatus(Texts.Linux("saved_to", path));
             return true;
@@ -811,7 +1076,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         {
             if (result.FilePath != null)
             {
-                _surface.IsModified = false;
+                _tab.Surface.IsModified = false;
                 UpdateTitle();
             }
 
@@ -843,20 +1108,39 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private async void OnClosing(object? sender, WindowClosingEventArgs e)
     {
         CommitTextEdit();
-        if (_closeConfirmed || !_surface.IsModified || _host.EditorSettings.SuppressSaveDialogAtClose)
+        if (_closeConfirmed || _host.EditorSettings.SuppressSaveDialogAtClose || !_tabs.Any(t => t.Surface.IsModified))
         {
             return;
         }
 
+        // Every image with changes is asked about, like closing the tabs one by one
         e.Cancel = true;
-        var choice = await Dialogs.AskSaveChangesAsync(this);
-        if (choice == SaveChoice.Cancel || (choice == SaveChoice.Save && !await SaveAsync()))
+        foreach (var tab in _tabs.Where(t => t.Surface.IsModified).ToList())
         {
-            return;
+            if (!await ConfirmCloseAsync(tab))
+            {
+                return;
+            }
         }
 
         _closeConfirmed = true;
         Close();
+    }
+
+    /// <summary>
+    /// May the tab be closed? With changes the user is asked whether to save them first (it is shown for the question)
+    /// </summary>
+    private async Task<bool> ConfirmCloseAsync(EditorTab tab)
+    {
+        CommitTextEdit();
+        if (!tab.Surface.IsModified || _host.EditorSettings.SuppressSaveDialogAtClose)
+        {
+            return true;
+        }
+
+        SelectTab(tab);
+        var choice = await Dialogs.AskSaveChangesAsync(this);
+        return choice == SaveChoice.Discard || (choice == SaveChoice.Save && await SaveAsync());
     }
 
     #endregion
@@ -871,11 +1155,11 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void OnOpen(object? sender, RoutedEventArgs e) => _ = OpenAsync();
 
-    private void OnClose(object? sender, RoutedEventArgs e) => Close();
+    private void OnClose(object? sender, RoutedEventArgs e) => _ = CloseTabAsync(_tab);
 
-    private void OnUndo(object? sender, RoutedEventArgs e) => _surface.Undo();
+    private void OnUndo(object? sender, RoutedEventArgs e) => _tab.Surface.Undo();
 
-    private void OnRedo(object? sender, RoutedEventArgs e) => _surface.Redo();
+    private void OnRedo(object? sender, RoutedEventArgs e) => _tab.Surface.Redo();
 
     private void OnCut(object? sender, RoutedEventArgs e) => Cut();
 
@@ -885,48 +1169,48 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
 
     private void OnPasteImage(object? sender, RoutedEventArgs e) => _ = PasteImageAsync();
 
-    private void OnDuplicate(object? sender, RoutedEventArgs e) => _controller.Duplicate();
+    private void OnDuplicate(object? sender, RoutedEventArgs e) => _tab.Controller.Duplicate();
 
-    private void OnDelete(object? sender, RoutedEventArgs e) => _controller.DeleteSelection();
+    private void OnDelete(object? sender, RoutedEventArgs e) => _tab.Controller.DeleteSelection();
 
-    private void OnSelectAll(object? sender, RoutedEventArgs e) => _controller.SelectAll();
+    private void OnSelectAll(object? sender, RoutedEventArgs e) => _tab.Controller.SelectAll();
 
-    private void OnBringToFront(object? sender, RoutedEventArgs e) => _surface.Arrange(EditorSurface.ZOrder.Top);
+    private void OnBringToFront(object? sender, RoutedEventArgs e) => _tab.Surface.Arrange(EditorSurface.ZOrder.Top);
 
-    private void OnBringForward(object? sender, RoutedEventArgs e) => _surface.Arrange(EditorSurface.ZOrder.Up);
+    private void OnBringForward(object? sender, RoutedEventArgs e) => _tab.Surface.Arrange(EditorSurface.ZOrder.Up);
 
-    private void OnSendBackward(object? sender, RoutedEventArgs e) => _surface.Arrange(EditorSurface.ZOrder.Down);
+    private void OnSendBackward(object? sender, RoutedEventArgs e) => _tab.Surface.Arrange(EditorSurface.ZOrder.Down);
 
-    private void OnSendToBack(object? sender, RoutedEventArgs e) => _surface.Arrange(EditorSurface.ZOrder.Bottom);
+    private void OnSendToBack(object? sender, RoutedEventArgs e) => _tab.Surface.Arrange(EditorSurface.ZOrder.Bottom);
 
     private async void OnCounterStart(object? sender, RoutedEventArgs e)
     {
-        var start = await Dialogs.AskNumberAsync(this, Texts.Label(Texts.Editor("counter")), Texts.Linux("counter_start_question"), _surface.CounterStart, 0, 9999);
-        if (start is { } value && value != _surface.CounterStart)
+        var start = await Dialogs.AskNumberAsync(this, Texts.Label(Texts.Editor("counter")), Texts.Linux("counter_start_question"), _tab.Surface.CounterStart, 0, 9999);
+        if (start is { } value && value != _tab.Surface.CounterStart)
         {
-            _surface.Checkpoint();
-            _surface.CounterStart = value;
-            _surface.Invalidate();
+            _tab.Surface.Checkpoint();
+            _tab.Surface.CounterStart = value;
+            _tab.Surface.Invalidate();
         }
     }
 
     private void OnRedactText(object? sender, RoutedEventArgs e)
     {
         CommitTextEdit();
-        _ = EditorToolDialogs.RedactTextAsync(this, _controller, _host.Settings);
+        _ = EditorToolDialogs.RedactTextAsync(this, _tab.Controller, _host.Settings);
     }
 
-    private void OnInsertQrCode(object? sender, RoutedEventArgs e) => _ = EditorToolDialogs.InsertQrCodeAsync(this, _controller);
+    private void OnInsertQrCode(object? sender, RoutedEventArgs e) => _ = EditorToolDialogs.InsertQrCodeAsync(this, _tab.Controller);
 
     private void OnCropTool(object? sender, RoutedEventArgs e)
     {
-        _controller.Tool = EditorTool.Crop;
+        _tab.Controller.Tool = EditorTool.Crop;
         UpdateToolButtons();
     }
 
     private void OnAutoCrop(object? sender, RoutedEventArgs e)
     {
-        if (!_controller.AutoCrop())
+        if (!_tab.Controller.AutoCrop())
         {
             UpdateStatus(Texts.Editor("autocrop_not_possible"));
         }
@@ -947,13 +1231,13 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     private void OnDropShadow(object? sender, RoutedEventArgs e)
     {
         CommitTextEdit();
-        _controller.DropShadow();
+        _tab.Controller.DropShadow();
     }
 
     private void OnTornEdge(object? sender, RoutedEventArgs e)
     {
         CommitTextEdit();
-        _controller.TornEdges();
+        _tab.Controller.TornEdges();
         UpdateToolButtons();
     }
 
@@ -976,7 +1260,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
     /// </summary>
     private async void OnTornEdgeSettings(object? sender, RoutedEventArgs e)
     {
-        if (_surface.Selection.OfType<TornEdgeElement>().FirstOrDefault() is { } selected)
+        if (_tab.Surface.Selection.OfType<TornEdgeElement>().FirstOrDefault() is { } selected)
         {
             await EditCutSettingsAsync(selected);
             return;
@@ -999,7 +1283,7 @@ public partial class EditorWindow : Window, Greenshot.Linux.Recipes.IImageEditor
         var settings = cut.GetSettings();
         if (await EffectSettingsDialogs.EditTornEdgeAsync(this, settings, showEdges: cut is TornEdgeElement, () => _host.EditorSettings.RecentColors))
         {
-            _controller.ApplyCutSettings(cut, settings);
+            _tab.Controller.ApplyCutSettings(cut, settings);
         }
     }
 

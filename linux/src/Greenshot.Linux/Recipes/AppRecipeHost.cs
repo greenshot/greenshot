@@ -280,7 +280,7 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             var details = payload.Details ?? new CaptureDetails();
-            if (current is Editing.EditorWindow editor)
+            if (current is Editing.EditorTab editor)
             {
                 // The editor which ran the recipe gets the result
                 editor.ReplaceContent(payload.EnsureSurface());
