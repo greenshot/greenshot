@@ -31,8 +31,8 @@ public sealed record GreenshotFileContent(SKBitmap Image, string? ElementsJson, 
 
 /// <summary>
 /// .greenshot files: the capture as PNG, then the elements, their length (Int64) and a 14 character marker.
-/// The Windows editor writes the elements with the BinaryFormatter and the marker "Greenshot01.04";
-/// this one writes JSON and the marker "GreenshotJ1.00". Any image viewer shows the file, it starts with a PNG.
+/// The Windows editor writes the elements with the BinaryFormatter and the marker "Greenshot01.04", these are read with
+/// <see cref="WindowsElementReader"/>; this one writes JSON and the marker "GreenshotJ1.00". Any image viewer shows the file, it starts with a PNG.
 /// </summary>
 public static class GreenshotFile
 {
@@ -101,8 +101,21 @@ public static class GreenshotFile
             return new GreenshotFileContent(image, Encoding.UTF8.GetString(data, (int)start, (int)length), null);
         }
 
-        // Written by the Windows editor: the BinaryFormatter data can't be read safely yet
-        return new GreenshotFileContent(image, null,
-            $"The elements of this file were written by Greenshot for Windows ({marker}) and can't be edited yet, the image was loaded");
+        // Written by the Windows editor with the BinaryFormatter: read without creating types from the file
+        try
+        {
+            var windows = WindowsElementReader.Read(data, (int)start, (int)length);
+            string? warning = windows.Skipped.Count == 0
+                ? null
+                : $"Some elements of this file of Greenshot for Windows can't be shown here and were left out: {string.Join(", ", windows.Skipped.Distinct())}";
+            return new GreenshotFileContent(image, ElementSerializer.Serialize(windows.Elements, windows.CounterStart), warning);
+        }
+        catch (Exception ex) when (ex is System.Runtime.Serialization.SerializationException or NotSupportedException or InvalidOperationException
+                                       or EndOfStreamException or ArgumentException or OverflowException)
+        {
+            Core.Log.Warn($"The elements of the Windows .greenshot file ({marker}) can't be read: {ex.Message}");
+            return new GreenshotFileContent(image, null,
+                $"The elements of this file of Greenshot for Windows ({marker}) can't be read, only the image was loaded");
+        }
     }
 }

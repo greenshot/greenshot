@@ -85,7 +85,7 @@ and Hyprland Greenshot asks the compositor for the titles every 5 seconds, elsew
 | Zoom (Ctrl + wheel, Ctrl +/-/0/9) | ✅ |
 | Save, save as (also as editable `.greenshot`), copy, export to every destination, ask to save when closing | ✅ |
 | Open images and `.greenshot` files: tray menu, `greenshot <file>`, "Open with" in file managers, the clipboard | ✅ |
-| `.greenshot` files of the Windows editor | ⚠️ the image opens, its elements can't be read yet |
+| `.greenshot` files of the Windows editor: the elements open editable (shapes, text, speech bubbles, arrows, freehand, step labels, highlight, obfuscate, emoji, cut and torn edges, images, icons, SVG) | ✅ Windows metafiles (WMF/EMF) are left out with a note |
 | Redact text (OCR): find text and pixelate or blur it; insert a QR code | ✅ |
 | Tabs: new captures open as a tab of the editor used last (Settings > Editor), "+" for a new image, close, move left / right or to a new window (context menu of a tab), Ctrl+W / Ctrl+Tab / Ctrl+PageUp/PageDown | ✅ dragging tabs between windows: use the context menu |
 
@@ -99,7 +99,8 @@ Ctrl+Shift++ / Ctrl+Shift+- enlarge / shrink the canvas.
 
 Linux `.greenshot` files have the layout of the Windows ones (a PNG, then the elements and a marker), but store the
 elements as JSON with the marker `GreenshotJ1.00`. The Windows editor can't read their elements; any image viewer
-shows them, they start with a PNG.
+shows them, they start with a PNG. The elements of Windows files (BinaryFormatter) are read with the NRBF decoder of
+.NET, which only reads the records and never creates types named in the file, so a file can't run code.
 
 ## Requirements
 
@@ -290,8 +291,7 @@ linux/
 ## Roadmap
 
 1. **Capturing** ✅
-2. **Editor** ✅ (see above for what is left: reading Windows `.greenshot` elements
-   with `System.Formats.Nrbf`)
+2. **Editor** ✅ (tabs, emoji, crop out, torn edges and reading Windows `.greenshot` files included)
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
 4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames
    on the capture screen and the QR generator with its WiFi / vCard / calendar types

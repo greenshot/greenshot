@@ -13,6 +13,7 @@
     <!-- Shaping for emoji sequences (skin tones, families), Avalonia uses the same HarfBuzz -->
     <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.4" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.5" />
+    <PackageReference Include="System.Formats.Nrbf" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup>
     <!-- The emoji font and the emoji list of the Windows editor -->
