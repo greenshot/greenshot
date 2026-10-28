@@ -2580,11 +2580,12 @@
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.ShowPrintDialog}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintDialog}" SelectedValue="{Binding SelectedNode.PrinterShowPrintDialog, Mode=TwoWay}"
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintDialog}" SelectedValue="{Binding SelectedNode.PrinterInteractionMode, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogAlways}" Tag="true"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogSilent}" Tag="false"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag="Automatic"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogSilent}" Tag="SilentDefaultPrinter"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ShowPrintDialog}" Tag="GreenshotOptionsThenPrint"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogAlways}" Tag="FullPrinterDialog"/>
                                             </ComboBox>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.AutoRotate}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>

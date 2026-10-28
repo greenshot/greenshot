@@ -44,7 +44,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
     [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
-    [StepParameter("ShowPrintDialog", ContractDataType.Boolean, Description = "Show the print options (Printer)")]
+    [StepParameter("PrintInteractionMode", ContractDataType.Enum, Description = "Print interaction mode (Printer)", AllowedValues = new[] { "Automatic", "SilentDefaultPrinter", "GreenshotOptionsThenPrint", "FullPrinterDialog" })]
     [StepParameter("AllowRotate", ContractDataType.Boolean, Description = "Rotate to fit the page (Printer)")]
     [StepParameter("AllowEnlarge", ContractDataType.Boolean, Description = "Enlarge to fit the page (Printer)")]
     [StepParameter("AllowShrink", ContractDataType.Boolean, Description = "Shrink to fit the page (Printer)")]
@@ -166,7 +166,8 @@ namespace Greenshot.Recipes.Steps
                 else if (string.Equals(designation, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase))
                 {
                     string printerName = Config.GetParameter<string>("PrinterName");
-                    bool? promptOptions = Config.GetParameter<bool?>("ShowPrintDialog");
+                    bool? promptOptions = null;
+                    PrintInteractionMode interactionMode = ResolvePrinterInteractionMode();
                     bool? allowRotate = Config.GetParameter<bool?>("AllowRotate");
                     bool? allowEnlarge = Config.GetParameter<bool?>("AllowEnlarge");
                     bool? allowShrink = Config.GetParameter<bool?>("AllowShrink");
@@ -174,6 +175,19 @@ namespace Greenshot.Recipes.Steps
                     string colorMode = Config.GetParameter<string>("ColorMode");
                     bool? printFooter = Config.GetParameter<bool?>("PrintFooter");
                     string footerPattern = Config.GetParameter<string>("FooterPattern");
+
+                    if (interactionMode == PrintInteractionMode.SilentDefaultPrinter)
+                    {
+                        promptOptions = false;
+                    }
+                    else if (interactionMode == PrintInteractionMode.GreenshotOptionsThenPrint)
+                    {
+                        promptOptions = true;
+                    }
+                    else if (interactionMode == PrintInteractionMode.FullPrinterDialog)
+                    {
+                        promptOptions = false;
+                    }
 
                     var printOptions = new PrintOptions
                     {
@@ -187,7 +201,7 @@ namespace Greenshot.Recipes.Steps
                         Grayscale = string.Equals(colorMode, "Grayscale", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                         Monochrome = string.Equals(colorMode, "Monochrome", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                     };
-                    dest = new PrinterDestination(printerName, printOptions);
+                    dest = new PrinterDestination(printerName, printOptions, interactionMode);
                 }
                 else
                 {
@@ -234,9 +248,11 @@ namespace Greenshot.Recipes.Steps
                 context.LogStep($"Warning: No active destinations resolved for designations: {string.Join(", ", designations)}");
             }
 
-            bool manuallyInitiated = string.Equals(Config.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase)
-                && string.IsNullOrWhiteSpace(Config.GetParameter<string>("PrinterName"))
-                && (Config.GetParameter<bool?>("ShowPrintDialog") ?? false);
+            bool manuallyInitiated = false;
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase))
+            {
+                manuallyInitiated = ResolvePrinterInteractionMode() == PrintInteractionMode.FullPrinterDialog;
+            }
 
             var dispatcher = _dispatcher ?? new DestinationDispatcher();
             await dispatcher.DispatchAsync(context, destinations, cancellationToken, manuallyInitiated).ConfigureAwait(false);
@@ -326,6 +342,18 @@ namespace Greenshot.Recipes.Steps
             }
 
             return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
+        }
+
+        private PrintInteractionMode ResolvePrinterInteractionMode()
+        {
+            string configuredMode = Config.GetParameter<string>("PrintInteractionMode");
+            if (!string.IsNullOrWhiteSpace(configuredMode)
+                && Enum.TryParse(configuredMode, true, out PrintInteractionMode parsedMode))
+            {
+                return parsedMode;
+            }
+
+            return PrintInteractionMode.Automatic;
         }
 
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context, out bool fromSettings)
