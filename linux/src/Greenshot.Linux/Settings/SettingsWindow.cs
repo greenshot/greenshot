@@ -288,6 +288,8 @@ internal sealed class SettingsWindow : Window
         _apply.Add(() => _settings.ZoomerEnabled = zoomer.IsChecked == true);
         var delay = new NumericUpDown { Value = _settings.CaptureDelay, Minimum = 0, Maximum = 10000, Increment = 50, FormatString = "0", Width = 160 };
         _apply.Add(() => _settings.CaptureDelay = (int)(delay.Value ?? 0));
+        var scanQr = Ui.Check(Texts.Linux("qr_scan_on_capture"), _settings.ZxingScanOnCapture);
+        _apply.Add(() => _settings.ZxingScanOnCapture = scanQr.IsChecked == true);
         var interactive = Ui.Check(Texts.Settings("capture_windows_interactive"), _settings.CaptureWindowsInteractive);
         _apply.Add(() => _settings.CaptureWindowsInteractive = interactive.IsChecked == true);
 
@@ -309,6 +311,7 @@ internal sealed class SettingsWindow : Window
                 mouse,
                 sound,
                 zoomer,
+                scanQr,
                 Ui.Row(Texts.Settings("waittime"), delay)),
             Ui.Section(Texts.Settings("windowscapture"), interactive),
             Ui.Section(Texts.Linux("capture_backend"), backend, Ui.Note(Texts.Linux("capture_backend_restart"))),

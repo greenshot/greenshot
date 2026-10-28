@@ -50,6 +50,8 @@ internal sealed class CaptureSurface : Control
     private static readonly IPen TextLinePen = new Pen(new SolidColorBrush(Color.FromArgb(0xC0, 0x8B, 0xC3, 0x4A)), 1);
     private static readonly IBrush SelectedWordBrush = new SolidColorBrush(Color.FromArgb(0x60, 0x8B, 0xC3, 0x4A));
     private static readonly IPen ZoomerFramePen = new Pen(Brushes.White, 2);
+    private static readonly IPen HotspotPen = new Pen(new SolidColorBrush(Color.FromRgb(0xFF, 0xC1, 0x07)), 2, new DashStyle([4, 3], 0));
+    private static readonly IBrush HotspotHoverBrush = new SolidColorBrush(Color.FromArgb(0x40, 0xFF, 0xC1, 0x07));
     private static readonly IPen ZoomerPixelPen = new Pen(Brushes.Red, 1);
     private static readonly Typeface PanelTypeface = new(FontFamily.Default);
 
@@ -107,6 +109,10 @@ internal sealed class CaptureSurface : Control
         {
             DrawTextLines(context);
         }
+        else
+        {
+            DrawHotspots(context);
+        }
 
         var cursorOnThisScreen = _model.IsCursorKnown && ScreenPixels.Contains(_model.Cursor.X, _model.Cursor.Y);
         var cursor = ToControl(_model.Cursor);
@@ -154,6 +160,21 @@ internal sealed class CaptureSurface : Control
         foreach (var word in _model.SelectedWords)
         {
             context.FillRectangle(SelectedWordBrush, ToControl(word));
+        }
+    }
+
+    /// <summary>
+    /// The QR codes found on the screen: a dashed frame, filled while the cursor is on it (a click shows its menu)
+    /// </summary>
+    private void DrawHotspots(DrawingContext context)
+    {
+        var hovered = _model.HoveredHotspot;
+        foreach (var hotspot in _model.Hotspots)
+        {
+            if (SKRectI.Intersect(hotspot.Bounds, ScreenPixels) is { IsEmpty: false })
+            {
+                context.DrawRectangle(hotspot == hovered ? HotspotHoverBrush : null, HotspotPen, ToControl(hotspot.Bounds));
+            }
         }
     }
 

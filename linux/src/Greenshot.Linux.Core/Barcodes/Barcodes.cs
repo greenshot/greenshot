@@ -31,6 +31,27 @@ namespace Greenshot.Linux.Core.Barcodes;
 /// </summary>
 public sealed record DetectedBarcode(string Text, string Format, IReadOnlyList<SKPoint> Points)
 {
+    /// <summary>
+    /// The rectangle around the code. The points of a QR code are the middles of its finder patterns, 3.5 modules inside
+    /// the code: a quarter of their distance is added (exact for the smallest QR codes, a little more for bigger ones).
+    /// </summary>
+    public SKRectI Bounds
+    {
+        get
+        {
+            if (Points.Count == 0)
+            {
+                return SKRectI.Empty;
+            }
+
+            float left = Points.Min(p => p.X), top = Points.Min(p => p.Y), right = Points.Max(p => p.X), bottom = Points.Max(p => p.Y);
+            float room = IsQrCode ? Math.Max(right - left, bottom - top) / 4 + 2 : 5;
+            return new SKRectI((int)(left - room), (int)(top - room), (int)Math.Ceiling(right + room), (int)Math.Ceiling(bottom + room));
+        }
+    }
+
+    public bool IsQrCode => Format == "QR_CODE";
+
     public bool IsUrl => Uri.TryCreate(Text, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 }
 
@@ -40,9 +61,9 @@ public sealed record DetectedBarcode(string Text, string Format, IReadOnlyList<S
 public static class Barcodes
 {
     /// <summary>
-    /// All QR codes and barcodes in the image
+    /// All QR codes and barcodes in the image; only QR codes for the scan while selecting, like on Windows (faster)
     /// </summary>
-    public static IReadOnlyList<DetectedBarcode> Detect(SKBitmap image)
+    public static IReadOnlyList<DetectedBarcode> Detect(SKBitmap image, bool qrCodesOnly = false)
     {
         using var bgra = image.ColorType == SKColorType.Bgra8888 ? null : image.Copy(SKColorType.Bgra8888);
         var source = bgra ?? image;
@@ -52,11 +73,14 @@ public static class Barcodes
             Options = new DecodingOptions
             {
                 TryHarder = true,
-                PossibleFormats =
-                [
-                    BarcodeFormat.QR_CODE, BarcodeFormat.DATA_MATRIX, BarcodeFormat.AZTEC, BarcodeFormat.PDF_417,
-                    BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.CODE_128, BarcodeFormat.CODE_39, BarcodeFormat.UPC_A,
-                ],
+                TryInverted = qrCodesOnly,
+                PossibleFormats = qrCodesOnly
+                    ? [BarcodeFormat.QR_CODE]
+                    :
+                    [
+                        BarcodeFormat.QR_CODE, BarcodeFormat.DATA_MATRIX, BarcodeFormat.AZTEC, BarcodeFormat.PDF_417,
+                        BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.CODE_128, BarcodeFormat.CODE_39, BarcodeFormat.UPC_A,
+                    ],
             },
         };
 

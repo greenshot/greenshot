@@ -148,6 +148,13 @@ public partial class EditorWindow : Window
                 BeginTextEdit(element);
             }
         };
+        tab.Controller.BarcodeEditRequested += async element =>
+        {
+            if (await BarcodeDialog.AskAsync(this, element, () => _host.EditorSettings.RecentColors) is { } changed)
+            {
+                tab.Controller.ChangeBarcode(element, changed);
+            }
+        };
         tab.Controller.EmojiPickRequested += element => _emojiPicker.Value.Show(tab.Canvas, emoji => tab.Controller.SetEmoji(element, emoji));
         tab.PropertyBar.CutSettingsRequested += cut => _ = EditCutSettingsAsync(cut);
         tab.PropertyBar.FocusReturned += () => tab.Canvas.Focus();
@@ -1200,7 +1207,15 @@ public partial class EditorWindow : Window
         _ = EditorToolDialogs.RedactTextAsync(this, _tab.Controller, _host.Settings);
     }
 
-    private void OnInsertQrCode(object? sender, RoutedEventArgs e) => _ = EditorToolDialogs.InsertQrCodeAsync(this, _tab.Controller);
+    private async void OnInsertQrCode(object? sender, RoutedEventArgs e)
+    {
+        CommitTextEdit();
+        var tab = _tab;
+        if (await BarcodeDialog.AskAsync(this, null, () => _host.EditorSettings.RecentColors) is { } barcode)
+        {
+            tab.Controller.InsertBarcode(barcode);
+        }
+    }
 
     private void OnCropTool(object? sender, RoutedEventArgs e)
     {

@@ -25,6 +25,8 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Greenshot.Linux.Core;
+using Greenshot.Linux.Core.Barcodes;
+using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Capturing;
 using Greenshot.Linux.Core.Capturing.Interactive;
 using SkiaSharp;
@@ -66,6 +68,7 @@ internal sealed class CaptureOverlayWindow : Window
         WindowState = WindowState.FullScreen;
 
         _model.Changed += OnModelChanged;
+        _model.HotspotClicked += OnHotspotClicked;
         _surface.PointerMoved += (_, e) => _model.MoveTo(_surface.ToImage(e.GetPosition(_surface)));
         _surface.PointerEntered += (_, e) => _model.MoveTo(_surface.ToImage(e.GetPosition(_surface)));
         _surface.PointerPressed += OnPointerPressed;
@@ -89,10 +92,56 @@ internal sealed class CaptureOverlayWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _model.Changed -= OnModelChanged;
+        _model.HotspotClicked -= OnHotspotClicked;
         base.OnClosed(e);
     }
 
-    private void OnModelChanged() => _surface.InvalidateVisual();
+    private DetectedBarcode? _shownHotspot;
+
+    private void OnModelChanged()
+    {
+        _surface.InvalidateVisual();
+        // A hand and the text over a frame of a QR code
+        var hotspot = _model.HoveredHotspot;
+        if (hotspot != _shownHotspot)
+        {
+            _shownHotspot = hotspot;
+            _surface.Cursor = new Cursor(hotspot != null ? StandardCursorType.Hand : StandardCursorType.Cross);
+            ToolTip.SetTip(_surface, hotspot?.Text);
+            ToolTip.SetIsOpen(_surface, hotspot != null);
+        }
+    }
+
+    /// <summary>
+    /// The menu of a QR code: its text, copy it, open it when it is a link (the hotspot menu of Windows)
+    /// </summary>
+    private void OnHotspotClicked(DetectedBarcode hotspot)
+    {
+        if (!_surface.IsPointerOver)
+        {
+            // Every monitor's window hears it, the one under the pointer shows the menu
+            return;
+        }
+
+        string preview = hotspot.Text.Length > 30 ? hotspot.Text[..27] + "..." : hotspot.Text;
+        var items = new List<Control>
+        {
+            new MenuItem { Header = Texts.Core(hotspot.IsQrCode ? "notification_qrcode" : "notification_barcode", preview), IsEnabled = false },
+            new Separator(),
+        };
+        var copy = new MenuItem { Header = Texts.Linux("qr_copy") };
+        copy.Click += (_, _) => _ = Greenshot.Linux.Core.Output.SystemClipboard.SetTextAsync(hotspot.Text);
+        items.Add(copy);
+        if (hotspot.IsUrl)
+        {
+            var open = new MenuItem { Header = Texts.Linux("qr_open_link") };
+            open.Click += (_, _) => ProcessRunner.StartDetached("xdg-open", hotspot.Text);
+            items.Add(open);
+        }
+
+        var menu = new ContextMenu { ItemsSource = items, Placement = Avalonia.Controls.PlacementMode.Pointer };
+        menu.Open(_surface);
+    }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {

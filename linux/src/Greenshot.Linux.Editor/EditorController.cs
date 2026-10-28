@@ -136,6 +136,11 @@ public sealed class EditorController
     /// </summary>
     public event Action<EmojiElement>? EmojiPickRequested;
 
+    /// <summary>
+    /// A QR code or barcode should be changed, the view shows its settings
+    /// </summary>
+    public event Action<BarcodeElement>? BarcodeEditRequested;
+
     public EditorTool Tool
     {
         get => _tool;
@@ -390,6 +395,13 @@ public sealed class EditorController
         {
             Surface.Select(element);
             TextEditRequested?.Invoke(element);
+            return;
+        }
+
+        if (clickCount >= 2 && element is BarcodeElement barcode)
+        {
+            Surface.Select(barcode);
+            BarcodeEditRequested?.Invoke(barcode);
             return;
         }
 
@@ -845,6 +857,43 @@ public sealed class EditorController
 
         Surface.Checkpoint();
         element.Emoji = emoji;
+        Surface.Invalidate();
+    }
+
+    /// <summary>
+    /// Add a QR code or barcode in the middle of the visible area or the image
+    /// </summary>
+    public void InsertBarcode(BarcodeElement element, SKPoint? center = null)
+    {
+        var middle = center ?? new SKPoint(Surface.Width / 2f, Surface.Height / 2f);
+        bool is2D = element.Is2D;
+        float width = is2D ? 200 : 300, height = is2D ? 200 : 100;
+        element.Bounds = SKRect.Create(middle.X - width / 2, middle.Y - height / 2, width, height);
+        Surface.Checkpoint();
+        Tool = EditorTool.Select;
+        Surface.Add(element);
+    }
+
+    /// <summary>
+    /// The settings window changed a QR code or barcode: undoable, a 2D code gets square
+    /// </summary>
+    public void ChangeBarcode(BarcodeElement element, BarcodeElement changed)
+    {
+        Surface.Checkpoint();
+        element.Format = changed.Format;
+        element.QrType = changed.QrType;
+        element.Values = new Dictionary<string, string>(changed.Values);
+        element.ForeColor = changed.ForeColor;
+        element.BackColor = changed.BackColor;
+        element.RoundedDots = changed.RoundedDots;
+        element.Margin = changed.Margin;
+        if (element.Is2D)
+        {
+            var r = element.NormalizedBounds;
+            float size = Math.Max(r.Width, r.Height);
+            element.Bounds = SKRect.Create(r.Left, r.Top, size, size);
+        }
+
         Surface.Invalidate();
     }
 

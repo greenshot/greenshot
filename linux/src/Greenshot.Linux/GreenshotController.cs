@@ -624,13 +624,15 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
     public async Task ReportRecipeAsync(IReadOnlyList<ExportOutcome> outcomes, string? error)
     {
         var shown = outcomes.Where(o => !o.Result.Cancelled && !(o.Result.Success && o.Destination.Designation == WellKnownDestinations.Editor)).ToList();
-        if (shown.Count == 1 && string.IsNullOrEmpty(error))
+        // The QR codes found while selecting, a line each like the toast of Windows (at most 3)
+        var barcodes = outcomes.SelectMany(o => o.CaptureDetails?.Barcodes ?? []).GroupBy(b => b.Text).Select(g => g.First()).Take(3).ToList();
+        if (shown.Count == 1 && string.IsNullOrEmpty(error) && barcodes.Count == 0)
         {
             await ReportAsync(shown[0].Destination, shown[0].Result);
             return;
         }
 
-        if (shown.Count == 0 && string.IsNullOrEmpty(error))
+        if (shown.Count == 0 && string.IsNullOrEmpty(error) && barcodes.Count == 0)
         {
             return;
         }
@@ -643,12 +645,28 @@ internal sealed class GreenshotController : ISettingsHost, IHotkeyService, IDisp
             lines.Add(error);
         }
 
+        lines.AddRange(barcodes.Select(b => Texts.Core(b.IsQrCode ? "notification_qrcode" : "notification_barcode", BarcodeDisplayText(b.Text))));
         bool failed = !string.IsNullOrEmpty(error) || shown.Any(o => !o.Result.Success);
         var last = shown.LastOrDefault(o => o.Result.Success && (o.Result.Link != null || o.Result.FilePath != null))?.Result;
         string? open = last?.Link ?? last?.FilePath;
         await NotifyAsync(shown.LastOrDefault()?.CaptureDetails?.Title ?? "Greenshot", string.Join("\n", lines),
             failed ? NotificationSeverity.Error : NotificationSeverity.Info, last?.FilePath,
             open == null ? null : () => ProcessRunner.StartDetached("xdg-open", open));
+    }
+
+    /// <summary>
+    /// What a code shows in the notification: a link completely with its host as the DNS sees it (a look-alike letter of another
+    /// alphabet shows as xn--…), other text shortened, like on Windows
+    /// </summary>
+    internal static string BarcodeDisplayText(string text)
+    {
+        if (Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
+        {
+            return $"{uri.Scheme}://{uri.IdnHost}{(uri.IsDefaultPort ? "" : ":" + uri.Port)}{uri.PathAndQuery}{uri.Fragment}";
+        }
+
+        var flat = text.Replace("\r", " ").Replace("\n", " ");
+        return flat.Length > 120 ? flat[..120] + "…" : flat;
     }
 
     public Task NotifyRecipeAsync(NotificationKind kind, string message, string? link) =>

@@ -36,7 +36,13 @@ public sealed record TextLine(SKRectI Bounds, IReadOnlyList<SKRectI> Words);
 /// <summary>
 /// What was chosen on the capture screen
 /// </summary>
-public sealed record SelectionResult(SKRectI Pixels, CaptureMode Mode, string? Title);
+public sealed record SelectionResult(SKRectI Pixels, CaptureMode Mode, string? Title)
+{
+    /// <summary>
+    /// The QR codes found in the selection
+    /// </summary>
+    public IReadOnlyList<Barcodes.DetectedBarcode> Barcodes { get; init; } = [];
+}
 
 /// <summary>
 /// The state of the capture screen, shared by the windows on all monitors: the mode, the cursor, the selection
@@ -101,6 +107,32 @@ public sealed class SelectionModel
     public IEnumerable<SKRectI> SelectedWords => Mode == CaptureMode.Text && IsSelecting && TextLines != null
         ? TextLines.SelectMany(l => l.Words).Where(w => w.IntersectsWith(Selection))
         : [];
+
+    /// <summary>
+    /// The QR codes found on the screen, shown as frames which can be clicked (the hotspots of Windows)
+    /// </summary>
+    public IReadOnlyList<Barcodes.DetectedBarcode> Hotspots { get; private set; } = [];
+
+    /// <summary>
+    /// The QR code under the cursor, while not selecting
+    /// </summary>
+    public Barcodes.DetectedBarcode? HoveredHotspot => IsSelecting || !IsCursorKnown || Mode == CaptureMode.Text
+        ? null
+        : Hotspots.FirstOrDefault(h => h.Bounds.Contains(Cursor.X, Cursor.Y));
+
+    /// <summary>
+    /// A frame of a QR code was clicked: its menu should be shown instead of selecting
+    /// </summary>
+    public event Action<Barcodes.DetectedBarcode>? HotspotClicked;
+
+    /// <summary>
+    /// The scan of the screen found these QR codes (it runs in the background while selecting)
+    /// </summary>
+    public void SetHotspots(IReadOnlyList<Barcodes.DetectedBarcode> hotspots)
+    {
+        Hotspots = hotspots.Where(h => !h.Bounds.IsEmpty).ToList();
+        Changed?.Invoke();
+    }
 
     public void SetTextStatus(string status)
     {
@@ -201,6 +233,12 @@ public sealed class SelectionModel
     {
         if (IsCompleted)
         {
+            return;
+        }
+
+        if (HoveredHotspot is { } hotspot)
+        {
+            HotspotClicked?.Invoke(hotspot);
             return;
         }
 
@@ -364,7 +402,11 @@ public sealed class SelectionModel
         }
 
         IsCompleted = true;
-        Completed?.Invoke(result);
+        var pixels = result.Pixels;
+        Completed?.Invoke(result with
+        {
+            Barcodes = Hotspots.Where(h => pixels.Contains(h.Bounds.MidX, h.Bounds.MidY)).ToList(),
+        });
     }
 
     /// <summary>

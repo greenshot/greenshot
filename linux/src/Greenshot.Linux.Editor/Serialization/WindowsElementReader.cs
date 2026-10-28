@@ -228,7 +228,8 @@ public static class WindowsElementReader
             "EmojiContainer" => new EmojiElement { Emoji = Member(container, "_emoji") as string ?? EmojiElement.DefaultEmoji },
             "CutMarkContainer" => CutMark(container),
             "TornEdgeContainer" => TornEdges(container),
-            "ImageContainer" or "IconContainer" or "CursorContainer" => Image(container, bounds),
+            // A barcode of the Zxing plugin keeps only its picture in a file
+            "ImageContainer" or "IconContainer" or "CursorContainer" or "BarcodeContainer" => Image(container, bounds),
             "SvgContainer" => Svg(container, bounds),
             _ => null,
         };

@@ -255,6 +255,8 @@ internal sealed class AppRecipeHost(GreenshotController controller) : IRecipeHos
             }
 
             var capture = await Service.CreateCaptureAsync(snapshot, selection.Pixels, selection.Mode, selection.Title).ConfigureAwait(false);
+            // The QR codes in the selection, for the notification
+            capture.Details.Barcodes.AddRange(selection.Barcodes);
             payload.RawCapture?.Dispose();
             payload.RawCapture = capture;
             payload.Surface?.Dispose();

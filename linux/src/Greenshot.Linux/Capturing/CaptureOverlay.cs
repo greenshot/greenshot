@@ -23,6 +23,7 @@ using Avalonia;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using Greenshot.Linux.Core;
+using Greenshot.Linux.Core.Barcodes;
 using Greenshot.Linux.Core.Languages;
 using Greenshot.Linux.Core.Ocr;
 using Greenshot.Linux.Core.Capturing;
@@ -50,6 +51,10 @@ internal static class CaptureOverlay
             new SKPointI(startPixels.MidX, startPixels.MidY));
         model.SetZoomer(settings.ZoomerEnabled);
         model.TextRecognitionRequested += () => _ = RecognizeTextAsync(model, snapshot, settings);
+        if (settings.ZxingScanOnCapture)
+        {
+            _ = ScanForQrCodesAsync(model, snapshot);
+        }
 
         var moveWithSway = compositor is SwayCompositor && snapshot.Layout.Screens.Count > 1;
         var overlayWindows = snapshot.Layout.Screens
@@ -103,6 +108,28 @@ internal static class CaptureOverlay
         {
             Log.Error("Reading the text of the screen failed", ex);
             Dispatcher.UIThread.Post(() => model.SetTextLines([], ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Look for QR codes on the frozen screen in the background, they show up as frames while selecting
+    /// (the ZxingCaptureProcessor of Windows). A copy is read, the snapshot is disposed when the capture screen closes.
+    /// </summary>
+    private static async Task ScanForQrCodesAsync(SelectionModel model, ScreenSnapshot snapshot)
+    {
+        using var image = snapshot.Image.Copy();
+        try
+        {
+            var codes = await Task.Run(() => Barcodes.Detect(image, qrCodesOnly: true));
+            if (codes.Count > 0)
+            {
+                Log.Info($"{codes.Count} QR code(s) on the screen");
+                Dispatcher.UIThread.Post(() => model.SetHotspots(codes));
+            }
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            Log.Warn($"Scanning the screen for QR codes failed: {ex.Message}");
         }
     }
 

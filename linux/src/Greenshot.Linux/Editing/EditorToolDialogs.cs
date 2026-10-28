@@ -34,7 +34,7 @@ using SkiaSharp;
 namespace Greenshot.Linux.Editing;
 
 /// <summary>
-/// The dialogs of the editor tools which need more than the property bar: redacting text and inserting a QR code
+/// The dialogs of the editor tools which need more than the property bar: redacting text
 /// </summary>
 internal static class EditorToolDialogs
 {
@@ -126,46 +126,6 @@ internal static class EditorToolDialogs
             status,
             buttons);
         dialog.Opened += (_, _) => search.Focus();
-        await dialog.ShowDialog(owner);
-    }
-
-    /// <summary>
-    /// A QR code for a text or link, inserted as image element
-    /// </summary>
-    public static async Task InsertQrCodeAsync(Window owner, EditorController controller)
-    {
-        var dialog = new Window
-        {
-            Title = Texts.Linux("insert_qr"),
-            Icon = AppIcons.Window,
-            SizeToContent = SizeToContent.WidthAndHeight,
-            CanResize = false,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-        };
-        var text = new TextBox { Width = 360, Height = 90, AcceptsReturn = true, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
-        var size = new NumericUpDown { Value = 200, Minimum = 50, Maximum = 2000, Increment = 50, FormatString = "0", Width = 140 };
-        var insert = new Button { Content = Texts.Linux("ok"), IsDefault = false };
-        var cancel = new Button { Content = Texts.Linux("cancel"), IsCancel = true };
-        insert.Click += (_, _) =>
-        {
-            if (string.IsNullOrWhiteSpace(text.Text))
-            {
-                return;
-            }
-
-            using var code = Barcodes.CreateQrCode(text.Text, (int)(size.Value ?? 200));
-            controller.PasteImage(code);
-            dialog.Close();
-        };
-        cancel.Click += (_, _) => dialog.Close();
-        var buttons = Ui.Horizontal(insert, cancel);
-        buttons.HorizontalAlignment = HorizontalAlignment.Right;
-        dialog.Content = Ui.Page(
-            new TextBlock { Text = Texts.Linux("insert_qr_text") },
-            text,
-            Ui.Row(Texts.Editor("resize_width"), size),
-            buttons);
-        dialog.Opened += (_, _) => text.Focus();
         await dialog.ShowDialog(owner);
     }
 }

@@ -168,4 +168,42 @@ public class SelectionModelTests
         var (model, _) = Create(CaptureMode.Window, new SelectableWindow("Gone", new SKRectI(2000, 2000, 2100, 2100)));
         Assert.False(model.CanSelectWindows);
     }
+
+    private static readonly Greenshot.Linux.Core.Barcodes.DetectedBarcode Code =
+        new("https://getgreenshot.org", "QR_CODE", [new SKPoint(500, 500), new SKPoint(560, 500), new SKPoint(500, 560)]);
+
+    [Fact]
+    public void A_click_on_a_qr_code_frame_shows_its_menu_instead_of_selecting()
+    {
+        var (model, results) = Create();
+        Greenshot.Linux.Core.Barcodes.DetectedBarcode? clicked = null;
+        model.HotspotClicked += code => clicked = code;
+        model.SetHotspots([Code]);
+
+        model.MoveTo(new SKPointI(530, 530));
+        Assert.Same(Code, model.HoveredHotspot);
+        model.Press();
+
+        Assert.Same(Code, clicked);
+        Assert.False(model.IsSelecting);
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void The_codes_in_the_selection_come_with_the_result()
+    {
+        var (model, results) = Create();
+        var outside = new Greenshot.Linux.Core.Barcodes.DetectedBarcode("other", "QR_CODE", [new SKPoint(10, 10), new SKPoint(40, 40)]);
+        model.SetHotspots([Code, outside]);
+
+        model.MoveTo(new SKPointI(450, 450));
+        model.Press();
+        // While selecting, the frames don't take the click
+        model.MoveTo(new SKPointI(600, 600));
+        Assert.Null(model.HoveredHotspot);
+        model.Release();
+
+        var result = Assert.Single(results);
+        Assert.Same(Code, Assert.Single(result!.Barcodes));
+    }
 }

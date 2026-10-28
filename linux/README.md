@@ -23,6 +23,7 @@ and the visual recipe editor. The full command line and the MCP server follow, s
 | Destinations: Open in image editor, Save, Save as… (desktop file dialog), Copy to clipboard, Picker | ✅ |
 | Destinations: Printer (print dialog of the desktop, the print options of Windows), E-Mail (mail program with the capture attached) | ✅ Print / Email portal, else `lp` / `xdg-email` |
 | Destinations: copy the text (OCR), copy the text of QR codes and barcodes (the link opens from the notification) | ✅ OCR needs tesseract |
+| QR codes on the capture screen: found while selecting and framed, a click copies the text or opens the link; the ones in the selection are listed in the notification (Settings > Capture) | ✅ |
 | Capture text: `T` on the capture screen, the text of the selection goes to the clipboard | ✅ needs tesseract |
 | Filename patterns (`${capturetime}`, `${title}`, `${NUM}`, `${YYYY}`, padding, substrings, …) | ✅ same as Windows |
 | Notifications with thumbnail; click opens the file | ✅ |
@@ -86,7 +87,8 @@ and Hyprland Greenshot asks the compositor for the titles every 5 seconds, elsew
 | Save, save as (also as editable `.greenshot`), copy, export to every destination, ask to save when closing | ✅ |
 | Open images and `.greenshot` files: tray menu, `greenshot <file>`, "Open with" in file managers, the clipboard | ✅ |
 | `.greenshot` files of the Windows editor: the elements open editable (shapes, text, speech bubbles, arrows, freehand, step labels, highlight, obfuscate, emoji, cut and torn edges, images, icons, SVG) | ✅ Windows metafiles (WMF/EMF) are left out with a note |
-| Redact text (OCR): find text and pixelate or blur it; insert a QR code | ✅ |
+| Redact text (OCR): find text and pixelate or blur it | ✅ |
+| QR codes and barcodes (Object > Insert QR / Barcode): 15 formats, QR codes for text, WiFi, contacts, SEPA transfers, email, calendar events, phone, SMS and places; colors, rounded dots, stays sharp when resized, double-click changes it | ✅ |
 | Tabs: new captures open as a tab of the editor used last (Settings > Editor), "+" for a new image, close, move left / right or to a new window (context menu of a tab), Ctrl+W / Ctrl+Tab / Ctrl+PageUp/PageDown | ✅ dragging tabs between windows: use the context menu |
 
 The keys are the ones of the Windows editor: R rectangle, E ellipse, L line, A arrow, F freehand, T text, S speech bubble,
@@ -293,8 +295,8 @@ linux/
 1. **Capturing** ✅
 2. **Editor** ✅ (tabs, emoji, crop out, torn edges and reading Windows `.greenshot` files included)
 3. **Settings window, welcome window, languages** ✅ (translations of the Linux only texts are still to do)
-4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net). Still to do: the QR frames
-   on the capture screen and the QR generator with its WiFi / vCard / calendar types
+4. **Destinations** ✅ printer, email, OCR and text capture (tesseract), QR codes (ZXing.Net) with the frames on the
+   capture screen and the QR generator
 5. **Plugins**: external command, PDF, custom uploader, Box, Dropbox, Jira, Confluence ✅
 6. **Recipes**: the engine, steps, triggers, approval, options and quick preferences ✅; the recipe manager and the visual
    editor ✅; the command line ✅; the MCP server for AI tools ✅

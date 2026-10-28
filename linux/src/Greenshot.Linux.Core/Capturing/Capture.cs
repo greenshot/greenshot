@@ -62,6 +62,11 @@ public sealed class CaptureDetails
     public CaptureMode Mode { get; init; }
 
     public Dictionary<string, string> MetaData { get; } = new();
+
+    /// <summary>
+    /// The QR codes found in the capture while selecting, shown in the notification
+    /// </summary>
+    public List<Barcodes.DetectedBarcode> Barcodes { get; } = new();
 }
 
 /// <summary>

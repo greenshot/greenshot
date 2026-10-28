@@ -38,7 +38,7 @@
         <MenuItem Header="{l:Text Editor.counter_startvalue}" Click="OnCounterStart" />
         <Separator />
         <MenuItem Header="{l:Text Editor.obfuscate_text}" Click="OnRedactText" />
-        <MenuItem Header="{l:Text Linux.insert_qr}" Click="OnInsertQrCode" />
+        <MenuItem Header="{l:Text Zxing.editor_menu}" Click="OnInsertQrCode" />
       </MenuItem>
       <MenuItem Header="{l:Text Linux.image}">
         <MenuItem Header="{l:Text Editor.crop}" InputGesture="C" Click="OnCropTool" />

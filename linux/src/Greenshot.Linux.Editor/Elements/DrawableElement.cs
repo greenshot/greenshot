@@ -78,6 +78,7 @@ public readonly record struct Handle(HandlePosition Position, SKPoint Location);
 [JsonDerivedType(typeof(CutMarkElement), "cutmark")]
 [JsonDerivedType(typeof(TornEdgeElement), "tornedge")]
 [JsonDerivedType(typeof(EmojiElement), "emoji")]
+[JsonDerivedType(typeof(BarcodeElement), "barcode")]
 public abstract class DrawableElement
 {
     /// <summary>

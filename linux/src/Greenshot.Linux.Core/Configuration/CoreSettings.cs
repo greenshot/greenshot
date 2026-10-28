@@ -174,6 +174,15 @@ public sealed class CoreSettings
     }
 
     /// <summary>
+    /// Scan the screen for QR codes while selecting: they are framed and listed in the notification ([Zxing] ScanOnCapture of Windows)
+    /// </summary>
+    public bool ZxingScanOnCapture
+    {
+        get => !bool.TryParse(GetValue("Zxing", "ScanOnCapture"), out var value) || value;
+        set => SetValue("Zxing", "ScanOnCapture", value ? "True" : "False");
+    }
+
+    /// <summary>
     /// More places of greenshot-mcp which may connect besides Greenshot's folder, for development builds
     /// </summary>
     public IReadOnlyList<string> AiToolsMcpServerPaths => GetList(nameof(AiToolsMcpServerPaths), string.Empty);
