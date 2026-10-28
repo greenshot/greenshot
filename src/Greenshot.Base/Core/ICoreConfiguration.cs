@@ -426,15 +426,23 @@ namespace Greenshot.Base.Core
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
-        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas")]
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas. Optionally with a place: 1280x720+100+200 is 100, 200 from the top left of the main monitor, 1280x720+100+200@1920+0 of the monitor at 1920, 0, 1280x720+10+40@notepad.exe of the content of a window of notepad.exe")]
         [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
         List<string> FixedCaptureSizes { get; set; }
 
-        [Description("The sizes of the last region captures, the fixed size capture offers them below its own sizes")]
-        List<string> RecentCaptureSizes { get; set; }
+        [Description("The sizes and places of the last region captures (e.g. 1280x720+100+200@1920+0), the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureAreas { get; set; }
 
-        [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
-        NativeSize FixedCaptureSize { get; set; }
+        [Description("The size and place of the last fixed size capture (e.g. 1280x720+100+200), the fixed size capture starts with it")]
+        string FixedCaptureArea { get; set; }
+
+        [Description("What the fixed size capture remembers of the last region captures: Size, Screen (also the place on the monitor) or Window (also the place in the window of the program, else on the monitor)")]
+        [DefaultValue("Window")]
+        FixedCaptureRemember FixedCaptureRemembers { get; set; }
+
+        [Description("Picking a size with a place in the fixed size capture moves the mouse so the area is there; false: the place is only shown, the area snaps onto it")]
+        [DefaultValue(true)]
+        bool FixedCaptureMovesCursor { get; set; }
 
         [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
         [DefaultValue("TopLeft")]
