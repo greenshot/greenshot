@@ -234,8 +234,12 @@ namespace Greenshot.Recipes.Steps
                 context.LogStep($"Warning: No active destinations resolved for designations: {string.Join(", ", designations)}");
             }
 
+            bool manuallyInitiated = string.Equals(Config.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase)
+                && string.IsNullOrWhiteSpace(Config.GetParameter<string>("PrinterName"))
+                && (Config.GetParameter<bool?>("ShowPrintDialog") ?? false);
+
             var dispatcher = _dispatcher ?? new DestinationDispatcher();
-            await dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
+            await dispatcher.DispatchAsync(context, destinations, cancellationToken, manuallyInitiated).ConfigureAwait(false);
         }
 
         private void ApplyCustomFileSettings(CaptureFlowContext context)
