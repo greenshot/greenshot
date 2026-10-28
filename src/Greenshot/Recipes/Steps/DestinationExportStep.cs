@@ -44,7 +44,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
     [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
-    [StepParameter("PrintInteractionMode", ContractDataType.Enum, Description = "Print interaction mode (Printer)", AllowedValues = new[] { "Automatic", "SilentDefaultPrinter", "GreenshotOptionsThenPrint", "FullPrinterDialog" })]
+    [StepParameter("PrintInteractionMode", ContractDataType.Enum, Description = "Print interaction mode (Printer)", AllowedValues = new[] { "Automatic", "SilentDefaultPrinter", "QuickPrintDialog", "FullPrinterDialog" })]
     [StepParameter("AllowRotate", ContractDataType.Boolean, Description = "Rotate to fit the page (Printer)")]
     [StepParameter("AllowEnlarge", ContractDataType.Boolean, Description = "Enlarge to fit the page (Printer)")]
     [StepParameter("AllowShrink", ContractDataType.Boolean, Description = "Shrink to fit the page (Printer)")]
@@ -180,7 +180,7 @@ namespace Greenshot.Recipes.Steps
                     {
                         promptOptions = false;
                     }
-                    else if (interactionMode == PrintInteractionMode.GreenshotOptionsThenPrint)
+                    else if (interactionMode == PrintInteractionMode.QuickPrintDialog)
                     {
                         promptOptions = true;
                     }

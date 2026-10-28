@@ -2584,7 +2584,7 @@
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag="Automatic"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogSilent}" Tag="SilentDefaultPrinter"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintInteractionModeGreenshotOptionsThenPrint}" Tag="GreenshotOptionsThenPrint"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintInteractionModeQuickPrintDialog}" Tag="QuickPrintDialog"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintInteractionModeFullPrinterDialog}" Tag="FullPrinterDialog"/>
                                             </ComboBox>
 

@@ -40,7 +40,7 @@ namespace Greenshot.Destinations
     {
         Automatic,
         SilentDefaultPrinter,
-        GreenshotOptionsThenPrint,
+        QuickPrintDialog,
         FullPrinterDialog
     }
 
@@ -89,7 +89,7 @@ namespace Greenshot.Destinations
                 case PrintInteractionMode.FullPrinterDialog:
                     printerSettings = printHelper.PrintWithDialog();
                     break;
-                case PrintInteractionMode.GreenshotOptionsThenPrint:
+                case PrintInteractionMode.QuickPrintDialog:
                     printerSettings = printHelper.PrintTo(string.IsNullOrEmpty(request.PrinterName) ? new PrinterSettings().PrinterName : request.PrinterName);
                     break;
                 case PrintInteractionMode.SilentDefaultPrinter:

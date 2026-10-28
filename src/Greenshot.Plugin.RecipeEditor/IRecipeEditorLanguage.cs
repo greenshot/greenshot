@@ -1917,9 +1917,9 @@ namespace Greenshot.Plugin.RecipeEditor
         string PrintInteractionMode { get; }
 
         /// <summary>
-        /// Print with Greenshot options first
+        /// Show the quick print dialog before printing
         /// </summary>
-        string PrintInteractionModeGreenshotOptionsThenPrint { get; }
+        string PrintInteractionModeQuickPrintDialog { get; }
 
         /// <summary>
         /// Full printer dialog
