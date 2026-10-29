@@ -318,6 +318,30 @@ namespace Greenshot.Base.Video
 
         private async Task InitializeTranscoderAsync()
         {
+            PrepareTranscodeResult prepareOp;
+            try
+            {
+                prepareOp = await PrepareTranscodeAsync(hardwareAcceleration: true).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // Some hardware encoders reject the raw frames (e.g. MF_E_TRANSFORM_TYPE_NOT_SET), the software encoder is slower but works.
+                // A failed attempt shuts the MediaStreamSource down, so the second attempt builds everything new.
+                Log.Warn($"Preparing the video transcode with hardware acceleration failed ({ex.Message}), trying again without it.");
+                ReleaseMediaStreamSource();
+                prepareOp = await PrepareTranscodeAsync(hardwareAcceleration: false).ConfigureAwait(false);
+            }
+
+            if (!prepareOp.CanTranscode)
+            {
+                throw new InvalidOperationException($"Cannot transcode video: {prepareOp.FailureReason}");
+            }
+
+            _transcodeTask = prepareOp.TranscodeAsync().AsTask();
+        }
+
+        private async Task<PrepareTranscodeResult> PrepareTranscodeAsync(bool hardwareAcceleration)
+        {
             MediaEncodingProfile profile;
             if (_options.Format == VideoFormat.Mp4_HEVC)
             {
@@ -354,18 +378,17 @@ namespace Greenshot.Base.Video
 
             var videoDescriptor = new VideoStreamDescriptor(videoProperties);
 
+            AudioStreamDescriptor audioDescriptor = null;
             if (_audioProvider != null)
             {
                 profile.Audio = AudioEncodingProperties.CreateAac((uint)_audioProvider.SampleRate, (uint)_audioProvider.Channels, 192000);
                 var audioProperties = AudioEncodingProperties.CreatePcm((uint)_audioProvider.SampleRate, (uint)_audioProvider.Channels, (uint)_audioProvider.BitsPerSample);
-                var audioDescriptor = new AudioStreamDescriptor(audioProperties);
-                _mediaStreamSource = new MediaStreamSource(videoDescriptor, audioDescriptor);
-            }
-            else
-            {
-                _mediaStreamSource = new MediaStreamSource(videoDescriptor);
+                audioDescriptor = new AudioStreamDescriptor(audioProperties);
             }
 
+            _mediaStreamSource = audioDescriptor != null
+                ? new MediaStreamSource(videoDescriptor, audioDescriptor)
+                : new MediaStreamSource(videoDescriptor);
             _mediaStreamSource.BufferTime = TimeSpan.Zero;
             _mediaStreamSource.Starting += OnMediaStreamSourceStarting;
             _mediaStreamSource.SampleRequested += OnMediaStreamSourceSampleRequested;
@@ -376,16 +399,29 @@ namespace Greenshot.Base.Video
 
             var transcoder = new MediaTranscoder
             {
-                HardwareAccelerationEnabled = true
+                HardwareAccelerationEnabled = hardwareAcceleration
             };
 
-            var prepareOp = await transcoder.PrepareMediaStreamSourceTranscodeAsync(_mediaStreamSource, _randomAccessStream, profile).AsTask().ConfigureAwait(false);
-            if (!prepareOp.CanTranscode)
+            return await transcoder.PrepareMediaStreamSourceTranscodeAsync(_mediaStreamSource, _randomAccessStream, profile).AsTask().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Drops the MediaStreamSource and the output stream of a failed attempt, so its events don't end the recording
+        /// </summary>
+        private void ReleaseMediaStreamSource()
+        {
+            if (_mediaStreamSource != null)
             {
-                throw new InvalidOperationException($"Cannot transcode video: {prepareOp.FailureReason}");
+                _mediaStreamSource.Starting -= OnMediaStreamSourceStarting;
+                _mediaStreamSource.SampleRequested -= OnMediaStreamSourceSampleRequested;
+                _mediaStreamSource.Closed -= OnMediaStreamSourceClosed;
+                _mediaStreamSource = null;
             }
 
-            _transcodeTask = prepareOp.TranscodeAsync().AsTask();
+            _randomAccessStream?.Dispose();
+            _randomAccessStream = null;
+            _fileStream?.Dispose();
+            _fileStream = null;
         }
 
         private void InitializeFramePool()
