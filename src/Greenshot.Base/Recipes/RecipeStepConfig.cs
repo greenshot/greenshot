@@ -241,7 +241,7 @@ namespace Greenshot.Base.Recipes
         public static RecipeNodeConfig CreatePrinter(
             string id = "printer",
             string printerName = null,
-            bool? promptOptions = null,
+            string printInteractionMode = null,
             bool? allowRotate = null,
             bool? allowEnlarge = null,
             bool? allowShrink = null,
@@ -252,7 +252,7 @@ namespace Greenshot.Base.Recipes
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Printer, "Send to Printer");
             if (!string.IsNullOrEmpty(printerName)) node.Set("PrinterName", printerName);
-            if (promptOptions.HasValue) node.Set("ShowPrintDialog", promptOptions.Value);
+            if (!string.IsNullOrEmpty(printInteractionMode)) node.Set("PrintInteractionMode", printInteractionMode);
             if (allowRotate.HasValue) node.Set("AllowRotate", allowRotate.Value);
             if (allowEnlarge.HasValue) node.Set("AllowEnlarge", allowEnlarge.Value);
             if (allowShrink.HasValue) node.Set("AllowShrink", allowShrink.Value);

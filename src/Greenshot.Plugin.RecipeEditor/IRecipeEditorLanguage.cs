@@ -1912,14 +1912,19 @@ namespace Greenshot.Plugin.RecipeEditor
         string PrinterName { get; }
 
         /// <summary>
-        /// Show Print Dialog
+        /// Print Interaction Mode
         /// </summary>
-        string ShowPrintDialog { get; }
+        string PrintInteractionMode { get; }
 
         /// <summary>
-        /// Always Show Print Dialog
+        /// Show the quick print dialog before printing
         /// </summary>
-        string PrintDialogAlways { get; }
+        string PrintInteractionModeQuickPrintDialog { get; }
+
+        /// <summary>
+        /// Full printer dialog
+        /// </summary>
+        string PrintInteractionModeFullPrinterDialog { get; }
 
         /// <summary>
         /// Silent (Direct Print)

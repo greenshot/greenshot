@@ -3183,10 +3183,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("PrinterName", value); OnPropertyChanged(nameof(PrinterName)); }
         }
 
-        public string PrinterShowPrintDialog
+        public string PrinterInteractionMode
         {
-            get => GetTriStateParam("ShowPrintDialog");
-            set { SetTriStateParam("ShowPrintDialog", value); OnPropertyChanged(nameof(PrinterShowPrintDialog)); }
+            get => GetParam("PrintInteractionMode", "Automatic");
+            set { SetParamOrRemoveIfEmpty("PrintInteractionMode", value); OnPropertyChanged(nameof(PrinterInteractionMode)); }
         }
 
         public string PrinterAllowRotate
@@ -3780,7 +3780,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));
             OnPropertyChanged(nameof(PrinterName));
-            OnPropertyChanged(nameof(PrinterShowPrintDialog));
+            OnPropertyChanged(nameof(PrinterInteractionMode));
             OnPropertyChanged(nameof(PrinterAllowRotate));
             OnPropertyChanged(nameof(PrinterAllowEnlarge));
             OnPropertyChanged(nameof(PrinterAllowShrink));
