@@ -84,6 +84,11 @@ namespace Greenshot.Recipes.Pipeline
 
         public IReadOnlyCollection<CaptureFlowHandle> Running => _running.Values.ToList();
 
+        /// <summary>
+        /// A flow ended (also cancelled or failed), raised on the thread pool after it was removed from <see cref="Running"/>
+        /// </summary>
+        public event EventHandler FlowEnded;
+
         public CaptureFlowHandle Start(CaptureRecipe recipe, FlowTriggerContext trigger = null, Action<CaptureFlowContext> configure = null)
         {
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
@@ -164,6 +169,15 @@ namespace Greenshot.Recipes.Pipeline
                 _running.TryRemove(handle.Id, out _);
                 FlowDiagnostics.FlowEnded(handle.Id);
                 cancellation.Dispose();
+            }
+
+            try
+            {
+                FlowEnded?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error in a handler of the end of a flow", ex);
             }
 
             if (result.State == CaptureFlowState.Failed && !_stopped)

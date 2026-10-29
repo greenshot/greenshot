@@ -90,6 +90,11 @@ namespace Greenshot.Editor.Forms
         private static readonly object OpenWindowsLock = new();
         private static ImageEditorForm _lastActiveWindow;
 
+        /// <summary>
+        /// The last open editor window closed, raised on the UI thread
+        /// </summary>
+        public static event EventHandler LastWindowClosed;
+
         // The surface of the selected tab
         private Surface _surface;
         private List<BidirectionalBinding> _fieldBindings = new();
@@ -947,9 +952,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void RemoveFromOpenWindows()
         {
+            bool lastWindowClosed;
             lock (OpenWindowsLock)
             {
-                OpenWindowList.Remove(this);
+                lastWindowClosed = OpenWindowList.Remove(this) && OpenWindowList.Count == 0;
+            }
+
+            if (lastWindowClosed)
+            {
+                LastWindowClosed?.Invoke(null, EventArgs.Empty);
             }
 
             if (_lastActiveWindow == this)
