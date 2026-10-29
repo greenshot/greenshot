@@ -135,10 +135,10 @@ namespace Greenshot.Base.Interfaces.Drawing
         void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs);
 
         /// <summary>
-        /// Snap the container to the edge of the surface.
+        /// Snap the container to the edge of the surface. The caller is responsible for making the change undoable.
         /// </summary>
         /// <param name="direction">Direction in which to move the container.</param>
-        /// <param name="surface">The surface the container belongs to.</param>
+        /// <param name="surfaceSize">The size of the surface the container belongs to.</param>
         void SnapToEdge(Direction direction, Size surfaceSize);
     }
 }
