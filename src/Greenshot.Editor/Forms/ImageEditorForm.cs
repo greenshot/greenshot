@@ -410,6 +410,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
+            InitializeMeasurements();
             // Before the texts are applied
             CreateTabContextMenu();
             timing.Mark("InitializeComponent");
@@ -1052,6 +1053,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void BindSurface()
         {
+            BindMeasurements();
             _surface.MovingElementChanged += SurfaceMovingElementChanged;
             _surface.DrawingModeChanged += Surface_DrawingModeChanged;
             _surface.SurfaceSizeChanged += SurfaceSizeChanged;
@@ -1066,6 +1068,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void UnbindSurface()
         {
+            UnbindMeasurements();
             _surface.MovingElementChanged -= SurfaceMovingElementChanged;
             _surface.DrawingModeChanged -= Surface_DrawingModeChanged;
             _surface.SurfaceSizeChanged -= SurfaceSizeChanged;
@@ -1156,7 +1159,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji, _scaleButton
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1398,6 +1401,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
         private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
         }
 
@@ -1408,6 +1412,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
         private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
         }
 
@@ -1459,6 +1464,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void SurfaceMovingElementChanged(object sender, SurfaceElementEventArgs e)
         {
+            UpdateMeasurements();
             RefreshEditorControls();
         }
 
@@ -1475,6 +1481,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             switch (drawingMode)
             {
+                case DrawingModes.Scale:
+                    SetButtonChecked(_scaleButton);
+                    break;
                 case DrawingModes.None:
                     SetButtonChecked(btnCursor);
                     break;
@@ -2011,13 +2020,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// A text field has the focus: one of a tool bar, or the text of an element on the canvas. Its keys stay with it.
         /// </summary>
-        private bool IsTyping => _toolBarFieldFocused || _surface?.KeysLocked == true;
+        private bool IsTyping => _toolBarFieldFocused || _surface?.KeysLocked == true || _measurementPanel?.IsEditingValue == true;
 
         /// <summary>
         /// The menu, a tool bar or the tabs have the focus, they use the arrow keys, Enter and so on themselves
         /// </summary>
         private bool ToolBarsHaveFocus => menuStrip1.ContainsFocus || toolsToolStrip.ContainsFocus || propertiesToolStrip.ContainsFocus
-                                          || destinationsToolStrip.ContainsFocus || tabStrip.ContainsFocus;
+                                          || destinationsToolStrip.ContainsFocus || tabStrip.ContainsFocus || _measurementPanel?.ContainsFocus == true;
 
         /// <summary>
         /// The single keys (the letters of the tools, the arrows, Enter, Esc...) go to the canvas, unless the focus is in a text field,
@@ -2160,6 +2169,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// </summary>
         private bool LeavesToolBar(Keys keys, Control focused)
         {
+            if (_measurementPanel?.ContainsFocus == true && _measurementPanel.IsEditingValue) return false;
             if (keys == Keys.Enter)
             {
                 return _toolBarFieldFocused && FindParent<NumericUpDown>(focused) != null;
@@ -2193,7 +2203,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private void FocusNextPart(bool forward)
         {
             const int canvasIndex = 4;
-            var parts = new Control[] { menuStrip1, toolsToolStrip, propertiesToolStrip, destinationsToolStrip, _surface, tabStrip };
+            var parts = new Control[] { menuStrip1, toolsToolStrip, propertiesToolStrip, destinationsToolStrip, _surface, _measurementPanel, tabStrip };
             int current = Array.FindIndex(parts, part => part != null && part.ContainsFocus);
             if (current < 0)
             {
@@ -2218,6 +2228,11 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         return;
                     case ToolStripEx:
                         continue;
+                    case MeasurementPanel measurementPanel when !measurementPanel.IsExpanded:
+                        continue;
+                    case MeasurementPanel measurementPanel:
+                        measurementPanel.FocusProperties();
+                        return;
                     case EditorTabStrip:
                         part.Select();
                         return;
@@ -2514,6 +2529,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 HideToolstripItems();
             }
 
+            RefreshQuickColors();
             propertiesToolStrip.ResumeLayout();
         }
 

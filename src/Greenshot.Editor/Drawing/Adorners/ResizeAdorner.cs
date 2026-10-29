@@ -112,6 +112,8 @@ namespace Greenshot.Editor.Drawing.Adorners
             // calculate scaled rectangle
             _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Position, new NativePointFloat(mouseEventArgs.X, mouseEventArgs.Y), scaleOptions);
 
+            _boundsAfterResize = (Owner.Parent as Surface)?.SnapHandleBounds(Owner, _boundsBeforeResize, Position, mouseEventArgs.Location, _boundsAfterResize, scaleOptions) ?? _boundsAfterResize;
+
             // apply scaled bounds to this DrawableContainer
             Owner.ApplyBounds(_boundsAfterResize);
 
@@ -126,6 +128,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         public override void MouseUp(object sender, MouseEventArgs mouseEventArgs)
         {
             base.MouseUp(sender, mouseEventArgs);
+            (Owner.Parent as Surface)?.ClearSnapGuide();
             _isResizeMadeUndoable = false;
         }
 

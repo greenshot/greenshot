@@ -176,6 +176,9 @@ namespace Greenshot.Editor.Drawing
         }
 
 
+        [field: NonSerialized]
+        public event EventHandler GeometryChanged;
+
         private int left;
 
         public int Left
@@ -189,6 +192,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 left = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -205,6 +209,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 top = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -221,6 +226,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 width = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -237,6 +243,7 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 height = value;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -247,6 +254,7 @@ namespace Greenshot.Editor.Drawing
             {
                 left = value.X;
                 top = value.Y;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -257,6 +265,7 @@ namespace Greenshot.Editor.Drawing
             {
                 width = value.Width;
                 height = value.Height;
+                GeometryChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -557,6 +566,8 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true if the event is handled, false if the surface needs to handle it</returns>
         public virtual bool HandleMouseDown(int x, int y)
         {
+            var start = InternalParent?.SnapDrawingStart(new Point(x, y), this) ?? new Point(x, y);
+            x = start.X; y = start.Y;
             _boundsBeforeResize = Bounds.MoveTo(x, y);
             Left =  x;
             Top = y;
@@ -578,6 +589,8 @@ namespace Greenshot.Editor.Drawing
 
             var scaleOptions = (this as IHaveScaleOptions)?.GetScaleOptions();
             _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize.Round(), x, y, GetAngleRoundProcessor(), scaleOptions);
+
+            _boundsAfterResize = InternalParent?.SnapDrawingBounds(this, new NativeRect(_boundsBeforeResize.X, _boundsBeforeResize.Y, x - _boundsBeforeResize.X, y - _boundsBeforeResize.Y), new Point(x, y), _boundsAfterResize, GetAngleRoundProcessor(), scaleOptions) ?? _boundsAfterResize;
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);

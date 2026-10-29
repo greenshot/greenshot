@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Measurements;
 
 namespace Greenshot.Editor.Memento
 {
@@ -34,6 +35,7 @@ namespace Greenshot.Editor.Memento
         private Image _image;
         private ISurface _surface;
         private Matrix _matrix;
+        private readonly MeasurementState _measurements;
 
         /// <summary>
         /// The image this memento restores, used to limit the memory of the undo stack
@@ -43,6 +45,7 @@ namespace Greenshot.Editor.Memento
         public SurfaceBackgroundChangeMemento(ISurface surface, Matrix matrix)
         {
             _surface = surface;
+            _measurements = (surface as IMeasurementSurface)?.Measurements;
             _image = surface.Image;
             if (matrix != null)
             {
@@ -85,6 +88,7 @@ namespace Greenshot.Editor.Memento
         {
             SurfaceBackgroundChangeMemento oldState = new SurfaceBackgroundChangeMemento(_surface, _matrix);
             _surface.UndoBackgroundChange(_image, _matrix);
+            (_surface as IMeasurementSurface)?.RestoreMeasurements(_measurements);
             _surface.Invalidate();
             return oldState;
         }

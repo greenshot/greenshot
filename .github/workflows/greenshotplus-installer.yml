@@ -1,0 +1,32 @@
+name: GreenShotPlus installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build full application and installer
+        shell: pwsh
+        run: ./installer/build-greenshotplus.ps1 -PlatformToolset v143
+      - name: Check current-user installation and uninstall
+        shell: pwsh
+        run: ./installer/test-user-install.ps1 -InstallerPath ./installer/GreenShotPlus-Setup.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GreenShotPlus-Windows-Installer
+          path: |
+            installer/GreenShotPlus-Setup.exe
+            installer/GreenShotPlus-Setup.exe.sha256
+          if-no-files-found: error

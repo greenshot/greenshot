@@ -33,7 +33,11 @@ OutputDir=..\..\installer
 PrivilegesRequiredOverridesAllowed=dialog
 ; admin privileges not required, unless user chooses all-users installation
 ; the installer will ask for elevation if needed
+#ifdef PreferCurrentUser
+PrivilegesRequired=lowest
+#else
 PrivilegesRequired=admin
+#endif
 UsePreviousPrivileges=no
 UsedUserAreasWarning=no
 MissingMessagesWarning=no
