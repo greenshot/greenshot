@@ -409,6 +409,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            panel1.MouseDoubleClick += CanvasBackgroundMouseDoubleClick;
             ApplyImages();
             // Before the texts are applied
             CreateTabContextMenu();
@@ -3219,6 +3220,37 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 };
                 ApplyEffect(removeTransparencyEffect);
             }
+        }
+
+        private void CanvasBackgroundMouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || _surface?.Image == null)
+            {
+                return;
+            }
+
+            if (WindowState == FormWindowState.Maximized)
+            {
+                WindowState = FormWindowState.Normal;
+            }
+
+            var chromeSize = GetChromeSize();
+            if (panel1.VerticalScroll.Visible)
+            {
+                chromeSize.Width -= SystemInformation.VerticalScrollBarWidth;
+            }
+            if (panel1.HorizontalScroll.Visible)
+            {
+                chromeSize.Height -= SystemInformation.HorizontalScrollBarHeight;
+            }
+
+            var available = Screen.FromControl(this).WorkingArea;
+            var desired = _surface.Size + chromeSize;
+            Size = new Size(Math.Min(desired.Width, available.Width), Math.Min(desired.Height, available.Height));
+            Location = new Point(
+                Math.Max(available.Left, Math.Min(Left, available.Right - Width)),
+                Math.Max(available.Top, Math.Min(Top, available.Bottom - Height)));
+            AlignCanvasPositionAfterResize();
         }
 
         private void ImageEditorFormResize(object sender, EventArgs e)
