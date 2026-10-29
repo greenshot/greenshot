@@ -70,6 +70,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Upon restart by the Windows Restart Manager, Greenshot automatically reopens all previously open editors
 - Enhances reliability during Windows Updates, preventing loss of unsaved work
 - Uses the `--restore` command line argument internally to detect restart scenarios
+- An update from a deployment tool (as SYSTEM, from a service) no longer fails or damages the installation while Greenshot runs: the files in use are set aside, and Greenshot restarts into the new version when nothing is open (#732)
 
 #### 📸 Capture Improvements
 

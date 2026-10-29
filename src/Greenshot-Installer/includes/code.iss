@@ -204,6 +204,151 @@ begin
   RegDeleteKeyIncludingSubkeys(HKCU, 'Software\Microsoft\Active Setup\Installed Components\{{#AutostartComponentGuid}}');
 end;
 
+/////////////////////////////////////////////////////////////////////
+// Files in use are set aside (issue #732). A deployment tool often runs the setup in another session (as SYSTEM, from a service),
+// there it can't see or close the Greenshot of the user (the Restart Manager reports "Session Mismatch"). A running program or a
+// loaded library can't be replaced or deleted, but it can be renamed: it's renamed to *.old, the new file is installed under its name.
+// The running Greenshot keeps its files and notices the new version itself (InstalledUpdate.cs). The *.old files are deleted at the
+// next restart of Windows, by the next setup and by the uninstaller. See docs/vNext/autostart.md.
+/////////////////////////////////////////////////////////////////////
+var
+  // The files in use and the names they were renamed to, at the same index
+  SetAsideFiles, SetAsideNames: TStringList;
+  InstallationDone: Boolean;
+
+// A file which can't be opened exclusively for writing is in use: a running program or a loaded library
+function IsFileInUse(FileName: String): Boolean;
+var
+  Stream: TFileStream;
+begin
+  Result := False;
+  try
+    Stream := TFileStream.Create(FileName, fmOpenReadWrite or fmShareExclusive);
+    Stream.Free;
+  except
+    Result := True;
+  end;
+end;
+
+// The name a file in use gets: FileName.old, or FileName.1.old when an earlier one is still in use
+function GetSetAsideName(FileName: String): String;
+var
+  Number: Integer;
+begin
+  Result := FileName + '.old';
+  Number := 0;
+  while FileExists(Result) and not DeleteFile(Result) do
+  begin
+    Number := Number + 1;
+    Result := FileName + '.' + IntToStr(Number) + '.old';
+  end;
+end;
+
+// Finds the files in use in the directory and its sub directories. With Rename they are renamed to *.old (remembered in SetAsideFiles
+// and SetAsideNames), else only tried: renamed and back. Returns False when a file in use can't be renamed.
+function SetAsideFilesInUse(Directory: String; Rename: Boolean): Boolean;
+var
+  FindRec: TFindRec;
+  FileName, SetAsideName: String;
+begin
+  Result := True;
+  if not FindFirst(AddBackslash(Directory) + '*', FindRec) then
+    exit;
+  try
+    repeat
+      if (FindRec.Name = '.') or (FindRec.Name = '..') then
+        continue;
+      FileName := AddBackslash(Directory) + FindRec.Name;
+      if FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY <> 0 then
+      begin
+        if not SetAsideFilesInUse(FileName, Rename) then
+          Result := False;
+        continue;
+      end;
+      if CompareText(ExtractFileExt(FileName), '.old') = 0 then
+        continue;
+      if not IsFileInUse(FileName) then
+        continue;
+      SetAsideName := GetSetAsideName(FileName);
+      if not RenameFile(FileName, SetAsideName) then
+      begin
+        Log('In use and can not be renamed: ' + FileName);
+        Result := False;
+      end
+      else if Rename then
+      begin
+        Log('In use, renamed to ' + SetAsideName);
+        SetAsideFiles.Add(FileName);
+        SetAsideNames.Add(SetAsideName);
+      end
+      else if not RenameFile(SetAsideName, FileName) then
+      begin
+        // Can't happen for a file we could rename a moment ago, but then it stays set aside
+        Log('In use, renamed to ' + SetAsideName + ', it could not be renamed back');
+        SetAsideFiles.Add(FileName);
+        SetAsideNames.Add(SetAsideName);
+      end;
+    until not FindNext(FindRec);
+  finally
+    FindClose(FindRec);
+  end;
+end;
+
+// Deletes the *.old files which aren't in use anymore. With AtRestart the others are deleted at the next restart of Windows
+// (needs administrator rights), else they stay for the next setup.
+procedure DeleteSetAsideFiles(Directory: String; AtRestart: Boolean);
+var
+  FindRec: TFindRec;
+  FileName: String;
+begin
+  if not FindFirst(AddBackslash(Directory) + '*', FindRec) then
+    exit;
+  try
+    repeat
+      if (FindRec.Name = '.') or (FindRec.Name = '..') then
+        continue;
+      FileName := AddBackslash(Directory) + FindRec.Name;
+      if FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY <> 0 then
+      begin
+        DeleteSetAsideFiles(FileName, AtRestart);
+        continue;
+      end;
+      if CompareText(ExtractFileExt(FileName), '.old') <> 0 then
+        continue;
+      if DeleteFile(FileName) or not AtRestart then
+        continue;
+      try
+        RestartReplace(FileName, '');
+        Log('Still in use, deleted at the next restart of Windows: ' + FileName);
+      except
+        Log('Still in use, deleted by the next setup: ' + FileName);
+      end;
+    until not FindNext(FindRec);
+  finally
+    FindClose(FindRec);
+  end;
+end;
+
+// The setup ended without installing (cancelled, or an error rolled it back): the files set aside get their names back
+procedure RestoreSetAsideFiles();
+var
+  I: Integer;
+begin
+  for I := 0 to SetAsideFiles.Count - 1 do
+  begin
+    if FileExists(SetAsideFiles[I]) then
+      Log('Not renamed back, ' + SetAsideFiles[I] + ' exists')
+    else if not RenameFile(SetAsideNames[I], SetAsideFiles[I]) then
+      Log('Could not rename ' + SetAsideNames[I] + ' back');
+  end;
+end;
+
+procedure DeinitializeSetup();
+begin
+  if (SetAsideFiles <> nil) and not InstallationDone then
+    RestoreSetAsideFiles();
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then
@@ -211,6 +356,8 @@ begin
     CloseMcpServer();
     RemoveAutostart();
   end;
+  if CurUninstallStep = usPostUninstall then
+    DeleteSetAsideFiles(ExpandConstant('{app}'), False);
 end;
 
 // Greenshot 1.3 installed for the current user by default (in the profile). An installation for all users doesn't replace it, Inno Setup
@@ -274,6 +421,15 @@ begin
 	// PrepareToInstall fires right before the Restart Manager checks for locked files.
 	GreenshotWasRunning := CheckForMutexes(GreenshotMutexes);
 	Result := '';
+
+	// The *.old files of an earlier update which aren't in use anymore
+	DeleteSetAsideFiles(ExpandConstant('{app}'), False);
+	// Only tried here: the files are renamed when the installation starts (ssInstall), after the Restart Manager closed what it could.
+	// When a file in use can't be renamed (e.g. a security program prevents it), the setup ends before anything changed (exit code 7).
+	SetAsideFiles := TStringList.Create;
+	SetAsideNames := TStringList.Create;
+	if not SetAsideFilesInUse(ExpandConstant('{app}'), False) then
+		Result := FmtMessage(SetupMessage(msgSetupAppRunningError), ['{#ExeName}']);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -304,6 +460,16 @@ begin
           GreenshotCanBeRestartedByRM := True;
       end;
     end;
+
+    // What is still in use now runs where the Restart Manager can't close it (another session), or the user kept it running
+    SetAsideFilesInUse(ExpandConstant('{app}'), True);
+  end;
+
+  if CurStep = ssPostInstall then
+  begin
+    InstallationDone := True;
+    // Usually still in use: then deleted at the next restart of Windows, or by the next setup
+    DeleteSetAsideFiles(ExpandConstant('{app}'), True);
   end;
 end;
 
@@ -324,6 +490,27 @@ begin
   // Skip the 'Start Greenshot' post-install option if it was running before installation
   // AND the installed version is new enough to support the Windows Restart Manager.
   Result := not (GreenshotWasRunning and GreenshotCanBeRestartedByRM);
+end;
+
+function GetCurrentProcessId(): Cardinal;
+  external 'GetCurrentProcessId@kernel32.dll stdcall';
+function ProcessIdToSessionId(ProcessId: Cardinal; var SessionId: Cardinal): BOOL;
+  external 'ProcessIdToSessionId@kernel32.dll stdcall';
+
+// False when the setup runs in session 0, where services run: started as SYSTEM or by a service (e.g. a deployment tool).
+// Nobody sees a program there, and a Greenshot started there would keep its files in use at the next update.
+function IsUserSession: Boolean;
+var
+  SessionId: Cardinal;
+begin
+  Result := not ProcessIdToSessionId(GetCurrentProcessId(), SessionId) or (SessionId <> 0);
+  if not Result then
+    Log('The setup runs in session 0, Greenshot and the web page are not started.');
+end;
+
+function ShouldStartGreenshot: Boolean;
+begin
+  Result := NotAlreadyRestarted and IsUserSession;
 end;
 
 var
