@@ -73,7 +73,7 @@ namespace Greenshot.ViewModels
                 }
                 if (!string.IsNullOrWhiteSpace(greenshotVer) && !greenshotVer.Contains("bit") && OsInfo.Bits != 0)
                 {
-                    greenshotVer += EditionInfo.Suffix + (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
+                    greenshotVer += EditionInfo.Suffix + GreenshotEnvironment.PortableSuffix + $" ({OsInfo.Bits} bit)";
                 }
                 _currentVersion = greenshotVer;
             }

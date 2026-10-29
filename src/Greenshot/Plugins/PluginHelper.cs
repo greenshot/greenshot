@@ -51,7 +51,6 @@ namespace Greenshot.Plugins
         private static readonly TimeSpan StartTimeout = TimeSpan.FromSeconds(30);
 
         private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
-        private static readonly string PafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 
         private readonly Dictionary<Type, Func<object, object>> _settingsViews = new();
         private readonly List<IGreenshotPlugin> _startedPlugins = new();
@@ -214,15 +213,7 @@ namespace Greenshot.Plugins
         public Task LoadPluginsAsync()
         {
             var pluginFiles = new List<string>();
-
-            if (GreenshotEnvironment.IsPortable)
-            {
-                pluginFiles.AddRange(FindPluginsOnPath(PafPath));
-            }
-            else
-            {
-                pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
-            }
+            pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
 
             FoundPluginNames = pluginFiles.Select(ConfigurationRestrictions.PluginNameFromFile).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
