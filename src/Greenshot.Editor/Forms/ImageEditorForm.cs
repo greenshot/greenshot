@@ -3454,7 +3454,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return false;
             }
 
-            _fitToCaptureAfterDpiChange = Size == GetOptimalWindowSize();
+            // While a new window is placed it has no capture yet, there is nothing to fit then (AddTab fits it afterwards)
+            _fitToCaptureAfterDpiChange = _surface != null && Size == GetOptimalWindowSize();
             var chromeSize = GetChromeSize();
             var canvasAreaSize = panel1.ClientSize;
             int width = (int)Math.Round(chromeSize.Width * (double)newDpi / oldDpi) + canvasAreaSize.Width;
