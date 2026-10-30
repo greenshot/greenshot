@@ -246,6 +246,11 @@ namespace Greenshot.Editor.Drawing
         [NonSerialized] private IDrawableContainer _drawingElement;
 
         /// <summary>
+        /// the drawing element takes more clicks after the mouse button is released, e.g. a polyline, do not serialize
+        /// </summary>
+        [NonSerialized] private bool _isDrawingWithClicks;
+
+        /// <summary>
         /// the element we want to draw with (not yet drawn), do not serialize
         /// </summary>
         [NonSerialized] private IDrawableContainer _undrawnElement;
@@ -464,6 +469,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                FinishDrawing(select: false);
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -675,6 +681,12 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void Undo()
         {
+            // An element drawn with clicks isn't an undo step yet, undo cancels it
+            if (FinishDrawing(cancel: true))
+            {
+                return;
+            }
+
             if (_undoStack.Count > 0)
             {
                 _inUndoRedo = true;
@@ -689,6 +701,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void Redo()
         {
+            FinishDrawing(cancel: true);
             if (_redoStack.Count > 0)
             {
                 _inUndoRedo = true;
@@ -701,7 +714,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Returns if the surface can do a undo
         /// </summary>
-        public bool CanUndo => _undoStack.Count > 0;
+        public bool CanUndo => _isDrawingWithClicks || _undoStack.Count > 0;
 
         /// <summary>
         /// Returns if the surface can do a redo
@@ -720,6 +733,8 @@ namespace Greenshot.Editor.Drawing
                 throw new InvalidOperationException("Invoking do within an undo/redo action.");
             }
 
+            // Another change finishes an element drawn with clicks first, its creation is the undo step before the change
+            FinishDrawing(select: false);
             if (memento != null)
             {
                 bool allowPush = true;
@@ -795,6 +810,8 @@ namespace Greenshot.Editor.Drawing
         /// <returns></returns>
         public long SaveElementsToStream(Stream streamWrite)
         {
+            // Only finished elements are saved
+            FinishDrawing(select: false);
             long bytesWritten = 0;
             try
             {
@@ -903,6 +920,9 @@ namespace Greenshot.Editor.Drawing
                     break;
                 case DrawingModes.Line:
                     _undrawnElement = new LineContainer(this);
+                    break;
+                case DrawingModes.Polyline:
+                    _undrawnElement = new PolylineContainer(this);
                     break;
                 case DrawingModes.Arrow:
                     _undrawnElement = new ArrowContainer(this);
@@ -1954,22 +1974,16 @@ namespace Greenshot.Editor.Drawing
         /// <returns>IAdorner</returns>
         private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
         {
-            foreach (IDrawableContainer drawableContainer in selectedElements)
+            // Keep the dragged handle even when the pointer crosses another handle.
+            var adorners = selectedElements.SelectMany(container => container.Adorners);
+            IAdorner adorner = adorners.FirstOrDefault(candidate => candidate.IsActive)
+                ?? adorners.FirstOrDefault(candidate => candidate.HitTest(mouseEventArgs.Location));
+            if (adorner?.Cursor != null)
             {
-                foreach (IAdorner adorner in drawableContainer.Adorners)
-                {
-                    if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
-                    
-                    if (adorner.Cursor != null)
-                    {
-                        Cursor = adorner.Cursor;
-                    }
-
-                    return adorner;
-                }
+                Cursor = adorner.Cursor;
             }
 
-            return null;
+            return adorner;
         }
 
         /// <summary>
@@ -1986,6 +2000,21 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            // An element drawn with clicks takes the next click, a double click or right click finishes it
+            if (_isDrawingWithClicks)
+            {
+                if (e.Button == MouseButtons.Left && e.Clicks == 1)
+                {
+                    _drawingElement.HandleMouseDown(e.X, e.Y);
+                }
+                else
+                {
+                    FinishDrawing();
+                }
+
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2059,6 +2088,18 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            // An element drawn with clicks waits for the next click, unless the click completed it, e.g. closed a polyline
+            if (_isDrawingWithClicks)
+            {
+                _mouseDown = false;
+                if (_drawingElement is DrawableContainer { AcceptsMoreClicks: false })
+                {
+                    FinishDrawing();
+                }
+
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -2168,11 +2209,19 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.Top = start.Y;
                 }
 
-                AddElement(_drawingElement);
+                // An element drawn with clicks, e.g. a polyline, is one undo step when it is finished
+                bool drawnWithClicks = _drawingElement is DrawableContainer { AcceptsMoreClicks: true };
+                AddElement(_drawingElement, !drawnWithClicks);
                 _drawingElement.Selected = true;
+                _isDrawingWithClicks = drawnWithClicks;
             }
 
             _undrawnElement = null;
+            if (_isDrawingWithClicks)
+            {
+                // Undo cancels it until then
+                _movingElementChanged?.Invoke(this, new SurfaceElementEventArgs { Elements = selectedElements });
+            }
         }
 
         /// <summary>
@@ -2204,6 +2253,48 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Finish the element which is drawn with clicks, e.g. a polyline, as one undo step: when a click completes it, with a double
+        /// click, right click or Enter, or before something else changes the surface. Cancelled, or with too few clicks, it's removed.
+        /// </summary>
+        /// <param name="cancel">true to remove the element</param>
+        /// <param name="select">true to select the element like after drawing it with the mouse, false leaves the selection to the other change</param>
+        /// <returns>true if an element was drawn with clicks</returns>
+        private bool FinishDrawing(bool cancel = false, bool select = true)
+        {
+            if (!_isDrawingWithClicks)
+            {
+                return false;
+            }
+
+            // Reset first, the undo step and the selection would finish it again
+            IDrawableContainer element = _drawingElement;
+            _isDrawingWithClicks = false;
+            _drawingElement = null;
+            _mouseDown = false;
+            if (cancel || !element.InitContent())
+            {
+                RemoveElement(element, false);
+                element.Dispose();
+                return true;
+            }
+
+            // Without what is only shown while drawing, e.g. the segment to the pointer
+            element.Invalidate();
+            element.Status = EditStatus.IDLE;
+            MakeUndoable(new AddElementMemento(this, element), false);
+            if (select)
+            {
+                SelectElement(element);
+            }
+            else
+            {
+                DeselectElement(element);
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// This event handler is called when the mouse moves over the surface
         /// </summary>
         /// <param name="sender"></param>
@@ -2211,6 +2302,14 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+
+            // An element drawn with clicks shows where the next click goes
+            if (_isDrawingWithClicks)
+            {
+                Cursor = Cursors.Cross;
+                _drawingElement.HandleMouseMove(e.X, e.Y);
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
@@ -3162,6 +3261,8 @@ namespace Greenshot.Editor.Drawing
         /// <param name="generateEvents">false to skip event generation</param>
         public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
         {
+            // Selecting finishes an element drawn with clicks, e.g. Select all or Tab while drawing a polyline
+            FinishDrawing(select: false);
             if (selectedElements.Contains(container)) return;
 
             selectedElements.Add(container);
@@ -3228,6 +3329,11 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (ProcessDrawingKey(k))
+            {
+                return true;
+            }
+
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
@@ -3437,6 +3543,11 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            if (ProcessDrawingKey(keys))
+            {
+                return true;
+            }
+
             // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
             // (Esc must reach the window, which cancels the drag of the tab)
             if (KeysLocked || MouseButtons != MouseButtons.None)
@@ -3467,6 +3578,18 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Enter finishes an element drawn with clicks and Esc cancels it, also while Shift is still held from the last click
+        /// </summary>
+        /// <param name="keys">Keys with modifiers</param>
+        /// <returns>true when the key was handled</returns>
+        private bool ProcessDrawingKey(Keys keys) => (keys & ~Keys.Shift) switch
+        {
+            Keys.Enter => FinishDrawing(),
+            Keys.Escape => FinishDrawing(cancel: true),
+            _ => false
+        };
+
+        /// <summary>
         /// Draw an element of the current tool without the mouse: in its default size in the middle of the visible part of the canvas,
         /// selected, and a text element is open for typing like after a click
         /// </summary>
@@ -3479,6 +3602,7 @@ namespace Greenshot.Editor.Drawing
                 // A freehand line needs a path, an image comes from a file or the clipboard
                 case DrawingModes.Path:
                 case DrawingModes.Bitmap:
+                case DrawingModes.Polyline:
                     return false;
                 case DrawingModes.Crop when _cropContainer != null && _undrawnElement != _cropContainer:
                     // The crop rectangle is there, Enter confirms it in ProcessCmdKey(Keys)
