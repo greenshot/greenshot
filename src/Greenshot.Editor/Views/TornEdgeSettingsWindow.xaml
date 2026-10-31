@@ -26,6 +26,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -61,10 +62,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-
-        <Style TargetType="wpf:ValueSlider">
-            <Setter Property="Margin" Value="0,2"/>
         </Style>
 
         </ResourceDictionary>
