@@ -850,13 +850,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             bool save;
             if (changedTabs.Count == 1)
             {
-                DialogResult result = MessageBox.Show(this, Texts.Editor.CloseOnSave, Texts.Editor.CloseOnSaveTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.Cancel)
+                const int saveOne = 0, cancelOne = 2;
+                int choice = Greenshot.Base.Wpf.ThemedMessageBox.ShowChoice(Handle, Texts.Editor.CloseOnSaveTitle, Texts.Editor.CloseOnSave, System.Windows.MessageBoxImage.Question,
+                    new[] { Texts.Editor.Save, Texts.Editor.Close, Texts.Core.Cancel }, saveOne, cancelOne);
+                if (choice == cancelOne)
                 {
                     return false;
                 }
 
-                save = result == DialogResult.Yes;
+                save = choice == saveOne;
             }
             else
             {
