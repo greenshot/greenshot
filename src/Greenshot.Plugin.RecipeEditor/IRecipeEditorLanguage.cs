@@ -1907,6 +1907,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string EditorCurrent { get; }
 
         /// <summary>
+        /// Import mode of the editor destination
+        /// </summary>
+        string EditorImportMode { get; }
+
+        /// <summary>
+        /// Surface: the capture becomes the surface (current editor) or opens as a tab (available editor)
+        /// </summary>
+        string EditorImportModeSurface { get; }
+
+        /// <summary>
+        /// Image container: the capture is added as image, the surface stays
+        /// </summary>
+        string EditorImportModeImageContainer { get; }
+
+        /// <summary>
         /// Printer Name (empty = Default Printer)
         /// </summary>
         string PrinterName { get; }

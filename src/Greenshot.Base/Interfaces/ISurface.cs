@@ -96,6 +96,13 @@ namespace Greenshot.Base.Interfaces
             Color fillColor);
 
         IImageContainer AddImageContainer(Image image, int x, int y);
+
+        /// <summary>
+        /// Adds the image as image container at the next place: 20 px after the last image container,
+        /// kept inside the visible part of the canvas.
+        /// </summary>
+        IImageContainer AddNextImageContainer(Image image);
+
         ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y);
         IIconContainer AddIconContainer(Icon icon, int x, int y);
         IImageContainer AddImageContainer(string filename, int x, int y);

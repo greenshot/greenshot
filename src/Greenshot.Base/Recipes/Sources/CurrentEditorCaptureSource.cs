@@ -69,7 +69,8 @@ namespace Greenshot.Base.Recipes.Sources
             return new CapturePayload
             {
                 Surface = copy.Surface,
-                RetainSurfaceForEditor = true,
+                // The destination keeps the surface when it hands it to an editor (ImportMode Surface), a copy added as image is disposed
+                RetainSurfaceForEditor = false,
                 RawCapture = new Capture(copy.Image)
                 {
                     CaptureDetails = copy.Surface.CaptureDetails

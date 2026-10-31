@@ -2570,6 +2570,13 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorAvailable}" Tag="AvailableEditor"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorCurrent}" Tag="CurrentEditor"/>
                                             </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.EditorImportMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="ImageContainer"/>
+                                            </ComboBox>
                                         </StackPanel>
 
                                         <!-- 15. Printer Inspector -->
@@ -2664,6 +2671,25 @@
                                                     <CheckBox Content="{wpf:Text RecipeEditor.SummaryEmail}" IsChecked="{Binding SelectedNode.DestinationEmail, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                 </StackPanel>
                                             </Border>
+
+                                            <!-- Editor target and import mode (Visible when Editor is checked) -->
+                                            <StackPanel Visibility="{Binding SelectedNode.DestinationEditor, Converter={StaticResource BoolToVis}}" Margin="0,0,0,8">
+                                                <TextBlock Text="{wpf:Text RecipeEditor.TargetEditor}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TargetEditor}" SelectedValue="{Binding SelectedNode.EditorTargetEditor, Mode=TwoWay}"
+                                                          SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorNew}" Tag="NewEditor"/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorAvailable}" Tag="AvailableEditor"/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorCurrent}" Tag="CurrentEditor"/>
+                                                </ComboBox>
+
+                                                <TextBlock Text="{wpf:Text RecipeEditor.EditorImportMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
+                                                          SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="ImageContainer"/>
+                                                </ComboBox>
+                                            </StackPanel>
 
                                             <!-- File Save Settings (Visible when Save to File is checked) -->
                                             <StackPanel Visibility="{Binding SelectedNode.DestinationFile, Converter={StaticResource BoolToVis}}" Margin="0,4,0,8">

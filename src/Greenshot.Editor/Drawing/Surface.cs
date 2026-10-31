@@ -952,6 +952,17 @@ namespace Greenshot.Editor.Drawing
             return bitmapContainer;
         }
 
+        /// <inheritdoc cref="ISurface.AddNextImageContainer"/>
+        public IImageContainer AddNextImageContainer(Image image)
+        {
+            var last = _elements.OfType<ImageContainer>().LastOrDefault();
+            NativeRect area = ToImageCoordinates(GetVisibleArea());
+            var visible = new Rectangle(area.Left, area.Top, area.Width, area.Height);
+            Point? lastLocation = last == null ? null : new Point(last.Left, last.Top);
+            var location = ImageContainerPlacement.Next(lastLocation, visible, image.Size);
+            return AddImageContainer(image, location.X, location.Y);
+        }
+
         public IImageContainer AddImageContainer(string filename, int x, int y)
         {
             ImageContainer bitmapContainer = new ImageContainer(this);
