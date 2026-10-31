@@ -107,12 +107,6 @@
             </Setter>
         </Style>
         
-        <!-- Modern Slider Style -->
-        <Style TargetType="wpf:ValueSlider">
-            <Setter Property="Margin" Value="6,3"/>
-        </Style>
-
-
         </ResourceDictionary>
     </Window.Resources>
     

@@ -27,11 +27,8 @@
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GroupBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-        <Style TargetType="wpf:ValueSlider">
-            <Setter Property="Margin" Value="0,2"/>
-        </Style>
 
         </ResourceDictionary>
     </Window.Resources>
