@@ -535,6 +535,20 @@ namespace Greenshot.Settings.Views
             }
         }
 
+        private void RecipeOptionFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionViewModel item))
+            {
+                return;
+            }
+
+            string selectedPath = ModernFolderPicker.SelectFolder(this, item.TextValue, item.Label);
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                item.Value = selectedPath;
+            }
+        }
+
         /// <summary>
         /// "Change…" of an extension: where it is used, the captures and the destinations
         /// </summary>

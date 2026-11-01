@@ -190,7 +190,8 @@ namespace Greenshot.Recipes.Triggers
 
                         if (string.Equals(tc.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                         {
-                            string hotkey = tc.GetParameter<string>("Hotkey");
+                            // The hotkey in the file, or the one the user set for the recipe's Hotkey option
+                            string hotkey = tc.GetHotkey(recipe);
                             if (!string.IsNullOrWhiteSpace(hotkey))
                             {
                                 string triggerId = $"trigger_recipe_{recipe.Id}_hotkey_{i}";

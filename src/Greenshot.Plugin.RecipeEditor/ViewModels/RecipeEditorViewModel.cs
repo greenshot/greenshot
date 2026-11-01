@@ -2128,7 +2128,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string tLabel = t.TriggerType;
                     if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                     {
-                        string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
+                        string hotkey = t.GetHotkey(recipe);
+                        if (string.IsNullOrEmpty(hotkey)) hotkey = "Shortcut";
                         tLabel = $"⚡ Hotkey: {hotkey}";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))

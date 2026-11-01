@@ -686,6 +686,11 @@ namespace Greenshot.Base.Languages
         string RecipesReset { get; }
 
         /// <summary>
+        /// Choose a folder
+        /// </summary>
+        string RecipesChooseFolder { get; }
+
+        /// <summary>
         /// All
         /// </summary>
         string RecipesScopeAll { get; }

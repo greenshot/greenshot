@@ -571,7 +571,7 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 ```
 
 - **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
-  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings:
+  and an optional `label`), `Color` (`#RRGGBB` or `#AARRGGBB`), `Hotkey` and `DirectoryPath` (see below). Only `Boolean` and `Enum` can be in the quick settings:
   they appear in the tray menu's quick settings under "Automatic steps", a switch as a checked item and a choice as a
   submenu, at most six of them; "More…" opens Settings > Recipes.
 - **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
@@ -582,6 +582,15 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 - **Checks**: options are checked when the recipe loads (valid keys and types, defaults which fit, no undeclared
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
+- **Hotkey**: a hotkey like `"Ctrl + Shift + D"`, empty for none. A `Hotkey` trigger takes it with
+  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > Recipes (with the
+  same hotkey window as the other hotkeys) and changing it needs no new approval. The approval window shows the hotkey
+  set at that moment.
+- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+  Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
+  `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
+  folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step
+  with an empty `SaveDirectory` uses Greenshot's output folder.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
   `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
