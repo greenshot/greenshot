@@ -271,6 +271,8 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
+            // The hotkeys of the general settings start the built-in recipes
+            regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.RegionHotkey}", "Region Hotkey"));
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -289,6 +291,10 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(windowRecipe, "export", "export");
+            // The window hotkey selects a window, or captures the active one (setting "Capture windows interactively")
+            var windowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
+            windowHotkey.When = "${config.CaptureWindowsInteractive}";
+            windowRecipe.AddTrigger(windowHotkey);
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -305,6 +311,9 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "export", "export");
+            var activeWindowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
+            activeWindowHotkey.When = "${config.CaptureWindowsInteractive == false}";
+            activeWindowRecipe.AddTrigger(activeWindowHotkey);
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -321,6 +330,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "export", "export");
+            fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.FullscreenHotkey}", "Fullscreen Hotkey"));
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -337,6 +347,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
+            lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.LastregionHotkey}", "Last Region Hotkey"));
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -349,6 +360,7 @@ namespace Greenshot.Recipes
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
+            clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.ClipboardHotkey}", "Clipboard Hotkey"));
             RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
@@ -1089,12 +1101,13 @@ namespace Greenshot.Recipes
         private void OnOptionValuesChanged(string recipeId)
         {
             RecomposeRecipes();
-            // Register the hotkeys again when the recipe takes one from an option
+            // Register the triggers again when the recipe takes a hotkey or a trigger's 'when' from an option
             var recipe = GetRecipeById(recipeId);
-            bool hotkeyFromOption = recipe?.Triggers?.Any(t => t != null &&
-                string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
-                RecipeOptionStore.TryParseReference(t.GetParameter<string>(TriggerConfig.HotkeyParameter), out _)) ?? false;
-            if (hotkeyFromOption)
+            bool triggersUseOptions = recipe?.Triggers?.Any(t => t != null &&
+                (RecipeValidator.FindOptionReferences(t.When).Count > 0 ||
+                 string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
+                 RecipeOptionStore.TryParseReference(t.GetParameter<string>(TriggerConfig.HotkeyParameter), out _))) ?? false;
+            if (triggersUseOptions)
             {
                 var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
                 triggerManager?.SyncRecipeTriggers(GetAllRecipes());
@@ -1566,6 +1579,36 @@ namespace Greenshot.Recipes
                 }
             }
             return !GetDisabledRecipeIds().Contains(recipeId);
+        }
+
+        /// <summary>
+        /// The hotkeys of the recipes which are on, as Settings > General and Self-Service show them: one per hotkey of the
+        /// general settings ("${config.RegionHotkey}", the two window recipes share one), one per Hotkey option and one per
+        /// hotkey written in a recipe file. A trigger whose 'when' is false doesn't count.
+        /// </summary>
+        public IReadOnlyList<RecipeHotkey> GetActiveHotkeys()
+        {
+            var hotkeys = new List<RecipeHotkey>();
+            foreach (var recipe in GetAllRecipes().Where(r => r.IsEnabled && r.Triggers != null))
+            {
+                foreach (var trigger in recipe.Triggers.Where(t => t != null &&
+                             string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) && t.IsWanted(recipe)))
+                {
+                    string parameter = trigger.GetParameter<string>(TriggerConfig.HotkeyParameter);
+                    var hotkey = new RecipeHotkey { Recipe = recipe, Hotkey = trigger.GetHotkey(recipe) };
+                    if (TriggerConfig.TryParseConfigReference(parameter, out var settingName))
+                    {
+                        if (hotkeys.Any(h => string.Equals(h.SettingName, settingName, StringComparison.OrdinalIgnoreCase))) continue;
+                        hotkey.SettingName = settingName;
+                    }
+                    else if (RecipeOptionStore.TryParseReference(parameter, out var optionKey))
+                    {
+                        hotkey.Option = recipe.FindOption(optionKey);
+                    }
+                    hotkeys.Add(hotkey);
+                }
+            }
+            return hotkeys;
         }
 
         public void SetRecipeEnabled(string recipeId, bool enabled)

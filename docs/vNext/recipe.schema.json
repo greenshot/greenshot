@@ -908,12 +908,16 @@
           "default": true,
           "description": "Whether this trigger is currently active."
         },
+        "when": {
+          "type": "string",
+          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
+        },
         "parameters": {
           "type": "object",
           "properties": {
             "Hotkey": {
               "type": "string",
-              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), or '${option.key}' for the value of a Hotkey option the user sets in the settings. Required for Hotkey triggers."
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Name}' for a hotkey of the general settings (e.g. '${config.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
             },
             "MenuItemText": {
               "type": "string",

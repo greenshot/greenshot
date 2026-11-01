@@ -1153,7 +1153,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 foreach (var tc in recipe.Triggers)
                 {
-                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger));
+                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe));
                 }
             }
         }
@@ -1213,7 +1213,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 config.Parameters["ReadOnly"] = true;
             }
 
-            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
+            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe);
             Triggers.Add(item);
             SyncTriggersToRecipe();
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTriggerAdded, type);

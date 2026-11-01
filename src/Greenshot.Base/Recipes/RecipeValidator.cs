@@ -403,6 +403,18 @@ namespace Greenshot.Base.Recipes
                 result.AddWarning($"Trigger at index {index} has unrecognized triggerType '{trigger.TriggerType}'.");
             }
 
+            if (!string.IsNullOrWhiteSpace(trigger.When))
+            {
+                if (trigger.When.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index}: 'when' must be an expression like \"${{option.key}}\".");
+                }
+                foreach (var key in FindOptionReferences(trigger.When).Where(k => recipe.FindOption(k) == null))
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index} uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                }
+            }
+
             if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
             {
                 string hotkey = trigger.GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter);
@@ -416,6 +428,15 @@ namespace Greenshot.Base.Recipes
                     if (recipe.FindOption(optionKey)?.Type != ContractDataType.Hotkey)
                     {
                         result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the option '{optionKey}', which must be a Hotkey option declared in 'options'.");
+                    }
+                }
+                else if (Greenshot.Base.Recipes.Triggers.TriggerConfig.TryParseConfigReference(hotkey, out var settingName))
+                {
+                    // A hotkey of the general settings, e.g. the built-in recipes and files which replace them
+                    var setting = typeof(ICoreConfiguration).GetProperty(settingName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                    if (setting?.PropertyType != typeof(string))
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the setting '{settingName}', which is not a text setting of the general settings.");
                     }
                 }
                 else

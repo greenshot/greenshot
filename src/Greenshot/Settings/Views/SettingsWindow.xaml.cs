@@ -482,6 +482,7 @@ namespace Greenshot.Settings.Views
             _viewModel.SaveRestrictions();
 
             _viewModel.SaveRecipeOptions();
+            _viewModel.SaveHotkeys();
             _viewModel.SaveFixedCaptureSizes();
 
 #if !GREENSHOT_LIGHT

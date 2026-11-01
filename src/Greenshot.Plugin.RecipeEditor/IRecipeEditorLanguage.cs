@@ -3312,6 +3312,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string TriggerTitleHotkey { get; }
 
         /// <summary>
+        /// {0} (from the general settings)
+        /// </summary>
+        string TriggerHotkeyFromSettings { get; }
+
+        /// <summary>
+        /// {0} (from the option "{1}")
+        /// </summary>
+        string TriggerHotkeyFromOption { get; }
+
+        /// <summary>
+        /// Use a fixed hotkey
+        /// </summary>
+        string TriggerHotkeyUseFixed { get; }
+
+        /// <summary>
         /// Context Menu: {0}
         /// </summary>
         string TriggerTitleContextMenu { get; }

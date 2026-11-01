@@ -83,6 +83,27 @@ For example:
 ]
 ```
 
+### Hotkeys from the settings, and `when`
+
+A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
+see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
+recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
+
+A trigger's optional `when` is an expression; the trigger is only registered while it is true. It is checked when the
+triggers are registered (at the start, and when the settings or the options change), not each time the trigger fires.
+The window hotkey uses it to start either the window capture or the active window capture:
+
+```json
+"triggers": [
+  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+]
+```
+
+Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
+general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
+button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine
@@ -583,8 +604,8 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
 - **Hotkey**: a hotkey like `"Ctrl + Shift + D"`, empty for none. A `Hotkey` trigger takes it with
-  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > Recipes (with the
-  same hotkey window as the other hotkeys) and changing it needs no new approval. The approval window shows the hotkey
+  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
+  of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
 - **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
