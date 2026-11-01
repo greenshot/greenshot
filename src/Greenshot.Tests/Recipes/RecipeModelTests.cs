@@ -239,10 +239,10 @@ namespace Greenshot.Tests.Recipes
         }
 
         /// <summary>
-        /// Greenshot sets what it knows about a loaded recipe itself: never written, and a file which has it is rejected
+        /// Greenshot sets what it knows about a loaded recipe itself, it is never written into the file
         /// </summary>
         [Fact]
-        public void Recipe_RuntimeProperties_AreNotWrittenAndRejectedWhenRead()
+        public void Recipe_RuntimeProperties_AreNotWritten()
         {
             var recipe = new CaptureRecipe("runtime", "Runtime")
             {
@@ -259,15 +259,6 @@ namespace Greenshot.Tests.Recipes
             Assert.DoesNotContain("filePath", written);
             Assert.DoesNotContain("someone", written);
             Assert.DoesNotContain("isBuiltIn", RecipeSerializer.Serialize(new RecipeExtension { Id = "ext_new", Name = "New", IsBuiltIn = true }));
-
-            foreach (var property in new[] { @"""isBuiltIn"": true", @"""isOverridden"": true", @"""isEnabled"": false", @"""filePath"": ""C:\\elsewhere.json""" })
-            {
-                string json = @"{ ""id"": ""old"", ""name"": ""Old"", " + property + @",
-                    ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ], ""flow"": { ""startNodes"": [ ""a"" ] } }";
-                var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(json, validate: false));
-                Assert.Contains("earlier Greenshot beta", error.Message);
-                Assert.Throws<JsonException>(() => RecipeSerializer.DeserializeList("[" + json + "]", validate: false));
-            }
         }
     }
 }

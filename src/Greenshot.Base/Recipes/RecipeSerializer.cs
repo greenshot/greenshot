@@ -162,11 +162,6 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// What Greenshot knows about a loaded recipe, which earlier betas wrote into the file
-        /// </summary>
-        private static readonly string[] RuntimeProperties = { "isBuiltIn", "isOverridden", "isEnabled", "filePath" };
-
-        /// <summary>
         /// A file of an earlier beta (transitions per node, conditional and error transitions apart, a condition in "enabled",
         /// error routes on the node)
         /// gets an error which says what changed, instead of the error of the first property which doesn't fit.
@@ -197,12 +192,6 @@ namespace Greenshot.Base.Recipes
                                                 "e.g. { \"from\": \"upload\", \"onError\": \"*\", \"to\": \"save\" } or { \"from\": \"upload\", \"onError\": \"*\", \"recipe\": \"recipe_id\" }.");
                     }
                 }
-            }
-            var runtimeProperties = RuntimeProperties.Where(name => definition.TryGetProperty(name, out _)).ToList();
-            if (runtimeProperties.Count > 0)
-            {
-                throw new JsonException(earlierFormat + $"remove {string.Join(", ", runtimeProperties.Select(name => $"\"{name}\""))}, " +
-                                        "Greenshot knows these itself and doesn't keep them in the file.");
             }
         }
 
