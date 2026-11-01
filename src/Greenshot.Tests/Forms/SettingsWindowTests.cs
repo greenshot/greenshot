@@ -259,5 +259,32 @@ namespace Greenshot.Tests.Forms
 
             Assert.Null(threadEx);
         }
+
+        [Fact]
+        public void SettingsWindow_TabStylesComeFromTheSharedDictionary()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // TabControl and TabItem styles are defined once in TabStyles.xaml and used by the settings window
+                    var tabControlStyle = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.TabControl)));
+                    Assert.NotNull(tabControlStyle);
+                    var tabItemStyle = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.TabItem)));
+                    Assert.Contains(tabItemStyle.Setters, s => s is System.Windows.Setter st && st.Property == System.Windows.Controls.Control.TemplateProperty);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
     }
 }
