@@ -1,0 +1,57 @@
+---
+title: Greenshot recipes
+permalink: /recipes/
+layout: page
+sitemap: false
+metarobots: noindex,nofollow
+---
+{% comment %}
+The catalog overview, unlisted until a released Greenshot has recipes: no menu entry, noindex, not in the sitemap.
+Greenshot links here with ?from=greenshot&version=<x>; recipes needing a newer Greenshot are hidden.
+{% endcomment %}
+<p id="recipes-not-yet">Recipes come with Greenshot 1.4, currently in beta.</p>
+<div id="recipes" style="display:none">
+  <p>Recipes tell Greenshot what to do with a capture. Download one and import it in Greenshot's recipe manager:
+  Greenshot shows what it does and what it asks to allow before anything runs.</p>
+  <ul id="recipe-list">
+  {% for recipe in site.data.recipes.recipes %}
+    <li data-min-greenshot="{{ recipe.minGreenshot }}">
+      <a href="/recipes/{{ recipe.id }}/"><strong>{{ recipe.name }}</strong></a><br>
+      {{ recipe.summary }}
+      {% if recipe.tags.size > 0 %}<br>{% for tag in recipe.tags %}<code>{{ tag }}</code> {% endfor %}{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+  <p>Missing a recipe? <a href="https://github.com/greenshot/greenshot-recipes/issues/new?template=request.yml">Suggest one</a>
+  or <a href="https://github.com/greenshot/greenshot-recipes/blob/main/CONTRIBUTING.md">add your own</a>.</p>
+</div>
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('from') !== 'greenshot') {
+      return;
+    }
+    function parse(text) {
+      return (text || '').split(/[.-]/).slice(0, 3).map(function (part) { return parseInt(part, 10) || 0; });
+    }
+    function older(a, b) {
+      for (var i = 0; i < 3; i++) {
+        if ((a[i] || 0) !== (b[i] || 0)) {
+          return (a[i] || 0) < (b[i] || 0);
+        }
+      }
+      return false;
+    }
+    var version = params.get('version');
+    if (version) {
+      var running = parse(version);
+      document.querySelectorAll('#recipe-list li').forEach(function (item) {
+        if (older(running, parse(item.getAttribute('data-min-greenshot')))) {
+          item.style.display = 'none';
+        }
+      });
+    }
+    document.getElementById('recipes-not-yet').style.display = 'none';
+    document.getElementById('recipes').style.display = '';
+  })();
+</script>

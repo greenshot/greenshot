@@ -1,0 +1,31 @@
+---
+layout: default
+---
+{% comment %}One recipe of the catalog: generated from its catalog entry and README.md by tools/website/recipes/build_pages.py{% endcomment %}
+{% assign recipe = page.recipe %}
+<div class="recipe">
+  <p><a href="/recipes/?from=greenshot">All recipes</a></p>
+  <h1>{{ recipe.name }}</h1>
+  <p><strong>{{ recipe.summary }}</strong></p>
+
+  <p>
+    Version {{ recipe.version }} &middot; needs Greenshot {{ recipe.minGreenshot }} or newer
+    {% if recipe.requires.size > 0 %}and {% for plugin in recipe.requires %}{{ plugin.name | default: plugin.id }}{% unless forloop.last %}, {% endunless %}{% endfor %}{% endif %}
+    <br>
+    By {% for author in recipe.authors %}{% if author.github %}<a href="https://github.com/{{ author.github }}">{{ author.name }}</a>{% else %}{{ author.name }}{% endif %}{% unless forloop.last %}, {% endunless %}{% endfor %}
+    &middot; {{ recipe.license }}
+    {% if recipe.tags.size > 0 %}<br>{% for tag in recipe.tags %}<code>{{ tag }}</code> {% endfor %}{% endif %}
+  </p>
+
+  {{ content }}
+
+  <p>
+    <a href="{{ recipe.url }}" download="{{ recipe.id }}.gsrecipe.json"><i class="fa fa-download"></i> Download the recipe file</a>
+    (import it in Greenshot's recipe manager; Greenshot shows what it does and asks before anything runs)
+  </p>
+  <p>
+    <a href="https://github.com/{{ page.repository }}/tree/main/recipes/{{ recipe.id }}"><i class="fa fa-github"></i> View source on GitHub</a>
+    &middot; <a href="https://github.com/{{ page.repository }}/issues/new?template=bug.yml&amp;recipe={{ recipe.id }}">Report a problem</a>
+    &middot; <a href="https://github.com/{{ page.repository }}/issues/new?template=request.yml">Suggest a recipe</a>
+  </p>
+</div>

@@ -1,0 +1,93 @@
+name: Website
+
+# Builds getgreenshot.org from the gh-pages branch plus the recipe catalog and deploys it to GitHub Pages.
+# Needs Settings > Pages > Source = "GitHub Actions". Runs when gh-pages changes (its own small workflow starts this
+# one), when the recipe catalog publishes a new index (repository_dispatch "recipes-published"), on a Greenshot
+# release (the download pages list the releases) and by hand.
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [recipes-published]
+  release:
+    types: [published, unpublished, created, edited, deleted, prereleased, released]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - name: Check out the website
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Check out the website tools
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: tools/website
+          path: greenshot
+
+      - name: Get the recipe catalog
+        run: curl -fsSL -o "$RUNNER_TEMP/index.json" https://github.com/greenshot/greenshot-recipes/releases/latest/download/index.json
+
+      - name: Add the recipe pages
+        run: python3 greenshot/tools/website/recipes/build_pages.py --index "$RUNNER_TEMP/index.json" --site site
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: site
+
+      - name: Build
+        working-directory: site
+        env:
+          JEKYLL_ENV: production
+          # site.github.releases for the download pages and the update feed
+          JEKYLL_GITHUB_TOKEN: ${{ github.token }}
+          PAGES_REPO_NWO: ${{ github.repository }}
+        run: bundle exec jekyll build --config _config.yml,_config.recipes.yml
+
+      - name: Upload
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # page_build only fires for the classic Pages build, so the CloudFlare cache is purged here
+  purge-cache:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Purge the CloudFlare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
