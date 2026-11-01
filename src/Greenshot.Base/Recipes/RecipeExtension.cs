@@ -147,6 +147,10 @@ namespace Greenshot.Base.Recipes
             view.Nodes = copy.Nodes;
             view.Flow = copy.Flow;
             view.Options = copy.Options;
+            view.Authors = copy.Authors;
+            view.Copyright = copy.Copyright;
+            view.License = copy.License;
+            view.Translations = copy.Translations;
             return view;
         }
 

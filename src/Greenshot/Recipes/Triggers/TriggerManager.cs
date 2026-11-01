@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -38,20 +37,6 @@ namespace Greenshot.Recipes.Triggers
     public class TriggerManager : ITriggerManager
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TriggerManager));
-        private static ICoreConfiguration CoreConfig
-        {
-            get
-            {
-                try
-                {
-                    return IniConfigRegistry.GetSection<ICoreConfiguration>();
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
 
         private readonly Dictionary<string, ITrigger> _triggers = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
         private bool _disposed;
@@ -65,53 +50,15 @@ namespace Greenshot.Recipes.Triggers
         private static readonly Lazy<TriggerManager> LazyInstance = new Lazy<TriggerManager>(() => new TriggerManager(), LazyThreadSafetyMode.ExecutionAndPublication);
         public static TriggerManager Instance => LazyInstance.Value;
 
-        public TriggerManager()
-        {
-            InitializeDefaultTriggers();
-        }
-
-        public void InitializeDefaultTriggers()
-        {
-            if (CoreConfig == null) return;
-
-            // Register hotkeys from legacy config as default hotkey triggers
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_region", "Region Hotkey", CoreConfig.RegionHotkey, RecipeManager.RecipeIdRegion);
-            string windowRecipe = CoreConfig.CaptureWindowsInteractive ? RecipeManager.RecipeIdWindow : RecipeManager.RecipeIdActiveWindow;
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_window", "Window Hotkey", CoreConfig.WindowHotkey, windowRecipe);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_fullscreen", "Fullscreen Hotkey", CoreConfig.FullscreenHotkey, RecipeManager.RecipeIdFullScreen);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_lastregion", "Last Region Hotkey", CoreConfig.LastregionHotkey, RecipeManager.RecipeIdLastRegion);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_clipboard", "Clipboard Hotkey", CoreConfig.ClipboardHotkey, RecipeManager.RecipeIdClipboard);
-        }
-
-        private void RegisterDefaultHotkeyTrigger(string id, string name, string hotkey, string recipeId)
-        {
-            if (string.IsNullOrEmpty(hotkey))
-            {
-                // The hotkey could have been removed in the settings
-                UnregisterTrigger(id);
-                return;
-            }
-            RegisterTrigger(new HotkeyTrigger(id, name, hotkey, recipeId));
-        }
-
         /// <summary>
-        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the configuration changed.
-        /// This covers the default hotkeys from the configuration and the hotkeys of the recipes.
+        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the settings changed.
+        /// The hotkeys of the general settings are triggers of the built-in recipes ("${config.RegionHotkey}"), so this
+        /// registers the triggers of all recipes again.
         /// </summary>
         public void RestartHotkeyTriggers()
         {
-            InitializeDefaultTriggers();
-            lock (_triggers)
-            {
-                if (!_started)
-                {
-                    return;
-                }
-                foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
-                {
-                    trigger.Start();
-                }
-            }
+            // New trigger objects, started when the triggers run (see RegisterTrigger)
+            SyncRecipeTriggers(RecipeManager.Instance.GetAllRecipes());
         }
 
         public IReadOnlyList<ITrigger> GetAllTriggers()
@@ -177,7 +124,7 @@ namespace Greenshot.Recipes.Triggers
                         if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
                         {
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                         }
                         continue;
                     }
@@ -186,11 +133,12 @@ namespace Greenshot.Recipes.Triggers
                     for (int i = 0; i < recipe.Triggers.Count; i++)
                     {
                         var tc = recipe.Triggers[i];
-                        if (!tc.IsActive) continue;
+                        if (!tc.IsWanted(recipe)) continue;
 
                         if (string.Equals(tc.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                         {
-                            string hotkey = tc.GetParameter<string>("Hotkey");
+                            // The hotkey in the file, or the one the user set for the recipe's Hotkey option
+                            string hotkey = tc.GetHotkey(recipe);
                             if (!string.IsNullOrWhiteSpace(hotkey))
                             {
                                 string triggerId = $"trigger_recipe_{recipe.Id}_hotkey_{i}";
@@ -200,7 +148,7 @@ namespace Greenshot.Recipes.Triggers
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
@@ -208,7 +156,7 @@ namespace Greenshot.Recipes.Triggers
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                         {
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
@@ -250,7 +198,7 @@ namespace Greenshot.Recipes.Triggers
                     if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
                     {
                         string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                     }
                 }
             }

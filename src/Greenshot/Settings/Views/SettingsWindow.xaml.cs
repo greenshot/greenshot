@@ -482,6 +482,7 @@ namespace Greenshot.Settings.Views
             _viewModel.SaveRestrictions();
 
             _viewModel.SaveRecipeOptions();
+            _viewModel.SaveHotkeys();
             _viewModel.SaveFixedCaptureSizes();
 
 #if !GREENSHOT_LIGHT
@@ -517,24 +518,6 @@ namespace Greenshot.Settings.Views
         /// <summary>
         /// The swatch of a color option of a recipe: pick the color with the editor's color picker
         /// </summary>
-        private void RecipeOptionColor_Click(object sender, RoutedEventArgs e)
-        {
-            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionViewModel item))
-            {
-                return;
-            }
-
-            var colorWindow = new Greenshot.Editor.Views.ColorPickerWindow
-            {
-                Owner = this,
-                SelectedColor = RecipeOptionColors.Parse(item.TextValue)
-            };
-            if (colorWindow.ShowDialog() == true)
-            {
-                item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
-            }
-        }
-
         /// <summary>
         /// "Change…" of an extension: where it is used, the captures and the destinations
         /// </summary>

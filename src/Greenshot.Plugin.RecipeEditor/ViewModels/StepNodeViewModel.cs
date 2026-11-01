@@ -3177,6 +3177,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("TargetEditor", value); OnPropertyChanged(nameof(EditorTargetEditor)); }
         }
 
+        /// <summary>
+        /// Surface or ImageContainer, empty is the default (Surface). Used by the Editor and the Destinations step.
+        /// </summary>
+        public string EditorImportMode
+        {
+            get => GetParam("ImportMode", "");
+            set { SetParamOrRemoveIfEmpty("ImportMode", value); OnPropertyChanged(nameof(EditorImportMode)); }
+        }
+
         public string PrinterName
         {
             get => GetParam("PrinterName", "");
@@ -3779,6 +3788,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));
+            OnPropertyChanged(nameof(EditorImportMode));
             OnPropertyChanged(nameof(PrinterName));
             OnPropertyChanged(nameof(PrinterShowPrintDialog));
             OnPropertyChanged(nameof(PrinterAllowRotate));

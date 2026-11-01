@@ -42,6 +42,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
     [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
+    [StepParameter("ImportMode", ContractDataType.Enum, DefaultValue = "OpenAsCapture", Description = "OpenAsCapture: the capture becomes the surface (CurrentEditor replaces it, AvailableEditor opens a tab); AddAsImage: the capture is added as image (Editor)", AllowedValues = new[] { "OpenAsCapture", "AddAsImage" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
     [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
     [StepParameter("ShowPrintDialog", ContractDataType.Boolean, Description = "Show the print options (Printer)")]
@@ -143,25 +144,7 @@ namespace Greenshot.Recipes.Steps
 
                 if (string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
                 {
-                    TargetEditor? targetEditor = Config.GetParameter<TargetEditor?>("TargetEditor");
-
-                    if (targetEditor == TargetEditor.CurrentEditor
-                        && context.Properties.TryGetValue("EditorForm", out var editorObject)
-                        && editorObject is IImageEditor editor)
-                    {
-                        dest = new EditorDestination(editor, true);
-                    }
-                    else
-                    {
-                        if (targetEditor == TargetEditor.CurrentEditor)
-                        {
-                            Log.Warn("Property 'EditorForm' contains no valid editor instance. Falling back to another editor.");
-                        }
-
-                        bool? reuseAvailable = targetEditor.HasValue ? targetEditor == TargetEditor.AvailableEditor : (bool?)null;
-                        bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
-                        dest = new EditorDestination(reuseAvailable, matchSize);
-                    }
+                    dest = CreateEditorDestination(context);
                 }
                 else if (string.Equals(designation, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase))
                 {
@@ -236,6 +219,41 @@ namespace Greenshot.Recipes.Steps
 
             var dispatcher = _dispatcher ?? new DestinationDispatcher();
             await dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// The editor destination for TargetEditor and ImportMode of this step
+        /// </summary>
+        private IDestination CreateEditorDestination(CaptureFlowContext context)
+        {
+            TargetEditor? targetEditor = Config.GetParameter<TargetEditor?>("TargetEditor");
+            ImportMode importMode = Config.GetParameter<ImportMode?>("ImportMode") ?? ImportMode.OpenAsCapture;
+            context.Properties.TryGetValue("EditorForm", out var editorObject);
+            var currentEditor = editorObject as IImageEditor;
+            bool isCurrent = targetEditor == TargetEditor.CurrentEditor;
+            bool isAvailable = targetEditor == TargetEditor.AvailableEditor;
+
+            if (isCurrent && currentEditor == null)
+            {
+                Log.Warn("Property 'EditorForm' contains no valid editor instance. Falling back to another editor.");
+            }
+
+            // AvailableEditor opens a tab, NewEditor a new editor; without TargetEditor the settings decide
+            bool? reuseAvailable = targetEditor.HasValue ? isAvailable : (bool?)null;
+
+            if (importMode == ImportMode.AddAsImage)
+            {
+                // The current editor, else the shown tab of the last active editor (AvailableEditor, or the setting) or a new editor (NewEditor)
+                return EditorDestination.NewDestinationToAddImageContainer(isCurrent ? currentEditor : null, useOpenEditor: reuseAvailable);
+            }
+
+            if (isCurrent && currentEditor != null)
+            {
+                return EditorDestination.NewDestinationToReplaceSurface(currentEditor);
+            }
+
+            bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
+            return EditorDestination.NewDestinationToOpenSurface(reuseAvailable, matchSize);
         }
 
         private void ApplyCustomFileSettings(CaptureFlowContext context)

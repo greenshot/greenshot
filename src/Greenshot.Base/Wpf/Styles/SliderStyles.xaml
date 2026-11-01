@@ -1,0 +1,95 @@
+<!--
+    The sliders of Greenshot's WPF surfaces: a thin track, filled in the accent color up to a round thumb.
+    Every Slider gets it, also wpf:ValueSlider (see ValueSlider.cs), which only adds its margin.
+    Horizontal sliders only, all of them are.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:wpf="clr-namespace:Greenshot.Base.Wpf">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/FocusStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- The part of the track left of the thumb, filled in the accent color -->
+    <Style x:Key="GreenshotSliderFillRepeatButtonStyle" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                            Height="4" CornerRadius="2" VerticalAlignment="Center"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The part of the track right of the thumb, the track color; clicking anywhere on the track moves the thumb there -->
+    <Style x:Key="GreenshotSliderTrackRepeatButtonStyle" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Slider">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="MinHeight" Value="20"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Background="Transparent" SnapsToDevicePixels="True">
+                        <Border Height="4" CornerRadius="2" VerticalAlignment="Center" Margin="8,0"
+                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
+                        <Track x:Name="PART_Track" VerticalAlignment="Center" Margin="8,0">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource GreenshotSliderFillRepeatButtonStyle}" Command="Slider.DecreaseLarge"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource GreenshotSliderTrackRepeatButtonStyle}" Command="Slider.IncreaseLarge"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="16" Height="16">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Ellipse x:Name="ThumbEllipse"
+                                                     Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                                                     Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                                                     StrokeThickness="2"/>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsDragging" Value="True">
+                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A slider which tells a screen reader its value, see ValueSlider.cs; it looks like any other slider -->
+    <Style TargetType="{x:Type wpf:ValueSlider}" BasedOn="{StaticResource {x:Type Slider}}">
+        <Setter Property="Margin" Value="0,3"/>
+    </Style>
+</ResourceDictionary>

@@ -47,7 +47,13 @@ public class Emojis
 #if !GREENSHOT_BUILDTASKS
         public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
 
-        public string Icon => SubGroups.FirstOrDefault()?.Emojis.FirstOrDefault()?.Text;
+        /// <summary>
+        /// Shown on the tab instead of the first emoji of the group, e.g. for the history
+        /// </summary>
+        [XmlIgnore]
+        public string CustomIcon { get; set; }
+
+        public string Icon => CustomIcon ?? SubGroups.FirstOrDefault()?.Emojis.FirstOrDefault()?.Text;
 
         public IEnumerable<Emoji> EmojiList => SubGroups.SelectMany(s => s.Emojis);
 #endif

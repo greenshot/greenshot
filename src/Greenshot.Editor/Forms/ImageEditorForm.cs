@@ -195,6 +195,37 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
+        /// The tab which is shown in the last active editor window (else in another open window), the window is brought to the front.
+        /// Minimized windows are restored. Modified or not, the tab is returned.
+        /// </summary>
+        /// <returns>The shown tab, null when no open window shows a capture</returns>
+        internal static EditorTab ShowLastActiveTab()
+        {
+            ThreadAssert.IsUi(nameof(ShowLastActiveTab));
+            var candidates = new List<ImageEditorForm>();
+            if (_lastActiveWindow != null)
+            {
+                candidates.Add(_lastActiveWindow);
+            }
+            candidates.AddRange(OpenWindows.Where(window => window != _lastActiveWindow));
+
+            var window = candidates.FirstOrDefault(w => !w.IsDisposed && !w._closing && w.SelectedTab?.Surface != null);
+            if (window == null)
+            {
+                return null;
+            }
+
+            if (window.WindowState == FormWindowState.Minimized)
+            {
+                window.WindowState = FormWindowState.Normal;
+            }
+
+            window.BringToFront();
+            window.Activate();
+            return window.SelectedTab;
+        }
+
+        /// <summary>
         /// The tabs of this window, from left to right
         /// </summary>
         internal IReadOnlyList<EditorTab> Tabs => tabStrip.Tabs;
@@ -855,13 +886,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             bool save;
             if (changedTabs.Count == 1)
             {
-                DialogResult result = MessageBox.Show(this, Texts.Editor.CloseOnSave, Texts.Editor.CloseOnSaveTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.Cancel)
+                const int saveOne = 0, cancelOne = 2;
+                int choice = Greenshot.Base.Wpf.ThemedMessageBox.ShowChoice(Handle, Texts.Editor.CloseOnSaveTitle, Texts.Editor.CloseOnSave, System.Windows.MessageBoxImage.Question,
+                    new[] { Texts.Editor.Save, Texts.Editor.Close, Texts.Core.Cancel }, saveOne, cancelOne);
+                if (choice == cancelOne)
                 {
                     return false;
                 }
 
-                save = result == DialogResult.Yes;
+                save = choice == saveOne;
             }
             else
             {
@@ -3047,7 +3080,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-                        _surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
+                        _surface.AddNextImageContainer((Bitmap)capture.Image);
                     }
 
                     Activate();

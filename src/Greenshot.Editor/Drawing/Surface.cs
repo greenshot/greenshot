@@ -952,6 +952,17 @@ namespace Greenshot.Editor.Drawing
             return bitmapContainer;
         }
 
+        /// <inheritdoc cref="ISurface.AddNextImageContainer"/>
+        public IImageContainer AddNextImageContainer(Image image)
+        {
+            var last = _elements.OfType<ImageContainer>().LastOrDefault();
+            // The whole surface, independent of where the user has scrolled to
+            var canvas = new Rectangle(0, 0, Image.Width, Image.Height);
+            Point? lastLocation = last == null ? null : new Point(last.Left, last.Top);
+            var location = ImageContainerPlacement.Next(lastLocation, canvas, image.Size);
+            return AddImageContainer(image, location.X, location.Y);
+        }
+
         public IImageContainer AddImageContainer(string filename, int x, int y)
         {
             ImageContainer bitmapContainer = new ImageContainer(this);
@@ -1987,6 +1998,26 @@ namespace Greenshot.Editor.Drawing
         {
             e = InverseZoomMouseCoordinates(e);
 
+            // check contextmenu, before the adorners: a right click must never start resizing/moving an adorner
+            if (e.Button == MouseButtons.Right)
+            {
+                _mouseStart = e.Location;
+                // The element under the mouse gets the menu, unless it is already part of the selection (then the whole selection gets it)
+                IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
+                if (rightClickedContainer != null && !selectedElements.Contains(rightClickedContainer))
+                {
+                    DeselectAllElements();
+                    SelectElement(rightClickedContainer);
+                }
+
+                if (selectedElements.Count > 0)
+                {
+                    selectedElements.ShowContextMenu(e, this);
+                }
+
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
             if (adorner != null)
@@ -1996,35 +2027,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             _mouseStart = e.Location;
-
-            // check contextmenu
-            if (e.Button == MouseButtons.Right)
-            {
-                IDrawableContainerList selectedList = null;
-                if (selectedElements != null && selectedElements.Count > 0)
-                {
-                    selectedList = selectedElements;
-                }
-                else
-                {
-                    // Single element
-                    IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
-                    if (rightClickedContainer != null)
-                    {
-                        selectedList = new DrawableContainerList(ID)
-                        {
-                            rightClickedContainer
-                        };
-                    }
-                }
-
-                if (selectedList != null && selectedList.Count > 0)
-                {
-                    selectedList.ShowContextMenu(e, this);
-                }
-
-                return;
-            }
 
             _mouseDown = true;
             _isSurfaceMoveMadeUndoable = false;

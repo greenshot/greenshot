@@ -10,6 +10,7 @@
     "nodes",
     "flow"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string",
@@ -41,10 +42,43 @@
       "type": "string",
       "description": "Optional description of what this recipe accomplishes."
     },
-    "enabled": {
+    "authors": {
+      "type": "array",
+      "description": "Who wrote the recipe; shown when it is approved. Kept in the file so the credit travels with it.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "The name as the author wants to be credited." },
+          "github": { "type": "string", "description": "The GitHub login of the author." }
+        }
+      }
+    },
+    "copyright": {
+      "type": "string",
+      "description": "The copyright notice, e.g. 'Copyright (c) 2026 Jane Doe', which the license may require to stay with every copy."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The license of the file as an SPDX identifier, e.g. 'MIT'."
+    },
+    "translations": {
+      "type": "object",
+      "description": "The texts of the file in other languages, by language ('de' or 'de-DE') and then by path. Greenshot uses the exact language, else the language alone, else the texts of the file.",
+      "propertyNames": { "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$" },
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText)$" },
+        "additionalProperties": { "type": "string", "minLength": 1 }
+      }
+    },
+    "showInContextMenu": {
       "type": "boolean",
       "default": true,
-      "description": "Whether this recipe is active and available."
+      "description": "A recipe without a ContextMenu trigger gets an entry in Greenshot's system tray menu; false leaves it out."
     },
     "requires": {
       "type": "array",
@@ -137,10 +171,10 @@
         },
         "type": {
           "type": "string",
-          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color" ]
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color", "Hotkey", "DirectoryPath" ]
         },
         "default": {
-          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\"."
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\", a Hotkey like \"Ctrl + Shift + D\" (empty: no hotkey), a DirectoryPath a full path, %VARIABLES% allowed."
         },
         "label": {
           "type": "string",
@@ -490,12 +524,7 @@
             },
             "Format": {
               "type": "string",
-              "enum": [
-                "Mp4_H264",
-                "Mp4_Hevc"
-              ],
-              "default": "Mp4_H264",
-              "description": "Used by 'RecordVideo' step: Video codec container format."
+              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
             },
             "FrameRate": {
               "type": "integer",
@@ -885,12 +914,16 @@
           "default": true,
           "description": "Whether this trigger is currently active."
         },
+        "when": {
+          "type": "string",
+          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
+        },
         "parameters": {
           "type": "object",
           "properties": {
             "Hotkey": {
               "type": "string",
-              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'). Required for Hotkey triggers."
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Name}' for a hotkey of the general settings (e.g. '${config.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
             },
             "MenuItemText": {
               "type": "string",

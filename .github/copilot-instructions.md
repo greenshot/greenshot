@@ -203,6 +203,7 @@ $env:Imgur13_ClientId = "your_id"
 - UI changes: WPF in the `Views`/`ViewModels` folders of the feature, WinForms in `src/Greenshot/Forms/` or `src/Greenshot.Editor/Forms/`; styles, texts and settings: see `docs/vNext/ui-how-to.md`
 - Documentation: `docs/` describes the released 1.3, `docs/vNext/` what is new in 1.4 (`main`); document new features in `docs/vNext/`
 - New plugin language packs use INI format: `Languages/greenshot.{plugin}.{locale}.ini`
+- Recipe format (`docs/vNext/recipe.schema.json`, steps, triggers, options): the recipes of the catalog [greenshot/greenshot-recipes](https://github.com/greenshot/greenshot-recipes) must stay valid; the `Recipe catalog` check validates them against the PR's schema, so a breaking change needs a matching PR there
 
 ### Modifying Plugins
 Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automatically copied to main output via post-build events.

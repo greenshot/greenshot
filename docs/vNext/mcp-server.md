@@ -13,7 +13,7 @@ stdio, built with .NET 10 and Native AOT, and talks to the running Greenshot ove
 | `capture_window` | Screenshot of one window by its id from `list_windows`, with its exact contents (also when it is covered), without activating it |
 | `capture_region` | Screenshot of a part of the screen (`x,y,width,height` in screen coordinates), e.g. to see details at full resolution |
 | `capture_screen` | Screenshot of all displays |
-| `get_recipe_schema` | The recipe JSON schema and example recipes (also the resource `greenshot-mcp://recipes/schema`) |
+| `get_recipe_schema` | The recipe JSON schema (also the resource `greenshot-mcp://recipes/schema`); the examples are Greenshot's own recipes, from `get_recipe_catalog` |
 | `get_recipe_catalog` | What this Greenshot offers recipes: trigger types, step types with parameters, destinations (uploads marked) and the user's recipes; with `recipe_id` the JSON of one recipe |
 | `validate_recipe` | Checks a recipe: errors, warnings, what it does in plain words and what the user will be asked to allow |
 | `propose_recipe` | Shows a new recipe to the user, who decides whether it is saved |
@@ -366,7 +366,7 @@ The result is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`
 
 * `src/Greenshot.Mcp`: the MCP server (ModelContextProtocol SDK, stdio). `GreenshotTools` (`list_windows`) and
   `RecipeAuthoringTools` (schema, catalog, validate, propose, update) are fixed tools; `RecipeToolSync` turns the
-  recipes with an AI tool trigger into tools (`RecipeTool`). The recipe schema and examples are embedded from `docs/vNext/`.
+  recipes with an AI tool trigger into tools (`RecipeTool`). The recipe schema is embedded from `docs/vNext/`; Greenshot's built-in recipes serve as the examples.
 * Each tool call is one request over Greenshot's named pipe (`GreenshotConnection`), with the source `mcp`. On the
   Greenshot side `IpcSecurityDispatcher` checks the whitelist and the consent, `AiToolIpcHandler` handles windows and
   AI tool recipes, `AiRecipeIpcHandler` the recipe catalog and proposals.

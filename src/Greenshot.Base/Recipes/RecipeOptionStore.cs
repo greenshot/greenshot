@@ -21,7 +21,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Dapplo.Ini;
 using log4net;
 
@@ -49,6 +51,36 @@ namespace Greenshot.Base.Recipes
         public static event EventHandler ValuesChanged;
 
         public static string StorageKey(string recipeId, string optionKey) => $"{recipeId}.{optionKey}";
+
+        private const string ReferenceKey = @"\$\{\s*option\.([A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)?)\s*\}";
+        private static readonly Regex WholeReferencePattern = new Regex("^" + ReferenceKey + "$", RegexOptions.Compiled);
+        private static readonly Regex ReferencePattern = new Regex(ReferenceKey, RegexOptions.Compiled);
+
+        /// <summary>
+        /// The key of the option when the whole text is one option, "${option.key}" (e.g. the Hotkey of a Hotkey trigger)
+        /// </summary>
+        public static bool TryParseReference(string text, out string optionKey)
+        {
+            optionKey = null;
+            if (string.IsNullOrEmpty(text)) return false;
+            var match = WholeReferencePattern.Match(text.Trim());
+            if (!match.Success) return false;
+            optionKey = match.Groups[1].Value;
+            return true;
+        }
+
+        /// <summary>
+        /// The text with each "${option.key}" replaced by the current value of the option, to show the user what a step
+        /// does with the values set now (e.g. the folder a file step writes to). Other expressions stay as they are.
+        /// </summary>
+        public static string FillValues(FlowDefinition recipe, string text)
+        {
+            if (recipe == null || string.IsNullOrEmpty(text) || text.IndexOf("option.", StringComparison.OrdinalIgnoreCase) < 0) return text;
+            return ReferencePattern.Replace(text, match =>
+                TryGetValue(recipe, match.Groups[1].Value, out var value)
+                    ? Convert.ToString(value, CultureInfo.InvariantCulture)
+                    : match.Value);
+        }
 
         /// <summary>
         /// The current value of the option of the recipe or extension: the stored value, or the default of the option

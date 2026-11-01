@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views;assembly=Greenshot.Base"
+        xmlns:recipeviews="clr-namespace:Greenshot.Recipes.Views"
         Title="{wpf:Text Settings.Title}"
         Icon="{Binding WindowIcon}"
         Width="820" Height="820"
@@ -22,96 +23,13 @@
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GroupBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/TabStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        
-        <!-- Modern GroupBox Style -->
-        <Style TargetType="GroupBox">
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="Padding" Value="12"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="GroupBox">
-                        <Grid>
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="6"
-                                    Padding="{TemplateBinding Padding}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="{TemplateBinding Header}"
-                                               FontWeight="SemiBold"
-                                               FontSize="{wpf:FontSize 13}"
-                                               Foreground="{TemplateBinding Foreground}"
-                                               Margin="0,0,0,8"/>
-                                    <ContentPresenter Grid.Row="1"/>
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Modern TabControl Style -->
-        <Style TargetType="TabControl">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-        
-        <!-- Modern TabItem Style -->
-        <Style TargetType="TabItem">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Margin" Value="0,0,2,0"/>
-            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1,1,1,0"
-                                CornerRadius="6,6,0,0"
-                                Padding="{TemplateBinding Padding}"
-                                Margin="{TemplateBinding Margin}">
-                            <ContentPresenter ContentSource="Header"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                                <Setter Property="Panel.ZIndex" Value="100"/>
-                            </Trigger>
-                            <!-- The muted text color instead of transparency, which keeps the contrast of the palette (and high contrast) -->
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         
         <!-- Modern Label Style -->
         <Style TargetType="Label">
@@ -142,12 +60,6 @@
             </Setter>
         </Style>
         
-        <!-- Modern Slider Style -->
-        <Style TargetType="wpf:ValueSlider">
-            <Setter Property="Margin" Value="6,3"/>
-        </Style>
-
-
         </ResourceDictionary>
     </Window.Resources>
     
@@ -240,54 +152,33 @@
                         <!-- Hotkeys -->
                         <GroupBox Header="{wpf:Text Core.Hotkeys}">
                             <StackPanel>
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturefullscreen}" VerticalAlignment="Center"/>
-                                    <views:HotkeyDisplayView Grid.Row="0" Grid.Column="1"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturefullscreen}"
-                                                                  HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturewindow}"
-                                                                  HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturearea}"
-                                                                  HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturelastregion}"
-                                                                  HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    
-                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCaptureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCaptureclipboard}"
-                                                                  HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                </Grid>
+                                <!-- The hotkeys of the recipes which are on: the general hotkeys, the Hotkey options of recipes
+                                     and the hotkeys written in recipe files (changed in the recipe editor) -->
+                                <ItemsControl ItemsSource="{Binding Hotkeys}" Margin="0,5" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="5,0,12,0"/>
+                                                <views:HotkeyDisplayView Grid.Column="1"
+                                                                         HeaderText="{Binding Label}"
+                                                                         HotkeyString="{Binding HotkeyString, Mode=TwoWay}"
+                                                                         ShowEditButton="{Binding CanChange}"
+                                                                         IsEnabled="{Binding IsEditable}"
+                                                                         EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                                <Button Grid.Column="2" Content="{wpf:Text Core.ContextmenuRecipeeditor}" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Margin="6,0,0,0" VerticalAlignment="Center" Command="{Binding OpenRecipeEditorCommand}"
+                                                        ToolTip="{wpf:Text Settings.HotkeySetInRecipe}"
+                                                        AutomationProperties.HelpText="{wpf:Text Settings.HotkeySetInRecipe}"
+                                                        Visibility="{Binding CanOpenRecipeEditor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
                         </GroupBox>
                         
@@ -932,54 +823,7 @@
                                             </DockPanel>
                                             <!-- Only while it is on: the options, and where it is used -->
                                             <StackPanel Margin="20,4,0,0" Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ItemsControl ItemsSource="{Binding BodyItems}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Margin="0,1" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="140"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <!-- A switch takes the whole row -->
-                                                                <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
-                                                                          Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
-                                                                           Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Number: a box with the range next to it -->
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                            Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
-                                                                    <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
-                                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                                </StackPanel>
-                                                                <!-- Text -->
-                                                                <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                         AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                         Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Choice -->
-                                                                <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
-                                                                          ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
-                                                                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                                                                          AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                          Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Color: the swatch opens the color picker, the text can be typed -->
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                            Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click"
-                                                                            AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                            AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
-                                                                            ToolTip="{wpf:Text Core.AccessibleChooseColor}">
-                                                                        <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
-                                                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                                                                    </Button>
-                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
-                                                                </StackPanel>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                <recipeviews:RecipeOptionsView ItemsSource="{Binding BodyItems}"/>
                                                 <!-- Extensions: where they are used, changed in a dialog with the captures and the destinations -->
                                                 <Grid Margin="0,3,0,0" Visibility="{Binding HasUseIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <Grid.ColumnDefinitions>
