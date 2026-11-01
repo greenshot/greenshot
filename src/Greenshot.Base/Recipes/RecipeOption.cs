@@ -22,9 +22,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Recipes
@@ -47,7 +49,8 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public static readonly IReadOnlyCollection<ContractDataType> SupportedTypes = new[]
         {
-            ContractDataType.Boolean, ContractDataType.Integer, ContractDataType.Decimal, ContractDataType.String, ContractDataType.Enum, ContractDataType.Color
+            ContractDataType.Boolean, ContractDataType.Integer, ContractDataType.Decimal, ContractDataType.String, ContractDataType.Enum, ContractDataType.Color,
+            ContractDataType.Hotkey, ContractDataType.DirectoryPath
         };
 
         /// <summary>
@@ -161,6 +164,8 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Converts a value (from the recipe, greenshot.ini or the settings) to the option type:
         /// bool, int, double or string. Numbers are limited to Min and Max.
+        /// A Hotkey is written the way Greenshot writes hotkeys ("Ctrl + Shift + D"), empty or "None" for no hotkey.
+        /// A DirectoryPath is a full local or network path with %VARIABLES% replaced, empty when not set.
         /// </summary>
         /// <returns>false when the value doesn't fit the type, a color or one of the choices</returns>
         public bool TryConvert(object raw, out object value)
@@ -218,9 +223,62 @@ namespace Greenshot.Base.Recipes
                 case ContractDataType.String:
                     value = text ?? string.Empty;
                     return true;
+                case ContractDataType.Hotkey:
+                    return TryConvertHotkey(text, out value);
+                case ContractDataType.DirectoryPath:
+                    return TryConvertDirectory(text, out value);
                 default:
                     return false;
             }
+        }
+
+        private static bool TryConvertHotkey(string text, out object value)
+        {
+            value = null;
+            var sequence = HotkeySequence.Parse(text);
+            if (sequence.IsEmpty)
+            {
+                // Only an empty text or "None" means no hotkey, not a text which isn't a hotkey
+                if (string.IsNullOrEmpty(text) || string.Equals(text, "None", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = string.Empty;
+                    return true;
+                }
+                return false;
+            }
+
+            if (!sequence.Validate(out _))
+            {
+                return false;
+            }
+            value = sequence.ToString();
+            return true;
+        }
+
+        private static bool TryConvertDirectory(string text, out object value)
+        {
+            value = null;
+            if (string.IsNullOrEmpty(text))
+            {
+                value = string.Empty;
+                return true;
+            }
+
+            string path = Environment.ExpandEnvironmentVariables(text);
+            if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0 || path.IndexOf('%') >= 0)
+            {
+                return false;
+            }
+
+            // A drive with its root ("C:\...") or a network path ("\\server\share"), never relative to the working directory
+            bool isDrivePath = path.Length >= 3 && char.IsLetter(path[0]) && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+            bool isNetworkPath = path.StartsWith(@"\\", StringComparison.Ordinal) && path.Length > 2;
+            if (!isDrivePath && !isNetworkPath)
+            {
+                return false;
+            }
+            value = path;
+            return true;
         }
 
         /// <summary>

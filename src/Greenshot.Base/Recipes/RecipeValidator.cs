@@ -141,7 +141,7 @@ namespace Greenshot.Base.Recipes
                 for (int i = 0; i < recipe.Triggers.Count; i++)
                 {
                     var trigger = recipe.Triggers[i];
-                    ValidateTrigger(trigger, i, result);
+                    ValidateTrigger(recipe, trigger, i, result);
                 }
             }
 
@@ -384,7 +384,7 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateTrigger(Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
+        private static void ValidateTrigger(CaptureRecipe recipe, Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
         {
             if (trigger == null)
             {
@@ -405,10 +405,18 @@ namespace Greenshot.Base.Recipes
 
             if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
             {
-                string hotkey = trigger.GetParameter<string>("Hotkey");
+                string hotkey = trigger.GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter);
                 if (string.IsNullOrWhiteSpace(hotkey))
                 {
                     result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} is missing required 'Hotkey' parameter.");
+                }
+                else if (RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
+                {
+                    // The user sets the hotkey in Settings > Recipes
+                    if (recipe.FindOption(optionKey)?.Type != ContractDataType.Hotkey)
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the option '{optionKey}', which must be a Hotkey option declared in 'options'.");
+                    }
                 }
                 else
                 {
@@ -891,6 +899,12 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
                 }
+            }
+
+            // The approval shows what the steps do with the values set now, e.g. the folder of a DirectoryPath option
+            foreach (var action in result.GatedActions)
+            {
+                action.Target = RecipeOptionStore.FillValues(recipe, action.Target);
             }
         }
 

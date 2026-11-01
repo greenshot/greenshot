@@ -158,8 +158,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => Convert.ToString(Option.DefaultValue, CultureInfo.InvariantCulture);
             set
             {
-                // Stored as the type when it fits, as text otherwise (the check reports it)
-                Option.DefaultValue = Option.TryConvert(value, out var converted) ? converted : value;
+                // Stored as the type when it fits, as text otherwise (the check reports it).
+                // A folder keeps its %VARIABLES%, the file is used on other PCs.
+                Option.DefaultValue = Option.Type != ContractDataType.DirectoryPath && Option.TryConvert(value, out var converted) ? converted : value;
                 OnPropertyChanged();
             }
         }

@@ -689,7 +689,8 @@ namespace Greenshot.Recipes.Views
                     string label;
                     if (string.Equals(trigger.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                     {
-                        label = "⌨ " + string.Format(Texts.Recipe.ApprovalTriggerHotkey, trigger.GetParameter<string>("Hotkey", "None"));
+                        string hotkey = trigger.GetHotkey(recipe);
+                        label = "⌨ " + string.Format(Texts.Recipe.ApprovalTriggerHotkey, string.IsNullOrEmpty(hotkey) ? "None" : hotkey);
                     }
                     else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {

@@ -130,6 +130,28 @@ namespace Greenshot.Base.Recipes.Triggers
             }
         }
 
+        /// <summary>
+        /// The parameter of a Hotkey trigger which holds the hotkey: a hotkey, or "${option.key}" for the value of a
+        /// Hotkey option, which the user sets in Settings > Recipes without changing the recipe file.
+        /// </summary>
+        public const string HotkeyParameter = "Hotkey";
+
+        /// <summary>
+        /// The hotkey of a Hotkey trigger of the recipe: the value of the option it names, or the hotkey in the file.
+        /// Empty when there is none (e.g. the user removed the hotkey of the option).
+        /// </summary>
+        public string GetHotkey(FlowDefinition recipe)
+        {
+            string hotkey = GetParameter<string>(HotkeyParameter);
+            if (!RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
+            {
+                return hotkey ?? string.Empty;
+            }
+            return RecipeOptionStore.TryResolve(recipe, optionKey, out var owner, out var option) && option.Type == Contracts.ContractDataType.Hotkey
+                ? RecipeOptionStore.GetValue(owner, option) as string ?? string.Empty
+                : string.Empty;
+        }
+
         public TriggerConfig SetParameter(string key, object value)
         {
             if (Parameters == null)

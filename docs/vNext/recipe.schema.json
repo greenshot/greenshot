@@ -160,10 +160,10 @@
         },
         "type": {
           "type": "string",
-          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color" ]
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color", "Hotkey", "DirectoryPath" ]
         },
         "default": {
-          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\"."
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\", a Hotkey like \"Ctrl + Shift + D\" (empty: no hotkey), a DirectoryPath a full path, %VARIABLES% allowed."
         },
         "label": {
           "type": "string",
@@ -913,7 +913,7 @@
           "properties": {
             "Hotkey": {
               "type": "string",
-              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'). Required for Hotkey triggers."
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), or '${option.key}' for the value of a Hotkey option the user sets in the settings. Required for Hotkey triggers."
             },
             "MenuItemText": {
               "type": "string",

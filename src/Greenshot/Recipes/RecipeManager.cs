@@ -118,8 +118,9 @@ namespace Greenshot.Recipes
             InitializeDefaultRecipes();
             InitializeBuiltInExtensions();
             // The recipe files and the triggers are loaded by ReloadRecipes at startup, once the plugins registered their recipes and steps
-            // An extension switched on or off, or set to other recipes, changes the composed recipes
-            RecipeOptionStore.ValuesChanged += (sender, args) => RecomposeRecipes();
+            // An extension switched on or off, or set to other recipes, changes the composed recipes;
+            // a Hotkey option changes the hotkey of the recipe
+            RecipeOptionStore.ValuesChanged += (sender, args) => OnOptionValuesChanged(sender as string);
         }
 
         private void InitializeBuiltInExtensions()
@@ -1083,6 +1084,21 @@ namespace Greenshot.Recipes
         private RecipeApproval RequestInteractiveApproval(RecipeApprovalRequest request)
         {
             return RequestInteractiveApprovalWithOptions(request)?.Approval;
+        }
+
+        private void OnOptionValuesChanged(string recipeId)
+        {
+            RecomposeRecipes();
+            // Register the hotkeys again when the recipe takes one from an option
+            var recipe = GetRecipeById(recipeId);
+            bool hotkeyFromOption = recipe?.Triggers?.Any(t => t != null &&
+                string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
+                RecipeOptionStore.TryParseReference(t.GetParameter<string>(TriggerConfig.HotkeyParameter), out _)) ?? false;
+            if (hotkeyFromOption)
+            {
+                var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
+                triggerManager?.SyncRecipeTriggers(GetAllRecipes());
+            }
         }
 
         private void NotifyRecipesChanged()

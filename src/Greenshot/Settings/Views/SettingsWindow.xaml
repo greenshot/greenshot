@@ -868,6 +868,22 @@
                                                                 <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                          AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
                                                                          Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Hotkey: shown as keys, changed in the hotkey window -->
+                                                                <views:HotkeyDisplayView Grid.Column="1" HorizontalAlignment="Left"
+                                                                                         HeaderText="{Binding Label}"
+                                                                                         HotkeyString="{Binding TextValue, Mode=TwoWay}"
+                                                                                         EditRequested="HotkeyDisplayControl_EditRequested"
+                                                                                         Visibility="{Binding IsHotkey, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Folder: typed, or chosen with the button -->
+                                                                <DockPanel Grid.Column="1"
+                                                                           Visibility="{Binding IsDirectory, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Button DockPanel.Dock="Right" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,1,0,1"
+                                                                            Click="RecipeOptionFolder_Click"
+                                                                            ToolTip="{wpf:Text Settings.RecipesChooseFolder}"
+                                                                            AutomationProperties.Name="{wpf:Text Settings.RecipesChooseFolder}"/>
+                                                                    <TextBox Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
+                                                                </DockPanel>
                                                                 <!-- Choice -->
                                                                 <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
                                                                           ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"

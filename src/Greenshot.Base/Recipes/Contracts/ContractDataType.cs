@@ -45,6 +45,10 @@ namespace Greenshot.Base.Recipes.Contracts
         /// <summary>
         /// A color as "#RRGGBB" or "#AARRGGBB" (recipe options)
         /// </summary>
-        Color
+        Color,
+        /// <summary>
+        /// A hotkey like "Ctrl + Shift + D" (recipe options, read by a Hotkey trigger)
+        /// </summary>
+        Hotkey
     }
 }

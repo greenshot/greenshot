@@ -79,5 +79,14 @@ namespace Greenshot.Tests.Recipes
 
             Assert.Equal(ModelProperties(typeof(RecipeAuthor)), SchemaProperties(authors));
         }
+
+        [Fact]
+        public void Schema_HasTheOptionTypes()
+        {
+            var types = LoadSchema()["definitions"]["RecipeOption"]["properties"]["type"]["enum"].AsArray()
+                .Select(t => t.GetValue<string>()).OrderBy(name => name, StringComparer.Ordinal);
+
+            Assert.Equal(RecipeOption.SupportedTypes.Select(t => t.ToString()).OrderBy(name => name, StringComparer.Ordinal), types);
+        }
     }
 }

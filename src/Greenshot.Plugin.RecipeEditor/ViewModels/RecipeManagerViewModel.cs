@@ -166,7 +166,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             bool Is(string triggerType) => string.Equals(type, triggerType, StringComparison.OrdinalIgnoreCase);
             if (Is(TriggerConfig.TypeHotkey))
             {
-                string hk = t.GetParameter<string>("Hotkey");
+                string hk = t.GetHotkey(Recipe);
                 return string.IsNullOrWhiteSpace(hk) ? "⌨ " + Texts.Get<IRecipeEditorLanguage>().TriggerHotkey : $"⌨ {hk}";
             }
             if (Is(TriggerConfig.TypeContextMenu))
