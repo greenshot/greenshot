@@ -177,6 +177,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Ensures lossless PNG exports
 - By @danrhodes
 
+**Smaller PNG files**
+- PNG files, uploads and attachments are written as small as possible without losing anything, like optipng does
+- Images with few colors get much smaller
+- The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
+
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler
 - By @tsiakoulias

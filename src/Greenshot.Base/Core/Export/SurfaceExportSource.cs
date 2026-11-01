@@ -223,7 +223,7 @@ namespace Greenshot.Base.Core.Export
                 return null;
             }
 
-            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.EncodingCacheKey}";
+            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.OptimizePng}|{settings.EncodingCacheKey}";
         }
 
         private void ThrowIfDisposed()
