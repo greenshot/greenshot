@@ -26,9 +26,12 @@ Writes (the workflow commits them to gh-pages):
   _layouts/recipe.html          the layout of a recipe page
   css/recipes.css               the styles of the recipe pages
   recipes/index.json            the index, byte for byte (Greenshot reads the signed index of the catalog release instead)
+  recipes/<id>.gsrecipe.json    each recipe file, checked against the SHA-256 of the index: the "download the file" link,
+                                served by the website itself, so the browser saves it instead of showing GitHub's raw file
 and adds the "recipes" collection to _config.yml once. A collection, not pages: pages are listed on /sitemap/.
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -39,9 +42,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
-def fetch(url):
+def fetch_bytes(url):
     with urllib.request.urlopen(url, timeout=30) as response:
-        return response.read().decode("utf-8")
+        return response.read()
+
+
+def fetch(url):
+    return fetch_bytes(url).decode("utf-8")
 
 
 def readme_body(readme, base_url):
@@ -99,11 +106,19 @@ def main():
     for name in os.listdir(os.path.join(site, "_recipes")):
         if name.endswith(".md"):
             os.remove(os.path.join(site, "_recipes", name))
+    for name in os.listdir(os.path.join(site, "recipes")):
+        if name.endswith(".gsrecipe.json"):
+            os.remove(os.path.join(site, "recipes", name))
 
     for recipe in index["recipes"]:
         recipe_id = recipe["id"]
         if not ID_PATTERN.match(recipe_id):
             raise SystemExit(f"unexpected recipe id {recipe_id!r}")
+        recipe_bytes = fetch_bytes(recipe["url"])
+        if hashlib.sha256(recipe_bytes).hexdigest() != recipe["sha256"].lower():
+            raise SystemExit(f"{recipe['url']} doesn't have the SHA-256 of the index")
+        with open(os.path.join(site, "recipes", f"{recipe_id}.gsrecipe.json"), "wb") as file:
+            file.write(recipe_bytes)
         readme = fetch(recipe["readme"])
         base_url = recipe["readme"].rsplit("/", 1)[0]
         front_matter = {

@@ -16,7 +16,7 @@ layout: default
     <div class="recipe-download">
       <a class="cta" href="greenshot:install-recipe?id={{ recipe.id }}"><i class="fa fa-download"></i> Install</a>
       <div class="description">Opens Greenshot, which shows what the recipe does and its settings, and asks before anything runs.
-      Or <a href="{{ recipe.url }}" download="{{ recipe.id }}.gsrecipe.json">download the file</a> and import it in the recipe manager.</div>
+      Or <a href="/recipes/{{ recipe.id }}.gsrecipe.json" download>download the file</a> and import it in the recipe manager.</div>
     </div>
   </div>
 
