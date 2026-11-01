@@ -253,7 +253,7 @@ namespace Greenshot.Base.Languages
         }
 
         /// <summary>
-        /// The folders with language packs, highest priority first: the portable app folder,
+        /// The folders with language packs, highest priority first:
         /// the user's own translations in %APPDATA%\Greenshot\Languages, the installation.
         /// </summary>
         private static IReadOnlyList<string> FindSearchPaths(IEnumerable<string> additionalSearchPaths)
@@ -261,12 +261,6 @@ namespace Greenshot.Base.Languages
             var candidates = new List<string>();
             candidates.AddRange(additionalSearchPaths ?? Enumerable.Empty<string>());
             string applicationFolder = EnvironmentInfo.GetApplicationFolder();
-            if (applicationFolder != null)
-            {
-                // PortableApps.com layout
-                candidates.Add(Path.Combine(applicationFolder, @"App\Greenshot\Languages"));
-            }
-
             candidates.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Greenshot\Languages"));
             if (applicationFolder != null)
             {

@@ -7,7 +7,10 @@ param(
     [string]$OutputPath,
     # Greenshot Light, like the light installer: BuildArtifactsPath is its own build (bin\Release-Light, see Greenshot.csproj),
     # the basics only: no plugins, no AI tools and no browser extension
-    [switch]$Light
+    [switch]$Light,
+    # The App\Greenshot folder of the PortableApps.com package (see prepare-portableapps.ps1): no greenshot.ini next to
+    # Greenshot.exe (it is in Data\Settings) and the log goes to Data\Greenshot
+    [switch]$PortableApps
 )
 
 # Create portable directory
@@ -52,7 +55,9 @@ New-Item -ItemType Directory -Path "$OutputPath\Languages" -Force | Out-Null
 Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\greenshot.*.ini" "$OutputPath\Languages" -Force
 
 # Create Dummy-INI
-";dummy config, used to make greenshot store the configuration in this directory" | Set-Content "$OutputPath\greenshot.ini" -Encoding UTF8
+if (-not $PortableApps) {
+    ";dummy config, used to make greenshot store the configuration in this directory" | Set-Content "$OutputPath\greenshot.ini" -Encoding UTF8
+}
 
 # Create Dummy-defaults-INI
 ";In this file you should add your default settings" | Set-Content "$OutputPath\greenshot-defaults.ini" -Encoding UTF8
@@ -67,7 +72,8 @@ Copy-Item "$RepositoryRootPath\src\Greenshot-Installer\additional_files\license.
 Copy-Item "$RepositoryRootPath\src\Greenshot-Installer\additional_files\readme.txt" "$OutputPath" -Force
 
 # Copy and rename log config file
-Copy-Item "$RepositoryRootPath\src\Greenshot\log4net-zip.xml" "$OutputPath\log4net.xml" -Force
+$LogConfig = if ($PortableApps) { "log4net-portable.xml" } else { "log4net-zip.xml" }
+Copy-Item "$RepositoryRootPath\src\Greenshot\$LogConfig" "$OutputPath\log4net.xml" -Force
 
 # Copy the plugins: the build output has the installed layout (the plugin directories only contain what the plugin
 # needs in addition to the main directory), so every plugin directory is copied as it is; the files are in checksum.SHA256

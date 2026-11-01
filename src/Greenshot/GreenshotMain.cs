@@ -110,25 +110,32 @@ public class GreenshotMain
         IniValueConverters.Register();
         Editor.EditorInitialize.RegisterValueConverters();
 
-        // Detect PortableApp (PAF) mode: the App\Greenshot directory lives next to the executable.
+        // Detect the PortableApps.com package (PAF): Greenshot.exe is in its App\Greenshot, next to App\AppInfo\appinfo.ini
         var startupPath = AppContext.BaseDirectory;
-        var pafAppPath = Path.Combine(startupPath, @"App\Greenshot");
-        GreenshotEnvironment.IsPortable = Directory.Exists(pafAppPath);
+        GreenshotEnvironment.PortableAppsDirectory = GreenshotEnvironment.FindPortableAppsDirectory(startupPath);
 
-        // Build the IniConfigRegistry:
-        //   AddAppDataPath  → %APPDATA%\Greenshot
-        //   AddSearchPath   → installation / startup directory
-        //   SetOverrideDirectory → --ini-directory: greenshot.ini is only read from and saved to that directory
+        // The PortableApps.com package keeps greenshot.ini in its Data\Settings, an explicit --ini-directory still wins
+        var iniDirectory = options.IniDirectory;
+        if (string.IsNullOrWhiteSpace(iniDirectory))
+        {
+            iniDirectory = GreenshotEnvironment.PortableAppsSettingsDirectory;
+        }
+
+        // Build the IniConfigRegistry, greenshot.ini is read from the first directory which has it:
+        //   AddSearchPath   → installation / startup directory, so the .zip uses the greenshot.ini next to Greenshot.exe
+        //                     also when an installed Greenshot has one in %APPDATA%
+        //   AddAppDataPath  → %APPDATA%\Greenshot, also where greenshot.ini is created when no directory has it
+        //   SetOverrideDirectory → --ini-directory or Data\Settings: greenshot.ini is only read from and saved to that directory
         // Ensure any design-time / test fallback configuration is removed before production startup
         IniConfigHelper.UnregisterDesignTimeConfig();
 
         var builder = IniConfigRegistry.ForFile("greenshot.ini")
 
-            .AddAppDataPath("Greenshot")
             .AddSearchPath(startupPath)
+            .AddAppDataPath("Greenshot")
             // Ignored when not given, the directory is created when missing and greenshot-fixed.ini is never read from it.
             // An unusable directory is logged (IniListener.OnError) and the search paths are used instead.
-            .SetOverrideDirectory(options.IniDirectory);
+            .SetOverrideDirectory(iniDirectory);
 
         builder.AddDefaultsFile("greenshot-defaults.ini")
                .AddConstantsFile("greenshot-fixed.ini")

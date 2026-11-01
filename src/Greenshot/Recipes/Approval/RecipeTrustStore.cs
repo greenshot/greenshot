@@ -26,6 +26,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Greenshot.Base.Core;
 using Greenshot.Base.Serialization;
 using log4net;
 
@@ -48,11 +49,33 @@ namespace Greenshot.Recipes.Approval
 
         private static string _storeFilePathOverride;
 
-        private static string StoreFilePath => _storeFilePathOverride ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Greenshot",
-            "recipe_trust.dat"
+        private const string StoreFileName = "recipe_trust.dat";
+
+        private static string StoreFilePath => _storeFilePathOverride ?? GetStoreFilePath(
+            GreenshotEnvironment.ConfigLocation,
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Greenshot"),
+            GreenshotEnvironment.LocalDataDirectory
         );
+
+        /// <summary>
+        /// The store belongs to the configuration, which lists the recipe files and removes the approvals of the others (<see cref="KeepOnly"/>):
+        /// %LocalAppData%\Greenshot for the greenshot.ini in %AppData%\Greenshot, otherwise next to greenshot.ini (--ini-directory, the .zip,
+        /// the PortableApps.com package). So a portable Greenshot neither removes the approvals of the installed one nor leaves its own behind.
+        /// </summary>
+        /// <param name="configLocation">The path of the loaded greenshot.ini, empty when none was loaded</param>
+        /// <param name="appDataDirectory">%AppData%\Greenshot, the directory of the greenshot.ini of an installed Greenshot</param>
+        /// <param name="localDataDirectory">%LocalAppData%\Greenshot</param>
+        /// <returns>The path of recipe_trust.dat</returns>
+        internal static string GetStoreFilePath(string configLocation, string appDataDirectory, string localDataDirectory)
+        {
+            string configDirectory = string.IsNullOrEmpty(configLocation) ? null : Path.GetDirectoryName(Path.GetFullPath(configLocation));
+            if (string.IsNullOrEmpty(configDirectory)
+                || string.Equals(configDirectory.TrimEnd('\\'), Path.GetFullPath(appDataDirectory).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.Combine(localDataDirectory, StoreFileName);
+            }
+            return Path.Combine(configDirectory, StoreFileName);
+        }
 
         /// <summary>
         /// Uses another store file (tests), null for the default one

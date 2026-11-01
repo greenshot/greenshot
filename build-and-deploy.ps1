@@ -93,6 +93,13 @@ $LightPortableFilesPath = "$ArtifactsPath\portable-files-light"
 $LightZipArtifactPath = "$ArtifactsPath\Greenshot-Light-PORTABLE-$Version-RELEASE.zip"
 Compress-Archive -Path "$LightPortableFilesPath/*" -DestinationPath $LightZipArtifactPath -Force
 
+# Create the PortableApps.com package of Greenshot Light (the PortableApps.com tools are downloaded, 7-Zip is installed with winget when missing)
+Write-Host "Creating PortableApps.com package..."
+$PortableAppsPath = "$ArtifactsPath\portableapps"
+./prepare-portableapps.ps1 -RepositoryRootPath . -BuildArtifactsPath $LightBuildArtifactsPath -OutputPath $PortableAppsPath
+$PafArtifactPath = "$ArtifactsPath\Greenshot-Light-PORTABLEAPPS-$Version-RELEASE.paf.exe"
+Move-Item "$PortableAppsPath\GreenshotPortable_*.paf.exe" $PafArtifactPath -Force
+
 # Create Git Tag
 Write-Host "Creating Git tag..."
 cd $RepoPath
@@ -141,7 +148,8 @@ $FilesToUpload = @(
     $ExeArtifactPath,
     $LightExeArtifactPath,
     $ZipArtifactPath,
-    $LightZipArtifactPath
+    $LightZipArtifactPath,
+    $PafArtifactPath
 )
 
 foreach ($file in $FilesToUpload) {

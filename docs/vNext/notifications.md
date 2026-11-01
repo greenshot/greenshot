@@ -221,7 +221,8 @@ Windows itself doesn't show the balloons while the user turned the notifications
   (`CheckLightAssembly` fails the build when `ToastNotificationService`, `ToastActivator` or `DesktopToasts` is in its
   Greenshot.exe). It writes no registration, stays AnyCPU (32-bit Windows, native on ARM64) and ships without
   `greenshot-cli.exe` and `greenshot-proxy.exe`.
-* **The portable version** (.zip, PortableApp) is the full Greenshot.exe, but writes no registration and uses the balloons.
+* **The portable versions** (.zip, PortableApps.com package, see [portable.md](portable.md)) write no registration and use
+  the balloons. The .zip comes with the full Greenshot.exe or Greenshot Light, the PortableApps.com package with Greenshot Light.
 
 Every Greenshot process gets the app id `Greenshot` at the start (`AppUserModelId.SetForCurrentProcess` in
 `GreenshotApplication.Start`), which writes nothing. Without an app id Windows registers one of its own for the tray icon
