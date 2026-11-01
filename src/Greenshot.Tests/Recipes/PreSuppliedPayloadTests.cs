@@ -91,7 +91,7 @@ namespace Greenshot.Tests.Recipes
             }
             if (ocrText != null)
             {
-                capture.CaptureDetails.Features.Add(new DetectedOcrLine(new NativeRect(5, 5, 60, 20), ocrText, new List<OcrWordInfo>()));
+                capture.CaptureDetails.Features.Add(new DetectedOcrLine(ocrText, new List<OcrWordInfo> { new OcrWordInfo(ocrText, new System.Windows.Rect(5, 5, 60, 20)) }));
             }
             return new CaptureFlowContext(new CaptureRecipe("presupplied_test", "Pre-supplied test"))
             {
