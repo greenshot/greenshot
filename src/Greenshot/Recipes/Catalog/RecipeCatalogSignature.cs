@@ -38,7 +38,10 @@ namespace Greenshot.Recipes.Catalog
         /// </summary>
         public static readonly IReadOnlyList<string> CatalogKeys = new[]
         {
-            // TODO before merging: the two keys of the catalog (RECIPE_INDEX_SIGNING_KEY and the spare one)
+            // recipe-index-1: signs the releases (secret RECIPE_INDEX_SIGNING_KEY of greenshot-recipes)
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8lAIVHnPfHlQoe8LV/2BYsuFs+h+r1N4I9QU9O2D+ELS0KaiNSGGlBzUa4vI7YMztBs2gLAv8wuI7HAaUeQ6kw==",
+            // recipe-index-2: the spare key, kept offline, takes over when the first one has to be replaced
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVsA905zvx93R2I3pdZ45RbfAsH5xO7s41PjCXGItraE6gAq2v7fKkYxKHrblyHaRPn2E5BxQiqVZ/RjbYjaS/A=="
         };
 
         /// <summary>
