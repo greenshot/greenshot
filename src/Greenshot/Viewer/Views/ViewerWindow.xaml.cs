@@ -36,9 +36,11 @@ using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Editor.Destinations;
+using Greenshot.Recipes;
 using Greenshot.Recipes.Views;
 using Greenshot.Viewer.ViewModels;
 using log4net;
@@ -126,11 +128,19 @@ namespace Greenshot.Viewer.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // The first size: the capture 1:1, smaller when it's bigger than the maximum of the settings
+            // The first size: the capture 1:1, at most as big as the work area or (setting) the maximum size
             var configuration = Dapplo.Ini.IniConfigRegistry.GetSection<IViewerConfiguration>();
-            int maxWidth = Math.Max(MinimumPixels, configuration.MaxWidth);
-            int maxHeight = Math.Max(MinimumPixels, configuration.MaxHeight);
-            _fitZoom = Math.Max(MinimumZoom, Math.Min(1.0, Math.Min((double)maxWidth / CaptureWidth, (double)maxHeight / CaptureHeight)));
+            if (configuration.OpenAtRealSize)
+            {
+                _fitZoom = 1;
+            }
+            else
+            {
+                int maxWidth = Math.Max(MinimumPixels, configuration.MaxWidth);
+                int maxHeight = Math.Max(MinimumPixels, configuration.MaxHeight);
+                _fitZoom = Math.Max(MinimumZoom, Math.Min(1.0, Math.Min((double)maxWidth / CaptureWidth, (double)maxHeight / CaptureHeight)));
+            }
+
             _zoom = _fitZoom;
             ApplyWindowSize(true);
             Activate();
@@ -358,11 +368,13 @@ namespace Greenshot.Viewer.Views
         }
 
         /// <summary>
-        /// The destination window of the recipes (without the preview, the viewer shows the capture), owned by the viewer
+        /// The destination window of the recipes (without the preview, the viewer shows the capture), owned by the viewer.
+        /// It also offers to forward the capture to a recipe.
         /// </summary>
-        private IDestination ChooseDestination(IReadOnlyList<IDestination> destinations, string error)
+        private (IDestination Destination, CaptureRecipe Recipe) ChooseDestination(IReadOnlyList<IDestination> destinations, string error)
         {
-            var window = new DynamicDestinationWindow(null, null, destinations, null, error)
+            var recipes = RecipeManager.Instance.GetAllRecipes().Where(r => r != null && r.IsEnabled).ToList();
+            var window = new DynamicDestinationWindow(null, null, destinations, recipes, error)
             {
                 Owner = this,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner
@@ -370,10 +382,10 @@ namespace Greenshot.Viewer.Views
             window.ShowDialog();
             if (window.OpenInEditorRequested)
             {
-                return DestinationHelper.GetDestination(EditorDestination.DESIGNATION) ?? window.SelectedDestination;
+                return (DestinationHelper.GetDestination(EditorDestination.DESIGNATION) ?? window.SelectedDestination, null);
             }
 
-            return window.SelectedDestination;
+            return (window.SelectedDestination, window.SelectedRecipeToForward);
         }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)

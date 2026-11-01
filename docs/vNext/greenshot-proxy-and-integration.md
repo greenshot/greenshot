@@ -176,6 +176,7 @@ Every link written out, for testing after an install. Click a link in a Markdown
 | [greenshot://settings?tab=destination](greenshot://settings?tab=destination) | Settings, Destinations tab |
 | [greenshot://settings?tab=editor](greenshot://settings?tab=editor) | Settings, Editor tab |
 | [greenshot://settings?tab=printer](greenshot://settings?tab=printer) | Settings, Printer tab |
+| [greenshot://settings?tab=viewer](greenshot://settings?tab=viewer) | Settings, Viewer tab |
 | [greenshot://settings?tab=plugins](greenshot://settings?tab=plugins) | Settings, Plugins tab |
 | [greenshot://settings?tab=recipes](greenshot://settings?tab=recipes) | Settings, Recipes tab |
 | [greenshot://settings?tab=expert](greenshot://settings?tab=expert) | Settings, Expert tab, only when the expert settings are shown |

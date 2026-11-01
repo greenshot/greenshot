@@ -148,6 +148,9 @@ namespace Greenshot.Settings.Views
                 case "print":
                     SettingsTabControl.SelectedIndex = 5;
                     break;
+                case "viewer":
+                    SettingsTabControl.SelectedItem = ViewerTabItem;
+                    break;
                 case "plugin":
                 case "plugins":
                     SettingsTabControl.SelectedItem = PluginsTabItem;

@@ -1,8 +1,7 @@
 # The viewer
 
 The viewer shows a capture in a small window of its own, without the editor around it: to keep it on top of other windows and
-compare it with what is on the screen, or just to look at it. It is a destination, like the editor or the clipboard, and is still
-being tested: switch on *beta-test features* on the Expert tab of the settings and restart Greenshot to get it.
+compare it with what is on the screen, or just to look at it. It is a destination, like the editor or the clipboard.
 
 - [Opening a capture in the viewer](#opening-a-capture-in-the-viewer)
 - [Zoom, 1:1 and moving around](#zoom-11-and-moving-around)
@@ -19,7 +18,8 @@ you close the viewer. The first time, Greenshot tells you so.
 
 ## Zoom, 1:1 and moving around
 
-A viewer opens with the capture in its real size, or smaller when the capture is bigger than 800 × 800 pixels.
+A viewer opens with the capture in its real size, or smaller when the capture is bigger than 800 × 800 pixels. The *Viewer* tab of
+the settings can change that size, or open every capture 1:1 (at most as big as the screen).
 
 - `1` shows the capture 1:1: one pixel of the capture is one pixel of the screen. `0` goes back to the size the viewer opened with.
 - The mouse wheel, `+` and `−` zoom. The window follows: it grows up to the size of the screen and shrinks to 50 × 50 pixels.
@@ -38,8 +38,10 @@ window and use the keys or the menu (right mouse button).
 
 ## Exporting the capture
 
-`E`, the export button or *Export…* in the menu open the destination picker, the same as for a new capture: save to a file, copy
-to the clipboard, open in the editor, upload, ... The picker gets a copy of what the viewer shows, so the viewer stays open.
+`E`, the export button or *Export…* in the menu open the destination window, the same one recipes show: save to a file, copy
+to the clipboard, open in the editor, upload, ... or forward the capture to a recipe, which runs with it as if it had captured it.
+The destination or recipe gets a copy of what the viewer shows, so the viewer stays open. When an export fails, the window comes
+back with the error.
 
 ## Keys
 
@@ -52,7 +54,7 @@ to the clipboard, open in the editor, upload, ... The picker gets a copy of what
 | `+` `−`, mouse wheel | Zoom in and out |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
-| `E` | Export with the destination picker |
+| `E` | Export, or forward to a recipe |
 | `P` | Always on top, or not |
 | `T` | Title bar and border, or only the capture |
 | `M` | Show or hide the captured mouse pointer |
@@ -62,12 +64,14 @@ to the clipboard, open in the editor, upload, ... The picker gets a copy of what
 
 ## Settings
 
-A change of *always on top*, the title bar or the mouse pointer in a viewer becomes the default for the next viewers. They are
-in the `[Viewer]` section of greenshot.ini:
+The *Viewer* tab of the settings ([greenshot://settings?tab=viewer](greenshot://settings?tab=viewer)) has the size of a new viewer,
+always on top, the title bar and the mouse pointer. A change of *always on top*, the title bar or the mouse pointer in a viewer
+becomes the default for the next viewers too. They are in the `[Viewer]` section of greenshot.ini:
 
 | Setting | Default | What it does |
 |---|---|---|
-| `MaxWidth`, `MaxHeight` | 800 | The biggest size in pixels a new viewer opens with, a bigger capture is shown smaller at first |
+| `OpenAtRealSize` | False | Open with the capture 1:1, at most as big as the screen |
+| `MaxWidth`, `MaxHeight` | 800 | Without `OpenAtRealSize`: the biggest size in pixels a new viewer opens with, a bigger capture is shown smaller at first |
 | `AlwaysOnTop` | False | Keep the viewers on top of the other windows |
 | `ShowTitleBar` | True | Show the title bar and the border |
 | `ShowCursor` | True | Show the captured mouse pointer |

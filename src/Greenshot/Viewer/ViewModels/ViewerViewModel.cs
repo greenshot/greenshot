@@ -32,6 +32,9 @@ using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Recipes.Pipeline;
 
 namespace Greenshot.Viewer.ViewModels
 {
@@ -168,11 +171,11 @@ namespace Greenshot.Viewer.ViewModels
         }
 
         /// <summary>
-        /// Export the capture: the user chooses the destination, a failed export shows the choice again with the error.
-        /// The destination gets a copy, so one which keeps the capture (the editor) has its own and the viewer stays as it is.
+        /// Export the capture: the user chooses the destination (or a recipe), a failed export shows the choice again with the error.
+        /// The destination or recipe gets a copy, so one which keeps the capture (the editor) has its own and the viewer stays as it is.
         /// </summary>
-        /// <param name="chooseDestination">Shows the destinations and the error of the last try (or null), returns the chosen one or null</param>
-        public async Task ExportAsync(Func<IReadOnlyList<IDestination>, string, IDestination> chooseDestination)
+        /// <param name="choose">Shows the destinations and the error of the last try (or null), returns the chosen destination or recipe, or nothing</param>
+        public async Task ExportAsync(Func<IReadOnlyList<IDestination>, string, (IDestination Destination, CaptureRecipe Recipe)> choose)
         {
             string error = null;
             while (_surface != null)
@@ -181,8 +184,19 @@ namespace Greenshot.Viewer.ViewModels
                 var destinations = DestinationHelper.GetAllDestinations()
                     .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
                     .ToList();
-                var destination = chooseDestination(destinations, error);
-                if (destination == null || _surface == null)
+                var (destination, recipe) = choose(destinations, error);
+                if (_surface == null)
+                {
+                    return;
+                }
+
+                if (recipe != null)
+                {
+                    ForwardToRecipe(recipe);
+                    return;
+                }
+
+                if (destination == null)
                 {
                     return;
                 }
@@ -209,6 +223,29 @@ namespace Greenshot.Viewer.ViewModels
 
                 error = result.Error;
             }
+        }
+
+        /// <summary>
+        /// Run the recipe with a copy of the capture, like a capture it made itself; the flow owns the copy
+        /// </summary>
+        private void ForwardToRecipe(CaptureRecipe recipe)
+        {
+            var copy = _surface.Clone();
+            copy.CaptureDetails ??= new CaptureDetails();
+            var payload = new CapturePayload
+            {
+                Surface = copy,
+                RawCapture = new Capture(copy.GetImageForExport())
+                {
+                    CaptureDetails = copy.CaptureDetails
+                }
+            };
+            CaptureFlowRunner.Current.Start(recipe, configure: context =>
+            {
+                context.Payload = payload;
+                // The capture is handed over: the recipe must not capture or select again
+                context.IsPayloadPreSupplied = true;
+            });
         }
 
         private void HideCursors()

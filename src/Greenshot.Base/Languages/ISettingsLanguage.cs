@@ -237,6 +237,31 @@ namespace Greenshot.Base.Languages
         string DestinationViewer { get; }
 
         /// <summary>
+        /// Viewer
+        /// </summary>
+        string Viewer { get; }
+
+        /// <summary>
+        /// Size of a new viewer
+        /// </summary>
+        string ViewerFirstSize { get; }
+
+        /// <summary>
+        /// Real size (1:1), at most as big as the screen
+        /// </summary>
+        string ViewerOpenAtRealSize { get; }
+
+        /// <summary>
+        /// Otherwise at most (pixels)
+        /// </summary>
+        string ViewerMaximumSize { get; }
+
+        /// <summary>
+        /// Viewer window
+        /// </summary>
+        string ViewerWindow { get; }
+
+        /// <summary>
         /// Available
         /// </summary>
         string DestinationAvailable { get; }

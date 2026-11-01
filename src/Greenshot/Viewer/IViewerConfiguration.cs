@@ -32,11 +32,15 @@ namespace Greenshot.Viewer
     [Description("Greenshot viewer configuration")]
     public interface IViewerConfiguration : IIniSection
     {
-        [Description("Maximum width of a new viewer window in pixels, a bigger capture is shown smaller at first")]
+        [Description("Open a new viewer with the capture in its real size (1:1), at most as big as the work area of the screen. False: at most MaxWidth x MaxHeight")]
+        [DefaultValue(false)]
+        bool OpenAtRealSize { get; set; }
+
+        [Description("Maximum width of a new viewer window in pixels, a bigger capture is shown smaller at first (without OpenAtRealSize)")]
         [DefaultValue(800)]
         int MaxWidth { get; set; }
 
-        [Description("Maximum height of a new viewer window in pixels, a bigger capture is shown smaller at first")]
+        [Description("Maximum height of a new viewer window in pixels, a bigger capture is shown smaller at first (without OpenAtRealSize)")]
         [DefaultValue(800)]
         int MaxHeight { get; set; }
 

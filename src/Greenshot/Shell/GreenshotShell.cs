@@ -363,7 +363,8 @@ namespace Greenshot.Shell
                 new EmailDestination(),
                 new PickerDestination(),
                 new Win10ShareDestination(),
-                new Win10OcrDestination()
+                new Win10OcrDestination(),
+                new ViewerDestination()
             };
 
             int len = 250;
@@ -374,14 +375,8 @@ namespace Greenshot.Shell
                 internalDestinations.Add(new EditorDestination());
             }
 
-            var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            // The viewer is still tested, only beta testers get it
-            if (coreConfiguration.IsBetaTester)
-            {
-                internalDestinations.Add(new ViewerDestination());
-            }
-
             // Also when only the configuration excludes it, so the settings can switch it on again
+            var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             foreach (var internalDestination in internalDestinations)
             {
                 if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))
