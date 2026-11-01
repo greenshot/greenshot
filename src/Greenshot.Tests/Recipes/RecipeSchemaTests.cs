@@ -55,7 +55,9 @@ namespace Greenshot.Tests.Recipes
         /// The names Greenshot reads and writes for a type, as the recipe files spell them
         /// </summary>
         private static string[] ModelProperties(params Type[] types) =>
-            types.SelectMany(type => new DefaultJsonTypeInfoResolver().GetTypeInfo(type, RecipeSerializer.Options).Properties.Select(p => p.Name))
+            types.SelectMany(type => new DefaultJsonTypeInfoResolver().GetTypeInfo(type, RecipeSerializer.Options).Properties
+                    // [JsonIgnore] properties stay in the contract, without getter and setter
+                    .Where(p => p.Get != null || p.Set != null).Select(p => p.Name))
                 .Distinct().OrderBy(name => name, StringComparer.Ordinal).ToArray();
 
         private static string[] SchemaProperties(JsonNode properties) =>
