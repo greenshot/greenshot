@@ -172,6 +172,11 @@ namespace Greenshot.Base.Languages
         string EmojiPicker { get; }
 
         /// <summary>
+        /// History
+        /// </summary>
+        string EmojiHistory { get; }
+
+        /// <summary>
         /// New image
         /// </summary>
         string NewImage { get; }

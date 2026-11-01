@@ -11,6 +11,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -19,7 +20,10 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Dapplo.Ini;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
+using Greenshot.Editor.Configuration;
 
 namespace Greenshot.Editor.Controls.Emoji;
 
@@ -41,12 +45,73 @@ public delegate void EmojiPickedEventHandler(object sender, EmojiPickedEventArgs
 /// </summary>
 public partial class EmojiPicker : StackPanel
 {
+    /// <summary>
+    /// How many emoji the history keeps
+    /// </summary>
+    public const int HistorySize = 24;
+
     public EmojiPicker()
     {
         InitializeComponent();
+        Groups = CreateGroups();
     }
 
-    public IList<Emojis.Group> EmojiGroups => EmojiData.Data.Groups;
+    /// <summary>
+    /// The tabs of the picker, the history is the first. Set again on every open, so the history is current.
+    /// </summary>
+    public static readonly DependencyProperty GroupsProperty = DependencyProperty.Register(
+        nameof(Groups), typeof(IList<Emojis.Group>), typeof(EmojiPicker));
+
+    public IList<Emojis.Group> Groups
+    {
+        get => (IList<Emojis.Group>)GetValue(GroupsProperty);
+        set => SetValue(GroupsProperty, value);
+    }
+
+    /// <summary>
+    /// The emoji picked recently, newest first
+    /// </summary>
+    public static IList<string> HistoryEmojis => (IniConfigRegistry.GetSection<IEditorConfiguration>().RecentEmojis ?? string.Empty)
+        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+        .Take(HistorySize)
+        .ToList();
+
+    /// <summary>
+    /// Put the emoji first in the history, without duplicates, and keep only the last HistorySize
+    /// </summary>
+    public static void AddToHistory(string emoji)
+    {
+        if (string.IsNullOrEmpty(emoji))
+        {
+            return;
+        }
+
+        var history = HistoryEmojis.Where(e => e != emoji).Prepend(emoji).Take(HistorySize);
+        IniConfigRegistry.GetSection<IEditorConfiguration>().RecentEmojis = string.Join(" ", history);
+    }
+
+    private static IList<Emojis.Group> CreateGroups()
+    {
+        var history = new Emojis.Group
+        {
+            Name = Texts.Editor.EmojiHistory,
+            CustomIcon = "🕒",
+            SubGroups =
+            {
+                new Emojis.Group
+                {
+                    Emojis = HistoryEmojis.Select(text => new Emojis.Emoji { Text = text }).ToList()
+                }
+            }
+        };
+
+        return new List<Emojis.Group> { history }.Concat(EmojiData.Data.Groups).ToList();
+    }
+
+    /// <summary>
+    /// Without history the first category is shown, the history tab is still there
+    /// </summary>
+    private bool HistoryIsEmpty => HistoryEmojis.Count == 0;
 
     // Backwards compatibility for when the backend was a TextBlock.
     public double FontSize
@@ -142,6 +207,12 @@ public partial class EmojiPicker : StackPanel
         Dispatcher.InvokeAsync(() =>
         {
             var tabs = FindChild<TabControl>(child);
+            if (tabs != null)
+            {
+                // The history is the first tab, with an empty history the first category (the second tab) is shown
+                tabs.SelectedIndex = HistoryIsEmpty ? Math.Min(1, tabs.Items.Count - 1) : 0;
+            }
+
             if (tabs?.ItemContainerGenerator.ContainerFromIndex(Math.Max(0, tabs.SelectedIndex)) is TabItem tab)
             {
                 tab.Focus();
@@ -277,6 +348,12 @@ public partial class EmojiPicker : StackPanel
 
     public void ShowPopup(bool show)
     {
+        if (show)
+        {
+            // The history changes on every pick, so the tabs are built again on every open
+            Groups = CreateGroups();
+        }
+
         foreach (var child in Children)
         {
             if (child is ToggleButton button)

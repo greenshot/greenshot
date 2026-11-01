@@ -140,5 +140,9 @@ namespace Greenshot.Editor.Configuration
         [DefaultValue("🙂")]
         [Description("Last used emoji")]
         string RecentEmoji { get; set; }
+
+        [DefaultValue("")]
+        [Description("Emoji picked recently, newest first, separated by spaces")]
+        string RecentEmojis { get; set; }
     }
 }
