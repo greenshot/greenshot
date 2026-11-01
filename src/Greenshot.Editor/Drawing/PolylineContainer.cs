@@ -32,6 +32,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -115,10 +116,10 @@ namespace Greenshot.Editor.Drawing
             return true;
         }
 
-        internal void AddPoint(Point point, bool snapToAxes)
+        internal void AddPoint(Point point, bool snapAngle)
         {
             Invalidate();
-            point = ConstrainNewPoint(point, snapToAxes);
+            point = ConstrainNewPoint(point, snapAngle);
             if (_points.Count >= 3 && point == GetVertexPosition(0))
             {
                 // After two segments, a click at the start closes the polyline instead of adding the start again.
@@ -139,23 +140,23 @@ namespace Greenshot.Editor.Drawing
             return true;
         }
 
-        internal void UpdatePreview(Point point, bool snapToAxes)
+        internal void UpdatePreview(Point point, bool snapAngle)
         {
             Invalidate();
-            _previewPoint = ConstrainNewPoint(point, snapToAxes);
+            _previewPoint = ConstrainNewPoint(point, snapAngle);
             Invalidate();
         }
 
-        private Point ConstrainNewPoint(Point point, bool snapToAxes)
+        private Point ConstrainNewPoint(Point point, bool snapAngle)
         {
-            // Give closing the polyline priority over Shift's axis constraint.
+            // Give closing the polyline priority over Shift's angle snap.
             if (_points.Count >= 3 && IsNearStart(point))
             {
                 return GetVertexPosition(0);
             }
 
-            return snapToAxes && _points.Count > 0
-                ? SnapToAxes(GetVertexPosition(_points.Count - 1), point)
+            return snapAngle && _points.Count > 0
+                ? SnapAngle(GetVertexPosition(_points.Count - 1), point)
                 : point;
         }
 
@@ -179,23 +180,29 @@ namespace Greenshot.Editor.Drawing
             UpdateVertexAdorners();
         }
 
-        private static Point SnapToAxes(Point anchor, Point point)
+        private static Point SnapAngle(Point anchor, Point point)
         {
-            return Math.Abs((long)point.X - anchor.X) >= Math.Abs((long)point.Y - anchor.Y)
-                ? new Point(point.X, anchor.Y)
-                : new Point(anchor.X, point.Y);
+            // Round the direction to 15° steps like the line tool, and keep how far the cursor is along it.
+            double dx = (double)point.X - anchor.X;
+            double dy = (double)point.Y - anchor.Y;
+            double angle = LineAngleRoundBehavior.INSTANCE.Process(Math.Atan2(dy, dx) * 180 / Math.PI) * Math.PI / 180;
+            // Rounding the unit vector makes 0° and 90° exact and 45° symmetric, so those segments stay pixel exact.
+            double cos = Math.Round(Math.Cos(angle), 12);
+            double sin = Math.Round(Math.Sin(angle), 12);
+            double distance = dx * cos + dy * sin;
+            return new Point(anchor.X + (int)Math.Round(distance * cos), anchor.Y + (int)Math.Round(distance * sin));
         }
 
-        internal Point ConstrainVertex(int index, Point point, bool snapToAxes)
+        internal Point ConstrainVertex(int index, Point point, bool snapAngle)
         {
-            if (!snapToAxes || _points.Count < 2)
+            if (!snapAngle || _points.Count < 2)
             {
                 return point;
             }
 
             // Snap to the previous vertex; the first vertex of an open polyline only has a following one.
             int neighbor = index > 0 ? index - 1 : _closed ? _points.Count - 1 : 1;
-            return SnapToAxes(GetVertexPosition(neighbor), point);
+            return SnapAngle(GetVertexPosition(neighbor), point);
         }
 
         internal void MoveVertex(int index, Point point)

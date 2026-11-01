@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -589,18 +590,18 @@ namespace Greenshot.Tests.Editor
             using var surface = CreateSurface();
             surface.ZoomFactor = new Fraction(numerator, denominator);
             using var polyline = new PolylineContainer(surface);
-            polyline.AddPoint(new Point(100, 100), snapToAxes: false);
-            polyline.AddPoint(new Point(200, 100), snapToAxes: false);
-            polyline.AddPoint(new Point(200, 200), snapToAxes: false);
+            polyline.AddPoint(new Point(100, 100), snapAngle: false);
+            polyline.AddPoint(new Point(200, 100), snapAngle: false);
+            polyline.AddPoint(new Point(200, 200), snapAngle: false);
 
             // A click farther from the start adds a corner.
             int farOffset = (int)(40 / (double)surface.ZoomFactor);
-            polyline.AddPoint(new Point(100 + farOffset, 100), snapToAxes: false);
+            polyline.AddPoint(new Point(100 + farOffset, 100), snapAngle: false);
             Assert.False(polyline.IsClosed);
             Assert.Equal(4, polyline.Points.Length);
 
             int nearOffset = (int)(4 / (double)surface.ZoomFactor);
-            polyline.AddPoint(new Point(100 + nearOffset, 100), snapToAxes: false);
+            polyline.AddPoint(new Point(100 + nearOffset, 100), snapAngle: false);
             Assert.True(polyline.IsClosed);
             Assert.Equal(4, polyline.Points.Length);
         }
@@ -612,10 +613,10 @@ namespace Greenshot.Tests.Editor
             using var polyline = new PolylineContainer(surface) { Status = EditStatus.DRAWING };
             polyline.SetFieldValue(FieldType.SHADOW, false);
             polyline.SetFieldValue(FieldType.LINE_THICKNESS, 2);
-            polyline.AddPoint(new Point(20, 20), snapToAxes: false);
-            polyline.AddPoint(new Point(100, 20), snapToAxes: false);
-            polyline.AddPoint(new Point(100, 100), snapToAxes: false);
-            polyline.UpdatePreview(new Point(24, 23), snapToAxes: true);
+            polyline.AddPoint(new Point(20, 20), snapAngle: false);
+            polyline.AddPoint(new Point(100, 20), snapAngle: false);
+            polyline.AddPoint(new Point(100, 100), snapAngle: false);
+            polyline.UpdatePreview(new Point(24, 23), snapAngle: true);
             using var bitmap = new Bitmap(150, 150);
             using var graphics = Graphics.FromImage(bitmap);
             polyline.Draw(graphics, RenderMode.EDIT);
@@ -624,7 +625,7 @@ namespace Greenshot.Tests.Editor
             graphics.Clear(Color.Transparent);
             polyline.Draw(graphics, RenderMode.EXPORT);
             Assert.Equal(0, bitmap.GetPixel(60, 60).A);
-            polyline.AddPoint(new Point(24, 23), snapToAxes: true);
+            polyline.AddPoint(new Point(24, 23), snapAngle: true);
             Assert.True(polyline.IsClosed);
             Assert.Equal(3, polyline.Points.Length);
             polyline.Draw(graphics, RenderMode.EXPORT);
@@ -686,20 +687,56 @@ namespace Greenshot.Tests.Editor
         }
 
         [Theory]
-        [InlineData(100, 35, 100, 20)]
-        [InlineData(35, 100, 20, 100)]
-        [InlineData(-80, 35, -80, 20)]
-        [InlineData(35, -80, 20, -80)]
-        public void ShiftDrawing_SnapsToHorizontalOrVertical(int x, int y, int expectedX, int expectedY)
+        [InlineData(100, 28, 100, 20)] // 0°
+        [InlineData(28, 100, 20, 100)] // 90°
+        [InlineData(-80, 28, -80, 20)] // 180°
+        [InlineData(28, -80, 20, -80)] // -90°
+        [InlineData(120, 45, 120, 47)] // 15°
+        [InlineData(120, 80, 121, 78)] // 30°
+        [InlineData(100, 96, 98, 98)] // 45°
+        [InlineData(-40, 82, -41, 81)] // 135°
+        [InlineData(62, -48, 60, -49)] // -60°
+        public void ShiftDrawing_SnapsTo15DegreeSteps(int x, int y, int expectedX, int expectedY)
         {
             using var surface = CreateSurface();
             using var polyline = new PolylineContainer(surface);
-            polyline.AddPoint(new Point(20, 20), snapToAxes: true);
-            polyline.AddPoint(new Point(x, y), snapToAxes: true);
+            polyline.AddPoint(new Point(20, 20), snapAngle: true);
+            polyline.AddPoint(new Point(x, y), snapAngle: true);
 
             Assert.Equal(new[] { new Point(20, 20), new Point(expectedX, expectedY) }, polyline.Points);
-            polyline.AddPoint(new Point(150, 170), snapToAxes: false);
+            polyline.AddPoint(new Point(150, 170), snapAngle: false);
             Assert.Equal(new Point(150, 170), polyline.Points[2]);
+        }
+
+        [Fact]
+        public void ShiftDrawing_SnapsEveryDirection_ToTheNearest15DegreeStep()
+        {
+            using var surface = CreateSurface();
+            var anchor = new Point(200, 200);
+            for (int degrees = 0; degrees < 360; degrees++)
+            {
+                double radians = degrees * Math.PI / 180;
+                var cursor = new Point(anchor.X + (int)Math.Round(120 * Math.Cos(radians)), anchor.Y + (int)Math.Round(120 * Math.Sin(radians)));
+                using var polyline = new PolylineContainer(surface);
+                polyline.AddPoint(anchor, snapAngle: false);
+                polyline.AddPoint(cursor, snapAngle: true);
+
+                Point snapped = polyline.Points[1];
+                int dx = snapped.X - anchor.X;
+                int dy = snapped.Y - anchor.Y;
+                double step = Math.Round(Math.Atan2(cursor.Y - anchor.Y, cursor.X - anchor.X) * 180 / Math.PI / 15) * 15;
+                double deviation = Math.Abs(Math.IEEERemainder(Math.Atan2(dy, dx) * 180 / Math.PI - step, 360));
+                // Within the half pixel that whole coordinates allow at this length.
+                Assert.True(deviation < 0.5, $"{degrees}°: snapped to {snapped}, {deviation:0.00}° off {step}°");
+                if (step % 90 == 0)
+                {
+                    Assert.True(dx == 0 || dy == 0, $"{degrees}°: {snapped} is not on an axis");
+                }
+                else if (step % 45 == 0)
+                {
+                    Assert.Equal(Math.Abs(dx), Math.Abs(dy));
+                }
+            }
         }
 
         [Fact]
@@ -709,42 +746,43 @@ namespace Greenshot.Tests.Editor
             using var polyline = new PolylineContainer(surface) { Status = EditStatus.DRAWING };
             polyline.SetFieldValue(FieldType.SHADOW, false);
             polyline.SetFieldValue(FieldType.LINE_THICKNESS, 2);
-            polyline.AddPoint(new Point(20, 20), snapToAxes: false);
-            polyline.UpdatePreview(new Point(100, 40), snapToAxes: true);
+            polyline.AddPoint(new Point(20, 20), snapAngle: false);
+            polyline.UpdatePreview(new Point(100, 28), snapAngle: true);
             using var bitmap = new Bitmap(200, 100);
             using var graphics = Graphics.FromImage(bitmap);
             polyline.Draw(graphics, RenderMode.EDIT);
 
             Assert.True(bitmap.GetPixel(60, 20).A > 0);
-            Assert.Equal(0, bitmap.GetPixel(60, 30).A);
+            Assert.Equal(0, bitmap.GetPixel(60, 24).A);
             graphics.Clear(Color.Transparent);
-            polyline.UpdatePreview(new Point(100, 40), snapToAxes: false);
+            polyline.UpdatePreview(new Point(100, 28), snapAngle: false);
             polyline.Draw(graphics, RenderMode.EDIT);
-            Assert.True(bitmap.GetPixel(60, 30).A > 0);
+            Assert.True(bitmap.GetPixel(60, 24).A > 0);
             Assert.Equal(0, bitmap.GetPixel(60, 20).A);
 
-            polyline.AddPoint(new Point(100, 40), snapToAxes: true);
+            polyline.AddPoint(new Point(100, 28), snapAngle: true);
             Assert.Equal(new Point(100, 20), polyline.Points[1]);
             // The next segment snaps from the last committed vertex.
-            polyline.AddPoint(new Point(90, 80), snapToAxes: true);
+            polyline.AddPoint(new Point(96, 80), snapAngle: true);
             Assert.Equal(new Point(100, 80), polyline.Points[2]);
         }
 
         [Theory]
-        [InlineData(0, 35, 35, 35, 20)]
-        [InlineData(0, 90, 80, 100, 80)]
-        [InlineData(1, 120, 40, 120, 20)]
+        [InlineData(0, 35, 25, 35, 20)]
+        [InlineData(0, 96, 80, 100, 80)]
+        [InlineData(1, 120, 28, 120, 20)]
         [InlineData(1, 30, 120, 20, 120)]
-        [InlineData(2, 150, 30, 150, 20)]
+        [InlineData(2, 150, 24, 150, 20)]
         [InlineData(2, 110, 120, 100, 120)]
+        [InlineData(2, 170, 96, 173, 93)]
         public void ShiftVertexEdit_UsesTheAdjacentVertex(int index, int x, int y, int expectedX, int expectedY)
         {
             using var surface = CreateSurface();
             var polyline = DrawPolyline(surface);
             var point = new Point(x, y);
 
-            Assert.Equal(new Point(expectedX, expectedY), polyline.ConstrainVertex(index, point, snapToAxes: true));
-            Assert.Equal(point, polyline.ConstrainVertex(index, point, snapToAxes: false));
+            Assert.Equal(new Point(expectedX, expectedY), polyline.ConstrainVertex(index, point, snapAngle: true));
+            Assert.Equal(point, polyline.ConstrainVertex(index, point, snapAngle: false));
         }
 
         [Fact]
@@ -753,7 +791,7 @@ namespace Greenshot.Tests.Editor
             using var surface = CreateSurface();
             var polyline = DrawClosedPolyline(surface);
 
-            Assert.Equal(new Point(100, 30), polyline.ConstrainVertex(0, new Point(90, 30), snapToAxes: true));
+            Assert.Equal(new Point(100, 30), polyline.ConstrainVertex(0, new Point(95, 30), snapAngle: true));
         }
 
         [Fact]
