@@ -25,7 +25,7 @@ using System.Drawing;
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Where a new image container is placed: 20 px after the last one, and inside the visible part of the canvas
+    /// Where a new image container is placed: 20 px after the last one, and mostly inside the surface
     /// </summary>
     public static class ImageContainerPlacement
     {
@@ -35,38 +35,45 @@ namespace Greenshot.Editor.Drawing
         public const int Offset = 20;
 
         /// <summary>
-        /// The distance to the edge of the visible part, and the start on an empty surface
+        /// The distance to the edge of the surface, and the start on an empty surface
         /// </summary>
         public const int Margin = 10;
+
+        /// <summary>
+        /// The part of the width and of the height which has to stay visible, else the image goes back to the top left corner
+        /// </summary>
+        public const int MinimumVisiblePercent = 30;
 
         /// <summary>
         /// Calculates the location of a new image container (in image coordinates).
         /// </summary>
         /// <param name="lastLocation">The location of the last added image container, null when there is none</param>
-        /// <param name="visible">The visible part of the canvas (image coordinates)</param>
+        /// <param name="canvas">The surface the image has to be shown on (image coordinates)</param>
         /// <param name="size">The size of the new image</param>
         /// <returns>The location of the top left corner</returns>
-        public static Point Next(Point? lastLocation, Rectangle visible, Size size)
+        public static Point Next(Point? lastLocation, Rectangle canvas, Size size)
         {
             Point start = lastLocation.HasValue
                 ? new Point(lastLocation.Value.X + Offset, lastLocation.Value.Y + Offset)
-                : new Point(visible.Left + Margin, visible.Top + Margin);
+                : new Point(canvas.Left + Margin, canvas.Top + Margin);
 
-            // Nothing visible (e.g. the editor is not shown yet): the offset is all we know
-            if (visible.Width <= 0 || visible.Height <= 0)
+            // No surface (e.g. no image yet): the offset is all we know
+            if (canvas.Width <= 0 || canvas.Height <= 0)
             {
                 return start;
             }
 
-            bool fits = start.X >= visible.Left && start.Y >= visible.Top
-                        && start.X + size.Width <= visible.Right && start.Y + size.Height <= visible.Bottom;
-            if (fits)
+            // Stays where it is while at least MinimumVisiblePercent of its width and of its height are visible
+            Rectangle shown = Rectangle.Intersect(new Rectangle(start, size), canvas);
+            bool mostlyVisible = shown.Width * 100 >= size.Width * MinimumVisiblePercent
+                                 && shown.Height * 100 >= size.Height * MinimumVisiblePercent;
+            if (mostlyVisible)
             {
                 return start;
             }
 
-            // Back to the top left corner of the visible part, also for an image which is bigger than the visible part
-            return new Point(visible.Left + Margin, visible.Top + Margin);
+            // Back to the top left corner of the surface
+            return new Point(canvas.Left + Margin, canvas.Top + Margin);
         }
     }
 }

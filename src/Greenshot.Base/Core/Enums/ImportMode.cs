@@ -31,11 +31,11 @@ namespace Greenshot.Base.Core.Enums
         /// The capture becomes the surface of the editor: the surface of the current editor is replaced,
         /// with AvailableEditor the capture opens as a new tab
         /// </summary>
-        Surface,
+        OpenAsCapture,
 
         /// <summary>
         /// The capture is added as image container to an editor, the surface is kept
         /// </summary>
-        ImageContainer
+        AddAsImage
     }
 }

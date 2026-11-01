@@ -27,49 +27,64 @@ using Xunit;
 namespace Greenshot.Tests.Editor
 {
     /// <summary>
-    /// The place of a new image container: 20 px after the last one, inside the visible part of the canvas
+    /// The place of a new image container: 20 px after the last one, mostly inside the surface
     /// </summary>
     public class ImageContainerPlacementTests
     {
-        private static readonly Rectangle Visible = new Rectangle(0, 0, 800, 600);
+        private static readonly Rectangle Canvas = new Rectangle(0, 0, 800, 600);
         private static readonly Size Small = new Size(100, 100);
 
         [Fact]
         public void Next_EmptySurface_StartsAtMargin()
         {
-            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(null, Visible, Small));
+            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(null, Canvas,Small));
         }
 
         [Fact]
         public void Next_AfterLastContainer_IsOffsetBy20()
         {
-            Assert.Equal(new Point(130, 150), ImageContainerPlacement.Next(new Point(110, 130), Visible, Small));
+            Assert.Equal(new Point(130, 150), ImageContainerPlacement.Next(new Point(110, 130), Canvas,Small));
         }
 
         [Fact]
-        public void Next_LeavingVisibleArea_WrapsToTopLeftCorner()
+        public void Next_LessThan30PercentVisible_WrapsToTopLeftCorner()
         {
-            // 700 + 20 + 100 is beyond the right edge (800)
-            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(new Point(700, 100), Visible, Small));
+            // start 780: only 20 of the 100 px width are inside the right edge (800)
+            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(new Point(760, 100), Canvas,Small));
         }
 
         [Fact]
-        public void Next_ScrolledCanvas_StaysInVisibleAreaWhenEmpty()
+        public void Next_Exactly30PercentVisible_StaysAtOffset()
         {
-            // The visible part starts at x = 500 of the image: a start at 10 would be outside
-            var scrolled = new Rectangle(500, 300, 800, 600);
-            Assert.Equal(new Point(510, 310), ImageContainerPlacement.Next(null, scrolled, Small));
+            // start 770: 30 of the 100 px width are inside the right edge (800)
+            Assert.Equal(new Point(770, 120), ImageContainerPlacement.Next(new Point(750, 100), Canvas,Small));
         }
 
         [Fact]
-        public void Next_ImageBiggerThanVisibleArea_UsesTopLeftCorner()
+        public void Next_LessThan30PercentOfHeightVisible_WrapsToTopLeftCorner()
         {
+            // start y 580: only 20 of the 100 px height are inside the bottom edge (600)
+            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(new Point(100, 560), Canvas,Small));
+        }
+
+        [Fact]
+        public void Next_ImageMostlyBiggerThanVisibleArea_UsesTopLeftCorner()
+        {
+            // At (30, 30): 770 of 3000 px width are visible, 26%
+            var big = new Size(3000, 3000);
+            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(new Point(10, 10), Canvas,big));
+        }
+
+        [Fact]
+        public void Next_ImageLargerThanVisibleButMostlyShown_StaysAtOffset()
+        {
+            // At (30, 30): 770 of 900 px width and 570 of 700 px height are visible
             var big = new Size(900, 700);
-            Assert.Equal(new Point(10, 10), ImageContainerPlacement.Next(new Point(10, 10), Visible, big));
+            Assert.Equal(new Point(30, 30), ImageContainerPlacement.Next(new Point(10, 10), Canvas,big));
         }
 
         [Fact]
-        public void Next_NothingVisible_ReturnsOffsetOnly()
+        public void Next_NoSurface_ReturnsOffsetOnly()
         {
             var none = Rectangle.Empty;
             Assert.Equal(new Point(30, 30), ImageContainerPlacement.Next(new Point(10, 10), none, Small));

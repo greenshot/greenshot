@@ -2575,7 +2575,7 @@
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="ImageContainer"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="AddAsImage"/>
                                             </ComboBox>
                                         </StackPanel>
 
@@ -2687,8 +2687,8 @@
                                                 <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
                                                           SelectedValuePath="Tag" Margin="0,0,0,8">
                                                     <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
-                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="ImageContainer"/>
-                                                </ComboBox>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="AddAsImage"/>
+</ComboBox>
                                             </StackPanel>
 
                                             <!-- File Save Settings (Visible when Save to File is checked) -->

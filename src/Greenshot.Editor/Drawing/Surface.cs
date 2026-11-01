@@ -956,10 +956,10 @@ namespace Greenshot.Editor.Drawing
         public IImageContainer AddNextImageContainer(Image image)
         {
             var last = _elements.OfType<ImageContainer>().LastOrDefault();
-            NativeRect area = ToImageCoordinates(GetVisibleArea());
-            var visible = new Rectangle(area.Left, area.Top, area.Width, area.Height);
+            // The whole surface, independent of where the user has scrolled to
+            var canvas = new Rectangle(0, 0, Image.Width, Image.Height);
             Point? lastLocation = last == null ? null : new Point(last.Left, last.Top);
-            var location = ImageContainerPlacement.Next(lastLocation, visible, image.Size);
+            var location = ImageContainerPlacement.Next(lastLocation, canvas, image.Size);
             return AddImageContainer(image, location.X, location.Y);
         }
 

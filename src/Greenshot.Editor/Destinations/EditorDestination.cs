@@ -51,14 +51,14 @@ namespace Greenshot.Editor.Destinations
         private readonly bool? _reuseAvailableEditor;
         private readonly bool? _matchSizeToCapture;
         private readonly bool _addImageContainer;
-        private readonly bool _useOpenEditor;
+        private readonly bool? _useOpenEditor;
 
         public EditorDestination()
         {
             // Do not remove, is needed for the framework
         }
 
-        private EditorDestination(IImageEditor dedicatedEditor, bool addImageContainer, bool useOpenEditor)
+        private EditorDestination(IImageEditor dedicatedEditor, bool addImageContainer, bool? useOpenEditor)
         {
             _dedicatedEditor = dedicatedEditor;
             _addImageContainer = addImageContainer;
@@ -82,8 +82,8 @@ namespace Greenshot.Editor.Destinations
         /// Adds the capture as image container to an editor, the surface of the editor is kept.
         /// </summary>
         /// <param name="targetEditor">The editor to add to, null to use the shown editor or a new one</param>
-        /// <param name="useOpenEditor">With targetEditor null: true takes the tab shown in the last active editor window (modified or not), false opens a new editor</param>
-        public static EditorDestination NewDestinationToAddImageContainer(IImageEditor targetEditor, bool useOpenEditor = false)
+        /// <param name="useOpenEditor">With targetEditor null: true takes the tab shown in the last active editor window (modified or not), false opens a new editor, null the same as true</param>
+        public static EditorDestination NewDestinationToAddImageContainer(IImageEditor targetEditor, bool? useOpenEditor = null)
             => new EditorDestination(targetEditor, addImageContainer: true, useOpenEditor);
 
         /// <summary>
@@ -144,14 +144,15 @@ namespace Greenshot.Editor.Destinations
         /// Runs on the UI thread: the editor which gets the image. The target; else (if allowed) the tab shown in the last active
         /// editor window, which is brought to the front; else a new editor.
         /// </summary>
-        private static IImageEditor GetEditorForImage(IImageEditor targetEditor, bool useOpenEditor)
+        private static IImageEditor GetEditorForImage(IImageEditor targetEditor, bool? useOpenEditor)
         {
             if (targetEditor != null)
             {
                 return targetEditor;
             }
 
-            if (useOpenEditor)
+            // Without a choice from the caller the shown tab is used, like AvailableEditor
+            if (useOpenEditor ?? true)
             {
                 var shownTab = ImageEditorForm.ShowLastActiveTab();
                 if (shownTab != null)

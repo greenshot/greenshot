@@ -99,7 +99,7 @@ namespace Greenshot.Base.Interfaces
 
         /// <summary>
         /// Adds the image as image container at the next place: 20 px after the last image container,
-        /// kept inside the visible part of the canvas.
+        /// kept at least 30% on the surface in width and height, else at 10/10 on the surface.
         /// </summary>
         IImageContainer AddNextImageContainer(Image image);
 

@@ -3069,7 +3069,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-                        _surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
+                        _surface.AddNextImageContainer((Bitmap)capture.Image);
                     }
 
                     Activate();
