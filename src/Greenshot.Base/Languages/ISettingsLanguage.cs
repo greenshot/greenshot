@@ -232,6 +232,11 @@ namespace Greenshot.Base.Languages
         string DestinationPrinter { get; }
 
         /// <summary>
+        /// Show in a viewer
+        /// </summary>
+        string DestinationViewer { get; }
+
+        /// <summary>
         /// Available
         /// </summary>
         string DestinationAvailable { get; }

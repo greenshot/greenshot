@@ -1,0 +1,166 @@
+<Window x:Class="Greenshot.Viewer.Views.ViewerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="{Binding Title}"
+        Topmost="{Binding AlwaysOnTop}"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        ShowInTaskbar="True"
+        WindowStartupLocation="Manual"
+        Width="200"
+        Height="200"
+        UseLayoutRounding="True"
+        FontSize="{wpf:FontSize 12}"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
+    <!-- No frame of Windows: the viewer draws its own thin title bar, or shows only the capture -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="4" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+            <Style x:Key="ViewerTitleButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+                <Setter Property="Width" Value="30"/>
+                <Setter Property="Height" Value="24"/>
+                <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+                <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(AutomationProperties.Name)}"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Border x:Name="Frame"
+            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <DockPanel x:Name="TitleBar"
+                       Grid.Row="0"
+                       Visibility="{Binding ShowTitleBar, Converter={StaticResource BooleanToVisibility}}"
+                       Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                       MouseLeftButtonDown="TitleBarMouseLeftButtonDown">
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource TitleCloseButtonStyle}"
+                        Width="30" Height="24"
+                        AutomationProperties.Name="{wpf:Text Core.AccessibleClose}"
+                        Click="CloseClick"/>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource ViewerTitleButtonStyle}"
+                        Content="&#xE897;"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerHelp}"
+                        Click="HelpClick"/>
+                <Button x:Name="AlwaysOnTopButton"
+                        DockPanel.Dock="Right"
+                        Style="{StaticResource ViewerTitleButtonStyle}"
+                        Content="&#xE718;"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerAlwaysOnTop}"
+                        Click="AlwaysOnTopClick"/>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource ViewerTitleButtonStyle}"
+                        Content="&#xE9A6;"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerFit}"
+                        Click="FitClick"/>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource ViewerTitleButtonStyle}"
+                        Content="1:1"
+                        FontFamily="Segoe UI"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerActualSize}"
+                        Click="ActualSizeClick"/>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource ViewerTitleButtonStyle}"
+                        Content="&#xE72D;"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerExport}"
+                        Click="ExportClick"/>
+                <TextBlock Text="{Binding Title}"
+                           Margin="8,0"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+
+            <!-- The capture: positioned and sized in the code, a part of it is visible when it is bigger than the window -->
+            <Canvas x:Name="Viewport"
+                    Grid.Row="1"
+                    ClipToBounds="True"
+                    Background="Transparent"
+                    Focusable="True"
+                    AutomationProperties.Name="{Binding Title, TargetNullValue=''}"
+                    SizeChanged="ViewportSizeChanged"
+                    MouseLeftButtonDown="ViewportMouseLeftButtonDown"
+                    MouseMove="ViewportMouseMove"
+                    MouseLeftButtonUp="ViewportMouseLeftButtonUp"
+                    LostMouseCapture="ViewportLostMouseCapture"
+                    MouseWheel="ViewportMouseWheel">
+                <Image x:Name="CaptureImage" Source="{Binding Image}" Stretch="Fill"/>
+            </Canvas>
+
+            <!-- The overview: the whole capture with the visible part marked, only when not all of it is visible -->
+            <Border x:Name="Overview"
+                    Grid.Row="1"
+                    Margin="8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Visibility="Collapsed"
+                    Cursor="Hand"
+                    BorderThickness="1"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                    AutomationProperties.Name="{wpf:Text Core.ViewerOverview}"
+                    MouseLeftButtonDown="OverviewMouseLeftButtonDown"
+                    MouseMove="OverviewMouseMove"
+                    MouseLeftButtonUp="OverviewMouseLeftButtonUp">
+                <Grid>
+                    <Image x:Name="OverviewImage" Source="{Binding Image}" Stretch="Fill"/>
+                    <Canvas>
+                        <Rectangle x:Name="OverviewFrame"
+                                   StrokeThickness="2"
+                                   Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- The help with the keys, H shows and hides it -->
+            <Border x:Name="HelpPanel"
+                    Grid.Row="1"
+                    Margin="4"
+                    Padding="12,8"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    BorderThickness="1"
+                    Visibility="{Binding ShowHelp, Converter={StaticResource BooleanToVisibility}}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}">
+                <!-- Gets the focus when it's shown, so a screen reader reads it -->
+                <ScrollViewer x:Name="HelpScroller"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              AutomationProperties.Name="{wpf:Text Core.ViewerHelpTitle}">
+                    <StackPanel>
+                        <TextBlock Text="{wpf:Text Core.ViewerHelpTitle}" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <ItemsControl x:Name="HelpKeys" Focusable="False" Grid.IsSharedSizeScope="True">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Keys"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Keys}" FontWeight="SemiBold" Margin="0,0,12,0"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Description}" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

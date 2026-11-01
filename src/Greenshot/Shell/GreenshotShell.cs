@@ -56,6 +56,7 @@ using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
+using Greenshot.Viewer;
 using Greenshot.Views;
 using log4net;
 #if !GREENSHOT_LIGHT
@@ -373,8 +374,14 @@ namespace Greenshot.Shell
                 internalDestinations.Add(new EditorDestination());
             }
 
-            // Also when only the configuration excludes it, so the settings can switch it on again
             var coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            // The viewer is still tested, only beta testers get it
+            if (coreConfiguration.IsBetaTester)
+            {
+                internalDestinations.Add(new ViewerDestination());
+            }
+
+            // Also when only the configuration excludes it, so the settings can switch it on again
             foreach (var internalDestination in internalDestinations)
             {
                 if (internalDestination.IsAvailableFor(null) || !ConfigurationRestrictions.IsDestinationAllowed(coreConfiguration, internalDestination.Designation))

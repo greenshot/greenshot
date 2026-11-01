@@ -36,6 +36,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The "+" after the tabs adds a new image, its size and color are in the settings
 - Closing a window with several changed captures asks once: save all, discard all or cancel
 
+**Viewer** (Beta) (#937, #1624)
+- A new destination shows the capture in a small window of its own, e.g. kept on top to compare it with the screen
+- Real size (1:1), zoom and pan with an overview, only the capture or a thin title bar, keys for everything (H shows them)
+- Export from the viewer with the destination picker
+- By @Lakritzator and @daxliniere
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
