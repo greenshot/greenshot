@@ -952,6 +952,17 @@ namespace Greenshot.Editor.Drawing
             return bitmapContainer;
         }
 
+        /// <inheritdoc cref="ISurface.AddNextImageContainer"/>
+        public IImageContainer AddNextImageContainer(Image image)
+        {
+            var last = _elements.OfType<ImageContainer>().LastOrDefault();
+            // The whole surface, independent of where the user has scrolled to
+            var canvas = new Rectangle(0, 0, Image.Width, Image.Height);
+            Point? lastLocation = last == null ? null : new Point(last.Left, last.Top);
+            var location = ImageContainerPlacement.Next(lastLocation, canvas, image.Size);
+            return AddImageContainer(image, location.X, location.Y);
+        }
+
         public IImageContainer AddImageContainer(string filename, int x, int y)
         {
             ImageContainer bitmapContainer = new ImageContainer(this);
