@@ -56,6 +56,7 @@ using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
+using Greenshot.Viewer;
 using Greenshot.Views;
 using log4net;
 #if !GREENSHOT_LIGHT
@@ -362,7 +363,8 @@ namespace Greenshot.Shell
                 new EmailDestination(),
                 new PickerDestination(),
                 new Win10ShareDestination(),
-                new Win10OcrDestination()
+                new Win10OcrDestination(),
+                new ViewerDestination()
             };
 
             int len = 250;

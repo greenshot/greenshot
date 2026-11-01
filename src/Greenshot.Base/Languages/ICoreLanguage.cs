@@ -1207,5 +1207,140 @@ namespace Greenshot.Base.Languages
         /// Sign out
         /// </summary>
         string SigninAccountSignOut { get; }
+
+        /// <summary>
+        /// The viewer only shows the capture, it isn't saved: it is gone when you close the viewer. To keep it, export it (E or the menu with the right mouse button), e.g. save it to a file. H shows all keys.
+        /// </summary>
+        string ViewerUnsavedHint { get; }
+
+        /// <summary>
+        /// Export…
+        /// </summary>
+        string ViewerExport { get; }
+
+        /// <summary>
+        /// Real size (1:1)
+        /// </summary>
+        string ViewerActualSize { get; }
+
+        /// <summary>
+        /// Fit to the window
+        /// </summary>
+        string ViewerFit { get; }
+
+        /// <summary>
+        /// Window to capture size
+        /// </summary>
+        string ViewerWindowToCapture { get; }
+
+        /// <summary>
+        /// Always on top
+        /// </summary>
+        string ViewerAlwaysOnTop { get; }
+
+        /// <summary>
+        /// Title bar
+        /// </summary>
+        string ViewerTitleBar { get; }
+
+        /// <summary>
+        /// Border
+        /// </summary>
+        string ViewerBorder { get; }
+
+        /// <summary>
+        /// Mouse pointer
+        /// </summary>
+        string ViewerMousePointer { get; }
+
+        /// <summary>
+        /// Keys
+        /// </summary>
+        string ViewerHelp { get; }
+
+        /// <summary>
+        /// Close all viewers
+        /// </summary>
+        string ViewerCloseAll { get; }
+
+        /// <summary>
+        /// Overview, click or drag to move the visible part
+        /// </summary>
+        string ViewerOverview { get; }
+
+        /// <summary>
+        /// Keys of the viewer
+        /// </summary>
+        string ViewerHelpTitle { get; }
+
+        /// <summary>
+        /// Show the capture in its real size, one pixel of the capture is one pixel of the screen
+        /// </summary>
+        string ViewerKeyActualSize { get; }
+
+        /// <summary>
+        /// Zoom so all of the capture is visible in the window
+        /// </summary>
+        string ViewerKeyFit { get; }
+
+        /// <summary>
+        /// Zoom in and out, also with the mouse wheel, the window keeps its size
+        /// </summary>
+        string ViewerKeyZoom { get; }
+
+        /// <summary>
+        /// Move the visible part, also by dragging the capture or in the overview
+        /// </summary>
+        string ViewerKeyPan { get; }
+
+        /// <summary>
+        /// Drag the capture with Ctrl to move the window, without Ctrl when all of the capture is visible
+        /// </summary>
+        string ViewerKeyMove { get; }
+
+        /// <summary>
+        /// Size the window to the zoomed capture, as far as the screen allows
+        /// </summary>
+        string ViewerKeyWindowToCapture { get; }
+
+        /// <summary>
+        /// Export the capture: save, copy, open in the editor…
+        /// </summary>
+        string ViewerKeyExport { get; }
+
+        /// <summary>
+        /// Keep the viewer on top of the other windows, or not
+        /// </summary>
+        string ViewerKeyAlwaysOnTop { get; }
+
+        /// <summary>
+        /// Show or hide the title bar
+        /// </summary>
+        string ViewerKeyTitleBar { get; }
+
+        /// <summary>
+        /// Show or hide the border
+        /// </summary>
+        string ViewerKeyBorder { get; }
+
+        /// <summary>
+        /// Show or hide the captured mouse pointer
+        /// </summary>
+        string ViewerKeyMousePointer { get; }
+
+        /// <summary>
+        /// Open the menu, also with the right mouse button
+        /// </summary>
+        string ViewerKeyMenu { get; }
+
+        /// <summary>
+        /// Show or hide these keys
+        /// </summary>
+        string ViewerKeyHelp { get; }
+
+        /// <summary>
+        /// Close the viewer, or these keys when they are shown
+        /// </summary>
+        string ViewerKeyClose { get; }
     }
 }

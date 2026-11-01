@@ -43,6 +43,7 @@ using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Dapplo.Ini.Internationalization;
+using Greenshot.Viewer;
 
 namespace Greenshot.Settings.ViewModels
 {
@@ -62,6 +63,7 @@ namespace Greenshot.Settings.ViewModels
         {
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+            ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
             _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
@@ -114,6 +116,8 @@ namespace Greenshot.Settings.ViewModels
         public ICoreConfiguration CoreConfiguration { get; }
 
         public IEditorConfiguration EditorConfiguration { get; }
+
+        public IViewerConfiguration ViewerConfiguration { get; }
         
         public bool PrintColor
         {
@@ -316,6 +320,32 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
+
+        /// <summary>
+        /// The chosen color of the viewer border, choosing one means the border doesn't follow the light or dark mode
+        /// </summary>
+        public System.Drawing.Color ViewerBorderColor
+        {
+            get => ViewerConfiguration.BorderColor;
+            set
+            {
+                if (ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColor)))
+                {
+                    return;
+                }
+
+                ViewerConfiguration.BorderColor = value;
+                if (!ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColorFollowsTheme)))
+                {
+                    ViewerConfiguration.BorderColorFollowsTheme = false;
+                }
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ViewerBorderBrush));
+            }
+        }
+
+        public Brush ViewerBorderBrush => new SolidColorBrush(Color.FromArgb(ViewerBorderColor.A, ViewerBorderColor.R, ViewerBorderColor.G, ViewerBorderColor.B));
 
         public int IconSize
         {
