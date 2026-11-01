@@ -71,8 +71,7 @@ public partial class EmojiPicker : StackPanel
     /// <summary>
     /// The emoji picked recently, newest first
     /// </summary>
-    public static IList<string> HistoryEmojis => (IniConfigRegistry.GetSection<IEditorConfiguration>().RecentEmojis ?? string.Empty)
-        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+    public static IList<string> HistoryEmojis => IniConfigRegistry.GetSection<IEditorConfiguration>().RecentEmojis
         .Take(HistorySize)
         .ToList();
 
@@ -86,8 +85,8 @@ public partial class EmojiPicker : StackPanel
             return;
         }
 
-        var history = HistoryEmojis.Where(e => e != emoji).Prepend(emoji).Take(HistorySize);
-        IniConfigRegistry.GetSection<IEditorConfiguration>().RecentEmojis = string.Join(" ", history);
+        var config = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        config.RecentEmojis = config.RecentEmojis.Where(e => e != emoji).Prepend(emoji).Take(HistorySize).ToList();
     }
 
     private static IList<Emojis.Group> CreateGroups()
