@@ -18,14 +18,16 @@ you close the viewer. The first time, Greenshot tells you so.
 
 ## Zoom, 1:1 and moving around
 
-A viewer opens with the capture in its real size, or smaller when the capture is bigger than 800 × 800 pixels. The *Viewer* tab of
-the settings can change that size, or open every capture 1:1 (at most as big as the screen).
+A viewer opens with the capture 1:1, one pixel of the capture is one pixel of the screen, in a window as big as the capture.
+A capture bigger than the screen gets a window as big as the screen and can be moved around. The *Viewer* tab of the settings
+can instead open a capture smaller, so the window is at most 800 × 800 pixels (or another size).
 
-- `1` shows the capture 1:1: one pixel of the capture is one pixel of the screen. `0` goes back to the size the viewer opened with.
-- The mouse wheel, `+` and `−` zoom. The window follows: it grows up to the size of the screen and shrinks to 50 × 50 pixels.
-- When the capture is bigger than the window, drag it or use the arrow keys to see another part. An overview in the corner shows
+- Zooming keeps the window size: the mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle.
+- `1` shows the capture 1:1 again, `0` zooms so all of the capture is visible in the window.
+- When not all of the capture is visible, drag it or use the arrow keys to see another part. An overview in the corner shows
   the whole capture and marks the visible part, click or drag in it to move there.
-- Resizing the window with the mouse keeps the proportions of the capture and zooms with it.
+- `W` sizes the window to the zoomed capture, as far as the screen allows.
+- Resizing the window with the mouse keeps the proportions of the capture, the zoom stays.
 - When all of the capture is visible, dragging it moves the window. With `Ctrl` dragging always moves the window.
 
 ## Title bar or only the capture
@@ -50,8 +52,9 @@ back with the error.
 | Key | What it does |
 |---|---|
 | `1` | Real size (1:1) |
-| `0` | The size the viewer opened with |
-| `+` `−`, mouse wheel | Zoom in and out |
+| `0` | All of the capture in the window |
+| `+` `−`, mouse wheel | Zoom in and out, the window keeps its size |
+| `W` | Window to the size of the zoomed capture |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
 | `E` | Export, or forward to a recipe |
@@ -70,8 +73,8 @@ becomes the default for the next viewers too. They are in the `[Viewer]` section
 
 | Setting | Default | What it does |
 |---|---|---|
-| `OpenAtRealSize` | False | Open with the capture 1:1, at most as big as the screen |
-| `MaxWidth`, `MaxHeight` | 800 | Without `OpenAtRealSize`: the biggest size in pixels a new viewer opens with, a bigger capture is shown smaller at first |
+| `OpenAtRealSize` | True | Open with the capture 1:1, the window at most as big as the screen |
+| `MaxWidth`, `MaxHeight` | 800 | With `OpenAtRealSize` False: the biggest size in pixels a new viewer opens with, a bigger capture is shown smaller |
 | `AlwaysOnTop` | False | Keep the viewers on top of the other windows |
 | `ShowTitleBar` | True | Show the title bar and the border |
 | `ShowCursor` | True | Show the captured mouse pointer |

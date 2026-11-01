@@ -1229,6 +1229,11 @@ namespace Greenshot.Base.Languages
         string ViewerFit { get; }
 
         /// <summary>
+        /// Window to capture size
+        /// </summary>
+        string ViewerWindowToCapture { get; }
+
+        /// <summary>
         /// Always on top
         /// </summary>
         string ViewerAlwaysOnTop { get; }
@@ -1269,12 +1274,12 @@ namespace Greenshot.Base.Languages
         string ViewerKeyActualSize { get; }
 
         /// <summary>
-        /// Show the capture as when the viewer opened
+        /// Zoom so all of the capture is visible in the window
         /// </summary>
         string ViewerKeyFit { get; }
 
         /// <summary>
-        /// Zoom in and out, also with the mouse wheel
+        /// Zoom in and out, also with the mouse wheel, the window keeps its size
         /// </summary>
         string ViewerKeyZoom { get; }
 
@@ -1287,6 +1292,11 @@ namespace Greenshot.Base.Languages
         /// Drag the capture with Ctrl to move the window, without Ctrl when all of the capture is visible
         /// </summary>
         string ViewerKeyMove { get; }
+
+        /// <summary>
+        /// Size the window to the zoomed capture, as far as the screen allows
+        /// </summary>
+        string ViewerKeyWindowToCapture { get; }
 
         /// <summary>
         /// Export the capture: save, copy, open in the editor…

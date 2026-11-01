@@ -30,7 +30,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Threading;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
@@ -66,7 +65,6 @@ namespace Greenshot.Viewer.Views
 
         private readonly ViewerViewModel _viewModel;
         private double _zoom = 1;
-        private double _fitZoom = 1;
         // The part of the zoomed capture which is visible, in screen pixels: the left/top of the capture is at -offset
         private double _offsetX;
         private double _offsetY;
@@ -86,7 +84,6 @@ namespace Greenshot.Viewer.Views
             viewModel.PropertyChanged += ViewModelPropertyChanged;
             SourceInitialized += (_, _) => HwndSource.FromHwnd(Handle)?.AddHook(WndProc);
             Loaded += OnLoaded;
-            DpiChanged += (_, _) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() => ApplyWindowSize(false)));
             PreviewKeyDown += OnPreviewKeyDown;
             MouseRightButtonUp += (_, args) =>
             {
@@ -128,20 +125,17 @@ namespace Greenshot.Viewer.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // The first size: the capture 1:1, at most as big as the work area or (setting) the maximum size
+            // The capture 1:1 in a window as big as the capture, at most the work area: a bigger capture can be panned.
+            // Or (setting) the capture smaller, so the window isn't bigger than the maximum size.
             var configuration = Dapplo.Ini.IniConfigRegistry.GetSection<IViewerConfiguration>();
-            if (configuration.OpenAtRealSize)
-            {
-                _fitZoom = 1;
-            }
-            else
+            _zoom = 1;
+            if (!configuration.OpenAtRealSize)
             {
                 int maxWidth = Math.Max(MinimumPixels, configuration.MaxWidth);
                 int maxHeight = Math.Max(MinimumPixels, configuration.MaxHeight);
-                _fitZoom = Math.Max(MinimumZoom, Math.Min(1.0, Math.Min((double)maxWidth / CaptureWidth, (double)maxHeight / CaptureHeight)));
+                _zoom = Math.Max(MinimumZoom, Math.Min(1.0, Math.Min((double)maxWidth / CaptureWidth, (double)maxHeight / CaptureHeight)));
             }
 
-            _zoom = _fitZoom;
             ApplyWindowSize(true);
             Activate();
             Viewport.Focus();
@@ -159,9 +153,10 @@ namespace Greenshot.Viewer.Views
             switch (e.PropertyName)
             {
                 case nameof(ViewerViewModel.ShowTitleBar):
-                    // The capture keeps its size, the window gets bigger or smaller by the title bar and the border
+                    // The visible part keeps its size, the window gets bigger or smaller by the title bar and the border
+                    var viewport = ViewportPixels;
                     UpdateChrome();
-                    ApplyWindowSize(false);
+                    ApplyWindowSize(false, viewport);
                     break;
                 case nameof(ViewerViewModel.AlwaysOnTop):
                     UpdateChrome();
@@ -190,10 +185,12 @@ namespace Greenshot.Viewer.Views
         }
 
         /// <summary>
-        /// Size the window for the zoom: the zoomed capture, at least the minimum, at most the work area of the screen.
+        /// Size the window: for the zoomed capture or the given visible part, at least the minimum, at most the work area of the screen.
+        /// Only when the viewer opens, the title bar is switched or the user asks for it (W): zooming keeps the window size.
         /// </summary>
         /// <param name="center">Center the window on the screen of the mouse (when it's shown), else keep its location if possible</param>
-        private void ApplyWindowSize(bool center)
+        /// <param name="viewportPixels">The size of the visible part in screen pixels, null for the zoomed capture</param>
+        private void ApplyWindowSize(bool center, Size? viewportPixels = null)
         {
             if (!IsLoaded)
             {
@@ -207,8 +204,9 @@ namespace Greenshot.Viewer.Views
             var screen = center ? Screen.FromPoint(System.Windows.Forms.Cursor.Position) : Screen.FromHandle(Handle);
             var workArea = screen.WorkingArea;
 
-            int width = (int)Math.Round(Math.Min(Math.Max(CaptureWidth * _zoom, MinimumPixels) + chromeWidth, workArea.Width));
-            int height = (int)Math.Round(Math.Min(Math.Max(CaptureHeight * _zoom, MinimumPixels) + chromeHeight, workArea.Height));
+            var viewport = viewportPixels ?? new Size(CaptureWidth * _zoom, CaptureHeight * _zoom);
+            int width = (int)Math.Round(Math.Min(Math.Max(viewport.Width, MinimumPixels) + chromeWidth, workArea.Width));
+            int height = (int)Math.Round(Math.Min(Math.Max(viewport.Height, MinimumPixels) + chromeHeight, workArea.Height));
 
             int x;
             int y;
@@ -321,7 +319,8 @@ namespace Greenshot.Viewer.Views
             _zoom = zoom;
             _offsetX = captureX * zoom - at.X;
             _offsetY = captureY * zoom - at.Y;
-            ApplyWindowSize(false);
+            // The window keeps its size, the overview shows where the visible part is
+            LayoutCapture();
         }
 
         /// <summary>
@@ -347,13 +346,22 @@ namespace Greenshot.Viewer.Views
 
         private void ShowActualSize() => ZoomTo(1);
 
+        /// <summary>
+        /// Zoom so all of the capture is visible in the window
+        /// </summary>
         private void FitToWindow()
         {
-            _zoom = _fitZoom;
+            var viewport = ViewportPixels;
+            _zoom = Math.Max(MinimumZoom, Math.Min(MaximumZoom, Math.Min(viewport.Width / CaptureWidth, viewport.Height / CaptureHeight)));
             _offsetX = 0;
             _offsetY = 0;
-            ApplyWindowSize(false);
+            LayoutCapture();
         }
+
+        /// <summary>
+        /// Size the window to the zoomed capture, as far as the screen allows
+        /// </summary>
+        private void SizeWindowToCapture() => ApplyWindowSize(false);
 
         private void PanBy(double dx, double dy)
         {
@@ -448,6 +456,9 @@ namespace Greenshot.Viewer.Views
                     case Key.Down:
                         PanBy(0, viewport.Height / 10);
                         break;
+                    case Key.W:
+                        SizeWindowToCapture();
+                        break;
                     case Key.E:
                         Export();
                         break;
@@ -480,6 +491,7 @@ namespace Greenshot.Viewer.Views
             menu.Items.Add(ThemedMenu.CreateSeparator());
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerActualSize, "1", ShowActualSize));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerFit, "0", FitToWindow));
+            menu.Items.Add(CreateMenuItem(Texts.Core.ViewerWindowToCapture, "W", SizeWindowToCapture));
             menu.Items.Add(ThemedMenu.CreateSeparator());
             menu.Items.Add(CreateCheckItem(Texts.Core.ViewerAlwaysOnTop, "P", _viewModel.AlwaysOnTop, value => _viewModel.AlwaysOnTop = value));
             menu.Items.Add(CreateCheckItem(Texts.Core.ViewerTitleBar, "T", _viewModel.ShowTitleBar, value => _viewModel.ShowTitleBar = value));
@@ -524,6 +536,7 @@ namespace Greenshot.Viewer.Views
             {
                 new HelpEntry("1", core.ViewerKeyActualSize),
                 new HelpEntry("0", core.ViewerKeyFit),
+                new HelpEntry("W", core.ViewerKeyWindowToCapture),
                 new HelpEntry("+  −", core.ViewerKeyZoom),
                 new HelpEntry("← ↑ → ↓", core.ViewerKeyPan),
                 new HelpEntry("Ctrl", core.ViewerKeyMove),
@@ -664,22 +677,24 @@ namespace Greenshot.Viewer.Views
                 var dpi = Dpi;
                 double chromeWidth = (ActualWidth - Viewport.ActualWidth) * dpi.DpiScaleX;
                 double chromeHeight = (ActualHeight - Viewport.ActualHeight) * dpi.DpiScaleY;
-                double zoomByWidth = (rect.Right - rect.Left - chromeWidth) / CaptureWidth;
-                double zoomByHeight = (rect.Bottom - rect.Top - chromeHeight) / CaptureHeight;
+                // The visible part keeps the proportions of the capture, the zoom stays
+                double scaleByWidth = (rect.Right - rect.Left - chromeWidth) / CaptureWidth;
+                double scaleByHeight = (rect.Bottom - rect.Top - chromeHeight) / CaptureHeight;
                 int edge = wParam.ToInt32();
                 // WMSZ_LEFT 1, WMSZ_RIGHT 2, WMSZ_TOP 3, WMSZ_BOTTOM 6, the others are corners
-                double zoom = edge switch
+                double scale = edge switch
                 {
-                    1 or 2 => zoomByWidth,
-                    3 or 6 => zoomByHeight,
-                    _ => Math.Max(zoomByWidth, zoomByHeight)
+                    1 or 2 => scaleByWidth,
+                    3 or 6 => scaleByHeight,
+                    _ => Math.Max(scaleByWidth, scaleByHeight)
                 };
                 var workArea = Screen.FromHandle(hwnd).WorkingArea;
-                double maximumZoom = Math.Min((workArea.Width - chromeWidth) / CaptureWidth, (workArea.Height - chromeHeight) / CaptureHeight);
-                _zoom = Math.Max(MinimumZoom, Math.Min(Math.Min(MaximumZoom, maximumZoom), zoom));
+                double maximumScale = Math.Min((workArea.Width - chromeWidth) / CaptureWidth, (workArea.Height - chromeHeight) / CaptureHeight);
+                double minimumScale = (double)MinimumPixels / Math.Min(CaptureWidth, CaptureHeight);
+                scale = Math.Min(maximumScale, Math.Max(minimumScale, scale));
 
-                int width = (int)Math.Round(Math.Max(CaptureWidth * _zoom, MinimumPixels) + chromeWidth);
-                int height = (int)Math.Round(Math.Max(CaptureHeight * _zoom, MinimumPixels) + chromeHeight);
+                int width = (int)Math.Round(CaptureWidth * scale + chromeWidth);
+                int height = (int)Math.Round(CaptureHeight * scale + chromeHeight);
                 // The edges which are dragged move, the others stay
                 if (edge is 1 or 4 or 7)
                 {
