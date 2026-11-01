@@ -95,6 +95,20 @@ namespace Greenshot.Tests.Threading
         }
 
         [Fact]
+        public async Task FlowEnded_IsRaisedWhenTheFlowIsNoLongerRunning()
+        {
+            var runner = new CaptureFlowRunner(new FakePipeline((ctx, ct) => throw new InvalidTimeZoneException("boom")), InlineUiDispatcher.Instance);
+            var ended = Tcs.Create<int>();
+            runner.FlowEnded += (sender, args) => ended.TrySetResult(runner.Running.Count);
+
+            var handle = runner.Start(Recipe("a"), FlowTriggerContext.Empty());
+
+            // Also a failed flow ends, and the handler sees it removed already
+            Assert.Equal(0, await ended.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+            await handle.Completion;
+        }
+
+        [Fact]
         public async Task Completion_NeverFaults()
         {
             var runner = new CaptureFlowRunner(new FakePipeline((ctx, ct) => throw new InvalidTimeZoneException("boom")), InlineUiDispatcher.Instance);

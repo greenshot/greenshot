@@ -178,6 +178,9 @@ namespace Greenshot.Shell
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
+            // Another version was installed while Greenshot runs: it restarts into it once nothing is open anymore
+            _flowRunner.FlowEnded += (sender, args) => UiDispatcher.InvokeAsync(RestartIntoInstalledUpdate).FireAndLog("Check for an installed update", Log);
+            ImageEditorForm.LastWindowClosed += (sender, args) => RestartIntoInstalledUpdate();
 
             // Toasts, or the balloons of the tray icon
             var notificationService = NotificationServiceFactory.Create();
@@ -461,6 +464,27 @@ namespace Greenshot.Shell
             };
             _aboutWindow = aboutWindow;
             aboutWindow.Show();
+        }
+
+        /// <summary>
+        /// When another version of Greenshot was installed while this one runs (see <see cref="InstalledUpdate"/>), and nothing is open
+        /// (no flow, no editor, no settings): exit and start the installed one. Called on the UI thread after a flow or the last editor ended.
+        /// </summary>
+        private void RestartIntoInstalledUpdate()
+        {
+            if (Volatile.Read(ref _shutdownState) != 0 || _flowRunner.Running.Count > 0 || ImageEditorForm.Editors.Count > 0 || _settingsWindow != null)
+            {
+                return;
+            }
+
+            if (!InstalledUpdate.IsInstalled())
+            {
+                return;
+            }
+
+            Log.Info("Exiting to start the installed Greenshot.");
+            InstalledUpdate.RestartRequested = true;
+            Exit();
         }
 
         /// <summary>
