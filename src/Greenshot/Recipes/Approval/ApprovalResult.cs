@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+
 namespace Greenshot.Recipes.Approval
 {
     /// <summary>
@@ -35,6 +37,12 @@ namespace Greenshot.Recipes.Approval
         public RecipeApproval Approval { get; }
 
         public bool OpenInEditor { get; }
+
+        /// <summary>
+        /// The option values the user set in the window (<see cref="RecipeApprovalRequest.EditOptions"/>), by option key; stored after the
+        /// recipe is saved
+        /// </summary>
+        public IReadOnlyDictionary<string, object> OptionValues { get; set; } = new Dictionary<string, object>();
 
         /// <summary>
         /// The user revoked an earlier approval in the review

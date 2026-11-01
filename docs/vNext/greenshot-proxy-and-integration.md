@@ -161,6 +161,7 @@ Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URI
 | `greenshot:recipe-editor` | Visual Recipe Editor | `?recipe=<recipe-id>` |
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
 | `greenshot:recipe/<id>` | Executes a specific recipe | Arbitrary query parameters passed as recipe variables |
+| `greenshot:install-recipe` | Installs a recipe from the recipe catalog, after the approval window (see [capture-recipes.md](capture-recipes.md#recipes-from-the-catalog)) | `?id=<catalog id>` |
 
 Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A link never changes a setting: `greenshot:log` only filters the log, the log level is changed only in the log viewer itself. A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
 
@@ -189,6 +190,7 @@ Every link written out, for testing after an install. Click a link in a Markdown
 | [greenshot://settings?plugin=RecipeEditor](greenshot://settings?plugin=RecipeEditor) | Settings, Plugins tab with RecipeEditor selected |
 | [greenshot://settings?plugin=Zxing](greenshot://settings?plugin=Zxing) | Settings, Plugins tab with Zxing selected |
 | [greenshot://settings?tab=Jira](greenshot://settings?tab=Jira) | Settings, Plugins tab with Jira selected (an unknown tab name is taken as a plugin name) |
+| [greenshot://install-recipe?id=qr_codes_showcase](greenshot://install-recipe?id=qr_codes_showcase) | Approval window of the catalog recipe qr_codes_showcase |
 | [greenshot://about](greenshot://about) | About |
 | [greenshot://self-service](greenshot://self-service) | Self-Service, System section |
 | [greenshot://self-service?section=system](greenshot://self-service?section=system) | Self-Service, System |

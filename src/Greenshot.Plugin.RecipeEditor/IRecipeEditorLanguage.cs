@@ -4496,5 +4496,15 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Upload to Dropbox
         /// </summary>
         string SummaryDropbox { get; }
+
+        /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string ManagerBtnGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string ManagerBtnGetMoreTooltip { get; }
     }
 }

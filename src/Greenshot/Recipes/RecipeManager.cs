@@ -514,9 +514,9 @@ namespace Greenshot.Recipes
         /// <summary>
         /// Greenshot Light has only the built-in recipes: no recipe files are loaded, imported or saved
         /// </summary>
-        private static bool RecipeFilesSupported => false;
+        internal static bool RecipeFilesSupported => false;
 #else
-        private static bool RecipeFilesSupported => true;
+        internal static bool RecipeFilesSupported => true;
 #endif
 
         /// <summary>
@@ -1088,7 +1088,7 @@ namespace Greenshot.Recipes
             if (window.ShowDialog() == true && window.Approval != null)
             {
                 window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
-                return new ApprovalResult(window.Approval, window.OpenInEditor);
+                return new ApprovalResult(window.Approval, window.OpenInEditor) { OptionValues = window.OptionValues };
             }
             return window.IsRevoked ? ApprovalResult.Revoked : null;
         }

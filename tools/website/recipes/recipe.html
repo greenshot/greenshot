@@ -14,8 +14,9 @@ layout: default
       {% for tag in recipe.tags %}<span class="recipe-tag">{{ tag }}</span>{% endfor %}
     </div>
     <div class="recipe-download">
-      <a class="cta" href="{{ recipe.url }}" download="{{ recipe.id }}.gsrecipe.json"><i class="fa fa-download"></i> Download</a>
-      <div class="description">Import it in Greenshot's recipe manager. Greenshot shows what it does and asks before anything runs.</div>
+      <a class="cta" href="greenshot:install-recipe?id={{ recipe.id }}"><i class="fa fa-download"></i> Install</a>
+      <div class="description">Opens Greenshot, which shows what the recipe does and its settings, and asks before anything runs.
+      Or <a href="/recipes/{{ recipe.id }}.gsrecipe.json" download>download the file</a> and import it in the recipe manager.</div>
     </div>
   </div>
 
