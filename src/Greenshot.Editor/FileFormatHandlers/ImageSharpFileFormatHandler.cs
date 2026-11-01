@@ -69,6 +69,11 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
+            if (extension == ".png" && (surfaceOutputSettings?.OptimizePng ?? true))
+            {
+                PngOptimizer.Save(bitmap, destination);
+                return true;
+            }
             using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
             if (image == null)
             {

@@ -68,6 +68,11 @@ namespace Greenshot.Editor.FileFormatHandlers
                 return false;
             }
             surfaceOutputSettings ??= new SurfaceOutputSettings();
+            if (imageFormat.Guid == ImageFormat.Png.Guid && surfaceOutputSettings.OptimizePng)
+            {
+                PngOptimizer.Save(bitmap, destination);
+                return true;
+            }
             var imageEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(ie => ie.FilenameExtension.ToLowerInvariant().Contains(extension));
             if (imageEncoder == null)
             {

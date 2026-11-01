@@ -400,14 +400,6 @@ namespace Greenshot.Base.Core
         [DefaultValue("")]
         string MailApiBCC { get; set; }
 
-        [Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
-        [DefaultValue("")]
-        string OptimizePNGCommand { get; set; }
-
-        [Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.")]
-        [DefaultValue("\"{0}\"")]
-        string OptimizePNGCommandArguments { get; set; }
-
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 

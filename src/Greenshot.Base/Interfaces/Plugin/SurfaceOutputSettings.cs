@@ -83,6 +83,11 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public bool SaveBackgroundOnly { get; set; }
 
+        /// <summary>
+        /// Write a PNG as small as possible without losing anything, this takes more time than a normal PNG.
+        /// </summary>
+        public bool OptimizePng { get; set; } = true;
+
         public List<IEffect> Effects { get; } = new List<IEffect>();
 
         public bool ReduceColors

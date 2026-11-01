@@ -489,7 +489,9 @@ namespace Greenshot.Base.Core
             {
                 // Do not allow to reduce the colors, some applications dislike 256 color images
                 // reported with bug #3594681
-                DisableReduceColors = true
+                DisableReduceColors = true,
+                // The clipboard needs to be fast, the receiving application usually writes its own copy
+                OptimizePng = false
             };
             try
             {
