@@ -101,6 +101,13 @@ request with the bearer token, or null when the user didn't authorize. Box and D
 `Greenshot.Plugin.Dropbox/Api/DropboxUtils.cs`) show the whole flow, including storing the refresh token encrypted.
 A service needs a registered client id; keep it out of the repository (the `*.Credentials.template` files are filled by the build).
 
+The sign-in opens the browser and waits for the service to redirect back to `http://localhost:{port}/authorize/` (RFC 8252).
+The ports are `OAuth2Settings.LoopbackPorts` (31251 to 31255, the first free one is used), and the service needs all five
+redirect URIs registered, as not every service accepts any port. Every sign-in sends a new random `state` and only a
+GET on that path with that state counts, anything else gets an error page and the listener keeps waiting (4 minutes).
+Only `code`, `error` and `error_description` are taken from the redirect, never a token. With `UsePkce` (default)
+the code is protected with PKCE S256 (RFC 7636); Box doesn't document PKCE and turns it off.
+
 ### Errors
 
 | What happened | What you get |

@@ -22,14 +22,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Serialization;
+using log4net;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -38,6 +43,7 @@ namespace Greenshot.Base.Core.OAuth
     /// </summary>
     public static class OAuth2Helper
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(OAuth2Helper));
         private const string RefreshToken = "refresh_token";
         private const string AccessToken = "access_token";
         private const string Code = "code";
@@ -47,6 +53,7 @@ namespace Greenshot.Base.Core.OAuth
         private const string AuthorizationCode = "authorization_code";
         private const string RedirectUri = "redirect_uri";
         private const string ExpiresIn = "expires_in";
+        private const string CodeVerifier = "code_verifier";
 
         /// <summary>
         /// One authorization / token refresh per cloud service at a time, a second upload waits for the first to get the token.
@@ -69,6 +76,10 @@ namespace Greenshot.Base.Core.OAuth
                 { RedirectUri, settings.RedirectUrl },
                 { GrantType, AuthorizationCode }
             };
+            if (!string.IsNullOrEmpty(settings.CodeVerifier))
+            {
+                data.Add(CodeVerifier, settings.CodeVerifier);
+            }
             foreach (string key in settings.AdditionalAttributes.Keys)
             {
                 data.Add(key, settings.AdditionalAttributes[key]);
@@ -187,76 +198,99 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Authorize by using the mode specified in the settings, this needs the user (a browser).
+        /// Authorize in the default browser, the service redirects back to a listener on a loopback address (RFC 8252).
+        /// The state is random for every authorization and checked, the code is protected with PKCE when the service supports it.
         /// </summary>
         /// <param name="settings">OAuth2Settings</param>
         /// <param name="userInteraction">IUserInteraction, the authorization fails with an InteractionRequiredException when it's not interactive</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>false if it was canceled, true if it worked, exception if not</returns>
-        public static Task<bool> AuthorizeAsync(OAuth2Settings settings, IUserInteraction userInteraction, CancellationToken cancellationToken)
+        public static async Task<bool> AuthorizeAsync(OAuth2Settings settings, IUserInteraction userInteraction, CancellationToken cancellationToken)
         {
             if (userInteraction != null && !userInteraction.IsInteractive)
             {
                 throw new InteractionRequiredException($"Authorize {settings.CloudServiceName}");
             }
 
-            return settings.AuthorizeMode switch
+            using var codeReceiver = new LocalServerCodeReceiver();
+            settings.RedirectUrl = codeReceiver.Start(settings.LoopbackPorts);
+            string state = CreateRandomString();
+            settings.CodeVerifier = settings.UsePkce ? CreateRandomString() : null;
+            try
             {
-                OAuth2AuthorizeMode.LocalServer => AuthorizeViaLocalServerAsync(settings, cancellationToken),
-                OAuth2AuthorizeMode.JsonReceiver => AuthorizeViaDefaultBrowserAsync(settings, cancellationToken),
-                _ => throw new NotImplementedException($"Authorize mode '{settings.AuthorizeMode}' is not 'yet' implemented."),
-            };
+                Log.InfoFormat("Opening the browser to sign in to {0}", settings.CloudServiceName);
+                using (Process.Start(new ProcessStartInfo(CreateAuthorizeUrl(settings, state)) { UseShellExecute = true }))
+                {
+                    // Only started
+                }
+
+                IDictionary<string, string> result = await codeReceiver.WaitForRedirectAsync(state, settings.CloudServiceName, cancellationToken).ConfigureAwait(false);
+                if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
+                {
+                    settings.Code = code;
+                    await GenerateRefreshTokenAsync(settings, cancellationToken).ConfigureAwait(false);
+                    return true;
+                }
+
+                ThrowOnError(result);
+                return false;
+            }
+            finally
+            {
+                settings.CodeVerifier = null;
+            }
         }
 
         /// <summary>
-        /// Authorize via the default browser, via the Greenshot website.
-        /// It will wait for a Json post.
-        /// If this works, return the code
+        /// The authorization URL with the client id, the state, the redirect URL, the PKCE challenge and the parameters of the service
         /// </summary>
-        /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>true if completed, false if canceled</returns>
-        private static async Task<bool> AuthorizeViaDefaultBrowserAsync(OAuth2Settings settings, CancellationToken cancellationToken)
+        internal static string CreateAuthorizeUrl(OAuth2Settings settings, string state)
         {
-            var codeReceiver = new LocalJsonReceiver();
-            IDictionary<string, string> result = await codeReceiver.ReceiveCodeAsync(settings, cancellationToken).ConfigureAwait(false);
-
-            if (result == null || result.Count == 0)
+            var parameters = new Dictionary<string, string>
             {
-                return false;
+                { ClientId, settings.ClientId },
+                { "response_type", Code },
+                { "state", state },
+                { RedirectUri, settings.RedirectUrl }
+            };
+            if (!string.IsNullOrEmpty(settings.CodeVerifier))
+            {
+                parameters.Add("code_challenge", CreateCodeChallenge(settings.CodeVerifier));
+                parameters.Add("code_challenge_method", "S256");
             }
 
-            foreach (var key in result.Keys)
+            foreach (var parameter in settings.AuthorizeParameters)
             {
-                switch (key)
-                {
-                    case AccessToken:
-                        settings.AccessToken = result[key];
-                        break;
-                    case ExpiresIn:
-                        if (int.TryParse(result[key], out var seconds))
-                        {
-                            settings.AccessTokenExpires = DateTimeOffset.Now.AddSeconds(seconds);
-                        }
-
-                        break;
-                    case RefreshToken:
-                        settings.RefreshToken = result[key];
-                        break;
-                }
+                parameters[parameter.Key] = parameter.Value;
             }
 
-            ThrowOnError(result);
-
-            if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
-            {
-                settings.Code = code;
-                await GenerateRefreshTokenAsync(settings, cancellationToken).ConfigureAwait(false);
-                return !string.IsNullOrEmpty(settings.AccessToken);
-            }
-
-            return true;
+            return settings.AuthorizeUrl + "?" + string.Join("&", parameters.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value ?? string.Empty)}"));
         }
+
+        /// <summary>
+        /// 32 random bytes as base64url (43 characters), for the state and the PKCE code verifier
+        /// </summary>
+        internal static string CreateRandomString()
+        {
+            byte[] bytes = new byte[32];
+            using (var random = RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
+
+            return Base64Url(bytes);
+        }
+
+        /// <summary>
+        /// The S256 PKCE code challenge: base64url of the SHA-256 of the verifier (RFC 7636 section 4.2)
+        /// </summary>
+        internal static string CreateCodeChallenge(string codeVerifier)
+        {
+            using var sha256 = SHA256.Create();
+            return Base64Url(sha256.ComputeHash(Encoding.ASCII.GetBytes(codeVerifier)));
+        }
+
+        private static string Base64Url(byte[] bytes) => Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
         private static void ThrowOnError(IDictionary<string, string> result)
         {
@@ -276,29 +310,6 @@ namespace Greenshot.Base.Core.OAuth
             }
 
             throw new Exception(error);
-        }
-
-        /// <summary>
-        /// Authorize via a local server by using the LocalServerCodeReceiver
-        /// If this works, return the code
-        /// </summary>
-        /// <param name="settings">OAuth2Settings with the Auth / Token url etc</param>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>true if completed</returns>
-        private static async Task<bool> AuthorizeViaLocalServerAsync(OAuth2Settings settings, CancellationToken cancellationToken)
-        {
-            var codeReceiver = new LocalServerCodeReceiver();
-            IDictionary<string, string> result = await codeReceiver.ReceiveCodeAsync(settings, cancellationToken).ConfigureAwait(false);
-
-            if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
-            {
-                settings.Code = code;
-                await GenerateRefreshTokenAsync(settings, cancellationToken).ConfigureAwait(false);
-                return true;
-            }
-
-            ThrowOnError(result);
-            return false;
         }
 
         /// <summary>

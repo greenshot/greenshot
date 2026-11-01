@@ -439,7 +439,7 @@ public interface IConfigurablePlugin { object CreateSettingsViewModel(IServicePr
 | Today | Target |
 |---|---|
 | `NetworkHelper` (HttpWebRequest) | Shared `HttpClient` (via factory), async upload with progress & cancellation. On net48 use one long-lived `HttpClient` per host (socket exhaustion), on .NET 10 `IHttpClientFactory`. |
-| `OAuthSession`, `OAuth2Helper`, `LocalServerCodeReceiver`, `LocalJsonReceiver` | Async; `HttpListener.GetContextAsync` + TCS; `Task.Delay` instead of `Sleep`; timeout via token; token refresh serialized with `SemaphoreSlim` (parallel uploads must not refresh twice) |
+| `OAuthSession`, `OAuth2Helper`, `LocalServerCodeReceiver` | Async; `HttpListener.GetContextAsync` + TCS; `Task.Delay` instead of `Sleep`; timeout via token; token refresh serialized with `SemaphoreSlim` (parallel uploads must not refresh twice) |
 | `ClipboardHelper.SetClipboardData / Get*` | `IClipboardService` async; runs on UI thread via dispatcher; retries (clipboard held by another process) with `Task.Delay` *between* dispatcher calls, so the UI keeps pumping |
 | `ImageIO.Save*` | `Task SaveAsync(IExportSource, path, settings, ct)`; write to temp file + atomic rename (a cancelled save never leaves half a file) |
 | `MailHelper` (MAPI) | `IStaWorker("MAPI")`, no `WaitOne(60s)` |

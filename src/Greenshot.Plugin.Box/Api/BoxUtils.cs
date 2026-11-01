@@ -60,13 +60,13 @@ public static class BoxUtils
         // Fill the OAuth2Settings
         var settings = new OAuth2Settings
         {
-            AuthUrlPattern = "https://app.box.com/api/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}",
+            AuthorizeUrl = "https://app.box.com/api/oauth2/authorize",
             TokenUrl = "https://api.box.com/oauth2/token",
             CloudServiceName = "Box",
             ClientId = BoxCredentials.ClientId,
             ClientSecret = BoxCredentials.ClientSecret,
-            RedirectUrl = "https://getgreenshot.org/authorize/box",
-            AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
+            // Box doesn't document PKCE
+            UsePkce = false,
             // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
             RefreshToken = string.IsNullOrEmpty(Config.RefreshToken) ? Config.RefreshToken : Config.RefreshToken.Decrypt(),
             AccessToken = Config.AccessToken,
