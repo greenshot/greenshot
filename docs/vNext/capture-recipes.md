@@ -264,10 +264,14 @@ other languages, in the file itself, so they travel with it:
 
 - The keys are languages: `de` for every German, `de-DE` for one. Greenshot takes the text of its own language
   (`de-DE`), else of the language alone (`de`), else the text of the file.
-- The texts are named by their place: `name`, `description`, `options.{key}.label`, `options.{key}.description` and
-  `options.{key}.choices.{value}` for the label of a choice of an `Enum` option. A language needs only the texts it has.
+- The texts are named by their place: `name`, `description`, `options.{key}.label`, `options.{key}.description`,
+  `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
+  the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
+  only the texts it has.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
+- The recipe editor has a *Translations* box on the Recipe tab: add a language, then type the texts next to the texts of
+  the file. Removing a trigger there moves the translations of the menu texts of the triggers after it.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---

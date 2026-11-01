@@ -72,6 +72,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ActiveRecipe.Options.Add(option);
             RecipeOptions.Add(new RecipeOptionItemViewModel(option, RemoveOption));
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionAdded, key, "${option." + key + "}");
         }
@@ -86,6 +87,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             RecipeOptions.Remove(item);
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionRemoved, item.Key);
         }

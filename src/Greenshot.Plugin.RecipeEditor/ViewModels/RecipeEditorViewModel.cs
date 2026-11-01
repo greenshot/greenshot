@@ -183,7 +183,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public int SelectedInspectorTabIndex
         {
             get => _selectedInspectorTabIndex;
-            set => SetField(ref _selectedInspectorTabIndex, value);
+            set
+            {
+                if (SetField(ref _selectedInspectorTabIndex, value))
+                {
+                    // The texts to translate as the recipe has them now
+                    LoadTranslationRows();
+                }
+            }
         }
 
         public StepNodeViewModel SelectedNode
@@ -993,6 +1000,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SelectedNode = null;
 
             LoadOptions(recipe);
+            LoadTranslations(recipe);
             if (recipe == null)
             {
                 Triggers.Clear();
@@ -1164,6 +1172,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
                 IsDirty = true;
+                LoadTranslationRows();
             }
         }
 
@@ -1223,6 +1232,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             if (item != null && Triggers.Contains(item))
             {
+                // The translations of the menu texts are by the trigger's place
+                ActiveRecipe?.RemoveTriggerTranslations(Triggers.IndexOf(item));
                 Triggers.Remove(item);
                 SyncTriggersToRecipe();
                 StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusTriggerRemoved;

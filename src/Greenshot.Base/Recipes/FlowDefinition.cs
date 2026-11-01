@@ -130,7 +130,8 @@ namespace Greenshot.Base.Recipes
 
         /// <summary>
         /// The texts of the file in other languages, by language (e.g. "de-DE" or "de") and then by path: "name", "description",
-        /// "options.{key}.label", "options.{key}.description" and "options.{key}.choices.{value}". The texts of the file
+        /// "options.{key}.label", "options.{key}.description", "options.{key}.choices.{value}" and for recipes
+        /// "triggers.{index}.menuItemText", see <see cref="GetTranslatableTexts"/>. The texts of the file
         /// itself are used for every language which isn't here, see <see cref="Translate"/>.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull), JsonPropertyOrder(20)]
@@ -162,6 +163,30 @@ namespace Greenshot.Base.Recipes
                 }
             }
             return RecipeText.Translate(text);
+        }
+
+        /// <summary>
+        /// The texts of the file which can be translated, by their path in <see cref="Translations"/>, with the text of the file
+        /// </summary>
+        public virtual IEnumerable<KeyValuePair<string, string>> GetTranslatableTexts()
+        {
+            yield return new KeyValuePair<string, string>(TranslationName, Name ?? Id);
+            if (!string.IsNullOrWhiteSpace(Description))
+            {
+                yield return new KeyValuePair<string, string>(TranslationDescription, Description);
+            }
+            foreach (var option in Options?.Where(o => o != null && !string.IsNullOrWhiteSpace(o.Key)) ?? Enumerable.Empty<RecipeOption>())
+            {
+                yield return new KeyValuePair<string, string>($"options.{option.Key}.label", string.IsNullOrWhiteSpace(option.Label) ? option.Key : option.Label);
+                if (!string.IsNullOrWhiteSpace(option.Description))
+                {
+                    yield return new KeyValuePair<string, string>($"options.{option.Key}.description", option.Description);
+                }
+                foreach (var choice in option.Choices?.Where(c => c != null && !string.IsNullOrWhiteSpace(c.Value)) ?? Enumerable.Empty<RecipeOptionChoice>())
+                {
+                    yield return new KeyValuePair<string, string>($"options.{option.Key}.choices.{choice.Value}", string.IsNullOrWhiteSpace(choice.Label) ? choice.Value : choice.Label);
+                }
+            }
         }
 
         private bool TryGetTranslation(string language, string path, out string translated)
