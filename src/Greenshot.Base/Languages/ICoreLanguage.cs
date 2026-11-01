@@ -1239,9 +1239,14 @@ namespace Greenshot.Base.Languages
         string ViewerAlwaysOnTop { get; }
 
         /// <summary>
-        /// Title bar and border
+        /// Title bar
         /// </summary>
         string ViewerTitleBar { get; }
+
+        /// <summary>
+        /// Border
+        /// </summary>
+        string ViewerBorder { get; }
 
         /// <summary>
         /// Mouse pointer
@@ -1309,9 +1314,14 @@ namespace Greenshot.Base.Languages
         string ViewerKeyAlwaysOnTop { get; }
 
         /// <summary>
-        /// Show or hide the title bar and the border
+        /// Show or hide the title bar
         /// </summary>
         string ViewerKeyTitleBar { get; }
+
+        /// <summary>
+        /// Show or hide the border
+        /// </summary>
+        string ViewerKeyBorder { get; }
 
         /// <summary>
         /// Show or hide the captured mouse pointer

@@ -5,7 +5,7 @@ compare it with what is on the screen, or just to look at it. It is a destinatio
 
 - [Opening a capture in the viewer](#opening-a-capture-in-the-viewer)
 - [Zoom, 1:1 and moving around](#zoom-11-and-moving-around)
-- [Title bar or only the capture](#title-bar-or-only-the-capture)
+- [Title bar, border or only the capture](#title-bar-border-or-only-the-capture)
 - [Exporting the capture](#exporting-the-capture)
 - [Keys](#keys)
 - [Settings](#settings)
@@ -30,11 +30,15 @@ can instead open a capture smaller, so the window is at most 800 × 800 pixels (
 - Resizing the window with the mouse keeps the proportions of the capture, the zoom stays.
 - When all of the capture is visible, dragging it moves the window. With `Ctrl` dragging always moves the window.
 
-## Title bar or only the capture
+## Title bar, border or only the capture
 
-`T` switches between a thin title bar with a border, and only the capture. The title bar has the title of the capture and buttons
+`T` switches between a thin title bar with a thin frame, and only the capture. The title bar has the title of the capture and buttons
 to export, show 1:1, fit, keep the viewer on top, show the keys and close it. Without the title bar, drag the capture to move the
 window and use the keys or the menu (right mouse button).
+
+`B` shows or hides a border around the viewer, with or without the title bar, so the viewer is easy to tell apart from what is
+behind it. By default the border has the text color of the light or dark mode (light in dark mode, dark in light mode); in the
+settings you can choose a color instead.
 
 `P` keeps the viewer on top of the other windows, `M` shows or hides the captured mouse pointer.
 
@@ -59,7 +63,8 @@ back with the error.
 | `Ctrl` + drag | Move the window |
 | `E` | Export, or forward to a recipe |
 | `P` | Always on top, or not |
-| `T` | Title bar and border, or only the capture |
+| `T` | Title bar, or only the capture |
+| `B` | Show or hide the border |
 | `M` | Show or hide the captured mouse pointer |
 | `Shift+F10`, right mouse button | The menu |
 | `H`, `F1` | Show or hide the keys |
@@ -68,7 +73,8 @@ back with the error.
 ## Settings
 
 The *Viewer* tab of the settings ([greenshot://settings?tab=viewer](greenshot://settings?tab=viewer)) has the size of a new viewer,
-always on top, the title bar and the mouse pointer. A change of *always on top*, the title bar or the mouse pointer in a viewer
+always on top, the title bar, the mouse pointer and the border with its color. A change of *always on top*, the title bar, the
+mouse pointer or the border in a viewer
 becomes the default for the next viewers too. They are in the `[Viewer]` section of greenshot.ini:
 
 | Setting | Default | What it does |
@@ -76,5 +82,8 @@ becomes the default for the next viewers too. They are in the `[Viewer]` section
 | `OpenAtRealSize` | True | Open with the capture 1:1, the window at most as big as the screen |
 | `MaxWidth`, `MaxHeight` | 800 | With `OpenAtRealSize` False: the biggest size in pixels a new viewer opens with, a bigger capture is shown smaller |
 | `AlwaysOnTop` | False | Keep the viewers on top of the other windows |
-| `ShowTitleBar` | True | Show the title bar and the border |
+| `ShowTitleBar` | True | Show the title bar (with a thin frame) |
+| `ShowBorder` | False | Show a border around the viewers |
+| `BorderColorFollowsTheme` | True | The border has the text color of the light or dark mode, so it contrasts with it. False: `BorderColor` |
+| `BorderColor` | Red | The color of the border when it doesn't follow the light or dark mode, choosing a color in the settings sets `BorderColorFollowsTheme` to False |
 | `ShowCursor` | True | Show the captured mouse pointer |

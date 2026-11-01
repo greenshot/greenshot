@@ -62,8 +62,10 @@ namespace Greenshot.Viewer.Views
         private const double ZoomStep = 1.25;
         private const double OverviewSize = 160;
         private const int WmSizing = 0x0214;
+        private const double BorderWidth = 2;
 
         private readonly ViewerViewModel _viewModel;
+        private readonly IViewerConfiguration _configuration = Dapplo.Ini.IniConfigRegistry.GetSection<IViewerConfiguration>();
         private double _zoom = 1;
         // The part of the zoomed capture which is visible, in screen pixels: the left/top of the capture is at -offset
         private double _offsetX;
@@ -82,6 +84,12 @@ namespace Greenshot.Viewer.Views
             HelpKeys.ItemsSource = CreateHelpEntries();
             UpdateChrome();
             viewModel.PropertyChanged += ViewModelPropertyChanged;
+            // The border color follows the settings and the light or dark mode
+            ThemeManager.Instance.PropertyChanged += BorderColorSourceChanged;
+            if (_configuration is INotifyPropertyChanged configurationChanges)
+            {
+                configurationChanges.PropertyChanged += BorderColorSourceChanged;
+            }
             SourceInitialized += (_, _) => HwndSource.FromHwnd(Handle)?.AddHook(WndProc);
             Loaded += OnLoaded;
             PreviewKeyDown += OnPreviewKeyDown;
@@ -127,7 +135,7 @@ namespace Greenshot.Viewer.Views
         {
             // The capture 1:1 in a window as big as the capture, at most the work area: a bigger capture can be panned.
             // Or (setting) the capture smaller, so the window isn't bigger than the maximum size.
-            var configuration = Dapplo.Ini.IniConfigRegistry.GetSection<IViewerConfiguration>();
+            var configuration = _configuration;
             _zoom = 1;
             if (!configuration.OpenAtRealSize)
             {
@@ -145,6 +153,11 @@ namespace Greenshot.Viewer.Views
         {
             OpenViewers.Remove(this);
             _viewModel.PropertyChanged -= ViewModelPropertyChanged;
+            ThemeManager.Instance.PropertyChanged -= BorderColorSourceChanged;
+            if (_configuration is INotifyPropertyChanged configurationChanges)
+            {
+                configurationChanges.PropertyChanged -= BorderColorSourceChanged;
+            }
             _viewModel.Dispose();
         }
 
@@ -153,6 +166,7 @@ namespace Greenshot.Viewer.Views
             switch (e.PropertyName)
             {
                 case nameof(ViewerViewModel.ShowTitleBar):
+                case nameof(ViewerViewModel.ShowBorder):
                     // The visible part keeps its size, the window gets bigger or smaller by the title bar and the border
                     var viewport = ViewportPixels;
                     UpdateChrome();
@@ -174,14 +188,52 @@ namespace Greenshot.Viewer.Views
             }
         }
 
+        private void BorderColorSourceChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(UpdateChrome));
+                return;
+            }
+
+            UpdateChrome();
+        }
+
         /// <summary>
-        /// The border goes with the title bar, the always on top button shows the state
+        /// The frame: the border when it's switched on, else a thin line with the title bar, nothing without both.
+        /// The always on top button shows the state.
         /// </summary>
         private void UpdateChrome()
         {
-            Frame.BorderThickness = new Thickness(_viewModel.ShowTitleBar ? 1 : 0);
+            if (_viewModel.ShowBorder)
+            {
+                Frame.BorderThickness = new Thickness(BorderWidth);
+                Frame.BorderBrush = CreateBorderBrush();
+            }
+            else
+            {
+                Frame.BorderThickness = new Thickness(_viewModel.ShowTitleBar ? 1 : 0);
+                Frame.BorderBrush = ThemeManager.Instance.BorderBrush;
+            }
+
             // Pinned or not pinned
             AlwaysOnTopButton.Content = _viewModel.AlwaysOnTop ? "" : "";
+        }
+
+        /// <summary>
+        /// The color of the border: the text color of the light or dark mode, so it contrasts with it, or the chosen color
+        /// </summary>
+        private Brush CreateBorderBrush()
+        {
+            if (_configuration.BorderColorFollowsTheme)
+            {
+                return ThemeManager.Instance.ForegroundBrush;
+            }
+
+            var color = _configuration.BorderColor;
+            var brush = new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
+            brush.Freeze();
+            return brush;
         }
 
         /// <summary>
@@ -468,6 +520,9 @@ namespace Greenshot.Viewer.Views
                     case Key.T:
                         _viewModel.ShowTitleBar = !_viewModel.ShowTitleBar;
                         break;
+                    case Key.B:
+                        _viewModel.ShowBorder = !_viewModel.ShowBorder;
+                        break;
                     case Key.M:
                         _viewModel.ShowCursor = !_viewModel.ShowCursor;
                         break;
@@ -495,6 +550,7 @@ namespace Greenshot.Viewer.Views
             menu.Items.Add(ThemedMenu.CreateSeparator());
             menu.Items.Add(CreateCheckItem(Texts.Core.ViewerAlwaysOnTop, "P", _viewModel.AlwaysOnTop, value => _viewModel.AlwaysOnTop = value));
             menu.Items.Add(CreateCheckItem(Texts.Core.ViewerTitleBar, "T", _viewModel.ShowTitleBar, value => _viewModel.ShowTitleBar = value));
+            menu.Items.Add(CreateCheckItem(Texts.Core.ViewerBorder, "B", _viewModel.ShowBorder, value => _viewModel.ShowBorder = value));
             var cursorItem = CreateCheckItem(Texts.Core.ViewerMousePointer, "M", _viewModel.ShowCursor, value => _viewModel.ShowCursor = value);
             cursorItem.IsEnabled = _viewModel.HasCursor;
             menu.Items.Add(cursorItem);
@@ -543,6 +599,7 @@ namespace Greenshot.Viewer.Views
                 new HelpEntry("E", core.ViewerKeyExport),
                 new HelpEntry("P", core.ViewerKeyAlwaysOnTop),
                 new HelpEntry("T", core.ViewerKeyTitleBar),
+                new HelpEntry("B", core.ViewerKeyBorder),
                 new HelpEntry("M", core.ViewerKeyMousePointer),
                 new HelpEntry("Shift+F10", core.ViewerKeyMenu),
                 new HelpEntry("H  F1", core.ViewerKeyHelp),

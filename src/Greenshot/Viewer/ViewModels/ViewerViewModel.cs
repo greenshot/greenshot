@@ -51,6 +51,7 @@ namespace Greenshot.Viewer.ViewModels
         private BitmapSource _image;
         private bool _alwaysOnTop;
         private bool _showTitleBar;
+        private bool _showBorder;
         private bool _showCursor;
         private bool _showHelp;
 
@@ -62,6 +63,7 @@ namespace Greenshot.Viewer.ViewModels
             Title = string.IsNullOrWhiteSpace(title) ? Texts.Settings.DestinationViewer : title;
             _alwaysOnTop = configuration.AlwaysOnTop;
             _showTitleBar = configuration.ShowTitleBar;
+            _showBorder = configuration.ShowBorder;
             _showCursor = configuration.ShowCursor;
             if (!_showCursor)
             {
@@ -112,7 +114,7 @@ namespace Greenshot.Viewer.ViewModels
         }
 
         /// <summary>
-        /// Show the title bar and the border, without them only the capture is shown
+        /// Show the title bar, without it only the capture is shown
         /// </summary>
         public bool ShowTitleBar
         {
@@ -122,6 +124,21 @@ namespace Greenshot.Viewer.ViewModels
                 if (_showTitleBar == value) return;
                 _showTitleBar = value;
                 _configuration.ShowTitleBar = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Show a border around the window, so it's easy to recognize
+        /// </summary>
+        public bool ShowBorder
+        {
+            get => _showBorder;
+            set
+            {
+                if (_showBorder == value) return;
+                _showBorder = value;
+                _configuration.ShowBorder = value;
                 OnPropertyChanged();
             }
         }

@@ -34,8 +34,8 @@
             </Style>
         </ResourceDictionary>
     </Window.Resources>
-    <Border x:Name="Frame"
-            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+    <!-- The frame: thin with the title bar, or the border (color and thickness set in code) -->
+    <Border x:Name="Frame">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

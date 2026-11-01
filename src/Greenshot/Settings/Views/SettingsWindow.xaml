@@ -822,6 +822,26 @@
                                 <CheckBox Content="{wpf:Text Core.ViewerMousePointer}"
                                           IsChecked="{Binding ViewerConfiguration.ShowCursor, Mode=TwoWay}"
                                           IsEnabled="{Binding ViewerConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowCursor}"/>
+                                <CheckBox Content="{wpf:Text Core.ViewerBorder}"
+                                          IsChecked="{Binding ViewerConfiguration.ShowBorder, Mode=TwoWay}"
+                                          IsEnabled="{Binding ViewerConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowBorder}"/>
+                                <CheckBox Margin="20,4,0,4" Content="{wpf:Text Settings.ViewerBorderColorFollowsTheme}"
+                                          IsChecked="{Binding ViewerConfiguration.BorderColorFollowsTheme, Mode=TwoWay}"
+                                          IsEnabled="{Binding ViewerConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BorderColorFollowsTheme}"/>
+                                <StackPanel Margin="20,4,0,4" Orientation="Horizontal">
+                                    <TextBlock Text="{wpf:Text Settings.ViewerBorderColor}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <!-- Choosing a color switches off the contrasting color -->
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" Padding="2"
+                                            ToolTip="{wpf:Text Settings.ViewerBorderColor}"
+                                            AutomationProperties.Name="{wpf:Text Settings.ViewerBorderColor}"
+                                            AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
+                                            IsEnabled="{Binding ViewerConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BorderColor}"
+                                            Click="ViewerBorderColor_Click">
+                                        <Border Width="40" Height="16" BorderThickness="1" Background="{Binding ViewerBorderBrush}"
+                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>

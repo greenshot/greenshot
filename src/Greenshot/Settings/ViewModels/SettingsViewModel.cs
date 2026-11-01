@@ -321,6 +321,32 @@ namespace Greenshot.Settings.ViewModels
 
         public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
 
+        /// <summary>
+        /// The chosen color of the viewer border, choosing one means the border doesn't follow the light or dark mode
+        /// </summary>
+        public System.Drawing.Color ViewerBorderColor
+        {
+            get => ViewerConfiguration.BorderColor;
+            set
+            {
+                if (ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColor)))
+                {
+                    return;
+                }
+
+                ViewerConfiguration.BorderColor = value;
+                if (!ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColorFollowsTheme)))
+                {
+                    ViewerConfiguration.BorderColorFollowsTheme = false;
+                }
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ViewerBorderBrush));
+            }
+        }
+
+        public Brush ViewerBorderBrush => new SolidColorBrush(Color.FromArgb(ViewerBorderColor.A, ViewerBorderColor.R, ViewerBorderColor.G, ViewerBorderColor.B));
+
         public int IconSize
         {
             get => _iconSize;

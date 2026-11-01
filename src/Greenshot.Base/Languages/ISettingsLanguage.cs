@@ -262,6 +262,16 @@ namespace Greenshot.Base.Languages
         string ViewerWindow { get; }
 
         /// <summary>
+        /// Border color contrasting with the light or dark mode
+        /// </summary>
+        string ViewerBorderColorFollowsTheme { get; }
+
+        /// <summary>
+        /// Border color
+        /// </summary>
+        string ViewerBorderColor { get; }
+
+        /// <summary>
         /// Available
         /// </summary>
         string DestinationAvailable { get; }

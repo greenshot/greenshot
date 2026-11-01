@@ -20,6 +20,7 @@
  */
 
 using System.ComponentModel;
+using System.Drawing;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
 
@@ -48,9 +49,21 @@ namespace Greenshot.Viewer
         [DefaultValue(false)]
         bool AlwaysOnTop { get; set; }
 
-        [Description("Show the title bar and the border of the viewer windows, without them only the capture is shown")]
+        [Description("Show the title bar of the viewer windows, with a thin frame, without it only the capture is shown")]
         [DefaultValue(true)]
         bool ShowTitleBar { get; set; }
+
+        [Description("Show a border around the viewer windows, so they are easy to tell apart from what is behind them")]
+        [DefaultValue(false)]
+        bool ShowBorder { get; set; }
+
+        [Description("The border takes the color of the text of the light or dark mode, so it contrasts with it. False: BorderColor")]
+        [DefaultValue(true)]
+        bool BorderColorFollowsTheme { get; set; }
+
+        [Description("The color of the border, when it doesn't follow the light or dark mode")]
+        [DefaultValue("Red")]
+        Color BorderColor { get; set; }
 
         [Description("Show the captured mouse pointer in the viewer windows")]
         [DefaultValue(true)]
