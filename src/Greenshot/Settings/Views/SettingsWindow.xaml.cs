@@ -521,6 +521,19 @@ namespace Greenshot.Settings.Views
         /// <summary>
         /// "Change…" of an extension: where it is used, the captures and the destinations
         /// </summary>
+        private void RecipesGetMore_Click(object sender, RoutedEventArgs e)
+        {
+            string url = Greenshot.Recipes.Catalog.RecipeCatalogInstaller.GetCatalogUrl();
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't open {url}", ex);
+            }
+        }
+
         private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)
         {
             if (!((sender as FrameworkElement)?.DataContext is RecipeOptionGroupViewModel group) || group.UseIn == null)
