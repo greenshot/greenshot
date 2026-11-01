@@ -33,5 +33,5 @@ work differently there, and they can still change before the release. The docume
 | [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md) | The native proxy, IPC, command line and the browser extension |
 | [async-threading-roadmap.md](async-threading-roadmap.md) | The threading model and the async rules |
 | [recipe-contracts-cli-query-plan.md](recipe-contracts-cli-query-plan.md) | Plan: recipe contracts, CLI queries and error handling |
-| [recipe.schema.json](recipe.schema.json), [examples](examples) | The JSON schema of recipes and example recipes |
+| [recipe.schema.json](recipe.schema.json), [examples](examples) | The JSON schema of recipes and example recipes; more recipes are in [greenshot/greenshot-recipes](https://github.com/greenshot/greenshot-recipes) |
 | [upstream](upstream/wpf-notifyicon-prompt.md) | Changes Greenshot would like in libraries it uses |
