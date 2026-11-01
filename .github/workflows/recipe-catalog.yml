@@ -1,0 +1,43 @@
+name: Recipe catalog
+
+# The recipes of greenshot/greenshot-recipes must stay valid with this PR's recipe schema.
+# Schema only for now; Greenshot's own validator comes later.
+on:
+  pull_request:
+    paths:
+      - 'docs/vNext/recipe.schema.json'
+      - 'src/**/Recipes/**'
+      - '.github/workflows/recipe-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out this PR's schema
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: docs/vNext/recipe.schema.json
+          sparse-checkout-cone-mode: false
+          path: greenshot
+
+      - name: Check out the recipe catalog
+        uses: actions/checkout@v6
+        with:
+          repository: greenshot/greenshot-recipes
+          path: greenshot-recipes
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install jsonschema
+        run: python -m pip install jsonschema==4.23.0
+
+      - name: Check the catalog recipes
+        run: python greenshot-recipes/tools/catalog.py check --schema greenshot/docs/vNext/recipe.schema.json
