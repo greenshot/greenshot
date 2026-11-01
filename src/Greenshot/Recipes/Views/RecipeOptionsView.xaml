@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views;assembly=Greenshot.Base"
-             x:Name="Root">
+             x:Name="Root"
+             Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
     <!-- The options of a recipe, one row per option, the editor picked by its type (Settings > Recipes, the approval window) -->
     <UserControl.Resources>
         <ResourceDictionary>
