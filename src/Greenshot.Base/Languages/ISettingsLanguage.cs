@@ -686,6 +686,16 @@ namespace Greenshot.Base.Languages
         string RecipesReset { get; }
 
         /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string RecipesGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string RecipesGetMoreTooltip { get; }
+
+        /// <summary>
         /// The hotkey is written in the recipe file, it is changed in the recipe editor
         /// </summary>
         string HotkeySetInRecipe { get; }

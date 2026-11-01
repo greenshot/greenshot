@@ -771,7 +771,7 @@
             
             <!-- Recipes Tab: the extensions (border, drop shadow, caption, ...) and the options recipes declare, one compact card each -->
             <TabItem x:Name="RecipesTabItem" Header="{wpf:Text Settings.Recipes}"
-                     Visibility="{Binding HasRecipeOptions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                     Visibility="{Binding HasRecipesTab, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <StackPanel.Resources>
@@ -866,6 +866,11 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
+                        <!-- The recipe catalog on the website (beta) -->
+                        <Button HorizontalAlignment="Left" Margin="4,8,4,4" Padding="10,2"
+                                Content="{wpf:Text Settings.RecipesGetMore}" ToolTip="{wpf:Text Settings.RecipesGetMoreTooltip}"
+                                Click="RecipesGetMore_Click"
+                                Visibility="{Binding CanGetMoreRecipes, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
