@@ -70,15 +70,18 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void SettingHotkey_IsUnusedOnlyWhenItsRecipesAreOff()
+        public void ActiveHotkeys_ListEachSettingOnceAndLeaveOutRecipesThatAreOff()
         {
             var manager = new RecipeManager();
-            Assert.False(manager.IsSettingHotkeyUnused("RegionHotkey"));
-            Assert.False(manager.IsSettingHotkeyUnused("NoRecipeUsesThis"));
+            var hotkeys = manager.GetActiveHotkeys();
+            var region = Assert.Single(hotkeys, h => h.SettingName == "RegionHotkey");
+            Assert.Equal(RecipeManager.RecipeIdRegion, region.Recipe.Id);
+            Assert.False(region.IsInRecipeFile);
+            Assert.Single(hotkeys, h => h.SettingName == "WindowHotkey");
 
             manager.GetRecipeById(RecipeManager.RecipeIdRegion).IsEnabled = false;
-            Assert.True(manager.IsSettingHotkeyUnused("RegionHotkey"));
-            Assert.False(manager.IsSettingHotkeyUnused("FullscreenHotkey"));
+            Assert.DoesNotContain(manager.GetActiveHotkeys(), h => h.SettingName == "RegionHotkey");
+            Assert.Contains(manager.GetActiveHotkeys(), h => h.SettingName == "FullscreenHotkey");
         }
 
         [Theory]

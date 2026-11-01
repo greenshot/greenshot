@@ -1582,18 +1582,33 @@ namespace Greenshot.Recipes
         }
 
         /// <summary>
-        /// True when a hotkey of the general settings (e.g. "RegionHotkey") starts no recipe: every recipe with a trigger
-        /// "${config.RegionHotkey}" is switched off, or its trigger's 'when' is false
+        /// The hotkeys of the recipes which are on, as Settings > General and Self-Service show them: one per hotkey of the
+        /// general settings ("${config.RegionHotkey}", the two window recipes share one), one per Hotkey option and one per
+        /// hotkey written in a recipe file. A trigger whose 'when' is false doesn't count.
         /// </summary>
-        public bool IsSettingHotkeyUnused(string settingName)
+        public IReadOnlyList<RecipeHotkey> GetActiveHotkeys()
         {
-            bool UsesSetting(TriggerConfig trigger) => trigger != null &&
-                string.Equals(trigger.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
-                TriggerConfig.TryParseConfigReference(trigger.GetParameter<string>(TriggerConfig.HotkeyParameter), out var name) &&
-                string.Equals(name, settingName, StringComparison.OrdinalIgnoreCase);
-
-            var recipes = GetAllRecipes().Where(r => r.Triggers?.Any(UsesSetting) ?? false).ToList();
-            return recipes.Count > 0 && !recipes.Any(r => r.IsEnabled && r.Triggers.Any(t => UsesSetting(t) && t.IsWanted(r)));
+            var hotkeys = new List<RecipeHotkey>();
+            foreach (var recipe in GetAllRecipes().Where(r => r.IsEnabled && r.Triggers != null))
+            {
+                foreach (var trigger in recipe.Triggers.Where(t => t != null &&
+                             string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) && t.IsWanted(recipe)))
+                {
+                    string parameter = trigger.GetParameter<string>(TriggerConfig.HotkeyParameter);
+                    var hotkey = new RecipeHotkey { Recipe = recipe, Hotkey = trigger.GetHotkey(recipe) };
+                    if (TriggerConfig.TryParseConfigReference(parameter, out var settingName))
+                    {
+                        if (hotkeys.Any(h => string.Equals(h.SettingName, settingName, StringComparison.OrdinalIgnoreCase))) continue;
+                        hotkey.SettingName = settingName;
+                    }
+                    else if (RecipeOptionStore.TryParseReference(parameter, out var optionKey))
+                    {
+                        hotkey.Option = recipe.FindOption(optionKey);
+                    }
+                    hotkeys.Add(hotkey);
+                }
+            }
+            return hotkeys;
         }
 
         public void SetRecipeEnabled(string recipeId, bool enabled)

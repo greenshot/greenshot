@@ -100,6 +100,10 @@ The window hotkey uses it to start either the window capture or the active windo
 ]
 ```
 
+Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
+general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
+button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine
@@ -600,8 +604,8 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
 - **Hotkey**: a hotkey like `"Ctrl + Shift + D"`, empty for none. A `Hotkey` trigger takes it with
-  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > Recipes (with the
-  same hotkey window as the other hotkeys) and changing it needs no new approval. The approval window shows the hotkey
+  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
+  of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
 - **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Languages;
 
@@ -45,7 +46,8 @@ namespace Greenshot.Settings.ViewModels
         public RecipeOptionGroupViewModel(FlowDefinition definition, IReadOnlyList<CaptureRecipe> extensibleRecipes)
         {
             _definition = definition;
-            Items = new ObservableCollection<RecipeOptionViewModel>((definition.Options ?? new List<RecipeOption>()).Where(o => o != null).Select(o => new RecipeOptionViewModel(o, RecipeOptionStore.GetValue(definition, o))));
+            // A Hotkey option is set with the other hotkeys on the General tab
+            Items = new ObservableCollection<RecipeOptionViewModel>((definition.Options ?? new List<RecipeOption>()).Where(o => o != null && o.Type != ContractDataType.Hotkey).Select(o => new RecipeOptionViewModel(o, RecipeOptionStore.GetValue(definition, o))));
             foreach (var item in Items)
             {
                 if (!string.IsNullOrWhiteSpace(item.Option.EnabledWhen))

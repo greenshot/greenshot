@@ -686,9 +686,9 @@ namespace Greenshot.Base.Languages
         string RecipesReset { get; }
 
         /// <summary>
-        /// Recipe switched off
+        /// The hotkey is written in the recipe file, it is changed in the recipe editor
         /// </summary>
-        string HotkeyRecipeOff { get; }
+        string HotkeySetInRecipe { get; }
 
         /// <summary>
         /// Choose a folder

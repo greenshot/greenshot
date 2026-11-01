@@ -62,7 +62,8 @@ namespace Greenshot.Settings.ViewModels
                     group.Changed += (sender, args) => UpdateRecipeChanges();
                     RecipeOptionGroups.Add(group);
                 }
-                foreach (var recipe in _recipesForOptions.Where(r => r.HasOptions))
+                // Hotkey options are on the General tab
+                foreach (var recipe in _recipesForOptions.Where(r => r.HasOptions && r.Options.Any(o => o != null && o.Type != Greenshot.Base.Recipes.Contracts.ContractDataType.Hotkey)))
                 {
                     RecipeOptionGroups.Add(new RecipeOptionGroupViewModel(recipe, null));
                 }

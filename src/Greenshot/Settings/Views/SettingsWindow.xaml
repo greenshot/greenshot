@@ -151,70 +151,33 @@
                         <!-- Hotkeys -->
                         <GroupBox Header="{wpf:Text Core.Hotkeys}">
                             <StackPanel>
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturefullscreen}" VerticalAlignment="Center"/>
-                                    <views:HotkeyDisplayView Grid.Row="0" Grid.Column="1"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturefullscreen}"
-                                                                  HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,0,0,0"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                               Visibility="{Binding HotkeyRecipeOff[FullscreenHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturewindow}"
-                                                                  HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                               Visibility="{Binding HotkeyRecipeOff[WindowHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturearea}"
-                                                                  HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                               Visibility="{Binding HotkeyRecipeOff[RegionHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    
-                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCapturelastregion}"
-                                                                  HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                               Visibility="{Binding HotkeyRecipeOff[LastregionHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                    
-                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCaptureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                                    <views:HotkeyDisplayView Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
-                                                                  HeaderText="{wpf:Text Core.ContextmenuCaptureclipboard}"
-                                                                  HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
-                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
-                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                               Visibility="{Binding HotkeyRecipeOff[ClipboardHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                </Grid>
+                                <!-- The hotkeys of the recipes which are on: the general hotkeys, the Hotkey options of recipes
+                                     and the hotkeys written in recipe files (changed in the recipe editor) -->
+                                <ItemsControl ItemsSource="{Binding Hotkeys}" Margin="0,5" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="5,0,12,0"/>
+                                                <views:HotkeyDisplayView Grid.Column="1"
+                                                                         HeaderText="{Binding Label}"
+                                                                         HotkeyString="{Binding HotkeyString, Mode=TwoWay}"
+                                                                         ShowEditButton="{Binding CanChange}"
+                                                                         IsEnabled="{Binding IsEditable}"
+                                                                         EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                                <Button Grid.Column="2" Content="{wpf:Text Core.ContextmenuRecipeeditor}" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Margin="6,0,0,0" VerticalAlignment="Center" Command="{Binding OpenRecipeEditorCommand}"
+                                                        ToolTip="{wpf:Text Settings.HotkeySetInRecipe}"
+                                                        AutomationProperties.HelpText="{wpf:Text Settings.HotkeySetInRecipe}"
+                                                        Visibility="{Binding CanOpenRecipeEditor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
                         </GroupBox>
                         
@@ -884,12 +847,6 @@
                                                                 <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                          AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
                                                                          Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Hotkey: shown as keys, changed in the hotkey window -->
-                                                                <views:HotkeyDisplayView Grid.Column="1" HorizontalAlignment="Left"
-                                                                                         HeaderText="{Binding Label}"
-                                                                                         HotkeyString="{Binding TextValue, Mode=TwoWay}"
-                                                                                         EditRequested="HotkeyDisplayControl_EditRequested"
-                                                                                         Visibility="{Binding IsHotkey, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                                                 <!-- Folder: typed, or chosen with the button -->
                                                                 <DockPanel Grid.Column="1"
                                                                            Visibility="{Binding IsDirectory, Converter={StaticResource BooleanToVisibilityConverter}}">

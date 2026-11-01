@@ -26,7 +26,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Recipes;
@@ -44,16 +43,10 @@ namespace Greenshot.SelfService.ViewModels
         public string HotkeyText { get; set; }
         public bool IsRegistered { get; set; }
         /// <summary>
-        /// The recipe this hotkey starts is switched off (recipe editor), so Greenshot doesn't listen for it
+        /// No hotkey is set for this capture
         /// </summary>
-        public bool IsRecipeOff { get; set; }
-        /// <summary>
-        /// No hotkey is set for this capture, or its recipe is switched off
-        /// </summary>
-        public bool IsDisabled => IsRecipeOff || string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
-        public string StatusText => IsRecipeOff
-            ? Texts.Settings.HotkeyRecipeOff
-            : IsDisabled
+        public bool IsDisabled => string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
+        public string StatusText => IsDisabled
             ? (Texts.SelfService.HotkeysStatusDisabled ?? "Disabled")
             : IsRegistered
                 ? (Texts.SelfService.HotkeysStatusOk ?? "Registered")
@@ -87,7 +80,6 @@ namespace Greenshot.SelfService.ViewModels
     public class HotkeySectionViewModel : SelfServiceSectionViewModel
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeySectionViewModel));
-        private static readonly ICoreConfiguration Config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public override string Id => "hotkeys";
         public override string Title
@@ -201,11 +193,11 @@ namespace Greenshot.SelfService.ViewModels
         {
             Hotkeys.Clear();
 
-            AddHotkeyItem(Texts.Core.ContextmenuCapturearea ?? "Capture Region", "RegionHotkey", Config?.RegionHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturewindow ?? "Capture Window", "WindowHotkey", Config?.WindowHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturefullscreen ?? "Capture Fullscreen", "FullscreenHotkey", Config?.FullscreenHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCapturelastregion ?? "Capture Last Region", "LastregionHotkey", Config?.LastregionHotkey);
-            AddHotkeyItem(Texts.Core.ContextmenuCaptureclipboard ?? "Capture Clipboard", "ClipboardHotkey", Config?.ClipboardHotkey);
+            // The hotkeys of the recipes which are on: the general settings and the recipes' own
+            foreach (var hotkey in RecipeManager.Instance.GetActiveHotkeys().OrderBy(h => h.SortOrder).ThenBy(h => h.DisplayName, StringComparer.CurrentCultureIgnoreCase))
+            {
+                AddHotkeyItem(hotkey.DisplayName, hotkey.SettingName ?? hotkey.Recipe.Id, hotkey.Hotkey);
+            }
         }
 
         private void AddHotkeyItem(string actionName, string configKey, string hotkeyValue)
@@ -230,8 +222,7 @@ namespace Greenshot.SelfService.ViewModels
                 ActionName = actionName,
                 ConfigKey = configKey,
                 HotkeyText = displayValue,
-                IsRegistered = isRegistered,
-                IsRecipeOff = RecipeManager.Instance.IsSettingHotkeyUnused(configKey)
+                IsRegistered = isRegistered
             });
         }
 

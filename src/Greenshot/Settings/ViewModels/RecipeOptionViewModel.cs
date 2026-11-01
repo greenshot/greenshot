@@ -58,7 +58,6 @@ namespace Greenshot.Settings.ViewModels
         public bool IsColor => Option.Type == ContractDataType.Color;
         public bool IsEnum => Option.Type == ContractDataType.Enum;
         public bool IsText => Option.Type == ContractDataType.String;
-        public bool IsHotkey => Option.Type == ContractDataType.Hotkey;
         public bool IsDirectory => Option.Type == ContractDataType.DirectoryPath;
 
         /// <summary>
