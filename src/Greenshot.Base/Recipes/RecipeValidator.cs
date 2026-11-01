@@ -162,6 +162,7 @@ namespace Greenshot.Base.Recipes
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
+            ValidateTranslations(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
@@ -326,6 +327,7 @@ namespace Greenshot.Base.Recipes
             }
 
             ValidateOptions(extension, result);
+            ValidateTranslations(extension, result);
             foreach (var key in FindOptionReferences(extension.When).Where(k => extension.FindOption(k) == null))
             {
                 result.AddError($"Extension 'when' uses the option '{key}', which the extension doesn't declare in 'options'.");
@@ -835,6 +837,63 @@ namespace Greenshot.Base.Recipes
                 }
             }
             return keys;
+        }
+
+        /// <summary>
+        /// A language like "de" or "de-DE", see BCP 47
+        /// </summary>
+        private static readonly Regex LanguageTagPattern = new Regex("^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// The translations may only name languages and texts which exist, so a typo shows right away instead of an untranslated text
+        /// </summary>
+        private static void ValidateTranslations(FlowDefinition definition, RecipeValidationResult result)
+        {
+            if (definition.Translations == null) return;
+            var languages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var language in definition.Translations)
+            {
+                if (string.IsNullOrWhiteSpace(language.Key) || !LanguageTagPattern.IsMatch(language.Key))
+                {
+                    result.AddError($"Translations: '{language.Key}' is not a language like \"de\" or \"de-DE\".");
+                    continue;
+                }
+                if (!languages.Add(language.Key))
+                {
+                    result.AddError($"Translations: the language '{language.Key}' is there more than once.");
+                }
+                if (language.Value == null || language.Value.Count == 0)
+                {
+                    result.AddError($"Translations: '{language.Key}' has no texts.");
+                    continue;
+                }
+                foreach (var text in language.Value)
+                {
+                    if (!IsTranslatablePath(definition, text.Key))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is not a text of this file, use \"name\", \"description\", " +
+                                        "\"options.{key}.label\", \"options.{key}.description\" or \"options.{key}.choices.{value}\".");
+                    }
+                    else if (string.IsNullOrWhiteSpace(text.Value))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is empty.");
+                    }
+                }
+            }
+        }
+
+        private static bool IsTranslatablePath(FlowDefinition definition, string path)
+        {
+            if (string.IsNullOrEmpty(path)) return false;
+            if (path == FlowDefinition.TranslationName || path == FlowDefinition.TranslationDescription) return true;
+            var parts = path.Split('.');
+            if (parts.Length < 3 || parts[0] != "options") return false;
+            var option = definition.Options?.FirstOrDefault(o => o != null && string.Equals(o.Key, parts[1], StringComparison.Ordinal));
+            if (option == null) return false;
+            if (parts.Length == 3) return parts[2] == "label" || parts[2] == "description";
+            // A choice value may contain dots
+            return parts[2] == "choices" && option.Choices != null &&
+                   option.Choices.Any(c => c != null && string.Equals(c.Value, string.Join(".", parts.Skip(3)), StringComparison.Ordinal));
         }
 
         private static void ValidateOptions(FlowDefinition recipe, RecipeValidationResult result)

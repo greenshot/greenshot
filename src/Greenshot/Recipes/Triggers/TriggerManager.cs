@@ -124,7 +124,7 @@ namespace Greenshot.Recipes.Triggers
                         if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
                         {
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                         }
                         continue;
                     }
@@ -148,7 +148,7 @@ namespace Greenshot.Recipes.Triggers
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
@@ -156,7 +156,7 @@ namespace Greenshot.Recipes.Triggers
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                         {
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
@@ -198,7 +198,7 @@ namespace Greenshot.Recipes.Triggers
                     if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
                     {
                         string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                     }
                 }
             }

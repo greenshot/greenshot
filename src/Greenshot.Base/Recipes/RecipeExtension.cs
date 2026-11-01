@@ -150,6 +150,7 @@ namespace Greenshot.Base.Recipes
             view.Authors = copy.Authors;
             view.Copyright = copy.Copyright;
             view.License = copy.License;
+            view.Translations = copy.Translations;
             return view;
         }
 

@@ -64,6 +64,17 @@
       "minLength": 1,
       "description": "The license of the file as an SPDX identifier, e.g. 'MIT'."
     },
+    "translations": {
+      "type": "object",
+      "description": "The texts of the file in other languages, by language ('de' or 'de-DE') and then by path. Greenshot uses the exact language, else the language alone, else the texts of the file.",
+      "propertyNames": { "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$" },
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+))$" },
+        "additionalProperties": { "type": "string", "minLength": 1 }
+      }
+    },
     "showInContextMenu": {
       "type": "boolean",
       "default": true,

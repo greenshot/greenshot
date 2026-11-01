@@ -1216,7 +1216,7 @@ namespace Greenshot.Recipes
                     return $"{t.Label} ({state})";
                 }).ToList(),
                 ProposedBy = recipe.ProposedBy,
-                ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => RecipeText.Translate(e.Name ?? e.Id)).ToList()
+                ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => e.DisplayName).ToList()
             };
 
             if (!string.IsNullOrEmpty(recipe.FilePath))
