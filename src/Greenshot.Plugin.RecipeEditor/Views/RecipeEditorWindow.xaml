@@ -3066,19 +3066,18 @@
                                             <TextBlock Text="{wpf:Text RecipeEditor.HeaderTranslations}" FontWeight="Bold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
                                             <TextBlock Text="{wpf:Text RecipeEditor.HintTranslations}"
                                                        FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                            <DockPanel Margin="0,0,0,6">
-                                                <Button DockPanel.Dock="Right" Content="{wpf:Text RecipeEditor.BtnAddLanguage}" Style="{StaticResource SecondaryButtonStyle}"
-                                                        Command="{Binding AddTranslationLanguageCommand}" Margin="4,0,0,0"/>
-                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ToolTip="{wpf:Text RecipeEditor.TranslationLanguage}"
-                                                         Text="{Binding NewTranslationLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"
-                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4"/>
-                                            </DockPanel>
-                                            <DockPanel Margin="0,0,0,6" Visibility="{Binding HasTranslationLanguage, Converter={StaticResource BoolToVis}}">
-                                                <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveTranslationLanguageCommand}"
-                                                        ToolTip="{wpf:Text RecipeEditor.TipRemoveLanguage}" AutomationProperties.Name="{wpf:Text RecipeEditor.TipRemoveLanguage}" Margin="4,0,0,0"/>
-                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ItemsSource="{Binding TranslationLanguages}"
-                                                          SelectedItem="{Binding SelectedTranslationLanguage, Mode=TwoWay}"/>
-                                            </DockPanel>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.AddTranslationLanguage}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AddTranslationLanguage}" ItemsSource="{Binding AddableTranslationLanguages}"
+                                                      DisplayMemberPath="DisplayName" SelectedItem="{Binding LanguageToAdd, Mode=TwoWay}" Margin="0,2,0,8"/>
+                                            <StackPanel Visibility="{Binding HasTranslationLanguage, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="{wpf:Text RecipeEditor.TranslationLanguageShown}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                                <DockPanel Margin="0,2,0,8">
+                                                    <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveTranslationLanguageCommand}"
+                                                            ToolTip="{wpf:Text RecipeEditor.TipRemoveLanguage}" AutomationProperties.Name="{wpf:Text RecipeEditor.TipRemoveLanguage}" Margin="4,0,0,0"/>
+                                                    <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguageShown}" ItemsSource="{Binding TranslationLanguages}"
+                                                              SelectedItem="{Binding SelectedTranslationLanguage, Mode=TwoWay}"/>
+                                                </DockPanel>
+                                            </StackPanel>
                                             <ItemsControl ItemsSource="{Binding TranslationRows}" Focusable="False">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>

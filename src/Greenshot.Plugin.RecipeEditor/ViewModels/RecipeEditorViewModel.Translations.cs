@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Dapplo.Ini.Internationalization;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
@@ -36,10 +37,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
     /// </summary>
     public partial class RecipeEditorViewModel
     {
-        private ICommand _addTranslationLanguageCommand;
         private ICommand _removeTranslationLanguageCommand;
         private string _selectedTranslationLanguage;
-        private string _newTranslationLanguage;
 
         public ObservableCollection<string> TranslationLanguages { get; } = new ObservableCollection<string>();
 
@@ -63,15 +62,42 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         /// <summary>
-        /// The language to add, e.g. "de" or "de-DE"
+        /// The languages of Greenshot the recipe has no translations for yet
         /// </summary>
-        public string NewTranslationLanguage
+        public IList<LanguageInfo> AddableTranslationLanguages
         {
-            get => _newTranslationLanguage;
-            set => SetField(ref _newTranslationLanguage, value);
+            get
+            {
+                try
+                {
+                    return Texts.Config.GetLanguages()
+                        .Where(l => l.HasBaseFile && !TranslationLanguages.Contains(l.Ietf, StringComparer.OrdinalIgnoreCase))
+                        .OrderBy(l => l.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+                        .ToList();
+                }
+                catch (Exception)
+                {
+                    // No languages loaded (tests, design time)
+                    return new List<LanguageInfo>();
+                }
+            }
         }
 
-        public ICommand AddTranslationLanguageCommand => _addTranslationLanguageCommand ??= new RelayCommand(AddTranslationLanguage);
+        /// <summary>
+        /// Choosing a language in "Add a language" adds it; the box is empty again afterwards
+        /// </summary>
+        public LanguageInfo LanguageToAdd
+        {
+            get => null;
+            set
+            {
+                if (value != null)
+                {
+                    AddTranslationLanguage(value.Ietf);
+                }
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand RemoveTranslationLanguageCommand => _removeTranslationLanguageCommand ??= new RelayCommand(RemoveTranslationLanguage);
 
@@ -83,6 +109,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 TranslationLanguages.Add(language);
             }
             SelectedTranslationLanguage = TranslationLanguages.FirstOrDefault();
+            OnPropertyChanged(nameof(AddableTranslationLanguages));
         }
 
         private void LoadTranslationRows()
@@ -95,15 +122,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public void AddTranslationLanguage()
+        /// <summary>
+        /// Adds a language (e.g. "de-DE") and shows its texts
+        /// </summary>
+        public void AddTranslationLanguage(string language)
         {
-            string language = NewTranslationLanguage?.Trim();
-            if (ActiveRecipe == null || string.IsNullOrEmpty(language)) return;
-            if (!RecipeValidator.IsLanguageTag(language))
-            {
-                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTranslationLanguageInvalid, language);
-                return;
-            }
+            language = language?.Trim();
+            if (ActiveRecipe == null || !RecipeValidator.IsLanguageTag(language)) return;
             string existing = TranslationLanguages.FirstOrDefault(l => string.Equals(l, language, StringComparison.OrdinalIgnoreCase));
             if (existing == null)
             {
@@ -111,8 +136,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 TranslationLanguages.Add(language);
                 existing = language;
             }
-            NewTranslationLanguage = null;
             SelectedTranslationLanguage = existing;
+            OnPropertyChanged(nameof(AddableTranslationLanguages));
         }
 
         public void RemoveTranslationLanguage()
@@ -129,6 +154,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             TranslationLanguages.Remove(language);
             SelectedTranslationLanguage = TranslationLanguages.FirstOrDefault();
+            OnPropertyChanged(nameof(AddableTranslationLanguages));
         }
     }
 

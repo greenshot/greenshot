@@ -270,8 +270,9 @@ other languages, in the file itself, so they travel with it:
   only the texts it has.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
-- The recipe editor has a *Translations* box on the Recipe tab: add a language, then type the texts next to the texts of
-  the file. Removing a trigger there moves the translations of the menu texts of the triggers after it.
+- The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
+  then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
+  there moves the translations of the menu texts of the triggers after it.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---
