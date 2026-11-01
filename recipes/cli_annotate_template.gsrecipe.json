@@ -1,0 +1,126 @@
+{
+  "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "version": "2.0",
+  "id": "cli_annotate_template",
+  "name": "CLI Apply Template & Annotation",
+  "description": "Loads an image file, applies a template watermark/badge annotation, and saves the result under the same name with a suffix (e.g. example1.png -> example1-with_annotation.png).",
+  "authors": [
+    {
+      "name": "Robin Krom",
+      "github": "Lakritzator"
+    }
+  ],
+  "copyright": "Copyright (c) 2026 Robin Krom",
+  "license": "MIT",
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "Annotate Image CLI Trigger",
+      "enabled": true,
+      "parameters": {
+        "Command": "annotate",
+        "Description": "Apply template annotations to an image file and save with suffix",
+        "FireAndForget": false,
+        "Stdout": "${Destination.Filename}",
+        "Arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "type": "FilePath",
+            "description": "Path to the input image to annotate",
+            "required": true
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Source Image",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "File",
+        "Filename": "${Filename}"
+      }
+    },
+    {
+      "id": "apply_template",
+      "stepType": "Annotation",
+      "name": "Apply Template Annotation",
+      "enabled": true,
+      "parameters": {
+        "Annotations": [
+          {
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 220,
+            "Height": 32,
+            "OffsetX": -12,
+            "OffsetY": -12,
+            "FillColor": "rgba(20, 20, 20, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
+          },
+          {
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 210,
+            "Height": 26,
+            "OffsetX": -16,
+            "OffsetY": -15,
+            "Text": "REVIEWED: ${now:yyyy-MM-dd}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 10.0,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "save_annotated",
+      "stepType": "SaveFile",
+      "name": "Save Annotated Image",
+      "enabled": true,
+      "parameters": {
+        "SaveDirectory": "${dirname}",
+        "FilenamePattern": "${title}-with_annotation",
+        "AllowOverwrite": true
+      }
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print Saved Path",
+      "enabled": true,
+      "parameters": {
+        "Text": "${Destination.Filename}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "apply_template"
+      },
+      {
+        "from": "apply_template",
+        "to": "save_annotated"
+      },
+      {
+        "from": "save_annotated",
+        "to": "print_result"
+      }
+    ]
+  }
+}

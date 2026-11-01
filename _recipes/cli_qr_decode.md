@@ -34,8 +34,8 @@
    "qr-code"
   ],
   "sha256": "2b5649d5ad9a4c28f5bfe5a3d3fb45c7d8ac7e51cb2b8aa91b5f4fbd66be55ea",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/a78999f7f7fc36635f63139cdf35dde6bea40bd2/recipes/cli_qr_decode/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/a78999f7f7fc36635f63139cdf35dde6bea40bd2/recipes/cli_qr_decode/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/075edaa4b746ba87bfa21dfd567463d85e58b55c/recipes/cli_qr_decode/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/075edaa4b746ba87bfa21dfd567463d85e58b55c/recipes/cli_qr_decode/README.md"
  }
 }
 ---

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "version": "2.0",
+  "id": "cli_convert_format",
+  "name": "CLI Image Format Converter",
+  "description": "Loads an image file, converts it to the requested target format (png, jpg, webp, bmp, gif, tiff), and saves it under the same name with the new extension.",
+  "authors": [
+    {
+      "name": "Robin Krom",
+      "github": "Lakritzator"
+    }
+  ],
+  "copyright": "Copyright (c) 2026 Robin Krom",
+  "license": "MIT",
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "Image Format Converter Trigger",
+      "enabled": true,
+      "parameters": {
+        "Command": "convert",
+        "Description": "Convert an image from one format to another",
+        "FireAndForget": false,
+        "Stdout": "${Destination.Filename}",
+        "Arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "type": "FilePath",
+            "description": "Path to the input image file to convert",
+            "required": true
+          },
+          {
+            "name": "format",
+            "variable": "Format",
+            "type": "Enum",
+            "allowedValues": [
+              "png",
+              "jpg",
+              "webp",
+              "bmp",
+              "gif",
+              "tiff"
+            ],
+            "description": "Target image format (png, jpg, webp, bmp, gif, tiff)",
+            "required": false,
+            "defaultValue": "jpg"
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Source Image",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "File",
+        "Filename": "${Filename}"
+      }
+    },
+    {
+      "id": "save_converted",
+      "stepType": "SaveFile",
+      "name": "Save Converted File",
+      "enabled": true,
+      "parameters": {
+        "SaveDirectory": "${dirname}",
+        "FilenamePattern": "${title}",
+        "Format": "${Format}",
+        "AllowOverwrite": true
+      }
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print Saved Path",
+      "enabled": true,
+      "parameters": {
+        "Text": "${Destination.Filename}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "save_converted"
+      },
+      {
+        "from": "save_converted",
+        "to": "print_result"
+      }
+    ]
+  }
+}

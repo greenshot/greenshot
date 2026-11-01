@@ -1,0 +1,175 @@
+{
+  "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "version": "2.0",
+  "id": "dag_watermark_branching",
+  "name": "DAG Workflow with environment watermark and parallel feedback",
+  "description": "Demonstrates DAG branching, variable assignment, scoped user/machine environment variables, mathematical positioning expressions, and multi-drawable surface stamping.",
+  "authors": [
+    {
+      "name": "Robin Krom",
+      "github": "Lakritzator"
+    }
+  ],
+  "copyright": "Copyright (c) 2026 Robin Krom",
+  "license": "MIT",
+  "options": [
+    {
+      "key": "hotkey",
+      "type": "Hotkey",
+      "default": "Ctrl + Shift + W",
+      "label": "Hotkey"
+    }
+  ],
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "DAG Watermark Capture",
+      "parameters": {
+        "MenuItemText": "DAG Environment Watermark Capture",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "Hotkey": "${option.hotkey}"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "capture_node",
+      "stepType": "Source",
+      "name": "Capture Screen Region",
+      "parameters": {
+        "SourceType": "Region"
+      }
+    },
+    {
+      "id": "select_node",
+      "stepType": "InteractiveSelection",
+      "name": "Select Area",
+      "parameters": {
+        "SelectionMode": "Region",
+        "AllowWindowSnapping": true
+      }
+    },
+    {
+      "id": "feedback_branch",
+      "stepType": "ImmediateFeedback",
+      "name": "Play Shutter Sound (Branch A)",
+      "parameters": {
+        "PlaySound": true
+      }
+    },
+    {
+      "id": "set_vars_node",
+      "stepType": "SetVariable",
+      "name": "Set Recipe Variables (Branch B)",
+      "parameters": {
+        "Variables": {
+          "department": "Engineering QA",
+          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+        }
+      }
+    },
+    {
+      "id": "watermark_node",
+      "stepType": "Annotation",
+      "name": "Stamp Annotations & Watermarks",
+      "parameters": {
+        "Annotations": [
+          {
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 380,
+            "Height": 40,
+            "OffsetX": -15,
+            "OffsetY": -15,
+            "FillColor": "rgba(0, 0, 0, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
+          },
+          {
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 370,
+            "Height": 30,
+            "OffsetX": -20,
+            "OffsetY": -20,
+            "Text": "${context.watermark_text}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 9.5,
+            "FontFamily": "Segoe UI",
+            "Bold": true,
+            "Shadow": false
+          },
+          {
+            "Type": "StepLabel",
+            "HorizontalAnchor": "Left",
+            "VerticalAnchor": "Top",
+            "Left": 20,
+            "Top": 20,
+            "Number": 1,
+            "FillColor": "#D83B01",
+            "LineColor": "#FFFFFF"
+          },
+          {
+            "Type": "Emoji",
+            "HorizontalAnchor": "Left",
+            "VerticalAnchor": "Bottom",
+            "Left": 20,
+            "Top": "${payload.height - 50}",
+            "Emoji": "🛡️",
+            "Size": 32
+          }
+        ]
+      }
+    },
+    {
+      "id": "export_join",
+      "stepType": "Destinations",
+      "name": "Join Paths and Export to Editor",
+      "parameters": {
+        "DestinationDesignations": [
+          "Editor",
+          "Clipboard"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "capture_node"
+    ],
+    "transitions": [
+      {
+        "from": "capture_node",
+        "to": "select_node"
+      },
+      {
+        "from": "select_node",
+        "to": "feedback_branch"
+      },
+      {
+        "from": "select_node",
+        "to": "set_vars_node"
+      },
+      {
+        "from": "set_vars_node",
+        "to": "watermark_node"
+      },
+      {
+        "from": "feedback_branch",
+        "to": "export_join"
+      },
+      {
+        "from": "watermark_node",
+        "to": "export_join"
+      }
+    ]
+  }
+}
