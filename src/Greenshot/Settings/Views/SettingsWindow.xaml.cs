@@ -485,6 +485,7 @@ namespace Greenshot.Settings.Views
             _viewModel.SaveRestrictions();
 
             _viewModel.SaveRecipeOptions();
+            _viewModel.SaveHotkeys();
             _viewModel.SaveFixedCaptureSizes();
 
 #if !GREENSHOT_LIGHT
@@ -535,6 +536,20 @@ namespace Greenshot.Settings.Views
             if (colorWindow.ShowDialog() == true)
             {
                 item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
+            }
+        }
+
+        private void RecipeOptionFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionViewModel item))
+            {
+                return;
+            }
+
+            string selectedPath = ModernFolderPicker.SelectFolder(this, item.TextValue, item.Label);
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                item.Value = selectedPath;
             }
         }
 

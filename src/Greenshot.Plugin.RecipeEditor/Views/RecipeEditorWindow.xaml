@@ -3060,6 +3060,44 @@
                                         </StackPanel>
                                     </Border>
 
+                                    <!-- Translations: the texts of the recipe in other languages, saved in the file -->
+                                    <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.HeaderTranslations}" FontWeight="Bold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.HintTranslations}"
+                                                       FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <DockPanel Margin="0,0,0,6">
+                                                <Button DockPanel.Dock="Right" Content="{wpf:Text RecipeEditor.BtnAddLanguage}" Style="{StaticResource SecondaryButtonStyle}"
+                                                        Command="{Binding AddTranslationLanguageCommand}" Margin="4,0,0,0"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ToolTip="{wpf:Text RecipeEditor.TranslationLanguage}"
+                                                         Text="{Binding NewTranslationLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4"/>
+                                            </DockPanel>
+                                            <DockPanel Margin="0,0,0,6" Visibility="{Binding HasTranslationLanguage, Converter={StaticResource BoolToVis}}">
+                                                <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveTranslationLanguageCommand}"
+                                                        ToolTip="{wpf:Text RecipeEditor.TipRemoveLanguage}" AutomationProperties.Name="{wpf:Text RecipeEditor.TipRemoveLanguage}" Margin="4,0,0,0"/>
+                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ItemsSource="{Binding TranslationLanguages}"
+                                                          SelectedItem="{Binding SelectedTranslationLanguage, Mode=TwoWay}"/>
+                                            </DockPanel>
+                                            <ItemsControl ItemsSource="{Binding TranslationRows}" Focusable="False">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Margin="0,0,0,6">
+                                                            <TextBlock Text="{Binding Path}" FontFamily="Consolas" FontSize="{wpf:FontSize 10}"
+                                                                       Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBlock Text="{Binding Original}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" FontStyle="Italic"
+                                                                       Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox AutomationProperties.Name="{Binding Path, TargetNullValue=''}" AutomationProperties.HelpText="{Binding Original, TargetNullValue=''}"
+                                                                     Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" Padding="4,2" Margin="0,1"
+                                                                     Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
                                     <!-- Start Steps / Entry Points -->
                                     <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"
                                             Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
@@ -3142,7 +3180,14 @@
                                                             <views:HotkeyDisplayView AutomationProperties.Name="{wpf:Text RecipeEditor.HotkeyTrigger}" Margin="0,4,0,4"
                                                                                       HotkeyString="{Binding Hotkey, Mode=TwoWay}"
                                                                                       HeaderText="{Binding DisplayTitle}"
-                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"
+                                                                                      Visibility="{Binding IsFixedHotkey, Converter={StaticResource BoolToVis}}"/>
+                                                            <!-- A hotkey from an option or the general settings: shown with its source, changed there -->
+                                                            <DockPanel Margin="0,4,0,4" Visibility="{Binding IsHotkeyReference, Converter={StaticResource BoolToVis}}">
+                                                                <Button DockPanel.Dock="Right" Content="{wpf:Text RecipeEditor.TriggerHotkeyUseFixed}" Style="{StaticResource SecondaryButtonStyle}"
+                                                                        Margin="6,0,0,0" Command="{Binding UseFixedHotkeyCommand}"/>
+                                                                <TextBlock Text="{Binding HotkeySourceText}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                            </DockPanel>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->

@@ -567,7 +567,7 @@ namespace Greenshot.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -785,7 +785,7 @@ namespace Greenshot.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||

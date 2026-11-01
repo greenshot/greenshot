@@ -87,8 +87,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string AiBadge => IsAiCreated ? "🤖 " + string.Format(Texts.Get<IRecipeEditorLanguage>().BadgeAiBy, Recipe.ProposedBy) : string.Empty;
 
-        public string Name => IsExtension ? RecipeText.Translate(Extension.Name ?? Extension.Id) : Recipe.Name ?? Recipe.Id;
-        public string Description => IsExtension ? RecipeText.Translate(Extension.Description) ?? "" : Recipe.Description ?? "";
+        public string Name => IsExtension ? Extension.DisplayName : Recipe.DisplayName;
+        public string Description => (IsExtension ? Extension.DisplayDescription : Recipe.DisplayDescription) ?? "";
 
         /// <summary>
         /// Triggers which are in the recipe but not switched on in its approval
@@ -166,7 +166,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             bool Is(string triggerType) => string.Equals(type, triggerType, StringComparison.OrdinalIgnoreCase);
             if (Is(TriggerConfig.TypeHotkey))
             {
-                string hk = t.GetParameter<string>("Hotkey");
+                string hk = t.GetHotkey(Recipe);
                 return string.IsNullOrWhiteSpace(hk) ? "⌨ " + Texts.Get<IRecipeEditorLanguage>().TriggerHotkey : $"⌨ {hk}";
             }
             if (Is(TriggerConfig.TypeContextMenu))

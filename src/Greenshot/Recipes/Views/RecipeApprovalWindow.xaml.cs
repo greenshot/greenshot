@@ -247,7 +247,7 @@ namespace Greenshot.Recipes.Views
             _content = request.Content;
             InitializeComponent();
 
-            RecipeName = recipe?.Name ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : Texts.Recipe.ApprovalUnnamedRecipe);
+            RecipeName = recipe?.DisplayName ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : Texts.Recipe.ApprovalUnnamedRecipe);
             RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "" : $"v{recipe.Version}";
             RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? (validationResult != null && !validationResult.IsValid ? Texts.Recipe.ApprovalFailedValidation : Texts.Recipe.ApprovalNoDescription) : recipe.Description;
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
@@ -397,7 +397,7 @@ namespace Greenshot.Recipes.Views
             }
             if (request.ReplacedRecipe != null)
             {
-                ChangesTitle = string.Format(request.ReplacesBuiltIn ? Texts.Recipe.ApprovalChangesReplacesBuiltin : Texts.Recipe.ApprovalChangesRecipe, request.ReplacedRecipe.Name);
+                ChangesTitle = string.Format(request.ReplacesBuiltIn ? Texts.Recipe.ApprovalChangesReplacesBuiltin : Texts.Recipe.ApprovalChangesRecipe, request.ReplacedRecipe.DisplayName);
             }
             else if (ApprovalMode == RecipeApprovalMode.Modified)
             {
@@ -593,7 +593,7 @@ namespace Greenshot.Recipes.Views
             ApprovalMode = RecipeApprovalMode.ValidationError;
             InitializeComponent();
 
-            RecipeName = recipe?.Name ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : Texts.Recipe.ApprovalUnknownRecipe);
+            RecipeName = recipe?.DisplayName ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : Texts.Recipe.ApprovalUnknownRecipe);
             RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "" : $"v{recipe.Version}";
             RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? Texts.Recipe.ApprovalFailedValidation : recipe.Description;
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
@@ -689,7 +689,8 @@ namespace Greenshot.Recipes.Views
                     string label;
                     if (string.Equals(trigger.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                     {
-                        label = "⌨ " + string.Format(Texts.Recipe.ApprovalTriggerHotkey, trigger.GetParameter<string>("Hotkey", "None"));
+                        string hotkey = trigger.GetHotkey(recipe);
+                        label = "⌨ " + string.Format(Texts.Recipe.ApprovalTriggerHotkey, string.IsNullOrEmpty(hotkey) ? "None" : hotkey);
                     }
                     else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {

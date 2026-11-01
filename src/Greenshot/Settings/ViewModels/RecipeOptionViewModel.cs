@@ -58,6 +58,7 @@ namespace Greenshot.Settings.ViewModels
         public bool IsColor => Option.Type == ContractDataType.Color;
         public bool IsEnum => Option.Type == ContractDataType.Enum;
         public bool IsText => Option.Type == ContractDataType.String;
+        public bool IsDirectory => Option.Type == ContractDataType.DirectoryPath;
 
         /// <summary>
         /// All but a switch show their label in front of the value

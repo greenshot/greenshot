@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -58,6 +59,18 @@ namespace Greenshot.Base.Recipes
         public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
+        /// <summary>
+        /// The name in the language of Greenshot: from <see cref="Translations"/>, else the name of the file
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayName => Translate(TranslationName, Name ?? Id);
+
+        /// <summary>
+        /// The description in the language of Greenshot: from <see cref="Translations"/>, else the description of the file
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayDescription => Translate(TranslationDescription, Description);
 
         /// <summary>
         /// Who wrote it, shown when the recipe is approved; kept in the file so the credit travels with it
@@ -96,7 +109,112 @@ namespace Greenshot.Base.Recipes
         /// Values the user sets once in Settings > Recipes, read by the nodes with ${option.key}. See <see cref="RecipeOption"/>.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<RecipeOption> Options { get; set; }
+        public List<RecipeOption> Options
+        {
+            get => _options;
+            set
+            {
+                _options = value;
+                // The options look up their texts in the translations of the file they belong to
+                if (value == null) return;
+                foreach (var option in value.Where(o => o != null))
+                {
+                    option.Owner = this;
+                }
+            }
+        }
+        private List<RecipeOption> _options;
+
+        public const string TranslationName = "name";
+        public const string TranslationDescription = "description";
+
+        /// <summary>
+        /// The texts of the file in other languages, by language (e.g. "de-DE" or "de") and then by path: "name", "description",
+        /// "options.{key}.label", "options.{key}.description", "options.{key}.choices.{value}" and for recipes
+        /// "triggers.{index}.menuItemText", see <see cref="GetTranslatableTexts"/>. The texts of the file
+        /// itself are used for every language which isn't here, see <see cref="Translate"/>.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull), JsonPropertyOrder(20)]
+        public Dictionary<string, Dictionary<string, string>> Translations { get; set; }
+
+        /// <summary>
+        /// The text for the path in the language of Greenshot: the exact language (de-DE), else the language alone (de),
+        /// else the text of the file. A built-in text in the form Section.key is translated by the language files of Greenshot.
+        /// </summary>
+        /// <param name="path">e.g. "name" or "options.folder.label"</param>
+        /// <param name="text">the text of the file</param>
+        public string Translate(string path, string text) => Translate(path, text, CurrentLanguage());
+
+        /// <summary>
+        /// The text for the path in the given language, see <see cref="Translate(string,string)"/>
+        /// </summary>
+        public string Translate(string path, string text, string language)
+        {
+            if (Translations != null && Translations.Count > 0 && path != null)
+            {
+                if (!string.IsNullOrEmpty(language))
+                {
+                    int dash = language.IndexOf('-');
+                    if (TryGetTranslation(language, path, out var translated) ||
+                        dash > 0 && TryGetTranslation(language.Substring(0, dash), path, out translated))
+                    {
+                        return translated;
+                    }
+                }
+            }
+            return RecipeText.Translate(text);
+        }
+
+        /// <summary>
+        /// The texts of the file which can be translated, by their path in <see cref="Translations"/>, with the text of the file
+        /// </summary>
+        public virtual IEnumerable<KeyValuePair<string, string>> GetTranslatableTexts()
+        {
+            yield return new KeyValuePair<string, string>(TranslationName, Name ?? Id);
+            if (!string.IsNullOrWhiteSpace(Description))
+            {
+                yield return new KeyValuePair<string, string>(TranslationDescription, Description);
+            }
+            foreach (var option in Options?.Where(o => o != null && !string.IsNullOrWhiteSpace(o.Key)) ?? Enumerable.Empty<RecipeOption>())
+            {
+                yield return new KeyValuePair<string, string>($"options.{option.Key}.label", string.IsNullOrWhiteSpace(option.Label) ? option.Key : option.Label);
+                if (!string.IsNullOrWhiteSpace(option.Description))
+                {
+                    yield return new KeyValuePair<string, string>($"options.{option.Key}.description", option.Description);
+                }
+                foreach (var choice in option.Choices?.Where(c => c != null && !string.IsNullOrWhiteSpace(c.Value)) ?? Enumerable.Empty<RecipeOptionChoice>())
+                {
+                    yield return new KeyValuePair<string, string>($"options.{option.Key}.choices.{choice.Value}", string.IsNullOrWhiteSpace(choice.Label) ? choice.Value : choice.Label);
+                }
+            }
+        }
+
+        private bool TryGetTranslation(string language, string path, out string translated)
+        {
+            foreach (var entry in Translations)
+            {
+                if (string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase) &&
+                    entry.Value != null && entry.Value.TryGetValue(path, out translated) && !string.IsNullOrWhiteSpace(translated))
+                {
+                    return true;
+                }
+            }
+            translated = null;
+            return false;
+        }
+
+        private static string CurrentLanguage()
+        {
+            try
+            {
+                return Texts.Config.CurrentLanguage;
+            }
+            catch (Exception)
+            {
+                // No languages loaded (tests, design time)
+                return null;
+            }
+        }
 
         /// <summary>
         /// Indicates if this is one of Greenshot's built-in recipes or extensions. Set by Greenshot, never read from a file.
@@ -160,6 +278,7 @@ namespace Greenshot.Base.Recipes
             clone.Nodes = Nodes?.Select(n => n?.Clone()).ToList() ?? new List<RecipeNodeConfig>();
             clone.Flow = Flow?.Clone() ?? new RecipeFlowConfig();
             clone.Options = Options?.Select(o => o?.Clone()).ToList();
+            clone.Translations = Translations?.ToDictionary(t => t.Key, t => t.Value == null ? null : new Dictionary<string, string>(t.Value));
         }
 
         public override string ToString() => Name ?? Id;

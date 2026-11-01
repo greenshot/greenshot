@@ -136,7 +136,8 @@ namespace Greenshot.Recipes
             string menuText = trigger.GetParameter<string>("MenuItemText") ?? recipe.Name;
             if (Is(type, TriggerConfig.TypeHotkey))
             {
-                return new RecipeTriggerDescription { Label = $"Hotkey {trigger.GetParameter("Hotkey", "(none)")}" };
+                string hotkey = trigger.GetHotkey(recipe);
+                return new RecipeTriggerDescription { Label = $"Hotkey {(string.IsNullOrEmpty(hotkey) ? "(none)" : hotkey)}" };
             }
             if (Is(type, TriggerConfig.TypeContextMenu))
             {
@@ -218,7 +219,8 @@ namespace Greenshot.Recipes
             {
                 var gatedActions = GetGatedActions(node, registry);
                 var mainRisk = gatedActions.Count > 0 ? gatedActions[0].GateType : (RecipeGateType?)null;
-                string text = DescribeStep(node, registry);
+                // What the step does with the option values set now, e.g. the folder of a DirectoryPath option
+                string text = RecipeOptionStore.FillValues(recipe, DescribeStep(node, registry));
                 if (!node.Enabled)
                 {
                     text += " (disabled)";
@@ -230,7 +232,7 @@ namespace Greenshot.Recipes
                 lines.Add(new RecipeDescriptionLine(text, mainRisk));
                 foreach (var action in gatedActions)
                 {
-                    lines.Add(new RecipeDescriptionLine(DescribeGatedAction(action), action.GateType, true));
+                    lines.Add(new RecipeDescriptionLine(RecipeOptionStore.FillValues(recipe, DescribeGatedAction(action)), action.GateType, true));
                 }
             }
             return lines;

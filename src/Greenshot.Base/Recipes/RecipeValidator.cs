@@ -141,7 +141,7 @@ namespace Greenshot.Base.Recipes
                 for (int i = 0; i < recipe.Triggers.Count; i++)
                 {
                     var trigger = recipe.Triggers[i];
-                    ValidateTrigger(trigger, i, result);
+                    ValidateTrigger(recipe, trigger, i, result);
                 }
             }
 
@@ -158,9 +158,11 @@ namespace Greenshot.Base.Recipes
                 var node = recipe.Nodes[i];
                 ValidateNode(node, i, nodeIds, result);
             }
+            WarnAboutRegionWithoutSelection(recipe, result);
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
+            ValidateTranslations(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
@@ -178,6 +180,25 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Version, id, name and requirements, the same for recipes and extensions
         /// </summary>
+        /// <summary>
+        /// A Region source only captures the screen, the user selects the region in the InteractiveSelection step after it.
+        /// Without that step the whole screen goes on, which is easy to miss when writing a recipe. AI tools give the region themselves.
+        /// </summary>
+        private static void WarnAboutRegionWithoutSelection(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            if (recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) ||
+                recipe.Triggers?.Any(trigger => string.Equals(trigger?.TriggerType, Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return;
+            }
+            foreach (var node in recipe.Nodes)
+            {
+                if (node == null || !string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.Equals(node.GetParameter("SourceType", nameof(CaptureSourceType.Region)), nameof(CaptureSourceType.Region), StringComparison.OrdinalIgnoreCase)) continue;
+                result.AddWarning($"Node '{node.Id}' [Source]: SourceType 'Region' captures the whole screen, the region is selected by an InteractiveSelection step (SelectionMode 'Region') after it, which this recipe doesn't have.");
+            }
+        }
+
         private static void ValidateHeader(FlowDefinition definition, string what, RecipeValidationResult result)
         {
             if (string.IsNullOrWhiteSpace(definition.Version))
@@ -306,6 +327,7 @@ namespace Greenshot.Base.Recipes
             }
 
             ValidateOptions(extension, result);
+            ValidateTranslations(extension, result);
             foreach (var key in FindOptionReferences(extension.When).Where(k => extension.FindOption(k) == null))
             {
                 result.AddError($"Extension 'when' uses the option '{key}', which the extension doesn't declare in 'options'.");
@@ -384,7 +406,7 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateTrigger(Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
+        private static void ValidateTrigger(CaptureRecipe recipe, Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
         {
             if (trigger == null)
             {
@@ -403,12 +425,41 @@ namespace Greenshot.Base.Recipes
                 result.AddWarning($"Trigger at index {index} has unrecognized triggerType '{trigger.TriggerType}'.");
             }
 
+            if (!string.IsNullOrWhiteSpace(trigger.When))
+            {
+                if (trigger.When.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index}: 'when' must be an expression like \"${{option.key}}\".");
+                }
+                foreach (var key in FindOptionReferences(trigger.When).Where(k => recipe.FindOption(k) == null))
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index} uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                }
+            }
+
             if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
             {
-                string hotkey = trigger.GetParameter<string>("Hotkey");
+                string hotkey = trigger.GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter);
                 if (string.IsNullOrWhiteSpace(hotkey))
                 {
                     result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} is missing required 'Hotkey' parameter.");
+                }
+                else if (RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
+                {
+                    // The user sets the hotkey in Settings > Recipes
+                    if (recipe.FindOption(optionKey)?.Type != ContractDataType.Hotkey)
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the option '{optionKey}', which must be a Hotkey option declared in 'options'.");
+                    }
+                }
+                else if (Greenshot.Base.Recipes.Triggers.TriggerConfig.TryParseConfigReference(hotkey, out var settingName))
+                {
+                    // A hotkey of the general settings, e.g. the built-in recipes and files which replace them
+                    var setting = typeof(ICoreConfiguration).GetProperty(settingName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                    if (setting?.PropertyType != typeof(string))
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the setting '{settingName}', which is not a text setting of the general settings.");
+                    }
                 }
                 else
                 {
@@ -788,6 +839,52 @@ namespace Greenshot.Base.Recipes
             return keys;
         }
 
+        /// <summary>
+        /// A language like "de" or "de-DE", see BCP 47
+        /// </summary>
+        public static bool IsLanguageTag(string language) => !string.IsNullOrWhiteSpace(language) && LanguageTagPattern.IsMatch(language);
+
+        private static readonly Regex LanguageTagPattern = new Regex("^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// The translations may only name languages and texts which exist, so a typo shows right away instead of an untranslated text
+        /// </summary>
+        private static void ValidateTranslations(FlowDefinition definition, RecipeValidationResult result)
+        {
+            if (definition.Translations == null) return;
+            var paths = new HashSet<string>(definition.GetTranslatableTexts().Select(t => t.Key), StringComparer.Ordinal);
+            var languages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var language in definition.Translations)
+            {
+                if (!IsLanguageTag(language.Key))
+                {
+                    result.AddError($"Translations: '{language.Key}' is not a language like \"de\" or \"de-DE\".");
+                    continue;
+                }
+                if (!languages.Add(language.Key))
+                {
+                    result.AddError($"Translations: the language '{language.Key}' is there more than once.");
+                }
+                if (language.Value == null || language.Value.Count == 0)
+                {
+                    result.AddError($"Translations: '{language.Key}' has no texts.");
+                    continue;
+                }
+                foreach (var text in language.Value)
+                {
+                    if (!paths.Contains(text.Key))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is not a text of this file, use \"name\", \"description\", " +
+                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\" or \"triggers.{index}.menuItemText\".");
+                    }
+                    else if (string.IsNullOrWhiteSpace(text.Value))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is empty.");
+                    }
+                }
+            }
+        }
+
         private static void ValidateOptions(FlowDefinition recipe, RecipeValidationResult result)
         {
             var options = new Dictionary<string, RecipeOption>(StringComparer.OrdinalIgnoreCase);
@@ -891,6 +988,12 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
                 }
+            }
+
+            // The approval shows what the steps do with the values set now, e.g. the folder of a DirectoryPath option
+            foreach (var action in result.GatedActions)
+            {
+                action.Target = RecipeOptionStore.FillValues(recipe, action.Target);
             }
         }
 

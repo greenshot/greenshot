@@ -84,6 +84,7 @@ namespace Greenshot.Base.Recipes
                 case ContractDataType.DirectoryPath:
                 case ContractDataType.Enum:
                 case ContractDataType.Color:
+                case ContractDataType.Hotkey:
                     expected = "a text";
                     return value is string || value is Enum;
                 case ContractDataType.Window:

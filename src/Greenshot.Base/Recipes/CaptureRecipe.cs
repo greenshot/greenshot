@@ -122,6 +122,69 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
+        /// <summary>
+        /// The path of the menu text of a trigger in the translations, by the trigger's place in <see cref="Triggers"/>
+        /// </summary>
+        public static string TriggerMenuTextPath(int index) => $"triggers.{index}.menuItemText";
+
+        /// <summary>
+        /// The menu text of a ContextMenu or Editor trigger, in the language of Greenshot; null when the trigger has none
+        /// </summary>
+        public string GetTriggerMenuText(int index)
+        {
+            if (Triggers == null || index < 0 || index >= Triggers.Count) return null;
+            string text = Triggers[index]?.GetParameter<string>("MenuItemText");
+            return string.IsNullOrWhiteSpace(text) ? null : Translate(TriggerMenuTextPath(index), text);
+        }
+
+        public override IEnumerable<KeyValuePair<string, string>> GetTranslatableTexts()
+        {
+            foreach (var text in base.GetTranslatableTexts())
+            {
+                yield return text;
+            }
+            for (int i = 0; i < (Triggers?.Count ?? 0); i++)
+            {
+                var trigger = Triggers[i];
+                string menuText = trigger?.GetParameter<string>("MenuItemText");
+                if (!string.IsNullOrWhiteSpace(menuText) &&
+                    (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase)))
+                {
+                    yield return new KeyValuePair<string, string>(TriggerMenuTextPath(i), menuText);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Keeps the translations of the trigger menu texts with their triggers when the trigger at the index is removed
+        /// </summary>
+        public void RemoveTriggerTranslations(int index)
+        {
+            if (Translations == null) return;
+            foreach (var texts in Translations.Values.Where(t => t != null))
+            {
+                texts.Remove(TriggerMenuTextPath(index));
+                for (int i = index + 1; i <= (Triggers?.Count ?? 0) + 1; i++)
+                {
+                    if (texts.TryGetValue(TriggerMenuTextPath(i), out var text))
+                    {
+                        texts.Remove(TriggerMenuTextPath(i));
+                        texts[TriggerMenuTextPath(i - 1)] = text;
+                    }
+                }
+            }
+            // A language without texts is an error
+            foreach (var language in Translations.Where(t => t.Value == null || t.Value.Count == 0).Select(t => t.Key).ToList())
+            {
+                Translations.Remove(language);
+            }
+            if (Translations.Count == 0)
+            {
+                Translations = null;
+            }
+        }
+
         public CaptureRecipe AddTrigger(TriggerConfig trigger)
         {
             if (trigger != null)

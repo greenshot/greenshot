@@ -83,6 +83,27 @@ For example:
 ]
 ```
 
+### Hotkeys from the settings, and `when`
+
+A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
+see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
+recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
+
+A trigger's optional `when` is an expression; the trigger is only registered while it is true. It is checked when the
+triggers are registered (at the start, and when the settings or the options change), not each time the trigger fires.
+The window hotkey uses it to start either the window capture or the active window capture:
+
+```json
+"triggers": [
+  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+]
+```
+
+Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
+general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
+button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine
@@ -226,6 +247,32 @@ The approval window shows the authors with the license ("Jane Doe (MIT)") and th
 are part of the approved content, so a change of author shows up in the changes of an update.
 
 What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file.
+
+### Translations (`translations`)
+The texts of a recipe or an automatic step are written in one language, usually English. `translations` adds them in
+other languages, in the file itself, so they travel with it:
+
+```json
+"name": "Capture to my folder",
+"description": "Saves the capture into one folder",
+"options": [ { "key": "folder", "type": "DirectoryPath", "label": "Folder" } ],
+"translations": {
+  "de-DE": { "name": "In meinen Ordner aufnehmen", "description": "Speichert die Aufnahme in einem Ordner", "options.folder.label": "Ordner" },
+  "fr": { "name": "Capturer dans mon dossier" }
+}
+```
+
+- The keys are languages: `de` for every German, `de-DE` for one. Greenshot takes the text of its own language
+  (`de-DE`), else of the language alone (`de`), else the text of the file.
+- The texts are named by their place: `name`, `description`, `options.{key}.label`, `options.{key}.description`,
+  `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
+  the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
+  only the texts it has.
+- A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
+- A menu entry without its own `MenuItemText` shows the translated name.
+- The recipe editor has a *Translations* box on the Recipe tab: add a language, then type the texts next to the texts of
+  the file. Removing a trigger there moves the translations of the menu texts of the triggers after it.
+- The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---
 
@@ -571,7 +618,7 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 ```
 
 - **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
-  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings:
+  and an optional `label`), `Color` (`#RRGGBB` or `#AARRGGBB`), `Hotkey` and `DirectoryPath` (see below). Only `Boolean` and `Enum` can be in the quick settings:
   they appear in the tray menu's quick settings under "Automatic steps", a switch as a checked item and a choice as a
   submenu, at most six of them; "More…" opens Settings > Recipes.
 - **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
@@ -582,6 +629,15 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 - **Checks**: options are checked when the recipe loads (valid keys and types, defaults which fit, no undeclared
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
+- **Hotkey**: a hotkey like `"Ctrl + Shift + D"`, empty for none. A `Hotkey` trigger takes it with
+  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
+  of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
+  set at that moment.
+- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+  Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
+  `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
+  folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step
+  with an empty `SaveDirectory` uses Greenshot's output folder.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
   `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
@@ -694,7 +750,9 @@ the recipe manager lists automatic steps as a group of their own. Greenshot Ligh
 ## 6. Complete Recipe Examples
 
 ### Example 1: Region Capture with Blue Border
-Interactive region capture that adds a 2px blue border and opens the editor:
+Interactive region capture that adds a 2px blue border and opens the editor. A `Source` step with `SourceType` `Region`
+only captures the screen; the user selects the region in the `InteractiveSelection` step after it. Without that step the
+whole screen goes on, so the validator (and the recipe editor's status line) warns about it.
 
 ```json
 {
@@ -946,6 +1004,11 @@ Evaluates captured screenshot dimensions to route large screen captures through 
       "parameters": { "SourceType": "Region" }
     },
     {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": { "SelectionMode": "Region" }
+    },
+    {
       "id": "decide_size",
       "stepType": "Conditional",
       "parameters": {
@@ -969,7 +1032,8 @@ Evaluates captured screenshot dimensions to route large screen captures through 
   "flow": {
     "startNodes": [ "source" ],
     "transitions": [
-      { "from": "source", "to": "decide_size" },
+      { "from": "source", "to": "select" },
+      { "from": "select", "to": "decide_size" },
       { "from": "decide_size", "branch": "Large", "to": "large_editor" },
       { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
     ]

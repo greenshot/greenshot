@@ -85,6 +85,7 @@ namespace Greenshot.Settings.ViewModels
             
             // The options of the recipes (Greenshot Light: those of the built-in recipes)
             InitializeRecipeOptions();
+            InitializeHotkeys();
 
 #if !GREENSHOT_LIGHT
             // Plugins and AI tools: Greenshot Light has neither
