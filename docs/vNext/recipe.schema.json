@@ -71,7 +71,7 @@
       "additionalProperties": {
         "type": "object",
         "minProperties": 1,
-        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+))$" },
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText)$" },
         "additionalProperties": { "type": "string", "minLength": 1 }
       }
     },

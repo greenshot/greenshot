@@ -19,8 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -98,13 +102,79 @@ namespace Greenshot.Tests.Recipes
         public void Validator_ChecksLanguagesAndTexts(string language, string path, string text, bool error)
         {
             var recipe = RecipeSerializer.Deserialize(RecipeJson);
-            recipe.Translations = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>>
+            recipe.Translations = new Dictionary<string, Dictionary<string, string>>
             {
-                [language] = new System.Collections.Generic.Dictionary<string, string> { [path] = text }
+                [language] = new Dictionary<string, string> { [path] = text }
             };
 
             var result = RecipeValidator.Validate(recipe);
             Assert.Equal(error, result.Errors.Any(e => e.StartsWith("Translations")));
+        }
+
+        [Fact]
+        public void TriggerMenuText_IsTranslatedByItsPlace_AndMovesWhenATriggerIsRemoved()
+        {
+            var recipe = RecipeSerializer.Deserialize(RecipeJson);
+            recipe.AddTrigger(TriggerConfig.CreateHotkey("Ctrl + Shift + T"));
+            recipe.AddTrigger(TriggerConfig.CreateContextMenu("My folder"));
+            recipe.Translations["de"]["triggers.1.menuItemText"] = "Mein Ordner";
+
+            Assert.True(RecipeValidator.Validate(recipe).IsValid, string.Join("; ", RecipeValidator.Validate(recipe).Errors));
+            Assert.Equal("Mein Ordner", recipe.Translate(CaptureRecipe.TriggerMenuTextPath(1), "My folder", "de-DE"));
+            // The hotkey has no menu text to translate
+            Assert.DoesNotContain(recipe.GetTranslatableTexts(), t => t.Key == CaptureRecipe.TriggerMenuTextPath(0));
+
+            recipe.RemoveTriggerTranslations(0);
+            recipe.Triggers.RemoveAt(0);
+            Assert.Equal("Mein Ordner", recipe.Translations["de"][CaptureRecipe.TriggerMenuTextPath(0)]);
+            Assert.True(RecipeValidator.Validate(recipe).IsValid, string.Join("; ", RecipeValidator.Validate(recipe).Errors));
+        }
+
+        [Fact]
+        public void Editor_AddsALanguage_AndWritesTheTranslations()
+        {
+            var editor = new RecipeEditorViewModel();
+            editor.ActiveRecipe = RecipeSerializer.Deserialize(RecipeJson);
+            Assert.Equal(new[] { "de", "de-AT" }, editor.TranslationLanguages);
+
+            editor.NewTranslationLanguage = "German";
+            editor.AddTranslationLanguage();
+            Assert.DoesNotContain("German", editor.TranslationLanguages);
+
+            editor.NewTranslationLanguage = "fr";
+            editor.AddTranslationLanguage();
+            Assert.Equal("fr", editor.SelectedTranslationLanguage);
+            var name = editor.TranslationRows.Single(r => r.Path == FlowDefinition.TranslationName);
+            Assert.Equal("Capture to my folder", name.Original);
+            name.Text = "Capturer dans mon dossier";
+            Assert.Equal("Capturer dans mon dossier", editor.ActiveRecipe.Translations["fr"][FlowDefinition.TranslationName]);
+
+            // Without texts the language isn't written
+            name.Text = "";
+            Assert.False(editor.ActiveRecipe.Translations.ContainsKey("fr"));
+        }
+
+        [Fact]
+        public void Editor_KeepsAuthorsAndTranslationsOfAnAutomaticStep()
+        {
+            var extension = new RecipeExtension("ext_translation_test", "Frame")
+            {
+                Authors = new List<RecipeAuthor> { new RecipeAuthor { Name = "Jane Doe" } },
+                Copyright = "Copyright (c) 2026 Jane Doe",
+                License = "MIT",
+                Translations = new Dictionary<string, Dictionary<string, string>> { ["de"] = new Dictionary<string, string> { ["name"] = "Rahmen" } }
+            };
+            extension.Nodes.Add(RecipeStepConfig.CreateFeedback("feedback"));
+            var editor = new RecipeEditorViewModel();
+            editor.OpenExtension(extension);
+
+            var built = (RecipeExtension)typeof(RecipeEditorViewModel).GetMethod("BuildExtension", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(editor, new object[] { false });
+
+            Assert.Equal("Jane Doe", Assert.Single(built.Authors).Name);
+            Assert.Equal("Copyright (c) 2026 Jane Doe", built.Copyright);
+            Assert.Equal("MIT", built.License);
+            Assert.Equal("Rahmen", built.Translations["de"]["name"]);
         }
     }
 }

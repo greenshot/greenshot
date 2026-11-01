@@ -2322,6 +2322,36 @@ namespace Greenshot.Plugin.RecipeEditor
         string HintOptions { get; }
 
         /// <summary>
+        /// TRANSLATIONS
+        /// </summary>
+        string HeaderTranslations { get; }
+
+        /// <summary>
+        /// The texts of this recipe in other languages, saved in the file. ...
+        /// </summary>
+        string HintTranslations { get; }
+
+        /// <summary>
+        /// + Language
+        /// </summary>
+        string BtnAddLanguage { get; }
+
+        /// <summary>
+        /// Remove this language and its texts
+        /// </summary>
+        string TipRemoveLanguage { get; }
+
+        /// <summary>
+        /// Language, e.g. de or de-DE
+        /// </summary>
+        string TranslationLanguage { get; }
+
+        /// <summary>
+        /// '{0}' is not a language like "de" or "de-DE".
+        /// </summary>
+        string StatusTranslationLanguageInvalid { get; }
+
+        /// <summary>
         /// Key
         /// </summary>
         string OptionKey { get; }

@@ -148,7 +148,7 @@ namespace Greenshot.Recipes.Triggers
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.DisplayName;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
@@ -156,7 +156,7 @@ namespace Greenshot.Recipes.Triggers
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                         {
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.DisplayName;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
