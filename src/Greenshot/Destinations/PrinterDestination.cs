@@ -36,18 +36,27 @@ using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
 {
+    public enum PrintInteractionMode
+    {
+        Automatic,
+        SilentDefaultPrinter,
+        QuickPrintDialog,
+        FullPrinterDialog
+    }
+
     /// <summary>
     /// What to print: shown (print dialog, print options) and printed by the view registered for it, on the UI thread.
     /// </summary>
     public sealed class PrintRequest : IDialogViewModel<bool>
     {
-        public PrintRequest(Image image, ICaptureDetails captureDetails, string printerName, PrintOptions printOptions, bool showPrintDialog)
+        public PrintRequest(Image image, ICaptureDetails captureDetails, string printerName, PrintOptions printOptions, PrintInteractionMode interactionMode, bool manuallyInitiated)
         {
             Image = image;
             CaptureDetails = captureDetails;
             PrinterName = printerName;
             PrintOptions = printOptions;
-            ShowPrintDialog = showPrintDialog;
+            InteractionMode = interactionMode;
+            ManuallyInitiated = manuallyInitiated;
         }
 
         /// <summary>
@@ -64,7 +73,9 @@ namespace Greenshot.Destinations
 
         public PrintOptions PrintOptions { get; }
 
-        public bool ShowPrintDialog { get; }
+        public PrintInteractionMode InteractionMode { get; }
+
+        public bool ManuallyInitiated { get; }
 
         /// <summary>
         /// The view: prints on the UI thread, returns true when printed.
@@ -73,17 +84,31 @@ namespace Greenshot.Destinations
         {
             using var printHelper = new PrintHelper(request.Image, request.CaptureDetails, request.PrintOptions);
             PrinterSettings printerSettings;
-            if (!string.IsNullOrEmpty(request.PrinterName))
+            switch (request.InteractionMode)
             {
-                printerSettings = printHelper.PrintTo(request.PrinterName);
-            }
-            else if (!request.ShowPrintDialog)
-            {
-                printerSettings = printHelper.PrintTo(new PrinterSettings().PrinterName);
-            }
-            else
-            {
-                printerSettings = printHelper.PrintWithDialog();
+                case PrintInteractionMode.FullPrinterDialog:
+                    printerSettings = printHelper.PrintWithDialog();
+                    break;
+                case PrintInteractionMode.QuickPrintDialog:
+                    printerSettings = printHelper.PrintTo(string.IsNullOrEmpty(request.PrinterName) ? new PrinterSettings().PrinterName : request.PrinterName);
+                    break;
+                case PrintInteractionMode.SilentDefaultPrinter:
+                    printerSettings = printHelper.PrintTo(string.IsNullOrEmpty(request.PrinterName) ? new PrinterSettings().PrinterName : request.PrinterName);
+                    break;
+                default:
+                    if (!string.IsNullOrEmpty(request.PrinterName))
+                    {
+                        printerSettings = printHelper.PrintTo(request.PrinterName);
+                    }
+                    else if (!request.ManuallyInitiated)
+                    {
+                        printerSettings = printHelper.PrintTo(new PrinterSettings().PrinterName);
+                    }
+                    else
+                    {
+                        printerSettings = printHelper.PrintWithDialog();
+                    }
+                    break;
             }
 
             return printerSettings != null;
@@ -97,15 +122,17 @@ namespace Greenshot.Destinations
     {
         private readonly string _printerName;
         private readonly PrintOptions _printOptions;
+        private readonly PrintInteractionMode _interactionMode;
 
         public PrinterDestination()
         {
         }
 
-        public PrinterDestination(string printerName, PrintOptions printOptions = null)
+        public PrinterDestination(string printerName, PrintOptions printOptions = null, PrintInteractionMode interactionMode = PrintInteractionMode.Automatic)
         {
             _printerName = printerName;
             _printOptions = printOptions;
+            _interactionMode = interactionMode;
         }
 
         public override string Designation => nameof(WellKnownDestinations.Printer);
@@ -149,7 +176,7 @@ namespace Greenshot.Destinations
             // The print applies its own effects (after the print options were chosen): no color reduction here
             var settings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true };
             using var lease = await request.Source.RenderAsync(settings, cancellationToken).ConfigureAwait(false);
-            var printRequest = new PrintRequest(lease.Image, request.Metadata, _printerName, _printOptions, request.ManuallyInitiated);
+            var printRequest = new PrintRequest(lease.Image, request.Metadata, _printerName, _printOptions, _interactionMode, request.ManuallyInitiated);
             bool printed = await request.Ui.ShowDialogAsync(printRequest, cancellationToken).ConfigureAwait(false);
             return printed ? ExportResult.Succeeded() : ExportResult.Declined;
         }

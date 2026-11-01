@@ -51,7 +51,8 @@ namespace Greenshot.Recipes.Pipeline
         public async Task DispatchAsync(
             CaptureFlowContext context,
             IEnumerable<IDestination> destinations,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            bool manuallyInitiated = false)
         {
             var destinationList = destinations?.Where(d => d != null).ToList() ?? new List<IDestination>();
             if (destinationList.Count == 0)
@@ -72,11 +73,11 @@ namespace Greenshot.Recipes.Pipeline
             }
 
             // Every export is added to the export log of the flow (see ExportAsync), the Notification step after it shows them
-            await ExportAllAsync(context, destinationList, captureDetails, cancellationToken).ConfigureAwait(false);
+            await ExportAllAsync(context, destinationList, captureDetails, cancellationToken, manuallyInitiated).ConfigureAwait(false);
         }
 
         private static async Task ExportAllAsync(CaptureFlowContext context, List<IDestination> destinationList, ICaptureDetails captureDetails,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken, bool manuallyInitiated)
         {
             var payload = context.Payload;
             var userInteraction = context.UserInteraction;
@@ -152,7 +153,7 @@ namespace Greenshot.Recipes.Pipeline
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, false, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, manuallyInitiated, cancellationToken).ConfigureAwait(false);
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
