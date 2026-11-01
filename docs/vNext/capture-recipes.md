@@ -208,6 +208,25 @@ When recipes rely on functionality provided by external plugins or extensions (s
 
 When Greenshot loads or validates recipes (or when opened in the Visual Recipe Editor), `RecipeValidator` checks if every declared requirement is installed and enabled. If a required extension is missing, Greenshot prevents execution and presents the user with a clear, actionable diagnostic message specifying what is missing and where to acquire it.
 
+### Author and license (`authors`, `copyright`, `license`)
+A recipe or an automatic step can say who wrote it and under which license it may be shared. These keys are in the file
+itself, so the credit and the license notice stay with every copy:
+
+```json
+"authors": [ { "name": "Jane Doe", "github": "janedoe" } ],
+"copyright": "Copyright (c) 2026 Jane Doe",
+"license": "MIT"
+```
+
+- **`authors`** *(optional)*: each with a `name` *(required)* and the GitHub login `github` *(optional)*.
+- **`copyright`** *(optional)*: the copyright notice, which licenses like MIT require to stay with every copy.
+- **`license`** *(optional)*: an SPDX identifier, e.g. `MIT`.
+
+The approval window shows the authors with the license ("Jane Doe (MIT)") and the copyright notice as its tooltip. They
+are part of the approved content, so a change of author shows up in the changes of an update.
+
+What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file.
+
 ---
 
 ### Text and codes on the capture

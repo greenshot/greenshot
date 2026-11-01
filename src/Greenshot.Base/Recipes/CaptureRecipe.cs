@@ -49,19 +49,23 @@ namespace Greenshot.Base.Recipes
         public bool ShowInContextMenu { get; set; } = true;
 
         /// <summary>
-        /// Indicates if this recipe has been overridden by an external configuration file.
+        /// Indicates if this recipe has been overridden by an external configuration file. Set by Greenshot, never read from a file.
         /// </summary>
+        [JsonIgnore]
         public bool IsOverridden { get; set; }
 
         /// <summary>
         /// Whether this recipe is currently activated / enabled.
         /// Disabled recipes do not register active triggers and cannot be triggered from menus or shortcuts.
+        /// Set by Greenshot from the user's settings, never read from a file.
         /// </summary>
+        [JsonIgnore]
         public bool IsEnabled { get; set; } = true;
 
         /// <summary>
-        /// The file path this recipe was loaded from, if loaded from external JSON.
+        /// The file path this recipe was loaded from, if loaded from external JSON. Never written to the file.
         /// </summary>
+        [JsonIgnore]
         public string FilePath { get; set; }
 
         /// <summary>

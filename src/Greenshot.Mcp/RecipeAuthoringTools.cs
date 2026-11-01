@@ -39,18 +39,8 @@ namespace Greenshot.Mcp
     [McpServerToolType]
     public sealed class RecipeAuthoringTools
     {
-        /// <summary>
-        /// The example recipes embedded with the schema
-        /// </summary>
-        internal static readonly string[] ExampleNames =
-        {
-            "region_blue_border.gsrecipe.json",
-            "window_regex_redact.gsrecipe.json",
-            "cli_ocr_extract.gsrecipe.json"
-        };
-
         [McpServerTool(Name = "get_recipe_schema", Title = "Get the recipe schema", ReadOnly = true, Idempotent = true, OpenWorld = false)]
-        [Description("Returns the JSON schema of Greenshot recipes and some example recipes. A recipe is a capture workflow: triggers " +
+        [Description("Returns the JSON schema of Greenshot recipes. A recipe is a capture workflow: triggers " +
                      "(hotkey, menu entry, command line, AI tool, ...) start a flow of steps (capture source, selection, effects, OCR, " +
                      "destinations such as file, clipboard, editor or an upload). Use it with get_recipe_catalog to write a recipe the user asked for.")]
         public static CallToolResult GetRecipeSchema()
@@ -58,12 +48,10 @@ namespace Greenshot.Mcp
             var builder = new StringBuilder();
             builder.AppendLine("# Greenshot recipe JSON schema");
             builder.AppendLine(ReadResource("recipe.schema.json"));
-            foreach (var name in ExampleNames)
-            {
-                builder.AppendLine();
-                builder.AppendLine($"# Example: {name}");
-                builder.AppendLine(ReadResource(name));
-            }
+            builder.AppendLine();
+            builder.AppendLine("# Examples");
+            builder.AppendLine("Greenshot's own recipes and automatic steps are the examples: get_recipe_catalog lists them, and with " +
+                               "recipe_id it returns the JSON of one of them, always in the format of this Greenshot.");
             return new CallToolResult { Content = [new TextContentBlock { Text = builder.ToString() }] };
         }
 

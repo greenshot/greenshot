@@ -207,6 +207,16 @@ namespace Greenshot.Base.Recipes
                 result.AddError($"{what} 'name' is required and cannot be empty.");
             }
 
+            if (definition.Authors != null && definition.Authors.Any(a => string.IsNullOrWhiteSpace(a?.Name)))
+            {
+                result.AddError($"Every author of the {what.ToLowerInvariant()} needs a 'name'.");
+            }
+
+            if (definition.License != null && string.IsNullOrWhiteSpace(definition.License))
+            {
+                result.AddError($"The {what.ToLowerInvariant()} 'license' is empty; use an SPDX identifier like \"MIT\" or leave it out.");
+            }
+
             // Validate Requires (extension dependencies)
             if (definition.Requires != null)
             {

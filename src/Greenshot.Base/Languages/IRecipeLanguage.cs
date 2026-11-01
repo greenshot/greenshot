@@ -772,6 +772,11 @@ namespace Greenshot.Base.Languages
         string ApprovalRecipeId { get; }
 
         /// <summary>
+        /// Author:
+        /// </summary>
+        string ApprovalAuthor { get; }
+
+        /// <summary>
         /// File Path:
         /// </summary>
         string ApprovalFilePath { get; }

@@ -312,6 +312,15 @@
                                     <TextBlock Grid.Column="1" Text="{Binding RecipeId}" Foreground="{Binding TextPrimaryBrush}"/>
                                 </Grid>
 
+                                <Grid Margin="0,2,0,2" Visibility="{Binding HasRecipeAuthor, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{wpf:Text Recipe.ApprovalAuthor}" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding RecipeAuthor}" ToolTip="{Binding RecipeCopyright}" TextWrapping="Wrap" Foreground="{Binding TextPrimaryBrush}"/>
+                                </Grid>
+
                                 <Grid Margin="0,2,0,2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="75"/>
