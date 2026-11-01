@@ -137,12 +137,10 @@ namespace Greenshot.Tests.Recipes
             editor.ActiveRecipe = RecipeSerializer.Deserialize(RecipeJson);
             Assert.Equal(new[] { "de", "de-AT" }, editor.TranslationLanguages);
 
-            editor.NewTranslationLanguage = "German";
-            editor.AddTranslationLanguage();
+            editor.AddTranslationLanguage("German");
             Assert.DoesNotContain("German", editor.TranslationLanguages);
 
-            editor.NewTranslationLanguage = "fr";
-            editor.AddTranslationLanguage();
+            editor.AddTranslationLanguage("fr");
             Assert.Equal("fr", editor.SelectedTranslationLanguage);
             var name = editor.TranslationRows.Single(r => r.Path == FlowDefinition.TranslationName);
             Assert.Equal("Capture to my folder", name.Original);
