@@ -225,8 +225,9 @@ itself, so the credit and the license notice stay with every copy:
 The approval window shows the authors with the license ("Jane Doe (MIT)") and the copyright notice as its tooltip. They
 are part of the approved content, so a change of author shows up in the changes of an update.
 
-What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file;
-the keys `isBuiltIn`, `isOverridden`, `isEnabled` and `filePath`, which earlier betas wrote, are skipped when read.
+What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file.
+Earlier betas wrote it as `isBuiltIn`, `isOverridden`, `isEnabled` and `filePath`; a file with these keys isn't read
+(the error names them), remove those lines.
 
 ---
 

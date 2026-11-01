@@ -239,10 +239,10 @@ namespace Greenshot.Tests.Recipes
         }
 
         /// <summary>
-        /// Greenshot sets what it knows about a loaded recipe itself: never written, and skipped in files an earlier beta saved
+        /// Greenshot sets what it knows about a loaded recipe itself: never written, and a file which has it is rejected
         /// </summary>
         [Fact]
-        public void Recipe_RuntimeProperties_AreNotWrittenAndSkippedWhenRead()
+        public void Recipe_RuntimeProperties_AreNotWrittenAndRejectedWhenRead()
         {
             var recipe = new CaptureRecipe("runtime", "Runtime")
             {
@@ -258,21 +258,16 @@ namespace Greenshot.Tests.Recipes
             Assert.DoesNotContain("isEnabled", written);
             Assert.DoesNotContain("filePath", written);
             Assert.DoesNotContain("someone", written);
-
-            const string earlierBeta = @"{ ""id"": ""old"", ""name"": ""Old"", ""isBuiltIn"": true, ""isOverridden"": true, ""isEnabled"": false,
-                ""filePath"": ""C:\\elsewhere.json"", ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ], ""flow"": { ""startNodes"": [ ""a"" ] } }";
-            var read = RecipeSerializer.Deserialize(earlierBeta, validate: false);
-            Assert.False(read.IsBuiltIn);
-            Assert.False(read.IsOverridden);
-            Assert.True(read.IsEnabled);
-            Assert.Null(read.FilePath);
-            Assert.False(Assert.Single(RecipeSerializer.DeserializeList("[" + earlierBeta + "]", validate: false)).IsBuiltIn);
-
-            var extension = RecipeSerializer.DeserializeExtension(@"{ ""kind"": ""extension"", ""id"": ""ext_old"", ""name"": ""Old"", ""isBuiltIn"": true,
-                ""extends"": { ""recipes"": [ ""*"" ], ""slot"": ""BeforeExport"" }, ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ],
-                ""flow"": { ""startNodes"": [ ""a"" ] } }", validate: false);
-            Assert.False(extension.IsBuiltIn);
             Assert.DoesNotContain("isBuiltIn", RecipeSerializer.Serialize(new RecipeExtension { Id = "ext_new", Name = "New", IsBuiltIn = true }));
+
+            foreach (var property in new[] { @"""isBuiltIn"": true", @"""isOverridden"": true", @"""isEnabled"": false", @"""filePath"": ""C:\\elsewhere.json""" })
+            {
+                string json = @"{ ""id"": ""old"", ""name"": ""Old"", " + property + @",
+                    ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ], ""flow"": { ""startNodes"": [ ""a"" ] } }";
+                var error = Assert.Throws<JsonException>(() => RecipeSerializer.Deserialize(json, validate: false));
+                Assert.Contains("earlier Greenshot beta", error.Message);
+                Assert.Throws<JsonException>(() => RecipeSerializer.DeserializeList("[" + json + "]", validate: false));
+            }
         }
     }
 }
