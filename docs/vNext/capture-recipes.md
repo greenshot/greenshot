@@ -724,7 +724,9 @@ the recipe manager lists automatic steps as a group of their own. Greenshot Ligh
 ## 6. Complete Recipe Examples
 
 ### Example 1: Region Capture with Blue Border
-Interactive region capture that adds a 2px blue border and opens the editor:
+Interactive region capture that adds a 2px blue border and opens the editor. A `Source` step with `SourceType` `Region`
+only captures the screen; the user selects the region in the `InteractiveSelection` step after it. Without that step the
+whole screen goes on, so the validator (and the recipe editor's status line) warns about it.
 
 ```json
 {
@@ -976,6 +978,11 @@ Evaluates captured screenshot dimensions to route large screen captures through 
       "parameters": { "SourceType": "Region" }
     },
     {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": { "SelectionMode": "Region" }
+    },
+    {
       "id": "decide_size",
       "stepType": "Conditional",
       "parameters": {
@@ -999,7 +1006,8 @@ Evaluates captured screenshot dimensions to route large screen captures through 
   "flow": {
     "startNodes": [ "source" ],
     "transitions": [
-      { "from": "source", "to": "decide_size" },
+      { "from": "source", "to": "select" },
+      { "from": "select", "to": "decide_size" },
       { "from": "decide_size", "branch": "Large", "to": "large_editor" },
       { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
     ]

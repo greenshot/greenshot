@@ -158,6 +158,7 @@ namespace Greenshot.Base.Recipes
                 var node = recipe.Nodes[i];
                 ValidateNode(node, i, nodeIds, result);
             }
+            WarnAboutRegionWithoutSelection(recipe, result);
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
@@ -178,6 +179,25 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Version, id, name and requirements, the same for recipes and extensions
         /// </summary>
+        /// <summary>
+        /// A Region source only captures the screen, the user selects the region in the InteractiveSelection step after it.
+        /// Without that step the whole screen goes on, which is easy to miss when writing a recipe. AI tools give the region themselves.
+        /// </summary>
+        private static void WarnAboutRegionWithoutSelection(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            if (recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) ||
+                recipe.Triggers?.Any(trigger => string.Equals(trigger?.TriggerType, Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return;
+            }
+            foreach (var node in recipe.Nodes)
+            {
+                if (node == null || !string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.Equals(node.GetParameter("SourceType", nameof(CaptureSourceType.Region)), nameof(CaptureSourceType.Region), StringComparison.OrdinalIgnoreCase)) continue;
+                result.AddWarning($"Node '{node.Id}' [Source]: SourceType 'Region' captures the whole screen, the region is selected by an InteractiveSelection step (SelectionMode 'Region') after it, which this recipe doesn't have.");
+            }
+        }
+
         private static void ValidateHeader(FlowDefinition definition, string what, RecipeValidationResult result)
         {
             if (string.IsNullOrWhiteSpace(definition.Version))

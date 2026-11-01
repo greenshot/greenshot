@@ -144,7 +144,15 @@
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.')) And '$(GreenshotDeliverPlugin)' != 'false'">
+  <!--
+    Plugins which aren't delivered yet: only Debug builds put them into Plugins, so installer, portable and release leave them out.
+    Used by the copy below and by Greenshot.csproj, which collects the plugins again after its own build.
+  -->
+  <PropertyGroup>
+    <GreenshotUndeliveredPlugins Condition="'$(GreenshotBaseConfiguration)' != 'Debug'">Greenshot.Plugin.CustomUploader</GreenshotUndeliveredPlugins>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.')) And '$([System.String]::Copy(&quot;;$(GreenshotUndeliveredPlugins);&quot;).Contains(&quot;;$(MSBuildProjectName);&quot;))' != 'true'">
     <Exec Command="
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;

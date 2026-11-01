@@ -1600,6 +1600,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Errors.FirstOrDefault());
             }
+            else if (valResult.Warnings.Count > 0)
+            {
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Warnings[0]);
+            }
             else
             {
                 StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusDagValid;
@@ -1713,11 +1717,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Texts.Get<IRecipeEditorLanguage>().NewRecipeName,
                 Texts.Get<IRecipeEditorLanguage>().NewRecipeDescription)
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"));
 
             recipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "feedback")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "feedback")
                 .AddTransition("feedback", "export");
             // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
             RecipeStepConfig.AddStandardSlots(recipe, "export", "export");

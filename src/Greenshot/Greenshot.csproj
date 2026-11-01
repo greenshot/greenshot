@@ -158,4 +158,24 @@
       copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml" &gt;nul
     </PostBuildEvent>
   </PropertyGroup>
+
+  <!--
+    The plugins copy themselves into Plugins\<name> when they are built (PostBuild in Directory.Build.props). A Rebuild cleans and builds
+    project by project, so a clean of this output folder after a plugin was built loses that copy, and the plugin doesn't copy itself
+    again. Greenshot is built after all plugins (solution dependencies), so it copies them once more, the same way: the plugin and its
+    dlls into Plugins\<name> without the dlls Greenshot already has, and its language files into Languages.
+  -->
+  <Target Name="CollectPlugins" AfterTargets="Build" Condition="'$(GreenshotEdition)' == 'Full' And '$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <_GreenshotPluginProject Include="..\Greenshot.Plugin.*\Greenshot.Plugin.*.csproj" />
+      <_GreenshotPluginProject Remove="@(_GreenshotPluginProject)" Condition="'$([System.String]::Copy(&quot;;$(GreenshotUndeliveredPlugins);&quot;).Contains(&quot;;%(Filename);&quot;))' == 'true'" />
+      <_GreenshotPluginFile Include="%(_GreenshotPluginProject.RootDir)%(_GreenshotPluginProject.Directory)bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\%(_GreenshotPluginProject.Filename).*;%(_GreenshotPluginProject.RootDir)%(_GreenshotPluginProject.Directory)bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\*.dll">
+        <Plugin>%(_GreenshotPluginProject.Filename)</Plugin>
+      </_GreenshotPluginFile>
+      <_GreenshotPluginFile Remove="@(_GreenshotPluginFile)" Condition="Exists('$(TargetDir)%(Filename)%(Extension)')" />
+      <_GreenshotPluginLanguageFile Include="%(_GreenshotPluginProject.RootDir)%(_GreenshotPluginProject.Directory)bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Languages\*.ini" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_GreenshotPluginFile)" DestinationFolder="$(TargetDir)Plugins\%(Plugin)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_GreenshotPluginLanguageFile)" DestinationFolder="$(TargetDir)Languages" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
