@@ -56,13 +56,12 @@ public static class DropboxUtils
     {
         var oauth2Settings = new OAuth2Settings
         {
-            AuthUrlPattern = "https://www.dropbox.com/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
+            AuthorizeUrl = "https://www.dropbox.com/oauth2/authorize",
+            AuthorizeParameters = { { "token_access_type", "offline" } },
             TokenUrl = "https://api.dropbox.com/oauth2/token",
-            RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
             CloudServiceName = "Dropbox",
             ClientId = DropBoxCredentials.CONSUMER_KEY,
             ClientSecret = DropBoxCredentials.CONSUMER_SECRET,
-            AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
             // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
             RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken) ? DropboxConfig.RefreshToken : DropboxConfig.RefreshToken.Decrypt(),
             AccessToken = DropboxConfig.AccessToken,

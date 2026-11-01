@@ -21,53 +21,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
+using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Core.OAuth
 {
     /// <summary>
-    /// OAuth 2.0 verification code receiver that runs a local server on a free port
-    /// and waits for a call with the authorization verification code.
+    /// Receives the redirect of an OAuth 2 authorization on a loopback address (RFC 8252 section 7.3).
+    /// Only a GET on the redirect path with the state of this authorization counts, everything else gets an error page and is ignored.
     /// </summary>
-    public class LocalServerCodeReceiver
+    public sealed class LocalServerCodeReceiver : IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
+        private const string RedirectPath = "/authorize/";
+        private const string RedirectUrlFormat = "http://localhost:{0}" + RedirectPath;
+        private static readonly string[] AnswerKeys = { "code", "error", "error_description" };
 
-        /// <summary>
-        /// The call back format. Expects one port parameter.
-        /// Default: http://localhost:{0}/authorize/
-        /// </summary>
-        public string LoopbackCallbackUrl { get; set; } = "http://localhost:{0}/authorize/";
-
-        /// <summary>
-        /// HTML code to to return the _browser, default it will try to close the _browser / tab, this won't always work.
-        /// You can use CloudServiceName where you want to show the CloudServiceName from your OAuth2 settings
-        /// </summary>
-        public string ClosePageResponse { get; set; } = @"<html>
-<head><title>OAuth 2.0 Authentication CloudServiceName</title></head>
-<body>
-Greenshot received information from CloudServiceName. You can close this browser / tab if it is not closed itself...
-<script type='text/javascript'>
-	window.setTimeout(function() {
-		window.open('', '_self', ''); 
-		window.close(); 
-	}, 1000);
-	if (window.opener) {
-		window.opener.checkToken();
-	}
-</script>
-</body>
-</html>";
-
-        private string _redirectUri;
+        private HttpListener _listener;
 
         /// <summary>
         /// How long to wait for the browser to redirect back, after that the authorization counts as declined.
@@ -75,89 +49,146 @@ Greenshot received information from CloudServiceName. You can close this browser
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(4);
 
         /// <summary>
-        /// The URL to redirect to
+        /// Start listening on the first port that is free
         /// </summary>
-        protected string RedirectUri
+        /// <param name="ports">the ports to try in this order</param>
+        /// <returns>the redirect URL to send to the service</returns>
+        public string Start(IList<int> ports)
         {
-            get
+            foreach (int port in ports)
             {
-                if (!string.IsNullOrEmpty(_redirectUri))
+                string redirectUrl = string.Format(RedirectUrlFormat, port);
+                var listener = new HttpListener();
+                listener.Prefixes.Add(redirectUrl);
+                try
                 {
-                    return _redirectUri;
+                    listener.Start();
+                    _listener = listener;
+                    return redirectUrl;
+                }
+                catch (HttpListenerException ex)
+                {
+                    Log.WarnFormat("Port {0} is not available for the sign-in: {1}", port, ex.Message);
+                    listener.Close();
+                }
+            }
+
+            throw new InvalidOperationException($"None of the ports {string.Join(", ", ports)} is available for the sign-in.");
+        }
+
+        /// <summary>
+        /// Wait (without blocking a thread) for the redirect that carries the expected state.
+        /// </summary>
+        /// <param name="expectedState">the state sent with this authorization</param>
+        /// <param name="cloudServiceName">for the page shown in the browser</param>
+        /// <param name="cancellationToken">CancellationToken, stops the waiting</param>
+        /// <returns>code or error (and error_description) of the redirect, empty when nothing came within the timeout</returns>
+        public async Task<IDictionary<string, string>> WaitForRedirectAsync(string expectedState, string cloudServiceName, CancellationToken cancellationToken)
+        {
+            if (_listener == null)
+            {
+                throw new InvalidOperationException("Start the receiver first.");
+            }
+
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(Timeout);
+            while (true)
+            {
+                HttpListenerContext context;
+                try
+                {
+                    context = await GetContextAsync(_listener, timeout.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    Log.WarnFormat("No answer from the browser within {0}", Timeout);
+                    return new Dictionary<string, string>();
                 }
 
-                return _redirectUri = string.Format(LoopbackCallbackUrl, GetRandomUnusedPort());
+                var answer = ReadAnswer(context.Request, expectedState);
+                string page = answer != null
+                    ? $"Greenshot received the answer from {cloudServiceName}. You can close this tab."
+                    : "This is not an answer to a Greenshot sign-in.";
+                try
+                {
+                    await WritePageAsync(context.Response, answer != null ? 200 : 400, page, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is HttpListenerException or IOException)
+                {
+                    // The browser closed the connection, the answer still counts
+                    Log.WarnFormat("Couldn't send the page to the browser: {0}", ex.Message);
+                }
+
+                if (answer != null)
+                {
+                    return answer;
+                }
+
+                Log.Warn("Ignored a request to the sign-in listener that is not the expected redirect");
             }
         }
 
         /// <summary>
-        /// The OAuth code receiver: opens the browser and waits (without blocking a thread) for the redirect.
+        /// The answer of the redirect, null when the request isn't the redirect of this authorization
         /// </summary>
-        /// <param name="oauth2Settings"></param>
-        /// <param name="cancellationToken">CancellationToken, stops the waiting</param>
-        /// <returns>Dictionary with values</returns>
-        public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken cancellationToken)
+        private static IDictionary<string, string> ReadAnswer(HttpListenerRequest request, string expectedState)
         {
-            // Set the redirect URL on the settings
-            oauth2Settings.RedirectUrl = RedirectUri;
-            string cloudServiceName = oauth2Settings.CloudServiceName;
-            var returnValues = new Dictionary<string, string>();
-            using var listener = new HttpListener();
-            listener.Prefixes.Add(oauth2Settings.RedirectUrl);
-            listener.Start();
-            try
+            if (request.HttpMethod != "GET" || request.Url.AbsolutePath != RedirectPath || !FixedTimeEquals(request.QueryString["state"], expectedState))
             {
-                // Get the formatted FormattedAuthUrl
-                string authorizationUrl = oauth2Settings.FormattedAuthUrl;
-                Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
-                using (Process.Start(authorizationUrl))
-                {
-                    // Only started
-                }
-
-                // Wait to get the authorization code response.
-                HttpListenerContext context;
-                try
-                {
-                    context = await GetContextAsync(listener, cancellationToken).WaitAsync(Timeout, cancellationToken).ConfigureAwait(false);
-                }
-                catch (TimeoutException)
-                {
-                    Log.WarnFormat("No response from the browser within {0}", Timeout);
-                    return returnValues;
-                }
-                NameValueCollection nameValueCollection = context.Request.QueryString;
-
-                // Write a "close" response.
-                using (HttpListenerResponse response = context.Response)
-                {
-                    byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", cloudServiceName));
-                    response.ContentLength64 = buffer.Length;
-                    using var stream = response.OutputStream;
-                    await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
-                }
-
-                // Create a new response URL with a dictionary that contains all the response query parameters.
-                foreach (var name in nameValueCollection.AllKeys)
-                {
-                    if (name != null && !returnValues.ContainsKey(name))
-                    {
-                        returnValues.Add(name, nameValueCollection[name]);
-                    }
-                }
-            }
-            finally
-            {
-                listener.Close();
+                return null;
             }
 
-            return returnValues;
+            var answer = new Dictionary<string, string>();
+            foreach (var key in AnswerKeys)
+            {
+                string value = request.QueryString[key];
+                if (value != null)
+                {
+                    answer[key] = value;
+                }
+            }
+
+            return answer;
+        }
+
+        private static async Task WritePageAsync(HttpListenerResponse response, int statusCode, string text, CancellationToken cancellationToken)
+        {
+            using (response)
+            {
+                byte[] buffer = Encoding.UTF8.GetBytes($"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Greenshot</title></head><body><p>{WebUtility.HtmlEncode(text)}</p></body></html>");
+                response.StatusCode = statusCode;
+                response.ContentType = "text/html; charset=utf-8";
+                response.Headers["Cache-Control"] = "no-store";
+                response.Headers["Referrer-Policy"] = "no-referrer";
+                response.ContentLength64 = buffer.Length;
+                using var stream = response.OutputStream;
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Compare without leaking through the time where the first difference is
+        /// </summary>
+        internal static bool FixedTimeEquals(string actual, string expected)
+        {
+            if (actual == null || string.IsNullOrEmpty(expected) || actual.Length != expected.Length)
+            {
+                return false;
+            }
+
+            int difference = 0;
+            for (int i = 0; i < expected.Length; i++)
+            {
+                difference |= actual[i] ^ expected[i];
+            }
+
+            return difference == 0;
         }
 
         /// <summary>
         /// Wait for the next request, cancellation closes the listener.
         /// </summary>
-        internal static async Task<HttpListenerContext> GetContextAsync(HttpListener listener, CancellationToken cancellationToken)
+        private static async Task<HttpListenerContext> GetContextAsync(HttpListener listener, CancellationToken cancellationToken)
         {
             using var registration = cancellationToken.Register(() =>
             {
@@ -180,22 +211,11 @@ Greenshot received information from CloudServiceName. You can close this browser
             }
         }
 
-        /// <summary>
-        /// Returns a random, unused port.
-        /// </summary>
-        /// <returns>port to use</returns>
-        internal static int GetRandomUnusedPort()
+        /// <inheritdoc />
+        public void Dispose()
         {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-            try
-            {
-                listener.Start();
-                return ((IPEndPoint) listener.LocalEndpoint).Port;
-            }
-            finally
-            {
-                listener.Stop();
-            }
+            _listener?.Close();
+            _listener = null;
         }
     }
 }

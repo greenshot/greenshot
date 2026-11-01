@@ -29,18 +29,6 @@ namespace Greenshot.Base.Core.OAuth
     /// </summary>
     public class OAuth2Settings
     {
-        public OAuth2Settings()
-        {
-            AdditionalAttributes = new Dictionary<string, string>();
-            // Create a default state
-            var state = Guid.NewGuid().ToString();
-            // Only store a small part of the GUID
-            State = state.Substring(0, state.IndexOf('-') - 1);
-            AuthorizeMode = OAuth2AuthorizeMode.Unknown;
-        }
-
-        public OAuth2AuthorizeMode AuthorizeMode { get; set; }
-
         /// <summary>
         /// Specify the name of the cloud service, so it can be used in window titles, logs etc
         /// </summary>
@@ -57,21 +45,25 @@ namespace Greenshot.Base.Core.OAuth
         public string ClientSecret { get; set; }
 
         /// <summary>
-        /// The OAuth 2 state, this is something that is passed to the server, is not processed but returned back to the client.
-        /// e.g. a correlation ID
-        /// Default this is filled with a new Guid
+        /// The authorization endpoint of the service, without parameters: client_id, response_type, state, redirect_uri and the PKCE challenge are added
         /// </summary>
-        public string State { get; set; }
+        public string AuthorizeUrl { get; set; }
 
         /// <summary>
-        /// The authorization URL where the values of this class can be "injected"
+        /// Extra parameters for the authorization URL of this service, e.g. token_access_type=offline for Dropbox
         /// </summary>
-        public string AuthUrlPattern { get; set; }
+        public IDictionary<string, string> AuthorizeParameters { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
-        /// Get formatted Auth url (this will call a FormatWith(this) on the AuthUrlPattern
+        /// The loopback ports of the redirect URL http://localhost:{port}/authorize/, tried in this order.
+        /// Every service needs all of them registered as redirect URIs, as not every service accepts any port on a loopback redirect URI.
         /// </summary>
-        public string FormattedAuthUrl => AuthUrlPattern.FormatWith(this);
+        public IList<int> LoopbackPorts { get; set; } = new List<int> { 31251, 31252, 31253, 31254, 31255 };
+
+        /// <summary>
+        /// Send a PKCE challenge (S256, RFC 7636) with the authorization and the verifier with the code, for a service that supports it
+        /// </summary>
+        public bool UsePkce { get; set; } = true;
 
         /// <summary>
         /// The URL to get a Token
@@ -79,8 +71,7 @@ namespace Greenshot.Base.Core.OAuth
         public string TokenUrl { get; set; }
 
         /// <summary>
-        /// This is the redirect URL, in some implementations this is automatically set (LocalServerCodeReceiver)
-        /// In some implementations this could be e.g. urn:ietf:wg:oauth:2.0:oob or urn:ietf:wg:oauth:2.0:oob:auto
+        /// The loopback redirect URL of the running authorization, set by the LocalServerCodeReceiver
         /// </summary>
         public string RedirectUrl { get; set; }
 
@@ -131,7 +122,12 @@ namespace Greenshot.Base.Core.OAuth
         /// <summary>
         /// Put anything in here which is needed for the OAuth 2 implementation of this specific service but isn't generic, e.g. for Google there is a "scope"
         /// </summary>
-        public IDictionary<string, string> AdditionalAttributes { get; set; }
+        public IDictionary<string, string> AdditionalAttributes { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// The PKCE code verifier of the running authorization, never stored
+        /// </summary>
+        public string CodeVerifier { get; set; }
 
         /// <summary>
         /// This contains the code returned from the authorization, but only shortly after it was received.
