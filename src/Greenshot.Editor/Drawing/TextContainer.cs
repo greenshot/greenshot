@@ -33,6 +33,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Languages;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Memento;
 
@@ -280,6 +281,19 @@ namespace Greenshot.Editor.Drawing
         public override void OnDoubleClick()
         {
             ShowTextBox();
+        }
+
+        public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // The surface asks every element, only the selected text adds its item
+            if (!Selected)
+            {
+                return;
+            }
+
+            var editItem = new ToolStripMenuItem(Texts.Editor.EditText);
+            editItem.Click += (_, _) => ShowTextBox();
+            menu.Items.Add(editItem);
         }
 
         private void CreateTextBox()
