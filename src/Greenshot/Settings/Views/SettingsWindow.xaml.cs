@@ -537,38 +537,6 @@ namespace Greenshot.Settings.Views
         /// <summary>
         /// The swatch of a color option of a recipe: pick the color with the editor's color picker
         /// </summary>
-        private void RecipeOptionColor_Click(object sender, RoutedEventArgs e)
-        {
-            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionViewModel item))
-            {
-                return;
-            }
-
-            var colorWindow = new Greenshot.Editor.Views.ColorPickerWindow
-            {
-                Owner = this,
-                SelectedColor = RecipeOptionColors.Parse(item.TextValue)
-            };
-            if (colorWindow.ShowDialog() == true)
-            {
-                item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
-            }
-        }
-
-        private void RecipeOptionFolder_Click(object sender, RoutedEventArgs e)
-        {
-            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionViewModel item))
-            {
-                return;
-            }
-
-            string selectedPath = ModernFolderPicker.SelectFolder(this, item.TextValue, item.Label);
-            if (!string.IsNullOrEmpty(selectedPath))
-            {
-                item.Value = selectedPath;
-            }
-        }
-
         /// <summary>
         /// "Change…" of an extension: where it is used, the captures and the destinations
         /// </summary>

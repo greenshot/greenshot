@@ -1,0 +1,39 @@
+---
+layout: default
+---
+{% comment %}One recipe of the catalog; written by tools/website/recipes/build_pages.py in greenshot/greenshot, don't edit it here{% endcomment %}
+{% assign recipe = page.recipe %}
+<link rel="stylesheet" href="/css/recipes.css?v={{ site.time | date: '%s' }}">
+<div class="recipe">
+  <p class="recipe-back"><a href="/recipes/?from=greenshot"><i class="fa fa-angle-left"></i> All recipes</a></p>
+
+  <div class="recipe-head">
+    <div class="recipe-head-text">
+      <h1>{{ recipe.name }}</h1>
+      <p class="recipe-summary">{{ recipe.summary }}</p>
+      {% for tag in recipe.tags %}<span class="recipe-tag">{{ tag }}</span>{% endfor %}
+    </div>
+    <div class="recipe-download">
+      <a class="cta" href="greenshot:install-recipe?id={{ recipe.id }}"><i class="fa fa-download"></i> Install</a>
+      <div class="description">Opens Greenshot, which shows what the recipe does and its settings, and asks before anything runs.
+      Or <a href="/recipes/{{ recipe.id }}.gsrecipe.json" download>download the file</a> and import it in the recipe manager.</div>
+    </div>
+  </div>
+
+  <dl class="recipe-facts">
+    <div><dt>Version</dt><dd>{{ recipe.version }}</dd></div>
+    <div><dt>Needs</dt><dd>Greenshot {{ recipe.minGreenshot }}+{% for plugin in recipe.requires %}<br>{{ plugin.name | default: plugin.id }}{% endfor %}</dd></div>
+    <div><dt>By</dt><dd>{% for author in recipe.authors %}{% if author.github %}<a href="https://github.com/{{ author.github }}">{{ author.name }}</a>{% else %}{{ author.name }}{% endif %}{% unless forloop.last %}, {% endunless %}{% endfor %}</dd></div>
+    <div><dt>License</dt><dd>{{ recipe.license }}</dd></div>
+  </dl>
+
+  <div class="recipe-readme">
+  {{ content }}
+  </div>
+
+  <div class="recipe-links">
+    <a href="https://github.com/{{ page.repository }}/tree/main/recipes/{{ recipe.id }}"><i class="fa fa-github"></i> View source</a>
+    <a href="https://github.com/{{ page.repository }}/issues/new?template=bug.yml&amp;recipe={{ recipe.id }}"><i class="fa fa-bug"></i> Report a problem</a>
+    <a href="https://github.com/{{ page.repository }}/issues/new?template=request.yml"><i class="fa fa-lightbulb-o"></i> Suggest a recipe</a>
+  </div>
+</div>

@@ -1667,6 +1667,11 @@ namespace Greenshot.Base.Languages
         string DebugRegistered { get; }
 
         /// <summary>
+        /// Registered (HKCU), but the program is missing: {0}
+        /// </summary>
+        string DebugRegisteredTargetMissing { get; }
+
+        /// <summary>
         /// Not registered in HKCU
         /// </summary>
         string DebugNotRegistered { get; }

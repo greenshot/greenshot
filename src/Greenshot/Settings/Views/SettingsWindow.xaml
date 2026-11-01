@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:views="clr-namespace:Greenshot.Base.Wpf.Views;assembly=Greenshot.Base"
+        xmlns:recipeviews="clr-namespace:Greenshot.Recipes.Views"
         Title="{wpf:Text Settings.Title}"
         Icon="{Binding WindowIcon}"
         Width="820" Height="820"
@@ -902,64 +903,7 @@
                                             </DockPanel>
                                             <!-- Only while it is on: the options, and where it is used -->
                                             <StackPanel Margin="20,4,0,0" Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                <ItemsControl ItemsSource="{Binding BodyItems}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Margin="0,1" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="140"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <!-- A switch takes the whole row -->
-                                                                <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
-                                                                          Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
-                                                                           Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Number: a box with the range next to it -->
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                            Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
-                                                                    <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
-                                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                                </StackPanel>
-                                                                <!-- Text -->
-                                                                <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                         AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                         Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Folder: typed, or chosen with the button -->
-                                                                <DockPanel Grid.Column="1"
-                                                                           Visibility="{Binding IsDirectory, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Button DockPanel.Dock="Right" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,1,0,1"
-                                                                            Click="RecipeOptionFolder_Click"
-                                                                            ToolTip="{wpf:Text Settings.RecipesChooseFolder}"
-                                                                            AutomationProperties.Name="{wpf:Text Settings.RecipesChooseFolder}"/>
-                                                                    <TextBox Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
-                                                                </DockPanel>
-                                                                <!-- Choice -->
-                                                                <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
-                                                                          ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
-                                                                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                                                                          AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                          Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                                <!-- Color: the swatch opens the color picker, the text can be typed -->
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                            Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click"
-                                                                            AutomationProperties.Name="{Binding Label, TargetNullValue=''}"
-                                                                            AutomationProperties.HelpText="{wpf:Text Core.AccessibleChooseColor}"
-                                                                            ToolTip="{wpf:Text Core.AccessibleChooseColor}">
-                                                                        <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
-                                                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                                                                    </Button>
-                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
-                                                                </StackPanel>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                <recipeviews:RecipeOptionsView ItemsSource="{Binding BodyItems}"/>
                                                 <!-- Extensions: where they are used, changed in a dialog with the captures and the destinations -->
                                                 <Grid Margin="0,3,0,0" Visibility="{Binding HasUseIn, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <Grid.ColumnDefinitions>

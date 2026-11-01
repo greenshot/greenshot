@@ -1907,6 +1907,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string EditorCurrent { get; }
 
         /// <summary>
+        /// Import mode of the editor destination
+        /// </summary>
+        string EditorImportMode { get; }
+
+        /// <summary>
+        /// Surface: the capture becomes the surface (current editor) or opens as a tab (available editor)
+        /// </summary>
+        string EditorImportModeSurface { get; }
+
+        /// <summary>
+        /// Image container: the capture is added as image, the surface stays
+        /// </summary>
+        string EditorImportModeImageContainer { get; }
+
+        /// <summary>
         /// Printer Name (empty = Default Printer)
         /// </summary>
         string PrinterName { get; }
@@ -2327,29 +2342,25 @@ namespace Greenshot.Plugin.RecipeEditor
         string HeaderTranslations { get; }
 
         /// <summary>
-        /// The texts of this recipe in other languages, saved in the file. ...
+        /// Translate the texts of this recipe into other languages. ...
         /// </summary>
         string HintTranslations { get; }
 
         /// <summary>
-        /// + Language
+        /// Add a language
         /// </summary>
-        string BtnAddLanguage { get; }
+        string AddTranslationLanguage { get; }
+
+        /// <summary>
+        /// Translations shown below
+        /// </summary>
+        string TranslationLanguageShown { get; }
 
         /// <summary>
         /// Remove this language and its texts
         /// </summary>
         string TipRemoveLanguage { get; }
 
-        /// <summary>
-        /// Language, e.g. de or de-DE
-        /// </summary>
-        string TranslationLanguage { get; }
-
-        /// <summary>
-        /// '{0}' is not a language like "de" or "de-DE".
-        /// </summary>
-        string StatusTranslationLanguageInvalid { get; }
 
         /// <summary>
         /// Key
@@ -4485,5 +4496,15 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Upload to Dropbox
         /// </summary>
         string SummaryDropbox { get; }
+
+        /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string ManagerBtnGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string ManagerBtnGetMoreTooltip { get; }
     }
 }

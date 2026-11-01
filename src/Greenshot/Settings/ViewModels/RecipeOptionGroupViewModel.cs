@@ -27,7 +27,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Languages;
 
@@ -47,13 +46,9 @@ namespace Greenshot.Settings.ViewModels
         {
             _definition = definition;
             // A Hotkey option is set with the other hotkeys on the General tab
-            Items = new ObservableCollection<RecipeOptionViewModel>((definition.Options ?? new List<RecipeOption>()).Where(o => o != null && o.Type != ContractDataType.Hotkey).Select(o => new RecipeOptionViewModel(o, RecipeOptionStore.GetValue(definition, o))));
+            Items = new ObservableCollection<RecipeOptionViewModel>(RecipeOptionViewModel.CreateItems(definition, withHotkeys: false));
             foreach (var item in Items)
             {
-                if (!string.IsNullOrWhiteSpace(item.Option.EnabledWhen))
-                {
-                    item.Switch = Items.FirstOrDefault(i => string.Equals(i.Option.Key, item.Option.EnabledWhen, StringComparison.OrdinalIgnoreCase) && i.IsBoolean);
-                }
                 item.PropertyChanged += (sender, args) => OnChanged();
             }
 

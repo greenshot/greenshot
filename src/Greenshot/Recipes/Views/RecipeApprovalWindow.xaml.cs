@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -33,8 +34,11 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Views;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.ViewModels;
+using Greenshot.Settings.ViewModels;
 
 namespace Greenshot.Recipes.Views
 {
@@ -44,6 +48,8 @@ namespace Greenshot.Recipes.Views
     /// </summary>
     public partial class RecipeApprovalWindow : Window, INotifyPropertyChanged
     {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(RecipeApprovalWindow));
+
         /// <summary>
         /// The user revoked the approval in the review of an approved recipe
         /// </summary>
@@ -135,6 +141,35 @@ namespace Greenshot.Recipes.Views
         // An AI tool proposed the recipe
         public bool IsAiProposal { get; private set; }
         public Visibility AiProposalVisibility => IsAiProposal ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// A recipe from the recipe catalog
+        /// </summary>
+        public bool IsFromCatalog { get; private set; }
+
+        public Visibility CatalogVisibility => IsFromCatalog ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// Version, authors and license of the catalog entry
+        /// </summary>
+        public string CatalogFacts { get; private set; }
+
+        /// <summary>
+        /// The page of the recipe on getgreenshot.org
+        /// </summary>
+        public Uri CatalogPageUrl { get; private set; }
+
+        /// <summary>
+        /// The options of the recipe, set before approving (<see cref="RecipeApprovalRequest.EditOptions"/>)
+        /// </summary>
+        public ObservableCollection<RecipeOptionViewModel> OptionItems { get; } = new ObservableCollection<RecipeOptionViewModel>();
+
+        public Visibility OptionsVisibility => OptionItems.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// The option values as they were when the user approved, by option key
+        /// </summary>
+        public IReadOnlyDictionary<string, object> OptionValues { get; private set; } = new Dictionary<string, object>();
         public string ProposedByText { get; private set; }
         public string ProposedBySignerText { get; private set; }
         public string AiRequest { get; private set; }
@@ -387,6 +422,18 @@ namespace Greenshot.Recipes.Views
                 ApplyExtensionTexts(request);
             }
 
+            if (request.IsFromCatalog && !IsValidationError && !IsReadOnly)
+            {
+                ApplyCatalogTexts(request);
+            }
+            if (request.EditOptions && !IsValidationError && !IsReadOnly)
+            {
+                foreach (var item in RecipeOptionViewModel.CreateItems((FlowDefinition)request.Extension ?? recipe, withHotkeys: true))
+                {
+                    OptionItems.Add(item);
+                }
+            }
+
             // What changed: against the replaced recipe (built-in or current version) or the previously approved file
             CaptureRecipe previousRecipe = request.ReplacedRecipe;
             string previousContent = request.PreviousContent;
@@ -468,6 +515,46 @@ namespace Greenshot.Recipes.Views
                 // Esc means "Keep as Is" in a review, never "Revoke"
                 BtnReject.IsCancel = false;
             }
+        }
+
+        /// <summary>
+        /// A recipe from the catalog: installed or updated, with the facts of its catalog entry
+        /// </summary>
+        private void ApplyCatalogTexts(RecipeApprovalRequest request)
+        {
+            var entry = request.CatalogEntry;
+            bool update = request.PreviousRecord != null;
+            IsFromCatalog = true;
+            WindowTitleSubtitle = " — " + Texts.Recipe.CatalogSubtitle;
+            HeaderIcon = "📚";
+            HeaderTitle = update ? Texts.Recipe.CatalogTitleUpdate : Texts.Recipe.CatalogTitleNew;
+            HeaderDescription = Texts.Recipe.CatalogDescription;
+            StatusBadgeText = Texts.Recipe.CatalogBadge;
+            StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
+            StatusBadgeBorderBrush = CardBorderBrush;
+            StatusBadgeForegroundBrush = AccentBrush;
+            ApproveButtonText = update ? Texts.Recipe.ApprovalBtnUpdate : Texts.Recipe.ApprovalBtnInstall;
+            string authors = string.Join(", ", (entry.Authors ?? new List<RecipeCatalogAuthor>()).Where(a => !string.IsNullOrWhiteSpace(a?.Name)).Select(a => a.Name));
+            CatalogFacts = string.Format(Texts.Recipe.CatalogFacts, entry.Version, authors, entry.License);
+            CatalogPageUrl = new Uri(RecipeCatalogInstaller.GetPageUrl(entry.Id));
+        }
+
+        private void OnCatalogPageRequested(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't open {e.Uri}", ex);
+            }
+            e.Handled = true;
+        }
+
+        private void OnOptionHotkeyEditRequested(object sender, HotkeyDisplayView display)
+        {
+            HotkeyModal.Open(display.HeaderText, display.HotkeyString, newHotkey => display.HotkeyString = newHotkey);
         }
 
         /// <summary>
@@ -1009,6 +1096,12 @@ namespace Greenshot.Recipes.Views
                 ApprovedTriggers = TriggerItems.Where(t => t.IsChecked).Select(t => t.Key).ToList(),
                 AllowedGates = GateItems.Where(g => g.IsChecked).Select(g => g.GateType).ToList()
             };
+            var optionValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in OptionItems.Where(i => !string.IsNullOrWhiteSpace(i.Option.Key)))
+            {
+                optionValues[item.Option.Key] = item.Value;
+            }
+            OptionValues = optionValues;
             OpenInEditor = ChkOpenInEditor?.IsChecked == true;
             DialogResult = true;
             Close();

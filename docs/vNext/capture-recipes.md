@@ -58,6 +58,26 @@ save. A bar under the toolbar says what is pending: what saving will ask for, or
 Greenshot or has triggers switched off by the approval. Recipes proposed by AI tools
 go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
 
+### Recipes from the catalog
+
+The [recipe catalog](https://github.com/greenshot/greenshot-recipes) collects reviewed recipes. Its pages on
+getgreenshot.org have an "Install" button, which opens the link `greenshot:install-recipe?id=<id>`; the recipe manager
+offers "Get More Recipes" (beta testers only) to open the catalog. Greenshot then:
+
+1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
+   are part of Greenshot); an index without a valid signature is refused,
+2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`), downloads the file
+   from the catalog repository and checks it against the SHA-256 of the index,
+3. shows the approval window, marked "from the catalog", with the catalog version, its authors, a link to its page and
+   the recipe's options (settings) to fill in right away,
+4. after the approval saves the file as `Recipes\Catalog\<id>.gsrecipe.json` next to `greenshot.ini`, with the
+   approval's origin `catalog:<id>@<version>`, and stores the option values in `[RecipeOptions]`.
+
+Installing a newer version of the same recipe shows what changed, like any changed file. A recipe with the same id
+that didn't come from the catalog (a built-in recipe, or one of your own files) is never replaced, and only one install
+window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
+section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes
@@ -270,8 +290,9 @@ other languages, in the file itself, so they travel with it:
   only the texts it has.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
-- The recipe editor has a *Translations* box on the Recipe tab: add a language, then type the texts next to the texts of
-  the file. Removing a trigger there moves the translations of the menu texts of the triggers after it.
+- The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
+  then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
+  there moves the translations of the menu texts of the triggers after it.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---

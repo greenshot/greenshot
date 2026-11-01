@@ -2570,6 +2570,13 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorAvailable}" Tag="AvailableEditor"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorCurrent}" Tag="CurrentEditor"/>
                                             </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.EditorImportMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="AddAsImage"/>
+                                            </ComboBox>
                                         </StackPanel>
 
                                         <!-- 15. Printer Inspector -->
@@ -2664,6 +2671,25 @@
                                                     <CheckBox Content="{wpf:Text RecipeEditor.SummaryEmail}" IsChecked="{Binding SelectedNode.DestinationEmail, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                 </StackPanel>
                                             </Border>
+
+                                            <!-- Editor target and import mode (Visible when Editor is checked) -->
+                                            <StackPanel Visibility="{Binding SelectedNode.DestinationEditor, Converter={StaticResource BoolToVis}}" Margin="0,0,0,8">
+                                                <TextBlock Text="{wpf:Text RecipeEditor.TargetEditor}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TargetEditor}" SelectedValue="{Binding SelectedNode.EditorTargetEditor, Mode=TwoWay}"
+                                                          SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorNew}" Tag="NewEditor"/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorAvailable}" Tag="AvailableEditor"/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorCurrent}" Tag="CurrentEditor"/>
+                                                </ComboBox>
+
+                                                <TextBlock Text="{wpf:Text RecipeEditor.EditorImportMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.EditorImportMode}" SelectedValue="{Binding SelectedNode.EditorImportMode, Mode=TwoWay}"
+                                                          SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeSurface}" Tag=""/>
+                                                    <ComboBoxItem Content="{wpf:Text RecipeEditor.EditorImportModeImageContainer}" Tag="AddAsImage"/>
+</ComboBox>
+                                            </StackPanel>
 
                                             <!-- File Save Settings (Visible when Save to File is checked) -->
                                             <StackPanel Visibility="{Binding SelectedNode.DestinationFile, Converter={StaticResource BoolToVis}}" Margin="0,4,0,8">
@@ -3066,19 +3092,18 @@
                                             <TextBlock Text="{wpf:Text RecipeEditor.HeaderTranslations}" FontWeight="Bold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
                                             <TextBlock Text="{wpf:Text RecipeEditor.HintTranslations}"
                                                        FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                                            <DockPanel Margin="0,0,0,6">
-                                                <Button DockPanel.Dock="Right" Content="{wpf:Text RecipeEditor.BtnAddLanguage}" Style="{StaticResource SecondaryButtonStyle}"
-                                                        Command="{Binding AddTranslationLanguageCommand}" Margin="4,0,0,0"/>
-                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ToolTip="{wpf:Text RecipeEditor.TranslationLanguage}"
-                                                         Text="{Binding NewTranslationLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"
-                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4"/>
-                                            </DockPanel>
-                                            <DockPanel Margin="0,0,0,6" Visibility="{Binding HasTranslationLanguage, Converter={StaticResource BoolToVis}}">
-                                                <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveTranslationLanguageCommand}"
-                                                        ToolTip="{wpf:Text RecipeEditor.TipRemoveLanguage}" AutomationProperties.Name="{wpf:Text RecipeEditor.TipRemoveLanguage}" Margin="4,0,0,0"/>
-                                                <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguage}" ItemsSource="{Binding TranslationLanguages}"
-                                                          SelectedItem="{Binding SelectedTranslationLanguage, Mode=TwoWay}"/>
-                                            </DockPanel>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.AddTranslationLanguage}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AddTranslationLanguage}" ItemsSource="{Binding AddableTranslationLanguages}"
+                                                      DisplayMemberPath="DisplayName" SelectedItem="{Binding LanguageToAdd, Mode=TwoWay}" Margin="0,2,0,8"/>
+                                            <StackPanel Visibility="{Binding HasTranslationLanguage, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="{wpf:Text RecipeEditor.TranslationLanguageShown}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                                <DockPanel Margin="0,2,0,8">
+                                                    <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RemoveTranslationLanguageCommand}"
+                                                            ToolTip="{wpf:Text RecipeEditor.TipRemoveLanguage}" AutomationProperties.Name="{wpf:Text RecipeEditor.TipRemoveLanguage}" Margin="4,0,0,0"/>
+                                                    <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TranslationLanguageShown}" ItemsSource="{Binding TranslationLanguages}"
+                                                              SelectedItem="{Binding SelectedTranslationLanguage, Mode=TwoWay}"/>
+                                                </DockPanel>
+                                            </StackPanel>
                                             <ItemsControl ItemsSource="{Binding TranslationRows}" Focusable="False">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
