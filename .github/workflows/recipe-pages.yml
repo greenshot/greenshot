@@ -1,8 +1,8 @@
 name: Recipe pages
 
 # Writes the recipe catalog (latest greenshot-recipes release) into gh-pages: unlisted pages under /recipes/.
-# A push with the workflow token doesn't start the Pages build, so it is asked for afterwards, as update-gh-pages.yml
-# does. Runs by hand and on a Greenshot release.
+# A push with the workflow token doesn't start the Pages build, so it is asked for afterwards (with the workflow
+# token's pages permission). Runs by hand and on a Greenshot release.
 on:
   workflow_dispatch:
   release:
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: recipe-pages
@@ -57,6 +58,6 @@ jobs:
         if: steps.commit.outputs.changed == 'true'
         run: |
           curl -fsS -X POST \
-            -H "Authorization: Bearer ${{ secrets.GH_PAGES_TOKEN }}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pages/builds
