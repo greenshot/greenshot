@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
@@ -182,6 +183,96 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("C:\\tools\\test.exe", node.GetParameter<string>("path"));
             Assert.Equal("test.exe --flag", node.GetParameter<string>("CommandLine"));
             Assert.True(node.GetParameter<bool>("RunInBackground"));
+        }
+        [Fact]
+        public void Recipe_AuthorsCopyrightAndLicense_AreReadAndWritten()
+        {
+            const string json = @"{
+                ""id"": ""credited"", ""name"": ""Credited"",
+                ""authors"": [ { ""name"": ""Jane Doe"", ""github"": ""janedoe"" }, { ""name"": ""John Roe"" } ],
+                ""copyright"": ""Copyright (c) 2026 Jane Doe"",
+                ""license"": ""MIT"",
+                ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ],
+                ""flow"": { ""startNodes"": [ ""a"" ] }
+            }";
+
+            var recipe = RecipeSerializer.Deserialize(json, validate: false);
+
+            Assert.Equal(new[] { "Jane Doe", "John Roe" }, recipe.Authors.Select(a => a.Name));
+            Assert.Equal("janedoe", recipe.Authors[0].GitHub);
+            Assert.Null(recipe.Authors[1].GitHub);
+            Assert.Equal("Copyright (c) 2026 Jane Doe", recipe.Copyright);
+            Assert.Equal("MIT", recipe.License);
+
+            var clone = recipe.Clone();
+            Assert.Equal("John Roe", clone.Authors[1].Name);
+            Assert.NotSame(recipe.Authors[0], clone.Authors[0]);
+            Assert.Equal("MIT", clone.License);
+
+            string written = RecipeSerializer.Serialize(recipe);
+            Assert.Contains(@"""github"": ""janedoe""", written);
+            Assert.DoesNotContain(@"""github"": null", written);
+            Assert.Equal("Copyright (c) 2026 Jane Doe", RecipeSerializer.Deserialize(written, validate: false).Copyright);
+        }
+
+        [Fact]
+        public void Recipe_WithoutAuthors_WritesNoAuthors()
+        {
+            string written = RecipeSerializer.Serialize(new CaptureRecipe("plain", "Plain"));
+
+            Assert.DoesNotContain("authors", written);
+            Assert.DoesNotContain("copyright", written);
+            Assert.DoesNotContain("license", written);
+        }
+
+        [Theory]
+        [InlineData(@"""authors"": [ { ""github"": ""janedoe"" } ]", "needs a 'name'")]
+        [InlineData(@"""license"": "" """, "'license' is empty")]
+        public void Recipe_InvalidCredits_AreErrors(string property, string expected)
+        {
+            string json = @"{ ""id"": ""credited"", ""name"": ""Credited"", " + property + @",
+                ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ], ""flow"": { ""startNodes"": [ ""a"" ] } }";
+
+            var result = RecipeValidator.Validate(RecipeSerializer.Deserialize(json, validate: false));
+
+            Assert.Contains(result.Errors, e => e.Contains(expected));
+        }
+
+        /// <summary>
+        /// Greenshot sets what it knows about a loaded recipe itself: never written, and skipped in files an earlier beta saved
+        /// </summary>
+        [Fact]
+        public void Recipe_RuntimeProperties_AreNotWrittenAndSkippedWhenRead()
+        {
+            var recipe = new CaptureRecipe("runtime", "Runtime")
+            {
+                IsBuiltIn = true,
+                IsOverridden = true,
+                IsEnabled = false,
+                FilePath = @"C:\Users\someone\runtime.gsrecipe.json"
+            };
+
+            string written = RecipeSerializer.Serialize(recipe);
+            Assert.DoesNotContain("isBuiltIn", written);
+            Assert.DoesNotContain("isOverridden", written);
+            Assert.DoesNotContain("isEnabled", written);
+            Assert.DoesNotContain("filePath", written);
+            Assert.DoesNotContain("someone", written);
+
+            const string earlierBeta = @"{ ""id"": ""old"", ""name"": ""Old"", ""isBuiltIn"": true, ""isOverridden"": true, ""isEnabled"": false,
+                ""filePath"": ""C:\\elsewhere.json"", ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ], ""flow"": { ""startNodes"": [ ""a"" ] } }";
+            var read = RecipeSerializer.Deserialize(earlierBeta, validate: false);
+            Assert.False(read.IsBuiltIn);
+            Assert.False(read.IsOverridden);
+            Assert.True(read.IsEnabled);
+            Assert.Null(read.FilePath);
+            Assert.False(Assert.Single(RecipeSerializer.DeserializeList("[" + earlierBeta + "]", validate: false)).IsBuiltIn);
+
+            var extension = RecipeSerializer.DeserializeExtension(@"{ ""kind"": ""extension"", ""id"": ""ext_old"", ""name"": ""Old"", ""isBuiltIn"": true,
+                ""extends"": { ""recipes"": [ ""*"" ], ""slot"": ""BeforeExport"" }, ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"" } ],
+                ""flow"": { ""startNodes"": [ ""a"" ] } }", validate: false);
+            Assert.False(extension.IsBuiltIn);
+            Assert.DoesNotContain("isBuiltIn", RecipeSerializer.Serialize(new RecipeExtension { Id = "ext_new", Name = "New", IsBuiltIn = true }));
         }
     }
 }

@@ -70,6 +70,9 @@ namespace Greenshot.Recipes.Views
         public string RecipeVersion { get; set; }
         public string RecipeDescription { get; set; }
         public string RecipeId { get; set; }
+        public string RecipeAuthor { get; set; }
+        public bool HasRecipeAuthor => !string.IsNullOrEmpty(RecipeAuthor);
+        public string RecipeCopyright { get; set; }
         public string FilePath { get; set; }
         public string FileHash { get; set; }
 
@@ -248,6 +251,8 @@ namespace Greenshot.Recipes.Views
             RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "" : $"v{recipe.Version}";
             RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? (validationResult != null && !validationResult.IsValid ? Texts.Recipe.ApprovalFailedValidation : Texts.Recipe.ApprovalNoDescription) : recipe.Description;
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
+            RecipeAuthor = DescribeAuthor(recipe);
+            RecipeCopyright = string.IsNullOrWhiteSpace(recipe?.Copyright) ? null : recipe.Copyright;
             FilePath = filePath ?? Texts.Recipe.ApprovalUnknownPath;
             // The hash of the content that was read once, never of the file as it is now
             FileHash = request.ContentHash ?? Texts.Recipe.ApprovalUnknown;
@@ -523,6 +528,20 @@ namespace Greenshot.Recipes.Views
                 HeaderDescription = Texts.Recipe.ApprovalExtNewDescription;
                 StatusBadgeText = Texts.Recipe.ApprovalBadgeExtNew;
             }
+        }
+
+        /// <summary>
+        /// The authors of the recipe as written in it, with its license, e.g. "Jane Doe, John Roe (MIT)"; null without authors
+        /// </summary>
+        internal static string DescribeAuthor(FlowDefinition definition)
+        {
+            var names = definition?.Authors?.Where(a => !string.IsNullOrWhiteSpace(a?.Name)).Select(a => a.Name.Trim()).ToList();
+            if (names == null || names.Count == 0)
+            {
+                return null;
+            }
+            string authors = string.Join(", ", names);
+            return string.IsNullOrWhiteSpace(definition.License) ? authors : $"{authors} ({definition.License.Trim()})";
         }
 
         private static CaptureRecipe TryFindRecipe(string content, string recipeId)

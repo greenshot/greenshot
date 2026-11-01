@@ -72,8 +72,5 @@
       }
     ]
   },
-  "showInContextMenu": true,
-  "isBuiltIn": false,
-  "isOverridden": false,
-  "filePath": "D:\\code\\greenshot\\docs\\vNext\\examples\\clipboard_format_converter.gsrecipe.json"
+  "showInContextMenu": true
 }

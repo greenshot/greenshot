@@ -41,10 +41,32 @@
       "type": "string",
       "description": "Optional description of what this recipe accomplishes."
     },
-    "enabled": {
+    "authors": {
+      "type": "array",
+      "description": "Who wrote the recipe; shown when it is approved. Kept in the file so the credit travels with it.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "The name as the author wants to be credited." },
+          "github": { "type": "string", "description": "The GitHub login of the author." }
+        }
+      }
+    },
+    "copyright": {
+      "type": "string",
+      "description": "The copyright notice, e.g. 'Copyright (c) 2026 Jane Doe', which the license may require to stay with every copy."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The license of the file as an SPDX identifier, e.g. 'MIT'."
+    },
+    "showInContextMenu": {
       "type": "boolean",
       "default": true,
-      "description": "Whether this recipe is active and available."
+      "description": "A recipe without a ContextMenu trigger gets an entry in Greenshot's system tray menu; false leaves it out."
     },
     "requires": {
       "type": "array",

@@ -60,6 +60,24 @@ namespace Greenshot.Base.Recipes
         public string Description { get; set; }
 
         /// <summary>
+        /// Who wrote it, shown when the recipe is approved; kept in the file so the credit travels with it
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<RecipeAuthor> Authors { get; set; }
+
+        /// <summary>
+        /// The copyright notice, e.g. "Copyright (c) 2026 Jane Doe", which the license may require to stay with every copy
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Copyright { get; set; }
+
+        /// <summary>
+        /// The license of the file as an SPDX identifier, e.g. "MIT"
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string License { get; set; }
+
+        /// <summary>
         /// Explicit extension or plugin dependencies required to execute this flow.
         /// </summary>
         public List<RecipeRequirement> Requires { get; set; } = new List<RecipeRequirement>();
@@ -81,8 +99,9 @@ namespace Greenshot.Base.Recipes
         public List<RecipeOption> Options { get; set; }
 
         /// <summary>
-        /// Indicates if this is one of Greenshot's built-in recipes or extensions.
+        /// Indicates if this is one of Greenshot's built-in recipes or extensions. Set by Greenshot, never read from a file.
         /// </summary>
+        [JsonIgnore]
         public bool IsBuiltIn { get; set; }
 
         public RecipeOption FindOption(string key)
@@ -133,6 +152,9 @@ namespace Greenshot.Base.Recipes
             clone.Id = Id;
             clone.Name = Name;
             clone.Description = Description;
+            clone.Authors = Authors?.Select(a => a?.Clone()).ToList();
+            clone.Copyright = Copyright;
+            clone.License = License;
             clone.IsBuiltIn = IsBuiltIn;
             clone.Requires = Requires?.ToList() ?? new List<RecipeRequirement>();
             clone.Nodes = Nodes?.Select(n => n?.Clone()).ToList() ?? new List<RecipeNodeConfig>();

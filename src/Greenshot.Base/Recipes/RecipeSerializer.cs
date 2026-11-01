@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Greenshot.Base.Serialization;
 
@@ -158,7 +159,31 @@ namespace Greenshot.Base.Recipes
                 throw new JsonException("A recipe or an extension must be a JSON object.");
             }
             CheckFormat(definition);
-            return definition;
+            return WithoutRuntimeProperties(definition);
+        }
+
+        /// <summary>
+        /// What Greenshot knows about a loaded recipe, which earlier betas also wrote into the file. Greenshot sets these itself,
+        /// so they are skipped when read and never written.
+        /// </summary>
+        private static readonly string[] RuntimeProperties = { "isBuiltIn", "isOverridden", "isEnabled", "filePath" };
+
+        /// <summary>
+        /// The definition without the <see cref="RuntimeProperties"/>, so a file an earlier beta saved still loads
+        /// </summary>
+        private static JsonElement WithoutRuntimeProperties(JsonElement definition)
+        {
+            if (!RuntimeProperties.Any(name => definition.TryGetProperty(name, out _)))
+            {
+                return definition;
+            }
+            var node = JsonObject.Create(definition);
+            foreach (var name in RuntimeProperties)
+            {
+                node.Remove(name);
+            }
+            using var document = JsonDocument.Parse(node.ToJsonString());
+            return document.RootElement.Clone();
         }
 
         /// <summary>
@@ -295,7 +320,7 @@ namespace Greenshot.Base.Recipes
                     {
                         throw new JsonException($"The list contains a definition of kind '{kind}'; a recipe list can only hold recipes.");
                     }
-                    var recipe = item.Deserialize<CaptureRecipe>(Options);
+                    var recipe = WithoutRuntimeProperties(item).Deserialize<CaptureRecipe>(Options);
                     if (recipe != null)
                     {
                         list.Add(recipe);
