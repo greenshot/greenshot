@@ -248,6 +248,28 @@ are part of the approved content, so a change of author shows up in the changes 
 
 What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file.
 
+### Translations (`translations`)
+The texts of a recipe or an automatic step are written in one language, usually English. `translations` adds them in
+other languages, in the file itself, so they travel with it:
+
+```json
+"name": "Capture to my folder",
+"description": "Saves the capture into one folder",
+"options": [ { "key": "folder", "type": "DirectoryPath", "label": "Folder" } ],
+"translations": {
+  "de-DE": { "name": "In meinen Ordner aufnehmen", "description": "Speichert die Aufnahme in einem Ordner", "options.folder.label": "Ordner" },
+  "fr": { "name": "Capturer dans mon dossier" }
+}
+```
+
+- The keys are languages: `de` for every German, `de-DE` for one. Greenshot takes the text of its own language
+  (`de-DE`), else of the language alone (`de`), else the text of the file.
+- The texts are named by their place: `name`, `description`, `options.{key}.label`, `options.{key}.description` and
+  `options.{key}.choices.{value}` for the label of a choice of an `Enum` option. A language needs only the texts it has.
+- A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
+- A menu entry without its own `MenuItemText` shows the translated name.
+- The translations are part of the file, so changing them changes the approved content, like any other change.
+
 ---
 
 ### Text and codes on the capture

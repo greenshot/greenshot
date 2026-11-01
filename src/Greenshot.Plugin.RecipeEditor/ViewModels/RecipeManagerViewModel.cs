@@ -87,8 +87,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string AiBadge => IsAiCreated ? "🤖 " + string.Format(Texts.Get<IRecipeEditorLanguage>().BadgeAiBy, Recipe.ProposedBy) : string.Empty;
 
-        public string Name => IsExtension ? RecipeText.Translate(Extension.Name ?? Extension.Id) : Recipe.Name ?? Recipe.Id;
-        public string Description => IsExtension ? RecipeText.Translate(Extension.Description) ?? "" : Recipe.Description ?? "";
+        public string Name => IsExtension ? Extension.DisplayName : Recipe.DisplayName;
+        public string Description => (IsExtension ? Extension.DisplayDescription : Recipe.DisplayDescription) ?? "";
 
         /// <summary>
         /// Triggers which are in the recipe but not switched on in its approval

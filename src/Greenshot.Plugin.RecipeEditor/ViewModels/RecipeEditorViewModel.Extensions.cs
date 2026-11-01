@@ -222,6 +222,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Nodes = ActiveRecipe.Nodes,
                 Flow = ActiveRecipe.Flow,
                 Options = ActiveRecipe.Options,
+                Translations = ActiveRecipe.Translations,
                 Extends = _extension.Extends.Clone(),
                 When = _extension.When,
                 FilePath = ActiveRecipe.FilePath,

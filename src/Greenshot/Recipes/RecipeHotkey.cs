@@ -74,7 +74,7 @@ namespace Greenshot.Recipes
                 {
                     if (string.Equals(setting.Setting, SettingName, StringComparison.OrdinalIgnoreCase)) return setting.Name();
                 }
-                return RecipeText.Translate(Recipe?.Name ?? Recipe?.Id);
+                return Recipe?.DisplayName;
             }
         }
 

@@ -96,7 +96,20 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// The values of an Enum option
         /// </summary>
-        public List<RecipeOptionChoice> Choices { get; set; }
+        public List<RecipeOptionChoice> Choices
+        {
+            get => _choices;
+            set
+            {
+                _choices = value;
+                if (value == null) return;
+                foreach (var choice in value.Where(c => c != null))
+                {
+                    choice.Option = this;
+                }
+            }
+        }
+        private List<RecipeOptionChoice> _choices;
 
         /// <summary>
         /// The key of a Boolean option of the same recipe: this option can only be changed while that one is on
@@ -126,13 +139,20 @@ namespace Greenshot.Base.Recipes
         /// The description for the settings, translated when it is a language key
         /// </summary>
         [JsonIgnore]
-        public string DisplayDescription => RecipeText.Translate(Description);
+        public string DisplayDescription => Owner?.Translate($"options.{Key}.description", Description) ?? RecipeText.Translate(Description);
 
         /// <summary>
         /// The text for the settings
         /// </summary>
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Key : RecipeText.Translate(Label);
+        public string DisplayLabel => Owner?.Translate($"options.{Key}.label", string.IsNullOrWhiteSpace(Label) ? Key : Label) ??
+                                      (string.IsNullOrWhiteSpace(Label) ? Key : RecipeText.Translate(Label));
+
+        /// <summary>
+        /// The recipe or extension this option belongs to, for the translations of its texts
+        /// </summary>
+        [JsonIgnore]
+        public FlowDefinition Owner { get; internal set; }
 
         /// <summary>
         /// The default value as a value of the option type, or the neutral value of the type when there is no valid default
@@ -329,7 +349,14 @@ namespace Greenshot.Base.Recipes
         public string Label { get; set; }
 
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Value : RecipeText.Translate(Label);
+        public string DisplayLabel => Option?.Owner?.Translate($"options.{Option.Key}.choices.{Value}", string.IsNullOrWhiteSpace(Label) ? Value : Label) ??
+                                      (string.IsNullOrWhiteSpace(Label) ? Value : RecipeText.Translate(Label));
+
+        /// <summary>
+        /// The option of this choice, for the translations of its texts
+        /// </summary>
+        [JsonIgnore]
+        public RecipeOption Option { get; internal set; }
 
         public RecipeOptionChoice Clone() => (RecipeOptionChoice)MemberwiseClone();
 
