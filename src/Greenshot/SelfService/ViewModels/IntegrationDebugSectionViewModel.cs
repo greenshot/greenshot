@@ -131,12 +131,41 @@ namespace Greenshot.SelfService.ViewModels
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\greenshot\shell\open\command"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                UrlSchemeStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
+                string target = GetCommandProgram(val);
+                UrlSchemeStatus = string.IsNullOrEmpty(val) ? Texts.SelfService.DebugNotRegistered
+                    : target != null && !File.Exists(target) ? string.Format(Texts.SelfService.DebugRegisteredTargetMissing, target)
+                    : string.Format(Texts.SelfService.DebugRegistered, val);
             }
+        }
+
+        /// <summary>
+        /// The program of a shell command ("C:\path\program.exe" "%1"), null when there is none
+        /// </summary>
+        private static string GetCommandProgram(string command)
+        {
+            command = command?.Trim();
+            if (string.IsNullOrEmpty(command))
+            {
+                return null;
+            }
+            if (command[0] == '"')
+            {
+                int end = command.IndexOf('"', 1);
+                return end > 1 ? command.Substring(1, end - 1) : null;
+            }
+            int space = command.IndexOf(' ');
+            return space > 0 ? command.Substring(0, space) : command;
         }
 
         public void RegisterAll()
         {
+            // Everything registered here starts the proxy: without it a link only ends in "Application not found"
+            if (!File.Exists(ProxyPath))
+            {
+                ActionFeedback = string.Format(Texts.SelfService.DebugRegisterFailed, string.Format(Texts.SelfService.DebugProxyMissing, BaseDirectory));
+                ActionFeedbackBrush = Brushes.Red;
+                return;
+            }
             try
             {
                 EnsureManifestsExist();
