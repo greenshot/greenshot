@@ -24,6 +24,7 @@ Writes (the workflow commits them to gh-pages):
   _recipes/<id>.md              one page per recipe (/recipes/<id>/), from its README.md; pages of recipes no longer
                                 in the index are removed
   _layouts/recipe.html          the layout of a recipe page
+  css/recipes.css               the styles of the recipe pages
   recipes/index.json            the index, byte for byte (Greenshot downloads it from here later)
 and adds the "recipes" collection to _config.yml once. A collection, not pages: pages are listed on /sitemap/.
 """
@@ -93,6 +94,7 @@ def main():
         json.dump(index, file, ensure_ascii=False)
     shutil.copyfile(os.path.join(HERE, "index.html"), os.path.join(site, "_recipes", "index.html"))
     shutil.copyfile(os.path.join(HERE, "recipe.html"), os.path.join(site, "_layouts", "recipe.html"))
+    shutil.copyfile(os.path.join(HERE, "recipes.css"), os.path.join(site, "css", "recipes.css"))
     add_collection(os.path.join(site, "_config.yml"))
     for name in os.listdir(os.path.join(site, "_recipes")):
         if name.endswith(".md"):
