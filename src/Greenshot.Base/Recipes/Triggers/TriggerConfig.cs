@@ -23,6 +23,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes.Triggers
 {
@@ -79,6 +82,13 @@ namespace Greenshot.Base.Recipes.Triggers
         public bool IsBrowserInvocationApproved { get; set; } = true;
 
         /// <summary>
+        /// An expression which decides whether the trigger is registered, e.g. "${config.CaptureWindowsInteractive}";
+        /// checked when the triggers are registered (start, settings or option changed), not when the trigger fires.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string When { get; set; }
+
+        /// <summary>
         /// Trigger-specific parameters (e.g. Hotkey, MenuItemText, Group, Order).
         /// </summary>
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -131,25 +141,55 @@ namespace Greenshot.Base.Recipes.Triggers
         }
 
         /// <summary>
-        /// The parameter of a Hotkey trigger which holds the hotkey: a hotkey, or "${option.key}" for the value of a
-        /// Hotkey option, which the user sets in Settings > Recipes without changing the recipe file.
+        /// The parameter of a Hotkey trigger which holds the hotkey: a hotkey, "${option.key}" for the value of a
+        /// Hotkey option, which the user sets in Settings > Recipes without changing the recipe file, or
+        /// "${config.Name}" for a hotkey of the general settings (e.g. "${config.RegionHotkey}" of the built-in recipes).
         /// </summary>
         public const string HotkeyParameter = "Hotkey";
 
+        private static readonly Regex ConfigReferencePattern = new Regex(@"^\$\{\s*config\.([A-Za-z][A-Za-z0-9_]*)\s*\}$", RegexOptions.Compiled);
+
         /// <summary>
-        /// The hotkey of a Hotkey trigger of the recipe: the value of the option it names, or the hotkey in the file.
-        /// Empty when there is none (e.g. the user removed the hotkey of the option).
+        /// The name of the setting when the whole text is one setting of the general settings, "${config.Name}"
         /// </summary>
-        public string GetHotkey(FlowDefinition recipe)
+        public static bool TryParseConfigReference(string text, out string settingName)
+        {
+            settingName = null;
+            var match = string.IsNullOrEmpty(text) ? null : ConfigReferencePattern.Match(text.Trim());
+            if (match == null || !match.Success) return false;
+            settingName = match.Groups[1].Value;
+            return true;
+        }
+
+        /// <summary>
+        /// The hotkey of a Hotkey trigger of the recipe: the value of the option or setting it names, or the hotkey in the file.
+        /// Empty when there is none (e.g. the user removed the hotkey).
+        /// </summary>
+        public string GetHotkey(CaptureRecipe recipe)
         {
             string hotkey = GetParameter<string>(HotkeyParameter);
-            if (!RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
+            if (RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
             {
-                return hotkey ?? string.Empty;
+                hotkey = RecipeOptionStore.TryResolve(recipe, optionKey, out var owner, out var option) && option.Type == Contracts.ContractDataType.Hotkey
+                    ? RecipeOptionStore.GetValue(owner, option) as string
+                    : null;
             }
-            return RecipeOptionStore.TryResolve(recipe, optionKey, out var owner, out var option) && option.Type == Contracts.ContractDataType.Hotkey
-                ? RecipeOptionStore.GetValue(owner, option) as string ?? string.Empty
-                : string.Empty;
+            else if (TryParseConfigReference(hotkey, out var settingName))
+            {
+                hotkey = ExpressionEvaluator.Instance.ResolveSingleToken("config." + settingName, null, null) as string;
+            }
+
+            return string.IsNullOrWhiteSpace(hotkey) || string.Equals(hotkey.Trim(), "None", StringComparison.OrdinalIgnoreCase) ? string.Empty : hotkey;
+        }
+
+        /// <summary>
+        /// Whether the trigger is registered for the recipe: enabled, approved and its <see cref="When"/> is true
+        /// </summary>
+        public bool IsWanted(CaptureRecipe recipe)
+        {
+            if (!IsActive) return false;
+            if (string.IsNullOrWhiteSpace(When) || recipe == null) return true;
+            return ExpressionEvaluator.Instance.Evaluate(When, new CaptureFlowContext(recipe), false);
         }
 
         public TriggerConfig SetParameter(string key, object value)
@@ -169,6 +209,7 @@ namespace Greenshot.Base.Recipes.Triggers
                 TriggerType = TriggerType,
                 Name = Name,
                 Enabled = Enabled,
+                When = When,
                 IsApproved = IsApproved,
                 IsBrowserInvocationApproved = IsBrowserInvocationApproved,
                 Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)

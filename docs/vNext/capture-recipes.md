@@ -83,6 +83,23 @@ For example:
 ]
 ```
 
+### Hotkeys from the settings, and `when`
+
+A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
+see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
+recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
+
+A trigger's optional `when` is an expression; the trigger is only registered while it is true. It is checked when the
+triggers are registered (at the start, and when the settings or the options change), not each time the trigger fires.
+The window hotkey uses it to start either the window capture or the active window capture:
+
+```json
+"triggers": [
+  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+]
+```
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine
