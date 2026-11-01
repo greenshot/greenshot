@@ -14,17 +14,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""Adds the recipe catalog to a checkout of the website (gh-pages) before Jekyll builds it.
+"""Writes the recipe catalog into a checkout of the website (gh-pages), for GitHub's classic Pages build.
 
   build_pages.py --index index.json --site <gh-pages checkout>
 
-Writes:
+Writes (the workflow commits them to gh-pages):
   _data/recipes.json            the index, for the overview
   _recipes/index.html           the overview (/recipes/)
-  _recipes/<id>.md              one page per recipe (/recipes/<id>/), from its README.md
+  _recipes/<id>.md              one page per recipe (/recipes/<id>/), from its README.md; pages of recipes no longer
+                                in the index are removed
   _layouts/recipe.html          the layout of a recipe page
-  _config.recipes.yml           the recipes collection; build with --config _config.yml,_config.recipes.yml
   recipes/index.json            the index, byte for byte (Greenshot downloads it from here later)
+and adds the "recipes" collection to _config.yml once. A collection, not pages: pages are listed on /sitemap/.
 """
 import argparse
 import json
@@ -53,6 +54,26 @@ def readme_body(readme, base_url):
     return "{% raw %}\n" + body + "{% endraw %}\n"
 
 
+COLLECTION = """  recipes:
+    output: true
+"""
+
+
+def add_collection(config_path):
+    """Adds the recipes collection under 'collections:' of the site's _config.yml, if it isn't there yet."""
+    with open(config_path, encoding="utf-8", newline="") as file:
+        config = file.read()
+    if re.search(r"^  recipes:", config, re.MULTILINE):
+        return
+    match = re.search(r"^collections:[^\n]*\n", config, re.MULTILINE)
+    if not match:
+        raise SystemExit("_config.yml has no 'collections:' section")
+    newline = "\r\n" if "\r\n" in config else "\n"
+    config = config[:match.end()] + COLLECTION.replace("\n", newline) + config[match.end():]
+    with open(config_path, "w", encoding="utf-8", newline="") as file:
+        file.write(config)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--index", required=True, help="index.json of a greenshot-recipes release")
@@ -72,7 +93,10 @@ def main():
         json.dump(index, file, ensure_ascii=False)
     shutil.copyfile(os.path.join(HERE, "index.html"), os.path.join(site, "_recipes", "index.html"))
     shutil.copyfile(os.path.join(HERE, "recipe.html"), os.path.join(site, "_layouts", "recipe.html"))
-    shutil.copyfile(os.path.join(HERE, "_config.recipes.yml"), os.path.join(site, "_config.recipes.yml"))
+    add_collection(os.path.join(site, "_config.yml"))
+    for name in os.listdir(os.path.join(site, "_recipes")):
+        if name.endswith(".md"):
+            os.remove(os.path.join(site, "_recipes", name))
 
     for recipe in index["recipes"]:
         recipe_id = recipe["id"]
@@ -84,6 +108,9 @@ def main():
             "title": recipe["name"],
             "permalink": f"/recipes/{recipe_id}/",
             "excerpt_separator": "",
+            "layout": "recipe",
+            "sitemap": False,
+            "metarobots": "noindex,nofollow",
             "metadescription": recipe["summary"],
             "repository": index["repository"],
             "recipe": recipe,

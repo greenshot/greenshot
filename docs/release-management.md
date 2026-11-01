@@ -32,4 +32,4 @@ in a dedicated environment for building and signing releases.
 
 Regardless of how the release is built, the [version history](https://getgreenshot.org/version-history/) 
 and (if needed) the [download page](https://getgreenshot.org/downloads/) are automatically updated. 
-This is done by the GitHub workflow which [builds the website](../.github/workflows/pages.yml).
+This is done by a dedicated GitHub workflow for [updating Github Pages](../.github/workflows/update-gh-pages.yml).

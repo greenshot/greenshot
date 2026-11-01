@@ -1,0 +1,62 @@
+name: Recipe pages
+
+# Writes the recipe catalog (latest greenshot-recipes release) into gh-pages: unlisted pages under /recipes/.
+# A push with the workflow token doesn't start the Pages build, so it is asked for afterwards, as update-gh-pages.yml
+# does. Runs by hand and on a Greenshot release.
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recipe-pages
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the website
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Check out the website tools
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: tools/website
+          path: greenshot
+
+      - name: Get the recipe catalog
+        run: curl -fsSL -o "$RUNNER_TEMP/index.json" https://github.com/greenshot/greenshot-recipes/releases/latest/download/index.json
+
+      - name: Write the recipe pages
+        run: python3 greenshot/tools/website/recipes/build_pages.py --index "$RUNNER_TEMP/index.json" --site site
+
+      - name: Commit to gh-pages
+        id: commit
+        working-directory: site
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The recipe pages are up to date"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          commit=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['commit'][:7])" "$RUNNER_TEMP/index.json")
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Recipe pages from greenshot-recipes $commit"
+          git push -q origin HEAD:gh-pages
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Rebuild GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GH_PAGES_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages/builds
