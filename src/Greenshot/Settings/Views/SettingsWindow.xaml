@@ -155,6 +155,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -170,6 +171,9 @@
                                                                   HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
                                                                   IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
                                                                   EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,0,0,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding HotkeyRecipeOff[FullscreenHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
                                     <views:HotkeyDisplayView Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
@@ -177,6 +181,9 @@
                                                                   HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
                                                                   IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
                                                                   EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding HotkeyRecipeOff[WindowHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
                                     <views:HotkeyDisplayView Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
@@ -184,6 +191,9 @@
                                                                   HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
                                                                   IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
                                                                   EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding HotkeyRecipeOff[RegionHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCapturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
                                     <views:HotkeyDisplayView Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
@@ -191,6 +201,9 @@
                                                                   HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
                                                                   IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
                                                                   EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding HotkeyRecipeOff[LastregionHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     
                                     <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Core.ContextmenuCaptureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
                                     <views:HotkeyDisplayView Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
@@ -198,6 +211,9 @@
                                                                   HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
                                                                   IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
                                                                   EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="{wpf:Text Settings.HotkeyRecipeOff}" VerticalAlignment="Center" Margin="8,4,0,0"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding HotkeyRecipeOff[ClipboardHotkey], Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>

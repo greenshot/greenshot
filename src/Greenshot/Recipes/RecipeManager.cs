@@ -1581,6 +1581,21 @@ namespace Greenshot.Recipes
             return !GetDisabledRecipeIds().Contains(recipeId);
         }
 
+        /// <summary>
+        /// True when a hotkey of the general settings (e.g. "RegionHotkey") starts no recipe: every recipe with a trigger
+        /// "${config.RegionHotkey}" is switched off, or its trigger's 'when' is false
+        /// </summary>
+        public bool IsSettingHotkeyUnused(string settingName)
+        {
+            bool UsesSetting(TriggerConfig trigger) => trigger != null &&
+                string.Equals(trigger.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
+                TriggerConfig.TryParseConfigReference(trigger.GetParameter<string>(TriggerConfig.HotkeyParameter), out var name) &&
+                string.Equals(name, settingName, StringComparison.OrdinalIgnoreCase);
+
+            var recipes = GetAllRecipes().Where(r => r.Triggers?.Any(UsesSetting) ?? false).ToList();
+            return recipes.Count > 0 && !recipes.Any(r => r.IsEnabled && r.Triggers.Any(t => UsesSetting(t) && t.IsWanted(r)));
+        }
+
         public void SetRecipeEnabled(string recipeId, bool enabled)
         {
             if (string.IsNullOrEmpty(recipeId)) return;

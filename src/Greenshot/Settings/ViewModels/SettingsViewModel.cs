@@ -112,6 +112,12 @@ namespace Greenshot.Settings.ViewModels
 
         public ICoreConfiguration CoreConfiguration { get; }
 
+        /// <summary>
+        /// Per hotkey setting (e.g. "RegionHotkey"): true when the recipe it starts is switched off in the recipe editor
+        /// </summary>
+        public IReadOnlyDictionary<string, bool> HotkeyRecipeOff { get; } = new[] { "FullscreenHotkey", "WindowHotkey", "RegionHotkey", "LastregionHotkey", "ClipboardHotkey" }
+            .ToDictionary(name => name, name => Greenshot.Recipes.RecipeManager.Instance.IsSettingHotkeyUnused(name));
+
         public IEditorConfiguration EditorConfiguration { get; }
         
         public bool PrintColor

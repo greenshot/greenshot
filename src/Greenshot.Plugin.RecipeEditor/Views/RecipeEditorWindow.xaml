@@ -3142,7 +3142,14 @@
                                                             <views:HotkeyDisplayView AutomationProperties.Name="{wpf:Text RecipeEditor.HotkeyTrigger}" Margin="0,4,0,4"
                                                                                       HotkeyString="{Binding Hotkey, Mode=TwoWay}"
                                                                                       HeaderText="{Binding DisplayTitle}"
-                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"
+                                                                                      Visibility="{Binding IsFixedHotkey, Converter={StaticResource BoolToVis}}"/>
+                                                            <!-- A hotkey from an option or the general settings: shown with its source, changed there -->
+                                                            <DockPanel Margin="0,4,0,4" Visibility="{Binding IsHotkeyReference, Converter={StaticResource BoolToVis}}">
+                                                                <Button DockPanel.Dock="Right" Content="{wpf:Text RecipeEditor.TriggerHotkeyUseFixed}" Style="{StaticResource SecondaryButtonStyle}"
+                                                                        Margin="6,0,0,0" Command="{Binding UseFixedHotkeyCommand}"/>
+                                                                <TextBlock Text="{Binding HotkeySourceText}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                            </DockPanel>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->

@@ -29,6 +29,7 @@ using System.Windows.Media;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Recipes;
 using Greenshot.Recipes.Triggers;
 using log4net;
 using Microsoft.Win32;
@@ -43,10 +44,16 @@ namespace Greenshot.SelfService.ViewModels
         public string HotkeyText { get; set; }
         public bool IsRegistered { get; set; }
         /// <summary>
-        /// No hotkey is set for this capture
+        /// The recipe this hotkey starts is switched off (recipe editor), so Greenshot doesn't listen for it
         /// </summary>
-        public bool IsDisabled => string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
-        public string StatusText => IsDisabled
+        public bool IsRecipeOff { get; set; }
+        /// <summary>
+        /// No hotkey is set for this capture, or its recipe is switched off
+        /// </summary>
+        public bool IsDisabled => IsRecipeOff || string.Equals(HotkeyText, "None", StringComparison.OrdinalIgnoreCase);
+        public string StatusText => IsRecipeOff
+            ? Texts.Settings.HotkeyRecipeOff
+            : IsDisabled
             ? (Texts.SelfService.HotkeysStatusDisabled ?? "Disabled")
             : IsRegistered
                 ? (Texts.SelfService.HotkeysStatusOk ?? "Registered")
@@ -223,7 +230,8 @@ namespace Greenshot.SelfService.ViewModels
                 ActionName = actionName,
                 ConfigKey = configKey,
                 HotkeyText = displayValue,
-                IsRegistered = isRegistered
+                IsRegistered = isRegistered,
+                IsRecipeOff = RecipeManager.Instance.IsSettingHotkeyUnused(configKey)
             });
         }
 

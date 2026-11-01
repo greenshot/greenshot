@@ -69,6 +69,18 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("${config.CaptureWindowsInteractive == false}", active);
         }
 
+        [Fact]
+        public void SettingHotkey_IsUnusedOnlyWhenItsRecipesAreOff()
+        {
+            var manager = new RecipeManager();
+            Assert.False(manager.IsSettingHotkeyUnused("RegionHotkey"));
+            Assert.False(manager.IsSettingHotkeyUnused("NoRecipeUsesThis"));
+
+            manager.GetRecipeById(RecipeManager.RecipeIdRegion).IsEnabled = false;
+            Assert.True(manager.IsSettingHotkeyUnused("RegionHotkey"));
+            Assert.False(manager.IsSettingHotkeyUnused("FullscreenHotkey"));
+        }
+
         [Theory]
         [InlineData("${config.NoSuchSetting}", true)]
         [InlineData("${config.CaptureWindowsInteractive}", true)]
