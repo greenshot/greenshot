@@ -1120,5 +1120,130 @@ namespace Greenshot.Base.Languages
         /// Export destination
         /// </summary>
         string PickerExportSub { get; }
+
+        /// <summary>
+        /// Recipe catalog
+        /// </summary>
+        string CatalogSubtitle { get; }
+
+        /// <summary>
+        /// Install a Recipe from the Catalog
+        /// </summary>
+        string CatalogTitleNew { get; }
+
+        /// <summary>
+        /// Update a Recipe from the Catalog
+        /// </summary>
+        string CatalogTitleUpdate { get; }
+
+        /// <summary>
+        /// The Greenshot team reviewed this recipe before adding it to the catalog. Check below what it does, set it up, and switch on only what you want. Nothing is saved until you approve it.
+        /// </summary>
+        string CatalogDescription { get; }
+
+        /// <summary>
+        /// Catalog
+        /// </summary>
+        string CatalogBadge { get; }
+
+        /// <summary>
+        /// From the Greenshot recipe catalog
+        /// </summary>
+        string CatalogFrom { get; }
+
+        /// <summary>
+        /// Version {0} · by {1} · {2} license
+        /// </summary>
+        string CatalogFacts { get; }
+
+        /// <summary>
+        /// View its page in the catalog
+        /// </summary>
+        string CatalogViewPage { get; }
+
+        /// <summary>
+        /// Install
+        /// </summary>
+        string ApprovalBtnInstall { get; }
+
+        /// <summary>
+        /// Update
+        /// </summary>
+        string ApprovalBtnUpdate { get; }
+
+        /// <summary>
+        /// Settings
+        /// </summary>
+        string ApprovalOptionsTitle { get; }
+
+        /// <summary>
+        /// Set the recipe up now. You can change these later in Settings &gt; Recipes, the hotkeys in Settings &gt; General.
+        /// </summary>
+        string ApprovalOptionsHint { get; }
+
+        /// <summary>
+        /// Recipe catalog
+        /// </summary>
+        string CatalogMessageTitle { get; }
+
+        /// <summary>
+        /// This edition of Greenshot doesn't use recipe files, so it can't install recipes from the catalog.
+        /// </summary>
+        string CatalogNotSupported { get; }
+
+        /// <summary>
+        /// Recipes are switched off in this Greenshot, so it can't install recipes from the catalog.
+        /// </summary>
+        string CatalogRecipesOff { get; }
+
+        /// <summary>
+        /// Your administrator switched off installing recipes from the catalog.
+        /// </summary>
+        string CatalogNotAllowed { get; }
+
+        /// <summary>
+        /// The recipe "{0}" is not in the recipe catalog.
+        /// </summary>
+        string CatalogNotFound { get; }
+
+        /// <summary>
+        /// The recipe "{0}" needs Greenshot {1} or newer. Please update Greenshot first.
+        /// </summary>
+        string CatalogNeedsNewer { get; }
+
+        /// <summary>
+        /// Another recipe with the id "{0}" is already loaded ({1}). Remove it first to install the one from the catalog.
+        /// </summary>
+        string CatalogIdTaken { get; }
+
+        /// <summary>
+        /// Version {1} of the recipe "{0}" is already installed.
+        /// </summary>
+        string CatalogAlreadyInstalled { get; }
+
+        /// <summary>
+        /// Greenshot couldn't reach the recipe catalog: {0}
+        /// </summary>
+        string CatalogUnreachable { get; }
+
+        /// <summary>
+        /// The list of the recipe catalog isn't signed by the Greenshot team, so nothing was installed.
+        /// </summary>
+        string CatalogNotSigned { get; }
+
+        /// <summary>
+        /// The recipe catalog sent something this Greenshot can't use, so nothing was installed.
+        /// </summary>
+        string CatalogInvalid { get; }
+
+        /// <summary>
+        /// The file of the recipe "{0}" isn't the one the catalog lists, so nothing was installed.
+        /// </summary>
+        string CatalogWrongFile { get; }
+
+        /// <summary>
+        /// Greenshot couldn't save the recipe: {0}
+        /// </summary>
+        string CatalogSaveFailed { get; }
     }
 }

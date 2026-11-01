@@ -47,6 +47,24 @@ namespace Greenshot.Settings.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// The options of the recipe with their stored values (or defaults), an option with enabledWhen linked to its switch
+        /// </summary>
+        /// <param name="definition">The recipe or extension</param>
+        /// <param name="withHotkeys">false: without the Hotkey options, which the General tab of the settings shows</param>
+        public static List<RecipeOptionViewModel> CreateItems(FlowDefinition definition, bool withHotkeys)
+        {
+            var items = (definition?.Options ?? new List<RecipeOption>())
+                .Where(o => o != null && (withHotkeys || o.Type != ContractDataType.Hotkey))
+                .Select(o => new RecipeOptionViewModel(o, RecipeOptionStore.GetValue(definition, o)))
+                .ToList();
+            foreach (var item in items.Where(i => !string.IsNullOrWhiteSpace(i.Option.EnabledWhen)))
+            {
+                item.Switch = items.FirstOrDefault(i => string.Equals(i.Option.Key, item.Option.EnabledWhen, StringComparison.OrdinalIgnoreCase) && i.IsBoolean);
+            }
+            return items;
+        }
+
         public RecipeOption Option { get; }
 
         public string Label => Option.DisplayLabel;
@@ -59,6 +77,7 @@ namespace Greenshot.Settings.ViewModels
         public bool IsEnum => Option.Type == ContractDataType.Enum;
         public bool IsText => Option.Type == ContractDataType.String;
         public bool IsDirectory => Option.Type == ContractDataType.DirectoryPath;
+        public bool IsHotkey => Option.Type == ContractDataType.Hotkey;
 
         /// <summary>
         /// All but a switch show their label in front of the value

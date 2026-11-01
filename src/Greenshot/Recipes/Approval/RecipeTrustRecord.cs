@@ -36,6 +36,11 @@ namespace Greenshot.Recipes.Approval
         /// </summary>
         public const string AiOriginPrefix = "ai:";
 
+        /// <summary>
+        /// Origin of a recipe installed from the recipe catalog, followed by its id, "@" and its version
+        /// </summary>
+        public const string CatalogOriginPrefix = "catalog:";
+
         public string FilePath { get; set; }
         public string Sha256Hash { get; set; }
         public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;
@@ -48,7 +53,8 @@ namespace Greenshot.Recipes.Approval
         public string RecipeVersion { get; set; }
 
         /// <summary>
-        /// Who made the file: null for files the user imported or saved, "ai:" and the AI tool's name for a recipe an AI tool proposed
+        /// Who made the file: null for files the user imported or saved, "ai:" and the AI tool's name for a recipe an AI tool proposed,
+        /// "catalog:id@version" for a recipe installed from the recipe catalog
         /// </summary>
         public string Origin { get; set; }
 
@@ -64,6 +70,8 @@ namespace Greenshot.Recipes.Approval
         public List<RecipeApproval> Recipes { get; set; }
 
         public bool IsAiCreated => Origin != null && Origin.StartsWith(AiOriginPrefix, StringComparison.OrdinalIgnoreCase);
+
+        public bool IsFromCatalog => Origin != null && Origin.StartsWith(CatalogOriginPrefix, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// The approval of a recipe of this file, null when the user didn't approve it (yet).

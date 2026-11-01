@@ -181,6 +181,9 @@
                                     ToolTip="{ui:Text RecipeEditor.ManagerBtnReloadAllTooltip}" Margin="0,0,6,0"/>
                             <Button Content="{ui:Text RecipeEditor.ManagerBtnResetAll}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ResetAllCommand}"
                                     ToolTip="{ui:Text RecipeEditor.ManagerBtnResetAllTooltip}"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnGetMore}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding GetMoreRecipesCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnGetMoreTooltip}" Margin="6,0,0,0"
+                                    Visibility="{Binding CanGetMoreRecipes, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
                     </Grid>
 

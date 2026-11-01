@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Dapplo.Ini;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
@@ -307,6 +308,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
     public class RecipeManagerViewModel : ViewModelBase
     {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(RecipeManagerViewModel));
         private readonly IRecipeManager _recipeManager;
         private readonly ICapturePipeline _pipeline;
         private readonly Action<CaptureRecipe> _onSelectRecipeForEditor;
@@ -349,6 +351,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ReloadAllCommand = new RelayCommand(ExecuteReloadAll);
             ResetAllCommand = new RelayCommand(ExecuteResetAll, () => AllRecipes.Any(r => r.IsOverridden));
             CloseCommand = new RelayCommand(() => RequestClose?.Invoke());
+            GetMoreRecipesCommand = new RelayCommand(ExecuteGetMoreRecipes);
 
             LoadRecipes();
         }
@@ -415,6 +418,36 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             LoadRecipes();
         }
         public ICommand CloseCommand { get; }
+
+        /// <summary>
+        /// The recipe catalog on getgreenshot.org, with the recipes this Greenshot can use
+        /// </summary>
+        public const string RecipeCatalogUrl = "https://getgreenshot.org/recipes/?from=greenshot&version=";
+
+        /// <summary>
+        /// Opens the recipe catalog on the website, where a recipe is installed with its Install button
+        /// </summary>
+        public ICommand GetMoreRecipesCommand { get; }
+
+        /// <summary>
+        /// The catalog is a beta feature, and the administrator can switch off installing from it
+        /// </summary>
+        public bool CanGetMoreRecipes => IniConfigRegistry.TryGetSection<ICoreConfiguration>(out var coreConfiguration) && coreConfiguration.IsBetaTester &&
+                                         RecipeConfigHelper.TryGetRecipeConfiguration()?.AllowCatalogInstall == true;
+
+        private void ExecuteGetMoreRecipes()
+        {
+            var version = typeof(EnvironmentInfo).Assembly.GetName().Version;
+            string url = RecipeCatalogUrl + Uri.EscapeDataString(version?.ToString(3) ?? string.Empty);
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't open {url}", ex);
+            }
+        }
 
         public void LoadRecipes()
         {

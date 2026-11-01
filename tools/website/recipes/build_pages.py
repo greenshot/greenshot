@@ -25,7 +25,7 @@ Writes (the workflow commits them to gh-pages):
                                 in the index are removed
   _layouts/recipe.html          the layout of a recipe page
   css/recipes.css               the styles of the recipe pages
-  recipes/index.json            the index, byte for byte (Greenshot downloads it from here later)
+  recipes/index.json            the index, byte for byte (Greenshot reads the signed index of the catalog release instead)
 and adds the "recipes" collection to _config.yml once. A collection, not pages: pages are listed on /sitemap/.
 """
 import argparse
