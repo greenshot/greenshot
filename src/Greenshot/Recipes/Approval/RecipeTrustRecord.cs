@@ -71,8 +71,6 @@ namespace Greenshot.Recipes.Approval
 
         public bool IsAiCreated => Origin != null && Origin.StartsWith(AiOriginPrefix, StringComparison.OrdinalIgnoreCase);
 
-        public bool IsFromCatalog => Origin != null && Origin.StartsWith(CatalogOriginPrefix, StringComparison.OrdinalIgnoreCase);
-
         /// <summary>
         /// The approval of a recipe of this file, null when the user didn't approve it (yet).
         /// For an old record: every trigger, external commands as decided, network and file system access
