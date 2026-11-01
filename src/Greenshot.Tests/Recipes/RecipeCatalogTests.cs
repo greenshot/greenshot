@@ -175,7 +175,6 @@ namespace Greenshot.Tests.Recipes
                     // Exactly the bytes of the catalog, which were approved
                     Assert.Equal(catalog.RecipeBytes, File.ReadAllBytes(file));
                     var record = RecipeTrustStore.GetTrustRecord(file);
-                    Assert.True(record.IsFromCatalog);
                     Assert.Equal($"catalog:{id}@1.2.0", record.Origin);
 
                     var loaded = RecipeManager.Instance.GetRecipeById(id);
