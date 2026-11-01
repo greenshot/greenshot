@@ -457,9 +457,35 @@ namespace Greenshot.Viewer.Views
             {
                 ShowMenu(false);
             }
+            else if (modifiers == ModifierKeys.Control)
+            {
+                // The zoom keys of the editor
+                switch (e.Key)
+                {
+                    case Key.Add:
+                    case Key.OemPlus:
+                        ZoomStepBy(true);
+                        break;
+                    case Key.Subtract:
+                    case Key.OemMinus:
+                        ZoomStepBy(false);
+                        break;
+                    case Key.D0:
+                    case Key.NumPad0:
+                        ShowActualSize();
+                        break;
+                    case Key.D9:
+                    case Key.NumPad9:
+                        FitToWindow();
+                        break;
+                    default:
+                        handled = false;
+                        break;
+                }
+            }
             else if (modifiers != ModifierKeys.None && modifiers != ModifierKeys.Shift)
             {
-                // Ctrl and Alt combinations belong to Windows and the menus
+                // Other Ctrl and Alt combinations belong to Windows and the menus
                 handled = false;
             }
             else
@@ -488,8 +514,7 @@ namespace Greenshot.Viewer.Views
                     case Key.OemMinus:
                         ZoomStepBy(false);
                         break;
-                    case Key.D0:
-                    case Key.NumPad0:
+                    case Key.F:
                         FitToWindow();
                         break;
                     case Key.D1:
@@ -545,7 +570,7 @@ namespace Greenshot.Viewer.Views
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerExport, "E", Export));
             menu.Items.Add(ThemedMenu.CreateSeparator());
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerActualSize, "1", ShowActualSize));
-            menu.Items.Add(CreateMenuItem(Texts.Core.ViewerFit, "0", FitToWindow));
+            menu.Items.Add(CreateMenuItem(Texts.Core.ViewerFit, "F", FitToWindow));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerWindowToCapture, "W", SizeWindowToCapture));
             menu.Items.Add(ThemedMenu.CreateSeparator());
             menu.Items.Add(CreateCheckItem(Texts.Core.ViewerAlwaysOnTop, "P", _viewModel.AlwaysOnTop, value => _viewModel.AlwaysOnTop = value));
@@ -590,8 +615,8 @@ namespace Greenshot.Viewer.Views
             var core = Texts.Core;
             return new List<HelpEntry>
             {
-                new HelpEntry("1", core.ViewerKeyActualSize),
-                new HelpEntry("0", core.ViewerKeyFit),
+                new HelpEntry("1  Ctrl+0", core.ViewerKeyActualSize),
+                new HelpEntry("F  Ctrl+9", core.ViewerKeyFit),
                 new HelpEntry("W", core.ViewerKeyWindowToCapture),
                 new HelpEntry("+  −", core.ViewerKeyZoom),
                 new HelpEntry("← ↑ → ↓", core.ViewerKeyPan),
@@ -620,6 +645,14 @@ namespace Greenshot.Viewer.Views
         private void ViewportMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Viewport.Focus();
+            if (_viewModel.ShowHelp)
+            {
+                // A click outside the keys closes them
+                _viewModel.ShowHelp = false;
+                e.Handled = true;
+                return;
+            }
+
             if (Viewport.Cursor == null || Keyboard.Modifiers == ModifierKeys.Control)
             {
                 // All of the capture is visible, or with Ctrl: dragging moves the window, also without a title bar
@@ -713,6 +746,10 @@ namespace Greenshot.Viewer.Views
         private void AlwaysOnTopClick(object sender, RoutedEventArgs e) => _viewModel.AlwaysOnTop = !_viewModel.AlwaysOnTop;
 
         private void FitClick(object sender, RoutedEventArgs e) => FitToWindow();
+
+        private void WindowToCaptureClick(object sender, RoutedEventArgs e) => SizeWindowToCapture();
+
+        private void CloseHelpClick(object sender, RoutedEventArgs e) => _viewModel.ShowHelp = false;
 
         private void ActualSizeClick(object sender, RoutedEventArgs e) => ShowActualSize();
 

@@ -23,7 +23,7 @@ A capture bigger than the screen gets a window as big as the screen and can be m
 can instead open a capture smaller, so the window is at most 800 × 800 pixels (or another size).
 
 - Zooming keeps the window size: the mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle.
-- `1` shows the capture 1:1 again, `0` zooms so all of the capture is visible in the window.
+- `1` (or `Ctrl+0`, as in the editor) shows the capture 1:1 again, `F` (or `Ctrl+9`) zooms so all of the capture is visible in the window.
 - When not all of the capture is visible, drag it or use the arrow keys to see another part. An overview in the corner shows
   the whole capture and marks the visible part, click or drag in it to move there.
 - `W` sizes the window to the zoomed capture, as far as the screen allows.
@@ -33,7 +33,7 @@ can instead open a capture smaller, so the window is at most 800 × 800 pixels (
 ## Title bar, border or only the capture
 
 `T` switches between a thin title bar with a thin frame, and only the capture. The title bar has the title of the capture and buttons
-to export, show 1:1, fit, keep the viewer on top, show the keys and close it. Without the title bar, drag the capture to move the
+to export, show 1:1, fit, size the window to the capture, keep the viewer on top, show the keys and close it. Without the title bar, drag the capture to move the
 window and use the keys or the menu (right mouse button).
 
 `B` shows or hides a border around the viewer, with or without the title bar, so the viewer is easy to tell apart from what is
@@ -55,9 +55,9 @@ back with the error.
 
 | Key | What it does |
 |---|---|
-| `1` | Real size (1:1) |
-| `0` | All of the capture in the window |
-| `+` `−`, mouse wheel | Zoom in and out, the window keeps its size |
+| `1`, `Ctrl+0` | Real size (1:1) |
+| `F`, `Ctrl+9` | All of the capture in the window |
+| `+` `−`, `Ctrl` `+` `−`, mouse wheel | Zoom in and out, the window keeps its size |
 | `W` | Window to the size of the zoomed capture |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
@@ -69,6 +69,8 @@ back with the error.
 | `Shift+F10`, right mouse button | The menu |
 | `H`, `F1` | Show or hide the keys |
 | `Esc` | Close the keys, or the viewer |
+
+The keys close with `Esc`, `H`, their close button or a click next to them.
 
 ## Settings
 
