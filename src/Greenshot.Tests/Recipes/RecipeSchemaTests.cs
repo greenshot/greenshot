@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using Greenshot.Base.Recipes;
 using Xunit;
 
@@ -54,7 +55,7 @@ namespace Greenshot.Tests.Recipes
         /// The names Greenshot reads and writes for a type, as the recipe files spell them
         /// </summary>
         private static string[] ModelProperties(params Type[] types) =>
-            types.SelectMany(type => RecipeSerializer.Options.GetTypeInfo(type).Properties.Select(p => p.Name))
+            types.SelectMany(type => new DefaultJsonTypeInfoResolver().GetTypeInfo(type, RecipeSerializer.Options).Properties.Select(p => p.Name))
                 .Distinct().OrderBy(name => name, StringComparer.Ordinal).ToArray();
 
         private static string[] SchemaProperties(JsonNode properties) =>
