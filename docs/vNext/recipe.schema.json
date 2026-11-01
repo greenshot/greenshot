@@ -524,12 +524,7 @@
             },
             "Format": {
               "type": "string",
-              "enum": [
-                "Mp4_H264",
-                "Mp4_Hevc"
-              ],
-              "default": "Mp4_H264",
-              "description": "Used by 'RecordVideo' step: Video codec container format."
+              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
             },
             "FrameRate": {
               "type": "integer",
