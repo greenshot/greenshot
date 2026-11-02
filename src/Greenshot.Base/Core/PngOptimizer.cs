@@ -25,13 +25,13 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
 using Rectangle = SixLabors.ImageSharp.Rectangle;
@@ -41,11 +41,15 @@ namespace Greenshot.Base.Core;
 /// <summary>
 /// Writes a PNG as small as possible without changing a single pixel, like optipng does:
 /// the smallest color type which still holds every pixel (a palette for up to 256 colors, no alpha channel when nothing is transparent), the best zlib level,
-/// and the smaller result of the two filter strategies which win on screenshots (none) and on photos (adaptive).
+/// and the filter strategy which wins on screenshots (none) or on photos (adaptive), chosen on bands of the image.
 /// </summary>
 public static class PngOptimizer
 {
     private const int MaxPaletteColors = 256;
+
+    // Bands of rows compressed to choose the filter
+    private const int ProbeBands = 8;
+    private const int ProbeBandRows = 16;
 
     /// <summary>
     /// Write the bitmap as an optimized PNG to the stream
@@ -165,14 +169,39 @@ public static class PngOptimizer
         }
 
         var colorType = hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb;
-        // No filter wins on screenshots, as with optipng, the adaptive filter wins on photos
-        var unfilteredEncoder = new PngEncoder { CompressionLevel = PngCompressionLevel.BestCompression, BitDepth = PngBitDepth.Bit8, ColorType = colorType, FilterMethod = PngFilterMethod.None };
-        var filteredEncoder = new PngEncoder { CompressionLevel = PngCompressionLevel.BestCompression, BitDepth = PngBitDepth.Bit8, ColorType = colorType, FilterMethod = PngFilterMethod.Adaptive };
-        using var unfiltered = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.None");
-        using var filtered = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.Adaptive");
-        // PARALLEL: both encodes only read the pixels and the metadata, which already holds the PNG metadata, and write to their own stream
-        Parallel.Invoke(() => image.SaveAsPng(unfiltered, unfilteredEncoder), () => image.SaveAsPng(filtered, filteredEncoder));
-        (filtered.Length < unfiltered.Length ? filtered : unfiltered).WriteTo(destination);
+        image.SaveAsPng(destination, new PngEncoder
+        {
+            CompressionLevel = PngCompressionLevel.BestCompression,
+            BitDepth = PngBitDepth.Bit8,
+            ColorType = colorType,
+            FilterMethod = ChooseFilter(image, colorType)
+        });
+    }
+
+    /// <summary>
+    /// No filter wins on screenshots, as with optipng, the adaptive filter wins on photos.
+    /// Bands spread over the image are compressed quickly with both, so the full image is compressed only once.
+    /// One band from the middle isn't enough, it picked the wrong filter for a web page with a picture in the middle.
+    /// </summary>
+    private static PngFilterMethod ChooseFilter<TPixel>(Image<TPixel> image, PngColorType colorType) where TPixel : unmanaged, IPixel<TPixel>
+    {
+        int bandHeight = Math.Min(ProbeBandRows, image.Height);
+        long unfilteredSize = 0, filteredSize = 0;
+        for (int band = 1; band <= ProbeBands; band++)
+        {
+            int top = Math.Max(0, Math.Min(image.Height - bandHeight, image.Height * band / (ProbeBands + 1) - bandHeight / 2));
+            using var bandImage = image.Clone(context => context.Crop(new Rectangle(0, top, image.Width, bandHeight)));
+            unfilteredSize += ProbeSize(bandImage, colorType, PngFilterMethod.None);
+            filteredSize += ProbeSize(bandImage, colorType, PngFilterMethod.Adaptive);
+        }
+        return filteredSize < unfilteredSize ? PngFilterMethod.Adaptive : PngFilterMethod.None;
+    }
+
+    private static long ProbeSize(Image image, PngColorType colorType, PngFilterMethod filterMethod)
+    {
+        using var probe = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.Probe");
+        image.SaveAsPng(probe, new PngEncoder { CompressionLevel = PngCompressionLevel.Level6, BitDepth = PngBitDepth.Bit8, ColorType = colorType, FilterMethod = filterMethod });
+        return probe.Length;
     }
 
     /// <summary>
