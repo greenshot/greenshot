@@ -238,7 +238,8 @@ namespace Greenshot.Viewer.Views
 
         /// <summary>
         /// Size the window: for the zoomed capture or the given visible part, at least the minimum, at most the work area of the screen.
-        /// Only when the viewer opens, the title bar is switched or the user asks for it (W): zooming keeps the window size.
+        /// When the viewer opens, the title bar is switched or the user asks for it (W). Zooming in keeps the window size,
+        /// zooming out makes the window smaller when the capture would be smaller than it (<see cref="ShrinkWindowToCapture"/>).
         /// </summary>
         /// <param name="center">Center the window on the screen of the mouse (when it's shown), else keep its location if possible</param>
         /// <param name="viewportPixels">The size of the visible part in screen pixels, null for the zoomed capture</param>
@@ -371,8 +372,26 @@ namespace Greenshot.Viewer.Views
             _zoom = zoom;
             _offsetX = captureX * zoom - at.X;
             _offsetY = captureY * zoom - at.Y;
-            // The window keeps its size, the overview shows where the visible part is
+            // A bigger capture: the window keeps its size, the overview shows where the visible part is
             LayoutCapture();
+            ShrinkWindowToCapture();
+        }
+
+        /// <summary>
+        /// The window is never bigger than the zoomed capture (but at least the minimum): where the capture got smaller than the
+        /// visible part, the window gets smaller too, so there is no empty space around it. It never grows here.
+        /// </summary>
+        private void ShrinkWindowToCapture()
+        {
+            var viewport = ViewportPixels;
+            double width = Math.Max(MinimumPixels, Math.Min(viewport.Width, CaptureWidth * _zoom));
+            double height = Math.Max(MinimumPixels, Math.Min(viewport.Height, CaptureHeight * _zoom));
+            if (width >= viewport.Width - 0.5 && height >= viewport.Height - 0.5)
+            {
+                return;
+            }
+
+            ApplyWindowSize(false, new Size(width, height));
         }
 
         /// <summary>
@@ -408,6 +427,7 @@ namespace Greenshot.Viewer.Views
             _offsetX = 0;
             _offsetY = 0;
             LayoutCapture();
+            ShrinkWindowToCapture();
         }
 
         /// <summary>

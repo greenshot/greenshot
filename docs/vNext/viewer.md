@@ -22,7 +22,8 @@ A viewer opens with the capture 1:1, one pixel of the capture is one pixel of th
 A capture bigger than the screen gets a window as big as the screen and can be moved around. The *Viewer* tab of the settings
 can instead open a capture smaller, so the window is at most 800 × 800 pixels (or another size).
 
-- Zooming keeps the window size: the mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle.
+- The mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle. Zooming in keeps the window size; zooming out makes the
+  window smaller once the capture is smaller than it, so the window is never bigger than the capture (down to a minimum size).
 - `1` (or `Ctrl+0`, as in the editor) shows the capture 1:1 again, `F` (or `Ctrl+9`) zooms so all of the capture is visible in the window.
 - When not all of the capture is visible, drag it or use the arrow keys to see another part. An overview in the corner shows
   the whole capture and marks the visible part, click or drag in it to move there.
@@ -60,7 +61,7 @@ has no export, the destination is chosen in the window; `Esc` closes it and goes
 |---|---|
 | `1`, `Ctrl+0` | Real size (1:1) |
 | `F`, `Ctrl+9` | All of the capture in the window |
-| `+` `−`, `Ctrl` `+` `−`, mouse wheel | Zoom in and out, the window keeps its size |
+| `+` `−`, `Ctrl` `+` `−`, mouse wheel | Zoom in and out; the window keeps its size, or gets smaller with the capture |
 | `W` | Window to the size of the zoomed capture |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
