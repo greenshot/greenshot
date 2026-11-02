@@ -1,0 +1,313 @@
+{
+  "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "kind": "recipe",
+  "version": "2.0",
+  "id": "region_fixed_width",
+  "name": "Region with fixed width",
+  "description": "Scales a region capture down to a maximum width. Fills the canvas up if the image is smaller. Adds a border.",
+  "authors": [
+    {
+      "name": "Christian Schulz",
+      "github": "Christian-Schulz"
+    }
+  ],
+  "copyright": "Copyright (c) 2026 Christian Schulz",
+  "license": "MIT",
+  "showInContextMenu": true,
+  "requires": [],
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "name": "Hotkey Trigger",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "${option.hotkey}"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "acquire",
+      "stepType": "Source",
+      "name": "Prepare for Region",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "name": "Select Region",
+      "enabled": true,
+      "parameters": {
+        "SelectionMode": "Region",
+        "AllowWindowSnapping": true
+      }
+    },
+    {
+      "id": "export",
+      "stepType": "Destinations",
+      "name": "Export Destinations",
+      "enabled": true,
+      "parameters": {}
+    },
+    {
+      "id": "conditional_7e17",
+      "stepType": "Conditional",
+      "name": "Check Width",
+      "enabled": true,
+      "parameters": {
+        "Branches": [
+          {
+            "Key": "A",
+            "Expression": "${payload.width > calculated_max}"
+          },
+          {
+            "Key": "B",
+            "Expression": "${option.fill_up_canvas == FALSE}"
+          },
+          {
+            "Key": "C",
+            "Expression": "else"
+          }
+        ]
+      }
+    },
+    {
+      "id": "effect_9bf4",
+      "stepType": "Effect",
+      "name": "Downscale to Max Size",
+      "enabled": true,
+      "parameters": {
+        "Effect": "Resize",
+        "MaintainAspectRatio": false,
+        "Width": "${calculated_max}",
+        "Height": "${(calculated_max / payload.width) * payload.height }"
+      }
+    },
+    {
+      "id": "effect_b455",
+      "stepType": "Effect",
+      "name": "Fill Canvas",
+      "enabled": true,
+      "parameters": {
+        "Effect": "ResizeCanvas",
+        "BackgroundColor": "${option.canvas_color}",
+        "Right": "${((calculated_max - payload.width) - ((calculated_max - payload.width) % 2)) / 2}",
+        "Top": 0,
+        "Left": "${((calculated_max - payload.width) + ((calculated_max - payload.width) % 2)) / 2}",
+        "Bottom": 0
+      }
+    },
+    {
+      "id": "effect_1d4f",
+      "stepType": "Effect",
+      "name": "Add Border",
+      "enabled": true,
+      "parameters": {
+        "Effect": "Border",
+        "Color": "${option.border_color}",
+        "Width": "${option.border_thickness}"
+      }
+    },
+    {
+      "id": "conditional_7e92",
+      "stepType": "Conditional",
+      "name": "With Border ?",
+      "enabled": true,
+      "parameters": {
+        "Branches": [
+          {
+            "Key": "A",
+            "Expression": "${option.add_border}"
+          },
+          {
+            "Key": "B",
+            "Expression": "else"
+          }
+        ]
+      }
+    },
+    {
+      "id": "setvariable_352c",
+      "stepType": "SetVariable",
+      "name": "SetVariable",
+      "enabled": true,
+      "parameters": {
+        "Variables": {
+          "calculated_max": "${ option.max_width - (option.border_thickness * 2) }"
+        }
+      }
+    },
+    {
+      "id": "conditional_db20",
+      "stepType": "Conditional",
+      "name": "With Border ?",
+      "enabled": true,
+      "parameters": {
+        "Branches": [
+          {
+            "Key": "A",
+            "Expression": "${option.add_border}"
+          },
+          {
+            "Key": "B",
+            "Expression": "else"
+          }
+        ]
+      }
+    },
+    {
+      "id": "setvariable_c470",
+      "stepType": "SetVariable",
+      "name": "SetVariable",
+      "enabled": true,
+      "parameters": {
+        "Variables": {
+          "calculated_max": "${option.max_width}"
+        }
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "acquire"
+    ],
+    "transitions": [
+      {
+        "from": "acquire",
+        "to": "select"
+      },
+      {
+        "from": "effect_1d4f",
+        "to": "export"
+      },
+      {
+        "from": "effect_9bf4",
+        "to": "conditional_7e92"
+      },
+      {
+        "from": "effect_b455",
+        "to": "conditional_7e92"
+      },
+      {
+        "from": "setvariable_352c",
+        "to": "conditional_7e17"
+      },
+      {
+        "from": "select",
+        "to": "conditional_db20"
+      },
+      {
+        "from": "setvariable_c470",
+        "to": "conditional_7e17"
+      },
+      {
+        "from": "conditional_7e17",
+        "to": "effect_9bf4",
+        "branch": "A"
+      },
+      {
+        "from": "conditional_7e92",
+        "to": "export",
+        "branch": "B"
+      },
+      {
+        "from": "conditional_7e92",
+        "to": "effect_1d4f",
+        "branch": "A"
+      },
+      {
+        "from": "conditional_7e17",
+        "to": "effect_b455",
+        "branch": "C"
+      },
+      {
+        "from": "conditional_7e17",
+        "to": "conditional_7e92",
+        "branch": "B"
+      },
+      {
+        "from": "conditional_db20",
+        "to": "setvariable_352c",
+        "branch": "A"
+      },
+      {
+        "from": "conditional_db20",
+        "to": "setvariable_c470",
+        "branch": "B"
+      }
+    ]
+  },
+  "options": [
+    {
+      "key": "hotkey",
+      "type": "Hotkey",
+      "default": "Ctrl + Alt + F",
+      "label": "Hotkey"
+    },
+    {
+      "key": "max_width",
+      "type": "Integer",
+      "default": 800,
+      "label": "Max width (px)",
+      "min": 1,
+      "max": 10000,
+      "quickSettings": false
+    },
+    {
+      "key": "add_border",
+      "type": "Boolean",
+      "default": true,
+      "label": "Add border",
+      "quickSettings": false
+    },
+    {
+      "key": "border_thickness",
+      "type": "Integer",
+      "default": 2,
+      "label": "Border thickness (px)",
+      "min": 1,
+      "max": 10,
+      "enabledWhen": "add_border",
+      "quickSettings": false
+    },
+    {
+      "key": "border_color",
+      "type": "Color",
+      "default": "#FF000000",
+      "label": "Border color",
+      "enabledWhen": "add_border",
+      "quickSettings": false
+    },
+    {
+      "key": "fill_up_canvas",
+      "type": "Boolean",
+      "default": true,
+      "label": "Fill up smaller images",
+      "quickSettings": false
+    },
+    {
+      "key": "canvas_color",
+      "type": "Color",
+      "default": "#888888",
+      "label": "Canvas color",
+      "enabledWhen": "fill_up_canvas",
+      "quickSettings": false
+    }
+  ],
+  "translations": {
+    "de-DE": {
+      "name": "Bereich mit fester Breite",
+      "description": "Skaliert eine Bereichsaufnahme auf eine feste Breite herunter. Füllt bei kleinen Bildern die Fläche auf. Fügt einen Rahmen hinzu.",
+      "options.max_width.label": "Maximale Breite (px)",
+      "options.add_border.label": "Rahmen hinzufügen",
+      "options.border_thickness.label": "Rahmendicke (px)",
+      "options.border_color.label": "Rahmenfarbe",
+      "options.fill_up_canvas.label": "Fläche bei kleinen Bildern auffüllen",
+      "options.canvas_color.label": "Farbe der Fläche",
+      "options.hotkey.label": "Tastenkombination"
+    }
+  }
+}
