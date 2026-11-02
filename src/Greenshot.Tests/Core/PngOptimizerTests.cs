@@ -44,6 +44,8 @@ namespace Greenshot.Tests.Core
             // A gray image has at most 256 colors, so it gets a palette too
             { "gray", PngColorType.Palette },
             { "rgb", PngColorType.Rgb },
+            // 63 * 3 bytes need row padding, so this is read through a copy instead of in place
+            { "rgbPadded", PngColorType.Rgb },
             { "rgbWithAlpha", PngColorType.RgbWithAlpha },
         };
 
@@ -52,10 +54,11 @@ namespace Greenshot.Tests.Core
         public void Save_KeepsEveryPixel_WithSmallestColorType(string kind, PngColorType expectedColorType)
         {
             bool alpha = kind is "fewColorsWithTransparency" or "rgbWithAlpha";
-            using var bitmap = new Bitmap(Size, Size, alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
+            int width = kind == "rgbPadded" ? Size - 1 : Size;
+            using var bitmap = new Bitmap(width, Size, alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
             for (int y = 0; y < Size; y++)
             {
-                for (int x = 0; x < Size; x++)
+                for (int x = 0; x < width; x++)
                 {
                     int i = y * Size + x;
                     bitmap.SetPixel(x, y, kind switch
@@ -63,7 +66,7 @@ namespace Greenshot.Tests.Core
                         "nearColors" => Color.FromArgb(100 + i % 200 / 10, 50 + i % 200 % 10, 7),
                         "fewColorsWithTransparency" => i % 3 == 0 ? Color.FromArgb(0, 0, 0, 0) : Color.FromArgb(128, 10, 20, 30),
                         "gray" => Color.FromArgb(i % 256, i % 256, i % 256),
-                        "rgb" => Color.FromArgb(i % 256, i / 256, 3),
+                        "rgb" or "rgbPadded" => Color.FromArgb(i % 256, i / 256, 3),
                         _ => Color.FromArgb(255 - i % 5, i % 256, i / 256, 3),
                     });
                 }
@@ -77,7 +80,7 @@ namespace Greenshot.Tests.Core
             Assert.Equal(expectedColorType, written.Metadata.GetPngMetadata().ColorType);
             for (int y = 0; y < Size; y++)
             {
-                for (int x = 0; x < Size; x++)
+                for (int x = 0; x < width; x++)
                 {
                     var expected = bitmap.GetPixel(x, y);
                     var actual = written[x, y];

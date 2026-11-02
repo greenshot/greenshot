@@ -22,13 +22,18 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Dapplo.Windows.Common.Structs;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
+using Image = SixLabors.ImageSharp.Image;
 using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace Greenshot.Base.Core;
@@ -47,9 +52,34 @@ public static class PngOptimizer
     /// </summary>
     /// <param name="bitmap">Bitmap to write</param>
     /// <param name="destination">Stream to write to</param>
-    public static void Save(Bitmap bitmap, Stream destination)
+    public static unsafe void Save(Bitmap bitmap, Stream destination)
     {
-        using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
+        // 32bpp ARGB and 24bpp RGB without row padding are read in place, everything else is converted to a copy first
+        bool isArgb = bitmap.PixelFormat == PixelFormat.Format32bppArgb;
+        bool isRgb = bitmap.PixelFormat == PixelFormat.Format24bppRgb && bitmap.Width * 3 % 4 == 0;
+        if (!isArgb && !isRgb)
+        {
+            using var copy = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            Save(copy, bitmap, destination);
+            return;
+        }
+
+        var bitmapData = bitmap.LockBits(new NativeRect(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+        try
+        {
+            using Image image = isArgb
+                ? Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height)
+                : Image.WrapMemory<Bgr24>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height);
+            Save(image, bitmap, destination);
+        }
+        finally
+        {
+            bitmap.UnlockBits(bitmapData);
+        }
+    }
+
+    private static void Save(Image image, Bitmap bitmap, Stream destination)
+    {
         image.Metadata.ResolutionUnits = PixelResolutionUnit.PixelsPerInch;
         image.Metadata.HorizontalResolution = bitmap.HorizontalResolution;
         image.Metadata.VerticalResolution = bitmap.VerticalResolution;
@@ -69,18 +99,32 @@ public static class PngOptimizer
 
     private static void Save<TPixel>(Image<TPixel> image, Stream destination) where TPixel : unmanaged, IPixel<TPixel>
     {
-        var palette = new Dictionary<Rgba32, byte>();
+        // Bgr24 has no alpha, for Bgra32 the JIT removes the type checks
+        bool checkAlpha = typeof(TPixel) == typeof(Bgra32);
+        var palette = new Dictionary<TPixel, byte>(MaxPaletteColors + 1);
         bool tooManyColors = false, hasAlpha = false;
         image.ProcessPixelRows(accessor =>
         {
-            Rgba32 rgba = default;
+            TPixel previous = default;
+            bool hasPrevious = false;
             for (int y = 0; y < accessor.Height; y++)
             {
-                foreach (var pixel in accessor.GetRowSpan(y))
+                var row = accessor.GetRowSpan(y);
+                for (int x = 0; x < row.Length; x++)
                 {
-                    pixel.ToRgba32(ref rgba);
-                    hasAlpha |= rgba.A != byte.MaxValue;
-                    if (tooManyColors || palette.ContainsKey(rgba))
+                    ref TPixel pixel = ref row[x];
+                    if (checkAlpha && !hasAlpha && Unsafe.As<TPixel, Bgra32>(ref pixel).A != byte.MaxValue)
+                    {
+                        hasAlpha = true;
+                    }
+                    // Screenshots have long runs of one color, only a new color needs the dictionary
+                    if (tooManyColors || (hasPrevious && pixel.Equals(previous)))
+                    {
+                        continue;
+                    }
+                    previous = pixel;
+                    hasPrevious = true;
+                    if (palette.ContainsKey(pixel))
                     {
                         continue;
                     }
@@ -89,42 +133,45 @@ public static class PngOptimizer
                         tooManyColors = true;
                         continue;
                     }
-                    palette.Add(rgba, (byte)palette.Count);
+                    palette.Add(pixel, (byte)palette.Count);
+                }
+                // Nothing left to find out: no palette, and alpha is found or impossible
+                if (tooManyColors && (hasAlpha || !checkAlpha))
+                {
+                    return;
                 }
             }
         });
 
-        var encoder = new PngEncoder
-        {
-            CompressionLevel = PngCompressionLevel.BestCompression,
-            BitDepth = PngBitDepth.Bit8,
-            ColorType = hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb
-        };
         if (!tooManyColors)
         {
-            encoder.ColorType = PngColorType.Palette;
-            encoder.BitDepth = palette.Count switch
+            var paletteEncoder = new PngEncoder
             {
-                <= 2 => PngBitDepth.Bit1,
-                <= 4 => PngBitDepth.Bit2,
-                <= 16 => PngBitDepth.Bit4,
-                _ => PngBitDepth.Bit8
+                CompressionLevel = PngCompressionLevel.BestCompression,
+                ColorType = PngColorType.Palette,
+                BitDepth = palette.Count switch
+                {
+                    <= 2 => PngBitDepth.Bit1,
+                    <= 4 => PngBitDepth.Bit2,
+                    <= 16 => PngBitDepth.Bit4,
+                    _ => PngBitDepth.Bit8
+                },
+                // With a palette the adaptive filter gives the same size as no filter
+                FilterMethod = PngFilterMethod.None,
+                Quantizer = new ExactPaletteQuantizer<TPixel>(palette)
             };
-            encoder.Quantizer = new ExactPaletteQuantizer(palette);
-        }
-
-        // No filter wins on screenshots, as with optipng. With a palette the adaptive filter gives the same size, so it's only tried for photos.
-        encoder.FilterMethod = PngFilterMethod.None;
-        using var unfiltered = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.None");
-        image.SaveAsPng(unfiltered, encoder);
-        if (encoder.ColorType == PngColorType.Palette)
-        {
-            unfiltered.WriteTo(destination);
+            image.SaveAsPng(destination, paletteEncoder);
             return;
         }
-        encoder.FilterMethod = PngFilterMethod.Adaptive;
+
+        var colorType = hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb;
+        // No filter wins on screenshots, as with optipng, the adaptive filter wins on photos
+        var unfilteredEncoder = new PngEncoder { CompressionLevel = PngCompressionLevel.BestCompression, BitDepth = PngBitDepth.Bit8, ColorType = colorType, FilterMethod = PngFilterMethod.None };
+        var filteredEncoder = new PngEncoder { CompressionLevel = PngCompressionLevel.BestCompression, BitDepth = PngBitDepth.Bit8, ColorType = colorType, FilterMethod = PngFilterMethod.Adaptive };
+        using var unfiltered = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.None");
         using var filtered = RecyclableMemoryStreamFactory.GetStream("PngOptimizer.Adaptive");
-        image.SaveAsPng(filtered, encoder);
+        // PARALLEL: both encodes only read the pixels and the metadata, which already holds the PNG metadata, and write to their own stream
+        Parallel.Invoke(() => image.SaveAsPng(unfiltered, unfilteredEncoder), () => image.SaveAsPng(filtered, filteredEncoder));
         (filtered.Length < unfiltered.Length ? filtered : unfiltered).WriteTo(destination);
     }
 
@@ -132,26 +179,27 @@ public static class PngOptimizer
     /// The quantizers of ImageSharp 2.x map colors through a cache with 5 bits per channel, so nearly equal colors can swap.
     /// This maps every color to its own palette entry, it only works for images with all their colors in the palette.
     /// </summary>
-    private sealed class ExactPaletteQuantizer : IQuantizer
+    private sealed class ExactPaletteQuantizer<TColor> : IQuantizer where TColor : unmanaged, IPixel<TColor>
     {
-        private readonly Dictionary<Rgba32, byte> _palette;
+        private readonly Dictionary<TColor, byte> _palette;
 
-        public ExactPaletteQuantizer(Dictionary<Rgba32, byte> palette) => _palette = palette;
+        public ExactPaletteQuantizer(Dictionary<TColor, byte> palette) => _palette = palette;
 
         public QuantizerOptions Options { get; } = new() { Dither = null, MaxColors = MaxPaletteColors };
 
         public IQuantizer<TPixel> CreatePixelSpecificQuantizer<TPixel>(Configuration configuration) where TPixel : unmanaged, IPixel<TPixel>
             => CreatePixelSpecificQuantizer<TPixel>(configuration, Options);
 
+        // The encoder asks for the pixel type of the image, which is the type of the palette
         public IQuantizer<TPixel> CreatePixelSpecificQuantizer<TPixel>(Configuration configuration, QuantizerOptions options) where TPixel : unmanaged, IPixel<TPixel>
-            => new PixelQuantizer<TPixel>(configuration, Options, _palette);
+            => new PixelQuantizer<TPixel>(configuration, Options, (Dictionary<TPixel, byte>)(object)_palette);
 
-        private struct PixelQuantizer<TPixel> : IQuantizer<TPixel> where TPixel : unmanaged, IPixel<TPixel>
+        private readonly struct PixelQuantizer<TPixel> : IQuantizer<TPixel> where TPixel : unmanaged, IPixel<TPixel>
         {
-            private readonly Dictionary<Rgba32, byte> _indexes;
+            private readonly Dictionary<TPixel, byte> _indexes;
             private readonly TPixel[] _colors;
 
-            public PixelQuantizer(Configuration configuration, QuantizerOptions options, Dictionary<Rgba32, byte> indexes)
+            public PixelQuantizer(Configuration configuration, QuantizerOptions options, Dictionary<TPixel, byte> indexes)
             {
                 Configuration = configuration;
                 Options = options;
@@ -159,7 +207,7 @@ public static class PngOptimizer
                 _colors = new TPixel[indexes.Count];
                 foreach (var entry in indexes)
                 {
-                    _colors[entry.Value].FromRgba32(entry.Key);
+                    _colors[entry.Value] = entry.Key;
                 }
             }
 
@@ -175,13 +223,14 @@ public static class PngOptimizer
             }
 
             public IndexedImageFrame<TPixel> QuantizeFrame(ImageFrame<TPixel> source, Rectangle bounds)
-                => QuantizerUtilities.QuantizeFrame(ref this, source, bounds);
+            {
+                var quantizer = this;
+                return QuantizerUtilities.QuantizeFrame(ref quantizer, source, bounds);
+            }
 
             public byte GetQuantizedColor(TPixel color, out TPixel match)
             {
-                Rgba32 rgba = default;
-                color.ToRgba32(ref rgba);
-                byte index = _indexes[rgba];
+                byte index = _indexes[color];
                 match = _colors[index];
                 return index;
             }
