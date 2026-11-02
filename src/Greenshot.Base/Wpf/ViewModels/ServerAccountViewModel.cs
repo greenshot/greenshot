@@ -36,12 +36,12 @@ namespace Greenshot.Base.Wpf.ViewModels
     public sealed class ServerAccountViewModel : INotifyPropertyChanged
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ServerAccountViewModel));
-        private readonly ServerSignIn _signIn;
+        private readonly IAccountSignIn _signIn;
         private string _status;
         private bool _isError;
         private bool _isBusy;
 
-        public ServerAccountViewModel(ServerSignIn signIn)
+        public ServerAccountViewModel(IAccountSignIn signIn)
         {
             _signIn = signIn ?? throw new ArgumentNullException(nameof(signIn));
             Refresh();

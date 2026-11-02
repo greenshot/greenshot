@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -46,6 +47,56 @@ public static class BoxUtils
     private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 
     /// <summary>
+    /// The account in the settings: sign in, test, sign out
+    /// </summary>
+    public static OAuth2SignIn SignIn { get; } = new OAuth2SignIn("Box", CreateSettings, StoreSettings, GetAccountAsync);
+
+    /// <summary>
+    /// The OAuth 2 settings with the stored tokens
+    /// </summary>
+    internal static OAuth2Settings CreateSettings() => new OAuth2Settings
+    {
+        AuthorizeUrl = "https://app.box.com/api/oauth2/authorize",
+        SignedInUrl = $"https://getgreenshot.org/signed-in/box/?version={Uri.EscapeDataString(EnvironmentInfo.GetGreenshotVersion(true))}",
+        TokenUrl = "https://api.box.com/oauth2/token",
+        CloudServiceName = "Box",
+        ClientId = BoxCredentials.ClientId,
+        ClientSecret = BoxCredentials.ClientSecret,
+        // Box doesn't document PKCE
+        UsePkce = false,
+        // Stored encrypted
+        RefreshToken = string.IsNullOrEmpty(Config.RefreshToken14) ? Config.RefreshToken14 : Config.RefreshToken14.Decrypt(),
+        AccessToken = Config.AccessToken,
+        AccessTokenExpires = Config.AccessTokenExpires
+    };
+
+    /// <summary>
+    /// Store the tokens of the settings, on the UI thread
+    /// </summary>
+    internal static void StoreSettings(OAuth2Settings settings)
+    {
+        Config.RefreshToken14 = string.IsNullOrEmpty(settings.RefreshToken) ? settings.RefreshToken : settings.RefreshToken.Encrypt();
+        Config.AccessToken = settings.AccessToken;
+        Config.AccessTokenExpires = settings.AccessTokenExpires;
+    }
+
+    /// <summary>
+    /// The login (e-mail address) of the signed in Box user
+    /// </summary>
+    private static async Task<string> GetAccountAsync(OAuth2Settings settings, IUserInteraction userInteraction, CancellationToken cancellationToken)
+    {
+        var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Get, "https://api.box.com/2.0/users/me?fields=login", settings, userInteraction, cancellationToken).ConfigureAwait(false);
+        if (request == null)
+        {
+            return null;
+        }
+
+        string response = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
+        using var document = JsonDocument.Parse(response);
+        return document.RootElement.TryGetProperty("login", out var login) ? login.GetString() : null;
+    }
+
+    /// <summary>
     /// Do the actual upload to Box
     /// For more details on the available parameters, see: https://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
     /// </summary>
@@ -57,22 +108,7 @@ public static class BoxUtils
     /// <returns>url to uploaded image, null when the user didn't authorize</returns>
     public static async Task<string> UploadToBoxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
-        // Fill the OAuth2Settings
-        var settings = new OAuth2Settings
-        {
-            AuthorizeUrl = "https://app.box.com/api/oauth2/authorize",
-            SignedInUrl = $"https://getgreenshot.org/signed-in/box/?version={Uri.EscapeDataString(EnvironmentInfo.GetGreenshotVersion(true))}",
-            TokenUrl = "https://api.box.com/oauth2/token",
-            CloudServiceName = "Box",
-            ClientId = BoxCredentials.ClientId,
-            ClientSecret = BoxCredentials.ClientSecret,
-            // Box doesn't document PKCE
-            UsePkce = false,
-            // Stored encrypted
-            RefreshToken = string.IsNullOrEmpty(Config.RefreshToken14) ? Config.RefreshToken14 : Config.RefreshToken14.Decrypt(),
-            AccessToken = Config.AccessToken,
-            AccessTokenExpires = Config.AccessTokenExpires
-        };
+        var settings = CreateSettings();
 
         try
         {
@@ -110,12 +146,7 @@ public static class BoxUtils
         finally
         {
             // Copy the settings back to the config (on the UI thread), so they are stored.
-            await UiDispatcher.Current.InvokeAsync(() =>
-            {
-                Config.RefreshToken14 = string.IsNullOrEmpty(settings.RefreshToken) ? settings.RefreshToken : settings.RefreshToken.Encrypt();
-                Config.AccessToken = settings.AccessToken;
-                Config.AccessTokenExpires = settings.AccessTokenExpires;
-            }, CancellationToken.None).ConfigureAwait(false);
+            await UiDispatcher.Current.InvokeAsync(() => StoreSettings(settings), CancellationToken.None).ConfigureAwait(false);
         }
     }
 }

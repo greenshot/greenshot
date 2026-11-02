@@ -37,7 +37,7 @@ namespace Greenshot.Base.Http
     /// The sign-in to the server of a plugin (Jira, Confluence): the credentials of this session or the ones stored in the
     /// Windows Credential Manager first, the sign-in window only when there are none or the server rejects them.
     /// </summary>
-    public sealed class ServerSignIn
+    public sealed class ServerSignIn : IAccountSignIn
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ServerSignIn));
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);

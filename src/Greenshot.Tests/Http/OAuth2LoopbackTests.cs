@@ -197,5 +197,24 @@ namespace Greenshot.Tests.Http
             using var receiver = new LocalServerCodeReceiver();
             Assert.Equal($"http://localhost:{freePort}/authorize/", receiver.Start(new[] { busyPort, freePort }));
         }
+
+        [Fact]
+        public async Task SignIn_StoredToken_SignOutForgetsIt()
+        {
+            var stored = new OAuth2Settings { RefreshToken = "refresh" };
+            var signIn = new OAuth2SignIn("Test", () => new OAuth2Settings { RefreshToken = stored.RefreshToken }, settings => stored = settings,
+                (_, _, _) => Task.FromResult("user@example.com"));
+            Assert.True(signIn.HasStoredCredentials);
+            Assert.False(signIn.IsSignedIn);
+
+            Assert.Equal("user@example.com", await signIn.TestAsync(TestContext.Current.CancellationToken));
+            Assert.True(signIn.IsSignedIn);
+
+            signIn.SignOut();
+            Assert.Null(stored.RefreshToken);
+            Assert.False(signIn.HasStoredCredentials);
+            Assert.False(signIn.IsSignedIn);
+            Assert.Null(await signIn.TestAsync(TestContext.Current.CancellationToken));
+        }
     }
 }

@@ -22,6 +22,8 @@
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Plugin.Box.Api;
 
 namespace Greenshot.Plugin.Box.Views;
 
@@ -31,6 +33,7 @@ public partial class BoxConfigurationView : UserControl
     {
         DataContext = config;
         InitializeComponent();
+        AccountView.DataContext = new ServerAccountViewModel(BoxUtils.SignIn);
         var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
         if (FindName("UploadFormatCombo") is ComboBox uploadFormatCombo)
         {

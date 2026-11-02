@@ -22,6 +22,8 @@
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Wpf.ViewModels;
+using Greenshot.Plugin.Dropbox.Api;
 
 namespace Greenshot.Plugin.Dropbox.Views;
 
@@ -31,6 +33,7 @@ public partial class DropboxConfigurationView : UserControl
     {
         DataContext = config;
         InitializeComponent();
+        AccountView.DataContext = new ServerAccountViewModel(DropboxUtils.SignIn);
         var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
         if (FindName("UploadFormatCombo") is ComboBox uploadFormatCombo)
         {
