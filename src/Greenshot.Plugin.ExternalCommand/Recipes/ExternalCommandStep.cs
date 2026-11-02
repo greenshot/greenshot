@@ -204,7 +204,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
 
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
-                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
                 fullPath = await ExportFiles.SaveNamedTmpFileAsync(source, captureDetails, outputSettings, cancellationToken).ConfigureAwait(false);
             }
 
@@ -286,7 +286,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             }
 
             // The same result as the external command destination, before a reload replaces the capture: the Notification step shows it
-            var exportSource = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var exportSource = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             var result = exitCode == 0
                 ? ExportResult.Succeeded(fullPath, Uri.TryCreate(matchedUri, UriKind.Absolute, out var uri) ? uri : null, clearsModified: false)
                 : ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
