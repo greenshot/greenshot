@@ -1025,6 +1025,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 vm.StepErrorTransitionProvider = FindStepErrorTransition;
                 vm.StepErrorTransitionSetter = SetStepErrorTransition;
+                vm.PortRemovedHandler = RemoveConnectionsFrom;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -1306,6 +1307,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Removes the connections from a removed branch or choice: kept, they would be saved as plain transitions of the step
+        /// </summary>
+        private void RemoveConnectionsFrom(StepPortViewModel port)
+        {
+            foreach (var conn in Connections.Where(c => c.Source == port).ToList())
+            {
+                RemoveConnection(conn);
+            }
+        }
+
         public void RemoveConnection(StepConnectionViewModel conn)
         {
             if (conn != null && Connections.Contains(conn))
@@ -1425,6 +1437,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             nodeVm.StepErrorTransitionProvider = FindStepErrorTransition;
             nodeVm.StepErrorTransitionSetter = SetStepErrorTransition;
+            nodeVm.PortRemovedHandler = RemoveConnectionsFrom;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
