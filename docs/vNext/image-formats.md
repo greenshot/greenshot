@@ -63,17 +63,30 @@ upright when it opens them, whichever reader opens the file. To switch this off,
 ## Details in saved images
 
 Every saved image says it was written by Greenshot and keeps its resolution. By default Greenshot also writes when the screen
-was captured, so file managers can show and sort by "Date taken". An image opened from a file or the clipboard gets no capture
-time, because Greenshot doesn't know it.
+was captured, so file managers can show and sort by "Date taken". An image opened from a file keeps the capture time its file
+had; an image from the clipboard gets none.
 
-You can add your name and a copyright notice. Nothing else is written: no location, no user or computer name, and nothing from
-an image you opened.
+You can add more details in greenshot.ini (`ExportMetadata`):
+
+- your name and a copyright notice;
+- private details: the window title and the web address of the browser tab, the text OCR already found (writing it never starts
+  OCR), and the content of barcodes and QR codes. With the text, Windows Search and file managers can find a screenshot by
+  what is written in it.
+
+Private details say what you captured and where. Files you save on this computer get them. Before an image with private details
+goes anywhere else (an upload, an e-mail, Office, another program), Greenshot shows them and asks whether to remove or keep
+them; removing is the default. A recipe running without a window removes them.
+
+Nothing else is written: no location, no user or computer name, and nothing from an image you opened.
 
 | Format | Where the details go |
 |---|---|
-| JPEG, TIFF, JPEG XR | EXIF |
+| JPEG, TIFF, JPEG XR | EXIF and XMP |
 | PNG, WebP | EXIF and XMP: Windows shows the XMP, other programs the EXIF |
 | BMP, GIF, TGA, PBM | none of these details |
+
+When you open an image, Greenshot reads the capture time, window title and web address it wrote, so filename patterns and
+recipes use them like for the original capture. Set `ImportMetadata=False` to switch this off.
 
 ## Expert settings
 
@@ -85,7 +98,9 @@ These are in greenshot.ini only:
   read such PNG files.
 - `ProcessEXIFOrientation` (default True): turn photos upright when opening them.
 - `ExportMetadata` (default `CaptureTime`): which details are written into saved images. `CaptureTime`: when the screen was
-  captured. `Author`: the values of `ExportMetadataAuthor` and `ExportMetadataCopyright`. Leave it empty to write only the
-  program name and the resolution.
+  captured. `Author`: the values of `ExportMetadataAuthor` and `ExportMetadataCopyright`. Private: `Source` (window title, web
+  address), `Text` (text OCR found), `Barcodes` (barcode and QR code content). Leave it empty to write only the program name and
+  the resolution.
 - `ExportMetadataAuthor`, `ExportMetadataCopyright` (default empty): your name and copyright notice, written when
   `ExportMetadata` contains `Author`.
+- `ImportMetadata` (default True): read the capture time, window title and web address Greenshot wrote when opening an image.

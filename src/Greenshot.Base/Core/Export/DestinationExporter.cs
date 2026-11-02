@@ -65,7 +65,13 @@ namespace Greenshot.Base.Core.Export
             ThreadAssert.NotUi($"Export to {destination.Designation}");
             try
             {
-                var request = new ExportRequest(source, captureDetails, manuallyInitiated, userInteraction ?? UserInteraction.Current);
+                var ui = userInteraction ?? UserInteraction.Current;
+                if (source is SurfaceExportSource surfaceSource && ui.IsInteractive)
+                {
+                    // Private details only leave this computer when the user says so, asked when the image is encoded
+                    surfaceSource.AskToKeepPrivateMetadata ??= (details, token) => PrivateMetadataRequest.AskAsync(ui, details, token);
+                }
+                var request = new ExportRequest(source, captureDetails, manuallyInitiated, ui);
                 var result = await destination.ExportAsync(request, cancellationToken).ConfigureAwait(false) ?? ExportResult.Declined;
                 Log.InfoFormat("Export to {0}: {1}", destination.Designation, result);
                 return result;

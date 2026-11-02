@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -32,6 +33,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using Dapplo.Windows.Common.Structs;
 using Xunit;
 
 namespace Greenshot.Tests.Core
@@ -134,6 +136,146 @@ namespace Greenshot.Tests.Core
             Assert.Null(image.Metadata.XmpProfile);
             var software = image.Metadata.GetPngMetadata().TextData.Single(text => text.Keyword == "Software");
             Assert.Equal("Greenshot test", software.Value);
+        }
+
+        [Fact]
+        public void PrivateDetails_OnlyWhenIncluded()
+        {
+            var captureDetails = CaptureWithPrivateDetails();
+            ExportMetadataField[] fields = [ExportMetadataField.Source, ExportMetadataField.Text, ExportMetadataField.Barcodes];
+
+            var withoutPrivate = ExportImageMetadata.ForExport(captureDetails, fields, null, null);
+            Assert.False(withoutPrivate.HasPrivateDetails);
+
+            var withPrivate = ExportImageMetadata.ForExport(captureDetails, fields, null, null, includePrivate: true);
+            Assert.Equal("Inbox - Mail", withPrivate.Title);
+            Assert.Equal("https://example.org/page", withPrivate.SourceUrl);
+            Assert.Equal("Invoice 4711" + Environment.NewLine + "Total 99 EUR", withPrivate.Description);
+            Assert.Equal(["https://example.org/qr"], withPrivate.Barcodes);
+        }
+
+        [Fact]
+        public void PrivateDetails_OnlyTheChosenFields()
+        {
+            var metadata = ExportImageMetadata.ForExport(CaptureWithPrivateDetails(), [ExportMetadataField.Text], null, null, includePrivate: true);
+            Assert.Null(metadata.Title);
+            Assert.Null(metadata.SourceUrl);
+            Assert.Empty(metadata.Barcodes);
+            Assert.NotNull(metadata.Description);
+        }
+
+        [Fact]
+        public void Xmp_HasThePrivateDetails()
+        {
+            var metadata = new ExportImageMetadata { Software = "Greenshot test", Title = "Inbox", SourceUrl = "https://example.org", Description = "Some text" };
+            metadata.Barcodes.Add("QR content");
+            var document = XDocument.Parse(System.Text.Encoding.UTF8.GetString(metadata.ToXmpPacket()));
+            XNamespace dc = "http://purl.org/dc/elements/1.1/", greenshot = "https://getgreenshot.org/ns/xmp/1.0/";
+            Assert.Equal("Inbox", document.Descendants(dc + "title").Single().Value);
+            Assert.Equal("https://example.org", document.Descendants(dc + "source").Single().Value);
+            Assert.Equal("Some text", document.Descendants(dc + "description").Single().Value);
+            Assert.Equal("QR content", document.Descendants(greenshot + "Barcodes").Single().Value);
+        }
+
+        /// <summary>
+        /// What Greenshot writes into a PNG comes back when the file is opened: capture time, title and web address
+        /// </summary>
+        [Fact]
+        public void Png_RoundTrip_ReadsTheDetailsBack()
+        {
+            var metadata = new ExportImageMetadata { Software = "Greenshot test", CaptureTime = Captured, Title = "Inbox - Mail", SourceUrl = "https://example.org/page" };
+            var opened = new CaptureDetails { CaptureMode = CaptureMode.File };
+            using (var stream = new MemoryStream())
+            {
+                using var bitmap = new Bitmap(32, 16, PixelFormat.Format24bppRgb);
+                PngOptimizer.Save(bitmap, stream, new SurfaceOutputSettings(WellKnownFileFormats.Png), metadata);
+                stream.Position = 0;
+                ImageMetadataReader.ReadInto(opened, stream);
+            }
+
+            Assert.Equal(Captured.LocalDateTime, opened.DateTime);
+            Assert.Equal("Inbox - Mail", opened.Title);
+            Assert.Equal("Inbox - Mail", opened.MetaData["windowtitle"]);
+            Assert.Equal("https://example.org/page", opened.MetaData["url"]);
+            // Saved again, the opened image keeps its capture time
+            Assert.Equal(Captured, ExportImageMetadata.CaptureTimeOf(opened));
+        }
+
+        /// <summary>
+        /// A photo from a camera: the EXIF capture time is read, with its offset
+        /// </summary>
+        [Fact]
+        public void Jpeg_ExifCaptureTime_IsRead()
+        {
+            var opened = new CaptureDetails { CaptureMode = CaptureMode.File };
+            using (var stream = new MemoryStream())
+            {
+                using var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgb24>(8, 8);
+                image.Metadata.ExifProfile = new ExifProfile();
+                image.Metadata.ExifProfile.SetValue(ExifTag.DateTimeOriginal, "2026:11:02 16:30:05");
+                image.Metadata.ExifProfile.SetValue(ExifTag.OffsetTimeOriginal, "+01:00");
+                image.SaveAsJpeg(stream);
+                stream.Position = 0;
+                ImageMetadataReader.ReadInto(opened, stream);
+            }
+
+            Assert.Equal(Captured, ExportImageMetadata.CaptureTimeOf(opened));
+            Assert.False(opened.MetaData.ContainsKey("url"));
+        }
+
+        [Fact]
+        public void Question_DescribesTheDetails_TextOnlyCounted()
+        {
+            var metadata = new ExportImageMetadata { Title = "Inbox - Mail", SourceUrl = "https://example.org/page", Description = "Invoice 4711\nTotal 99 EUR" };
+            metadata.Barcodes.Add("QR content");
+            var lines = new Greenshot.Base.Core.Export.PrivateMetadataRequest(metadata).DescribeDetails();
+            Assert.Equal(4, lines.Count);
+            Assert.Contains(lines, line => line.Contains("Inbox - Mail"));
+            Assert.Contains(lines, line => line.Contains("https://example.org/page"));
+            Assert.Contains(lines, line => line.Contains("5") && !line.Contains("Invoice"));
+            Assert.Contains(lines, line => line.Contains("QR content"));
+        }
+
+        /// <summary>
+        /// Without a window to ask in (a flow run from the command line), private details are removed
+        /// </summary>
+        [Fact]
+        public async System.Threading.Tasks.Task Question_WithoutWindow_RemovesTheDetails()
+        {
+            var metadata = new ExportImageMetadata { Title = "Inbox - Mail" };
+            Assert.False(await Greenshot.Base.Core.Export.PrivateMetadataRequest.AskAsync(HeadlessUserInteraction.Instance, metadata, TestContext.Current.CancellationToken));
+        }
+
+        private static CaptureDetails CaptureWithPrivateDetails()
+        {
+            var captureDetails = new CaptureDetails { CaptureMode = CaptureMode.Region, Title = "Inbox - Mail" };
+            captureDetails.AddMetaData("url", "https://example.org/page");
+            captureDetails.Features.Add(new OcrLine("Invoice 4711"));
+            captureDetails.Features.Add(new OcrLine("Total 99 EUR"));
+            captureDetails.Features.Add(new Barcode("https://example.org/qr"));
+            captureDetails.Features.Add(new Barcode("https://example.org/qr"));
+            return captureDetails;
+        }
+
+        private sealed class OcrLine(string text) : IOcrLineFeature
+        {
+            public NativeRect Bounds => new NativeRect(0, 0, 10, 10);
+            public string FeatureType => "OcrLine";
+            public string Text => text;
+            public string ToolTipText => text;
+            public List<OcrWordInfo> Words { get; } = new List<OcrWordInfo>();
+            public void Offset(int x, int y) { }
+        }
+
+        private sealed class Barcode(string text) : IBarcodeFeature
+        {
+            public NativeRect Bounds => new NativeRect(0, 0, 10, 10);
+            public string FeatureType => "Barcode";
+            public string Format => "QR_CODE";
+            public string RawText => text;
+            public string Text => text;
+            public string ToolTipText => text;
+            public void Offset(int x, int y) { }
         }
 
         private static SixLabors.ImageSharp.Image SaveAndLoadPng(ExportImageMetadata metadata)

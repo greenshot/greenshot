@@ -28,13 +28,28 @@ namespace Greenshot.Base.Core.Enums
     public enum ExportMetadataField
     {
         /// <summary>
-        /// When the screen was captured (EXIF DateTimeOriginal + OffsetTimeOriginal, xmp:CreateDate), not for images opened from a file or the clipboard
+        /// When the screen was captured (EXIF DateTimeOriginal + OffsetTimeOriginal, xmp:CreateDate); an opened image only keeps the capture time its file had
         /// </summary>
         CaptureTime,
 
         /// <summary>
         /// ExportMetadataAuthor and ExportMetadataCopyright (EXIF Artist + Copyright, dc:creator + dc:rights)
         /// </summary>
-        Author
+        Author,
+
+        /// <summary>
+        /// Private: the window title (EXIF XPTitle, dc:title) and the web address of the browser tab (dc:source)
+        /// </summary>
+        Source,
+
+        /// <summary>
+        /// Private: the text OCR already found in the capture (EXIF XPComment, dc:description), it never starts OCR
+        /// </summary>
+        Text,
+
+        /// <summary>
+        /// Private: the content of the barcodes and QR codes found in the capture (greenshot:Barcodes)
+        /// </summary>
+        Barcodes
     }
 }

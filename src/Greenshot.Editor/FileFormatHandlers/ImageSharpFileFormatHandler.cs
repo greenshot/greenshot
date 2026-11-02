@@ -80,7 +80,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             surfaceOutputSettings ??= new SurfaceOutputSettings();
-            var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails);
+            var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails, surfaceOutputSettings.IncludePrivateMetadata);
             if (extension == ".png")
             {
                 PngOptimizer.Save(bitmap, destination, surfaceOutputSettings, metadata);

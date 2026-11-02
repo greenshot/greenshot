@@ -75,6 +75,8 @@ namespace Greenshot.Editor.FileFormatHandlers
         // EXIF tags WicMetadataPaths has no constant for
         private const ushort ExifTagCopyright = 33432;
         private const ushort ExifTagOffsetTimeOriginal = 36881;
+        private const ushort ExifTagXpTitle = 0x9C9B;
+        private const ushort ExifTagXpComment = 0x9C9C;
 
         private readonly IReadOnlyCollection<WicDecoder> _wicDecoders;
         private IReadOnlyCollection<string> LoadExtensions { get; } = JpegXrExtensions.Concat(new[] { ".dds" }).ToArray();
@@ -238,7 +240,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             if (container != WicContainerFormats.Bmp)
             {
                 // Like the other handlers: the file says it was written by Greenshot, plus the details the user wants; what an encoder doesn't take is skipped
-                var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails);
+                var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails, surfaceOutputSettings.IncludePrivateMetadata);
                 options.Metadata = writer => WriteMetadata(writer, container, metadata);
             }
 
@@ -264,7 +266,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <summary>
-        /// Write the details as EXIF tags, which Windows and other programs read from JPEG, TIFF and JPEG XR.
+        /// Write the details as EXIF tags, which Windows and other programs read from JPEG, TIFF and JPEG XR, and as XMP packet with what EXIF has no tag for (web address, barcodes).
         /// A path the container doesn't have is null and skipped.
         /// </summary>
         internal static void WriteMetadata(WicMetadataWriter writer, Guid container, ExportImageMetadata metadata)
@@ -277,6 +279,24 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             SetAnsi(writer, WicMetadataPaths.ExifTag(container, WicMetadataPaths.TagArtist), metadata.Author);
             SetAnsi(writer, WicMetadataPaths.ExifTag(container, ExifTagCopyright), metadata.Copyright);
+            SetUcs2(writer, WicMetadataPaths.ExifTag(container, ExifTagXpTitle), metadata.Title);
+            SetUcs2(writer, WicMetadataPaths.ExifTag(container, ExifTagXpComment), metadata.Description);
+            string xmpPath = metadata.HasDetails ? WicMetadataPaths.Xmp(container) : null;
+            if (!string.IsNullOrEmpty(xmpPath))
+            {
+                writer.AddRawBlock(new WicMetadataRawBlock(xmpPath, WicMetadataFormats.Xmp, metadata.ToXmpPacket()));
+            }
+        }
+
+        /// <summary>
+        /// The Windows EXIF tags (XPTitle, XPComment) are UTF-16 text as vector of bytes
+        /// </summary>
+        private static void SetUcs2(WicMetadataWriter writer, string path, string value)
+        {
+            if (!string.IsNullOrEmpty(path) && !string.IsNullOrEmpty(value))
+            {
+                writer.Set(path, WicMetadataValue.ByteVector(ExportImageMetadata.ToUcs2(value)));
+            }
         }
 
         /// <summary>

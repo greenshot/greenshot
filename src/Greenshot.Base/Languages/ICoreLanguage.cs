@@ -912,6 +912,46 @@ namespace Greenshot.Base.Languages
         string ExportedToError { get; }
 
         /// <summary>
+        /// Send details with the image?
+        /// </summary>
+        string ExportMetadataQuestionTitle { get; }
+
+        /// <summary>
+        /// The image would carry these details about what you captured: {0} They go wherever the image is sent. Remove them from this image, or keep them?
+        /// </summary>
+        string ExportMetadataQuestion { get; }
+
+        /// <summary>
+        /// Window title: {0}
+        /// </summary>
+        string ExportMetadataWindowTitle { get; }
+
+        /// <summary>
+        /// Web address: {0}
+        /// </summary>
+        string ExportMetadataWebAddress { get; }
+
+        /// <summary>
+        /// Recognized text: {0} words
+        /// </summary>
+        string ExportMetadataText { get; }
+
+        /// <summary>
+        /// Barcode content: {0}
+        /// </summary>
+        string ExportMetadataBarcodes { get; }
+
+        /// <summary>
+        /// Remove details
+        /// </summary>
+        string ExportMetadataRemove { get; }
+
+        /// <summary>
+        /// Keep details
+        /// </summary>
+        string ExportMetadataKeep { get; }
+
+        /// <summary>
         /// Edit
         /// </summary>
         string NotificationButtonEdit { get; }
