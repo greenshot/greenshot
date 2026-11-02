@@ -2137,11 +2137,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string ShowThumbnail { get; }
 
         /// <summary>
-        /// Allow forwarding capture to other recipes
-        /// </summary>
-        string AllowForwarding { get; }
-
-        /// <summary>
         /// Auto-Dismiss Timeout (Seconds, 0 = Disabled)
         /// </summary>
         string AutoDismissTimeout { get; }

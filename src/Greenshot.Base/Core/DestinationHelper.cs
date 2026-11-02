@@ -81,6 +81,20 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Does the destination let the user choose the destination, like the destination picker (menu) and the destination window?
+        /// It is never one of the choices itself.
+        /// </summary>
+        public static bool IsChooser(string designation) =>
+            string.Equals(designation, nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(designation, nameof(WellKnownDestinations.DestinationWindow), StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The destinations the user can choose from for the capture: the available ones, without the choosers
+        /// </summary>
+        public static List<IDestination> GetChoices(ICaptureDetails captureDetails) =>
+            GetAllDestinations().Where(destination => !IsChooser(destination.Designation) && destination.IsAvailableFor(captureDetails)).ToList();
+
+        /// <summary>
         /// Get a destination by a designation
         /// </summary>
         /// <param name="designation">Designation of the destination</param>

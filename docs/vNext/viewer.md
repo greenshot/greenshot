@@ -22,7 +22,8 @@ A viewer opens with the capture 1:1, one pixel of the capture is one pixel of th
 A capture bigger than the screen gets a window as big as the screen and can be moved around. The *Viewer* tab of the settings
 can instead open a capture smaller, so the window is at most 800 × 800 pixels (or another size).
 
-- Zooming keeps the window size: the mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle.
+- The mouse wheel, `+` and `−` zoom in and out, around the mouse or the middle. Zooming in keeps the window size; zooming out makes the
+  window smaller once the capture is smaller than it, so the window is never bigger than the capture (down to a minimum size).
 - `1` (or `Ctrl+0`, as in the editor) shows the capture 1:1 again, `F` (or `Ctrl+9`) zooms so all of the capture is visible in the window.
 - When not all of the capture is visible, drag it or use the arrow keys to see another part. An overview in the corner shows
   the whole capture and marks the visible part, click or drag in it to move there.
@@ -45,9 +46,12 @@ settings you can choose a color instead.
 ## Exporting the capture
 
 `E`, the export button or *Export…* in the menu open the destination window, the same one recipes show: save to a file, copy
-to the clipboard, open in the editor, upload, ... or forward the capture to a recipe, which runs with it as if it had captured it.
-The destination or recipe gets a copy of what the viewer shows, so the viewer stays open. When an export fails, the window comes
+to the clipboard, open in the editor, upload, ... The editor recipes can change the capture there first, like in the editor.
+The destination gets a copy, so the viewer stays open and keeps showing the capture as it was. When an export fails, the window comes
 back with the error.
+
+Clicking the preview in the destination window shows the capture in a viewer too, at its real size when it fits. That viewer
+has no export, the destination is chosen in the window; `Esc` closes it and goes back to the window.
 
 ## Keys
 
@@ -57,11 +61,11 @@ back with the error.
 |---|---|
 | `1`, `Ctrl+0` | Real size (1:1) |
 | `F`, `Ctrl+9` | All of the capture in the window |
-| `+` `−`, `Ctrl` `+` `−`, mouse wheel | Zoom in and out, the window keeps its size |
+| `+` `−`, `Ctrl` `+` `−`, mouse wheel | Zoom in and out; the window keeps its size, or gets smaller with the capture |
 | `W` | Window to the size of the zoomed capture |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
-| `E` | Export, or forward to a recipe |
+| `E` | Export |
 | `P` | Always on top, or not |
 | `T` | Title bar, or only the capture |
 | `B` | Show or hide the border |

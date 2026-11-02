@@ -81,7 +81,7 @@ namespace Greenshot.Viewer.Views
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             DataContext = viewModel;
             InitializeComponent();
-            HelpKeys.ItemsSource = CreateHelpEntries();
+            HelpKeys.ItemsSource = CreateHelpEntries(viewModel.CanExport);
             UpdateChrome();
             viewModel.PropertyChanged += ViewModelPropertyChanged;
             // The border color follows the settings and the light or dark mode
@@ -238,7 +238,8 @@ namespace Greenshot.Viewer.Views
 
         /// <summary>
         /// Size the window: for the zoomed capture or the given visible part, at least the minimum, at most the work area of the screen.
-        /// Only when the viewer opens, the title bar is switched or the user asks for it (W): zooming keeps the window size.
+        /// When the viewer opens, the title bar is switched or the user asks for it (W). Zooming in keeps the window size,
+        /// zooming out makes the window smaller when the capture would be smaller than it (<see cref="ShrinkWindowToCapture"/>).
         /// </summary>
         /// <param name="center">Center the window on the screen of the mouse (when it's shown), else keep its location if possible</param>
         /// <param name="viewportPixels">The size of the visible part in screen pixels, null for the zoomed capture</param>
@@ -371,8 +372,26 @@ namespace Greenshot.Viewer.Views
             _zoom = zoom;
             _offsetX = captureX * zoom - at.X;
             _offsetY = captureY * zoom - at.Y;
-            // The window keeps its size, the overview shows where the visible part is
+            // A bigger capture: the window keeps its size, the overview shows where the visible part is
             LayoutCapture();
+            ShrinkWindowToCapture();
+        }
+
+        /// <summary>
+        /// The window is never bigger than the zoomed capture (but at least the minimum): where the capture got smaller than the
+        /// visible part, the window gets smaller too, so there is no empty space around it. It never grows here.
+        /// </summary>
+        private void ShrinkWindowToCapture()
+        {
+            var viewport = ViewportPixels;
+            double width = Math.Max(MinimumPixels, Math.Min(viewport.Width, CaptureWidth * _zoom));
+            double height = Math.Max(MinimumPixels, Math.Min(viewport.Height, CaptureHeight * _zoom));
+            if (width >= viewport.Width - 0.5 && height >= viewport.Height - 0.5)
+            {
+                return;
+            }
+
+            ApplyWindowSize(false, new Size(width, height));
         }
 
         /// <summary>
@@ -408,6 +427,7 @@ namespace Greenshot.Viewer.Views
             _offsetX = 0;
             _offsetY = 0;
             LayoutCapture();
+            ShrinkWindowToCapture();
         }
 
         /// <summary>
@@ -424,29 +444,19 @@ namespace Greenshot.Viewer.Views
 
         private void Export()
         {
+            if (!_viewModel.CanExport)
+            {
+                return;
+            }
+
             AsyncCommand.Run(() => _viewModel.ExportAsync(ChooseDestination), "Export from the viewer");
         }
 
         /// <summary>
-        /// The destination window of the recipes (without the preview, the viewer shows the capture), owned by the viewer.
-        /// It also offers to forward the capture to a recipe.
+        /// The destination window of the recipes, owned by the viewer: the editor recipes can change the capture there first
         /// </summary>
-        private (IDestination Destination, CaptureRecipe Recipe) ChooseDestination(IReadOnlyList<IDestination> destinations, string error)
-        {
-            var recipes = RecipeManager.Instance.GetAllRecipes().Where(r => r != null && r.IsEnabled).ToList();
-            var window = new DynamicDestinationWindow(null, null, destinations, recipes, error)
-            {
-                Owner = this,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
-            };
-            window.ShowDialog();
-            if (window.OpenInEditorRequested)
-            {
-                return (DestinationHelper.GetDestination(EditorDestination.DESIGNATION) ?? window.SelectedDestination, null);
-            }
-
-            return (window.SelectedDestination, window.SelectedRecipeToForward);
-        }
+        private IDestination ChooseDestination(EditableCapture capture, IReadOnlyList<IDestination> destinations, string error) =>
+            DynamicDestinationWindow.Choose(this, capture, destinations, error);
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -567,8 +577,12 @@ namespace Greenshot.Viewer.Views
         private void ShowMenu(bool atMouse)
         {
             var menu = ThemedMenu.CreateContextMenu();
-            menu.Items.Add(CreateMenuItem(Texts.Core.ViewerExport, "E", Export));
-            menu.Items.Add(ThemedMenu.CreateSeparator());
+            if (_viewModel.CanExport)
+            {
+                menu.Items.Add(CreateMenuItem(Texts.Core.ViewerExport, "E", Export));
+                menu.Items.Add(ThemedMenu.CreateSeparator());
+            }
+
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerActualSize, "1", ShowActualSize));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerFit, "F", FitToWindow));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerWindowToCapture, "W", SizeWindowToCapture));
@@ -610,10 +624,10 @@ namespace Greenshot.Viewer.Views
             return item;
         }
 
-        private static IReadOnlyList<HelpEntry> CreateHelpEntries()
+        private static IReadOnlyList<HelpEntry> CreateHelpEntries(bool canExport)
         {
             var core = Texts.Core;
-            return new List<HelpEntry>
+            var entries = new List<HelpEntry>
             {
                 new HelpEntry("1  Ctrl+0", core.ViewerKeyActualSize),
                 new HelpEntry("F  Ctrl+9", core.ViewerKeyFit),
@@ -621,7 +635,6 @@ namespace Greenshot.Viewer.Views
                 new HelpEntry("+  −", core.ViewerKeyZoom),
                 new HelpEntry("← ↑ → ↓", core.ViewerKeyPan),
                 new HelpEntry("Ctrl", core.ViewerKeyMove),
-                new HelpEntry("E", core.ViewerKeyExport),
                 new HelpEntry("P", core.ViewerKeyAlwaysOnTop),
                 new HelpEntry("T", core.ViewerKeyTitleBar),
                 new HelpEntry("B", core.ViewerKeyBorder),
@@ -630,6 +643,12 @@ namespace Greenshot.Viewer.Views
                 new HelpEntry("H  F1", core.ViewerKeyHelp),
                 new HelpEntry("Esc", core.ViewerKeyClose)
             };
+            if (canExport)
+            {
+                entries.Insert(entries.FindIndex(entry => entry.Keys == "P"), new HelpEntry("E", core.ViewerKeyExport));
+            }
+
+            return entries;
         }
 
         private void TitleBarMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

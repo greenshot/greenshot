@@ -82,6 +82,7 @@ namespace Greenshot.Editor.Forms
         private static readonly List<string> IgnoreDestinations = new()
         {
             nameof(WellKnownDestinations.Picker),
+            nameof(WellKnownDestinations.DestinationWindow),
             EditorDestination.DESIGNATION
         };
 

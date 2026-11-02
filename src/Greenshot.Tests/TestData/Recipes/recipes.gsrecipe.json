@@ -249,8 +249,7 @@
         "enabled": true,
         "parameters": {
           "Title": "Export Capture",
-          "ShowPreview": true,
-          "AllowRecipeForwarding": true
+          "ShowPreview": true
         }
       },
       {
@@ -2147,8 +2146,7 @@
         "enabled": true,
         "parameters": {
           "Title": "Export Capture",
-          "ShowPreview": true,
-          "AllowRecipeForwarding": true
+          "ShowPreview": true
         }
       }
     ],

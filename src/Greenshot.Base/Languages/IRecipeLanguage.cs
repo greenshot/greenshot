@@ -952,29 +952,19 @@ namespace Greenshot.Base.Languages
         string PickerDestinations { get; }
 
         /// <summary>
-        /// Run Recipe
+        /// Change the capture with a recipe (the editor recipes, in the destination window)
         /// </summary>
-        string PickerRunRecipe { get; }
+        string PickerApplyRecipe { get; }
 
         /// <summary>
-        /// Click to view full preview (Esc to exit)
+        /// Apply (runs the editor recipe on the capture)
         /// </summary>
-        string PickerPreviewTooltip { get; }
+        string PickerApply { get; }
 
         /// <summary>
-        /// Zoom Preview
+        /// Choose another destination below, or try again:
         /// </summary>
-        string PickerZoomPreview { get; }
-
-        /// <summary>
-        /// Click anywhere or press Esc to return
-        /// </summary>
-        string PickerFullscreenHint { get; }
-
-        /// <summary>
-        /// Select an alternative destination below, forward to another recipe, or retry:
-        /// </summary>
-        string PickerErrorSubtitle { get; }
+        string PickerErrorChooseAgain { get; }
 
         /// <summary>
         /// Switch to Light Mode (T)

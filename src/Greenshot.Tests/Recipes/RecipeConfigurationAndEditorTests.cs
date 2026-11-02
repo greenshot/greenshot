@@ -222,13 +222,12 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void DynamicDestinationStep_ConfiguresCorrectlyInStepNodeViewModel()
         {
-            var config = RecipeStepConfig.CreateDynamicDestination("dyn_dest", "Select Destination", true, true, new[] { "Clipboard", "Editor" }, 15);
+            var config = RecipeStepConfig.CreateDynamicDestination("dyn_dest", "Select Destination", true, new[] { "Clipboard", "Editor" }, 15);
             var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
 
             Assert.True(vm.IsDynamicDestination);
             Assert.Equal("Select Destination", vm.DynamicDestinationTitle);
             Assert.True(vm.DynamicDestinationShowPreview);
-            Assert.True(vm.DynamicDestinationAllowRecipeForwarding);
             Assert.Equal("15", vm.DynamicDestinationTimeoutSeconds);
             Assert.Contains("Clipboard", vm.DynamicDestinationSpecificDestinations);
             Assert.Contains("Editor", vm.DynamicDestinationSpecificDestinations);

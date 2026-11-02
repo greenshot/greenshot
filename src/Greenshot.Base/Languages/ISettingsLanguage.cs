@@ -227,6 +227,11 @@ namespace Greenshot.Base.Languages
         string DestinationPicker { get; }
 
         /// <summary>
+        /// Ask for destination every time, in a window
+        /// </summary>
+        string DestinationWindow { get; }
+
+        /// <summary>
         /// Send to printer
         /// </summary>
         string DestinationPrinter { get; }

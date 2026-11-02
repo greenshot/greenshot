@@ -2777,7 +2777,6 @@
                                             <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                                                 <StackPanel>
                                                     <CheckBox Content="{wpf:Text RecipeEditor.ShowThumbnail}" IsChecked="{Binding SelectedNode.DynamicDestinationShowPreview, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.AllowForwarding}" IsChecked="{Binding SelectedNode.DynamicDestinationAllowRecipeForwarding, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                 </StackPanel>
                                             </Border>
 
