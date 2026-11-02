@@ -43,6 +43,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Settings on the new Viewer tab
 - By @Lakritzator and @daxliniere
 
+**Ask for destination in a window**
+- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture, a search, and the recipes to forward the capture to
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots

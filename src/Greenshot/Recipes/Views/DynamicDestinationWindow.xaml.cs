@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -179,7 +180,7 @@ namespace Greenshot.Recipes.Views
             if (destinations != null)
             {
                 // Ensure Editor destination is present among destinations for the core list
-                var destList = destinations.Where(d => d != null && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList();
+                var destList = destinations.Where(d => d != null && !DestinationHelper.IsChooser(d.Designation)).ToList();
                 if (!destList.Any(d => string.Equals(d.Designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase)))
                 {
                     var editorDest = DestinationHelper.GetDestination(EditorDestination.DESIGNATION);
@@ -550,6 +551,41 @@ namespace Greenshot.Recipes.Views
                     e.Handled = true;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Shows the window modally, with the enabled recipes to forward the capture to. Runs on the UI thread.
+        /// </summary>
+        /// <param name="owner">The window it is centered on, or null</param>
+        /// <param name="previewImage">The preview of the capture, or null for none (it can be disposed afterwards)</param>
+        /// <param name="destinations">The destinations to choose from</param>
+        /// <param name="errorMessage">The error of the last try, or null</param>
+        /// <param name="cancellationToken">Closes the window</param>
+        /// <returns>The chosen destination or the recipe to forward the capture to, or neither when the window was closed</returns>
+        public static (IDestination Destination, CaptureRecipe Recipe) Choose(Window owner, Image previewImage, IEnumerable<IDestination> destinations, string errorMessage,
+            CancellationToken cancellationToken = default)
+        {
+            var recipes = RecipeManager.Instance.GetAllRecipes().Where(r => r != null && r.IsEnabled).ToList();
+            var window = new DynamicDestinationWindow(null, previewImage, destinations, recipes, errorMessage);
+            if (owner != null)
+            {
+                window.Owner = owner;
+                window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+
+            using (cancellationToken.Register(() => window.Dispatcher.InvokeAsync(() =>
+                   {
+                       if (window.IsVisible)
+                       {
+                           window.Close();
+                       }
+                   }).Task.FireAndLog("Close the destination window")))
+            {
+                window.ShowDialog();
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return (window.SelectedDestination, window.SelectedRecipeToForward);
         }
 
         private void DestinationTile_Click(object sender, RoutedEventArgs e)

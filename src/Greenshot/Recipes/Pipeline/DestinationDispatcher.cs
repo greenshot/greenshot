@@ -91,7 +91,8 @@ namespace Greenshot.Recipes.Pipeline
             {
                 // The picked destination must be known before the extensions run, so the picker is shown here
                 context.LogStep("Dispatching to Picker destination, with extensions per destination.");
-                await PickAndExportAsync(context, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
+                await PickAndExportAsync(context, source, captureDetails, userInteraction,
+                    (choices, token) => userInteraction.PickDestinationAsync(choices, captureDetails, token), cancellationToken).ConfigureAwait(false);
                 return;
             }
             if (picker != null)
@@ -139,6 +140,15 @@ namespace Greenshot.Recipes.Pipeline
                     continue;
                 }
 
+                if (chains.Count > 0 && destination.Designation == nameof(WellKnownDestinations.DestinationWindow) && userInteraction.IsInteractive)
+                {
+                    // The chosen destination must be known before the extensions run, so the window is shown here
+                    context.LogStep("Showing the destination window, with extensions per destination.");
+                    await PickAndExportAsync(context, source, captureDetails, userInteraction,
+                        (choices, token) => DestinationWindowDestination.ChooseAsync(source, choices, null, token), cancellationToken).ConfigureAwait(false);
+                    continue;
+                }
+
                 if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog))
                 {
                     // The flow can override the options of the file export
@@ -170,21 +180,20 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Shows the destination picker until an export succeeds or the user closes it; the extensions run for the picked destination
+        /// Shows the destination picker (or the destination window) until an export succeeds or the user closes it; the extensions run for the picked destination
         /// </summary>
+        /// <param name="pick">Shows the picker for the choices, returns the picked destination or null</param>
         private static async Task PickAndExportAsync(CaptureFlowContext context, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            CancellationToken cancellationToken)
+            Func<IReadOnlyList<IDestination>, CancellationToken, Task<IDestination>> pick, CancellationToken cancellationToken)
         {
             var copies = new Dictionary<string, PreparedCopy>();
-            var choices = DestinationHelper.GetAllDestinations()
-                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
-                .ToList();
+            var choices = DestinationHelper.GetChoices(captureDetails);
             while (true)
             {
-                var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);
+                var picked = await pick(choices, cancellationToken).ConfigureAwait(false);
                 if (picked == null)
                 {
-                    context.LogStep("The destination picker was closed.");
+                    context.LogStep("No destination was picked.");
                     return;
                 }
 

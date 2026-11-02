@@ -97,8 +97,8 @@ namespace Greenshot.Recipes.Steps
                 }
             }
 
-            // Resolve destinations (excluding legacy WinForms destination picker)
-            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails) && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
+            // The destinations to choose from, without the destination picker and this window
+            var allDests = DestinationHelper.GetChoices(context.Payload?.RawCapture?.CaptureDetails);
             var specificDestDesignations = Config.GetParameter<List<string>>("Destinations");
             List<IDestination> targetDests;
             if (specificDestDesignations != null && specificDestDesignations.Count > 0)

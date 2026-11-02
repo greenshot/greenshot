@@ -82,6 +82,28 @@ namespace Greenshot.Recipes.Pipeline
             return new CaptureFlowRunner(pipeline, SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance);
         }
 
+        /// <summary>
+        /// Run the recipe with a copy of a capture, like a capture it made itself; the flow owns the copy
+        /// </summary>
+        public static CaptureFlowHandle StartWithCopy(CaptureRecipe recipe, ISurface copy)
+        {
+            copy.CaptureDetails ??= new CaptureDetails();
+            var payload = new CapturePayload
+            {
+                Surface = copy,
+                RawCapture = new Capture(copy.GetImageForExport())
+                {
+                    CaptureDetails = copy.CaptureDetails
+                }
+            };
+            return Current.Start(recipe, configure: context =>
+            {
+                context.Payload = payload;
+                // The capture is handed over: the recipe must not capture or select again
+                context.IsPayloadPreSupplied = true;
+            });
+        }
+
         public IReadOnlyCollection<CaptureFlowHandle> Running => _running.Values.ToList();
 
         public CaptureFlowHandle Start(CaptureRecipe recipe, FlowTriggerContext trigger = null, Action<CaptureFlowContext> configure = null)

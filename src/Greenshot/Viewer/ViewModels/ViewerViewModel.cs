@@ -198,9 +198,7 @@ namespace Greenshot.Viewer.ViewModels
             while (_surface != null)
             {
                 var captureDetails = _surface.CaptureDetails;
-                var destinations = DestinationHelper.GetAllDestinations()
-                    .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
-                    .ToList();
+                var destinations = DestinationHelper.GetChoices(captureDetails);
                 var (destination, recipe) = choose(destinations, error);
                 if (_surface == null)
                 {
@@ -209,7 +207,7 @@ namespace Greenshot.Viewer.ViewModels
 
                 if (recipe != null)
                 {
-                    ForwardToRecipe(recipe);
+                    CaptureFlowRunner.StartWithCopy(recipe, _surface.Clone());
                     return;
                 }
 
@@ -240,29 +238,6 @@ namespace Greenshot.Viewer.ViewModels
 
                 error = result.Error;
             }
-        }
-
-        /// <summary>
-        /// Run the recipe with a copy of the capture, like a capture it made itself; the flow owns the copy
-        /// </summary>
-        private void ForwardToRecipe(CaptureRecipe recipe)
-        {
-            var copy = _surface.Clone();
-            copy.CaptureDetails ??= new CaptureDetails();
-            var payload = new CapturePayload
-            {
-                Surface = copy,
-                RawCapture = new Capture(copy.GetImageForExport())
-                {
-                    CaptureDetails = copy.CaptureDetails
-                }
-            };
-            CaptureFlowRunner.Current.Start(recipe, configure: context =>
-            {
-                context.Payload = payload;
-                // The capture is handed over: the recipe must not capture or select again
-                context.IsPayloadPreSupplied = true;
-            });
         }
 
         private void HideCursors()
