@@ -140,10 +140,13 @@ public sealed class ExportImageMetadata
         {
             Software = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true)
         };
-        if (fields == null)
+        // A recipe ("Set metadata" step) decides for its capture
+        var recipeValues = captureDetails?.MetaData;
+        if (recipeValues != null && recipeValues.TryGetValue(RecipeFieldsKey, out var recipeFields))
         {
-            return metadata;
+            fields = ParseFields(recipeFields);
         }
+        fields ??= Array.Empty<ExportMetadataField>();
         if (fields.Contains(ExportMetadataField.CaptureTime))
         {
             metadata.CaptureTime = CaptureTimeOf(captureDetails);
@@ -153,12 +156,45 @@ public sealed class ExportImageMetadata
             metadata.Author = NullIfEmpty(author);
             metadata.Copyright = NullIfEmpty(copyright);
         }
+        // Values the recipe set are written, also without their field; an empty one leaves the detail out
+        metadata.Author = RecipeValue(recipeValues, RecipeAuthorKey, metadata.Author);
+        metadata.Copyright = RecipeValue(recipeValues, RecipeCopyrightKey, metadata.Copyright);
         if (includePrivate && captureDetails != null)
         {
             AddPrivateDetails(metadata, captureDetails, fields);
+            // The title and description of a recipe can hold what was captured (e.g. ${title}): private like the details they replace
+            metadata.Title = RecipeValue(recipeValues, RecipeTitleKey, metadata.Title);
+            metadata.Description = RecipeValue(recipeValues, RecipeDescriptionKey, metadata.Description);
         }
         return metadata;
     }
+
+    /// <summary>
+    /// The keys in <see cref="ICaptureDetails.MetaData"/> where the "Set metadata" step of a recipe puts its values
+    /// </summary>
+    public const string RecipeFieldsKey = "metadata.fields", RecipeTitleKey = "metadata.title", RecipeDescriptionKey = "metadata.description",
+        RecipeAuthorKey = "metadata.author", RecipeCopyrightKey = "metadata.copyright";
+
+    /// <summary>
+    /// The fields of a comma separated list, like ExportMetadata in greenshot.ini
+    /// </summary>
+    /// <exception cref="ArgumentException">for a name which isn't an <see cref="ExportMetadataField"/></exception>
+    public static List<ExportMetadataField> ParseFields(string value)
+    {
+        var fields = new List<ExportMetadataField>();
+        foreach (var name in (value ?? string.Empty).Split(',').Select(name => name.Trim()).Where(name => name.Length > 0))
+        {
+            if (!Enum.TryParse(name, false, out ExportMetadataField field) || !Enum.IsDefined(typeof(ExportMetadataField), field))
+            {
+                throw new ArgumentException($"'{name}' is no metadata field, use {string.Join(", ", Enum.GetNames(typeof(ExportMetadataField)))}", nameof(value));
+            }
+            fields.Add(field);
+        }
+        return fields;
+    }
+
+    private static string RecipeValue(IDictionary<string, string> values, string key, string otherwise) =>
+        values != null && values.TryGetValue(key, out var value) ? NullIfEmpty(value) : otherwise;
 
     private static void AddPrivateDetails(ExportImageMetadata metadata, ICaptureDetails captureDetails, ICollection<ExportMetadataField> fields)
     {

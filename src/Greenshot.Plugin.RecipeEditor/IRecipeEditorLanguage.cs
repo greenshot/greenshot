@@ -247,6 +247,11 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepSetVariable { get; }
 
         /// <summary>
+        /// Set Metadata
+        /// </summary>
+        string StepSetMetadata { get; }
+
+        /// <summary>
         /// FLOW &amp; FEEDBACK
         /// </summary>
         string HeaderFlowFeedback { get; }
@@ -1115,6 +1120,61 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Available scopes: ${user.username}, ${machine.computername}, ${now:yyyy-MM-dd}, ${payload.width}
         /// </summary>
         string HintVariableScopes { get; }
+
+        /// <summary>
+        /// Choose the details here, not those of the settings
+        /// </summary>
+        string MetadataOwnFields { get; }
+
+        /// <summary>
+        /// Capture time
+        /// </summary>
+        string MetadataCaptureTime { get; }
+
+        /// <summary>
+        /// Author and copyright of the settings
+        /// </summary>
+        string MetadataAuthorField { get; }
+
+        /// <summary>
+        /// Window title and web address
+        /// </summary>
+        string MetadataSource { get; }
+
+        /// <summary>
+        /// Text in the capture (OCR)
+        /// </summary>
+        string MetadataText { get; }
+
+        /// <summary>
+        /// Barcodes and QR codes
+        /// </summary>
+        string MetadataBarcodes { get; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        string MetadataTitle { get; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        string MetadataDescription { get; }
+
+        /// <summary>
+        /// Author
+        /// </summary>
+        string MetadataAuthor { get; }
+
+        /// <summary>
+        /// Copyright
+        /// </summary>
+        string MetadataCopyright { get; }
+
+        /// <summary>
+        /// Title and description may use variables like ${payload.title}. An empty box keeps what the settings write. The title, description, window title, web address, text and barcodes are private: files on this computer get them, before the image leaves it you are asked.
+        /// </summary>
+        string HintMetadata { get; }
 
         /// <summary>
         /// Annotations
@@ -4301,6 +4361,16 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Variables (0)
         /// </summary>
         string SummaryVariablesNone { get; }
+
+        /// <summary>
+        /// Details of the settings
+        /// </summary>
+        string SummaryMetadataSettings { get; }
+
+        /// <summary>
+        /// Details: {0}
+        /// </summary>
+        string SummaryMetadata { get; }
 
         /// <summary>
         /// Sound: Enabled
