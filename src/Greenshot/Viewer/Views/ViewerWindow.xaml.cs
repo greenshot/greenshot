@@ -428,10 +428,10 @@ namespace Greenshot.Viewer.Views
         }
 
         /// <summary>
-        /// The destination window of the recipes (without the preview, the viewer shows the capture), owned by the viewer.
+        /// The destination window of the recipes, owned by the viewer: the editor recipes can change the capture there first
         /// </summary>
-        private IDestination ChooseDestination(IReadOnlyList<IDestination> destinations, string error) =>
-            DynamicDestinationWindow.Choose(this, null, destinations, error);
+        private IDestination ChooseDestination(EditableCapture capture, IReadOnlyList<IDestination> destinations, string error) =>
+            DynamicDestinationWindow.Choose(this, capture, destinations, error);
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {

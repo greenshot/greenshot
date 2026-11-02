@@ -957,6 +957,16 @@ namespace Greenshot.Base.Languages
         string PickerForwardToRecipe { get; }
 
         /// <summary>
+        /// Change the capture with a recipe (the editor recipes, in the destination window)
+        /// </summary>
+        string PickerApplyRecipe { get; }
+
+        /// <summary>
+        /// Apply (runs the editor recipe on the capture)
+        /// </summary>
+        string PickerApply { get; }
+
+        /// <summary>
         /// Run Recipe
         /// </summary>
         string PickerRunRecipe { get; }

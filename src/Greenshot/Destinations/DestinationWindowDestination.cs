@@ -27,13 +27,14 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using Greenshot.Recipes.Views;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
     /// Asks for the destination every time, like the <see cref="PickerDestination"/>, but in the destination window:
-    /// with a preview of the capture and a search.
+    /// with a preview of the capture and a search. The editor recipes can change the capture there first, like in the editor.
     /// </summary>
     public class DestinationWindowDestination : DestinationBase
     {
@@ -53,41 +54,63 @@ namespace Greenshot.Destinations
                 return ExportResult.Declined;
             }
 
+            var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
             var destinations = DestinationHelper.GetChoices(request.Metadata);
-            string error = null;
-            while (true)
+            // The window works on a copy, which the editor recipes can replace
+            var capture = await request.Source.UseSurfaceAsync(surface => new EditableCapture(surface.Clone()), cancellationToken).ConfigureAwait(false);
+            try
             {
-                var chosen = await ChooseAsync(request.Source, destinations, error, cancellationToken).ConfigureAwait(false);
-                if (chosen == null)
+                string error = null;
+                while (true)
                 {
-                    return ExportResult.Declined;
-                }
+                    var chosen = await ui.InvokeAsync(() => DynamicDestinationWindow.Choose(null, capture, destinations, error, cancellationToken), cancellationToken)
+                        .ConfigureAwait(false);
+                    if (chosen == null)
+                    {
+                        return ExportResult.Declined;
+                    }
 
-                var result = await DestinationExporter.ExportAsync(chosen, request.Source, request.Metadata, true, request.Ui, cancellationToken).ConfigureAwait(false);
-                if (result.IsSucceeded)
-                {
-                    // The caller applies the result (messages, surface state) for the chosen destination
-                    return result.WithTarget(result.Target ?? chosen.Descriptor.DisplayName).WithExportedBy(result.ExportedBy ?? chosen);
-                }
+                    var result = capture.IsChanged
+                        ? await ExportChangedAsync(chosen, capture, request, ui, cancellationToken).ConfigureAwait(false)
+                        : await DestinationExporter.ExportAsync(chosen, request.Source, request.Metadata, true, request.Ui, cancellationToken).ConfigureAwait(false);
+                    if (result.IsSucceeded)
+                    {
+                        // The caller applies the result (messages, surface state) for the chosen destination
+                        return result.WithTarget(result.Target ?? chosen.Descriptor.DisplayName).WithExportedBy(result.ExportedBy ?? chosen);
+                    }
 
-                // Declined (e.g. the save dialog was closed) or failed: the window comes again, with the error
-                error = result.Error;
+                    // Declined (e.g. the save dialog was closed) or failed: the window comes again, with the error
+                    error = result.Error;
+                }
+            }
+            finally
+            {
+                await ui.InvokeAsync(capture.Dispose, CancellationToken.None).ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// Shows the destination window with a preview of the capture
+        /// Exports the capture changed by a recipe: each try gets its own copy, a destination which keeps it (the editor) owns it
         /// </summary>
-        /// <param name="source">The capture</param>
-        /// <param name="choices">The destinations to choose from</param>
-        /// <param name="error">The error of the last try, or null</param>
-        /// <param name="cancellationToken">Closes the window</param>
-        /// <returns>The chosen destination, or null when the window was closed</returns>
-        public static Task<IDestination> ChooseAsync(IExportSource source, IReadOnlyList<IDestination> choices, string error, CancellationToken cancellationToken) =>
-            source.UseSurfaceAsync(surface =>
+        private static async Task<ExportResult> ExportChangedAsync(IDestination destination, EditableCapture capture, ExportRequest request, IUiDispatcher ui,
+            CancellationToken cancellationToken)
+        {
+            var copy = await ui.InvokeAsync(() => capture.Surface.Clone(), cancellationToken).ConfigureAwait(false);
+            ExportResult result = null;
+            try
             {
-                using var preview = surface.GetImageForExport();
-                return DynamicDestinationWindow.Choose(null, preview, choices, error, cancellationToken);
-            }, cancellationToken);
+                await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+                using var source = new SurfaceExportSource(copy, ui, true);
+                result = await DestinationExporter.ExportAsync(destination, source, request.Metadata, true, request.Ui, cancellationToken).ConfigureAwait(false);
+                return result;
+            }
+            finally
+            {
+                if (result?.KeepsCapture != true)
+                {
+                    await ui.InvokeAsync(copy.Dispose, CancellationToken.None).ConfigureAwait(false);
+                }
+            }
+        }
     }
 }

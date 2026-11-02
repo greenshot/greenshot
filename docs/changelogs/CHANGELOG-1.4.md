@@ -45,6 +45,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Ask for destination in a window**
 - New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture and a search
+- The editor recipes can change the capture in that window before it goes to a destination, also when exporting from the viewer
 
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor

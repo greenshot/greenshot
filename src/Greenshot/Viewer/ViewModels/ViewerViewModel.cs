@@ -35,6 +35,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Pipeline;
+using Greenshot.Recipes.Views;
 
 namespace Greenshot.Viewer.ViewModels
 {
@@ -189,28 +190,30 @@ namespace Greenshot.Viewer.ViewModels
 
         /// <summary>
         /// Export the capture: the user chooses the destination, a failed export shows the choice again with the error.
-        /// The destination or recipe gets a copy, so one which keeps the capture (the editor) has its own and the viewer stays as it is.
+        /// The choice works on a copy, which the editor recipes can change; the destination gets a copy of that, so one which keeps
+        /// the capture (the editor) has its own, and the viewer stays as it is.
         /// </summary>
-        /// <param name="choose">Shows the destinations and the error of the last try (or null), returns the chosen destination, or nothing</param>
-        public async Task ExportAsync(Func<IReadOnlyList<IDestination>, string, IDestination> choose)
+        /// <param name="choose">Shows the capture, the destinations and the error of the last try (or null), returns the chosen destination, or nothing</param>
+        public async Task ExportAsync(Func<EditableCapture, IReadOnlyList<IDestination>, string, IDestination> choose)
         {
+            if (_surface == null)
+            {
+                return;
+            }
+
+            // The awaits come back to the UI thread, where the capture is disposed
+            using var capture = new EditableCapture(_surface.Clone());
             string error = null;
             while (_surface != null)
             {
-                var captureDetails = _surface.CaptureDetails;
-                var destinations = DestinationHelper.GetChoices(captureDetails);
-                var destination = choose(destinations, error);
-                if (_surface == null)
+                var destinations = DestinationHelper.GetChoices(_surface.CaptureDetails);
+                var destination = choose(capture, destinations, error);
+                if (_surface == null || destination == null)
                 {
                     return;
                 }
 
-                if (destination == null)
-                {
-                    return;
-                }
-
-                var copy = _surface.Clone();
+                var copy = capture.Surface.Clone();
                 ExportResult result = null;
                 try
                 {

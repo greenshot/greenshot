@@ -299,7 +299,7 @@
                                     </ComboBox.ItemContainerStyle>
                                 </ComboBox>
 
-                                <Button Grid.Column="1" Content="{Binding RunRecipeButtonText}"
+                                <Button x:Name="RunRecipeButton" Grid.Column="1" Content="{Binding RunRecipeButtonText}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Background="{Binding AccentBrush}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"
                                         FontWeight="SemiBold" Padding="12,5" Height="32"

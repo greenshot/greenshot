@@ -67,7 +67,7 @@ namespace Greenshot.Settings.ViewModels
                 OnlyDestinations = new ObservableCollection<RecipeScopeViewModel>();
                 if (IsDestinationSlot)
                 {
-                    foreach (var destination in DestinationHelper.GetAllDestinations().Where(d => !DestinationHelper.IsChooser(d.Designation)))
+                    foreach (var destination in DestinationHelper.GetAllDestinations().Where(d => !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)))
                     {
                         OnlyDestinations.Add(new RecipeScopeViewModel(destination.Designation, destination.Descriptor?.DisplayName ?? destination.Designation,
                             stored.OnlyDestinations.Count == 0 || stored.OnlyDestinations.Contains(destination.Designation)));

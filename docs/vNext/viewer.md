@@ -45,8 +45,8 @@ settings you can choose a color instead.
 ## Exporting the capture
 
 `E`, the export button or *Export…* in the menu open the destination window, the same one recipes show: save to a file, copy
-to the clipboard, open in the editor, upload, ...
-The destination gets a copy of what the viewer shows, so the viewer stays open. When an export fails, the window comes
+to the clipboard, open in the editor, upload, ... The editor recipes can change the capture there first, like in the editor.
+The destination gets a copy, so the viewer stays open and keeps showing the capture as it was. When an export fails, the window comes
 back with the error.
 
 ## Keys
