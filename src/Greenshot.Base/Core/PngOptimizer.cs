@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
@@ -40,7 +41,7 @@ namespace Greenshot.Base.Core;
 
 /// <summary>
 /// Writes a PNG as small as possible without changing a single pixel, like optipng does:
-/// the smallest color type which still holds every pixel (a palette for up to 256 colors, no alpha channel when nothing is transparent), the best zlib level,
+/// the smallest color type which still holds every pixel (a palette for up to 256 colors, no alpha channel when nothing is transparent), the configured zlib level (default 9),
 /// and the filter strategy which wins on screenshots (none) or on photos (adaptive), chosen on bands of the image.
 /// </summary>
 public static class PngOptimizer
@@ -81,6 +82,9 @@ public static class PngOptimizer
             bitmap.UnlockBits(bitmapData);
         }
     }
+
+    // The configured level, the PNG compression levels of ImageSharp are the zlib levels
+    private static PngCompressionLevel CompressionLevel() => (PngCompressionLevel)(IniConfigRegistry.GetSection<ICoreConfiguration>()?.OutputFilePngCompressionLevel ?? 9);
 
     private static void Save(Image image, Bitmap bitmap, Stream destination)
     {
@@ -151,7 +155,7 @@ public static class PngOptimizer
         {
             var paletteEncoder = new PngEncoder
             {
-                CompressionLevel = PngCompressionLevel.BestCompression,
+                CompressionLevel = CompressionLevel(),
                 ColorType = PngColorType.Palette,
                 BitDepth = palette.Count switch
                 {
@@ -171,7 +175,7 @@ public static class PngOptimizer
         var colorType = hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb;
         image.SaveAsPng(destination, new PngEncoder
         {
-            CompressionLevel = PngCompressionLevel.BestCompression,
+            CompressionLevel = CompressionLevel(),
             BitDepth = PngBitDepth.Bit8,
             ColorType = colorType,
             FilterMethod = ChooseFilter(image, colorType)

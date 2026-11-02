@@ -143,6 +143,11 @@ namespace Greenshot.Base.Core
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
 
+        [Description("zlib compression level (1-9) for PNG files, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
+        [DefaultValue(9)]
+        [Range(1, 9, ErrorMessage = "PNG compression level must be between 1 and 9.")]
+        int OutputFilePngCompressionLevel { get; set; }
+
         [Description("When saving a screenshot, copy the path to the clipboard?")]
         [DefaultValue(true)]
         bool OutputFileCopyPathToClipboard { get; set; }

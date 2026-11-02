@@ -180,6 +180,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Smaller PNG files**
 - PNG files, uploads and attachments are written as small as possible without losing anything, like optipng does
 - Images with few colors get much smaller
+- OutputFilePngCompressionLevel in greenshot.ini (1-9, default 9) trades a little size for faster saving
 - The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
 
 **DIB Format** (#813)
