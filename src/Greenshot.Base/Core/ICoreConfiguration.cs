@@ -433,10 +433,6 @@ namespace Greenshot.Base.Core
         [DefaultValue("CaptureTime")]
         List<ExportMetadataField> ExportMetadata { get; set; }
 
-        [Description("When opening an image, read the capture time, window title and web address Greenshot wrote into it, so filename patterns and recipes use them")]
-        [DefaultValue(true)]
-        bool ImportMetadata { get; set; }
-
         [Description("The author written into exported images when ExportMetadata contains Author")]
         string ExportMetadataAuthor { get; set; }
 

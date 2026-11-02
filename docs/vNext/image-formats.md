@@ -86,7 +86,7 @@ Nothing else is written: no location, no user or computer name, and nothing from
 | BMP, GIF, TGA, PBM | none of these details |
 
 When you open an image, Greenshot reads the capture time, window title and web address it wrote, so filename patterns and
-recipes use them like for the original capture. Set `ImportMetadata=False` to switch this off.
+recipes use them like for the original capture.
 
 ## Expert settings
 
@@ -103,4 +103,3 @@ These are in greenshot.ini only:
   the resolution.
 - `ExportMetadataAuthor`, `ExportMetadataCopyright` (default empty): your name and copyright notice, written when
   `ExportMetadata` contains `Author`.
-- `ImportMetadata` (default True): read the capture time, window title and web address Greenshot wrote when opening an image.

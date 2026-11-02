@@ -24,7 +24,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 using SixLabors.ImageSharp;
@@ -51,15 +50,11 @@ public static class ImageMetadataReader
     public const string CaptureTimeKey = "capturetime";
 
     /// <summary>
-    /// Read the details of the file into the capture details, when ImportMetadata is on
+    /// Read the details of the file into the capture details
     /// </summary>
     public static void ReadInto(ICaptureDetails captureDetails, string filename)
     {
         if (captureDetails == null || string.IsNullOrEmpty(filename))
-        {
-            return;
-        }
-        if (IniConfigRegistry.TryGetSection<ICoreConfiguration>(out var coreConfiguration) && !coreConfiguration.ImportMetadata)
         {
             return;
         }
