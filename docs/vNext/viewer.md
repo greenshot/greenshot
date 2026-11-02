@@ -49,6 +49,9 @@ to the clipboard, open in the editor, upload, ... The editor recipes can change 
 The destination gets a copy, so the viewer stays open and keeps showing the capture as it was. When an export fails, the window comes
 back with the error.
 
+Clicking the preview in the destination window shows the capture in a viewer too, at its real size when it fits. That viewer
+has no export, the destination is chosen in the window; `Esc` closes it and goes back to the window.
+
 ## Keys
 
 `H` or `F1` show the keys in the viewer.

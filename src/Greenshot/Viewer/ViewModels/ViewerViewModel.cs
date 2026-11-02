@@ -56,8 +56,13 @@ namespace Greenshot.Viewer.ViewModels
         private bool _showCursor;
         private bool _showHelp;
 
-        public ViewerViewModel(ISurface surface, ICaptureDetails captureDetails, IViewerConfiguration configuration)
+        /// <param name="surface">The capture, the view model owns it</param>
+        /// <param name="captureDetails">The details of the capture, or null for the ones of the surface</param>
+        /// <param name="configuration">The viewer settings</param>
+        /// <param name="canExport">False when the viewer only shows the capture, e.g. as preview of the destination window</param>
+        public ViewerViewModel(ISurface surface, ICaptureDetails captureDetails, IViewerConfiguration configuration, bool canExport = true)
         {
+            CanExport = canExport;
             _surface = surface ?? throw new ArgumentNullException(nameof(surface));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             var title = captureDetails?.Title ?? surface.CaptureDetails?.Title;
@@ -80,6 +85,11 @@ namespace Greenshot.Viewer.ViewModels
         /// The title of the capture
         /// </summary>
         public string Title { get; }
+
+        /// <summary>
+        /// The capture can be exported from the viewer
+        /// </summary>
+        public bool CanExport { get; }
 
         /// <summary>
         /// The capture as shown: with the elements, and the mouse pointer unless it's hidden
@@ -196,7 +206,7 @@ namespace Greenshot.Viewer.ViewModels
         /// <param name="choose">Shows the capture, the destinations and the error of the last try (or null), returns the chosen destination, or nothing</param>
         public async Task ExportAsync(Func<EditableCapture, IReadOnlyList<IDestination>, string, IDestination> choose)
         {
-            if (_surface == null)
+            if (_surface == null || !CanExport)
             {
                 return;
             }

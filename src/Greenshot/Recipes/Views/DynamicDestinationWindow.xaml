@@ -368,43 +368,5 @@
                 </Border>
             </Grid>
         </Border>
-
-        <!-- Fullscreen / Window-filling Animated Preview Overlay -->
-        <Grid x:Name="FullPreviewOverlay" Visibility="Collapsed" Background="#E6000000"
-              KeyboardNavigation.TabNavigation="Cycle"
-              MouseDown="FullPreviewOverlay_MouseDown" Cursor="Hand"
-              RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-                <ScaleTransform x:Name="PreviewScale" ScaleX="0.9" ScaleY="0.9"/>
-            </Grid.RenderTransform>
-
-            <!-- Top Header Bar on Preview Overlay -->
-            <Border VerticalAlignment="Top" HorizontalAlignment="Stretch" 
-                    Background="#80000000" Padding="16,8">
-                <Grid>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🔍 " FontSize="{wpf:FontSize 13}" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="SemiBold" FontSize="{wpf:FontSize 13}" Foreground="White" VerticalAlignment="Center"/>
-                        <Border Background="#40FFFFFF" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding DimensionsText}" FontSize="{wpf:FontSize 11}" Foreground="#E0E0E0"/>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding FullscreenReturnHintText}" FontSize="{wpf:FontSize 11}" 
-                                   Foreground="#C0C0C0" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <Button x:Name="FullPreviewCloseButton" Style="{StaticResource TitleCloseButtonStyle}" Click="FullPreviewClose_Click" ToolTip="{Binding CloseButtonToolTip}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Full-window preview image: 1:1 (a capture pixel is a screen pixel) when it fits, else made smaller, never bigger -->
-            <Border x:Name="FullPreviewArea" Margin="20,48,20,20" ClipToBounds="True" UseLayoutRounding="True">
-                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Image x:Name="FullPreviewImage" Source="{Binding PreviewImageSource}" Stretch="Fill"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                </Viewbox>
-            </Border>
-        </Grid>
     </Grid>
 </Window>

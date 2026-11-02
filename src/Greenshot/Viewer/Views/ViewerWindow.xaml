@@ -83,6 +83,7 @@
                         Style="{StaticResource ViewerTitleButtonStyle}"
                         Content="&#xE72D;"
                         AutomationProperties.Name="{wpf:Text Core.ViewerExport}"
+                        Visibility="{Binding CanExport, Converter={StaticResource BooleanToVisibility}}"
                         Click="ExportClick"/>
                 <TextBlock Text="{Binding Title}"
                            Margin="8,0"

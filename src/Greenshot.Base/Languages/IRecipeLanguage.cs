@@ -972,11 +972,6 @@ namespace Greenshot.Base.Languages
         string PickerZoomPreview { get; }
 
         /// <summary>
-        /// Click anywhere or press Esc to return
-        /// </summary>
-        string PickerFullscreenHint { get; }
-
-        /// <summary>
         /// Choose another destination below, or try again:
         /// </summary>
         string PickerErrorChooseAgain { get; }

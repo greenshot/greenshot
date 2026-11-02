@@ -32,7 +32,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Greenshot.Base;
@@ -42,10 +41,14 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
+using Dapplo.Ini;
 using Greenshot.Editor.Destinations;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.ViewModels;
+using Greenshot.Viewer;
+using Greenshot.Viewer.ViewModels;
+using Greenshot.Viewer.Views;
 
 namespace Greenshot.Recipes.Views
 {
@@ -53,7 +56,7 @@ namespace Greenshot.Recipes.Views
     /// <summary>
     /// Modern WPF-styled interactive export dialog that presents a capture preview thumbnail,
     /// core destinations directly under the thumbnail, compact other destinations, search filtering,
-    /// dynamic translation updates, fullscreen preview zoom transition, and rich error recovery.
+    /// dynamic translation updates, the capture at full size in a viewer, and rich error recovery.
     /// </summary>
     public partial class DynamicDestinationWindow : Window, INotifyPropertyChanged
     {
@@ -61,7 +64,7 @@ namespace Greenshot.Recipes.Views
         private readonly DispatcherTimer _timer;
         private int _secondsRemaining;
         private string _searchText = "";
-        private bool _isFullPreviewOpen;
+        private ViewerWindow _previewViewer;
         private string _customTitle;
         private EditableCapture _capture;
         private CaptureFlowHandle _runningRecipe;
@@ -119,7 +122,6 @@ namespace Greenshot.Recipes.Views
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
         public string ClickToPreviewTooltip => Texts.Recipe.PickerPreviewTooltip;
-        public string FullscreenReturnHintText => Texts.Recipe.PickerFullscreenHint;
         public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
@@ -234,6 +236,7 @@ namespace Greenshot.Recipes.Views
                 _timer?.Stop();
                 // A recipe which still runs changes nothing anymore
                 _runningRecipe?.Cancel();
+                ClosePreviewViewer();
                 if (_capture != null)
                 {
                     _capture.Changed -= OnCaptureChanged;
@@ -304,7 +307,12 @@ namespace Greenshot.Recipes.Views
             SetPreview(image);
         }
 
-        private void OnCaptureChanged(object sender, EventArgs e) => ShowCapture();
+        private void OnCaptureChanged(object sender, EventArgs e)
+        {
+            // The viewer shows a copy, which isn't the capture anymore
+            ClosePreviewViewer();
+            ShowCapture();
+        }
 
         /// <summary>
         /// Runs the editor recipe on the capture; the window waits for it and shows the changed capture
@@ -474,7 +482,6 @@ namespace Greenshot.Recipes.Views
             OnPropertyChanged(nameof(DismissButtonText));
             OnPropertyChanged(nameof(CloseButtonToolTip));
             OnPropertyChanged(nameof(ClickToPreviewTooltip));
-            OnPropertyChanged(nameof(FullscreenReturnHintText));
             OnPropertyChanged(nameof(ErrorSubtitleText));
             OnPropertyChanged(nameof(ThemeToggleToolTip));
             OnPropertyChanged(nameof(TimeoutText));
@@ -531,92 +538,64 @@ namespace Greenshot.Recipes.Views
             WpfThemeHelper.ToggleTheme();
         }
 
-        #region Fullscreen Preview Zoom Transition
+        #region Preview in the viewer
 
-        private void Thumbnail_Click(object sender, RoutedEventArgs e)
+        private void Thumbnail_Click(object sender, RoutedEventArgs e) => OpenPreviewViewer();
+
+        /// <summary>
+        /// Shows a copy of the capture in the viewer, which has the zoom (1:1 when it fits), panning and a frame, also for a capture
+        /// of more screens. The viewer belongs to this window: it stays in front of it, closing it (Esc) comes back here, and it
+        /// closes with this window. It only shows the capture, the destination is chosen here.
+        /// </summary>
+        private void OpenPreviewViewer()
         {
-            if (PreviewImageSource != null)
+            if (_capture?.Surface == null)
             {
-                OpenFullscreenPreview();
+                return;
             }
-        }
 
-        private void FullPreviewOverlay_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
+            if (_previewViewer != null)
             {
-                CloseFullscreenPreview();
+                _previewViewer.Activate();
+                return;
             }
-        }
 
-        private void FullPreviewClose_Click(object sender, RoutedEventArgs e)
-        {
-            CloseFullscreenPreview();
-        }
-
-        private void OpenFullscreenPreview()
-        {
-            _isFullPreviewOpen = true;
-            if (PreviewImageSource != null)
+            var copy = _capture.Surface.Clone();
+            ViewerWindow viewer;
+            try
             {
-                // 1:1: a pixel of the capture is a pixel of the screen, whatever the scaling of the screen and the resolution in the image
-                var dpi = VisualTreeHelper.GetDpi(this);
-                FullPreviewImage.Width = PreviewImageSource.PixelWidth / dpi.DpiScaleX;
-                FullPreviewImage.Height = PreviewImageSource.PixelHeight / dpi.DpiScaleY;
+                viewer = new ViewerWindow(new ViewerViewModel(copy, null, IniConfigRegistry.GetSection<IViewerConfiguration>(), canExport: false));
             }
-            FullPreviewOverlay.Visibility = Visibility.Visible;
-            FullPreviewOverlay.Opacity = 0.0;
-            PreviewScale.ScaleX = 0.88;
-            PreviewScale.ScaleY = 0.88;
-
-            var ease = new CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
-
-            var fadeAnim = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease };
-            var scaleXAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
-            var scaleYAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
-
-            // At 1:1 the pixels are copied, not resampled (smoothing shifts and blurs them); a capture which doesn't fit is made smaller smoothly
-            UpdateLayout();
-            bool fits = FullPreviewImage.Width <= FullPreviewArea.ActualWidth && FullPreviewImage.Height <= FullPreviewArea.ActualHeight;
-            RenderOptions.SetBitmapScalingMode(FullPreviewImage, fits ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.HighQuality);
-            // The zoom-in ends at exactly 1, without a transform left on the pixels
-            scaleXAnim.Completed += (s, e) => EndZoomAnimation();
-
-            FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
-            // The keyboard focus goes into the preview, else it stays on the hidden controls behind it
-            FullPreviewCloseButton.Focus();
-        }
-
-        private void EndZoomAnimation()
-        {
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-            PreviewScale.ScaleX = 1.0;
-            PreviewScale.ScaleY = 1.0;
-        }
-
-        private void CloseFullscreenPreview()
-        {
-            if (!_isFullPreviewOpen) return;
-
-            var ease = new CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseIn };
-
-            var fadeAnim = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-            var scaleXAnim = new DoubleAnimation(1.0, 0.88, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-            var scaleYAnim = new DoubleAnimation(1.0, 0.88, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-
-            fadeAnim.Completed += (s, e) =>
+            catch
             {
-                FullPreviewOverlay.Visibility = Visibility.Collapsed;
-                _isFullPreviewOpen = false;
-                ThumbnailButton.Focus();
+                copy.Dispose();
+                throw;
+            }
+
+            viewer.Owner = this;
+            viewer.Closed += (s, e) =>
+            {
+                if (_previewViewer != viewer)
+                {
+                    return;
+                }
+
+                _previewViewer = null;
+                if (IsVisible)
+                {
+                    Activate();
+                    ThumbnailButton.Focus();
+                }
             };
+            _previewViewer = viewer;
+            viewer.Show();
+        }
 
-            FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
+        private void ClosePreviewViewer()
+        {
+            var viewer = _previewViewer;
+            _previewViewer = null;
+            viewer?.Close();
         }
 
         #endregion
@@ -626,15 +605,8 @@ namespace Greenshot.Recipes.Views
             switch (e.Key)
             {
                 case Key.Escape:
-                    if (_isFullPreviewOpen)
-                    {
-                        CloseFullscreenPreview();
-                    }
-                    else
-                    {
-                        DialogResult = false;
-                        Close();
-                    }
+                    DialogResult = false;
+                    Close();
                     e.Handled = true;
                     break;
                 case Key.T when Keyboard.Modifiers == ModifierKeys.None:

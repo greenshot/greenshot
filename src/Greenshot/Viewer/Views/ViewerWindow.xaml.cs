@@ -81,7 +81,7 @@ namespace Greenshot.Viewer.Views
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             DataContext = viewModel;
             InitializeComponent();
-            HelpKeys.ItemsSource = CreateHelpEntries();
+            HelpKeys.ItemsSource = CreateHelpEntries(viewModel.CanExport);
             UpdateChrome();
             viewModel.PropertyChanged += ViewModelPropertyChanged;
             // The border color follows the settings and the light or dark mode
@@ -424,6 +424,11 @@ namespace Greenshot.Viewer.Views
 
         private void Export()
         {
+            if (!_viewModel.CanExport)
+            {
+                return;
+            }
+
             AsyncCommand.Run(() => _viewModel.ExportAsync(ChooseDestination), "Export from the viewer");
         }
 
@@ -552,8 +557,12 @@ namespace Greenshot.Viewer.Views
         private void ShowMenu(bool atMouse)
         {
             var menu = ThemedMenu.CreateContextMenu();
-            menu.Items.Add(CreateMenuItem(Texts.Core.ViewerExport, "E", Export));
-            menu.Items.Add(ThemedMenu.CreateSeparator());
+            if (_viewModel.CanExport)
+            {
+                menu.Items.Add(CreateMenuItem(Texts.Core.ViewerExport, "E", Export));
+                menu.Items.Add(ThemedMenu.CreateSeparator());
+            }
+
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerActualSize, "1", ShowActualSize));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerFit, "F", FitToWindow));
             menu.Items.Add(CreateMenuItem(Texts.Core.ViewerWindowToCapture, "W", SizeWindowToCapture));
@@ -595,10 +604,10 @@ namespace Greenshot.Viewer.Views
             return item;
         }
 
-        private static IReadOnlyList<HelpEntry> CreateHelpEntries()
+        private static IReadOnlyList<HelpEntry> CreateHelpEntries(bool canExport)
         {
             var core = Texts.Core;
-            return new List<HelpEntry>
+            var entries = new List<HelpEntry>
             {
                 new HelpEntry("1  Ctrl+0", core.ViewerKeyActualSize),
                 new HelpEntry("F  Ctrl+9", core.ViewerKeyFit),
@@ -606,7 +615,6 @@ namespace Greenshot.Viewer.Views
                 new HelpEntry("+  −", core.ViewerKeyZoom),
                 new HelpEntry("← ↑ → ↓", core.ViewerKeyPan),
                 new HelpEntry("Ctrl", core.ViewerKeyMove),
-                new HelpEntry("E", core.ViewerKeyExport),
                 new HelpEntry("P", core.ViewerKeyAlwaysOnTop),
                 new HelpEntry("T", core.ViewerKeyTitleBar),
                 new HelpEntry("B", core.ViewerKeyBorder),
@@ -615,6 +623,12 @@ namespace Greenshot.Viewer.Views
                 new HelpEntry("H  F1", core.ViewerKeyHelp),
                 new HelpEntry("Esc", core.ViewerKeyClose)
             };
+            if (canExport)
+            {
+                entries.Insert(entries.FindIndex(entry => entry.Keys == "P"), new HelpEntry("E", core.ViewerKeyExport));
+            }
+
+            return entries;
         }
 
         private void TitleBarMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
