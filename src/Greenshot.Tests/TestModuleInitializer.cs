@@ -43,7 +43,8 @@ namespace Greenshot.Tests
 
             // An exception in a window procedure (e.g. a control created on an MTA thread) would show the WinForms exception
             // dialog on the desktop and block the test run, it has to fail the test which created the window instead
-            System.Windows.Forms.Application.SetUnhandledExceptionMode(System.Windows.Forms.UnhandledExceptionMode.ThrowException);
+            // Not only for this thread: the windows of the tests are created on their own threads
+            System.Windows.Forms.Application.SetUnhandledExceptionMode(System.Windows.Forms.UnhandledExceptionMode.ThrowException, false);
         }
     }
 }
