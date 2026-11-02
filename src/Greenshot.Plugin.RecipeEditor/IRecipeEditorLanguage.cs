@@ -482,6 +482,26 @@ namespace Greenshot.Plugin.RecipeEditor
         string DisplayName { get; }
 
         /// <summary>
+        /// Run this step
+        /// </summary>
+        string StepEnabled { get; }
+
+        /// <summary>
+        /// When off, the recipe skips this step and goes on with the next ones
+        /// </summary>
+        string TipStepEnabled { get; }
+
+        /// <summary>
+        /// Only when
+        /// </summary>
+        string StepWhen { get; }
+
+        /// <summary>
+        /// Runs the step only when this expression is true, e.g. ${option.add_border}. Empty: always
+        /// </summary>
+        string TipStepWhen { get; }
+
+        /// <summary>
         /// STEP PARAMETERS
         /// </summary>
         string HeaderStepParameters { get; }
@@ -3426,6 +3446,11 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Use a fixed hotkey
         /// </summary>
         string TriggerHotkeyUseFixed { get; }
+
+        /// <summary>
+        /// Use the hotkey of an option
+        /// </summary>
+        string TriggerHotkeyUseOption { get; }
 
         /// <summary>
         /// Context Menu: {0}
