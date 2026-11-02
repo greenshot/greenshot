@@ -192,7 +192,7 @@ namespace Greenshot.Viewer.Views
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.BeginInvoke(new Action(UpdateChrome));
+                Dispatcher.InvokeAsync(UpdateChrome).Task.FireAndLog("Update the viewer frame", Log);
                 return;
             }
 
