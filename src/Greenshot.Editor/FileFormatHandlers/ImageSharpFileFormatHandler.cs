@@ -69,9 +69,10 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
-            if (extension == ".png" && (surfaceOutputSettings?.OptimizePng ?? true))
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
+            if (extension == ".png")
             {
-                PngOptimizer.Save(bitmap, destination);
+                PngOptimizer.Save(bitmap, destination, surfaceOutputSettings);
                 return true;
             }
             using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
@@ -83,14 +84,6 @@ namespace Greenshot.Editor.FileFormatHandlers
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
 
             var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
-            if (extension == ".png")
-            {
-                surfaceOutputSettings ??= new SurfaceOutputSettings(WellKnownFileFormats.Png);
-                // Access the PNG-specific metadata
-                var pngMetadata = image.Metadata.GetPngMetadata();
-                // Add or update the "Software" text chunk
-                pngMetadata.TextData.Add(new PngTextData("Software", versionString, "en", "en"));
-            }
 
             // Ensure an EXIF profile exists
             if (image.Metadata.ExifProfile == null)
@@ -99,8 +92,6 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             // Set the Software tag
             image.Metadata.ExifProfile.SetValue(ExifTag.Software, versionString);
-
-            surfaceOutputSettings ??= new SurfaceOutputSettings();
 
             // Support reducing colors for formats that support it, but only if the setting is enabled
             IQuantizer quantizer = null;
@@ -115,7 +106,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             IImageEncoder encoder = extension switch
             {
-                ".png" => new PngEncoder() { Quantizer = quantizer, ColorType = surfaceOutputSettings.ReduceColors ? PngColorType.Palette : hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb },
                 ".bmp" => new BmpEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? BmpBitsPerPixel.Pixel8 : hasAlpha ? BmpBitsPerPixel.Pixel32 : BmpBitsPerPixel.Pixel24 },
                 ".gif" => new GifEncoder() { Quantizer = quantizer },
                 ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },

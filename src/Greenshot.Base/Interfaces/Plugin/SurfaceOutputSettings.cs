@@ -39,6 +39,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             Format = CoreConfig.OutputFileFormat;
             JPGQuality = CoreConfig.OutputFileJpegQuality;
             ReduceColors = CoreConfig.OutputFileReduceColors;
+            PngCompressionLevel = CoreConfig.OutputFilePngCompressionLevel;
         }
 
         public SurfaceOutputSettings(string format) : this()
@@ -84,9 +85,9 @@ namespace Greenshot.Base.Interfaces.Plugin
         public bool SaveBackgroundOnly { get; set; }
 
         /// <summary>
-        /// Write a PNG as small as possible without losing anything, this takes more time than a normal PNG.
+        /// zlib compression level (1-9) for PNG
         /// </summary>
-        public bool OptimizePng { get; set; } = true;
+        public int PngCompressionLevel { get; set; }
 
         public List<IEffect> Effects { get; } = new List<IEffect>();
 

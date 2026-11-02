@@ -119,7 +119,7 @@ Known vulnerability warnings:
 This is for Greenshot 1.4.x, Greenshot 1.3 doesn't use ImageSharp!
 Some NuGet audit warnings are suppressed with `NuGetAuditSuppress` in `src\Directory.Build.props`, because they don't apply to Greenshot or are worked around. The reasons are listed here. Remove the suppression when the package is updated.
 
-**SixLabors.ImageSharp 2.1.13.** These advisories are fixed only in 4.1.2, which no longer supports .NET Framework, and there is no 2.1.x fix. Greenshot only loads and saves files with ImageSharp when "beta tester" is on (`ImageSharpFileFormatHandler`); otherwise System.Drawing is used. The exception is writing PNG files, which always uses the ImageSharp PNG encoder (`PngOptimizer`); none of these advisories are in the PNG encoder.
+**SixLabors.ImageSharp 2.1.13.** These advisories are fixed only in 4.1.2, which no longer supports .NET Framework, and there is no 2.1.x fix. Greenshot loads and saves PNG, JPEG, BMP, GIF, WebP, TGA and PBM files with ImageSharp (`ImageSharpFileFormatHandler`, PNG is written by `PngOptimizer`), and saves TIFF with it; TIFF is loaded with WIC.
 
 | Advisory | Severity | What it is | Why Greenshot is not affected |
 |---|---|---|---|

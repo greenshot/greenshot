@@ -75,6 +75,11 @@ namespace Greenshot.Base.Core
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }
 
+        [Description("zlib compression level (1-9) for the PNG on the clipboard, it's made on every copy, so a lower level copies faster.")]
+        [DefaultValue(8)]
+        [Range(1, 9, ErrorMessage = "Clipboard PNG compression level must be between 1 and 9.")]
+        int ClipboardPngCompressionLevel { get; set; }
+
         [Description("Should the mouse be captured?")]
         [DefaultValue(true)]
         bool CaptureMousepointer { get; set; }
@@ -143,10 +148,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
 
-        [Description("zlib compression level (1-9) for PNG files, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
+        [Description("zlib compression level (1-9) for PNG files and uploads, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
         [DefaultValue(9)]
         [Range(1, 9, ErrorMessage = "PNG compression level must be between 1 and 9.")]
         int OutputFilePngCompressionLevel { get; set; }
+
+        [Description("Write a PNG with 256 colors or fewer with a palette, which is much smaller. Set to false if an application can't read these PNG files.")]
+        [DefaultValue(true)]
+        bool OutputFilePngPalette { get; set; }
 
         [Description("When saving a screenshot, copy the path to the clipboard?")]
         [DefaultValue(true)]

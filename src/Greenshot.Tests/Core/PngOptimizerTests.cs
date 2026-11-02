@@ -24,6 +24,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -40,6 +42,8 @@ namespace Greenshot.Tests.Core
         {
             // 200 colors which differ by one step, the ImageSharp 2.x quantizer cache would mix them up
             { "nearColors", PngColorType.Palette },
+            // The clipboard disables color reduction, so no palette there
+            { "nearColorsNoPalette", PngColorType.Rgb },
             { "fewColorsWithTransparency", PngColorType.Palette },
             // A gray image has at most 256 colors, so it gets a palette too
             { "gray", PngColorType.Palette },
@@ -63,7 +67,7 @@ namespace Greenshot.Tests.Core
                     int i = y * Size + x;
                     bitmap.SetPixel(x, y, kind switch
                     {
-                        "nearColors" => Color.FromArgb(100 + i % 200 / 10, 50 + i % 200 % 10, 7),
+                        "nearColors" or "nearColorsNoPalette" => Color.FromArgb(100 + i % 200 / 10, 50 + i % 200 % 10, 7),
                         "fewColorsWithTransparency" => i % 3 == 0 ? Color.FromArgb(0, 0, 0, 0) : Color.FromArgb(128, 10, 20, 30),
                         "gray" => Color.FromArgb(i % 256, i % 256, i % 256),
                         "rgb" or "rgbPadded" => Color.FromArgb(i % 256, i / 256, 3),
@@ -73,7 +77,8 @@ namespace Greenshot.Tests.Core
             }
 
             using var stream = new MemoryStream();
-            PngOptimizer.Save(bitmap, stream);
+            TestEnvironment.EnsureInitialized();
+            PngOptimizer.Save(bitmap, stream, new SurfaceOutputSettings(WellKnownFileFormats.Png) { DisableReduceColors = kind == "nearColorsNoPalette" });
 
             stream.Position = 0;
             using var written = SixLabors.ImageSharp.Image.Load<Bgra32>(stream);

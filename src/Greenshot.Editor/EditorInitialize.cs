@@ -51,7 +51,7 @@ namespace Greenshot.Editor
 
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
-                    CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),
+                    new ImageSharpFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support

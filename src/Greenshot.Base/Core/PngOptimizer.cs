@@ -27,6 +27,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Memory;
@@ -57,15 +58,19 @@ public static class PngOptimizer
     /// </summary>
     /// <param name="bitmap">Bitmap to write</param>
     /// <param name="destination">Stream to write to</param>
-    public static unsafe void Save(Bitmap bitmap, Stream destination)
+    /// <param name="outputSettings">The compression level, and DisableReduceColors to never write a palette</param>
+    public static unsafe void Save(Bitmap bitmap, Stream destination, SurfaceOutputSettings outputSettings)
     {
+        var options = new Options(
+            (PngCompressionLevel)Math.Max(1, Math.Min(9, outputSettings.PngCompressionLevel)),
+            !outputSettings.DisableReduceColors && (IniConfigRegistry.GetSection<ICoreConfiguration>()?.OutputFilePngPalette ?? true));
         // 32bpp ARGB and 24bpp RGB without row padding are read in place, everything else is converted to a copy first
         bool isArgb = bitmap.PixelFormat == PixelFormat.Format32bppArgb;
         bool isRgb = bitmap.PixelFormat == PixelFormat.Format24bppRgb && bitmap.Width * 3 % 4 == 0;
         if (!isArgb && !isRgb)
         {
             using var copy = ImageSharpHelper.ConvertToImageSharp(bitmap);
-            Save(copy, bitmap, destination);
+            Save(copy, bitmap, destination, options);
             return;
         }
 
@@ -75,7 +80,7 @@ public static class PngOptimizer
             using Image image = isArgb
                 ? Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height)
                 : Image.WrapMemory<Bgr24>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height);
-            Save(image, bitmap, destination);
+            Save(image, bitmap, destination, options);
         }
         finally
         {
@@ -83,10 +88,21 @@ public static class PngOptimizer
         }
     }
 
-    // The configured level, the PNG compression levels of ImageSharp are the zlib levels
-    private static PngCompressionLevel CompressionLevel() => (PngCompressionLevel)(IniConfigRegistry.GetSection<ICoreConfiguration>()?.OutputFilePngCompressionLevel ?? 9);
+    private readonly struct Options
+    {
+        public Options(PngCompressionLevel compressionLevel, bool usePalette)
+        {
+            CompressionLevel = compressionLevel;
+            UsePalette = usePalette;
+        }
 
-    private static void Save(Image image, Bitmap bitmap, Stream destination)
+        // The PNG compression levels of ImageSharp are the zlib levels
+        public PngCompressionLevel CompressionLevel { get; }
+
+        public bool UsePalette { get; }
+    }
+
+    private static void Save(Image image, Bitmap bitmap, Stream destination, Options options)
     {
         image.Metadata.ResolutionUnits = PixelResolutionUnit.PixelsPerInch;
         image.Metadata.HorizontalResolution = bitmap.HorizontalResolution;
@@ -95,22 +111,23 @@ public static class PngOptimizer
         switch (image)
         {
             case Image<Bgr24> bgr24:
-                Save(bgr24, destination);
+                Save(bgr24, destination, options);
                 break;
             case Image<Bgra32> bgra32:
-                Save(bgra32, destination);
+                Save(bgra32, destination, options);
                 break;
             default:
                 throw new NotSupportedException($"Unexpected pixel type {image.PixelType}");
         }
     }
 
-    private static void Save<TPixel>(Image<TPixel> image, Stream destination) where TPixel : unmanaged, IPixel<TPixel>
+    private static void Save<TPixel>(Image<TPixel> image, Stream destination, Options options) where TPixel : unmanaged, IPixel<TPixel>
     {
         // Bgr24 has no alpha, for Bgra32 the JIT removes the type checks
         bool checkAlpha = typeof(TPixel) == typeof(Bgra32);
         var palette = new Dictionary<TPixel, byte>(MaxPaletteColors + 1);
-        bool tooManyColors = false, hasAlpha = false;
+        // Without a palette there's no need to count the colors
+        bool tooManyColors = !options.UsePalette, hasAlpha = false;
         image.ProcessPixelRows(accessor =>
         {
             TPixel previous = default;
@@ -155,7 +172,7 @@ public static class PngOptimizer
         {
             var paletteEncoder = new PngEncoder
             {
-                CompressionLevel = CompressionLevel(),
+                CompressionLevel = options.CompressionLevel,
                 ColorType = PngColorType.Palette,
                 BitDepth = palette.Count switch
                 {
@@ -175,7 +192,7 @@ public static class PngOptimizer
         var colorType = hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb;
         image.SaveAsPng(destination, new PngEncoder
         {
-            CompressionLevel = CompressionLevel(),
+            CompressionLevel = options.CompressionLevel,
             BitDepth = PngBitDepth.Bit8,
             ColorType = colorType,
             FilterMethod = ChooseFilter(image, colorType)
