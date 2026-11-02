@@ -2,11 +2,14 @@ name: Recipe pages
 
 # Writes the recipe catalog (latest greenshot-recipes release) into gh-pages: unlisted pages under /recipes/.
 # A push with the workflow token doesn't start the Pages build, so it is asked for afterwards (with the workflow
-# token's pages permission). Runs by hand and on a Greenshot release.
+# token's pages permission). Runs by hand, on a Greenshot release, and when greenshot-recipes published a new index
+# (repository_dispatch "recipes-published", sent with that repository's secret WEBSITE_DISPATCH_TOKEN).
 on:
   workflow_dispatch:
   release:
     types: [published]
+  repository_dispatch:
+    types: [recipes-published]
 
 permissions:
   contents: write
