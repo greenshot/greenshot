@@ -1193,52 +1193,58 @@ namespace Greenshot.Base.Core
             int destX = 0;
             int destY = 0;
 
-            var nPercentW = newWidth / (float) sourceImage.Width;
-            var nPercentH = newHeight / (float) sourceImage.Height;
+            // A width or height of 0 (or less) means: not given.
+            // With the aspect ratio kept it is calculated from the other one, without it the side keeps its size.
+            bool hasWidth = newWidth > 0;
+            bool hasHeight = newHeight > 0;
+            var nPercentW = hasWidth ? newWidth / (float) sourceImage.Width : 1f;
+            var nPercentH = hasHeight ? newHeight / (float) sourceImage.Height : 1f;
             if (maintainAspectRatio)
             {
-                if ((int) nPercentW == 1)
+                float nPercent;
+                if (hasWidth && hasHeight)
                 {
-                    nPercentW = nPercentH;
-                    if (canvasUseNewSize)
-                    {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
-                    }
+                    // Fit into the given size
+                    nPercent = Math.Min(nPercentW, nPercentH);
                 }
-                else if ((int) nPercentH == 1)
+                else if (hasWidth)
                 {
-                    nPercentH = nPercentW;
-                    if (canvasUseNewSize)
-                    {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
-                    }
+                    nPercent = nPercentW;
                 }
-                else if ((int) nPercentH != 0 && nPercentH < nPercentW)
+                else if (hasHeight)
                 {
-                    nPercentW = nPercentH;
-                    if (canvasUseNewSize)
-                    {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
-                    }
+                    nPercent = nPercentH;
                 }
                 else
                 {
-                    nPercentH = nPercentW;
-                    if (canvasUseNewSize)
+                    nPercent = 1f;
+                }
+
+                if (canvasUseNewSize)
+                {
+                    if (hasWidth)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercent) / 2));
+                    }
+
+                    if (hasHeight)
+                    {
+                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercent) / 2));
                     }
                 }
+
+                nPercentW = nPercent;
+                nPercentH = nPercent;
             }
 
-            int destWidth = (int) (sourceImage.Width * nPercentW);
-            int destHeight = (int) (sourceImage.Height * nPercentH);
-            if (newWidth == 0)
+            int destWidth = Math.Max(1, (int) Math.Round(sourceImage.Width * nPercentW));
+            int destHeight = Math.Max(1, (int) Math.Round(sourceImage.Height * nPercentH));
+            if (!hasWidth)
             {
                 newWidth = destWidth;
             }
 
-            if (newHeight == 0)
+            if (!hasHeight)
             {
                 newHeight = destHeight;
             }
