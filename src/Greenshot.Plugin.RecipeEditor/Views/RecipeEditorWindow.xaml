@@ -659,6 +659,9 @@
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepSetVariable}" Command="{Binding AddStepCommand}" CommandParameter="SetVariable">
                                 <TextBlock><Run Text="💲 "/><Run Text="{wpf:Text RecipeEditor.StepSetVariable}"/></TextBlock>
                             </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepSetMetadata}" Command="{Binding AddStepCommand}" CommandParameter="SetMetadata">
+                                <TextBlock><Run Text="🏷️ "/><Run Text="{wpf:Text RecipeEditor.StepSetMetadata}"/></TextBlock>
+                            </Button>
 
                             <!-- 4. Execution & Logic -->
                             <TextBlock Text="{wpf:Text RecipeEditor.HeaderFlowFeedback}" FontWeight="SemiBold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
@@ -1604,6 +1607,41 @@
                                             </ItemsControl>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.HintVariableScopes}"
+                                                       FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- Set Metadata Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=SetMetadata}">
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataOwnFields}" IsChecked="{Binding SelectedNode.MetadataOwnFields, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataCaptureTime}" IsChecked="{Binding SelectedNode.MetadataCaptureTime, Mode=TwoWay}" IsEnabled="{Binding SelectedNode.MetadataOwnFields}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="16,0,0,4"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataAuthorField}" IsChecked="{Binding SelectedNode.MetadataAuthorField, Mode=TwoWay}" IsEnabled="{Binding SelectedNode.MetadataOwnFields}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="16,0,0,4"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataSource}" IsChecked="{Binding SelectedNode.MetadataSource, Mode=TwoWay}" IsEnabled="{Binding SelectedNode.MetadataOwnFields}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="16,0,0,4"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataText}" IsChecked="{Binding SelectedNode.MetadataText, Mode=TwoWay}" IsEnabled="{Binding SelectedNode.MetadataOwnFields}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="16,0,0,4"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.MetadataBarcodes}" IsChecked="{Binding SelectedNode.MetadataBarcodes, Mode=TwoWay}" IsEnabled="{Binding SelectedNode.MetadataOwnFields}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="16,0,0,4"/>
+                                            <Border Height="6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.MetadataTitle}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.MetadataTitle}" Text="{Binding SelectedNode.MetadataTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.MetadataDescription}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.MetadataDescription}" Text="{Binding SelectedNode.MetadataDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.MetadataAuthor}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.MetadataAuthor}" Text="{Binding SelectedNode.MetadataAuthor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.MetadataCopyright}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.MetadataCopyright}" Text="{Binding SelectedNode.MetadataCopyright, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.HintMetadata}"
                                                        FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,8"/>
                                         </StackPanel>
 

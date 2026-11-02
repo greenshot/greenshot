@@ -86,6 +86,9 @@ Nothing else is written: no location, no user or computer name, and nothing from
 | PNG, WebP | EXIF and XMP: Windows shows the XMP, other programs the EXIF |
 | BMP, GIF, TGA, PBM | none of these details |
 
+A recipe can decide the details for its captures with the `SetMetadata` step, see
+[capture recipes](capture-recipes.md#details-in-saved-images-setmetadata-step).
+
 When you open an image, Greenshot reads the capture time, window title and web address it wrote, so filename patterns and
 recipes use them like for the original capture.
 
