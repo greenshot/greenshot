@@ -38,6 +38,7 @@ using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -162,11 +163,13 @@ namespace Greenshot.Editor.FileFormatHandlers
                 if (decoder is JpegDecoder)
                 {
                     using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                    Orient(image);
                     bitmap = ImageSharpHelper.ToBitmap(image);
                 }
                 else
                 {
                     using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
+                    Orient(image);
                     bitmap = ImageSharpHelper.ToBitmap(image);
                 }
                 return true;
@@ -177,6 +180,17 @@ namespace Greenshot.Editor.FileFormatHandlers
                 Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
                 bitmap = null;
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Turn a photo upright by its EXIF orientation, like WIC does when it loads it
+        /// </summary>
+        private static void Orient(Image image)
+        {
+            if (ApplyExifOrientation)
+            {
+                image.Mutate(context => context.AutoOrient());
             }
         }
     }

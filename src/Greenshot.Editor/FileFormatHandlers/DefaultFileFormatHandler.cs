@@ -134,6 +134,8 @@ namespace Greenshot.Editor.FileFormatHandlers
             try
             {
                 using var tmpImage = Image.FromStream(stream, true, true);
+                // Turn a photo upright by its EXIF orientation (honours ProcessEXIFOrientation), like WIC does when it loads it
+                ImageHelper.Orientate(tmpImage);
                 bitmap = ImageHelper.Clone(tmpImage, PixelFormat.DontCare);
 
                 return true;

@@ -56,8 +56,8 @@ plugin.
 
 ## Photos are turned upright
 
-Phones and cameras often store a photo sideways and add a note (EXIF orientation) how to turn it. When Windows opens such a photo
-for Greenshot, Greenshot turns it upright. To switch this off, set `ProcessEXIFOrientation=False` in greenshot.ini.
+Phones and cameras often store a photo sideways and add a note (EXIF orientation) how to turn it. Greenshot turns such photos
+upright when it opens them, whichever reader opens the file. To switch this off, set `ProcessEXIFOrientation=False` in greenshot.ini.
 
 ## Expert settings
 

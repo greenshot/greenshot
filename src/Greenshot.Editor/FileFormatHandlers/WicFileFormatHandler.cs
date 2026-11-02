@@ -26,7 +26,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dapplo.Ini;
 using Dapplo.Windows.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
@@ -162,11 +161,6 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
         }
 
-        /// <summary>
-        /// The EXIF orientation is applied unless the configuration turns it off
-        /// </summary>
-        private static bool ApplyOrientation => !IniConfigRegistry.TryGetSection<ICoreConfiguration>(out var coreConfiguration) || coreConfiguration.ProcessEXIFOrientation;
-
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
@@ -225,7 +219,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                     bitmapData = result.LockBits(new Rectangle(0, 0, info.Width, info.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
                     stride = bitmapData.Stride;
                     return bitmapData.Scan0;
-                }, ApplyOrientation);
+                }, ApplyExifOrientation);
                 result.UnlockBits(bitmapData);
                 bitmapData = null;
                 if (frameInfo.DpiX > 0 && frameInfo.DpiY > 0)
