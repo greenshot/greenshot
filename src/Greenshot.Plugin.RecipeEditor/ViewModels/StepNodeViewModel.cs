@@ -2944,16 +2944,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public bool DynamicDestinationAllowRecipeForwarding
-        {
-            get => GetParamBool("AllowRecipeForwarding", true);
-            set
-            {
-                SetParam("AllowRecipeForwarding", value);
-                OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
-            }
-        }
-
         public int DynamicDestinationTimeoutSeconds
         {
             get
@@ -3983,7 +3973,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(VideoMonitorIndex));
             OnPropertyChanged(nameof(DynamicDestinationTitle));
             OnPropertyChanged(nameof(DynamicDestinationShowPreview));
-            OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
             OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));

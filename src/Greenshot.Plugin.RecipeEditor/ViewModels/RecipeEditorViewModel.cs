@@ -2381,7 +2381,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.DynamicDestination:
                     dict["Title"] = "Export Capture";
                     dict["ShowPreview"] = true;
-                    dict["AllowRecipeForwarding"] = true;
                     dict["TimeoutSeconds"] = 0;
                     dict["Destinations"] = new List<string>();
                     break;

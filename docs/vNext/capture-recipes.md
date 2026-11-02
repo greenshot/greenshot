@@ -92,7 +92,8 @@ Triggers and recipes are decoupled. Any trigger can run any recipe, and a single
 
 `ContextMenu` triggers add items to the **Recipes** menu in the context menu opened from Greenshot's system tray icon; 
 `Editor` triggers add items to the image editor's **Recipes** menu. 
-The destination window (destination "Ask for destination every time, in a window", and Export in the viewer) lists the same
+The destination window (destination "Ask for destination every time, in a window", Export in the viewer and the
+`DynamicDestination` step) lists the same
 recipes under "Change the capture with a recipe": the recipe changes the capture shown there, like in the editor, before a
 destination is chosen.
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.

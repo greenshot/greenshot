@@ -185,12 +185,12 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Right Column: Other Destinations Grid & Recipe Forwarding -->
+                    <!-- Right Column: Other Destinations Grid & Editor Recipes -->
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Header + Search Filter -->
                             <RowDefinition Height="*"/>    <!-- 2-Column UniformGrid Destinations List -->
-                            <RowDefinition Height="Auto"/> <!-- Forward to Recipe -->
+                            <RowDefinition Height="Auto"/> <!-- Editor recipes -->
                         </Grid.RowDefinitions>
 
                         <!-- Header with Search Filter -->
@@ -275,9 +275,9 @@
                             </ItemsControl>
                         </ScrollViewer>
 
-                        <!-- Forward to Recipe Section -->
-                        <StackPanel Grid.Row="2" Margin="0,10,0,0" Visibility="{Binding RecipeForwardingVisibility}">
-                            <TextBlock Text="{Binding ForwardToRecipeHeaderText}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
+                        <!-- Editor recipes, which change the capture -->
+                        <StackPanel Grid.Row="2" Margin="0,10,0,0" Visibility="{Binding RecipeSectionVisibility}">
+                            <TextBlock Text="{Binding RecipeHeaderText}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12}"
                                        Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,5"/>
 
                             <Grid>
@@ -289,7 +289,7 @@
                                 <ComboBox Grid.Column="0" ItemsSource="{Binding AvailableRecipes}"
                                           SelectedItem="{Binding SelectedRecipe}"
                                           DisplayMemberPath="Name" Margin="0,0,8,0"
-                                          AutomationProperties.Name="{Binding ForwardToRecipeHeaderText, TargetNullValue=''}"
+                                          AutomationProperties.Name="{Binding RecipeHeaderText, TargetNullValue=''}"
                                           Style="{StaticResource DefaultComboBoxStyle}">
                                     <ComboBox.ItemContainerStyle>
                                         <!-- The recipe name instead of the class name for screen readers -->

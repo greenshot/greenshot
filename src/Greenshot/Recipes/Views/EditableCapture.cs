@@ -133,6 +133,17 @@ namespace Greenshot.Recipes.Views
                 context => context.Properties["EditorForm"] = this);
         }
 
+        /// <summary>
+        /// Hands the capture over, e.g. to the flow: the caller owns it from now on
+        /// </summary>
+        public ISurface Release()
+        {
+            var surface = _surface;
+            _surface = null;
+            _disposed = true;
+            return surface;
+        }
+
         public void Dispose()
         {
             if (_disposed)
@@ -141,7 +152,7 @@ namespace Greenshot.Recipes.Views
             }
 
             _disposed = true;
-            _surface.Dispose();
+            _surface?.Dispose();
         }
     }
 }

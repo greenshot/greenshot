@@ -83,11 +83,11 @@ namespace Greenshot.Recipes.Views
         public ObservableCollection<DestinationTileViewModel> FilteredOtherDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
 
         /// <summary>
-        /// The recipes to forward the capture to (DynamicDestination step), or the editor recipes which change the capture
+        /// The editor recipes which change the capture
         /// </summary>
         public ObservableCollection<RecipeChoice> AvailableRecipes { get; } = new ObservableCollection<RecipeChoice>();
         public RecipeChoice SelectedRecipe { get; set; }
-        public Visibility RecipeForwardingVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility RecipeSectionVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public string OtherDestinationCountText => $"({FilteredOtherDestinationTiles.Count})";
 
@@ -110,19 +110,17 @@ namespace Greenshot.Recipes.Views
             : "";
 
         public IDestination SelectedDestination { get; private set; }
-        public CaptureRecipe SelectedRecipeToForward { get; private set; }
-        public bool OpenInEditorRequested { get; private set; }
 
         // Localized UI text strings
         public string CoreDestinationsHeaderText => Texts.Recipe.PickerCoreDestinations;
         public string OtherDestinationsHeaderText => Texts.Recipe.PickerDestinations;
-        public string ForwardToRecipeHeaderText => _capture != null ? Texts.Recipe.PickerApplyRecipe : Texts.Recipe.PickerForwardToRecipe;
-        public string RunRecipeButtonText => "▶ " + (_capture != null ? Texts.Recipe.PickerApply : Texts.Recipe.PickerRunRecipe);
+        public string RecipeHeaderText => Texts.Recipe.PickerApplyRecipe;
+        public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerApply;
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
         public string ClickToPreviewTooltip => Texts.Recipe.PickerPreviewTooltip;
         public string FullscreenReturnHintText => Texts.Recipe.PickerFullscreenHint;
-        public string ErrorSubtitleText => Texts.Recipe.PickerErrorSubtitle;
+        public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
@@ -151,9 +149,7 @@ namespace Greenshot.Recipes.Views
 
         public DynamicDestinationWindow(
             string title,
-            Image previewImage,
             IEnumerable<IDestination> destinations,
-            IEnumerable<CaptureRecipe> recipes = null,
             string errorMessage = null,
             int timeoutSeconds = 0)
         {
@@ -162,8 +158,6 @@ namespace Greenshot.Recipes.Views
 
             _customTitle = title;
             ErrorMessage = errorMessage;
-
-            SetPreview(previewImage);
 
             if (destinations != null)
             {
@@ -213,18 +207,6 @@ namespace Greenshot.Recipes.Views
             SortCoreDestinations();
 
             UpdateFilteredDestinations();
-
-            if (recipes != null)
-            {
-                foreach (var r in recipes)
-                {
-                    if (r != null && r.IsEnabled)
-                    {
-                        AvailableRecipes.Add(new RecipeChoice(r.Name, r, null));
-                    }
-                }
-                SelectedRecipe = AvailableRecipes.FirstOrDefault();
-            }
 
             if (timeoutSeconds > 0)
             {
@@ -299,20 +281,21 @@ namespace Greenshot.Recipes.Views
         /// <summary>
         /// The capture can be changed with the editor recipes, the window shows it as preview
         /// </summary>
-        private void UseCapture(EditableCapture capture)
+        private void UseCapture(EditableCapture capture, bool showPreview)
         {
             _capture = capture;
-            _capture.Changed += OnCaptureChanged;
-            ShowCapture();
+            if (showPreview)
+            {
+                _capture.Changed += OnCaptureChanged;
+                ShowCapture();
+            }
             foreach (var trigger in EditableCapture.GetEditorRecipes())
             {
-                AvailableRecipes.Add(new RecipeChoice(EditableCapture.DisplayName(trigger), null, trigger));
+                AvailableRecipes.Add(new RecipeChoice(EditableCapture.DisplayName(trigger), trigger));
             }
             SelectedRecipe = AvailableRecipes.FirstOrDefault();
             OnPropertyChanged(nameof(SelectedRecipe));
-            OnPropertyChanged(nameof(RecipeForwardingVisibility));
-            OnPropertyChanged(nameof(ForwardToRecipeHeaderText));
-            OnPropertyChanged(nameof(RunRecipeButtonText));
+            OnPropertyChanged(nameof(RecipeSectionVisibility));
         }
 
         private void ShowCapture()
@@ -486,7 +469,7 @@ namespace Greenshot.Recipes.Views
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(CoreDestinationsHeaderText));
             OnPropertyChanged(nameof(OtherDestinationsHeaderText));
-            OnPropertyChanged(nameof(ForwardToRecipeHeaderText));
+            OnPropertyChanged(nameof(RecipeHeaderText));
             OnPropertyChanged(nameof(RunRecipeButtonText));
             OnPropertyChanged(nameof(DismissButtonText));
             OnPropertyChanged(nameof(CloseButtonToolTip));
@@ -648,12 +631,15 @@ namespace Greenshot.Recipes.Views
         /// <param name="destinations">The destinations to choose from</param>
         /// <param name="errorMessage">The error of the last try, or null</param>
         /// <param name="cancellationToken">Closes the window</param>
+        /// <param name="title">The title, null for the default</param>
+        /// <param name="timeoutSeconds">Closes the window after this many seconds, 0 for never</param>
+        /// <param name="showPreview">Show the capture</param>
         /// <returns>The chosen destination, or null when the window was closed</returns>
         public static IDestination Choose(Window owner, EditableCapture capture, IEnumerable<IDestination> destinations, string errorMessage,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool showPreview = true)
         {
-            var window = new DynamicDestinationWindow(null, null, destinations, null, errorMessage);
-            window.UseCapture(capture);
+            var window = new DynamicDestinationWindow(title, destinations, errorMessage, timeoutSeconds);
+            window.UseCapture(capture, showPreview);
             if (owner != null)
             {
                 window.Owner = owner;
@@ -680,10 +666,6 @@ namespace Greenshot.Recipes.Views
             if (sender is FrameworkElement elem && elem.Tag is DestinationTileViewModel vm)
             {
                 SelectedDestination = vm.Destination;
-                if (string.Equals(vm.Destination?.Designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
-                {
-                    OpenInEditorRequested = true;
-                }
                 DialogResult = true;
                 Close();
             }
@@ -691,15 +673,9 @@ namespace Greenshot.Recipes.Views
 
         private void RunRecipe_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedRecipe?.EditorTrigger != null)
+            if (SelectedRecipe != null)
             {
                 ApplyRecipeAsync(SelectedRecipe.EditorTrigger).FireAndLog("Change the capture with a recipe");
-            }
-            else if (SelectedRecipe?.Recipe != null)
-            {
-                SelectedRecipeToForward = SelectedRecipe.Recipe;
-                DialogResult = true;
-                Close();
             }
         }
 
@@ -715,19 +691,17 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// An entry of the recipe list: a recipe to forward the capture to, or an editor recipe which changes the capture
+        /// An entry of the recipe list: an editor recipe which changes the capture, with the text of the editor menu
         /// </summary>
         public sealed class RecipeChoice
         {
-            public RecipeChoice(string name, CaptureRecipe recipe, IEditorTrigger editorTrigger)
+            public RecipeChoice(string name, IEditorTrigger editorTrigger)
             {
                 Name = name;
-                Recipe = recipe;
                 EditorTrigger = editorTrigger;
             }
 
             public string Name { get; }
-            public CaptureRecipe Recipe { get; }
             public IEditorTrigger EditorTrigger { get; }
         }
     }

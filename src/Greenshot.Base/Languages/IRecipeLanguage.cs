@@ -952,11 +952,6 @@ namespace Greenshot.Base.Languages
         string PickerDestinations { get; }
 
         /// <summary>
-        /// Forward the capture to a recipe
-        /// </summary>
-        string PickerForwardToRecipe { get; }
-
-        /// <summary>
         /// Change the capture with a recipe (the editor recipes, in the destination window)
         /// </summary>
         string PickerApplyRecipe { get; }
@@ -965,11 +960,6 @@ namespace Greenshot.Base.Languages
         /// Apply (runs the editor recipe on the capture)
         /// </summary>
         string PickerApply { get; }
-
-        /// <summary>
-        /// Run Recipe
-        /// </summary>
-        string PickerRunRecipe { get; }
 
         /// <summary>
         /// Click to view full preview (Esc to exit)
@@ -987,9 +977,9 @@ namespace Greenshot.Base.Languages
         string PickerFullscreenHint { get; }
 
         /// <summary>
-        /// Select an alternative destination below, forward to another recipe, or retry:
+        /// Choose another destination below, or try again:
         /// </summary>
-        string PickerErrorSubtitle { get; }
+        string PickerErrorChooseAgain { get; }
 
         /// <summary>
         /// Switch to Light Mode (T)

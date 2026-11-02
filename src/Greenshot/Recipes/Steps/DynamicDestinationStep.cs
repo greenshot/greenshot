@@ -40,15 +40,13 @@ using Greenshot.Base.Threading;
 namespace Greenshot.Recipes.Steps
 {
     /// <summary>
-    /// Modern WPF-styled interactive export flyout step that presents a capture thumbnail preview,
-    /// allows quick forwarding to destinations, supports forwarding to other recipes, and acts
-    /// as a rich error recovery UI when a prior export fails.
+    /// The destination window as a step: a preview of the capture, the editor recipes to change it (like in the editor), and the
+    /// destinations to choose from. It also is the error recovery UI when a prior export failed.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user pick a destination, open the editor, or forward the capture to another recipe.", "Destination")]
+    [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user change the capture with an editor recipe and pick a destination.", "Destination")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
     [StepParameter("Title", ContractDataType.String, Description = "Title of the flyout")]
     [StepParameter("Destinations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "Destinations to offer (default: all)")]
-    [StepParameter("AllowRecipeForwarding", ContractDataType.Boolean, DefaultValue = true, Description = "Offer to forward the capture to another recipe")]
     [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
     [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
@@ -69,7 +67,6 @@ namespace Greenshot.Recipes.Steps
         {
             string title = Config.GetParameter<string>("Title") ?? "Export Capture";
             bool showPreview = Config.GetParameter<bool?>("ShowPreview") ?? true;
-            bool allowRecipeForwarding = Config.GetParameter<bool?>("AllowRecipeForwarding") ?? true;
             int timeoutSeconds = Config.GetParameter<int?>("TimeoutSeconds") ?? 0;
 
             string lastError = null;
@@ -78,27 +75,16 @@ namespace Greenshot.Recipes.Steps
                 lastError = errObj.ToString();
             }
 
-            Image previewImg = null;
-            bool disposePreview = false;
-            if (showPreview)
+            var payload = context.Payload;
+            var surface = payload?.EnsureSurface();
+            if (surface == null)
             {
-                if (context.Payload?.RawCapture?.Image != null)
-                {
-                    previewImg = context.Payload.RawCapture.Image;
-                }
-                else
-                {
-                    var surf = context.Payload?.EnsureSurface();
-                    if (surf != null)
-                    {
-                        previewImg = surf.GetImageForExport();
-                        disposePreview = true;
-                    }
-                }
+                context.LogStep("DynamicDestination: there is no capture to export.");
+                return;
             }
 
             // The destinations to choose from, without the destination picker and this window
-            var allDests = DestinationHelper.GetChoices(context.Payload?.RawCapture?.CaptureDetails);
+            var allDests = DestinationHelper.GetChoices(payload.RawCapture?.CaptureDetails ?? surface.CaptureDetails);
             var specificDestDesignations = Config.GetParameter<List<string>>("Destinations");
             List<IDestination> targetDests;
             if (specificDestDesignations != null && specificDestDesignations.Count > 0)
@@ -110,98 +96,54 @@ namespace Greenshot.Recipes.Steps
                 targetDests = allDests;
             }
 
-            // Resolve other recipes if forwarding is enabled
-            List<CaptureRecipe> availableRecipes = null;
-            if (allowRecipeForwarding)
-            {
-                var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
-                if (recipeManager != null)
-                {
-                    availableRecipes = recipeManager.GetAllRecipes()
-                        .Where(r => r != null && r.IsEnabled && !string.Equals(r.Id, context.Recipe?.Id, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                }
-            }
-
-            (IDestination Dest, CaptureRecipe Recipe, bool OpenEditor) choice;
+            // The window works on a copy, which the editor recipes can replace; the changed copy becomes the capture of the flow
+            var capture = await context.Ui.InvokeAsync(() => new EditableCapture(surface.Clone()), cancellationToken).ConfigureAwait(false);
+            IDestination selectedDest;
             try
             {
-                // The flyout is UI: shown on the UI thread, the flow waits without blocking
-                choice = await context.Ui.InvokeAsync(() =>
+                selectedDest = await context.Ui.InvokeAsync(
+                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, showPreview),
+                    cancellationToken).ConfigureAwait(false);
+                if (capture.IsChanged)
                 {
-                    var window = new DynamicDestinationWindow(
-                        title,
-                        previewImg,
-                        targetDests,
-                        availableRecipes,
-                        lastError,
-                        timeoutSeconds);
-
-                    // A cancelled flow closes the flyout, the close is posted to the UI thread
-                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
-                           {
-                               if (window.IsVisible)
-                               {
-                                   window.Close();
-                               }
-                           }, CancellationToken.None).FireAndLog("Close the destination flyout", Log)))
-                    {
-                        window.ShowDialog();
-                    }
-
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return (window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested);
-                }, cancellationToken).ConfigureAwait(false);
+                    context.LogStep("DynamicDestination: the capture was changed with an editor recipe.");
+                    await context.Ui.InvokeAsync(() => ReplaceSurface(payload, capture.Release()), cancellationToken).ConfigureAwait(false);
+                }
             }
             finally
             {
-                if (disposePreview)
-                {
-                    previewImg?.Dispose();
-                }
+                await context.Ui.InvokeAsync(capture.Dispose, CancellationToken.None).ConfigureAwait(false);
             }
 
-            var (selectedDest, selectedRecipe, openEditor) = choice;
+            if (selectedDest == null)
+            {
+                context.LogStep("DynamicDestination: Flyout dismissed without destination selection.");
+                return;
+            }
 
-            if (openEditor || (selectedDest != null && EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)))
+            if (EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase))
             {
                 context.Payload.RetainSurfaceForEditor = true;
                 context.LogStep("DynamicDestination: User selected Open in Editor.");
-                var editorDest = DestinationHelper.GetDestination(EditorDestination.DESIGNATION) ?? selectedDest;
-                if (editorDest != null)
-                {
-                    var dispatcher = new DestinationDispatcher();
-                    await dispatcher.DispatchAsync(context, new[] { editorDest }, cancellationToken).ConfigureAwait(false);
-                }
-            }
-            else if (selectedDest != null)
-            {
-                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Descriptor?.DisplayName ?? selectedDest.Designation}'.");
-                var dispatcher = new DestinationDispatcher();
-                await dispatcher.DispatchAsync(context, new[] { selectedDest }, cancellationToken).ConfigureAwait(false);
-            }
-            else if (selectedRecipe != null)
-            {
-                context.LogStep($"DynamicDestination: Forwarding capture to recipe '{selectedRecipe.Name}'.");
-                var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>(isOptional: true);
-                if (pipeline != null)
-                {
-                    await pipeline.ExecuteAsync(selectedRecipe, null, ctx =>
-                    {
-                        ctx.Payload = context.Payload;
-                        // The capture is handed over: the target recipe must not capture or select again
-                        ctx.IsPayloadPreSupplied = true;
-                        foreach (var kvp in context.Properties)
-                        {
-                            ctx.Properties[kvp.Key] = kvp.Value;
-                        }
-                    }, cancellationToken).ConfigureAwait(false);
-                }
             }
             else
             {
-                context.LogStep("DynamicDestination: Flyout dismissed without destination selection.");
+                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Descriptor?.DisplayName ?? selectedDest.Designation}'.");
             }
+
+            var dispatcher = new DestinationDispatcher();
+            await dispatcher.DispatchAsync(context, new[] { selectedDest }, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// The changed capture replaces the surface of the flow (on the UI thread, where the surfaces live)
+        /// </summary>
+        private static void ReplaceSurface(ICapturePayload payload, ISurface changed)
+        {
+            var previous = payload.Surface;
+            payload.InvalidateExportSource();
+            payload.Surface = changed;
+            previous?.Dispose();
         }
     }
 }
