@@ -38,6 +38,7 @@ using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -51,7 +52,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
 
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
-        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), DefaultFileFormatHandler loads .tif instead
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
@@ -61,6 +62,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _loadExtensions;
         }
+
+        /// <summary>
+        /// On Windows WIC loads images (faster, without a pool of buffers), ImageSharp loads what WIC can't, e.g. TGA, PBM or WebP without the Store codec.
+        /// Saving stays with ImageSharp.
+        /// </summary>
+        public override int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) =>
+            IsLoadAction(fileFormatHandlerAction) ? FallbackLoadPriority : 0;
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
@@ -155,21 +163,34 @@ namespace Greenshot.Editor.FileFormatHandlers
                 if (decoder is JpegDecoder)
                 {
                     using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                    Orient(image);
                     bitmap = ImageSharpHelper.ToBitmap(image);
                 }
                 else
                 {
                     using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
+                    Orient(image);
                     bitmap = ImageSharpHelper.ToBitmap(image);
                 }
                 return true;
             }
             catch (ImageFormatException ex)
             {
-                // A broken or unknown image, like DefaultFileFormatHandler this is a failed load, not an error for the caller
+                // A broken or unknown image is a failed load, not an error for the caller: the next handler gets a try
                 Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
                 bitmap = null;
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Turn a photo upright by its EXIF orientation, like WIC does when it loads it
+        /// </summary>
+        private static void Orient(Image image)
+        {
+            if (ApplyExifOrientation)
+            {
+                image.Mutate(context => context.AutoOrient());
             }
         }
     }

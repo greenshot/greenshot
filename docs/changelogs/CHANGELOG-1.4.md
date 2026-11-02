@@ -180,9 +180,15 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Smaller PNG files**
 - PNG files, uploads, attachments and the clipboard are written as small as possible without losing anything, like optipng does
 - Images with few colors get much smaller
-- Greenshot now reads and writes PNG, JPEG, BMP, GIF and WebP files with ImageSharp for everyone, not only for beta testers
+- Greenshot now writes PNG, JPEG, BMP, GIF and WebP files with ImageSharp for everyone, not only for beta testers
 - For problems, greenshot.ini has OutputFilePngCompressionLevel (default 9) and ClipboardPngCompressionLevel (default 8) to save faster, and OutputFilePngPalette to turn off PNG files with a palette
 - The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
+
+**Open image from file lists every format**
+- The dialog now also offers JPEG XR (.jxr, .hdp, .wdp, .wmp), DDS, EMF and WMF, the formats of the Windows image decoders on the PC (like HEIF, Camera RAW or JPEG XL), and "All files"
+- Images open faster and use less memory, Windows reads them; photos are turned upright by their EXIF orientation again
+- Codecs installed in Windows (e.g. HEIF, RAW or JPEG XL from the Microsoft Store) are used automatically, see [image formats](../vNext/image-formats.md)
+- JPEG, BMP, GIF and TIFF files are saved by Windows: JPEG much faster, TIFF compressed (LZW)
 
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler

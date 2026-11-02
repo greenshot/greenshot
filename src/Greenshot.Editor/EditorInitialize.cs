@@ -46,10 +46,8 @@ namespace Greenshot.Editor
             RegisterValueConverters();
 
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
-                    // All generic things, like gif, png, jpg etc.
+                    // Saves gif, png, jpg etc., loads what WIC can't (tga, pbm, webp without the Store codec)
                     new ImageSharpFileFormatHandler(),
-                    // After ImageSharp, so it only takes what ImageSharp doesn't declare: loading TIFF (#1472), WIC can't map 1 and 8 bit TIFF
-                    new DefaultFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support
@@ -60,8 +58,8 @@ namespace Greenshot.Editor
                     new IconFileFormatHandler(),
                     // EMF & WMF
                     new MetaFileFormatHandler(),
-                    // JPG XR
-                    new WpfFileFormatHandler()
+                    // JPEG XR and everything else WIC can decode
+                    new WicFileFormatHandler()
                 );
 
             IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();

@@ -38,7 +38,7 @@ namespace Greenshot.Tests.Editor
         }
 
         /// <summary>
-        /// ImageSharp doesn't load TIFF (#1472) and WIC can't map 1 and 8 bit TIFF to a bitmap, so the registered handlers must load them with System.Drawing
+        /// ImageSharp doesn't load TIFF (#1472), the registered handlers load them with WIC, also 1 and 8 bit TIFF
         /// </summary>
         [Theory]
         [InlineData(".tif", PixelFormat.Format24bppRgb)]
