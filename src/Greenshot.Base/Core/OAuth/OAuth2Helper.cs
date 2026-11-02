@@ -72,10 +72,10 @@ namespace Greenshot.Base.Core.OAuth
                 // Use the returned code to get a refresh code
                 { Code, settings.Code },
                 { ClientId, settings.ClientId },
-                { ClientSecret, settings.ClientSecret },
                 { RedirectUri, settings.RedirectUrl },
                 { GrantType, AuthorizationCode }
             };
+            AddClientSecret(data, settings);
             if (!string.IsNullOrEmpty(settings.CodeVerifier))
             {
                 data.Add(CodeVerifier, settings.CodeVerifier);
@@ -127,6 +127,17 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
+        /// A service that uses PKCE (Dropbox) needs no client secret, none is shipped for it
+        /// </summary>
+        private static void AddClientSecret(IDictionary<string, string> data, OAuth2Settings settings)
+        {
+            if (!string.IsNullOrEmpty(settings.ClientSecret))
+            {
+                data.Add(ClientSecret, settings.ClientSecret);
+            }
+        }
+
+        /// <summary>
         /// Go out and retrieve a new access token via refresh-token with the TokenUrl in the settings
         /// Will update the access token, refresh token, expire date
         /// </summary>
@@ -138,9 +149,9 @@ namespace Greenshot.Base.Core.OAuth
             {
                 { RefreshToken, settings.RefreshToken },
                 { ClientId, settings.ClientId },
-                { ClientSecret, settings.ClientSecret },
                 { GrantType, RefreshToken }
             };
+            AddClientSecret(data, settings);
             foreach (string key in settings.AdditionalAttributes.Keys)
             {
                 data.Add(key, settings.AdditionalAttributes[key]);
@@ -332,7 +343,8 @@ namespace Greenshot.Base.Core.OAuth
                     return false;
                 }
 
-                if (settings.IsAccessTokenExpired)
+                // The access token is only kept in memory: after a restart there is none and the refresh token gets a new one
+                if (string.IsNullOrEmpty(settings.AccessToken) || settings.IsAccessTokenExpired)
                 {
                     await GenerateAccessTokenAsync(settings, cancellationToken).ConfigureAwait(false);
                     // Get Refresh / Access token
