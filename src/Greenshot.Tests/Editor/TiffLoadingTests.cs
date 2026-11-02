@@ -82,19 +82,31 @@ namespace Greenshot.Tests.Editor
                 return bitmap;
             }
 
-            // Indexed: write palette indexes, the default palette has black and white at 0 and 1 (1 bit) or 0 and 255 (8 bit)
+            // Indexed: TIFF stores no alpha in the palette, so the 8 bit palette must be opaque (the GDI+ default has transparent entries)
+            if (pixelFormat == PixelFormat.Format8bppIndexed)
+            {
+                var palette = bitmap.Palette;
+                for (int i = 0; i < palette.Entries.Length; i++)
+                {
+                    palette.Entries[i] = Color.FromArgb(255, i, i, i);
+                }
+                bitmap.Palette = palette;
+            }
             var data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, pixelFormat);
             try
             {
-                var row = new byte[data.Stride];
                 for (int y = 0; y < height; y++)
                 {
+                    var row = new byte[data.Stride];
                     for (int x = 0; x < width; x++)
                     {
                         bool set = (x + y) % 3 == 0;
                         if (pixelFormat == PixelFormat.Format1bppIndexed)
                         {
-                            if (set) row[x / 8] |= (byte)(0x80 >> (x % 8)); else row[x / 8] &= (byte)~(0x80 >> (x % 8));
+                            if (set)
+                            {
+                                row[x / 8] |= (byte)(0x80 >> (x % 8));
+                            }
                         }
                         else
                         {

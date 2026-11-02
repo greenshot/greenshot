@@ -26,6 +26,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using log4net;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -47,8 +48,10 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
+
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
-        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), DefaultFileFormatHandler loads .tif instead
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
@@ -147,17 +150,27 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
             // JPEG has no transparency, it stays 24 bit.
-            if (decoder is JpegDecoder)
+            try
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                if (decoder is JpegDecoder)
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                else
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                return true;
             }
-            else
+            catch (ImageFormatException ex)
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                // A broken or unknown image, like DefaultFileFormatHandler this is a failed load, not an error for the caller
+                Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
+                bitmap = null;
+                return false;
             }
-            return true;
         }
     }
 }
