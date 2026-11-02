@@ -65,7 +65,7 @@ namespace Greenshot.Shell
 
             var openFileDialog = new OpenFileDialog
             {
-                Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
+                Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
             };
             if (openFileDialog.ShowDialog() != true)
             {

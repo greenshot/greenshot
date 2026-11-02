@@ -142,8 +142,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
     "version": "2.0",
     "id": "json_net_all_steps",
     "name": "All steps",
@@ -470,8 +468,7 @@
           "to": "n3_CreateConditional"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -488,8 +485,6 @@
       }
     ],
     "showInContextMenu": false,
-    "isOverridden": false,
-    "isEnabled": false,
     "concurrency": "ReplacePrevious",
     "version": "2.1",
     "id": "json_net_kitchen_sink",
@@ -716,8 +711,7 @@
         "quickSettings": false,
         "format": "template"
       }
-    ],
-    "isBuiltIn": false
+    ]
   },
   {
     "kind": "recipe",
@@ -744,9 +738,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\cli_annotate_template.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_cli_annotate_template",
     "name": "CLI Apply Template & Annotation",
@@ -840,8 +831,7 @@
           "to": "print_result"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -884,9 +874,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\cli_convert_format.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_cli_convert_format",
     "name": "CLI Image Format Converter",
@@ -939,8 +926,7 @@
           "to": "print_result"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -974,9 +960,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\cli_ocr_extract.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_cli_ocr_extract",
     "name": "CLI Headless OCR Text Extractor",
@@ -1024,8 +1007,7 @@
           "to": "print_result"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1052,9 +1034,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\cli_qr_decode.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_cli_qr_decode",
     "name": "CLI QR Code & Barcode Extractor",
@@ -1111,8 +1090,7 @@
           "to": "print_result"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1127,9 +1105,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\clipboard_format_converter.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_clipboard_format_converter",
     "name": "Clipboard Format Converter & Watermark",
@@ -1192,8 +1167,7 @@
           "to": "editor_2850"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1216,9 +1190,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\dag_watermark_branching.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_dag_watermark_branching",
     "name": "DAG Workflow with environment watermark and parallel feedback",
@@ -1365,8 +1336,7 @@
           "to": "export_join"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1382,9 +1352,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\editor_confidential_template.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_editor_confidential_template",
     "name": "Editor Template: Confidential Watermark",
@@ -1433,8 +1400,7 @@
         "apply_banner"
       ],
       "transitions": []
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1457,9 +1423,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\external_command_optimize.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_external_command_optimize",
     "name": "Region Snip with External Tool Optimization",
@@ -1536,8 +1499,7 @@
           "to": "destination"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1560,9 +1522,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\qr_codes_showcase.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_qr_codes_showcase",
     "name": "QR Codes Showcase (Payments, Business Cards & Links)",
@@ -1680,8 +1639,7 @@
           "to": "destination"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1704,9 +1662,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\region_blue_border.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_region_blue_border",
     "name": "Region with Blue Border",
@@ -1783,8 +1738,7 @@
           "to": "destination"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1808,9 +1762,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
-    "filePath": "C:\\Recipes\\window_regex_redact.gsrecipe.json",
     "version": "2.0",
     "id": "recipe_window_regex_redact",
     "name": "Target Window with DLP Redaction",
@@ -1902,8 +1853,7 @@
           "to": "destination"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -1939,8 +1889,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
     "version": "2.0",
     "id": "recipe_ai_capture_window",
     "name": "AI tool: capture window",
@@ -1996,8 +1944,7 @@
           "branch": "ocr"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -2033,8 +1980,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
     "version": "2.0",
     "id": "recipe_ai_capture_region",
     "name": "AI tool: capture region",
@@ -2089,8 +2034,7 @@
           "branch": "ocr"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
@@ -2119,8 +2063,6 @@
       }
     ],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
     "version": "2.0",
     "id": "recipe_ai_capture_screen",
     "name": "AI tool: capture screen",
@@ -2176,15 +2118,12 @@
           "branch": "ocr"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   },
   {
     "kind": "recipe",
     "triggers": [],
     "showInContextMenu": true,
-    "isOverridden": false,
-    "isEnabled": true,
     "version": "2.0",
     "id": "recipe_notification",
     "name": "Capture of a notification",
@@ -2223,7 +2162,6 @@
           "to": "export"
         }
       ]
-    },
-    "isBuiltIn": false
+    }
   }
 ]

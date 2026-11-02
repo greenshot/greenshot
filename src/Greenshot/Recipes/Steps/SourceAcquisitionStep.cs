@@ -39,6 +39,7 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Sources;
 using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using log4net;
 using Greenshot.Base.Threading;
 #if !GREENSHOT_LIGHT
@@ -250,6 +251,11 @@ namespace Greenshot.Recipes.Steps
                     RedactForAiTool(context, acquired);
                 }
 #endif
+                // The fixed size capture offers the window again, in the window of its program
+                if (sourceType == CaptureSourceType.ActiveWindow || sourceType == CaptureSourceType.Window && hasTargetWindowConfig)
+                {
+                    RememberWindowCapture(context, acquired.RawCapture);
+                }
                 // Align DPI for raw captured pixels (screen, window, active window, region, last region)
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
@@ -265,6 +271,21 @@ namespace Greenshot.Recipes.Steps
             {
                 context.Abort("Acquisition failed or produced no payload.");
             }
+        }
+
+        /// <summary>
+        /// Adds a capture of a window to the recent captures of the fixed size capture, not when it fell back to the screen
+        /// </summary>
+        private static void RememberWindowCapture(CaptureFlowContext context, ICapture capture)
+        {
+            if (capture?.Image == null || !capture.CaptureDetails.MetaData.TryGetValue("source", out var source) || source != "Window")
+            {
+                return;
+            }
+            var bounds = new NativeRect(capture.Location, new NativeSize(capture.Image.Width, capture.Image.Height));
+            // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
+            context.Ui.InvokeAsync(() => FixedSizeCaptureTool.RememberArea(bounds, WindowHelper.GetVisibleWindows()), CancellationToken.None)
+                .FireAndLog("Remember the window capture for the fixed size capture", Log);
         }
 
 #if !GREENSHOT_LIGHT
@@ -462,10 +483,10 @@ namespace Greenshot.Recipes.Steps
                 Log.Info("Selecting on the live screen needs Windows 10 2004 or newer, the screen is frozen.");
                 return false;
             }
-            if (User32Api.IsScreenReaderRunning())
+            if (!CoreConfig.IgnoreScreenReader && User32Api.IsScreenReaderRunning())
             {
                 // The live screen can't take the focus from the application below, so a screen reader can't say the selection: frozen, L switches
-                Log.Info("A screen reader runs, the selection starts on the frozen screen.");
+                Log.Info("The screen reader flag of Windows is on, the selection starts on the frozen screen (IgnoreScreenReader=true ignores the flag).");
                 return false;
             }
             return true;

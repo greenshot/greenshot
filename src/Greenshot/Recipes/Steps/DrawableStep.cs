@@ -436,7 +436,16 @@ namespace Greenshot.Recipes.Steps
             var imgContainer = new ImageContainer(surface);
             if (bytes != null)
             {
-                imgContainer.Image = ImageIO.FromStream(new MemoryStream(bytes), Path.GetExtension(filePath ?? string.Empty));
+                try
+                {
+                    using var ms = new MemoryStream(bytes);
+                    using var image = Image.FromStream(ms);
+                    imgContainer.Image = image;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Failed to load the image of an annotation: " + ex.Message);
+                }
             }
             imgContainer.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
             return imgContainer;

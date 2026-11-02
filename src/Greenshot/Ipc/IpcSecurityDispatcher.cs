@@ -39,6 +39,7 @@ using Greenshot.Base.Serialization;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
@@ -78,7 +79,8 @@ namespace Greenshot.Ipc
             "SELF_SERVICE",
             "LOG_VIEWER",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER"
+            "RECIPE_MANAGER",
+            "INSTALL_RECIPE"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -275,7 +277,9 @@ namespace Greenshot.Ipc
                 // Only shows the log, filtered on a search text: the log level is changed only in the log viewer itself
                 "LOG_VIEWER",
                 "RECIPE_EDITOR",
-                "RECIPE_MANAGER"
+                "RECIPE_MANAGER",
+                // Only from the signed recipe catalog, and only what the user approves in the window
+                "INSTALL_RECIPE"
             },
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -450,6 +454,10 @@ namespace Greenshot.Ipc
                     await HandleRecipeManagerAsync(context, shell).ConfigureAwait(false);
                     break;
 
+                case "INSTALL_RECIPE":
+                    await HandleInstallRecipeAsync(context).ConfigureAwait(false);
+                    break;
+
                 case "EXIT":
                     try
                     {
@@ -567,7 +575,7 @@ namespace Greenshot.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -785,7 +793,7 @@ namespace Greenshot.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||
@@ -1509,6 +1517,24 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// INSTALL_RECIPE (greenshot:install-recipe?id=...): the recipe with this id from the recipe catalog, in the approval window.
+        /// The reply doesn't wait for the user.
+        /// </summary>
+        private static async Task HandleInstallRecipeAsync(IpcRequestContext context)
+        {
+            string recipeId = null;
+            context.Envelope.Parsed?.Parameters?.TryGetValue("id", out recipeId);
+            recipeId = recipeId?.Trim();
+            RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                stdout = $"Installing the recipe '{recipeId}' from the recipe catalog."
+            }).ConfigureAwait(false);
+        }
+
         private static string ParseUrlSchemeCommand(string rawUrl, out Dictionary<string, string> parameters)
         {
             parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1581,6 +1607,11 @@ namespace Greenshot.Ipc
                 if (string.Equals(pathAndAction, "recipe-manager", StringComparison.OrdinalIgnoreCase))
                 {
                     return "RECIPE_MANAGER";
+                }
+
+                if (string.Equals(pathAndAction, "install-recipe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "INSTALL_RECIPE";
                 }
 
                 // Other paths are checked against the whitelist of the source, e.g. greenshot://exit is refused there.

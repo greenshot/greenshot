@@ -118,10 +118,37 @@ namespace Greenshot.Capturing.Overlays
                 var keys = rows[i].Keys;
                 if (keys.Count > 4)
                 {
-                    rows[i] = (new List<string> { $"{keys[0]}–{keys[keys.Count - 1]}" }, rows[i].Description);
+                    rows[i] = (CollapseRuns(keys), rows[i].Description);
                 }
             }
             return rows;
+        }
+
+        /// <summary>
+        /// Runs of more than four keys which count up (1, 2, 3...) as one range, the other keys as they are: 1–9 and 0
+        /// </summary>
+        private static IList<string> CollapseRuns(IList<string> keys)
+        {
+            var result = new List<string>();
+            int start = 0;
+            for (int i = 1; i <= keys.Count; i++)
+            {
+                bool continues = i < keys.Count && int.TryParse(keys[i - 1], out int previous) && int.TryParse(keys[i], out int current) && current == previous + 1;
+                if (continues)
+                {
+                    continue;
+                }
+                if (i - start > 4)
+                {
+                    result.Add($"{keys[start]}–{keys[i - 1]}");
+                }
+                else
+                {
+                    result.AddRange(keys.Skip(start).Take(i - start));
+                }
+                start = i;
+            }
+            return result;
         }
 
         private void ShowHelp()

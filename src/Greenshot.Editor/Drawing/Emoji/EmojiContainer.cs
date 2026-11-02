@@ -26,7 +26,9 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Languages;
 using Greenshot.Editor.Controls.Emoji;
 using Image = System.Drawing.Image;
 
@@ -41,8 +43,6 @@ namespace Greenshot.Editor.Drawing.Emoji
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
         [NonSerialized] private static EmojiPicker _emojiPicker;
-
-        [NonSerialized] private bool _justCreated = true;
 
         private string _emoji;
 
@@ -63,13 +63,12 @@ namespace Greenshot.Editor.Drawing.Emoji
             Emoji = emoji ?? EditorConfig.RecentEmoji;
             Width = size ?? DefaultSize.Width;
             Height = size ?? DefaultSize.Height;
-            if (emoji != null)
-            {
-                _justCreated = false;
-            }
             Init();
         }
 
+        /// <summary>
+        /// A double click opens the picker, a single click only selects the emoji.
+        /// </summary>
         public override void OnDoubleClick()
         {
             ShowEmojiPicker();
@@ -117,6 +116,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPicker.Picked += (_, args) =>
             {
                 EditorConfig.RecentEmoji = args.Emoji;
+                EmojiPicker.AddToHistory(args.Emoji);
                 _currentContainer.Emoji = args.Emoji;
                 _currentContainer.Invalidate();
             };
@@ -193,7 +193,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             return true;
         }
 
-        /// <summary> Handle the state of the Emoji Picker </summary>
+        /// <summary> Close the Emoji Picker when the emoji gets deselected </summary>
         /// <param name="sender">object</param>
         /// <param name="e">PropertyChangedEventArgs</param>
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -207,12 +207,19 @@ namespace Greenshot.Editor.Drawing.Emoji
             {
                 HideEmojiPicker();
             }
-            else if (Status == EditStatus.IDLE && _justCreated)
+        }
+
+        public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // The surface asks every element, only the selected emoji adds its item
+            if (!Selected)
             {
-                // Show picker just after creation
-                ShowEmojiPicker();
-                _justCreated = false;
+                return;
             }
+
+            var changeItem = new ToolStripMenuItem(Texts.Editor.EmojiPicker);
+            changeItem.Click += (_, _) => ShowEmojiPicker();
+            menu.Items.Add(changeItem);
         }
 
         protected override Image ComputeBitmap()

@@ -57,7 +57,7 @@ plugin is only available while the plugin is loaded, blocking the plugin blocks 
 
 | Plugin | Destinations |
 |---|---|
-| (Greenshot itself) | `Editor`, `FileNoDialog` (save directly), `FileDialog` (save as), `Clipboard`, `Printer`, `EMail`, `Picker` (ask every time), `Windows10Share`, `Windows10OCR` |
+| (Greenshot itself) | `Editor`, `FileNoDialog` (save directly), `FileDialog` (save as), `Clipboard`, `Printer`, `EMail`, `Picker` (ask every time), `Windows10Share`, `Windows10OCR`, `Viewer` |
 | `Atlassian` | `Jira`, `Confluence` |
 | `Box` | `Box` |
 | `CustomUploader` | `CustomUploader`, and `CustomUploader:<name>` per uploader file |

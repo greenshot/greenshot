@@ -214,7 +214,7 @@ namespace Greenshot.Recipes
             var lines = new List<string>();
             if (extension == null) return lines;
 
-            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.Name ?? r.Id).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.DisplayName).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
             lines.Add(recipes.Count == 0
                 ? "• Changes no recipe now (none has a slot it fits in)."
                 : $"• Changes these recipes now: {string.Join(", ", recipes)}.");

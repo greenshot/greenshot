@@ -72,6 +72,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ActiveRecipe.Options.Add(option);
             RecipeOptions.Add(new RecipeOptionItemViewModel(option, RemoveOption));
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionAdded, key, "${option." + key + "}");
         }
@@ -86,6 +87,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             RecipeOptions.Remove(item);
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionRemoved, item.Key);
         }
@@ -158,8 +160,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => Convert.ToString(Option.DefaultValue, CultureInfo.InvariantCulture);
             set
             {
-                // Stored as the type when it fits, as text otherwise (the check reports it)
-                Option.DefaultValue = Option.TryConvert(value, out var converted) ? converted : value;
+                // Stored as the type when it fits, as text otherwise (the check reports it).
+                // A folder keeps its %VARIABLES%, the file is used on other PCs.
+                Option.DefaultValue = Option.Type != ContractDataType.DirectoryPath && Option.TryConvert(value, out var converted) ? converted : value;
                 OnPropertyChanged();
             }
         }

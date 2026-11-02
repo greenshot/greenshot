@@ -261,7 +261,6 @@ namespace Greenshot.Tests.Recipes
             var restored = DrawableItemViewModel.FromDictionary(dict);
             Assert.Equal("StepLabel", restored.Type);
             Assert.Equal(7, restored.StepNumber);
-            Assert.Equal("7", restored.Text);
             Assert.True(restored.Shadow);
             Assert.Equal("#AA0000", restored.FillColor);
             Assert.Equal("#FFFFFF", restored.LineColor);

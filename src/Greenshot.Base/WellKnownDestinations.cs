@@ -31,6 +31,7 @@ namespace Greenshot.Base
         FileDialog,
         FileNoDialog,
         Picker,
-        Printer
+        Printer,
+        Viewer
     }
 }

@@ -25,6 +25,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         <Style TargetType="TextBox">
@@ -34,9 +35,6 @@
             <Setter Property="Padding" Value="6,4"/>
         </Style>
 
-        <Style TargetType="wpf:ValueSlider">
-            <Setter Property="Margin" Value="0,4"/>
-        </Style>
         </ResourceDictionary>
     </Window.Resources>
 

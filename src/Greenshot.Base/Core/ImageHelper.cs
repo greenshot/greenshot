@@ -35,7 +35,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
-using Dapplo.Ini;
 using log4net;
 using SixLabors.ImageSharp.PixelFormats;
 using Brush = System.Drawing.Brush;
@@ -52,76 +51,6 @@ namespace Greenshot.Base.Core
     public static class ImageHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        private const int ExifOrientationId = 0x0112;
-
-
-        /// <summary>
-        /// Make sure the image is orientated correctly
-        /// </summary>
-        /// <param name="image"></param>
-        public static void Orientate(Image image)
-        {
-            if (!CoreConfig.ProcessEXIFOrientation)
-            {
-                return;
-            }
-
-            try
-            {
-                // Get the index of the orientation property.
-                int orientationIndex = Array.IndexOf(image.PropertyIdList, ExifOrientationId);
-                // If there is no such property, return Unknown.
-                if (orientationIndex < 0)
-                {
-                    return;
-                }
-
-                PropertyItem item = image.GetPropertyItem(ExifOrientationId);
-                if (item.Value == null || item.Value.Length == 0)
-                {
-                    return;
-                }
-
-                ExifOrientations orientation = (ExifOrientations) item.Value[0];
-                // Orient the image.
-                switch (orientation)
-                {
-                    case ExifOrientations.Unknown:
-                    case ExifOrientations.TopLeft:
-                        break;
-                    case ExifOrientations.TopRight:
-                        image.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        break;
-                    case ExifOrientations.BottomRight:
-                        image.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                        break;
-                    case ExifOrientations.BottomLeft:
-                        image.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                        break;
-                    case ExifOrientations.LeftTop:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipX);
-                        break;
-                    case ExifOrientations.RightTop:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                        break;
-                    case ExifOrientations.RightBottom:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipY);
-                        break;
-                    case ExifOrientations.LeftBottom:
-                        image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                        break;
-                }
-
-                // Set the orientation to be normal, as we rotated the image.
-                item.Value[0] = (byte) ExifOrientations.TopLeft;
-                image.SetPropertyItem(item);
-            }
-            catch (Exception orientEx)
-            {
-                Log.Warn("Problem orientating the image: ", orientEx);
-            }
-        }
 
         /// <summary>
         /// Create a Thumbnail
@@ -855,7 +784,11 @@ namespace Greenshot.Base.Core
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 using (GraphicsPath path = new GraphicsPath())
                 {
-                    path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
+                    // The pen is centered on the path, so the path runs along the middle of the border.
+                    // With an odd borderSize this is on a half pixel, an integer shift (borderSize >> 1) would move the border
+                    // by half a pixel: blurred on the left and top, and the last column and row at the right and bottom stay empty.
+                    float halfBorder = borderSize / 2f;
+                    path.AddRectangle(new RectangleF(halfBorder, halfBorder, newImage.Width - borderSize, newImage.Height - borderSize));
                     using Pen pen = new Pen(borderColor, borderSize)
                     {
                         LineJoin = LineJoin.Round,

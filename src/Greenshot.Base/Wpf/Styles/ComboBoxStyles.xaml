@@ -112,17 +112,19 @@
                                 </Style>
                             </ContentPresenter.Resources>
                         </ContentPresenter>
-                        <!-- IsEditable: typing in the box, the list offers values -->
+                        <!-- The text box of an editable combo box (IsEditable), WPF looks for it by this name -->
                         <TextBox x:Name="PART_EditableTextBox"
                                  Style="{x:Null}"
-                                 Margin="6,2,24,2"
-                                 VerticalAlignment="Center"
+                                 Visibility="Collapsed"
+                                 IsReadOnly="{TemplateBinding IsReadOnly}"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                 CaretBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                 IsReadOnly="{TemplateBinding IsReadOnly}"
-                                 Visibility="Hidden"/>
+                                 Foreground="{TemplateBinding Foreground}"
+                                 CaretBrush="{TemplateBinding Foreground}"
+                                 FontSize="{TemplateBinding FontSize}"
+                                 Margin="6,3,24,3"
+                                 VerticalAlignment="Center"
+                                 VerticalContentAlignment="Center"/>
                         <Popup Name="Popup"
                                Placement="Bottom"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
@@ -157,8 +159,9 @@
                             <Setter Property="Opacity" Value="0.5"/>
                         </Trigger>
                         <Trigger Property="IsEditable" Value="True">
-                            <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
                             <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="IsTabStop" Value="False"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -39,6 +39,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             Format = CoreConfig.OutputFileFormat;
             JPGQuality = CoreConfig.OutputFileJpegQuality;
             ReduceColors = CoreConfig.OutputFileReduceColors;
+            PngCompressionLevel = CoreConfig.OutputFilePngCompressionLevel;
         }
 
         public SurfaceOutputSettings(string format) : this()
@@ -81,7 +82,18 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public int JPGQuality { get; set; }
 
+        /// <summary>
+        /// True to write the private details of ExportMetadata (window title, web address, text, barcodes) into the image:
+        /// set for files saved on this computer, and for a destination when the user chose to keep them
+        /// </summary>
+        public bool IncludePrivateMetadata { get; set; }
+
         public bool SaveBackgroundOnly { get; set; }
+
+        /// <summary>
+        /// zlib compression level (1-9) for PNG
+        /// </summary>
+        public int PngCompressionLevel { get; set; }
 
         public List<IEffect> Effects { get; } = new List<IEffect>();
 

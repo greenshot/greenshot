@@ -38,6 +38,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using log4net;
 using Greenshot.Base.Threading;
 
@@ -181,6 +182,13 @@ namespace Greenshot.Recipes.Steps
 
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+                // The fixed size capture offers a captured window again (the region and fixed size tools remember their own)
+                if (selection.FinalMode == CaptureMode.Window)
+                {
+                    var selectedWindow = selection.SelectedWindow;
+                    context.Ui.InvokeAsync(() => FixedSizeCaptureTool.RememberArea(screenOffsetRect, selectedWindow == null ? null : new[] { selectedWindow }), CancellationToken.None)
+                        .FireAndLog("Remember the window capture for the fixed size capture", Log);
+                }
 
                 // A tool which takes its own image of the selection, e.g. of a plugin
                 if (selection.Tool is ISelectionCaptureTool selectionCaptureTool)

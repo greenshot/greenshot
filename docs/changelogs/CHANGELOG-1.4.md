@@ -36,6 +36,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The "+" after the tabs adds a new image, its size and color are in the settings
 - Closing a window with several changed captures asks once: save all, discard all or cancel
 
+**Viewer** (#937, #1624)
+- A new destination shows the capture in a small window of its own, e.g. kept on top to compare it with the screen
+- Real size (1:1), zoom and pan with an overview, only the capture or a thin title bar, an optional border, keys for everything (H shows them)
+- Export from the viewer with the destination window of the recipes, or forward the capture to a recipe
+- Settings on the new Viewer tab
+- By @Lakritzator and @daxliniere
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
@@ -84,8 +91,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
 - The mouse holds the area at its top left corner, so the magnifier shows exactly where it starts; press C for another corner or the middle
 - The magnifier shows the edges of the area (and of a region you drag), so even a 16 × 16 area can be placed to the pixel
-- A list shows the sizes: pick one with 1 to 9 (also on the number pad), or go through them with Page Up and Page Down
-- The sizes of your last region captures are in the list too, so you can capture the same size again
+- A list shows the sizes: pick one with 1 to 9 and 0 (also on the number pad), or go through them with Page Up and Page Down
+- Press S to type a width and height for the area
+- The sizes of your last region and window captures are in the list too, with where they were: picking one puts the area at the same place again, on the screen or in the window of the same program, wherever that window is now
+- Your own sizes can have a place too, on a screen or in the window of a program; the Capture tab sets what your captures remember and whether the mouse moves there, and keeps a recent capture as one of your own sizes
 - Add and remove your own sizes in the settings, on the Capture tab
 - A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too. Press P to move it next to the mouse in place of the magnifier, and again to turn it off
 
@@ -180,6 +189,19 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Avoid quality parameter for PNG in file format handler
 - Ensures lossless PNG exports
 - By @danrhodes
+
+**Smaller PNG files**
+- PNG files, uploads, attachments and the clipboard are written as small as possible without losing anything, like optipng does
+- Images with few colors get much smaller
+- Greenshot now writes PNG, JPEG, BMP, GIF and WebP files with ImageSharp for everyone, not only for beta testers
+- For problems, greenshot.ini has OutputFilePngCompressionLevel (default 9) and ClipboardPngCompressionLevel (default 8) to save faster, and OutputFilePngPalette to turn off PNG files with a palette
+- The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
+
+**Open image from file lists every format**
+- The dialog now also offers JPEG XR (.jxr, .hdp, .wdp, .wmp), DDS, EMF and WMF, the formats of the Windows image decoders on the PC (like HEIF, Camera RAW or JPEG XL), and "All files"
+- Images open faster and use less memory, Windows reads them; photos are turned upright by their EXIF orientation again
+- Codecs installed in Windows (e.g. HEIF, RAW or JPEG XL from the Microsoft Store) are used automatically, see [image formats](../vNext/image-formats.md)
+- JPEG, BMP, GIF and TIFF files are saved by Windows: JPEG much faster, TIFF compressed (LZW)
 
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler

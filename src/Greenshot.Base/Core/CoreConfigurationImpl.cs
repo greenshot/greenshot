@@ -93,6 +93,12 @@ namespace Greenshot.Base.Core
 
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
 
+        partial void OnOutputFilePngCompressionLevelSet(ref int value) => value = Clamp(value, 1, 9);
+        partial void OnOutputFilePngCompressionLevelGet(ref int value) => value = Clamp(value, 1, 9);
+
+        partial void OnClipboardPngCompressionLevelSet(ref int value) => value = Clamp(value, 1, 9);
+        partial void OnClipboardPngCompressionLevelGet(ref int value) => value = Clamp(value, 1, 9);
+
 
         /// <summary>
         /// Coerce the value for the update check interval to stay between 0 and 365, where 0 means "never check for updates". This is to prevent excessive update checking that can occur when the configuration is used on a different PC or when the user accidentally enters an excessively high value. See BUG-1992 for details.

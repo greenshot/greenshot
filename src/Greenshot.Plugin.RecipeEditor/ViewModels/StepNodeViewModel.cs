@@ -3177,6 +3177,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("TargetEditor", value); OnPropertyChanged(nameof(EditorTargetEditor)); }
         }
 
+        /// <summary>
+        /// Surface or ImageContainer, empty is the default (Surface). Used by the Editor and the Destinations step.
+        /// </summary>
+        public string EditorImportMode
+        {
+            get => GetParam("ImportMode", "");
+            set { SetParamOrRemoveIfEmpty("ImportMode", value); OnPropertyChanged(nameof(EditorImportMode)); }
+        }
+
         public string PrinterName
         {
             get => GetParam("PrinterName", "");
@@ -3403,6 +3412,97 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetParamBool("ShowSaveDialog", true);
             set { SetParam("ShowSaveDialog", value); OnPropertyChanged(nameof(PdfShowSaveDialog)); }
+        }
+
+        // --- Set Metadata Step ---
+        private static readonly string[] MetadataFieldNames = { "CaptureTime", "Author", "Source", "Text", "Barcodes" };
+
+        /// <summary>
+        /// The step has its own Fields, otherwise the fields of the settings are written
+        /// </summary>
+        public bool MetadataOwnFields
+        {
+            get => Config.Parameters?.ContainsKey("Fields") == true;
+            set
+            {
+                if (value == MetadataOwnFields) return;
+                if (value)
+                {
+                    SetParam("Fields", new List<string> { "CaptureTime" });
+                }
+                else
+                {
+                    Config.Parameters.Remove("Fields");
+                    NotifyConfigUpdated();
+                }
+                OnMetadataFieldsChanged();
+            }
+        }
+
+        public bool MetadataCaptureTime { get => HasMetadataField("CaptureTime"); set => SetMetadataField("CaptureTime", value); }
+        public bool MetadataAuthorField { get => HasMetadataField("Author"); set => SetMetadataField("Author", value); }
+        public bool MetadataSource { get => HasMetadataField("Source"); set => SetMetadataField("Source", value); }
+        public bool MetadataText { get => HasMetadataField("Text"); set => SetMetadataField("Text", value); }
+        public bool MetadataBarcodes { get => HasMetadataField("Barcodes"); set => SetMetadataField("Barcodes", value); }
+
+        private List<string> MetadataFields => Config?.GetParameter<List<string>>("Fields") ?? new List<string>();
+
+        private bool HasMetadataField(string name) => MetadataFields.Contains(name, StringComparer.Ordinal);
+
+        private void SetMetadataField(string name, bool value)
+        {
+            var fields = MetadataFields;
+            if (!MetadataOwnFields || HasMetadataField(name) == value) return;
+            fields = MetadataFieldNames.Where(field => field == name ? value : fields.Contains(field, StringComparer.Ordinal)).ToList();
+            SetParam("Fields", fields);
+            OnMetadataFieldsChanged();
+        }
+
+        private void OnMetadataFieldsChanged()
+        {
+            OnPropertyChanged(nameof(MetadataOwnFields));
+            OnPropertyChanged(nameof(MetadataCaptureTime));
+            OnPropertyChanged(nameof(MetadataAuthorField));
+            OnPropertyChanged(nameof(MetadataSource));
+            OnPropertyChanged(nameof(MetadataText));
+            OnPropertyChanged(nameof(MetadataBarcodes));
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        public string MetadataTitle
+        {
+            get => GetParam("Title", "");
+            set { SetParamOrRemoveIfEmpty("Title", value); OnPropertyChanged(nameof(MetadataTitle)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string MetadataDescription
+        {
+            get => GetParam("Description", "");
+            set { SetParamOrRemoveIfEmpty("Description", value); OnPropertyChanged(nameof(MetadataDescription)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string MetadataAuthor
+        {
+            get => GetParam("Author", "");
+            set { SetParamOrRemoveIfEmpty("Author", value); OnPropertyChanged(nameof(MetadataAuthor)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string MetadataCopyright
+        {
+            get => GetParam("Copyright", "");
+            set { SetParamOrRemoveIfEmpty("Copyright", value); OnPropertyChanged(nameof(MetadataCopyright)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        private string MetadataSummary
+        {
+            get
+            {
+                var language = Texts.Get<IRecipeEditorLanguage>();
+                var parts = new List<string>();
+                if (MetadataOwnFields) parts.Add(MetadataFields.Count > 0 ? string.Join(", ", MetadataFields) : "-");
+                parts.AddRange(new[] { "Title", "Description", "Author", "Copyright" }.Where(key => Config.Parameters?.ContainsKey(key) == true));
+                return parts.Count > 0 ? string.Format(language.SummaryMetadata, string.Join(", ", parts)) : language.SummaryMetadataSettings;
+            }
         }
 
         // --- 18. Zxing Step ---
@@ -3648,6 +3748,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryDlp, TextEffectAction);
                     case WellKnownStepTypes.Annotation:
                         return Annotations.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryAnnotations, Annotations.Count, string.Join(", ", Annotations.Select(d => d.Type).Distinct())) : Texts.Get<IRecipeEditorLanguage>().SummaryAnnotationsNone;
+                    case WellKnownStepTypes.SetMetadata:
+                        return MetadataSummary;
                     case WellKnownStepTypes.SetVariable:
                         return Variables.Count > 0 ? string.Join(", ", Variables.Select(v => $"{v.Key}={v.Value}")) : Texts.Get<IRecipeEditorLanguage>().SummaryVariablesNone;
                     case WellKnownStepTypes.ImmediateFeedback:
@@ -3779,6 +3881,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));
+            OnPropertyChanged(nameof(EditorImportMode));
             OnPropertyChanged(nameof(PrinterName));
             OnPropertyChanged(nameof(PrinterShowPrintDialog));
             OnPropertyChanged(nameof(PrinterAllowRotate));
@@ -3816,6 +3919,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OfficeApplication));
             OnPropertyChanged(nameof(ZxingSetVariable));
             OnPropertyChanged(nameof(ZxingCopyToClipboard));
+            OnMetadataFieldsChanged();
+            OnPropertyChanged(nameof(MetadataTitle));
+            OnPropertyChanged(nameof(MetadataDescription));
+            OnPropertyChanged(nameof(MetadataAuthor));
+            OnPropertyChanged(nameof(MetadataCopyright));
             OnPropertyChanged(nameof(NotificationShow));
             OnPropertyChanged(nameof(OutputText));
             OnPropertyChanged(nameof(StderrExitCode));

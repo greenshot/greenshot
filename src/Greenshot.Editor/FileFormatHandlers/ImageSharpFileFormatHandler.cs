@@ -26,6 +26,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using log4net;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -36,7 +37,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -47,6 +48,8 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
+
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
         // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
@@ -59,6 +62,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _loadExtensions;
         }
 
+        /// <summary>
+        /// On Windows WIC loads images (faster, without a pool of buffers), ImageSharp loads what WIC can't, e.g. TGA, PBM or WebP without the Store codec.
+        /// Saving stays with ImageSharp.
+        /// </summary>
+        public override int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) =>
+            IsLoadAction(fileFormatHandlerAction) ? FallbackLoadPriority : 0;
+
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
             RegisterFileFormat(registry, "tga", [".tga"], [".tga"], "tga", "image/x-tga", null, "Targa");
@@ -69,6 +79,13 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
+            var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails, surfaceOutputSettings.IncludePrivateMetadata);
+            if (extension == ".png")
+            {
+                PngOptimizer.Save(bitmap, destination, surfaceOutputSettings, metadata);
+                return true;
+            }
             using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
             if (image == null)
             {
@@ -77,25 +94,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
 
-            var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
-            if (extension == ".png")
-            {
-                surfaceOutputSettings ??= new SurfaceOutputSettings(WellKnownFileFormats.Png);
-                // Access the PNG-specific metadata
-                var pngMetadata = image.Metadata.GetPngMetadata();
-                // Add or update the "Software" text chunk
-                pngMetadata.TextData.Add(new PngTextData("Software", versionString, "en", "en"));
-            }
-
-            // Ensure an EXIF profile exists
-            if (image.Metadata.ExifProfile == null)
-            {
-                image.Metadata.ExifProfile = new ExifProfile();
-            }
-            // Set the Software tag
-            image.Metadata.ExifProfile.SetValue(ExifTag.Software, versionString);
-
-            surfaceOutputSettings ??= new SurfaceOutputSettings();
+            // The program name, and the details the user wants, in EXIF and XMP (formats without them skip it)
+            metadata.ApplyTo(image.Metadata);
 
             // Support reducing colors for formats that support it, but only if the setting is enabled
             IQuantizer quantizer = null;
@@ -110,7 +110,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             IImageEncoder encoder = extension switch
             {
-                ".png" => new PngEncoder() { Quantizer = quantizer, ColorType = surfaceOutputSettings.ReduceColors ? PngColorType.Palette : hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb },
                 ".bmp" => new BmpEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? BmpBitsPerPixel.Pixel8 : hasAlpha ? BmpBitsPerPixel.Pixel32 : BmpBitsPerPixel.Pixel24 },
                 ".gif" => new GifEncoder() { Quantizer = quantizer },
                 ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
@@ -152,17 +151,40 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
             // JPEG has no transparency, it stays 24 bit.
-            if (decoder is JpegDecoder)
+            try
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                if (decoder is JpegDecoder)
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                    Orient(image);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                else
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
+                    Orient(image);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                return true;
             }
-            else
+            catch (ImageFormatException ex)
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                // A broken or unknown image is a failed load, not an error for the caller: the next handler gets a try
+                Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
+                bitmap = null;
+                return false;
             }
-            return true;
+        }
+
+        /// <summary>
+        /// Turn a photo upright by its EXIF orientation, like WIC does when it loads it
+        /// </summary>
+        private static void Orient(Image image)
+        {
+            if (ApplyExifOrientation)
+            {
+                image.Mutate(context => context.AutoOrient());
+            }
         }
     }
 }

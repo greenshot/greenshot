@@ -34,6 +34,7 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -56,6 +57,7 @@ using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.Views;
+using Greenshot.Viewer;
 using Greenshot.Views;
 using log4net;
 #if !GREENSHOT_LIGHT
@@ -130,6 +132,7 @@ namespace Greenshot.Shell
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
             userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
             userInteraction.Register<ErrorDetailsRequest, bool>(ErrorDetailsWindow.Show);
+            userInteraction.Register<PrivateMetadataRequest, bool>(PrivateMetadataRequest.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG
@@ -362,7 +365,8 @@ namespace Greenshot.Shell
                 new EmailDestination(),
                 new PickerDestination(),
                 new Win10ShareDestination(),
-                new Win10OcrDestination()
+                new Win10OcrDestination(),
+                new ViewerDestination()
             };
 
             int len = 250;

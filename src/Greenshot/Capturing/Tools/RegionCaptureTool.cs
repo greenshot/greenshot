@@ -152,10 +152,10 @@ namespace Greenshot.Capturing.Tools
         /// </summary>
         protected virtual void AcceptSelection(NativeRect rect)
         {
-            // The fixed size capture offers the sizes of the last region captures
+            // The fixed size capture offers the sizes and places of the last region captures
             if (Mode == CaptureMode.Region)
             {
-                FixedSizeCaptureTool.RememberSize(rect.Size);
+                FixedSizeCaptureTool.RememberArea(rect.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y), Host.Windows);
             }
             Host.Accept(rect);
         }
