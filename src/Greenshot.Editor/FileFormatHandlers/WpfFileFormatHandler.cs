@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
@@ -79,7 +80,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
             RegisterFileFormat(registry, WellKnownFileFormats.Jxr, JpegXrExtensions, SaveExtensions, "jxr", "image/vnd.ms-photo", null, "JPEG XR");
-            RegisterFileFormat(registry, "dds", new[] { ".dds" }, Array.Empty<string>(), "dds", "image/vnd-ms.dds", null, "DirectDraw Surface");
+            RegisterFileFormat(registry, "dds", new[] { ".dds" }, Array.Empty<string>(), "dds", "image/vnd.ms-dds", null, "DirectDraw Surface");
 
             foreach (var decoder in _wicDecoders)
             {
@@ -217,7 +218,12 @@ namespace Greenshot.Editor.FileFormatHandlers
             try
             {
                 var bitmapDecoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
-                var bitmapSource = bitmapDecoder.Frames[0];
+                BitmapSource bitmapSource = bitmapDecoder.Frames[0];
+                // ToBitmap only maps Bgra32, Bgr24 and Bgr32: indexed, gray, CMYK, 16 bit per channel or a codec's own format (WebP gives Default) are converted, alpha stays
+                if (bitmapSource.Format != PixelFormats.Bgra32 && bitmapSource.Format != PixelFormats.Bgr24 && bitmapSource.Format != PixelFormats.Bgr32)
+                {
+                    bitmapSource = new FormatConvertedBitmap(bitmapSource, PixelFormats.Bgra32, null, 0);
+                }
                 bitmap = bitmapSource.ToBitmap();
                 return true;
             }
