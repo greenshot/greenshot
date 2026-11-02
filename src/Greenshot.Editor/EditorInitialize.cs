@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using System.Linq;
 using Greenshot.Base.Core;
@@ -32,9 +31,6 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        // Not a static field: RegisterValueConverters is called before the configuration exists
-        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
-
         /// <summary>
         /// Register the value converters the editor configuration needs, this must happen before greenshot.ini is loaded,
         /// otherwise e.g. the last used field values can't be read.
