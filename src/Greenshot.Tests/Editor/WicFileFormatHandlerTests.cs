@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Dapplo.Windows.Imaging;
 using Greenshot.Base.Core.FileFormat;
@@ -212,20 +213,128 @@ namespace Greenshot.Tests.Editor
         }
 
         /// <summary>
-        /// A bitmap with a palette is left to ImageSharp, which writes the palette; the registered handlers still save it
+        /// A bitmap with a palette (reduced colors) is written with its palette, as an indexed image, without a difference
+        /// </summary>
+        [Theory]
+        [InlineData(PixelFormat.Format8bppIndexed, ".tif")]
+        [InlineData(PixelFormat.Format8bppIndexed, ".bmp")]
+        [InlineData(PixelFormat.Format8bppIndexed, ".gif")]
+        [InlineData(PixelFormat.Format1bppIndexed, ".tif")]
+        [InlineData(PixelFormat.Format1bppIndexed, ".gif")]
+        public void IndexedBitmap_IsSavedWithItsPalette(PixelFormat pixelFormat, string extension)
+        {
+            using var source = CreateIndexed(pixelFormat, out var expected);
+            using var stream = new MemoryStream();
+            Assert.True(new WicFileFormatHandler().TrySaveToStream(source, stream, extension, null, new SurfaceOutputSettings(extension.TrimStart('.'))));
+
+            stream.Position = 0;
+            var stored = WicImage.GetFrameInfo(stream).PixelFormat;
+            Assert.True(stored == WicPixelFormats.Format8bppIndexed || stored == WicPixelFormats.Format4bppIndexed
+                        || stored == WicPixelFormats.Format2bppIndexed || stored == WicPixelFormats.Format1bppIndexed, $"Stored as {stored}, not indexed");
+            stream.Position = 0;
+            AssertLoads(stream, extension, Width, Height, expected);
+        }
+
+        /// <summary>
+        /// GIF from a 32 bit bitmap with few colors: WIC makes the palette from the pixels
         /// </summary>
         [Fact]
-        public void IndexedBitmap_IsSavedByImageSharp()
+        public void Gif_FromAFullColorBitmap_KeepsTheColors()
         {
-            using var source = CreateIndexed(PixelFormat.Format8bppIndexed, out var expected);
-            using var stream = new MemoryStream();
-            Assert.False(new WicFileFormatHandler().TrySaveToStream(source, stream, ".tif", null, new SurfaceOutputSettings(WellKnownFileFormats.Tiff)));
-            Assert.Equal(0, stream.Length);
+            const int width = 30, height = 20;
+            using var source = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(source))
+            {
+                graphics.Clear(Color.White);
+                graphics.FillRectangle(Brushes.Navy, 5, 5, 10, 8);
+                graphics.FillRectangle(Brushes.Gold, 18, 2, 9, 15);
+            }
+            var expected = new int[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    expected[x + y * width] = source.GetPixel(x, y).ToArgb();
+                }
+            }
 
-            var handlers = Greenshot.Base.Core.SimpleServiceProvider.Current.GetAllInstances<Greenshot.Base.Interfaces.IFileFormatHandler>();
-            Assert.True(Greenshot.Base.Core.FileFormatHandlers.FileFormatHandlerExtensions.TrySaveToStream(handlers, source, stream, ".tif", null, new SurfaceOutputSettings(WellKnownFileFormats.Tiff)));
+            using var stream = new MemoryStream();
+            Assert.True(new WicFileFormatHandler().TrySaveToStream(source, stream, ".gif", null, new SurfaceOutputSettings(WellKnownFileFormats.Gif)));
             stream.Position = 0;
-            AssertLoads(stream, ".tif", Width, Height, expected);
+            AssertLoads(stream, ".gif", width, height, expected);
+        }
+
+        /// <summary>
+        /// The resolution of the file is kept, without one the bitmap gets 96 DPI and not the default of the decoder
+        /// </summary>
+        [Fact]
+        public void Resolution_ComesFromTheFileOnly()
+        {
+            using var source = new Bitmap(20, 10, PixelFormat.Format24bppRgb);
+            source.SetResolution(72, 72);
+            using var withResolution = new MemoryStream();
+            source.Save(withResolution, ImageFormat.Png);
+
+            withResolution.Position = 0;
+            Assert.True(new WicFileFormatHandler().TryLoadFromStream(withResolution, ".png", out var loaded));
+            using (loaded)
+            {
+                Assert.Equal(72, loaded.HorizontalResolution, 0);
+            }
+
+            // The same PNG without its pHYs chunk: WIC reports its default, the bitmap has 96
+            using var withoutResolution = new MemoryStream(RemovePngChunk(withResolution.ToArray(), "pHYs"));
+            Assert.False(WicImage.GetFrameInfo(withoutResolution).HasResolution);
+            withoutResolution.Position = 0;
+            Assert.True(new WicFileFormatHandler().TryLoadFromStream(withoutResolution, ".png", out loaded));
+            using (loaded)
+            {
+                Assert.Equal(96, loaded.HorizontalResolution, 0);
+            }
+        }
+
+        /// <summary>
+        /// WebP has no resolution, WIC reports 72 for it: the bitmap has 96 (only with the WebP codec from the Store)
+        /// </summary>
+        [Fact]
+        public void Resolution_OfAWebpWithoutOne_Is96()
+        {
+            if (!WicCodecs.GetDecoders().Any(codec => codec.ContainerFormat == WicContainerFormats.Webp))
+            {
+                Assert.Skip("The WebP codec isn't installed");
+            }
+
+            using var stream = new MemoryStream();
+            using (var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(8, 6, new SixLabors.ImageSharp.PixelFormats.Rgba32(200, 10, 10, 255)))
+            {
+                image.Save(stream, new SixLabors.ImageSharp.Formats.Webp.WebpEncoder());
+            }
+            stream.Position = 0;
+            Assert.False(WicImage.GetFrameInfo(stream).HasResolution);
+            stream.Position = 0;
+            Assert.True(new WicFileFormatHandler().TryLoadFromStream(stream, ".webp", out var loaded));
+            using (loaded)
+            {
+                Assert.Equal(96, loaded.HorizontalResolution, 0);
+            }
+        }
+
+        private static byte[] RemovePngChunk(byte[] png, string chunkType)
+        {
+            using var result = new MemoryStream();
+            result.Write(png, 0, 8);
+            int position = 8;
+            while (position + 8 <= png.Length)
+            {
+                int length = (png[position] << 24) | (png[position + 1] << 16) | (png[position + 2] << 8) | png[position + 3];
+                string type = System.Text.Encoding.ASCII.GetString(png, position + 4, 4);
+                if (type != chunkType)
+                {
+                    result.Write(png, position, length + 12);
+                }
+                position += length + 12;
+            }
+            return result.ToArray();
         }
 
         private static void AssertSoftwareTag(Stream stream, Guid container)

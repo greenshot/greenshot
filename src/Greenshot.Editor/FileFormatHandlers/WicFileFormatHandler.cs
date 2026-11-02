@@ -57,13 +57,14 @@ namespace Greenshot.Editor.FileFormatHandlers
         };
 
         // The formats WIC saves: faster than ImageSharp for JPEG with the same file, TIFF compressed (ImageSharp writes it uncompressed).
-        // PNG stays with the PngOptimizer, GIF needs a palette, both are saved by ImageSharp.
+        // PNG stays with the PngOptimizer, which ImageSharp runs.
         private static readonly Dictionary<string, Guid> SaveContainers = new(StringComparer.OrdinalIgnoreCase)
         {
             [".jxr"] = WicContainerFormats.Wmp,
             [".jpg"] = WicContainerFormats.Jpeg,
             [".jpeg"] = WicContainerFormats.Jpeg,
             [".bmp"] = WicContainerFormats.Bmp,
+            [".gif"] = WicContainerFormats.Gif,
             [".tif"] = WicContainerFormats.Tiff,
             [".tiff"] = WicContainerFormats.Tiff
         };
@@ -190,21 +191,20 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            // A bitmap with a palette, or reduced colors, is written with the palette by ImageSharp: WIC encoding here has no palette
-            if (container != WicContainerFormats.Jpeg && (surfaceOutputSettings.ReduceColors || (bitmap.PixelFormat & PixelFormat.Indexed) != 0))
-            {
-                return false;
-            }
-
+            // A bitmap with a palette (reduced colors, a GIF) is written with its palette, JPEG has none
+            bool keepPalette = container != WicContainerFormats.Jpeg && container != WicContainerFormats.Wmp;
             Guid pixelFormat = bitmap.PixelFormat switch
             {
                 PixelFormat.Format32bppArgb => WicPixelFormats.Format32bppBgra,
                 PixelFormat.Format32bppPArgb => WicPixelFormats.Format32bppPbgra,
                 PixelFormat.Format32bppRgb => WicPixelFormats.Format32bppBgr,
                 PixelFormat.Format24bppRgb => WicPixelFormats.Format24bppBgr,
+                PixelFormat.Format8bppIndexed when keepPalette => WicPixelFormats.Format8bppIndexed,
+                PixelFormat.Format4bppIndexed when keepPalette => WicPixelFormats.Format4bppIndexed,
+                PixelFormat.Format1bppIndexed when keepPalette => WicPixelFormats.Format1bppIndexed,
                 _ => Guid.Empty
             };
-            // Indexed and other formats are written as 32 bit
+            // Other formats are written as 32 bit
             using var converted = pixelFormat == Guid.Empty ? ImageHelper.Clone(bitmap, PixelFormat.Format32bppArgb) as Bitmap : null;
             var source = converted ?? bitmap;
             if (converted != null)
@@ -218,6 +218,11 @@ namespace Greenshot.Editor.FileFormatHandlers
                 DpiX = source.HorizontalResolution,
                 DpiY = source.VerticalResolution
             };
+            if ((source.PixelFormat & PixelFormat.Indexed) != 0)
+            {
+                // The indexes of the pixels refer to this palette, a color with alpha 0 is the transparent one (GIF)
+                options.Palette = source.Palette.Entries.Select(color => unchecked((uint)color.ToArgb())).ToArray();
+            }
             if (container == WicContainerFormats.Jpeg || container == WicContainerFormats.Wmp)
             {
                 options.ImageQuality = surfaceOutputSettings.JPGQuality / 100f;
@@ -272,9 +277,14 @@ namespace Greenshot.Editor.FileFormatHandlers
                 }, ApplyExifOrientation);
                 result.UnlockBits(bitmapData);
                 bitmapData = null;
-                if (frameInfo.DpiX > 0 && frameInfo.DpiY > 0)
+                // Only a resolution the file stores: without one WIC reports the default of the decoder (72 for WebP, 96 for PNG)
+                if (frameInfo.HasResolution && frameInfo.DpiX > 0 && frameInfo.DpiY > 0)
                 {
                     result.SetResolution((float)frameInfo.DpiX, (float)frameInfo.DpiY);
+                }
+                else
+                {
+                    result.SetResolution(96, 96);
                 }
 
                 bitmap = result;

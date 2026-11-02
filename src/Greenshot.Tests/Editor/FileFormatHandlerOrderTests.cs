@@ -70,7 +70,6 @@ namespace Greenshot.Tests.Editor
 
         [Theory]
         [InlineData(".png")]
-        [InlineData(".gif")]
         [InlineData(".webp")]
         [InlineData(".tga")]
         [InlineData(".pbm")]
@@ -83,6 +82,7 @@ namespace Greenshot.Tests.Editor
         [InlineData(".jpg")]
         [InlineData(".jpeg")]
         [InlineData(".bmp")]
+        [InlineData(".gif")]
         [InlineData(".tif")]
         [InlineData(".tiff")]
         [InlineData(".jxr")]
