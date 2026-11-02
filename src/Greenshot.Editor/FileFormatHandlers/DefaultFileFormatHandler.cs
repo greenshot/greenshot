@@ -48,6 +48,12 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
         }
 
+        /// <summary>
+        /// The last resort for loading, after WIC and ImageSharp
+        /// </summary>
+        public override int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) =>
+            IsLoadAction(fileFormatHandlerAction) ? FallbackLoadPriority + 1 : 0;
+
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {

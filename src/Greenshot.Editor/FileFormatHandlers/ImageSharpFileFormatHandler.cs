@@ -51,7 +51,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
 
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
-        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), DefaultFileFormatHandler loads .tif instead
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead (DefaultFileFormatHandler without WIC)
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
@@ -61,6 +61,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _loadExtensions;
         }
+
+        /// <summary>
+        /// On Windows WIC loads images (faster, without a pool of buffers), ImageSharp loads what WIC can't, e.g. TGA, PBM or WebP without the Store codec.
+        /// Saving stays with ImageSharp.
+        /// </summary>
+        public override int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) =>
+            IsLoadAction(fileFormatHandlerAction) ? FallbackLoadPriority : 0;
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {

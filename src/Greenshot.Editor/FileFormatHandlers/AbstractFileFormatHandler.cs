@@ -41,6 +41,14 @@ namespace Greenshot.Editor.FileFormatHandlers
             return 0;
         }
 
+        /// <summary>
+        /// The priority of a handler which loads an image only when no other handler does (a lower value comes first), e.g. when WIC has no decoder for it
+        /// </summary>
+        protected const int FallbackLoadPriority = 10;
+
+        protected static bool IsLoadAction(FileFormatHandlerActions fileFormatHandlerAction) =>
+            fileFormatHandlerAction is FileFormatHandlerActions.LoadFromStream or FileFormatHandlerActions.LoadFromFile or FileFormatHandlerActions.LoadDrawableFromStream;
+
         public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
