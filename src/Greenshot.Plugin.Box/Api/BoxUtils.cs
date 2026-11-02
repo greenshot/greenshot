@@ -61,7 +61,7 @@ public static class BoxUtils
         var settings = new OAuth2Settings
         {
             AuthorizeUrl = "https://app.box.com/api/oauth2/authorize",
-            SignedInUrl = "https://getgreenshot.org/signed-in/box/",
+            SignedInUrl = $"https://getgreenshot.org/signed-in/box/?version={Uri.EscapeDataString(EnvironmentInfo.GetGreenshotVersion(true))}",
             TokenUrl = "https://api.box.com/oauth2/token",
             CloudServiceName = "Box",
             ClientId = BoxCredentials.ClientId,

@@ -112,7 +112,7 @@ namespace Greenshot.Base.Core.OAuth
                     : "This is not an answer to a Greenshot sign-in.";
                 try
                 {
-                    // The browser leaves the redirect URL (with the code) for a fixed page, without parameters or referrer
+                    // The browser leaves the redirect URL (with the code) for a fixed page, without referrer
                     string location = answer != null && answer.ContainsKey("code") ? signedInUrl : null;
                     await WritePageAsync(context.Response, answer != null ? 200 : 400, page, location, cancellationToken).ConfigureAwait(false);
                 }

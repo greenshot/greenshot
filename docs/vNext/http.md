@@ -108,7 +108,7 @@ GET on that path with that state counts, anything else gets an error page and th
 Only `code`, `error` and `error_description` are taken from the redirect, never a token. With `UsePkce` (default)
 the code is protected with PKCE S256 (RFC 7636); Box doesn't document PKCE and turns it off.
 After a redirect with a code, Greenshot sends the browser on to `SignedInUrl` (Box and Dropbox:
-`https://getgreenshot.org/signed-in/{service}/`), a fixed URL without parameters and with `Referrer-Policy: no-referrer`,
+`https://getgreenshot.org/signed-in/{service}/?version=…` for the version check of the website), a fixed URL with `Referrer-Policy: no-referrer`,
 so the website never sees anything of the sign-in. An error or a missing `SignedInUrl` shows a page from Greenshot.
 
 ### Errors

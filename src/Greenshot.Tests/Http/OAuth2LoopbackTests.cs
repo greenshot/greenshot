@@ -131,10 +131,10 @@ namespace Greenshot.Tests.Http
             using (var receiver = new LocalServerCodeReceiver())
             {
                 string redirectUrl = receiver.Start(new[] { FreePort() });
-                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/", CancellationToken.None);
+                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/?version=1.4.1", CancellationToken.None);
                 var answer = await client.GetAsync(redirectUrl + "?code=the-code&state=expected-state", TestContext.Current.CancellationToken);
                 Assert.Equal(HttpStatusCode.Redirect, answer.StatusCode);
-                Assert.Equal(new Uri("https://example.com/signed-in/test/"), answer.Headers.Location);
+                Assert.Equal(new Uri("https://example.com/signed-in/test/?version=1.4.1"), answer.Headers.Location);
                 Assert.Equal("no-referrer", string.Join(",", answer.Headers.GetValues("Referrer-Policy")));
                 Assert.Equal("the-code", (await waiting.WaitAsync(TestTimeout, TestContext.Current.CancellationToken))["code"]);
             }
@@ -142,7 +142,7 @@ namespace Greenshot.Tests.Http
             using (var receiver = new LocalServerCodeReceiver())
             {
                 string redirectUrl = receiver.Start(new[] { FreePort() });
-                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/", CancellationToken.None);
+                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/?version=1.4.1", CancellationToken.None);
                 var answer = await client.GetAsync(redirectUrl + "?error=access_denied&state=expected-state", TestContext.Current.CancellationToken);
                 Assert.Equal(HttpStatusCode.OK, answer.StatusCode);
                 Assert.Null(answer.Headers.Location);

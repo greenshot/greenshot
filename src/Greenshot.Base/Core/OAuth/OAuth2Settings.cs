@@ -61,7 +61,7 @@ namespace Greenshot.Base.Core.OAuth
         public IList<int> LoopbackPorts { get; set; } = new List<int> { 31251, 31252, 31253, 31254, 31255 };
 
         /// <summary>
-        /// The page the browser shows after the sign-in, a fixed URL without parameters. Null: a page from Greenshot.
+        /// The page the browser shows after the sign-in, a fixed URL, nothing of the sign-in may be in it. Null: a page from Greenshot.
         /// </summary>
         public string SignedInUrl { get; set; }
 
