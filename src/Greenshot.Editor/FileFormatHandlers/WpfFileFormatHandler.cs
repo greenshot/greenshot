@@ -42,8 +42,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         private const string HeifDecoder = "{E9A4A80A-44FE-4DE4-8971-7150B10A5199}";
         private const string WicDecoderCategory = "{7ED96837-96F0-4812-B211-F13C24117ED3}";
 
-        // The built-in WIC decoders aren't always registered in the decoder category (e.g. Windows 11 26300), TIFF is loaded only here (ImageSharp doesn't, #1472)
-        private IReadOnlyCollection<string> LoadExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp", ".tif", ".tiff"};
+        private IReadOnlyCollection<string> LoadExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
         private IReadOnlyCollection<string> SaveExtensions { get; } = new[] { ".jxr" };
         
         public WpfFileFormatHandler()

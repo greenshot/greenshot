@@ -22,11 +22,10 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
+using System.Runtime.InteropServices;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Editor.FileFormatHandlers;
+using Greenshot.Base.Interfaces;
 using Xunit;
 
 namespace Greenshot.Tests.Editor
@@ -38,34 +37,78 @@ namespace Greenshot.Tests.Editor
             TestEnvironment.EnsureInitialized();
         }
 
+        /// <summary>
+        /// ImageSharp doesn't load TIFF (#1472) and WIC can't map 1 and 8 bit TIFF to a bitmap, so the registered handlers must load them with System.Drawing
+        /// </summary>
         [Theory]
-        [InlineData(".tif")]
-        [InlineData(".tiff")]
-        public void WpfFileFormatHandler_LoadsTiff_SavedByImageSharp(string extension)
+        [InlineData(".tif", PixelFormat.Format24bppRgb)]
+        [InlineData(".tiff", PixelFormat.Format8bppIndexed)]
+        [InlineData(".tif", PixelFormat.Format1bppIndexed)]
+        public void RegisteredHandlers_LoadTiff(string extension, PixelFormat pixelFormat)
         {
-            // ImageSharp doesn't load TIFF (#1472), WIC has to, even when its built-in decoders aren't listed in the registry
-            var wpfHandler = new WpfFileFormatHandler();
-            Assert.True(wpfHandler.Supports(FileFormatHandlerActions.LoadFromStream, extension));
-
-            using var bitmap = new Bitmap(8, 8, PixelFormat.Format24bppRgb);
-            for (int y = 0; y < 8; y++)
-            {
-                for (int x = 0; x < 8; x++)
-                {
-                    bitmap.SetPixel(x, y, Color.FromArgb(x * 30, y * 30, 77));
-                }
-            }
-
+            using var source = CreateBitmap(pixelFormat);
             using var stream = new MemoryStream();
-            Assert.True(new ImageSharpFileFormatHandler().TrySaveToStream(bitmap, stream, extension, null, new SurfaceOutputSettings(WellKnownFileFormats.Png)));
+            source.Save(stream, ImageFormat.Tiff);
             stream.Position = 0;
 
-            Assert.True(wpfHandler.TryLoadFromStream(stream, extension, out var loaded));
+            var handlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            Assert.True(handlers.TryLoadFromStream(stream, extension, out var loaded));
             using (loaded)
             {
-                Assert.Equal(bitmap.Size, loaded.Size);
-                Assert.Equal(bitmap.GetPixel(5, 3).ToArgb(), loaded.GetPixel(5, 3).ToArgb());
+                Assert.Equal(source.Size, loaded.Size);
+                for (int y = 0; y < source.Height; y += 7)
+                {
+                    for (int x = 0; x < source.Width; x += 7)
+                    {
+                        Assert.Equal(source.GetPixel(x, y).ToArgb(), loaded.GetPixel(x, y).ToArgb());
+                    }
+                }
             }
+        }
+
+        private static Bitmap CreateBitmap(PixelFormat pixelFormat)
+        {
+            const int width = 33, height = 21;
+            var bitmap = new Bitmap(width, height, pixelFormat);
+            if (pixelFormat == PixelFormat.Format24bppRgb)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        bitmap.SetPixel(x, y, Color.FromArgb(x * 7, y * 11, 77));
+                    }
+                }
+                return bitmap;
+            }
+
+            // Indexed: write palette indexes, the default palette has black and white at 0 and 1 (1 bit) or 0 and 255 (8 bit)
+            var data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, pixelFormat);
+            try
+            {
+                var row = new byte[data.Stride];
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        bool set = (x + y) % 3 == 0;
+                        if (pixelFormat == PixelFormat.Format1bppIndexed)
+                        {
+                            if (set) row[x / 8] |= (byte)(0x80 >> (x % 8)); else row[x / 8] &= (byte)~(0x80 >> (x % 8));
+                        }
+                        else
+                        {
+                            row[x] = (byte)(set ? 255 : x * 3 + y);
+                        }
+                    }
+                    Marshal.Copy(row, 0, data.Scan0 + y * data.Stride, row.Length);
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+            return bitmap;
         }
     }
 }

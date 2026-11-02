@@ -48,6 +48,8 @@ namespace Greenshot.Editor
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
                     new ImageSharpFileFormatHandler(),
+                    // After ImageSharp, so it only takes what ImageSharp doesn't declare: loading TIFF (#1472), WIC can't map 1 and 8 bit TIFF
+                    new DefaultFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support
