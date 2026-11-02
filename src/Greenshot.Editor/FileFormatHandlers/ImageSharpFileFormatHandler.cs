@@ -52,7 +52,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
 
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
-        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead (DefaultFileFormatHandler without WIC)
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
@@ -176,7 +176,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             catch (ImageFormatException ex)
             {
-                // A broken or unknown image, like DefaultFileFormatHandler this is a failed load, not an error for the caller
+                // A broken or unknown image is a failed load, not an error for the caller: the next handler gets a try
                 Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
                 bitmap = null;
                 return false;

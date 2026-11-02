@@ -91,12 +91,11 @@ namespace Greenshot.Tests.Editor
 
         /// <summary>
         /// A photo with the EXIF orientation 6 (rotate 90° clockwise) is loaded upright by every handler which loads JPEG
-        /// (WIC, and ImageSharp and GDI+ as fallback), ProcessEXIFOrientation is on by default
+        /// (WIC, and ImageSharp as fallback), ProcessEXIFOrientation is on by default
         /// </summary>
         [Theory]
         [InlineData(typeof(WicFileFormatHandler))]
         [InlineData(typeof(ImageSharpFileFormatHandler))]
-        [InlineData(typeof(DefaultFileFormatHandler))]
         public void TryLoadFromStream_AppliesTheExifOrientation(Type handlerType)
         {
             const int width = 40, height = 20;
