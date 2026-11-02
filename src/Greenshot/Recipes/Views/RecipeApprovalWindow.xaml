@@ -19,14 +19,14 @@
         ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
         FontSize="{wpf:FontSize 13}"
-        Background="{Binding WindowBackgroundBrush}">
+        Background="{Binding WindowBackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}">
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+                <!-- The themed text boxes and combo boxes of the recipe's settings come from here, besides buttons, check boxes, scroll bars -->
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 

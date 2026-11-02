@@ -271,6 +271,27 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Describer_ListsTheStepsInTheOrderTheyRun()
+        {
+            // Listed in the file out of order, like a recipe written in the editor: export first, the branches after it
+            var recipe = CreateRecipe("describe_order");
+            foreach (var id in new[] { "export", "check", "effect_b", "effect_a", "select" })
+            {
+                recipe.AddNode(new RecipeNodeConfig { Id = id, StepType = "Clipboard" });
+            }
+            recipe.Flow.AddTransition("effect_a", "export");
+            recipe.Flow.AddTransition("effect_b", "export");
+            recipe.Flow.AddTransition("source", "select");
+            recipe.Flow.AddTransition("select", "check");
+            recipe.Flow.Transitions.Add(new RecipeTransition("check", "effect_b") { Branch = "B" });
+            recipe.Flow.Transitions.Add(new RecipeTransition("check", "effect_a") { Branch = "A" });
+
+            var order = RecipeDescriber.InFlowOrder(recipe).Select(n => n.Id).ToList();
+
+            Assert.Equal(new[] { "source", "select", "check", "effect_b", "effect_a", "export" }, order);
+        }
+
+        [Fact]
         public void Describer_NamesAddedAndRemovedSteps()
         {
             var oldRecipe = CreateRecipe("changes");
