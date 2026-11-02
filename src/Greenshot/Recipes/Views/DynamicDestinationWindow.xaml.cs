@@ -121,7 +121,7 @@ namespace Greenshot.Recipes.Views
         public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerApply;
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
-        public string ClickToPreviewTooltip => Texts.Recipe.PickerPreviewTooltip;
+        public string ClickToPreviewTooltip => Texts.Settings.DestinationViewer;
         public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";

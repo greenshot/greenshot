@@ -129,7 +129,7 @@
                                     <!-- Hover zoom badge -->
                                     <Border Background="#99000000" CornerRadius="3" Padding="5,2" 
                                             HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5">
-                                        <TextBlock FontSize="{wpf:FontSize 10}" Foreground="White" FontWeight="Medium"><Run Text="🔍 "/><Run Text="{wpf:Text Recipe.PickerZoomPreview}"/></TextBlock>
+                                        <TextBlock FontSize="{wpf:FontSize 10}" Foreground="White" FontWeight="Medium"><Run Text="🔍 "/><Run Text="{wpf:Text Settings.DestinationViewer}"/></TextBlock>
                                     </Border>
                                 </Grid>
                             </Border>

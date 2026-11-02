@@ -962,16 +962,6 @@ namespace Greenshot.Base.Languages
         string PickerApply { get; }
 
         /// <summary>
-        /// Click to view full preview (Esc to exit)
-        /// </summary>
-        string PickerPreviewTooltip { get; }
-
-        /// <summary>
-        /// Zoom Preview
-        /// </summary>
-        string PickerZoomPreview { get; }
-
-        /// <summary>
         /// Choose another destination below, or try again:
         /// </summary>
         string PickerErrorChooseAgain { get; }
