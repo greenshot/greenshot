@@ -72,6 +72,12 @@ namespace Greenshot.Editor.FileFormatHandlers
         // WICTiffCompressionOption: LZW, which every program reads (ZIP is smaller, but not every program reads it)
         private const byte TiffCompressionLzw = 4;
 
+        // EXIF tags WicMetadataPaths has no constant for
+        private const ushort ExifTagCopyright = 33432;
+        private const ushort ExifTagOffsetTimeOriginal = 36881;
+        private const ushort ExifTagXpTitle = 0x9C9B;
+        private const ushort ExifTagXpComment = 0x9C9C;
+
         private readonly IReadOnlyCollection<WicDecoder> _wicDecoders;
         private IReadOnlyCollection<string> LoadExtensions { get; } = JpegXrExtensions.Concat(new[] { ".dds" }).ToArray();
         private IReadOnlyCollection<string> SaveExtensions { get; } = SaveContainers.Keys.ToArray();
@@ -231,12 +237,11 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 options.EncoderOptions["TiffCompressionMethod"] = TiffCompressionLzw;
             }
-            string softwarePath = container == WicContainerFormats.Bmp ? null : WicMetadataPaths.Software(container);
-            if (!string.IsNullOrEmpty(softwarePath))
+            if (container != WicContainerFormats.Bmp)
             {
-                // Like the other handlers: the file says it was written by Greenshot, what an encoder doesn't take is skipped
-                string software = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
-                options.Metadata = writer => writer.Set(softwarePath, WicMetadataValue.AnsiString(software));
+                // Like the other handlers: the file says it was written by Greenshot, plus the details the user wants; what an encoder doesn't take is skipped
+                var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails, surfaceOutputSettings.IncludePrivateMetadata);
+                options.Metadata = writer => WriteMetadata(writer, container, metadata);
             }
 
             // Encoded into a buffer first: when WIC fails, the next handler writes to an untouched destination
@@ -258,6 +263,51 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             buffer.WriteTo(destination);
             return true;
+        }
+
+        /// <summary>
+        /// Write the details as EXIF tags, which Windows and other programs read from JPEG, TIFF and JPEG XR, and as XMP packet with what EXIF has no tag for (web address, barcodes).
+        /// A path the container doesn't have is null and skipped.
+        /// </summary>
+        internal static void WriteMetadata(WicMetadataWriter writer, Guid container, ExportImageMetadata metadata)
+        {
+            SetAnsi(writer, WicMetadataPaths.Software(container), metadata.Software);
+            if (metadata.CaptureTime.HasValue)
+            {
+                SetAnsi(writer, WicMetadataPaths.DateTimeOriginal(container), metadata.ExifCaptureTime);
+                SetAnsi(writer, WicMetadataPaths.ExifSubTag(container, ExifTagOffsetTimeOriginal), metadata.ExifCaptureTimeOffset);
+            }
+            SetAnsi(writer, WicMetadataPaths.ExifTag(container, WicMetadataPaths.TagArtist), metadata.Author);
+            SetAnsi(writer, WicMetadataPaths.ExifTag(container, ExifTagCopyright), metadata.Copyright);
+            SetUcs2(writer, WicMetadataPaths.ExifTag(container, ExifTagXpTitle), metadata.Title);
+            SetUcs2(writer, WicMetadataPaths.ExifTag(container, ExifTagXpComment), metadata.Description);
+            string xmpPath = metadata.HasDetails ? WicMetadataPaths.Xmp(container) : null;
+            if (!string.IsNullOrEmpty(xmpPath))
+            {
+                writer.AddRawBlock(new WicMetadataRawBlock(xmpPath, WicMetadataFormats.Xmp, metadata.ToXmpPacket()));
+            }
+        }
+
+        /// <summary>
+        /// The Windows EXIF tags (XPTitle, XPComment) are UTF-16 text as vector of bytes
+        /// </summary>
+        private static void SetUcs2(WicMetadataWriter writer, string path, string value)
+        {
+            if (!string.IsNullOrEmpty(path) && !string.IsNullOrEmpty(value))
+            {
+                writer.Set(path, WicMetadataValue.ByteVector(ExportImageMetadata.ToUcs2(value)));
+            }
+        }
+
+        /// <summary>
+        /// EXIF ASCII tags need a VT_LPSTR value
+        /// </summary>
+        private static void SetAnsi(WicMetadataWriter writer, string path, string value)
+        {
+            if (!string.IsNullOrEmpty(path) && !string.IsNullOrEmpty(value))
+            {
+                writer.Set(path, WicMetadataValue.AnsiString(value));
+            }
         }
 
         /// <inheritdoc />

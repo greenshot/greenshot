@@ -73,6 +73,21 @@ namespace Greenshot.Base.Recipes.Pipeline
         private IUserInteraction _userInteraction;
 
         /// <summary>
+        /// The export source of the capture, for a step which encodes it itself (e.g. an upload):
+        /// private details in the image need the user's OK of this flow, a flow without a window removes them
+        /// </summary>
+        public async Task<IExportSource> GetExportSourceAsync(CancellationToken cancellationToken = default)
+        {
+            if (Payload == null)
+            {
+                return null;
+            }
+            var source = await Payload.GetExportSourceAsync(Ui, cancellationToken).ConfigureAwait(false);
+            Core.Export.DestinationExporter.AskBeforePrivateMetadataLeaves(source, UserInteraction);
+            return source;
+        }
+
+        /// <summary>
         /// The recipe driving this flow.
         /// </summary>
         public CaptureRecipe Recipe { get; }
