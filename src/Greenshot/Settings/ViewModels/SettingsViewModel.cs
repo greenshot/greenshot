@@ -98,6 +98,7 @@ namespace Greenshot.Settings.ViewModels
 
             // Initialize clipboard formats
             InitializeClipboardFormats();
+            InitializeExportMetadata();
 
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {

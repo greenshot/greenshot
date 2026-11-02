@@ -34,6 +34,7 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -131,6 +132,7 @@ namespace Greenshot.Shell
             userInteraction.Register<ShareRequest, string>(ShareHostWindow.Show);
             userInteraction.Register<PreviewPromptRequest, PreviewPromptResult>(RecipeUserPromptWindow.Show);
             userInteraction.Register<ErrorDetailsRequest, bool>(ErrorDetailsWindow.Show);
+            userInteraction.Register<PrivateMetadataRequest, bool>(PrivateMetadataRequest.Show);
             SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
             SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG

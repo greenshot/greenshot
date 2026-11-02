@@ -60,6 +60,38 @@ plugin.
 Phones and cameras often store a photo sideways and add a note (EXIF orientation) how to turn it. Greenshot turns such photos
 upright when it opens them, whichever reader opens the file. To switch this off, set `ProcessEXIFOrientation=False` in greenshot.ini.
 
+## Details in saved images
+
+Every saved image says it was written by Greenshot and keeps its resolution. By default Greenshot also writes when the screen
+was captured, so file managers can show and sort by "Date taken". An image opened from a file keeps the capture time its file
+had; an image from the clipboard gets none.
+
+You choose the details in the settings, Output tab, "Details in saved images":
+
+- the capture time (on by default);
+- your name and a copyright notice;
+- private details: the window title and the web address of the browser tab, the text OCR already found (writing it never starts
+  OCR), and the content of barcodes and QR codes. With the text, Windows Search and file managers can find a screenshot by
+  what is written in it.
+
+Private details say what you captured and where. Files you save on this computer get them. Before an image with private details
+goes anywhere else (an upload, an e-mail, Office, another program), Greenshot shows them and asks whether to remove or keep
+them; removing is the default. A recipe running without a window removes them.
+
+Nothing else is written: no location, no user or computer name, and nothing from an image you opened.
+
+| Format | Where the details go |
+|---|---|
+| JPEG, TIFF, JPEG XR | EXIF and XMP |
+| PNG, WebP | EXIF and XMP: Windows shows the XMP, other programs the EXIF |
+| BMP, GIF, TGA, PBM | none of these details |
+
+A recipe can decide the details for its captures with the `SetMetadata` step, see
+[capture recipes](capture-recipes.md#details-in-saved-images-setmetadata-step).
+
+When you open an image, Greenshot reads the capture time, window title and web address it wrote, so filename patterns and
+recipes use them like for the original capture.
+
 ## Expert settings
 
 These are in greenshot.ini only:

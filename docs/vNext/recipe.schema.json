@@ -285,7 +285,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
@@ -472,6 +472,22 @@
             "Variables": {
               "type": "object",
               "description": "Used by 'SetVariable' step: the variables to set, name to value (an expression or a literal)."
+            },
+            "Fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [ "CaptureTime", "Author", "Source", "Text", "Barcodes" ]
+              },
+              "description": "Used by 'SetMetadata' step: the details written into saved images; without it those of the settings, an empty list none."
+            },
+            "Author": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the author written into saved images, instead of the one of the settings; empty leaves it out."
+            },
+            "Copyright": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the copyright notice written into saved images, instead of the one of the settings; empty leaves it out."
             },
             "DestinationDesignations": {
               "type": "array",

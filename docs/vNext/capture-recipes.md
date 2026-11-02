@@ -348,6 +348,34 @@ Create or transform variables in the pipeline context for downstream nodes to co
 }
 ```
 
+### Details in saved images (`SetMetadata` Step)
+Decides the details (EXIF and XMP, see [image formats](image-formats.md#details-in-saved-images)) the following steps write into
+the image: which fields, and a title, description, author or copyright of the recipe. Without the step, the settings decide.
+
+```json
+{
+  "id": "details",
+  "stepType": "SetMetadata",
+  "parameters": {
+    "Fields": [ "CaptureTime", "Author", "Source" ],
+    "Title": "${payload.title}",
+    "Description": "Ticket ${context.ticket}",
+    "Author": "Support team",
+    "Copyright": "(c) ${now:yyyy} Example Inc."
+  }
+}
+```
+
+- `Fields`: a list of `CaptureTime`, `Author`, `Source`, `Text` and `Barcodes`. Without it, the fields of the settings; an empty
+  list writes none (an author or copyright of the step is still written).
+- `Title`, `Description`: instead of the window title and the text. They can hold what was captured, so they are private details
+  like those: files on this computer get them, before the image leaves it the user is asked, and a recipe running without a
+  window removes them.
+- `Author`, `Copyright`: instead of those of the settings, also without the `Author` field.
+- A parameter which is left out keeps what the settings write; an empty value leaves the detail out.
+
+The step only changes the details of the capture; put it before the steps which save or send the image.
+
 ---
 
 ## 4. Surface Annotations (`Annotation` Step)

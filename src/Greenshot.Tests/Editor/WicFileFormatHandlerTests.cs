@@ -337,6 +337,54 @@ namespace Greenshot.Tests.Editor
             return result.ToArray();
         }
 
+        /// <summary>
+        /// The capture time, author and copyright are written as EXIF tags, which Windows shows for JPEG, TIFF and JPEG XR
+        /// </summary>
+        [Theory]
+        [InlineData(".jpg")]
+        [InlineData(".tif")]
+        public void Metadata_IsWrittenAsExifTags(string extension)
+        {
+            var container = extension == ".jpg" ? WicContainerFormats.Jpeg : WicContainerFormats.Tiff;
+            var metadata = new ExportImageMetadata
+            {
+                Software = "Greenshot test",
+                CaptureTime = new DateTimeOffset(2026, 11, 2, 16, 30, 5, TimeSpan.FromHours(1)),
+                Author = "Test Author",
+                Copyright = "(c) Test"
+            };
+            using var source = new Bitmap(40, 30, PixelFormat.Format24bppRgb);
+            using var stream = new MemoryStream();
+            var options = new WicEncodeOptions
+            {
+                ContainerFormat = container,
+                Metadata = writer => WicFileFormatHandler.WriteMetadata(writer, container, metadata)
+            };
+            var bitmapData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, source.PixelFormat);
+            try
+            {
+                WicImage.Encode(stream, options, bitmapData.Scan0, source.Width, source.Height, bitmapData.Stride, WicPixelFormats.Format24bppBgr);
+            }
+            finally
+            {
+                source.UnlockBits(bitmapData);
+            }
+
+            stream.Position = 0;
+            var read = WicImage.GetFrameInfo(stream).Metadata;
+            AssertTag(read, WicMetadataPaths.Software(container), "Greenshot test");
+            AssertTag(read, WicMetadataPaths.DateTimeOriginal(container), "2026:11:02 16:30:05");
+            AssertTag(read, WicMetadataPaths.ExifSubTag(container, 36881), "+01:00");
+            AssertTag(read, WicMetadataPaths.ExifTag(container, WicMetadataPaths.TagArtist), "Test Author");
+            AssertTag(read, WicMetadataPaths.ExifTag(container, 33432), "(c) Test");
+        }
+
+        private static void AssertTag(WicMetadata metadata, string path, string expected)
+        {
+            Assert.True(metadata.TryGet(path, out var value), $"No {path}");
+            Assert.Equal(expected, Convert.ToString(value));
+        }
+
         private static void AssertSoftwareTag(Stream stream, Guid container)
         {
             var frameInfo = WicImage.GetFrameInfo(stream);

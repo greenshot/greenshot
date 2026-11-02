@@ -429,6 +429,16 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }
 
+        [Description("Which details are written into exported images, the program name and resolution are always written. Options: CaptureTime (when the screen was captured), Author (ExportMetadataAuthor and ExportMetadataCopyright), and the private ones Source (window title, web address), Text (text OCR found), Barcodes (content of barcodes and QR codes). Private details are written into saved files; before they leave the computer (upload, e-mail, Office) Greenshot asks, a flow without a window removes them. Empty: none of them.")]
+        [DefaultValue("CaptureTime")]
+        List<ExportMetadataField> ExportMetadata { get; set; }
+
+        [Description("The author written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataAuthor { get; set; }
+
+        [Description("The copyright notice written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataCopyright { get; set; }
+
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 

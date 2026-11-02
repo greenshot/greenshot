@@ -49,6 +49,7 @@ namespace Greenshot.Base.Core.Export
         private Image _exportImage;
         private int _openLeases;
         private bool _disposed;
+        private bool? _keepPrivateMetadata;
 
         /// <param name="surface">The surface, a WinForms control: only touched through the dispatcher</param>
         /// <param name="ui">Dispatcher for the UI thread</param>
@@ -73,6 +74,13 @@ namespace Greenshot.Base.Core.Export
         /// True when the capture was changed since it was loaded or saved: a destination can't reuse the original file then.
         /// </summary>
         public bool IsModified { get; }
+
+        /// <summary>
+        /// Asks whether the private details of ExportMetadata may go with an image this source encodes for a destination which isn't a file on this computer
+        /// (the file destinations set <see cref="SurfaceOutputSettings.IncludePrivateMetadata"/> themselves).
+        /// Set for interactive exports, asked once per source and only when there are private details; without it they are removed.
+        /// </summary>
+        public Func<ExportImageMetadata, CancellationToken, Task<bool>> AskToKeepPrivateMetadata { get; set; }
 
         /// <summary>
         /// Number of render leases which are not disposed yet (tests, rule R8).
@@ -166,6 +174,11 @@ namespace Greenshot.Base.Core.Export
             try
             {
                 ThrowIfDisposed();
+                bool greenshotFormat = WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, settings.Format);
+                if (!greenshotFormat && !settings.IncludePrivateMetadata && await KeepPrivateMetadataLockedAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    settings.IncludePrivateMetadata = true;
+                }
                 string key = CacheKey(settings);
                 if (key != null && _encodings.TryGetValue(key, out var cached))
                 {
@@ -173,7 +186,7 @@ namespace Greenshot.Base.Core.Export
                 }
 
                 byte[] bytes;
-                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, settings.Format))
+                if (greenshotFormat)
                 {
                     // The greenshot format serializes the elements of the surface: UI thread
                     bytes = await _ui.InvokeAsync(() =>
@@ -206,6 +219,26 @@ namespace Greenshot.Base.Core.Export
             }
         }
 
+        /// <summary>
+        /// The answer to <see cref="AskToKeepPrivateMetadata"/>, asked once; false without private details or without someone to ask
+        /// </summary>
+        private async Task<bool> KeepPrivateMetadataLockedAsync(CancellationToken cancellationToken)
+        {
+            if (_keepPrivateMetadata.HasValue)
+            {
+                return _keepPrivateMetadata.Value;
+            }
+            var ask = AskToKeepPrivateMetadata;
+            if (ask == null)
+            {
+                // Not remembered: a later interactive export of this source may still ask
+                return false;
+            }
+            var details = ExportImageMetadata.ForExport(_surface.CaptureDetails, true);
+            _keepPrivateMetadata = details.HasPrivateDetails && await ask(details, cancellationToken).ConfigureAwait(false);
+            return _keepPrivateMetadata.Value;
+        }
+
         public Task<T> UseSurfaceAsync<T>(Func<ISurface, T> use, CancellationToken cancellationToken)
         {
             if (use == null) throw new ArgumentNullException(nameof(use));
@@ -223,7 +256,7 @@ namespace Greenshot.Base.Core.Export
                 return null;
             }
 
-            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.PngCompressionLevel}|{settings.EncodingCacheKey}";
+            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.PngCompressionLevel}|{settings.IncludePrivateMetadata}|{settings.EncodingCacheKey}";
         }
 
         private void ThrowIfDisposed()

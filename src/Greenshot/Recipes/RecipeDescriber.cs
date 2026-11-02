@@ -333,6 +333,10 @@ namespace Greenshot.Recipes
                 var names = node.GetParameter<Dictionary<string, object>>("Variables")?.Keys.ToList() ?? new List<string>();
                 return names.Count == 1 ? $"Sets the variable {names[0]}" : $"Sets the variables {string.Join(", ", names)}";
             }
+            if (Is(type, WellKnownStepTypes.SetMetadata))
+            {
+                return "Sets the details written into the saved image";
+            }
             if (Is(type, WellKnownStepTypes.Clipboard))
             {
                 return "Copies the result to the clipboard";

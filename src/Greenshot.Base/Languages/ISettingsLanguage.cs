@@ -811,6 +811,51 @@ namespace Greenshot.Base.Languages
         string Reducecolors { get; }
 
         /// <summary>
+        /// Details in saved images
+        /// </summary>
+        string ExportMetadata { get; }
+
+        /// <summary>
+        /// When the screen was captured
+        /// </summary>
+        string ExportMetadataCapturetime { get; }
+
+        /// <summary>
+        /// Author and copyright
+        /// </summary>
+        string ExportMetadataAuthor { get; }
+
+        /// <summary>
+        /// Window title and web address (private)
+        /// </summary>
+        string ExportMetadataSource { get; }
+
+        /// <summary>
+        /// Recognized text, when OCR already ran (private)
+        /// </summary>
+        string ExportMetadataText { get; }
+
+        /// <summary>
+        /// Content of barcodes and QR codes (private)
+        /// </summary>
+        string ExportMetadataBarcodes { get; }
+
+        /// <summary>
+        /// Author
+        /// </summary>
+        string ExportMetadataAuthorName { get; }
+
+        /// <summary>
+        /// Copyright
+        /// </summary>
+        string ExportMetadataCopyright { get; }
+
+        /// <summary>
+        /// Files saved on this computer get the private details. Before they go anywhere else (upload, e-mail, Office), Greenshot asks whether to remove them.
+        /// </summary>
+        string ExportMetadataPrivateHint { get; }
+
+        /// <summary>
         /// Register Hotkeys
         /// </summary>
         string Registerhotkeys { get; }

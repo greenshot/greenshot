@@ -86,6 +86,7 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.TextEffect,
             WellKnownStepTypes.Annotation,
             WellKnownStepTypes.SetVariable,
+            WellKnownStepTypes.SetMetadata,
             WellKnownStepTypes.SaveFile,
             WellKnownStepTypes.Clipboard,
             WellKnownStepTypes.Editor,

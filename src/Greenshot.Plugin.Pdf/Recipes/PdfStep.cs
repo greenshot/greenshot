@@ -88,7 +88,7 @@ public sealed class PdfStep : ICaptureStep
             ScalingMode = NodeConfig.GetParameter("ScalingMode", _configuration.ScalingMode)
         };
         var destination = new PdfDestination(configuration, NodeConfig.GetParameter("ShowSaveDialog", true));
-        var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+        var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
         var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
         await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
         // The Notification step shows it

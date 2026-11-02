@@ -27,6 +27,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
@@ -59,7 +60,8 @@ public static class PngOptimizer
     /// <param name="bitmap">Bitmap to write</param>
     /// <param name="destination">Stream to write to</param>
     /// <param name="outputSettings">The compression level, and DisableReduceColors to never write a palette</param>
-    public static unsafe void Save(Bitmap bitmap, Stream destination, SurfaceOutputSettings outputSettings)
+    /// <param name="metadata">The details to write into the file, null for only the program name</param>
+    public static unsafe void Save(Bitmap bitmap, Stream destination, SurfaceOutputSettings outputSettings, ExportImageMetadata metadata = null)
     {
         var options = new Options(
             (PngCompressionLevel)Math.Max(1, Math.Min(9, outputSettings.PngCompressionLevel)),
@@ -70,7 +72,7 @@ public static class PngOptimizer
         if (!isArgb && !isRgb)
         {
             using var copy = ImageSharpHelper.ConvertToImageSharp(bitmap);
-            Save(copy, bitmap, destination, options);
+            Save(copy, bitmap, destination, options, metadata);
             return;
         }
 
@@ -80,7 +82,7 @@ public static class PngOptimizer
             using Image image = isArgb
                 ? Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height)
                 : Image.WrapMemory<Bgr24>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height);
-            Save(image, bitmap, destination, options);
+            Save(image, bitmap, destination, options, metadata);
         }
         finally
         {
@@ -102,12 +104,17 @@ public static class PngOptimizer
         public bool UsePalette { get; }
     }
 
-    private static void Save(Image image, Bitmap bitmap, Stream destination, Options options)
+    private static void Save(Image image, Bitmap bitmap, Stream destination, Options options, ExportImageMetadata metadata)
     {
         image.Metadata.ResolutionUnits = PixelResolutionUnit.PixelsPerInch;
         image.Metadata.HorizontalResolution = bitmap.HorizontalResolution;
         image.Metadata.VerticalResolution = bitmap.VerticalResolution;
-        image.Metadata.GetPngMetadata().TextData.Add(new PngTextData("Software", "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true), string.Empty, string.Empty));
+        image.Metadata.GetPngMetadata().TextData.Add(new PngTextData("Software", metadata?.Software ?? "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true), string.Empty, string.Empty));
+        // More than the program name goes into eXIf and XMP chunks: Windows shows the XMP, other programs the EXIF, nobody the other text chunks
+        if (metadata is { HasDetails: true })
+        {
+            metadata.ApplyTo(image.Metadata);
+        }
         switch (image)
         {
             case Image<Bgr24> bgr24:

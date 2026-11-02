@@ -100,7 +100,7 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
 
             string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
 
-            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(pageId) && long.TryParse(pageId, out long parsedPageId))
             {
                 context.LogStep($"Uploading capture to Confluence page '{parsedPageId}'...");
