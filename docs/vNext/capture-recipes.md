@@ -61,8 +61,8 @@ go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by
 ### Recipes from the catalog
 
 The [recipe catalog](https://github.com/greenshot/greenshot-recipes) collects reviewed recipes. Its pages on
-getgreenshot.org have an "Install" button, which opens the link `greenshot:install-recipe?id=<id>`; the recipe manager
-offers "Get More Recipes" (beta testers only) to open the catalog. Greenshot then:
+getgreenshot.org have an "Install" button, which opens the link `greenshot:install-recipe?id=<id>`; the recipe manager and
+Settings > Recipes offer "Get More Recipes" (beta testers only) to open the catalog. Greenshot then:
 
 1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
    are part of Greenshot); an index without a valid signature is refused,

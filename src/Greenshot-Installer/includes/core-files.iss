@@ -19,6 +19,7 @@ Source: {#ReleaseDir}\Dapplo.Windows.DesktopWindowsManager.dll; DestDir: {app}; 
 Source: {#ReleaseDir}\Dapplo.Windows.Dpi.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Gdi32.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Icons.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Windows.Imaging.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Input.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Kernel32.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Messages.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

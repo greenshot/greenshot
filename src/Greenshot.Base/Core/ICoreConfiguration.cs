@@ -75,6 +75,11 @@ namespace Greenshot.Base.Core
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }
 
+        [Description("zlib compression level (1-9) for the PNG on the clipboard, it's made on every copy, so a lower level copies faster.")]
+        [DefaultValue(8)]
+        [Range(1, 9, ErrorMessage = "Clipboard PNG compression level must be between 1 and 9.")]
+        int ClipboardPngCompressionLevel { get; set; }
+
         [Description("Should the mouse be captured?")]
         [DefaultValue(true)]
         bool CaptureMousepointer { get; set; }
@@ -142,6 +147,15 @@ namespace Greenshot.Base.Core
         [Description("Amount of colors to reduce to, when reducing")]
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
+
+        [Description("zlib compression level (1-9) for PNG files and uploads, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
+        [DefaultValue(9)]
+        [Range(1, 9, ErrorMessage = "PNG compression level must be between 1 and 9.")]
+        int OutputFilePngCompressionLevel { get; set; }
+
+        [Description("Write a PNG with 256 colors or fewer with a palette, which is much smaller. Set to false if an application can't read these PNG files.")]
+        [DefaultValue(true)]
+        bool OutputFilePngPalette { get; set; }
 
         [Description("When saving a screenshot, copy the path to the clipboard?")]
         [DefaultValue(true)]
@@ -399,14 +413,6 @@ namespace Greenshot.Base.Core
         [Description("The 'BCC' field for the email destination (settings for Outlook can be found under the Office section)")]
         [DefaultValue("")]
         string MailApiBCC { get; set; }
-
-        [Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
-        [DefaultValue("")]
-        string OptimizePNGCommand { get; set; }
-
-        [Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.")]
-        [DefaultValue("\"{0}\"")]
-        string OptimizePNGCommandArguments { get; set; }
 
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }

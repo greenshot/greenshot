@@ -2084,7 +2084,7 @@ namespace Greenshot.Editor.Drawing
             {
                 // check whether an existing element was clicked
                 IDrawableContainer element = _elements.ClickableElementAt(currentMouse.X, currentMouse.Y);
-                bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
+                bool shiftModifier = (InputState.ModifierKeys & Keys.Shift) == Keys.Shift;
                 if (element != null)
                 {
                     element.Invalidate();
@@ -2547,7 +2547,7 @@ namespace Greenshot.Editor.Drawing
         {
             base.OnGotFocus(e);
             // Tab shows the focus cues of the window; the focus which the canvas gets when the editor opens or after a click doesn't
-            _showFocusFrame = MouseButtons == MouseButtons.None && ShowFocusCues;
+            _showFocusFrame = InputState.MouseButtons == MouseButtons.None && ShowFocusCues;
             InvalidateFocusFrame();
             NotifyAccessibleFocus();
         }
@@ -3441,7 +3441,7 @@ namespace Greenshot.Editor.Drawing
         {
             // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
             // (Esc must reach the window, which cancels the drag of the tab)
-            if (KeysLocked || MouseButtons != MouseButtons.None)
+            if (KeysLocked || InputState.MouseButtons != MouseButtons.None)
             {
                 return false;
             }

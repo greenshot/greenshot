@@ -94,6 +94,17 @@ namespace Greenshot.Recipes.Catalog
         public static string GetPageUrl(string recipeId) => string.Format(PageUrlFormat, Uri.EscapeDataString(recipeId ?? string.Empty));
 
         /// <summary>
+        /// The catalog on the website, with the recipes this Greenshot can use
+        /// </summary>
+        public static string GetCatalogUrl() => "https://getgreenshot.org/recipes/?from=greenshot&version=" + Uri.EscapeDataString(GreenshotVersionProvider()?.ToString(3) ?? string.Empty);
+
+        /// <summary>
+        /// "Get More Recipes" is offered to beta testers, when recipe files can be installed and the administrator allows the catalog
+        /// </summary>
+        public static bool CanGetMoreRecipes(ICoreConfiguration coreConfiguration) =>
+            coreConfiguration?.IsBetaTester == true && GetRefusal("catalog") == null;
+
+        /// <summary>
         /// Installs (or updates) the recipe with this id from the catalog. Everything that goes wrong is told to the user.
         /// </summary>
         /// <param name="recipeId">The id of the recipe in the catalog</param>

@@ -22,6 +22,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -40,6 +42,24 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             return 0;
         }
+
+        /// <summary>
+        /// The priority of a handler which loads an image only when no other handler does (a lower value comes first), e.g. when WIC has no decoder for it
+        /// </summary>
+        protected const int FallbackLoadPriority = 10;
+
+        /// <summary>
+        /// The priority of a handler which saves a format before the others (a lower value comes first), e.g. WIC on Windows
+        /// </summary>
+        protected const int PreferredSavePriority = -10;
+
+        /// <summary>
+        /// A loaded photo is turned upright by its EXIF orientation, unless ProcessEXIFOrientation turns it off
+        /// </summary>
+        protected static bool ApplyExifOrientation => !IniConfigRegistry.TryGetSection<ICoreConfiguration>(out var coreConfiguration) || coreConfiguration.ProcessEXIFOrientation;
+
+        protected static bool IsLoadAction(FileFormatHandlerActions fileFormatHandlerAction) =>
+            fileFormatHandlerAction is FileFormatHandlerActions.LoadFromStream or FileFormatHandlerActions.LoadFromFile or FileFormatHandlerActions.LoadDrawableFromStream;
 
         public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 

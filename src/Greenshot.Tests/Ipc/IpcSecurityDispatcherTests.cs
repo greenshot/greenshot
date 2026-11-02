@@ -595,8 +595,10 @@ namespace Greenshot.Tests.Ipc
         {
             if (url.Contains("my-task"))
             {
+                // The recipe really runs in the background: a File source without a file aborts it before anything is captured.
+                // With the clipboard as source it took the user's clipboard and opened an editor on a pool thread (WinForms exception dialog).
                 var testRecipe = new CaptureRecipe("recipe_my_task", "My Task")
-                    .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
+                    .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.File } })
                     .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true,
                             arguments: new[] { new CommandlineArgument { Name = "destination", Variable = "Destination" } })
                         .SetParameter("AllowBrowserInvocation", true));

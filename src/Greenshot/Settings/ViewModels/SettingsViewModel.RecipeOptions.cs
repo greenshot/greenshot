@@ -43,6 +43,16 @@ namespace Greenshot.Settings.ViewModels
 
         public bool HasRecipeOptions => RecipeOptionGroups.Count > 0;
 
+        /// <summary>
+        /// "Get More Recipes" opens the recipe catalog (beta)
+        /// </summary>
+        public bool CanGetMoreRecipes => Greenshot.Recipes.Catalog.RecipeCatalogInstaller.CanGetMoreRecipes(CoreConfiguration);
+
+        /// <summary>
+        /// The Recipes tab: options to set, or the catalog to get recipes from
+        /// </summary>
+        public bool HasRecipesTab => HasRecipeOptions || CanGetMoreRecipes;
+
         public bool HasRecipeChanges => RecipeChanges.Count > 0;
 
         public bool HasNoRecipeChanges => !HasRecipeChanges;
@@ -74,6 +84,7 @@ namespace Greenshot.Settings.ViewModels
             }
             UpdateRecipeChanges();
             OnPropertyChanged(nameof(HasRecipeOptions));
+            OnPropertyChanged(nameof(HasRecipesTab));
         }
 
         /// <summary>
