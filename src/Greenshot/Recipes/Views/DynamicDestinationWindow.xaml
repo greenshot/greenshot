@@ -399,7 +399,7 @@
             </Border>
 
             <!-- Full-window preview image: 1:1 (a capture pixel is a screen pixel) when it fits, else made smaller, never bigger -->
-            <Border Margin="20,48,20,20" ClipToBounds="True">
+            <Border x:Name="FullPreviewArea" Margin="20,48,20,20" ClipToBounds="True" UseLayoutRounding="True">
                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image x:Name="FullPreviewImage" Source="{Binding PreviewImageSource}" Stretch="Fill"
                            RenderOptions.BitmapScalingMode="HighQuality"/>

@@ -575,11 +575,26 @@ namespace Greenshot.Recipes.Views
             var scaleXAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
             var scaleYAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
 
+            // At 1:1 the pixels are copied, not resampled (smoothing shifts and blurs them); a capture which doesn't fit is made smaller smoothly
+            UpdateLayout();
+            bool fits = FullPreviewImage.Width <= FullPreviewArea.ActualWidth && FullPreviewImage.Height <= FullPreviewArea.ActualHeight;
+            RenderOptions.SetBitmapScalingMode(FullPreviewImage, fits ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.HighQuality);
+            // The zoom-in ends at exactly 1, without a transform left on the pixels
+            scaleXAnim.Completed += (s, e) => EndZoomAnimation();
+
             FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
             PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
             PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
             // The keyboard focus goes into the preview, else it stays on the hidden controls behind it
             FullPreviewCloseButton.Focus();
+        }
+
+        private void EndZoomAnimation()
+        {
+            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            PreviewScale.ScaleX = 1.0;
+            PreviewScale.ScaleY = 1.0;
         }
 
         private void CloseFullscreenPreview()
