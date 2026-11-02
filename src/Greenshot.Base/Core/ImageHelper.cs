@@ -784,7 +784,11 @@ namespace Greenshot.Base.Core
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 using (GraphicsPath path = new GraphicsPath())
                 {
-                    path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
+                    // The pen is centered on the path, so the path runs along the middle of the border.
+                    // With an odd borderSize this is on a half pixel, an integer shift (borderSize >> 1) would move the border
+                    // by half a pixel: blurred on the left and top, and the last column and row at the right and bottom stay empty.
+                    float halfBorder = borderSize / 2f;
+                    path.AddRectangle(new RectangleF(halfBorder, halfBorder, newImage.Width - borderSize, newImage.Height - borderSize));
                     using Pen pen = new Pen(borderColor, borderSize)
                     {
                         LineJoin = LineJoin.Round,
