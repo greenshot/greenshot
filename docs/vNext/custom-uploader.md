@@ -173,7 +173,7 @@ A re-import fetches it again. Without an icon (the fetch failed, an uploader imp
 | `{response}` | | the response text |
 | `{responseurl}` | | the url which answered (the request url, redirects are not followed) |
 | `{header:name}` | | a response header |
-| `{json:path}`, `{json:input\|path}` | | JSONPath, `$.` in front is optional (`data.link`, `[0].url`) |
+| `{json:path}`, `{json:input\|path}` | | JSONPath, `$.` in front is optional (`data.link`, `[0].url`, `['a b']`); names and array indexes only, no wildcards or filters |
 | `{xml:xpath}`, `{xml:input\|xpath}` | | the text of the first node; no DTD, no external entities |
 | `{regex:pattern}`, `{regex:pattern\|group}`, `{regex:input\|pattern\|group}` | | the match, or the group by number or name; 2 seconds at most |
 
@@ -183,6 +183,24 @@ is the link, like in ShareX.
 
 Headers starting with `Content-`: a binary body takes `Content-Type` from them, a multipart body keeps its own (it carries
 the boundary); `Content-Length` is always computed.
+
+### Differences from ShareX
+
+ShareX reads `.sxcu` files and responses with Json.NET, as Greenshot did until it moved to System.Text.Json. Files are read
+as leniently as before (comments, trailing commas, property names in any casing, unknown properties), but a few corner
+cases give a different result:
+
+| What | ShareX (Json.NET) | Greenshot |
+|---|---|---|
+| `{json:path}` with a wildcard (`files[*].url`), recursive descent (`$..url`) or a filter (`files[?(@.type=='image')].url`) | full JSONPath | not supported: the upload fails with "Only names and array indexes are supported in a JSON path", it never gives a wrong link. Names (`data.link`, `['direct link']`) and array indexes (`files[0]`) work as before |
+| `{json:path}` pointing at a number or boolean in the response | the value converted: `1.0` gives `1`, `true` gives `True` | the JSON text: `1.0` gives `1.0`, `true` gives `true`. Strings and whole numbers (ids) are the same |
+| A response with the same property twice | the last one counts | the response doesn't fit, the upload fails |
+| A number or boolean without quotes in `Parameters`, `Headers` or `Arguments` of the file (`"expiry": 1.0`) | the value converted: `1.0` is sent as `1`, `true` as `True` | sent as written in the file: `1.0`, `true`. Quoted values (`"expiry": "1.0"`, what ShareX exports) are the same |
+
+System.Text.Json has no JSONPath, `UploaderResponse.Json` walks the supported part itself. Wildcards and recursive descent
+could be added there when a real uploader needs them; filters would need an expression parser. The conversions are in
+`LenientStringConverter` (Greenshot.Base/Serialization). `TestData/Sxcu` and `JsonNetCompatibilityTests` cover the
+supported cases.
 
 ### Rules
 

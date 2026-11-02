@@ -38,12 +38,10 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorPlugin));
     private static IRecipeConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
     private static RecipeEditorWindow _activeRecipeEditorWindow;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -62,32 +60,9 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;
 
-    /// <summary>
-    /// Add the quick link to the context menu (on the UI thread)
-    /// </summary>
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private void Start()
-    {
-        if (_config != null && _config.QuicklinkEnabled)
-        {
-            _itemPlugInConfig = new TrayMenuEntry
-            {
-                Text = Texts.Core.ContextmenuRecipeeditor ?? "Recipe Editor...",
-                Visible = true
-            };
-            _itemPlugInConfig.Click += (s, e) => OpenEditor();
-            PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
-        }, cancellationToken);
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public bool IsEditorOpen => _activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded;
 

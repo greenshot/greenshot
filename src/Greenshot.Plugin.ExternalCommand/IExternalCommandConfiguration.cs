@@ -31,10 +31,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 [Description("Greenshot ExternalCommand Plugin configuration")]
 public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 {
-    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
-    [DefaultValue(false)]
-    bool QuicklinkEnabled { get; set; }
-
     [Description("The commands that are available.")]
     List<string> Commands { get; set; }
 

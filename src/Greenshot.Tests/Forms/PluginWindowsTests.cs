@@ -23,7 +23,7 @@ using System;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Greenshot.Plugin.Jira.Views;
+using Greenshot.Plugin.Atlassian.Jira.Views;
 using Xunit;
 
 namespace Greenshot.Tests.Forms

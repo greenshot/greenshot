@@ -62,19 +62,6 @@ public partial class ExternalCommandConfigurationView : UserControl, INotifyProp
 
     public bool HasSelectedCommand => SelectedCommand != null;
 
-    public bool QuicklinkEnabled
-    {
-        get => ExternalCommandConfig?.QuicklinkEnabled ?? false;
-        set
-        {
-            if (ExternalCommandConfig != null && ExternalCommandConfig.QuicklinkEnabled != value)
-            {
-                ExternalCommandConfig.QuicklinkEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-    }
-
     public bool RedirectStandardError
     {
         get => ExternalCommandConfig?.RedirectStandardError ?? true;

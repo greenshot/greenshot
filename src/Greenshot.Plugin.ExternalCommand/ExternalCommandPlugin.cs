@@ -46,13 +46,10 @@ namespace Greenshot.Plugin.ExternalCommand;
 public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-    private static ICoreConfiguration CoreConfig;
     private static IExternalCommandConfiguration ExternalCommandConfig;
-    private TrayMenuEntry _itemPlugInRoot;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -128,7 +125,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     /// </summary>
     private IEnumerable<IDestination> CreateDestinations()
     {
-        CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         return ExternalCommandConfig.Commands
             .Where(IsCommandValid)
             .Select(command => (IDestination)new ExternalCommandDestination(command))
@@ -145,96 +141,8 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         registry.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
     }
 
-    /// <summary>
-    /// Add the quick link to the context menu (on the UI thread)
-    /// </summary>
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private void Start()
-    {
-        _itemPlugInRoot = new TrayMenuEntry();
-        _itemPlugInRoot.Click += ConfigMenuClick;
-        OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
-        OnLanguageChanged(this, null);
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        PluginUtils.AddToContextMenu(_itemPlugInRoot);
-        _itemPlugInRoot.Visible = ExternalCommandConfig?.QuicklinkEnabled ?? false;
-        if (ExternalCommandConfig is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        CoreConfig.PropertyChanged += OnIconSizeChanged;
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IExternalCommandConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInRoot != null)
-            {
-                _itemPlugInRoot.Visible = ExternalCommandConfig?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Fix icon reference
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == "IconSize")
-        {
-            try
-            {
-                string exePath = PluginUtils.GetExePath("cmd.exe");
-                if (exePath != null && File.Exists(exePath))
-                {
-                    var icon = PluginUtils.GetCachedExeIcon(exePath, 0);
-                    // Clone the icon to prevent issues when the cache is cleared
-                    var iconClone = icon != null ? ImageHelper.Clone(icon) : null;
-                    // Dispose the previous image before assigning the new one
-                    var oldImage = _itemPlugInRoot.Image;
-                    _itemPlugInRoot.Image = iconClone;
-                    oldImage?.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't get the cmd.exe image", ex);
-            }
-        }
-    }
-
-    private void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInRoot != null)
-        {
-            _itemPlugInRoot.Text = PluginUtils.GetQuicklinkText("External command");
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            Log.Debug("Shutdown");
-            if (ExternalCommandConfig is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
-
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            CoreConfig.PropertyChanged -= OnIconSizeChanged;
-            _itemPlugInRoot?.Dispose();
-            _itemPlugInRoot = null;
-        }, cancellationToken);
-
-    private void ConfigMenuClick(object sender, EventArgs eventArgs)
-    {
-        // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
 }

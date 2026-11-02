@@ -139,6 +139,7 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 
 * Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager), `-Embedding` (added by Windows when it starts Greenshot for a click on a notification, ignored by Greenshot, see [notifications.md](notifications.md)) and `--help`.
 * Everything after them is a command in the syntax of `greenshot-cli.exe` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot-cli.exe`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
+* `--reload` reads the configuration again and applies it (language, hotkeys). greenshot.ini is locked while Greenshot runs, so it can't change underneath; what `--reload` picks up is a changed `greenshot-fixed.ini`, e.g. a value an administrator rolled out. `greenshot-defaults.ini` only fills keys missing in greenshot.ini, which holds every key once it was saved, so a changed default rarely shows.
 * `Greenshot.exe` shows no output of the command; use `greenshot-cli.exe` for that.
 
 ### 2.2 Cold-Start Orchestration & Concurrency
@@ -160,6 +161,7 @@ Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URI
 | `greenshot:recipe-editor` | Visual Recipe Editor | `?recipe=<recipe-id>` |
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
 | `greenshot:recipe/<id>` | Executes a specific recipe | Arbitrary query parameters passed as recipe variables |
+| `greenshot:install-recipe` | Installs a recipe from the recipe catalog, after the approval window (see [capture-recipes.md](capture-recipes.md#recipes-from-the-catalog)) | `?id=<catalog id>` |
 
 Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A link never changes a setting: `greenshot:log` only filters the log, the log level is changed only in the log viewer itself. A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
 
@@ -175,6 +177,7 @@ Every link written out, for testing after an install. Click a link in a Markdown
 | [greenshot://settings?tab=destination](greenshot://settings?tab=destination) | Settings, Destinations tab |
 | [greenshot://settings?tab=editor](greenshot://settings?tab=editor) | Settings, Editor tab |
 | [greenshot://settings?tab=printer](greenshot://settings?tab=printer) | Settings, Printer tab |
+| [greenshot://settings?tab=viewer](greenshot://settings?tab=viewer) | Settings, Viewer tab |
 | [greenshot://settings?tab=plugins](greenshot://settings?tab=plugins) | Settings, Plugins tab |
 | [greenshot://settings?tab=recipes](greenshot://settings?tab=recipes) | Settings, Recipes tab |
 | [greenshot://settings?tab=expert](greenshot://settings?tab=expert) | Settings, Expert tab, only when the expert settings are shown |
@@ -188,6 +191,7 @@ Every link written out, for testing after an install. Click a link in a Markdown
 | [greenshot://settings?plugin=RecipeEditor](greenshot://settings?plugin=RecipeEditor) | Settings, Plugins tab with RecipeEditor selected |
 | [greenshot://settings?plugin=Zxing](greenshot://settings?plugin=Zxing) | Settings, Plugins tab with Zxing selected |
 | [greenshot://settings?tab=Jira](greenshot://settings?tab=Jira) | Settings, Plugins tab with Jira selected (an unknown tab name is taken as a plugin name) |
+| [greenshot://install-recipe?id=qr_codes_showcase](greenshot://install-recipe?id=qr_codes_showcase) | Approval window of the catalog recipe qr_codes_showcase |
 | [greenshot://about](greenshot://about) | About |
 | [greenshot://self-service](greenshot://self-service) | Self-Service, System section |
 | [greenshot://self-service?section=system](greenshot://self-service?section=system) | Self-Service, System |
@@ -354,14 +358,14 @@ To add a new route (e.g., `greenshot:quick-export`):
        {
            Command = "QUICK_EXPORT",
            Source = "url_scheme",
-           Payload = JObject.FromObject(queryParams)
+           Parameters = new Dictionary<string, string>(queryParams, StringComparer.OrdinalIgnoreCase)
        };
    ```
 
 3. **Implement Action Handler**:
    ```csharp
    case "QUICK_EXPORT":
-       await HandleQuickExportAsync(envelope.Payload, context);
+       await HandleQuickExportAsync(envelope.Parameters, context);
        break;
    ```
    Ensure any UI code is marshaled via `UiDispatcher.Current`.

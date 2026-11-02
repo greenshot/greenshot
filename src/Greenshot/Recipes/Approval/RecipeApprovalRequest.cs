@@ -111,7 +111,19 @@ namespace Greenshot.Recipes.Approval
         /// </summary>
         public IReadOnlyList<string> ExtensionReach { get; set; }
 
+        /// <summary>
+        /// A recipe from the recipe catalog: its entry in the signed index (version, authors, license)
+        /// </summary>
+        public Catalog.RecipeCatalogEntry CatalogEntry { get; set; }
+
+        /// <summary>
+        /// The recipe's options are shown with their values, to be set before approving (<see cref="ApprovalResult.OptionValues"/>)
+        /// </summary>
+        public bool EditOptions { get; set; }
+
         public bool IsOwnEdit => OwnEditReasons != null;
+
+        public bool IsFromCatalog => CatalogEntry != null;
 
         public bool IsAiProposal => !string.IsNullOrEmpty(ProposedByName);
     }

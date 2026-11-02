@@ -29,6 +29,9 @@ Type: files; Name: "{app}\Languages\language*.xml"
 Type: filesandordirs; Name: "{app}\Languages\Plugins"
 // Greenshot no longer uploads to Imgur, the plugin was removed (Self-Service deletes the earlier uploads)
 Type: files; Name: "{app}\Languages\greenshot.imgur.*.ini"
+// Jira and Confluence are one plugin, its texts are in greenshot.atlassian.*.ini: the old packs would load the sections a second time
+Type: files; Name: "{app}\Languages\greenshot.jira.*.ini"
+Type: files; Name: "{app}\Languages\greenshot.confluence.*.ini"
 
 // Delete plugins from Greenshot 1.2
 Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"
@@ -45,6 +48,7 @@ Type: filesandordirs; Name: "{app}\Plugins\GreenshotPicasaPlugin"
 
 // Plugin directories as installed now (the same as in the portable version and the build output).
 // Removed first, so no file of an older version stays behind.
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Atlassian"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Box"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Confluence"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.CustomUploader"

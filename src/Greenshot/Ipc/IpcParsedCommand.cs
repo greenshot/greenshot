@@ -21,13 +21,13 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Ipc
 {
     public class IpcParsedCommand
     {
-        [JsonProperty("parameters")]
+        [JsonPropertyName("parameters")]
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 }

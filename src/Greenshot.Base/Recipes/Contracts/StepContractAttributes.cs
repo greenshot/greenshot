@@ -33,12 +33,6 @@ namespace Greenshot.Base.Recipes.Contracts
         public string Description { get; set; }
         public string Category { get; set; }
 
-        /// <summary>
-        /// The step also reads parameters that are not declared (e.g. the properties of an annotation), so undeclared
-        /// parameters are not reported.
-        /// </summary>
-        public bool AcceptsUndeclaredParameters { get; set; }
-
         public StepInfoAttribute(string stepType, string displayName = null, string description = null, string category = null)
         {
             StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
@@ -77,6 +71,14 @@ namespace Greenshot.Base.Recipes.Contracts
         public Type AllowedValuesProvider { get; set; }
 
         public bool SupportsExpressions { get; set; } = true;
+
+        /// <summary>
+        /// For an Object parameter: the type of its value, e.g. <c>typeof(List&lt;ConditionalBranch&gt;)</c>. A recipe's value is read
+        /// strictly into this type when the recipe is validated (names as declared, no unknown properties, types as declared).
+        /// The type has to be in a JSON context registered with <see cref="Pipeline.IStepRegistry.RegisterJsonTypes"/>
+        /// before the step is registered.
+        /// </summary>
+        public Type ValueType { get; set; }
 
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
         {
@@ -163,7 +165,10 @@ namespace Greenshot.Base.Recipes.Contracts
                     p.DefaultValue,
                     p.Description,
                     p.AllowedValues,
-                    p.SupportsExpressions);
+                    p.SupportsExpressions)
+                {
+                    ValueType = p.ValueType
+                };
                 if (p.AllowedValuesProvider != null)
                 {
                     if (!typeof(IAllowedValuesProvider).IsAssignableFrom(p.AllowedValuesProvider))
@@ -223,8 +228,7 @@ namespace Greenshot.Base.Recipes.Contracts
                 outVarsList,
                 payloadContract)
             {
-                ImplementationType = stepType,
-                AcceptsUndeclaredParameters = infoAttr?.AcceptsUndeclaredParameters ?? false
+                ImplementationType = stepType
             };
         }
     }

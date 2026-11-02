@@ -257,7 +257,7 @@ namespace Greenshot.Document.Editor
                         ? AddImage(resources, imageContainer.Image)
                         : AddResource(resources, imageContainer.OriginalMediaType, imageContainer.OriginalData)),
                     IconContainer icon => new ImageElement(id, area, AddIcon(resources, icon.Icon)),
-                    SvgContainer svg => new ImageElement(id, area, AddResource(resources, "image/svg+xml", svg.SvgData)) { Rotation = svg.RotationAngle },
+                    SvgContainer svg => new ImageElement(id, area, AddResource(resources, "image/svg+xml", svg.SvgContent)) { Rotation = svg.RotationAngle },
                     // The document has no EMF/WMF, the metafile becomes a PNG in its own size
                     MetafileContainer metafile => new ImageElement(id, area, AddImage(resources, metafile.Metafile)) { Rotation = metafile.RotationAngle },
                     EmojiContainer emoji => new EmojiElement(id, area, emoji.Emoji) { Rotation = emoji.RotationAngle },

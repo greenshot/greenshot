@@ -45,13 +45,10 @@ namespace Greenshot.Settings.ViewModels
         public RecipeOptionGroupViewModel(FlowDefinition definition, IReadOnlyList<CaptureRecipe> extensibleRecipes)
         {
             _definition = definition;
-            Items = new ObservableCollection<RecipeOptionViewModel>((definition.Options ?? new List<RecipeOption>()).Where(o => o != null).Select(o => new RecipeOptionViewModel(o, RecipeOptionStore.GetValue(definition, o))));
+            // A Hotkey option is set with the other hotkeys on the General tab
+            Items = new ObservableCollection<RecipeOptionViewModel>(RecipeOptionViewModel.CreateItems(definition, withHotkeys: false));
             foreach (var item in Items)
             {
-                if (!string.IsNullOrWhiteSpace(item.Option.EnabledWhen))
-                {
-                    item.Switch = Items.FirstOrDefault(i => string.Equals(i.Option.Key, item.Option.EnabledWhen, StringComparison.OrdinalIgnoreCase) && i.IsBoolean);
-                }
                 item.PropertyChanged += (sender, args) => OnChanged();
             }
 
@@ -66,7 +63,7 @@ namespace Greenshot.Settings.ViewModels
                 // Checked: the extension changes the recipe. New recipes get it too, so only the unchecked ones are stored.
                 var stored = RecipeExtensionSettings.FromStore(Extension);
                 UseIn = new ObservableCollection<RecipeScopeViewModel>((extensibleRecipes ?? Array.Empty<CaptureRecipe>())
-                    .Select(r => new RecipeScopeViewModel(r.Id, r.Name ?? r.Id, (stored.ApplyToAll || stored.OnlyRecipes.Contains(r.Id)) && !stored.ExceptRecipes.Contains(r.Id))));
+                    .Select(r => new RecipeScopeViewModel(r.Id, r.DisplayName, (stored.ApplyToAll || stored.OnlyRecipes.Contains(r.Id)) && !stored.ExceptRecipes.Contains(r.Id))));
                 OnlyDestinations = new ObservableCollection<RecipeScopeViewModel>();
                 if (IsDestinationSlot)
                 {
@@ -100,9 +97,9 @@ namespace Greenshot.Settings.ViewModels
 
         public string Id => _definition.Id;
 
-        public string Name => RecipeText.Translate(_definition.Name ?? _definition.Id);
+        public string Name => _definition.DisplayName;
 
-        public string Description => RecipeText.Translate(_definition.Description);
+        public string Description => _definition.DisplayDescription;
 
         /// <summary>
         /// All options, the on/off option of an extension included

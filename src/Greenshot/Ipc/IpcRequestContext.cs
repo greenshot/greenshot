@@ -23,11 +23,12 @@ using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 #if !GREENSHOT_LIGHT
 using Greenshot.Ai;
 #endif
@@ -51,11 +52,6 @@ namespace Greenshot.Ipc
         public const byte TextFrameStdout = (byte)'O';
         public const byte TextFrameStderr = (byte)'E';
         public const byte TextFrameExit = (byte)'X';
-
-        private static readonly JsonSerializer ReplySerializer = JsonSerializer.Create(new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.None
-        });
 
         /// <summary>
         /// Shared by a request and the contexts derived from it (see <see cref="WithEnvelope"/>), so the final reply is sent only once.
@@ -151,19 +147,16 @@ namespace Greenshot.Ipc
 
             if (!UsesTextFrames)
             {
-                string json = JsonConvert.SerializeObject(responsePayload, new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.None
-                });
+                string json = JsonSerializer.Serialize(responsePayload, GreenshotJson.Options);
                 await WriteFrameAsync(Encoding.UTF8.GetBytes(json), cancellationToken).ConfigureAwait(false);
                 return;
             }
 
-            var reply = JObject.FromObject(responsePayload, ReplySerializer);
-            string stream = reply.Value<string>("stream");
+            var reply = JsonSerializer.SerializeToNode(responsePayload, GreenshotJson.Options) as JsonObject ?? new JsonObject();
+            string stream = GetText(reply, "stream");
             if (stream != null)
             {
-                string text = reply.Value<string>("text");
+                string text = GetText(reply, "text");
                 byte type = string.Equals(stream, "stderr", StringComparison.OrdinalIgnoreCase) ? TextFrameStderr : TextFrameStdout;
                 await WriteTextFrameAsync(type, text, cancellationToken).ConfigureAwait(false);
                 return;
@@ -178,20 +171,29 @@ namespace Greenshot.Ipc
             if (Envelope.Json)
             {
                 // --json: the reply object is the result document
-                await WriteTextFrameAsync(TextFrameStdout, reply.ToString(Formatting.None), cancellationToken).ConfigureAwait(false);
+                await WriteTextFrameAsync(TextFrameStdout, reply.ToJsonString(GreenshotJson.Options), cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await WriteTextFrameAsync(TextFrameStdout, reply.Value<string>("stdout"), cancellationToken).ConfigureAwait(false);
-                await WriteTextFrameAsync(TextFrameStderr, reply.Value<string>("stderr"), cancellationToken).ConfigureAwait(false);
+                await WriteTextFrameAsync(TextFrameStdout, GetText(reply, "stdout"), cancellationToken).ConfigureAwait(false);
+                await WriteTextFrameAsync(TextFrameStderr, GetText(reply, "stderr"), cancellationToken).ConfigureAwait(false);
             }
 
-            int exitCode = reply.Value<int?>("exit_code") ?? 0;
-            if (exitCode == 0 && string.Equals(reply.Value<string>("status"), "error", StringComparison.OrdinalIgnoreCase))
+            int exitCode = reply["exit_code"] is JsonValue exitCodeValue && exitCodeValue.TryGetValue(out int code) ? code : 0;
+            if (exitCode == 0 && string.Equals(GetText(reply, "status"), "error", StringComparison.OrdinalIgnoreCase))
             {
                 exitCode = 1;
             }
             await CompleteAsync(exitCode, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// A text value of the reply, null when it is missing or null; other values as their JSON
+        /// </summary>
+        private static string GetText(JsonObject reply, string name)
+        {
+            var value = reply[name];
+            return value is JsonValue jsonValue && jsonValue.TryGetValue(out string text) ? text : value?.ToJsonString();
         }
 
         /// <summary>

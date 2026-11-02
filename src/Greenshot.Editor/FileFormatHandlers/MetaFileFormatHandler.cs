@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -48,8 +49,9 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
-            RegisterFileFormat(registry, "emf", [".emf"], [], "emf", "image/emf", ["image/x-emf"], "Enhanced Metafile");
-            RegisterFileFormat(registry, "wmf", [".wmf"], [], "wmf", "image/wmf", ["image/x-wmf"], "Windows Metafile");
+            // Load-only, Greenshot doesn't write metafiles
+            RegisterFileFormat(registry, "emf", new[] { ".emf" }, Array.Empty<string>(), "emf", "image/emf", new[] { "image/x-emf" }, "Enhanced Metafile");
+            RegisterFileFormat(registry, "wmf", new[] { ".wmf" }, Array.Empty<string>(), "wmf", "image/wmf", new[] { "image/x-wmf" }, "Windows Metafile");
         }
 
         /// <inheritdoc />

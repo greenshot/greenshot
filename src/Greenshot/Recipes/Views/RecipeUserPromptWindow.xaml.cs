@@ -95,8 +95,7 @@ namespace Greenshot.Recipes.Views
             string message,
             IEnumerable<PromptChoice> choices,
             System.Drawing.Image previewImage = null,
-            int timeoutSeconds = 0,
-            string defaultChoice = null)
+            int timeoutSeconds = 0)
         {
             InitializeComponent();
             DataContext = this;
@@ -180,11 +179,6 @@ namespace Greenshot.Recipes.Views
                 _cancelChoiceKey = ActionButtons.FirstOrDefault(b => b.IsCancel)?.Key ??
                                    ActionButtons.FirstOrDefault(b => string.Equals(b.Key, "No", StringComparison.OrdinalIgnoreCase))?.Key ??
                                    ActionButtons.LastOrDefault()?.Key ?? "No";
-            }
-
-            if (!string.IsNullOrWhiteSpace(defaultChoice))
-            {
-                _defaultChoiceKey = defaultChoice;
             }
 
             if (timeoutSeconds > 0)

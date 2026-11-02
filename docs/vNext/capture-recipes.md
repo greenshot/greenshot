@@ -58,6 +58,26 @@ save. A bar under the toolbar says what is pending: what saving will ask for, or
 Greenshot or has triggers switched off by the approval. Recipes proposed by AI tools
 go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
 
+### Recipes from the catalog
+
+The [recipe catalog](https://github.com/greenshot/greenshot-recipes) collects reviewed recipes. Its pages on
+getgreenshot.org have an "Install" button, which opens the link `greenshot:install-recipe?id=<id>`; the recipe manager and
+Settings > Recipes offer "Get More Recipes" (beta testers only) to open the catalog. Greenshot then:
+
+1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
+   are part of Greenshot); an index without a valid signature is refused,
+2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`), downloads the file
+   from the catalog repository and checks it against the SHA-256 of the index,
+3. shows the approval window, marked "from the catalog", with the catalog version, its authors, a link to its page and
+   the recipe's options (settings) to fill in right away,
+4. after the approval saves the file as `Recipes\Catalog\<id>.gsrecipe.json` next to `greenshot.ini`, with the
+   approval's origin `catalog:<id>@<version>`, and stores the option values in `[RecipeOptions]`.
+
+Installing a newer version of the same recipe shows what changed, like any changed file. A recipe with the same id
+that didn't come from the catalog (a built-in recipe, or one of your own files) is never replaced, and only one install
+window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
+section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes
@@ -83,13 +103,42 @@ For example:
 ]
 ```
 
+### Hotkeys from the settings, and `when`
+
+A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
+see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
+recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
+
+A trigger's optional `when` is an expression; the trigger is only registered while it is true. It is checked when the
+triggers are registered (at the start, and when the settings or the options change), not each time the trigger fires.
+The window hotkey uses it to start either the window capture or the active window capture:
+
+```json
+"triggers": [
+  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+]
+```
+
+Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
+general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
+button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
 ---
 
 ## 2. Directed Acyclic Graph (DAG) Workflow Engine
 
 Every recipe defines:
 1. **`nodes`**: A list of execution nodes, each having a unique flow-local `id`, a `stepType`, an optional `name`, and step-specific `parameters`.
-2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`), unconditional transitions (`transitions`), and branch-routed transitions (`conditionalTransitions`).
+2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`) and one list of `transitions`: plain ones, the branches of `Conditional` nodes and error routes.
+
+A recipe file is read strictly, so a mistake is reported instead of silently ignored: property names and parameter names are
+written exactly as documented (`stepType`, `SourceType`), an unknown or repeated property is an error, and a value has the
+type the property or the step's parameter declares (`true`, not `"true"`; `2`, not `"2"`). An expression (`${...}`) can
+stand for any value. A parameter which holds a list of objects, like the `Branches` of a `Conditional` node or the `Choices`
+of a `UserPrompt` node, is read the same way: `{ "Key": "A", "Expression": "else" }`, not `"key"` or `"expresion"`.
+Comments and trailing commas are allowed. Recipes of an earlier Greenshot beta (`"version": "1.x"`) are
+not read; the error says what changed.
 
 
 ```
@@ -119,36 +168,37 @@ Every recipe defines:
 ```
 
 ### Fork, Join & Conditional Branch Execution Semantics
-- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `"select_node": ["feedback_branch", "set_vars_node"]`), all downstream branches execute concurrently as async tasks.
+- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `{ "from": "select_node", "to": "feedback_branch" }` and `{ "from": "select_node", "to": "set_vars_node" }`), all downstream branches execute concurrently as async tasks.
 - **Barrier Synchronization (Join)**: When multiple branches converge into a single downstream node (e.g. `export_join`), the engine pauses execution of that node until **all** parent dependency branches have fully completed.
-- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `branches` (e.g. `[ { "key": "A", "expression": "${payload.width > 800}" }, { "key": "B", "expression": "else" } ]`). Downstream routing from branch pins is declared in `flow.conditionalTransitions` (e.g. `[ { "from": "decide", "branch": "A", "to": "full_editor" } ]`).
+- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `Branches` (e.g. `[ { "Key": "A", "Expression": "${payload.width > 800}" }, { "Key": "B", "Expression": "else" } ]`). Downstream routing from branch pins is a transition with a `branch` (e.g. `{ "from": "decide", "branch": "A", "to": "full_editor" }`).
 - **Acyclic Enforcement**: The workflow engine performs cycle detection during recipe load. If any cycle/loop is detected, the recipe is rejected with a validation error.
 
 ### Flow Definition Syntax
-Transitions map source node IDs to arrays of downstream target node IDs:
+Each transition goes from a node to the next one; a node with several transitions forks:
 
 ```json
 "flow": {
   "startNodes": [ "source" ],
-  "transitions": {
-    "source": [ "select" ],
-    "select": [ "feedback", "watermark" ],
-    "watermark": [ "export" ],
-    "feedback": [ "export" ]
-  }
+  "transitions": [
+    { "from": "source", "to": "select" },
+    { "from": "select", "to": "feedback" },
+    { "from": "select", "to": "watermark" },
+    { "from": "watermark", "to": "export" },
+    { "from": "feedback", "to": "export" }
+  ]
 }
 ```
 
-When using conditional branching:
+A transition with a `branch` leaves a `Conditional` node by that branch, one with `onError` is taken when the node fails
+(`"*"` for any error; `from` can be `"*"` for any node) and goes `to` a node or runs another `recipe`:
 ```json
 "flow": {
   "startNodes": [ "source" ],
-  "transitions": {
-    "source": [ "decide_step" ]
-  },
-  "conditionalTransitions": [
+  "transitions": [
+    { "from": "source", "to": "decide_step" },
     { "from": "decide_step", "branch": "A", "to": "large_editor" },
-    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" }
+    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" },
+    { "from": "large_editor", "onError": "*", "to": "quick_clipboard" }
   ]
 }
 ```
@@ -199,7 +249,65 @@ When recipes rely on functionality provided by external plugins or extensions (s
 
 When Greenshot loads or validates recipes (or when opened in the Visual Recipe Editor), `RecipeValidator` checks if every declared requirement is installed and enabled. If a required extension is missing, Greenshot prevents execution and presents the user with a clear, actionable diagnostic message specifying what is missing and where to acquire it.
 
+### Author and license (`authors`, `copyright`, `license`)
+A recipe or an automatic step can say who wrote it and under which license it may be shared. These keys are in the file
+itself, so the credit and the license notice stay with every copy:
+
+```json
+"authors": [ { "name": "Jane Doe", "github": "janedoe" } ],
+"copyright": "Copyright (c) 2026 Jane Doe",
+"license": "MIT"
+```
+
+- **`authors`** *(optional)*: each with a `name` *(required)* and the GitHub login `github` *(optional)*.
+- **`copyright`** *(optional)*: the copyright notice, which licenses like MIT require to stay with every copy.
+- **`license`** *(optional)*: an SPDX identifier, e.g. `MIT`.
+
+The approval window shows the authors with the license ("Jane Doe (MIT)") and the copyright notice as its tooltip. They
+are part of the approved content, so a change of author shows up in the changes of an update.
+
+What Greenshot knows about a loaded recipe (built in, replaced, switched off, its file) is never written into the file.
+
+### Translations (`translations`)
+The texts of a recipe or an automatic step are written in one language, usually English. `translations` adds them in
+other languages, in the file itself, so they travel with it:
+
+```json
+"name": "Capture to my folder",
+"description": "Saves the capture into one folder",
+"options": [ { "key": "folder", "type": "DirectoryPath", "label": "Folder" } ],
+"translations": {
+  "de-DE": { "name": "In meinen Ordner aufnehmen", "description": "Speichert die Aufnahme in einem Ordner", "options.folder.label": "Ordner" },
+  "fr": { "name": "Capturer dans mon dossier" }
+}
+```
+
+- The keys are languages: `de` for every German, `de-DE` for one. Greenshot takes the text of its own language
+  (`de-DE`), else of the language alone (`de`), else the text of the file.
+- The texts are named by their place: `name`, `description`, `options.{key}.label`, `options.{key}.description`,
+  `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
+  the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
+  only the texts it has.
+- A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
+- A menu entry without its own `MenuItemText` shows the translated name.
+- The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
+  then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
+  there moves the translations of the menu texts of the triggers after it.
+- The translations are part of the file, so changing them changes the approved content, like any other change.
+
 ---
+
+### Text and codes on the capture
+
+The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
+the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
+itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+
+Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
+(`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
+selecting; the `BarcodeScan` step uses what it found. When the capture is cropped to the selection, only the codes and text
+lines which are (partly) in the selection stay with it, also the ones the scan finds later. OCR only runs where text is needed: the text selection, the `Ocr`
+step, the OCR destination and the editor's text obfuscation, each on the image it gets.
 
 ## 3. Dynamic Expressions & Scoped Environment Variables
 
@@ -231,7 +339,7 @@ Create or transform variables in the pipeline context for downstream nodes to co
   "id": "set_metadata",
   "stepType": "SetVariable",
   "parameters": {
-    "variables": {
+    "Variables": {
       "captured_by": "Captured by ${user.username} on ${machine.computername}",
       "watermark_box_width": "${payload.width * 0.4}",
       "timestamp_header": "[${now:yyyy-MM-dd HH:mm:ss}]"
@@ -239,6 +347,34 @@ Create or transform variables in the pipeline context for downstream nodes to co
   }
 }
 ```
+
+### Details in saved images (`SetMetadata` Step)
+Decides the details (EXIF and XMP, see [image formats](image-formats.md#details-in-saved-images)) the following steps write into
+the image: which fields, and a title, description, author or copyright of the recipe. Without the step, the settings decide.
+
+```json
+{
+  "id": "details",
+  "stepType": "SetMetadata",
+  "parameters": {
+    "Fields": [ "CaptureTime", "Author", "Source" ],
+    "Title": "${payload.title}",
+    "Description": "Ticket ${context.ticket}",
+    "Author": "Support team",
+    "Copyright": "(c) ${now:yyyy} Example Inc."
+  }
+}
+```
+
+- `Fields`: a list of `CaptureTime`, `Author`, `Source`, `Text` and `Barcodes`. Without it, the fields of the settings; an empty
+  list writes none (an author or copyright of the step is still written).
+- `Title`, `Description`: instead of the window title and the text. They can hold what was captured, so they are private details
+  like those: files on this computer get them, before the image leaves it the user is asked, and a recipe running without a
+  window removes them.
+- `Author`, `Copyright`: instead of those of the settings, also without the `Author` field.
+- A parameter which is left out keeps what the settings write; an empty value leaves the detail out.
+
+The step only changes the details of the capture; put it before the steps which save or send the image.
 
 ---
 
@@ -249,9 +385,35 @@ The `Annotation` step allows adding any Greenshot annotation container to the ca
 ### Supported Annotation Types
 - **Shapes & Lines**: `Rectangle`, `Ellipse`, `Line`, `Arrow`, `Freehand`
 - **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
-- **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
+- **Images & Icons**: `Image` (bitmaps and SVG), `Icon`, `Cursor`, `Emoji`
 - **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
 - **Filters & Effects**: `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
+
+The node's `Annotations` is a list: each annotation has a `Type` and the properties of that type, written exactly as
+below (`FontSize`, not `fontSize`). Loading a recipe reports a property the type doesn't have and a value of another type
+(e.g. `"Width": "wide"`); an expression (`"${payload.width / 2}"`) is always allowed.
+
+| Type | Properties (besides the common ones) |
+|------|--------------------------------------|
+| All types | `Type`, `Width`, `Height`, `Size`, `LockAspectRatio`, `HorizontalAnchor`, `VerticalAnchor`, `OffsetX`, `OffsetY`, `Left`, `Right`, `Top`, `Bottom`, `Margin`, `MarginLeft`, `MarginRight`, `MarginTop`, `MarginBottom` |
+| `Rectangle`, `Ellipse` | `LineThickness`, `LineColor`, `FillColor`, `Shadow` |
+| `Line` | `LineThickness`, `LineColor`, `Shadow` |
+| `Arrow` | `LineThickness`, `LineColor`, `Shadow`, `ArrowHeads` |
+| `Freehand` | `LineThickness`, `LineColor`, `Shadow`, `Points` |
+| `Text` | `Text`, `FontFamily`, `FontSize`, `Bold`, `Italic`, `TextAlign`, `FitToText`, `LineColor`, `LineThickness`, `FillColor`, `Shadow` |
+| `Speechbubble` | `Text`, `FontFamily`, `FontSize`, `Bold`, `LineColor`, `LineThickness`, `FillColor`, `Shadow`, `TailDirection`, `TailOffsetX`, `TailOffsetY`, `TailX`, `TailY` |
+| `StepLabel` | `Number`, `FillColor`, `LineColor`, `Shadow` |
+| `Image` | `FilePath`, `ImageData`, `Shadow` |
+| `Icon` | `FilePath` |
+| `Cursor` | `CursorName`, `FilePath`, `ImageData`, `HotspotX`, `HotspotY` |
+| `Emoji` | `Emoji` |
+| `Blur` / `Pixelize` | `BlurRadius` / `PixelSize` |
+| `Highlight` / `Magnify` | `FillColor` / `MagnificationFactor` |
+| `Crop` | none |
+| `QRCode`, `Barcode` | see below |
+
+Sizes, positions and numbers (`LineThickness`, `Number`, ...) are whole numbers, `FontSize` is a number, `Shadow`, `Bold`,
+`Italic`, `FitToText`, `LockAspectRatio` and `RoundedDots` are `true`/`false`, the rest are texts.
 
 ### Barcode & QR Code Annotations (`QRCode`, `Barcode`)
 When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
@@ -268,7 +430,7 @@ The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`
   - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
   - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
   - `"EpcBic"`: Recipient BIC/SWIFT code (optional).
-  - `"EpcAmount"`: Payment transfer amount in EUR (e.g. `15.00` or `"15.00"`).
+  - `"EpcAmount"`: Payment transfer amount in EUR (a text, e.g. `"15.00"` or `"15,00"`).
   - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
   - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
 
@@ -312,8 +474,8 @@ The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`
 
 - **Geographic Location (`"QrType": "Geo"`)**:
   - Map location coordinates or query (`geo:`):
-  - `"Latitude"`: Latitude in decimal degrees (e.g. `52.5200`).
-  - `"Longitude"`: Longitude in decimal degrees (e.g. `13.4050`).
+  - `"Latitude"`: Latitude in decimal degrees (a text, e.g. `"52.5200"`).
+  - `"Longitude"`: Longitude in decimal degrees (a text, e.g. `"13.4050"`).
 
 #### Visual Recipe Editor Integration:
 In the visual Recipe Editor:
@@ -325,45 +487,48 @@ In the visual Recipe Editor:
 - **`Width` / `Height`**: Dimensions for 1D barcodes or rectangular barcodes.
 - **`ForeColor`**: Barcode foreground/module color (e.g. `"#003366"` or `"Black"`).
 - **`BackColor`**: Background quiet-zone color (e.g. `"#FFFFFF"` or `"White"`).
+- **`QuietZone`**: The empty border around the code, in modules (default `1`). `Margin` is the distance to the edge of the capture, as for every annotation.
 - **`RoundedDots`**: Boolean (`true`/`false`). Renders modern rounded circular dots for 2D matrix modules while preserving standard finder patterns.
 - **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
 
 ### Image, Cursor & SVG Annotations
 
-Greenshot supports rich graphical elements including bitmaps (`Image`), Windows mouse cursors (`Cursor`), and vector graphics (`Svg`):
+Greenshot supports images (`Image`: bitmaps, and SVG which stays a vector) and Windows mouse cursors (`Cursor`).
 
 #### 1. Embedded (Base64) vs Linked (File Path) Storage:
-- **Embedded (`ImageData` / `Content`)**: Binary image or cursor bitmaps are encoded as Base64 strings, and SVG vectors as inline XML text. This makes recipe files 100% self-contained and portable across environments with no external file dependencies:
+An image or cursor comes from exactly one place: `ImageData`, `FilePath` or (for a cursor) `CursorName`. Setting more
+than one is an error. Whether the file is a bitmap or an SVG is read from its contents.
+- **Embedded (`ImageData`)**: The file contents (PNG, JPEG, SVG, cursor, ...) encoded as Base64. This makes recipe files self-contained and portable across environments with no external file dependencies:
   ```json
   {
-    "type": "Cursor",
-    "horizontalAnchor": "Center",
-    "verticalAnchor": "Center",
-    "imageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0...",
-    "width": 32,
-    "height": 32
+    "Type": "Cursor",
+    "HorizontalAnchor": "Center",
+    "VerticalAnchor": "Center",
+    "ImageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0...",
+    "Width": 32,
+    "Height": 32
   }
   ```
 - **Linked (`FilePath`)**: Stored as a reference path to an external image (`.png`, `.jpg`, `.bmp`, `.ico`), cursor (`.cur`, `.ico`), or SVG (`.svg`) file on disk.
 
 #### 2. Standard Windows Cursor Presets:
-`Cursor` annotations can directly use any standard Windows system cursor via `"cursorName"` without requiring any image file:
+`Cursor` annotations can directly use any standard Windows system cursor via `"CursorName"` without requiring any image file:
 - **Available Presets**: `"Arrow"` (default), `"AppStarting"`, `"Cross"`, `"Hand"`, `"Help"`, `"IBeam"`, `"No"`, `"SizeAll"`, `"SizeNESW"`, `"SizeNS"`, `"SizeNWSE"`, `"SizeWE"`, `"UpArrow"`, `"Wait"`.
 ```json
 {
-  "type": "Cursor",
-  "horizontalAnchor": "Right",
-  "verticalAnchor": "Bottom",
-  "offsetX": -50,
-  "offsetY": -50,
-  "cursorName": "Hand",
-  "width": 32,
-  "height": 32
+  "Type": "Cursor",
+  "HorizontalAnchor": "Right",
+  "VerticalAnchor": "Bottom",
+  "OffsetX": -50,
+  "OffsetY": -50,
+  "CursorName": "Hand",
+  "Width": 32,
+  "Height": 32
 }
 ```
 
 #### 3. Aspect Ratio Locking:
-Annotations with scalable visual proportions (`Image`, `Svg`, `Emoji`, `StepLabel`, `Cursor`) support `"lockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
+Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cursor`) support `"LockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
 
 ---
 
@@ -387,13 +552,13 @@ The visual Recipe Editor includes a built-in workflow to convert open screenshot
 
 ### Flexible Positioning: Absolute, Calculated & Anchored
 Annotations can be positioned using:
-1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).
-2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `top: "${payload.height - 60}"`, `width: "${payload.width / 2}"`).
+1. **Absolute Coordinates**: Fixed integers (`Left: 50, Top: 100, Width: 200, Height: 40`).
+2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `Top: "${payload.height - 60}"`, `Width: "${payload.width / 2}"`).
 3. **Anchor Alignments**:
-   - `horizontalAnchor`: `"Left"`, `"Center"`, `"Right"`
-   - `verticalAnchor`: `"Top"`, `"Center"`, `"Bottom"`
-   - Optional `offsetX` and `offsetY` pixel adjustments.
-   - `margin`: Margin distance from screen/capture borders when anchored.
+   - `HorizontalAnchor`: `"Left"`, `"Center"`, `"Right"`
+   - `VerticalAnchor`: `"Top"`, `"Center"`, `"Bottom"`
+   - Optional `OffsetX` and `OffsetY` pixel adjustments.
+   - `Margin`: Margin distance from screen/capture borders when anchored.
 
 #### Example Annotation Node Configuration
 ```json
@@ -401,58 +566,58 @@ Annotations can be positioned using:
   "id": "stamp_watermark",
   "stepType": "Annotation",
   "parameters": {
-    "annotations": [
+    "Annotations": [
       {
-        "type": "Rectangle",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Bottom",
-        "width": 380,
-        "height": 40,
-        "offsetX": -15,
-        "offsetY": -15,
-        "fillColor": "rgba(0, 0, 0, 180)",
-        "lineColor": "#0078D7",
-        "lineThickness": 2,
-        "shadow": true
+        "Type": "Rectangle",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Bottom",
+        "Width": 380,
+        "Height": 40,
+        "OffsetX": -15,
+        "OffsetY": -15,
+        "FillColor": "rgba(0, 0, 0, 180)",
+        "LineColor": "#0078D7",
+        "LineThickness": 2,
+        "Shadow": true
       },
       {
-        "type": "Text",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Bottom",
-        "width": 370,
-        "height": 30,
-        "offsetX": -20,
-        "offsetY": -20,
-        "text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
-        "lineColor": "#FFFFFF",
-        "fontSize": 9.5,
-        "bold": true
+        "Type": "Text",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Bottom",
+        "Width": 370,
+        "Height": 30,
+        "OffsetX": -20,
+        "OffsetY": -20,
+        "Text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
+        "LineColor": "#FFFFFF",
+        "FontSize": 9.5,
+        "Bold": true
       },
       {
-        "type": "Emoji",
-        "horizontalAnchor": "Left",
-        "verticalAnchor": "Bottom",
-        "left": 20,
-        "top": "${payload.height - 45}",
-        "emoji": "🛡️",
-        "size": 32
+        "Type": "Emoji",
+        "HorizontalAnchor": "Left",
+        "VerticalAnchor": "Bottom",
+        "Left": 20,
+        "Top": "${payload.height - 45}",
+        "Emoji": "🛡️",
+        "Size": 32
       },
       {
-        "type": "QRCode",
-        "qrType": "BusinessCard",
-        "horizontalAnchor": "Right",
-        "verticalAnchor": "Top",
-        "margin": 15,
-        "size": 120,
-        "roundedDots": true,
-        "foreColor": "#003366",
-        "backColor": "#FFFFFF",
-        "vcardFirstName": "Jane",
-        "vcardLastName": "Doe",
-        "vcardCompany": "Greenshot Team",
-        "vcardEmail": "jane@getgreenshot.org",
-        "vcardPhone": "+1-555-0199",
-        "vcardUrl": "https://getgreenshot.org"
+        "Type": "QRCode",
+        "QrType": "BusinessCard",
+        "HorizontalAnchor": "Right",
+        "VerticalAnchor": "Top",
+        "Margin": 15,
+        "Size": 120,
+        "RoundedDots": true,
+        "ForeColor": "#003366",
+        "BackColor": "#FFFFFF",
+        "VcardFirstName": "Jane",
+        "VcardLastName": "Doe",
+        "VcardCompany": "Greenshot Team",
+        "VcardEmail": "jane@getgreenshot.org",
+        "VcardPhone": "+1-555-0199",
+        "VcardUrl": "https://getgreenshot.org"
       }
     ]
   }
@@ -496,13 +661,13 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "border" }
 ],
 "nodes": [
-  { "id": "frame", "stepType": "Effect", "enabled": "${option.border}",
-    "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+  { "id": "frame", "stepType": "Effect", "when": "${option.border}",
+    "parameters": { "Effect": "Border", "Width": "${option.width}", "Color": "${option.color}" } }
 ]
 ```
 
 - **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
-  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings:
+  and an optional `label`), `Color` (`#RRGGBB` or `#AARRGGBB`), `Hotkey` and `DirectoryPath` (see below). Only `Boolean` and `Enum` can be in the quick settings:
   they appear in the tray menu's quick settings under "Automatic steps", a switch as a checked item and a choice as a
   submenu, at most six of them; "More…" opens Settings > Recipes.
 - **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
@@ -513,6 +678,15 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
 - **Checks**: options are checked when the recipe loads (valid keys and types, defaults which fit, no undeclared
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
+- **Hotkey**: a hotkey like `"Ctrl + Shift + D"`, empty for none. A `Hotkey` trigger takes it with
+  `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
+  of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
+  set at that moment.
+- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+  Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
+  `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
+  folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step
+  with an empty `SaveDirectory` uses Greenshot's output folder.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
   `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
@@ -536,7 +710,7 @@ and the code they are extensions. Recipes and extensions share one file type
     { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "enabled" }
   ],
   "nodes": [
-    { "id": "border", "stepType": "Effect", "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+    { "id": "border", "stepType": "Effect", "parameters": { "Effect": "Border", "Width": "${option.width}", "Color": "${option.color}" } }
   ],
   "flow": { "startNodes": [ "border" ] }
 }
@@ -547,8 +721,8 @@ it does nothing itself. No slot, no extension; nothing is inferred.
 
 | Slot | Where |
 |---|---|
-| `AfterCapture` | After the capture and the selection, before the processors |
-| `BeforeExport` | After the processors, before the destinations: the image is final |
+| `AfterCapture` | After the capture and the selection |
+| `BeforeExport` | Before the destinations: the image is final |
 | `AfterExport` | After the destinations |
 | `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
 
@@ -557,10 +731,10 @@ extension) have all four slots, and so does a new recipe in the recipe editor; t
 before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json
-{ "id": "before_export", "stepType": "Slot", "parameters": { "name": "BeforeExport", "accept": "all" } }
+{ "id": "before_export", "stepType": "Slot", "parameters": { "Name": "BeforeExport", "Accept": [ "border", "caption" ] } }
 ```
 
-`accept` is `"all"` (the default), `"none"` or a list of extension ids.
+`Accept` is the list of the extension ids the slot takes. Without it the slot takes all extensions, an empty list (`[]`) takes none.
 
 **Where an extension goes.** `extends.recipes` takes recipe ids, `"*"` (every recipe with the slot) or `"*capture"`
 (recipes with a Source step and a destination). AI tool recipes are only extended when named by id. Several extensions
@@ -625,7 +799,9 @@ the recipe manager lists automatic steps as a group of their own. Greenshot Ligh
 ## 6. Complete Recipe Examples
 
 ### Example 1: Region Capture with Blue Border
-Interactive region capture that adds a 2px blue border and opens the editor:
+Interactive region capture that adds a 2px blue border and opens the editor. A `Source` step with `SourceType` `Region`
+only captures the screen; the user selects the region in the `InteractiveSelection` step after it. Without that step the
+whole screen goes on, so the validator (and the recipe editor's status line) warns about it.
 
 ```json
 {
@@ -638,14 +814,14 @@ Interactive region capture that adds a 2px blue border and opens the editor:
       "triggerType": "ContextMenu",
       "name": "Region with Border Menu Item",
       "parameters": {
-        "menuItemText": "Region with Blue Border",
-        "group": "Recipes"
+        "MenuItemText": "Region with Blue Border",
+        "Group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + B"
+        "Hotkey": "Ctrl + Shift + B"
       }
     }
   ],
@@ -653,37 +829,37 @@ Interactive region capture that adds a 2px blue border and opens the editor:
     {
       "id": "source",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
     },
     {
       "id": "select",
       "stepType": "InteractiveSelection",
-      "parameters": { "selectionMode": "Region" }
+      "parameters": { "SelectionMode": "Region" }
     },
     {
       "id": "border",
       "stepType": "Effect",
-      "parameters": { "effect": "Border", "width": 2, "color": "#0000FF" }
+      "parameters": { "Effect": "Border", "Width": 2, "Color": "#0000FF" }
     },
     {
       "id": "feedback",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "destination",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     }
   ],
   "flow": {
     "startNodes": [ "source" ],
-    "transitions": {
-      "source": [ "select" ],
-      "select": [ "border" ],
-      "border": [ "feedback" ],
-      "feedback": [ "destination" ]
-    }
+    "transitions": [
+      { "from": "source", "to": "select" },
+      { "from": "select", "to": "border" },
+      { "from": "border", "to": "feedback" },
+      { "from": "feedback", "to": "destination" }
+    ]
   }
 }
 ```
@@ -700,30 +876,30 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + W" }
+      "parameters": { "Hotkey": "Ctrl + Shift + W" }
     }
   ],
   "nodes": [
     {
       "id": "capture_node",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
     },
     {
       "id": "select_node",
       "stepType": "InteractiveSelection",
-      "parameters": { "selectionMode": "Region", "allowWindowSnapping": true }
+      "parameters": { "SelectionMode": "Region", "AllowWindowSnapping": true }
     },
     {
       "id": "feedback_branch",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "set_vars_node",
       "stepType": "SetVariable",
       "parameters": {
-        "variables": {
+        "Variables": {
           "department": "Engineering QA",
           "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
         }
@@ -733,33 +909,33 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "id": "watermark_node",
       "stepType": "Annotation",
       "parameters": {
-        "annotations": [
+        "Annotations": [
           {
-            "type": "Rectangle",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 380,
-            "height": 40,
-            "offsetX": -15,
-            "offsetY": -15,
-            "fillColor": "rgba(0, 0, 0, 180)",
-            "lineColor": "#0078D7",
-            "lineThickness": 2,
-            "shadow": true
+            "Type": "Rectangle",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 380,
+            "Height": 40,
+            "OffsetX": -15,
+            "OffsetY": -15,
+            "FillColor": "rgba(0, 0, 0, 180)",
+            "LineColor": "#0078D7",
+            "LineThickness": 2,
+            "Shadow": true
           },
           {
-            "type": "Text",
-            "horizontalAnchor": "Right",
-            "verticalAnchor": "Bottom",
-            "width": 370,
-            "height": 30,
-            "offsetX": -20,
-            "offsetY": -20,
-            "text": "${context.watermark_text}",
-            "lineColor": "#FFFFFF",
-            "fontSize": 9.5,
-            "fontFamily": "Segoe UI",
-            "bold": true
+            "Type": "Text",
+            "HorizontalAnchor": "Right",
+            "VerticalAnchor": "Bottom",
+            "Width": 370,
+            "Height": 30,
+            "OffsetX": -20,
+            "OffsetY": -20,
+            "Text": "${context.watermark_text}",
+            "LineColor": "#FFFFFF",
+            "FontSize": 9.5,
+            "FontFamily": "Segoe UI",
+            "Bold": true
           }
         ]
       }
@@ -768,19 +944,20 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "id": "export_join",
       "stepType": "Destinations",
       "parameters": {
-        "destinationDesignations": [ "Editor", "Clipboard" ]
+        "DestinationDesignations": [ "Editor", "Clipboard" ]
       }
     }
   ],
   "flow": {
     "startNodes": [ "capture_node" ],
-    "transitions": {
-      "capture_node": [ "select_node" ],
-      "select_node": [ "feedback_branch", "set_vars_node" ],
-      "set_vars_node": [ "watermark_node" ],
-      "feedback_branch": [ "export_join" ],
-      "watermark_node": [ "export_join" ]
-    }
+    "transitions": [
+      { "from": "capture_node", "to": "select_node" },
+      { "from": "select_node", "to": "feedback_branch" },
+      { "from": "select_node", "to": "set_vars_node" },
+      { "from": "set_vars_node", "to": "watermark_node" },
+      { "from": "feedback_branch", "to": "export_join" },
+      { "from": "watermark_node", "to": "export_join" }
+    ]
   }
 }
 ```
@@ -797,7 +974,7 @@ Captures a specific window, applies a drop shadow, scans OCR text for sensitive 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + D" }
+      "parameters": { "Hotkey": "Ctrl + Shift + D" }
     }
   ],
   "nodes": [
@@ -805,51 +982,51 @@ Captures a specific window, applies a drop shadow, scans OCR text for sensitive 
       "id": "capture_window",
       "stepType": "Source",
       "parameters": {
-        "sourceType": "ActiveWindow",
-        "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
-        "matchCase": false
+        "SourceType": "ActiveWindow",
+        "WindowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
+        "MatchCase": false
       }
     },
     {
       "id": "shadow",
       "stepType": "Effect",
-      "parameters": { "effect": "DropShadow", "shadowSize": 10, "darkness": 0.65 }
+      "parameters": { "Effect": "DropShadow", "ShadowSize": 10, "Darkness": 0.65 }
     },
     {
       "id": "redact",
       "stepType": "TextEffect",
       "parameters": {
-        "effect": "Redact",
-        "fillColor": "#000000",
-        "scope": "Auto",
-        "patterns": [
+        "Effect": "Redact",
+        "FillColor": "#000000",
+        "Scope": "Auto",
+        "Patterns": [
           "\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b",
           "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
           "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"
         ],
-        "paddingHorizontal": 12,
-        "paddingVertical": 25
+        "PaddingHorizontal": 12,
+        "PaddingVertical": 25
       }
     },
     {
       "id": "feedback",
       "stepType": "ImmediateFeedback",
-      "parameters": { "playSound": true }
+      "parameters": { "PlaySound": true }
     },
     {
       "id": "destination",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     }
   ],
   "flow": {
     "startNodes": [ "capture_window" ],
-    "transitions": {
-      "capture_window": [ "shadow" ],
-      "shadow": [ "redact" ],
-      "redact": [ "feedback" ],
-      "feedback": [ "destination" ]
-    }
+    "transitions": [
+      { "from": "capture_window", "to": "shadow" },
+      { "from": "shadow", "to": "redact" },
+      { "from": "redact", "to": "feedback" },
+      { "from": "feedback", "to": "destination" }
+    ]
   }
 }
 ```
@@ -866,42 +1043,46 @@ Evaluates captured screenshot dimensions to route large screen captures through 
   "triggers": [
     {
       "triggerType": "Hotkey",
-      "parameters": { "hotkey": "Ctrl + Shift + C" }
+      "parameters": { "Hotkey": "Ctrl + Shift + C" }
     }
   ],
   "nodes": [
     {
       "id": "source",
       "stepType": "Source",
-      "parameters": { "sourceType": "Region" }
+      "parameters": { "SourceType": "Region" }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": { "SelectionMode": "Region" }
     },
     {
       "id": "decide_size",
       "stepType": "Conditional",
       "parameters": {
-        "branches": [
-          { "key": "Large", "expression": "${payload.width > 800}" },
-          { "key": "Small", "expression": "else" }
+        "Branches": [
+          { "Key": "Large", "Expression": "${payload.width > 800}" },
+          { "Key": "Small", "Expression": "else" }
         ]
       }
     },
     {
       "id": "large_editor",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Editor" ] }
+      "parameters": { "DestinationDesignations": [ "Editor" ] }
     },
     {
       "id": "quick_clipboard",
       "stepType": "Destinations",
-      "parameters": { "destinationDesignations": [ "Clipboard" ] }
+      "parameters": { "DestinationDesignations": [ "Clipboard" ] }
     }
   ],
   "flow": {
     "startNodes": [ "source" ],
-    "transitions": {
-      "source": [ "decide_size" ]
-    },
-    "conditionalTransitions": [
+    "transitions": [
+      { "from": "source", "to": "select" },
+      { "from": "select", "to": "decide_size" },
       { "from": "decide_size", "branch": "Large", "to": "large_editor" },
       { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
     ]
@@ -922,13 +1103,13 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `command` runs a command configured in `greenshot.ini`. | `command`, `commandLine`, `arguments`, `workingDirectory`, `verb`, `format`, `jpegQuality`, `runInBackground`, `outputToClipboard`, `uriToClipboard`, `reloadAfterExecution`, `setOutputVariable`, `setExitCodeVariable` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `OutputVariable`, `ExitCodeVariable` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
-| `Jira` | `Greenshot.Plugin.Jira` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. | `issueKey` (default: variable `Jira.IssueKey`), `format`, `jpegQuality`, `reduceColors` |
-| `Confluence` | `Greenshot.Plugin.Confluence` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. | `pageId`, `format`, `jpegQuality`, `reduceColors` |
-| `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
-| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `setVariable`, `copyToClipboard` |
+| `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
+| `Confluence` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. When the page has a file with the name, the capture becomes a new version of it. | `PageId`, `Format`, `JpegQuality`, `ReduceColors` |
+| `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `Application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `OutputVariable`, `CopyToClipboard` |
 
 The complete, current description of every step type (parameters, variables it reads and sets, payload) is its contract: `greenshot --info <recipe>` shows it for the steps of a recipe. See section 8.
 
@@ -937,18 +1118,18 @@ The complete, current description of every step type (parameters, variables it r
 The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
 
 #### Configuration Parameters:
-- **`commandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
-- **`arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
-- **`command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
-- **`runInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
-- **`workingDirectory`**, **`verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
-- **`format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
-- **`jpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
-- **`reloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
-- **`outputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
-- **`uriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
-- **`setOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
-- **`setExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
+- **`Arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
+- **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
+- **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
+- **`Format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
+- **`JpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
+- **`ReloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
+- **`OutputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
+- **`UriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
+- **`OutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
+- **`ExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
 
 ---
 

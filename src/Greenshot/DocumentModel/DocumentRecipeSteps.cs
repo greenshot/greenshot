@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -35,7 +36,6 @@ using Greenshot.Document.Editor;
 using Greenshot.DocumentModel;
 using Greenshot.Editor.Drawing;
 using Greenshot.Helpers;
-using Newtonsoft.Json;
 
 [assembly: GreenshotModule(typeof(DocumentRecipeSteps))]
 
@@ -80,7 +80,7 @@ namespace Greenshot.DocumentModel
             }
 
             // An element without id gets a new one, anchored elements are placed relative to the capture and to each other
-            var elements = DocumentToSurface.Place(surface, GreenshotPackage.ReadElements(JsonConvert.SerializeObject(value))
+            var elements = DocumentToSurface.Place(surface, GreenshotPackage.ReadElements(JsonSerializer.Serialize(value))
                 .Select(element => element.Id == Guid.Empty ? element with { Id = Uuid7.CreateVersion7() } : element));
             var document = new GreenshotDocument(surface.ID, new Canvas(), Array.Empty<Layer>(), new Dictionary<Guid, Resource>());
             var added = DocumentToSurface.AddElements(surface, document, elements, true);

@@ -435,7 +435,11 @@ namespace Greenshot.Base.Wpf
             {
                 Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml", UriKind.Relative)
             });
-            
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
+            });
+
             dict["ThemeBackgroundBrush"] = BackgroundBrush;
             dict["ThemeForegroundBrush"] = ForegroundBrush;
             dict["ThemeMutedBrush"] = MutedBrush;

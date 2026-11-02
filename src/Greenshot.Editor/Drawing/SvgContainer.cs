@@ -50,9 +50,9 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// The SVG as it was loaded
+        /// The SVG file contents
         /// </summary>
-        internal byte[] SvgData => _svgContent?.ToArray();
+        public byte[] SvgContent => _svgContent?.ToArray();
 
         protected override void Init()
         {

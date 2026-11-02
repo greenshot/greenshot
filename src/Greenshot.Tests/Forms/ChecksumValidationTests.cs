@@ -39,12 +39,12 @@ namespace Greenshot.Tests.Forms
         [InlineData(@"Languages\language-de-DE.xml", true)]
         [InlineData(@"Languages\greenshot.en-US.ini", true)]
         [InlineData(@"Languages\greenshot.imgur.de-DE.ini", true)]
-        [InlineData(@"Plugins\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.pdb", true)]
+        [InlineData(@"Plugins\Greenshot.Plugin.Atlassian\Greenshot.Plugin.Atlassian.pdb", true)]
         // A library left behind by an older version, and program files, are not skipped
         [InlineData("Nodify.dll", false)]
         [InlineData("Greenshot.exe", false)]
         [InlineData(@"Languages\Greenshot.Base.dll", false)]
-        [InlineData(@"Plugins\Greenshot.Plugin.Jira\readme.txt", false)]
+        [InlineData(@"Plugins\Greenshot.Plugin.Atlassian\readme.txt", false)]
         public void CanSkipFile_SkipsOnlyFilesThatAreNotProgramFiles(string path, bool skipped)
         {
             Assert.Equal(skipped, ChecksumSectionViewModel.CanSkipFile(path));
@@ -54,11 +54,11 @@ namespace Greenshot.Tests.Forms
         public void FilesOfAPluginThatIsNotInstalled_AreNotExpected()
         {
             string baseDir = Path.Combine(Path.GetTempPath(), "gs_checksum_" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(Path.Combine(baseDir, "Plugins", "Greenshot.Plugin.Jira"));
+            Directory.CreateDirectory(Path.Combine(baseDir, "Plugins", "Greenshot.Plugin.Atlassian"));
             try
             {
                 // Installed plugin: its files are checked
-                Assert.False(ChecksumSectionViewModel.IsFileOfMissingPlugin(baseDir, "Plugins/Greenshot.Plugin.Jira/Dapplo.Jira.dll"));
+                Assert.False(ChecksumSectionViewModel.IsFileOfMissingPlugin(baseDir, "Plugins/Greenshot.Plugin.Atlassian/Dapplo.Jira.dll"));
                 // Plugin not installed: its files are not reported as missing
                 Assert.True(ChecksumSectionViewModel.IsFileOfMissingPlugin(baseDir, @"Plugins\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll"));
                 // Files of Greenshot itself are always checked

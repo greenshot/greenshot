@@ -58,9 +58,6 @@ namespace Greenshot.Base.Recipes.Sources
             }
 
             // Check config and context properties for targeted window specifications
-            string title = _config?.GetParameter<string>("WindowTitle")
-                ?? (context.Properties.TryGetValue("WindowTitle", out var tObj) ? tObj as string : null);
-
             string titlePattern = _config?.GetParameter<string>("WindowTitlePattern")
                 ?? (context.Properties.TryGetValue("WindowTitlePattern", out var tpObj) ? tpObj as string : null);
 
@@ -70,18 +67,18 @@ namespace Greenshot.Base.Recipes.Sources
             bool matchCase = _config?.GetParameter("MatchCase", false)
                 ?? (context.Properties.TryGetValue("MatchCase", out var mcObj) && mcObj is bool mc && mc);
 
-            bool isTargeted = !string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
+            bool isTargeted = !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
 
             if (window == null && isTargeted)
             {
-                window = WindowHelper.FindMatchingWindow(title, titlePattern, processName, matchCase);
+                window = WindowHelper.FindMatchingWindow(titlePattern, processName, matchCase);
                 if (window != null)
                 {
                     Log.InfoFormat("Found targeted window '{0}' (Handle: {1})", window.GetCaption(), window.Handle);
                 }
                 else
                 {
-                    Log.WarnFormat("Could not find window matching title='{0}', pattern='{1}', process='{2}'", title, titlePattern, processName);
+                    Log.WarnFormat("Could not find window matching pattern='{0}', process='{1}'", titlePattern, processName);
                 }
             }
 

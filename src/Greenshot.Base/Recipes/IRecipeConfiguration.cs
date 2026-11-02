@@ -38,10 +38,6 @@ namespace Greenshot.Base.Recipes
         [DefaultValue(true)]
         bool Enabled { get; set; }
 
-        [Description("Whether to show a quicklink in the tray context menu for configuring or opening this plugin.")]
-        [DefaultValue(false)]
-        bool QuicklinkEnabled { get; set; }
-
         [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
         [DefaultValue(null)]
         string RecipeFiles { get; set; }
@@ -49,5 +45,9 @@ namespace Greenshot.Base.Recipes
         [Description("Semicolon-separated list of deactivated/disabled recipe IDs.")]
         [DefaultValue(null)]
         string DisabledRecipeIds { get; set; }
+
+        [Description("Whether recipes can be installed from the Greenshot recipe catalog (greenshot:install-recipe links). An administrator switches it off in greenshot-fixed.ini.")]
+        [DefaultValue(true)]
+        bool AllowCatalogInstall { get; set; }
     }
 }

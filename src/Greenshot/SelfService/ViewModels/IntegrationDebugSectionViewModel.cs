@@ -23,10 +23,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json.Nodes;
 using System.Windows.Media;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Serialization;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.SelfService.ViewModels
 {
@@ -130,12 +131,41 @@ namespace Greenshot.SelfService.ViewModels
             using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\greenshot\shell\open\command"))
             {
                 var val = key?.GetValue(null)?.ToString();
-                UrlSchemeStatus = !string.IsNullOrEmpty(val) ? string.Format(Texts.SelfService.DebugRegistered, val) : Texts.SelfService.DebugNotRegistered;
+                string target = GetCommandProgram(val);
+                UrlSchemeStatus = string.IsNullOrEmpty(val) ? Texts.SelfService.DebugNotRegistered
+                    : target != null && !File.Exists(target) ? string.Format(Texts.SelfService.DebugRegisteredTargetMissing, target)
+                    : string.Format(Texts.SelfService.DebugRegistered, val);
             }
+        }
+
+        /// <summary>
+        /// The program of a shell command ("C:\path\program.exe" "%1"), null when there is none
+        /// </summary>
+        private static string GetCommandProgram(string command)
+        {
+            command = command?.Trim();
+            if (string.IsNullOrEmpty(command))
+            {
+                return null;
+            }
+            if (command[0] == '"')
+            {
+                int end = command.IndexOf('"', 1);
+                return end > 1 ? command.Substring(1, end - 1) : null;
+            }
+            int space = command.IndexOf(' ');
+            return space > 0 ? command.Substring(0, space) : command;
         }
 
         public void RegisterAll()
         {
+            // Everything registered here starts the proxy: without it a link only ends in "Application not found"
+            if (!File.Exists(ProxyPath))
+            {
+                ActionFeedback = string.Format(Texts.SelfService.DebugRegisterFailed, string.Format(Texts.SelfService.DebugProxyMissing, BaseDirectory));
+                ActionFeedbackBrush = Brushes.Red;
+                return;
+            }
             try
             {
                 EnsureManifestsExist();
@@ -228,10 +258,9 @@ namespace Greenshot.SelfService.ViewModels
             if (string.IsNullOrEmpty(id)) return;
 
             string json = File.ReadAllText(ChromeManifestPath);
-            var jobj = JObject.Parse(json);
-            var origins = new JArray { $"chrome-extension://{id}/" };
-            jobj["allowed_origins"] = origins;
-            File.WriteAllText(ChromeManifestPath, jobj.ToString(Newtonsoft.Json.Formatting.Indented));
+            var jobj = GreenshotJson.Parse(json).AsObject();
+            jobj["allowed_origins"] = new JsonArray($"chrome-extension://{id}/");
+            File.WriteAllText(ChromeManifestPath, jobj.ToJsonString(GreenshotJson.IndentedOptions));
         }
 
         private void LoadCurrentExtensionId()
@@ -241,8 +270,7 @@ namespace Greenshot.SelfService.ViewModels
                 if (File.Exists(ChromeManifestPath))
                 {
                     string json = File.ReadAllText(ChromeManifestPath);
-                    var jobj = JObject.Parse(json);
-                    if (jobj["allowed_origins"] is JArray arr && arr.Count > 0)
+                    if ((GreenshotJson.Parse(json) as JsonObject)?["allowed_origins"] is JsonArray arr && arr.Count > 0)
                     {
                         string first = arr[0]?.ToString() ?? "";
                         if (first.StartsWith("chrome-extension://"))

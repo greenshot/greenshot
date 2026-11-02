@@ -29,10 +29,6 @@ namespace Greenshot.Configuration
     [Description("Greenshot Windows Plugin configuration")]
     public interface IWin10Configuration : IIniSection
     {
-        [Description("Determines if OCR is run automatically on every capture")]
-        [DefaultValue(false)]
-        bool AlwaysRunOCROnCapture { get; set; }
-
         [Description("Default OCR language tag (e.g. en-US, de-DE). Leave empty for user profile languages.")]
         [DefaultValue("")]
         string OcrLanguage { get; set; }

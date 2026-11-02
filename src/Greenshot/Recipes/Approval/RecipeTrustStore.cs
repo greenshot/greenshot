@@ -25,8 +25,9 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Recipes.Approval
 {
@@ -183,7 +184,7 @@ namespace Greenshot.Recipes.Approval
                 byte[] cipherBytes = File.ReadAllBytes(path);
                 byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, Entropy, DataProtectionScope.CurrentUser);
                 string json = Encoding.UTF8.GetString(plainBytes);
-                var list = JsonConvert.DeserializeObject<List<RecipeTrustRecord>>(json);
+                var list = JsonSerializer.Deserialize<List<RecipeTrustRecord>>(json, GreenshotJson.Options);
 
                 if (list != null)
                 {
@@ -227,7 +228,7 @@ namespace Greenshot.Recipes.Approval
                 }
 
                 var list = new List<RecipeTrustRecord>(_records.Values);
-                string json = JsonConvert.SerializeObject(list, Formatting.Indented);
+                string json = JsonSerializer.Serialize(list, GreenshotJson.IndentedOptions);
                 byte[] plainBytes = Encoding.UTF8.GetBytes(json);
                 byte[] cipherBytes = ProtectedData.Protect(plainBytes, Entropy, DataProtectionScope.CurrentUser);
 

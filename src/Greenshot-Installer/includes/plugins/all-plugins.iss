@@ -1,10 +1,9 @@
+#include "atlassian.iss"
 #include "box.iss"
-#include "confluence.iss"
 ; The custom uploader is not delivered yet: uncomment the next line and remove GreenshotDeliverPlugin from its csproj
 ;#include "customuploader.iss"
 #include "dropbox.iss"
 #include "externalcommand.iss"
-#include "jira.iss"
 #include "office.iss"
 #include "pdf.iss"
 #include "recipeeditor.iss"

@@ -44,7 +44,7 @@ see 1.5 and section 3.)
 1. **No defined thread for the pipeline.** `CaptureHelper.*` and `TriggerManager` start flows with
    `_ = CapturePipeline.Instance.ExecuteAsync(...)` from the UI thread (fire-and-forget). Most sources and many steps
    are synchronous (`Task.FromResult` / `Task.CompletedTask`: all `*CaptureSource`, `EffectCaptureStep`,
-   `DrawableStep`, `ProcessorExecutionStep`, `ZxingStep`, `BoxStep`, `DropboxStep`, `OfficeStep`, ...).
+   `DrawableStep`, `ZxingStep`, `BoxStep`, `DropboxStep`, `OfficeStep`, ...).
    `ConfigureAwait(false)` only changes anything at an await that has **not already completed**. So the flow stays
    on the UI thread until the first real await, and which thread runs a step depends on what ran before it.
    Capture, effects and drawables can run on the UI thread.

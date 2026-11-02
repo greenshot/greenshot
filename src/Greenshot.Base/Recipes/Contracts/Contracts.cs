@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes.Contracts
 {
@@ -51,6 +52,10 @@ namespace Greenshot.Base.Recipes.Contracts
         public IAllowedValuesProvider AllowedValuesProvider { get; set; }
 
         public bool SupportsExpressions { get; set; } = true;
+
+        /// <summary>The type of an Object parameter's value, see <see cref="StepParameterAttribute.ValueType"/>; null for any value.</summary>
+        [JsonIgnore]
+        public Type ValueType { get; set; }
 
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);
@@ -127,11 +132,7 @@ namespace Greenshot.Base.Recipes.Contracts
             {
                 object value = node?.GetParameter<object>(result.Substring(keysPrefix.Length, result.Length - keysPrefix.Length - 1));
                 var keys = new List<string>();
-                if (value is Newtonsoft.Json.Linq.JObject jObject)
-                {
-                    keys.AddRange(jObject.Properties().Select(p => p.Name));
-                }
-                else if (value is System.Collections.IDictionary dictionary)
+                if (value is System.Collections.IDictionary dictionary)
                 {
                     foreach (var key in dictionary.Keys)
                     {

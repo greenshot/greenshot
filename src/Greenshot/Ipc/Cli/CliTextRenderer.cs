@@ -21,8 +21,10 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Greenshot.Ipc.Cli
 {
@@ -32,13 +34,13 @@ namespace Greenshot.Ipc.Cli
     /// </summary>
     public static class CliTextRenderer
     {
-        public static string RenderRecipeList(JToken recipes)
+        public static string RenderRecipeList(JsonNode recipes)
         {
             var sb = new StringBuilder();
             sb.Append("Available recipes with CommandlineTrigger:\n\n");
 
             int count = 0;
-            if (recipes is JArray recipeArray)
+            if (recipes is JsonArray recipeArray)
             {
                 foreach (var recipe in recipeArray)
                 {
@@ -69,7 +71,7 @@ namespace Greenshot.Ipc.Cli
             return sb.ToString();
         }
 
-        public static string RenderRecipeDescription(JToken recipe)
+        public static string RenderRecipeDescription(JsonNode recipe)
         {
             var sb = new StringBuilder();
             string id = GetString(recipe, "id");
@@ -83,7 +85,7 @@ namespace Greenshot.Ipc.Cli
                 string.IsNullOrEmpty(category) ? "General" : category,
                 string.IsNullOrEmpty(description) ? "(None)" : description);
 
-            if (GetToken(recipe, "triggers") is JArray triggers)
+            if (GetToken(recipe, "triggers") is JsonArray triggers)
             {
                 foreach (var trigger in triggers)
                 {
@@ -99,13 +101,13 @@ namespace Greenshot.Ipc.Cli
             }
 
             var contract = GetToken(recipe, "contract");
-            if (contract == null || contract.Type != JTokenType.Object)
+            if (contract is not JsonObject)
             {
                 return sb.ToString();
             }
 
             var lifecycle = GetToken(contract, "lifecycle");
-            if (lifecycle != null && lifecycle.Type == JTokenType.Object)
+            if (lifecycle is JsonObject)
             {
                 sb.AppendFormat(CultureInfo.InvariantCulture,
                     "Payload Lifecycle:\n  Acquires Image: {0}\n  Mutates Pixels: {1}\n  Extracts Text : {2}\n\n",
@@ -117,7 +119,7 @@ namespace Greenshot.Ipc.Cli
             AppendVariables(sb, GetToken(contract, "inputs"), "Inputs (Parameters & Variables)", true);
             AppendVariables(sb, GetToken(contract, "outputs"), "Outputs", false);
 
-            if (GetToken(contract, "steps") is JArray steps)
+            if (GetToken(contract, "steps") is JsonArray steps)
             {
                 sb.Append("Pipeline Steps:\n");
                 int stepNumber = 1;
@@ -130,7 +132,7 @@ namespace Greenshot.Ipc.Cli
                         stepType,
                         string.IsNullOrEmpty(displayName) ? stepType : displayName,
                         (GetBool(step, "requires_image") ? " (requires image)" : string.Empty) +
-                        (step["reachable"] != null && !GetBool(step, "reachable") ? " (never executed)" : string.Empty));
+                        (GetToken(step, "reachable") != null && !GetBool(step, "reachable") ? " (never executed)" : string.Empty));
                 }
                 if (stepNumber == 1)
                 {
@@ -139,14 +141,14 @@ namespace Greenshot.Ipc.Cli
                 sb.Append('\n');
             }
 
-            if (GetToken(contract, "warnings") is JArray warnings && warnings.Count > 0)
+            if (GetToken(contract, "warnings") is JsonArray warnings && warnings.Count > 0)
             {
                 sb.Append("Validation Warnings:\n");
                 foreach (var warning in warnings)
                 {
-                    if (warning.Type == JTokenType.String)
+                    if (warning?.GetValueKind() == JsonValueKind.String)
                     {
-                        sb.AppendFormat(CultureInfo.InvariantCulture, "  [!] {0}\n", warning.Value<string>());
+                        sb.AppendFormat(CultureInfo.InvariantCulture, "  [!] {0}\n", warning.GetValue<string>());
                     }
                 }
                 sb.Append('\n');
@@ -156,9 +158,9 @@ namespace Greenshot.Ipc.Cli
         }
 
         /// <summary>Declared Commandline arguments; accepts both snake_case (LIST_RECIPES) and PascalCase (DESCRIBE_RECIPE) names.</summary>
-        private static void AppendArguments(StringBuilder sb, JToken arguments, string indent)
+        private static void AppendArguments(StringBuilder sb, JsonNode arguments, string indent)
         {
-            if (!(arguments is JArray argumentArray) || argumentArray.Count == 0)
+            if (!(arguments is JsonArray argumentArray) || argumentArray.Count == 0)
             {
                 return;
             }
@@ -173,9 +175,9 @@ namespace Greenshot.Ipc.Cli
                 bool required = GetBool(argument, "required");
                 string type = GetString(argument, "type");
                 var allowedToken = GetToken(argument, "allowed_values");
-                if (allowedToken is JArray allowedValues && allowedValues.Count > 0)
+                if (allowedToken is JsonArray allowedValues && allowedValues.Count > 0)
                 {
-                    description = $"{description} [{string.Join("|", allowedValues.Values<string>())}]".Trim();
+                    description = $"{description} [{string.Join("|", allowedValues.Select(value => value?.ToString()))}]".Trim();
                 }
                 if (!string.IsNullOrEmpty(type) && !string.Equals(type, "String", StringComparison.OrdinalIgnoreCase))
                 {
@@ -202,9 +204,9 @@ namespace Greenshot.Ipc.Cli
             }
         }
 
-        private static void AppendVariables(StringBuilder sb, JToken items, string title, bool inputs)
+        private static void AppendVariables(StringBuilder sb, JsonNode items, string title, bool inputs)
         {
-            if (!(items is JArray itemArray))
+            if (!(items is JsonArray itemArray))
             {
                 return;
             }
@@ -249,21 +251,19 @@ namespace Greenshot.Ipc.Cli
             sb.Append('\n');
         }
 
-        private static JToken GetToken(JToken obj, string name)
+        private static JsonNode GetToken(JsonNode obj, string name)
         {
-            return obj is JObject jObject ? jObject.GetValue(name, StringComparison.OrdinalIgnoreCase) : null;
+            return obj is JsonObject jsonObject ? jsonObject.FirstOrDefault(property => string.Equals(property.Key, name, StringComparison.OrdinalIgnoreCase)).Value : null;
         }
 
-        private static string GetString(JToken obj, string name)
+        private static string GetString(JsonNode obj, string name)
         {
-            var token = GetToken(obj, name);
-            return token == null || token.Type == JTokenType.Null ? null : token.ToString();
+            return GetToken(obj, name)?.ToString();
         }
 
-        private static bool GetBool(JToken obj, string name)
+        private static bool GetBool(JsonNode obj, string name)
         {
-            var token = GetToken(obj, name);
-            return token != null && token.Type == JTokenType.Boolean && token.Value<bool>();
+            return GetToken(obj, name) is JsonValue value && value.TryGetValue(out bool flag) && flag;
         }
 
         private static string YesNo(bool value) => value ? "Yes" : "No";

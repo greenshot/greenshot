@@ -123,14 +123,29 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         {
             extension = NormalizeExtension(extension);
 
-            var loadfileFormatHandler = fileFormatHandlers
+            var loadFileFormatHandlers = fileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadDrawableFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadDrawableFromStream, extension))
-                .FirstOrDefault();
+                .ToList();
 
-            if (loadfileFormatHandler != null)
+            // The next handler gets the stream from the start when one can't read it, a stream which can't seek has only one try
+            long start = stream.CanSeek ? stream.Position : 0;
+            for (int i = 0; i < loadFileFormatHandlers.Count; i++)
             {
-                return loadfileFormatHandler.LoadDrawablesFromStream(stream, extension, parentSurface);
+                if (i > 0)
+                {
+                    if (!stream.CanSeek)
+                    {
+                        break;
+                    }
+                    stream.Position = start;
+                }
+
+                var drawables = loadFileFormatHandlers[i].LoadDrawablesFromStream(stream, extension, parentSurface).ToList();
+                if (drawables.Count > 0)
+                {
+                    return drawables;
+                }
             }
 
             return Enumerable.Empty<IDrawableContainer>();
@@ -148,18 +163,32 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         {
             extension = NormalizeExtension(extension);
 
-            var loadFileFormatHandler = fileFormatHandlers
+            var loadFileFormatHandlers = fileFormatHandlers
                 .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
                 .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
-                .FirstOrDefault();
+                .ToList();
 
-            if (loadFileFormatHandler == null)
+            // The next handler gets the stream from the start when one can't read it, a stream which can't seek has only one try
+            long start = stream.CanSeek ? stream.Position : 0;
+            for (int i = 0; i < loadFileFormatHandlers.Count; i++)
             {
-                bitmap = null;
-                return false;
+                if (i > 0)
+                {
+                    if (!stream.CanSeek)
+                    {
+                        break;
+                    }
+                    stream.Position = start;
+                }
+
+                if (loadFileFormatHandlers[i].TryLoadFromStream(stream, extension, out bitmap))
+                {
+                    return true;
+                }
             }
 
-            return loadFileFormatHandler.TryLoadFromStream(stream, extension, out bitmap);
+            bitmap = null;
+            return false;
         }
     }
 }

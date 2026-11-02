@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization.Metadata;
 using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Recipes.Pipeline
@@ -38,6 +39,12 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// Registers a step type: the factory creating its steps and the contract describing them.
         /// </summary>
         void Register(StepContract contract, Func<RecipeNodeConfig, ICaptureStep> factory);
+
+        /// <summary>
+        /// Adds the JSON types (a source generated JsonSerializerContext) of parameters with a
+        /// <see cref="Contracts.StepParameterAttribute.ValueType"/>; call it before registering the steps using them.
+        /// </summary>
+        void RegisterJsonTypes(IJsonTypeInfoResolver resolver);
 
         /// <summary>
         /// True when the step type is registered.

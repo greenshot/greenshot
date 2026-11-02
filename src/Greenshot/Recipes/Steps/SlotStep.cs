@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
@@ -34,7 +35,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Slot, "Slot", "A place where extensions (border, drop shadow, caption, ...) add their steps; does nothing itself.", "Flow")]
     [StepParameter("Name", ContractDataType.Enum, Required = true, Description = "Which slot", AllowedValues = new[] { RecipeSlots.AfterCapture, RecipeSlots.BeforeExport, RecipeSlots.AfterExport, RecipeSlots.BeforeDestination }, SupportsExpressions = false)]
-    [StepParameter("Accept", ContractDataType.Object, DefaultValue = RecipeSlots.AcceptAll, Description = "Which extensions: \"all\", \"none\" or a list of extension ids", SupportsExpressions = false)]
+    [StepParameter("Accept", ContractDataType.Object, ValueType = typeof(List<string>), Description = "The ids of the extensions it takes; without it all, an empty list none", SupportsExpressions = false)]
     public class SlotStep : ICaptureStep
     {
         public string Name { get; }

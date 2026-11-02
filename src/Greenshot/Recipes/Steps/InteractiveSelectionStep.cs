@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
@@ -32,7 +31,6 @@ using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 
 using Greenshot.Base.Interfaces.Capture;
@@ -40,6 +38,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using log4net;
 using Greenshot.Base.Threading;
 
@@ -103,7 +102,7 @@ namespace Greenshot.Recipes.Steps
             {
                 if (Config.GetParameter("SelectionMode", CaptureMode.Region) == CaptureMode.Text)
                 {
-                    await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
+                    await OcrStep.ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
                 }
                 return;
             }
@@ -154,6 +153,8 @@ namespace Greenshot.Recipes.Steps
                 payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
                 context.Properties["SelectedWindow"] = selection.SelectedWindow;
             }
+            // The selection gives the capture the title of the window
+            TitleFix.Apply(payload.RawCapture.CaptureDetails);
 
             // Selected on the live screen: nothing was captured yet
             bool live = payload.RawCapture.Image == null;
@@ -181,6 +182,13 @@ namespace Greenshot.Recipes.Steps
 
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+                // The fixed size capture offers a captured window again (the region and fixed size tools remember their own)
+                if (selection.FinalMode == CaptureMode.Window)
+                {
+                    var selectedWindow = selection.SelectedWindow;
+                    context.Ui.InvokeAsync(() => FixedSizeCaptureTool.RememberArea(screenOffsetRect, selectedWindow == null ? null : new[] { selectedWindow }), CancellationToken.None)
+                        .FireAndLog("Remember the window capture for the fixed size capture", Log);
+                }
 
                 // A tool which takes its own image of the selection, e.g. of a plugin
                 if (selection.Tool is ISelectionCaptureTool selectionCaptureTool)
@@ -208,7 +216,7 @@ namespace Greenshot.Recipes.Steps
 
             if (selection.FinalMode == CaptureMode.Text)
             {
-                await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
+                await OcrStep.ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -291,104 +299,6 @@ namespace Greenshot.Recipes.Steps
                 return true;
             }
             return string.Equals(source, "Screen", StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Puts the OCR text of the (selected part of the) capture into Payload.ExtractedText.
-        /// Where the text goes (clipboard, stdout, ...) is up to the following steps.
-        /// </summary>
-        private static async Task ExtractOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
-        {
-            var rawCapture = context.Payload?.RawCapture;
-            var captureDetails = rawCapture?.CaptureDetails;
-            if (captureDetails == null) return;
-
-            if (captureDetails.ProcessingTask != null)
-            {
-                try
-                {
-                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Error waiting for background OCR processing in InteractiveSelectionStep", ex);
-                }
-            }
-
-            List<IOcrLineFeature> ocrLines;
-            lock (captureDetails.Features)
-            {
-                ocrLines = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
-            }
-
-            if (!ocrLines.Any())
-            {
-                // OCR is optional (e.g. no Windows OCR language installed): without it there is simply no text
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-                if (ocrProvider != null && rawCapture.Image != null)
-                {
-                    try
-                    {
-                        var lines = await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false);
-                        if (lines != null && lines.Any())
-                        {
-                            lock (captureDetails.Features)
-                            {
-                                captureDetails.Features.AddRange(lines);
-                            }
-                            ocrLines = lines;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Failed to run OCR in InteractiveSelectionStep", ex);
-                    }
-                }
-            }
-
-            if (ocrLines == null || !ocrLines.Any()) return;
-
-            var bounds = rawCapture.Image != null
-                ? new NativeRect(0, 0, rawCapture.Image.Width, rawCapture.Image.Height)
-                : NativeRect.Empty;
-
-            var textResult = new StringBuilder();
-
-            foreach (var line in ocrLines)
-            {
-                if (!bounds.IsEmpty && (line.Bounds.IsEmpty || !line.Bounds.IntersectsWith(bounds))) continue;
-
-                if (line.Words != null && line.Words.Count > 0)
-                {
-                    bool lineHasWords = false;
-                    for (var i = 0; i < line.Words.Count; i++)
-                    {
-                        var word = line.Words[i];
-                        if (!bounds.IsEmpty && !word.Bounds.IntersectsWith(bounds)) continue;
-                        if (lineHasWords && word.Text.Length > 0)
-                        {
-                            textResult.Append(' ');
-                        }
-                        textResult.Append(word.Text);
-                        lineHasWords = true;
-                    }
-                    if (lineHasWords)
-                    {
-                        textResult.AppendLine();
-                    }
-                }
-                else if (!string.IsNullOrEmpty(line.Text))
-                {
-                    textResult.AppendLine(line.Text);
-                }
-            }
-
-            string extracted = textResult.ToString().TrimEnd();
-            context.Payload.ExtractedText = extracted;
         }
     }
 }

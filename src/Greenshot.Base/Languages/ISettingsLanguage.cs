@@ -232,6 +232,46 @@ namespace Greenshot.Base.Languages
         string DestinationPrinter { get; }
 
         /// <summary>
+        /// Show in a viewer
+        /// </summary>
+        string DestinationViewer { get; }
+
+        /// <summary>
+        /// Viewer
+        /// </summary>
+        string Viewer { get; }
+
+        /// <summary>
+        /// Size of a new viewer
+        /// </summary>
+        string ViewerFirstSize { get; }
+
+        /// <summary>
+        /// Real size (1:1), at most as big as the screen
+        /// </summary>
+        string ViewerOpenAtRealSize { get; }
+
+        /// <summary>
+        /// Otherwise at most (pixels)
+        /// </summary>
+        string ViewerMaximumSize { get; }
+
+        /// <summary>
+        /// Viewer window
+        /// </summary>
+        string ViewerWindow { get; }
+
+        /// <summary>
+        /// Border color contrasting with the light or dark mode
+        /// </summary>
+        string ViewerBorderColorFollowsTheme { get; }
+
+        /// <summary>
+        /// Border color
+        /// </summary>
+        string ViewerBorderColor { get; }
+
+        /// <summary>
         /// Available
         /// </summary>
         string DestinationAvailable { get; }
@@ -405,6 +445,11 @@ namespace Greenshot.Base.Languages
         /// Take screenshots with DirectX (Windows Graphics Capture, needed for HDR screens)
         /// </summary>
         string ExpertGraphicscapture { get; }
+
+        /// <summary>
+        /// Ignore the screen reader flag of Windows when capturing (when a program left it on)
+        /// </summary>
+        string ExpertIgnorescreenreader { get; }
 
         /// <summary>
         /// Keep DirectX ready for faster screenshots (uses more memory)
@@ -681,6 +726,26 @@ namespace Greenshot.Base.Languages
         string RecipesReset { get; }
 
         /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string RecipesGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string RecipesGetMoreTooltip { get; }
+
+        /// <summary>
+        /// The hotkey is written in the recipe file, it is changed in the recipe editor
+        /// </summary>
+        string HotkeySetInRecipe { get; }
+
+        /// <summary>
+        /// Choose a folder
+        /// </summary>
+        string RecipesChooseFolder { get; }
+
+        /// <summary>
         /// All
         /// </summary>
         string RecipesScopeAll { get; }
@@ -744,6 +809,51 @@ namespace Greenshot.Base.Languages
         /// Reduce the amount of colors to a maximum of 256
         /// </summary>
         string Reducecolors { get; }
+
+        /// <summary>
+        /// Details in saved images
+        /// </summary>
+        string ExportMetadata { get; }
+
+        /// <summary>
+        /// When the screen was captured
+        /// </summary>
+        string ExportMetadataCapturetime { get; }
+
+        /// <summary>
+        /// Author and copyright
+        /// </summary>
+        string ExportMetadataAuthor { get; }
+
+        /// <summary>
+        /// Window title and web address (private)
+        /// </summary>
+        string ExportMetadataSource { get; }
+
+        /// <summary>
+        /// Recognized text, when OCR already ran (private)
+        /// </summary>
+        string ExportMetadataText { get; }
+
+        /// <summary>
+        /// Content of barcodes and QR codes (private)
+        /// </summary>
+        string ExportMetadataBarcodes { get; }
+
+        /// <summary>
+        /// Author
+        /// </summary>
+        string ExportMetadataAuthorName { get; }
+
+        /// <summary>
+        /// Copyright
+        /// </summary>
+        string ExportMetadataCopyright { get; }
+
+        /// <summary>
+        /// Files saved on this computer get the private details. Before they go anywhere else (upload, e-mail, Office), Greenshot asks whether to remove them.
+        /// </summary>
+        string ExportMetadataPrivateHint { get; }
 
         /// <summary>
         /// Register Hotkeys
@@ -901,6 +1011,86 @@ namespace Greenshot.Base.Languages
         /// Height
         /// </summary>
         string FixedCaptureSizesHeight { get; }
+
+        /// <summary>
+        /// X (optional)
+        /// </summary>
+        string FixedCaptureSizesX { get; }
+
+        /// <summary>
+        /// Y (optional)
+        /// </summary>
+        string FixedCaptureSizesY { get; }
+
+        /// <summary>
+        /// From the top left of
+        /// </summary>
+        string FixedCaptureSizesRelativeTo { get; }
+
+        /// <summary>
+        /// The main screen
+        /// </summary>
+        string FixedCaptureSizesMainScreen { get; }
+
+        /// <summary>
+        /// Screen {0}
+        /// </summary>
+        string FixedCaptureSizesScreen { get; }
+
+        /// <summary>
+        /// A window of a program
+        /// </summary>
+        string FixedCaptureSizesProgram { get; }
+
+        /// <summary>
+        /// Program, e.g. notepad.exe
+        /// </summary>
+        string FixedCaptureSizesProgramName { get; }
+
+        /// <summary>
+        /// Keep it as one of your own sizes
+        /// </summary>
+        string FixedCaptureSizesKeep { get; }
+
+        /// <summary>
+        /// Change this size (a click on a fixed capture size in the settings)
+        /// </summary>
+        string FixedCaptureSizesChange { get; }
+
+        /// <summary>
+        /// Recent captures keep
+        /// </summary>
+        string FixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Only the size
+        /// </summary>
+        string FixedCaptureRemembersSize { get; }
+
+        /// <summary>
+        /// The place on the screen
+        /// </summary>
+        string FixedCaptureRemembersScreen { get; }
+
+        /// <summary>
+        /// The place in the window, else on the screen
+        /// </summary>
+        string FixedCaptureRemembersWindow { get; }
+
+        /// <summary>
+        /// What F in the region selection offers of your last captures: only the size, also the place on the screen, or also the place in the window of the program, which follows the window.
+        /// </summary>
+        string TooltipFixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Move the mouse to the place of a size
+        /// </summary>
+        string FixedCaptureMovesCursor { get; }
+
+        /// <summary>
+        /// Picking a size with a place moves the mouse so the area is there. When off, the place is shown as an outline and the area snaps onto it.
+        /// </summary>
+        string TooltipFixedCaptureMovesCursor { get; }
 
         /// <summary>
         /// Window capture

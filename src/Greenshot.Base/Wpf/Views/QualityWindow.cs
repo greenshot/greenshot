@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
@@ -46,6 +47,11 @@ namespace Greenshot.Base.Wpf.Views
             _settings = settings;
             string title = Texts.Core.QualitydialogTitle;
             ThemedControls.ApplyDialogLook(this, title);
+            // The slider below is made in code, so it gets the slider style from here
+            Resources.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
+            });
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Topmost = true;
             Width = 380;

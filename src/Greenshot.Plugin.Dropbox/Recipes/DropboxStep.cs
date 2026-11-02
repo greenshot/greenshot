@@ -79,7 +79,7 @@ namespace Greenshot.Plugin.Dropbox.Recipes
             context.LogStep("Uploading capture to Dropbox...");
             Log.Info("DropboxStep: Executing Dropbox upload.");
 
-            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             bool? success;
             try
             {

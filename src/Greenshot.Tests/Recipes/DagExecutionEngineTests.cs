@@ -356,9 +356,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task ExecuteAsync_StepError_WithNodeLevelErrorTarget_RoutesToErrorHandlerNode()
+        public async Task ExecuteAsync_StepError_WithErrorTransitionOfTheNode_RoutesToErrorHandlerNode()
         {
-            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export", OnErrorNodeId = "recovery_node" };
+            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export" };
 
             var recipe = new CaptureRecipe("node_fallback_recipe", "Node Fallback Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
@@ -368,7 +368,8 @@ namespace Greenshot.Tests.Recipes
 
             recipe.Flow = new RecipeFlowConfig("start")
                 .AddTransition("start", "fail_node")
-                .AddTransition("fail_node", "normal_next");
+                .AddTransition("fail_node", "normal_next")
+                .AddErrorTransition("fail_node", "recovery_node");
 
             using var bmp = new Bitmap(10, 10);
             var capture = new Capture((Image)bmp.Clone());
@@ -403,9 +404,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task ExecuteAsync_StepError_WithTypedOnErrorNodeIdProperty_RoutesToErrorHandlerNode()
+        public async Task ExecuteAsync_DestinationExportError_WithErrorTransition_RoutesToErrorHandlerNode()
         {
-            var failNode = new RecipeNodeConfig { Id = "save_file_node", StepType = "SaveFile", OnErrorNodeId = "dynamic_dest" };
+            var failNode = new RecipeNodeConfig { Id = "save_file_node", StepType = "SaveFile" };
 
             var recipe = new CaptureRecipe("save_fallback_recipe", "Save Fallback Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
@@ -413,7 +414,8 @@ namespace Greenshot.Tests.Recipes
                 .AddNode(new RecipeNodeConfig { Id = "dynamic_dest", StepType = "DynamicDestination" });
 
             recipe.Flow = new RecipeFlowConfig("start")
-                .AddTransition("start", "save_file_node");
+                .AddTransition("start", "save_file_node")
+                .AddErrorTransition("save_file_node", "dynamic_dest");
 
             using var bmp = new Bitmap(10, 10);
             var capture = new Capture((Image)bmp.Clone());

@@ -40,7 +40,6 @@ namespace Greenshot.Plugin.Pdf.Recipes;
 [StepInfo("Pdf", "Save as PDF", "Saves the capture as a PDF file.", "Export")]
 [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
 [StepParameter("PageSize", ContractDataType.Enum, Description = "PDF page size (default: PDF settings)", AllowedValues = new[] { PdfPageSizes.Image, PdfPageSizes.Custom, PdfPageSizes.A3, PdfPageSizes.A4, PdfPageSizes.A5, PdfPageSizes.A6, PdfPageSizes.Letter })]
-[StepParameter("MeasurementUnit", ContractDataType.Enum, Description = "Measurement unit displayed in PDF settings (dimensions and margins are in mm)", AllowedValues = new[] { PdfMeasurementUnits.Mm, PdfMeasurementUnits.Cm, PdfMeasurementUnits.Inch })]
 [StepParameter("PageWidthMm", ContractDataType.Decimal, Description = "Custom page width in millimeters (default: PDF settings)")]
 [StepParameter("PageHeightMm", ContractDataType.Decimal, Description = "Custom page height in millimeters (default: PDF settings)")]
 [StepParameter("MarginTopMm", ContractDataType.Decimal, Description = "Top margin in millimeters (default: PDF settings)")]
@@ -80,7 +79,6 @@ public sealed class PdfStep : ICaptureStep
         var configuration = new PdfConfigurationImpl
         {
             PageSize = NodeConfig.GetParameter("PageSize", _configuration.PageSize),
-            MeasurementUnit = NodeConfig.GetParameter("MeasurementUnit", _configuration.MeasurementUnit),
             PageWidthMm = NodeConfig.GetParameter("PageWidthMm", _configuration.PageWidthMm),
             PageHeightMm = NodeConfig.GetParameter("PageHeightMm", _configuration.PageHeightMm),
             MarginTopMm = NodeConfig.GetParameter("MarginTopMm", _configuration.MarginTopMm),
@@ -90,7 +88,7 @@ public sealed class PdfStep : ICaptureStep
             ScalingMode = NodeConfig.GetParameter("ScalingMode", _configuration.ScalingMode)
         };
         var destination = new PdfDestination(configuration, NodeConfig.GetParameter("ShowSaveDialog", true));
-        var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+        var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
         var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
         await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
         // The Notification step shows it

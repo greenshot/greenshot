@@ -173,7 +173,7 @@ namespace Greenshot.Base.Core
         /// <param name="processName">Process name, with or without .exe</param>
         /// <param name="matchCase">bool</param>
         /// <returns>IInteropWindow, null when no window matches</returns>
-        public static IInteropWindow FindMatchingWindow(string title, string titlePattern, string processName, bool matchCase)
+        public static IInteropWindow FindMatchingWindow(string titlePattern, string processName, bool matchCase)
         {
             Regex regex = null;
             if (!string.IsNullOrEmpty(titlePattern))
@@ -184,21 +184,23 @@ namespace Greenshot.Base.Core
                 }
                 catch (ArgumentException ex)
                 {
-                    Log.Warn($"Invalid windowTitlePattern regex '{titlePattern}'", ex);
+                    // An invalid pattern matches no window, it must not capture just any window
+                    Log.Warn($"Invalid WindowTitlePattern regex '{titlePattern}'", ex);
+                    return null;
                 }
             }
 
             var comparison = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             var activeWindow = GetActiveWindow();
-            if (activeWindow != null && Matches(activeWindow, title, regex, processName, comparison))
+            if (activeWindow != null && Matches(activeWindow, regex, processName, comparison))
             {
                 return activeWindow;
             }
 
-            return GetTopLevelWindows().FirstOrDefault(window => Matches(window, title, regex, processName, comparison));
+            return GetTopLevelWindows().FirstOrDefault(window => Matches(window, regex, processName, comparison));
         }
 
-        private static bool Matches(IInteropWindow window, string title, Regex regex, string processName, StringComparison comparison)
+        private static bool Matches(IInteropWindow window, Regex regex, string processName, StringComparison comparison)
         {
             if (!string.IsNullOrEmpty(processName))
             {
@@ -209,13 +211,7 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            var caption = window.GetCaption() ?? string.Empty;
-            if (regex != null)
-            {
-                return regex.IsMatch(caption);
-            }
-
-            return string.IsNullOrEmpty(title) || caption.IndexOf(title, comparison) >= 0;
+            return regex == null || regex.IsMatch(window.GetCaption() ?? string.Empty);
         }
     }
 }

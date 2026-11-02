@@ -18,21 +18,18 @@ src/
 │       ├── greenshot.de-DE.ini
 │       ├── greenshot.fr-FR.ini
 │       └── ... (40 language packs)
+├── Greenshot.Plugin.Atlassian/
+│   └── Languages/
+│       └── greenshot.atlassian.{ietf}.ini    (21 languages, [Jira] and [Confluence])
 ├── Greenshot.Plugin.Box/
 │   └── Languages/
 │       └── greenshot.box.{ietf}.ini    (20 languages)
-├── Greenshot.Plugin.Confluence/
-│   └── Languages/
-│       └── greenshot.confluence.{ietf}.ini    (21 languages)
 ├── Greenshot.Plugin.Dropbox/
 │   └── Languages/
 │       └── greenshot.dropbox.{ietf}.ini    (20 languages)
 ├── Greenshot.Plugin.ExternalCommand/
 │   └── Languages/
 │       └── greenshot.externalcommand.{ietf}.ini    (21 languages)
-├── Greenshot.Plugin.Jira/
-│   └── Languages/
-│       └── greenshot.jira.{ietf}.ini    (21 languages)
 └── Greenshot.Plugin.Office/
     └── Languages/
         └── greenshot.office.{ietf}.ini    (4 languages)
@@ -87,7 +84,7 @@ Every key must be inside a section. A key in the wrong section is not found. Wri
 
 ### Plugin Language Pack
 
-File name: `greenshot.{module}.{ietf}.ini`, for example `greenshot.jira.de-DE.ini`. The modules are `box`, `confluence`, `dropbox`, `externalcommand`, `jira` and `office`. A plugin pack has one section named after the plugin: `[Box]`, `[Confluence]`, `[Dropbox]`, `[ExternalCommand]`, `[Jira]`, `[Office]`. Example from `greenshot.jira.de-DE.ini`:
+File name: `greenshot.{module}.{ietf}.ini`, for example `greenshot.atlassian.de-DE.ini`. The modules are `atlassian`, `box`, `dropbox`, `externalcommand` and `office`. A plugin pack has a section per part of the plugin: `[Jira]` and `[Confluence]` in the atlassian pack, `[Box]`, `[Dropbox]`, `[ExternalCommand]` and `[Office]` in the others. Example from `greenshot.atlassian.de-DE.ini`:
 
 ```ini
 [Jira]
@@ -183,7 +180,7 @@ Every key with a fixed name is a typed string property on a language interface:
 | `[Settings]` | `src/Greenshot.Base/Languages/ISettingsLanguage.cs` | `Texts.Settings.Language` |
 | `[SelfService]` | `src/Greenshot.Base/Languages/ISelfServiceLanguage.cs` | `Texts.SelfService.Title` |
 | `[Recipe]` | `src/Greenshot.Base/Languages/IRecipeLanguage.cs` | `Texts.Recipe.ImportTitle` |
-| `[Jira]` etc. | `src/Greenshot.Plugin.Jira/IJiraLanguage.cs` etc. | `Texts.Get<IJiraLanguage>().UploadMenuItem` |
+| `[Jira]` etc. | `src/Greenshot.Plugin.Atlassian/Jira/IJiraLanguage.cs` etc. | `Texts.Get<IJiraLanguage>().UploadMenuItem` |
 
 In XAML a text is used as `{wpf:Text Editor.Undo}`.
 
@@ -204,17 +201,17 @@ A plugin brings its own language packs, but it can use every text of Greenshot i
 
 **Own texts**, using Jira as example:
 
-1. **Language pack:** create `Languages/greenshot.{module}.en-US.ini` in the plugin project, with one section named after the plugin. The module name is the lower-case plugin name:
+1. **Language pack:** create `Languages/greenshot.{module}.en-US.ini` in the plugin project, with a section per part of the plugin (most plugins have one, named after the plugin). The module name is the lower-case plugin name, all sections of a plugin use the same one:
    ```ini
    [Jira]
    upload_menu_item=Upload to Jira
    column_assignee=Assignee
    ```
-   Translations go next to it as `greenshot.jira.de-DE.ini` etc. A missing translation shows English.
+   Translations go next to it as `greenshot.atlassian.de-DE.ini` etc. A missing translation shows English.
 
 2. **Interface:** add an interface with a string property per key. The source generator of Dapplo.Ini, which comes with the reference to Greenshot.Base, generates the implementation `JiraLanguageImpl`:
    ```csharp
-   [IniLanguageSection("Jira", ModuleName = "jira")]
+   [IniLanguageSection("Jira", ModuleName = "atlassian")]
    public interface IJiraLanguage : INotifyPropertyChanged
    {
        /// <summary>
@@ -244,7 +241,7 @@ A plugin brings its own language packs, but it can use every text of Greenshot i
 
 5. **Installer:** add the packs to the plugin's file in `src/Greenshot-Installer/includes/plugins/`, installed flat into `{app}\Languages`:
    ```
-   Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\greenshot.jira.*.ini; DestDir: {app}\Languages; Components: plugins\jira; Flags: {#DefaultInstallFlags};
+   Source: {#SolutionDir}\Greenshot.Plugin.Atlassian\Languages\greenshot.atlassian.*.ini; DestDir: {app}\Languages; Components: plugins\atlassian; Flags: {#DefaultInstallFlags};
    ```
 
 6. **XAML:** add the namespace and use `{wpf:Text Section.Property}`:

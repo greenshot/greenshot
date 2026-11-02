@@ -627,7 +627,7 @@ namespace Greenshot.Tests.Document
             }
 
             using var surface = new Surface(new Bitmap(200, 100));
-            var container = Assert.IsType<ImageContainer>(Assert.Single(new DefaultFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(file), extension, surface)));
+            var container = Assert.IsType<ImageContainer>(Assert.Single(new WicFileFormatHandler().LoadDrawablesFromStream(new MemoryStream(file), extension, surface)));
             surface.AddElement(container, false, false);
 
             var document = SurfaceToDocument.ToDocument(surface);

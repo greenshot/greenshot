@@ -72,11 +72,11 @@ namespace Greenshot.Tests
                 Texts.SetLanguage("en-US");
                 // The plugins register their texts when they start, the tests need them without starting the plugins
                 Texts.Register<Greenshot.Plugin.Box.IBoxLanguage>(new Greenshot.Plugin.Box.BoxLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Confluence.ConfluenceLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Atlassian.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Atlassian.Confluence.ConfluenceLanguageImpl());
                 Texts.Register<Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage>(new Greenshot.Plugin.CustomUploader.CustomUploaderLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Dropbox.IDropboxLanguage>(new Greenshot.Plugin.Dropbox.DropboxLanguageImpl());
                 Texts.Register<Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage>(new Greenshot.Plugin.ExternalCommand.ExternalCommandLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Atlassian.Jira.IJiraLanguage>(new Greenshot.Plugin.Atlassian.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
                 Texts.Register<Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage>(new Greenshot.Plugin.RecipeEditor.RecipeEditorLanguageImpl());
