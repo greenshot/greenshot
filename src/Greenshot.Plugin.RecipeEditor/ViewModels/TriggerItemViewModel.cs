@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
 
@@ -82,6 +84,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 OnPropertyChanged(nameof(IsHotkeyReference));
                 OnPropertyChanged(nameof(IsFixedHotkey));
                 OnPropertyChanged(nameof(HotkeySourceText));
+                OnPropertyChanged(nameof(HotkeyOptionKey));
             }
         }
 
@@ -125,6 +128,31 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// Replaces the reference with the hotkey used now, which can then be changed in the hotkey window
         /// </summary>
         public ICommand UseFixedHotkeyCommand { get; }
+
+        /// <summary>
+        /// The Hotkey options of the recipe, which the trigger can use instead of a fixed hotkey
+        /// </summary>
+        public IReadOnlyList<RecipeOption> HotkeyOptions => _getRecipe?.Invoke()?.Options?
+            .Where(o => o != null && o.Type == ContractDataType.Hotkey && !string.IsNullOrWhiteSpace(o.Key)).ToList() ?? new List<RecipeOption>();
+
+        /// <summary>
+        /// The key of the option the hotkey comes from, choosing one makes the trigger use "${option.key}"
+        /// </summary>
+        public string HotkeyOptionKey
+        {
+            get => RecipeOptionStore.TryParseReference(Hotkey, out var optionKey) ? optionKey : null;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) || value == HotkeyOptionKey) return;
+                Hotkey = "${option." + value + "}";
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Reads the options again, they can change while the trigger is shown
+        /// </summary>
+        public void RefreshHotkeyOptions() => OnPropertyChanged(nameof(HotkeyOptions));
 
         public string MenuItemText
         {

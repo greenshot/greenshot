@@ -971,7 +971,17 @@
                                         <TextBlock Text="{wpf:Text RecipeEditor.DisplayName}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
                                         <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.DisplayName}" Text="{Binding SelectedNode.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                 Padding="6,4" Margin="0,2,0,12"/>
+                                                 Padding="6,4" Margin="0,2,0,8"/>
+
+                                        <StackPanel Visibility="{Binding SelectedNode.IsBoundary, Converter={StaticResource InvertBoolToVis}}">
+                                            <CheckBox Content="{wpf:Text RecipeEditor.StepEnabled}" IsChecked="{Binding SelectedNode.StepEnabled, Mode=TwoWay}"
+                                                      ToolTip="{wpf:Text RecipeEditor.TipStepEnabled}" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.StepWhen}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.StepWhen}" Text="{Binding SelectedNode.StepWhen, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,2,0,12" ToolTip="{wpf:Text RecipeEditor.TipStepWhen}"/>
+                                        </StackPanel>
 
                                         <Separator Background="{Binding CardBorderBrush}" Margin="0,4,0,12"/>
                                         <TextBlock Text="{wpf:Text RecipeEditor.HeaderStepParameters}" FontWeight="Bold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
@@ -3251,6 +3261,10 @@
                                                                         Margin="6,0,0,0" Command="{Binding UseFixedHotkeyCommand}"/>
                                                                 <TextBlock Text="{Binding HotkeySourceText}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                                             </DockPanel>
+                                                            <TextBlock Text="{wpf:Text RecipeEditor.TriggerHotkeyUseOption}" FontSize="{wpf:FontSize 10}" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TriggerHotkeyUseOption}" ItemsSource="{Binding HotkeyOptions}"
+                                                                      DisplayMemberPath="DisplayLabel" SelectedValuePath="Key" SelectedValue="{Binding HotkeyOptionKey, Mode=TwoWay}"
+                                                                      DropDownOpened="HotkeyOptions_DropDownOpened" Margin="0,2,0,4"/>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->
