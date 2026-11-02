@@ -52,6 +52,7 @@ Greenshot saves PNG, JPEG, BMP, GIF, TIFF, WebP, TGA, PBM, JPEG XR, ICO and .gre
 plugin.
 
 - PNG files are written as small as possible without losing anything.
+- JPEG, BMP, TIFF and JPEG XR files are written by Windows itself, TIFF compressed (LZW) without losing anything.
 - Codecs installed in Windows are used for opening images only; saving doesn't depend on them.
 
 ## Photos are turned upright

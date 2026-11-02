@@ -70,15 +70,33 @@ namespace Greenshot.Tests.Editor
 
         [Theory]
         [InlineData(".png")]
-        [InlineData(".jpg")]
-        [InlineData(".bmp")]
         [InlineData(".gif")]
-        [InlineData(".tif")]
         [InlineData(".webp")]
         [InlineData(".tga")]
+        [InlineData(".pbm")]
         public void Saving_StaysWithImageSharp(string extension)
         {
             Assert.IsType<ImageSharpFileFormatHandler>(First(FileFormatHandlerActions.SaveToStream, extension));
+        }
+
+        [Theory]
+        [InlineData(".jpg")]
+        [InlineData(".jpeg")]
+        [InlineData(".bmp")]
+        [InlineData(".tif")]
+        [InlineData(".tiff")]
+        [InlineData(".jxr")]
+        public void Saving_GoesThroughWic_WithImageSharpAsFallback(string extension)
+        {
+            var handlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>()
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.SaveToStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.SaveToStream, extension))
+                .ToList();
+            Assert.IsType<WicFileFormatHandler>(handlers[0]);
+            if (extension != ".jxr")
+            {
+                Assert.Contains(handlers, handler => handler is ImageSharpFileFormatHandler);
+            }
         }
 
         [Fact]

@@ -168,6 +168,73 @@ namespace Greenshot.Tests.Editor
             AssertLoads(stream, ".jxr", width, height, expected);
         }
 
+        /// <summary>
+        /// TIFF is written with LZW (ImageSharp wrote it uncompressed) without losing anything, and says it was written by Greenshot
+        /// </summary>
+        [Fact]
+        public void Tiff_IsSavedCompressedAndLossless()
+        {
+            const int width = 200, height = 100;
+            using var source = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            using (var graphics = Graphics.FromImage(source))
+            {
+                graphics.Clear(Color.White);
+                graphics.FillRectangle(Brushes.SteelBlue, 20, 10, 80, 40);
+                graphics.FillRectangle(Brushes.OrangeRed, 120, 50, 60, 30);
+            }
+            var expected = new int[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    expected[x + y * width] = source.GetPixel(x, y).ToArgb();
+                }
+            }
+
+            using var stream = new MemoryStream();
+            Assert.True(new WicFileFormatHandler().TrySaveToStream(source, stream, ".tif", null, new SurfaceOutputSettings(WellKnownFileFormats.Tiff)));
+            Assert.True(stream.Length < width * height * 3 / 4, $"The TIFF has {stream.Length} bytes, it isn't compressed");
+
+            stream.Position = 0;
+            AssertSoftwareTag(stream, WicContainerFormats.Tiff);
+            stream.Position = 0;
+            AssertLoads(stream, ".tif", width, height, expected);
+        }
+
+        [Fact]
+        public void Jpeg_SaysItWasWrittenByGreenshot()
+        {
+            using var source = new Bitmap(40, 30, PixelFormat.Format24bppRgb);
+            using var stream = new MemoryStream();
+            Assert.True(new WicFileFormatHandler().TrySaveToStream(source, stream, ".jpg", null, new SurfaceOutputSettings(WellKnownFileFormats.Jpg, 80)));
+            stream.Position = 0;
+            AssertSoftwareTag(stream, WicContainerFormats.Jpeg);
+        }
+
+        /// <summary>
+        /// A bitmap with a palette is left to ImageSharp, which writes the palette; the registered handlers still save it
+        /// </summary>
+        [Fact]
+        public void IndexedBitmap_IsSavedByImageSharp()
+        {
+            using var source = CreateIndexed(PixelFormat.Format8bppIndexed, out var expected);
+            using var stream = new MemoryStream();
+            Assert.False(new WicFileFormatHandler().TrySaveToStream(source, stream, ".tif", null, new SurfaceOutputSettings(WellKnownFileFormats.Tiff)));
+            Assert.Equal(0, stream.Length);
+
+            var handlers = Greenshot.Base.Core.SimpleServiceProvider.Current.GetAllInstances<Greenshot.Base.Interfaces.IFileFormatHandler>();
+            Assert.True(Greenshot.Base.Core.FileFormatHandlers.FileFormatHandlerExtensions.TrySaveToStream(handlers, source, stream, ".tif", null, new SurfaceOutputSettings(WellKnownFileFormats.Tiff)));
+            stream.Position = 0;
+            AssertLoads(stream, ".tif", Width, Height, expected);
+        }
+
+        private static void AssertSoftwareTag(Stream stream, Guid container)
+        {
+            var frameInfo = WicImage.GetFrameInfo(stream);
+            Assert.True(frameInfo.Metadata.TryGet(WicMetadataPaths.Software(container), out var software), "No Software tag");
+            Assert.StartsWith("Greenshot", Convert.ToString(software));
+        }
+
         private static void AssertLoads(Stream stream, string extension, int width, int height, int[] expected, int tolerance = 0)
         {
             Assert.True(new WicFileFormatHandler().TryLoadFromStream(stream, extension, out var loaded));

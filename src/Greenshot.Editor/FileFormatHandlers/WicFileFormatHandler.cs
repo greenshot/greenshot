@@ -56,9 +56,24 @@ namespace Greenshot.Editor.FileFormatHandlers
             [WicContainerFormats.Webp] = ("webp", "WebP")
         };
 
+        // The formats WIC saves: faster than ImageSharp for JPEG with the same file, TIFF compressed (ImageSharp writes it uncompressed).
+        // PNG stays with the PngOptimizer, GIF needs a palette, both are saved by ImageSharp.
+        private static readonly Dictionary<string, Guid> SaveContainers = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [".jxr"] = WicContainerFormats.Wmp,
+            [".jpg"] = WicContainerFormats.Jpeg,
+            [".jpeg"] = WicContainerFormats.Jpeg,
+            [".bmp"] = WicContainerFormats.Bmp,
+            [".tif"] = WicContainerFormats.Tiff,
+            [".tiff"] = WicContainerFormats.Tiff
+        };
+
+        // WICTiffCompressionOption: LZW, which every program reads (ZIP is smaller, but not every program reads it)
+        private const byte TiffCompressionLzw = 4;
+
         private readonly IReadOnlyCollection<WicDecoder> _wicDecoders;
         private IReadOnlyCollection<string> LoadExtensions { get; } = JpegXrExtensions.Concat(new[] { ".dds" }).ToArray();
-        private IReadOnlyCollection<string> SaveExtensions { get; } = new[] { ".jxr" };
+        private IReadOnlyCollection<string> SaveExtensions { get; } = SaveContainers.Keys.ToArray();
 
         public WicFileFormatHandler()
         {
@@ -78,7 +93,7 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// </summary>
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
-            RegisterFileFormat(registry, WellKnownFileFormats.Jxr, JpegXrExtensions, SaveExtensions, "jxr", "image/vnd.ms-photo", null, "JPEG XR");
+            RegisterFileFormat(registry, WellKnownFileFormats.Jxr, JpegXrExtensions, new[] { ".jxr" }, "jxr", "image/vnd.ms-photo", null, "JPEG XR");
             RegisterFileFormat(registry, "dds", new[] { ".dds" }, Array.Empty<string>(), "dds", "image/vnd.ms-dds", null, "DirectDraw Surface");
 
             foreach (var decoder in _wicDecoders)
@@ -161,10 +176,26 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
         }
 
+        /// <summary>
+        /// On Windows WIC saves its formats first, ImageSharp is the fallback when WIC can't
+        /// </summary>
+        public override int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension) =>
+            fileFormatHandlerAction is FileFormatHandlerActions.SaveToStream or FileFormatHandlerActions.SaveToFile ? PreferredSavePriority : 0;
+
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             surfaceOutputSettings ??= new SurfaceOutputSettings();
+            if (extension == null || !SaveContainers.TryGetValue(extension, out var container))
+            {
+                return false;
+            }
+            // A bitmap with a palette, or reduced colors, is written with the palette by ImageSharp: WIC encoding here has no palette
+            if (container != WicContainerFormats.Jpeg && (surfaceOutputSettings.ReduceColors || (bitmap.PixelFormat & PixelFormat.Indexed) != 0))
+            {
+                return false;
+            }
+
             Guid pixelFormat = bitmap.PixelFormat switch
             {
                 PixelFormat.Format32bppArgb => WicPixelFormats.Format32bppBgra,
@@ -183,26 +214,45 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             var options = new WicEncodeOptions
             {
-                ContainerFormat = WicContainerFormats.Wmp,
-                ImageQuality = surfaceOutputSettings.JPGQuality / 100f,
+                ContainerFormat = container,
                 DpiX = source.HorizontalResolution,
                 DpiY = source.VerticalResolution
             };
+            if (container == WicContainerFormats.Jpeg || container == WicContainerFormats.Wmp)
+            {
+                options.ImageQuality = surfaceOutputSettings.JPGQuality / 100f;
+            }
+            if (container == WicContainerFormats.Tiff)
+            {
+                options.EncoderOptions["TiffCompressionMethod"] = TiffCompressionLzw;
+            }
+            string softwarePath = container == WicContainerFormats.Bmp ? null : WicMetadataPaths.Software(container);
+            if (!string.IsNullOrEmpty(softwarePath))
+            {
+                // Like the other handlers: the file says it was written by Greenshot, what an encoder doesn't take is skipped
+                string software = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
+                options.Metadata = writer => writer.Set(softwarePath, WicMetadataValue.AnsiString(software));
+            }
+
+            // Encoded into a buffer first: when WIC fails, the next handler writes to an untouched destination
+            using var buffer = new MemoryStream();
             var bitmapData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, source.PixelFormat);
             try
             {
-                WicImage.Encode(destination, options, bitmapData.Scan0, source.Width, source.Height, bitmapData.Stride, pixelFormat);
-                return true;
+                WicImage.Encode(buffer, options, bitmapData.Scan0, source.Width, source.Height, bitmapData.Stride, pixelFormat);
             }
             catch (COMException ex)
             {
-                Log.Error("Couldn't save image as JPEG XR: ", ex);
+                Log.Warn($"Couldn't save the {extension} image with WIC: {ex.Message}");
                 return false;
             }
             finally
             {
                 source.UnlockBits(bitmapData);
             }
+
+            buffer.WriteTo(destination);
+            return true;
         }
 
         /// <inheritdoc />

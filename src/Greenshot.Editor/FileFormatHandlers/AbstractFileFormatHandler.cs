@@ -49,6 +49,11 @@ namespace Greenshot.Editor.FileFormatHandlers
         protected const int FallbackLoadPriority = 10;
 
         /// <summary>
+        /// The priority of a handler which saves a format before the others (a lower value comes first), e.g. WIC on Windows
+        /// </summary>
+        protected const int PreferredSavePriority = -10;
+
+        /// <summary>
         /// A loaded photo is turned upright by its EXIF orientation, unless ProcessEXIFOrientation turns it off
         /// </summary>
         protected static bool ApplyExifOrientation => !IniConfigRegistry.TryGetSection<ICoreConfiguration>(out var coreConfiguration) || coreConfiguration.ProcessEXIFOrientation;
