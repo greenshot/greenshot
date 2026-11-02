@@ -148,6 +148,9 @@ namespace Greenshot.Settings.Views
                 case "print":
                     SettingsTabControl.SelectedIndex = 5;
                     break;
+                case "viewer":
+                    SettingsTabControl.SelectedItem = ViewerTabItem;
+                    break;
                 case "plugin":
                 case "plugins":
                     SettingsTabControl.SelectedItem = PluginsTabItem;
@@ -376,6 +379,22 @@ namespace Greenshot.Settings.Views
         private void AddFixedCaptureSizeConfirm_Click(object sender, RoutedEventArgs e)
         {
             AddFixedCaptureSize();
+        }
+
+        /// <summary>
+        /// Choose the color of the viewer border
+        /// </summary>
+        private void ViewerBorderColor_Click(object sender, RoutedEventArgs e)
+        {
+            var colorPicker = new Greenshot.Editor.Views.ColorPickerWindow
+            {
+                SelectedColor = _viewModel.ViewerBorderColor,
+                Owner = this
+            };
+            if (colorPicker.ShowDialog() == true)
+            {
+                _viewModel.ViewerBorderColor = colorPicker.SelectedColor;
+            }
         }
 
         /// <summary>
