@@ -224,7 +224,7 @@ namespace Greenshot.Base.Core.OAuth
                     // Only started
                 }
 
-                IDictionary<string, string> result = await codeReceiver.WaitForRedirectAsync(state, settings.CloudServiceName, cancellationToken).ConfigureAwait(false);
+                IDictionary<string, string> result = await codeReceiver.WaitForRedirectAsync(state, settings.CloudServiceName, settings.SignedInUrl, cancellationToken).ConfigureAwait(false);
                 if (result.TryGetValue(Code, out var code) && !string.IsNullOrEmpty(code))
                 {
                     settings.Code = code;

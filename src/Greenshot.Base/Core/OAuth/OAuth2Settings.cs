@@ -61,6 +61,11 @@ namespace Greenshot.Base.Core.OAuth
         public IList<int> LoopbackPorts { get; set; } = new List<int> { 31251, 31252, 31253, 31254, 31255 };
 
         /// <summary>
+        /// The page the browser shows after the sign-in, a fixed URL without parameters. Null: a page from Greenshot.
+        /// </summary>
+        public string SignedInUrl { get; set; }
+
+        /// <summary>
         /// Send a PKCE challenge (S256, RFC 7636) with the authorization and the verifier with the code, for a service that supports it
         /// </summary>
         public bool UsePkce { get; set; } = true;

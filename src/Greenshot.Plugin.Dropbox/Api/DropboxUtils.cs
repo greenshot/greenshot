@@ -58,6 +58,7 @@ public static class DropboxUtils
         {
             AuthorizeUrl = "https://www.dropbox.com/oauth2/authorize",
             AuthorizeParameters = { { "token_access_type", "offline" } },
+            SignedInUrl = "https://getgreenshot.org/signed-in/dropbox/",
             TokenUrl = "https://api.dropbox.com/oauth2/token",
             CloudServiceName = "Dropbox",
             ClientId = DropBoxCredentials.CONSUMER_KEY,

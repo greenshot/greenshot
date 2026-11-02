@@ -81,9 +81,10 @@ namespace Greenshot.Base.Core.OAuth
         /// </summary>
         /// <param name="expectedState">the state sent with this authorization</param>
         /// <param name="cloudServiceName">for the page shown in the browser</param>
+        /// <param name="signedInUrl">where the browser is sent after a redirect with a code, null: a page from Greenshot</param>
         /// <param name="cancellationToken">CancellationToken, stops the waiting</param>
         /// <returns>code or error (and error_description) of the redirect, empty when nothing came within the timeout</returns>
-        public async Task<IDictionary<string, string>> WaitForRedirectAsync(string expectedState, string cloudServiceName, CancellationToken cancellationToken)
+        public async Task<IDictionary<string, string>> WaitForRedirectAsync(string expectedState, string cloudServiceName, string signedInUrl, CancellationToken cancellationToken)
         {
             if (_listener == null)
             {
@@ -111,7 +112,9 @@ namespace Greenshot.Base.Core.OAuth
                     : "This is not an answer to a Greenshot sign-in.";
                 try
                 {
-                    await WritePageAsync(context.Response, answer != null ? 200 : 400, page, cancellationToken).ConfigureAwait(false);
+                    // The browser leaves the redirect URL (with the code) for a fixed page, without parameters or referrer
+                    string location = answer != null && answer.ContainsKey("code") ? signedInUrl : null;
+                    await WritePageAsync(context.Response, answer != null ? 200 : 400, page, location, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ex is HttpListenerException or IOException)
                 {
@@ -151,10 +154,16 @@ namespace Greenshot.Base.Core.OAuth
             return answer;
         }
 
-        private static async Task WritePageAsync(HttpListenerResponse response, int statusCode, string text, CancellationToken cancellationToken)
+        private static async Task WritePageAsync(HttpListenerResponse response, int statusCode, string text, string location, CancellationToken cancellationToken)
         {
             using (response)
             {
+                if (!string.IsNullOrEmpty(location))
+                {
+                    statusCode = 302;
+                    response.RedirectLocation = location;
+                }
+
                 byte[] buffer = Encoding.UTF8.GetBytes($"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Greenshot</title></head><body><p>{WebUtility.HtmlEncode(text)}</p></body></html>");
                 response.StatusCode = statusCode;
                 response.ContentType = "text/html; charset=utf-8";

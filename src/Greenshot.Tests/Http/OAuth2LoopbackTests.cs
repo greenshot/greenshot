@@ -106,7 +106,7 @@ namespace Greenshot.Tests.Http
         {
             using var receiver = new LocalServerCodeReceiver();
             string redirectUrl = receiver.Start(new[] { FreePort() });
-            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", CancellationToken.None);
+            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", null, CancellationToken.None);
 
             using var client = CreateClient();
             Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync(redirectUrl + "?code=attacker&state=other-state", TestContext.Current.CancellationToken)).StatusCode);
@@ -125,11 +125,37 @@ namespace Greenshot.Tests.Http
         }
 
         [Fact]
+        public async Task Receiver_Code_RedirectsToTheSignedInPage_ErrorDoesNot()
+        {
+            using var client = CreateClient();
+            using (var receiver = new LocalServerCodeReceiver())
+            {
+                string redirectUrl = receiver.Start(new[] { FreePort() });
+                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/", CancellationToken.None);
+                var answer = await client.GetAsync(redirectUrl + "?code=the-code&state=expected-state", TestContext.Current.CancellationToken);
+                Assert.Equal(HttpStatusCode.Redirect, answer.StatusCode);
+                Assert.Equal(new Uri("https://example.com/signed-in/test/"), answer.Headers.Location);
+                Assert.Equal("no-referrer", string.Join(",", answer.Headers.GetValues("Referrer-Policy")));
+                Assert.Equal("the-code", (await waiting.WaitAsync(TestTimeout, TestContext.Current.CancellationToken))["code"]);
+            }
+
+            using (var receiver = new LocalServerCodeReceiver())
+            {
+                string redirectUrl = receiver.Start(new[] { FreePort() });
+                var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", "https://example.com/signed-in/test/", CancellationToken.None);
+                var answer = await client.GetAsync(redirectUrl + "?error=access_denied&state=expected-state", TestContext.Current.CancellationToken);
+                Assert.Equal(HttpStatusCode.OK, answer.StatusCode);
+                Assert.Null(answer.Headers.Location);
+                await waiting.WaitAsync(TestTimeout, TestContext.Current.CancellationToken);
+            }
+        }
+
+        [Fact]
         public async Task Receiver_PassesErrorOfTheService()
         {
             using var receiver = new LocalServerCodeReceiver();
             string redirectUrl = receiver.Start(new[] { FreePort() });
-            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", CancellationToken.None);
+            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", null, CancellationToken.None);
 
             using var client = CreateClient();
             await client.GetAsync(redirectUrl + "?error=access_denied&state=expected-state", TestContext.Current.CancellationToken);
@@ -144,7 +170,7 @@ namespace Greenshot.Tests.Http
         {
             using var receiver = new LocalServerCodeReceiver { Timeout = TimeSpan.FromMilliseconds(200) };
             receiver.Start(new[] { FreePort() });
-            var result = await receiver.WaitForRedirectAsync("expected-state", "Test", CancellationToken.None).WaitAsync(TestTimeout, TestContext.Current.CancellationToken);
+            var result = await receiver.WaitForRedirectAsync("expected-state", "Test", null, CancellationToken.None).WaitAsync(TestTimeout, TestContext.Current.CancellationToken);
             Assert.Empty(result);
         }
 
@@ -154,7 +180,7 @@ namespace Greenshot.Tests.Http
             using var receiver = new LocalServerCodeReceiver();
             receiver.Start(new[] { FreePort() });
             using var cancellation = new CancellationTokenSource();
-            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", cancellation.Token);
+            var waiting = receiver.WaitForRedirectAsync("expected-state", "Test", null, cancellation.Token);
             cancellation.Cancel();
             await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waiting.WaitAsync(TestTimeout, TestContext.Current.CancellationToken));
         }
