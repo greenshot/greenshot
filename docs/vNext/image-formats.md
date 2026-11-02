@@ -66,8 +66,9 @@ Every saved image says it was written by Greenshot and keeps its resolution. By 
 was captured, so file managers can show and sort by "Date taken". An image opened from a file keeps the capture time its file
 had; an image from the clipboard gets none.
 
-You can add more details in greenshot.ini (`ExportMetadata`):
+You choose the details in the settings, Output tab, "Details in saved images":
 
+- the capture time (on by default);
 - your name and a copyright notice;
 - private details: the window title and the web address of the browser tab, the text OCR already found (writing it never starts
   OCR), and the content of barcodes and QR codes. With the text, Windows Search and file managers can find a screenshot by

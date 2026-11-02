@@ -489,6 +489,8 @@ namespace Greenshot.Settings.Views
             _viewModel.SaveAiToolSettings();
 #endif
 
+            _viewModel.SaveExportMetadata();
+
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)
             {
