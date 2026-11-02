@@ -62,8 +62,8 @@ public static class DropboxUtils
             TokenUrl = "https://api.dropbox.com/oauth2/token",
             CloudServiceName = "Dropbox",
             ClientId = DropBoxCredentials.CONSUMER_KEY,
-            // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
-            RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken) ? DropboxConfig.RefreshToken : DropboxConfig.RefreshToken.Decrypt(),
+            // Stored encrypted
+            RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken14) ? DropboxConfig.RefreshToken14 : DropboxConfig.RefreshToken14.Decrypt(),
             AccessToken = DropboxConfig.AccessToken,
             AccessTokenExpires = DropboxConfig.AccessTokenExpires
         };
@@ -101,7 +101,7 @@ public static class DropboxUtils
             // Copy the settings back to the config (on the UI thread), so they are stored.
             await UiDispatcher.Current.InvokeAsync(() =>
             {
-                DropboxConfig.RefreshToken = string.IsNullOrEmpty(oauth2Settings.RefreshToken) ? oauth2Settings.RefreshToken : oauth2Settings.RefreshToken.Encrypt();
+                DropboxConfig.RefreshToken14 = string.IsNullOrEmpty(oauth2Settings.RefreshToken) ? oauth2Settings.RefreshToken : oauth2Settings.RefreshToken.Encrypt();
                 DropboxConfig.AccessToken = oauth2Settings.AccessToken;
                 DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
             }, CancellationToken.None).ConfigureAwait(false);

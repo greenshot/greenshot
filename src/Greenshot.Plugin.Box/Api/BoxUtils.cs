@@ -68,8 +68,8 @@ public static class BoxUtils
             ClientSecret = BoxCredentials.ClientSecret,
             // Box doesn't document PKCE
             UsePkce = false,
-            // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
-            RefreshToken = string.IsNullOrEmpty(Config.RefreshToken) ? Config.RefreshToken : Config.RefreshToken.Decrypt(),
+            // Stored encrypted
+            RefreshToken = string.IsNullOrEmpty(Config.RefreshToken14) ? Config.RefreshToken14 : Config.RefreshToken14.Decrypt(),
             AccessToken = Config.AccessToken,
             AccessTokenExpires = Config.AccessTokenExpires
         };
@@ -112,7 +112,7 @@ public static class BoxUtils
             // Copy the settings back to the config (on the UI thread), so they are stored.
             await UiDispatcher.Current.InvokeAsync(() =>
             {
-                Config.RefreshToken = string.IsNullOrEmpty(settings.RefreshToken) ? settings.RefreshToken : settings.RefreshToken.Encrypt();
+                Config.RefreshToken14 = string.IsNullOrEmpty(settings.RefreshToken) ? settings.RefreshToken : settings.RefreshToken.Encrypt();
                 Config.AccessToken = settings.AccessToken;
                 Config.AccessTokenExpires = settings.AccessTokenExpires;
             }, CancellationToken.None).ConfigureAwait(false);

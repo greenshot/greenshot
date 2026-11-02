@@ -29,7 +29,7 @@ namespace Greenshot.Plugin.Dropbox;
 
 [IniSection("Dropbox")]
 [Description("Greenshot Dropbox Plugin configuration")]
-public interface IDropboxConfiguration : IIniSection, IAfterLoad
+public interface IDropboxConfiguration : IIniSection
 {
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
@@ -45,8 +45,9 @@ public interface IDropboxConfiguration : IIniSection, IAfterLoad
     bool AfterUploadLinkToClipBoard { get; set; }
 
     /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
-    [Description("Dropbox refresh Token (stored encrypted)")]
-    string RefreshToken { get; set; }
+    /// <remarks>RefreshToken14: the app that signs in via localhost (1.4), the RefreshToken of 1.3 belongs to another app and is not used.</remarks>
+    [Description("Dropbox refresh token (stored encrypted)")]
+    string RefreshToken14 { get; set; }
 
     /// <summary>Runtime-only token - never written to disk, reset to default on every reload.</summary>
     [IniValue(RuntimeOnly = true)]
