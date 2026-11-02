@@ -187,6 +187,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Open image from file lists every format**
 - The dialog now also offers JPEG XR (.jxr, .hdp, .wdp, .wmp), DDS, EMF and WMF, the formats of the Windows image decoders on the PC (like HEIF, Camera RAW or JPEG XL), and "All files"
 - Images open faster and use less memory, Windows reads them; photos are turned upright by their EXIF orientation again
+- Codecs installed in Windows (e.g. HEIF, RAW or JPEG XL from the Microsoft Store) are used automatically, see [image formats](../vNext/image-formats.md)
 
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler
