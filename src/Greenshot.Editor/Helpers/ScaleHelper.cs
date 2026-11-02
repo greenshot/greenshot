@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
@@ -258,8 +259,9 @@ namespace Greenshot.Editor.Helpers
         /// <returns>the current ScaleOptions depending on modifier keys held down</returns>
         public static ScaleOptions GetScaleOptions()
         {
-            bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
-            bool maintainAspectRatio = (Control.ModifierKeys & Keys.Shift) != 0;
+            Keys modifierKeys = InputState.ModifierKeys;
+            bool anchorAtCenter = (modifierKeys & Keys.Control) != 0;
+            bool maintainAspectRatio = (modifierKeys & Keys.Shift) != 0;
             ScaleOptions opts = ScaleOptions.Default;
             if (anchorAtCenter) opts |= ScaleOptions.Centered;
             if (maintainAspectRatio) opts |= ScaleOptions.Rational;
