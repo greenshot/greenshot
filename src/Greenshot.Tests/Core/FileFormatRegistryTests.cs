@@ -125,12 +125,12 @@ namespace Greenshot.Tests.Core
         {
             var registry = new FileFormatRegistry();
             CoreFileFormats.RegisterCoreFileFormats(registry);
-            var wpfHandler = new WpfFileFormatHandler();
+            var wicHandler = new WicFileFormatHandler();
             // Twice, like a second EditorInitialize.Initialize: the WIC decoders of this PC must not collide with the core formats or with themselves
             for (int i = 0; i < 2; i++)
             {
                 new MetaFileFormatHandler().RegisterFileFormats(registry);
-                wpfHandler.RegisterFileFormats(registry);
+                wicHandler.RegisterFileFormats(registry);
             }
 
             Assert.True(registry.TryGet(WellKnownFileFormats.Jxr, out var jxr));

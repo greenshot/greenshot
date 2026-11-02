@@ -60,8 +60,8 @@ namespace Greenshot.Editor
                     new IconFileFormatHandler(),
                     // EMF & WMF
                     new MetaFileFormatHandler(),
-                    // JPG XR
-                    new WpfFileFormatHandler()
+                    // JPEG XR and everything else WIC can decode
+                    new WicFileFormatHandler()
                 );
 
             IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
