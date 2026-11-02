@@ -26,6 +26,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using log4net;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -47,8 +48,10 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ImageSharpFileFormatHandler));
+
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
-        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), WIC loads .tif instead
+        // No TIFF loading: the ImageSharp 2.x TIFF decoder has an unfixed advisory (GHSA-wmxv-xphr-5c9g), DefaultFileFormatHandler loads .tif instead
         private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
@@ -69,6 +72,12 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
+            if (extension == ".png")
+            {
+                PngOptimizer.Save(bitmap, destination, surfaceOutputSettings);
+                return true;
+            }
             using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
             if (image == null)
             {
@@ -78,14 +87,6 @@ namespace Greenshot.Editor.FileFormatHandlers
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
 
             var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
-            if (extension == ".png")
-            {
-                surfaceOutputSettings ??= new SurfaceOutputSettings(WellKnownFileFormats.Png);
-                // Access the PNG-specific metadata
-                var pngMetadata = image.Metadata.GetPngMetadata();
-                // Add or update the "Software" text chunk
-                pngMetadata.TextData.Add(new PngTextData("Software", versionString, "en", "en"));
-            }
 
             // Ensure an EXIF profile exists
             if (image.Metadata.ExifProfile == null)
@@ -94,8 +95,6 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             // Set the Software tag
             image.Metadata.ExifProfile.SetValue(ExifTag.Software, versionString);
-
-            surfaceOutputSettings ??= new SurfaceOutputSettings();
 
             // Support reducing colors for formats that support it, but only if the setting is enabled
             IQuantizer quantizer = null;
@@ -110,7 +109,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             IImageEncoder encoder = extension switch
             {
-                ".png" => new PngEncoder() { Quantizer = quantizer, ColorType = surfaceOutputSettings.ReduceColors ? PngColorType.Palette : hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb },
                 ".bmp" => new BmpEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? BmpBitsPerPixel.Pixel8 : hasAlpha ? BmpBitsPerPixel.Pixel32 : BmpBitsPerPixel.Pixel24 },
                 ".gif" => new GifEncoder() { Quantizer = quantizer },
                 ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
@@ -152,17 +150,27 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             // Decode straight into the pixel layout of the GDI+ bitmap, this saves a converted copy of the whole image.
             // JPEG has no transparency, it stays 24 bit.
-            if (decoder is JpegDecoder)
+            try
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                if (decoder is JpegDecoder)
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgr24>(stream, decoder);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                else
+                {
+                    using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
+                    bitmap = ImageSharpHelper.ToBitmap(image);
+                }
+                return true;
             }
-            else
+            catch (ImageFormatException ex)
             {
-                using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Bgra32>(stream, decoder);
-                bitmap = ImageSharpHelper.ToBitmap(image);
+                // A broken or unknown image, like DefaultFileFormatHandler this is a failed load, not an error for the caller
+                Log.Warn($"Couldn't load the {extension} image: {ex.Message}");
+                bitmap = null;
+                return false;
             }
-            return true;
         }
     }
 }

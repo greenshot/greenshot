@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using System.Linq;
 using Greenshot.Base.Core;
@@ -32,9 +31,6 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        // Not a static field: RegisterValueConverters is called before the configuration exists
-        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
-
         /// <summary>
         /// Register the value converters the editor configuration needs, this must happen before greenshot.ini is loaded,
         /// otherwise e.g. the last used field values can't be read.
@@ -51,7 +47,9 @@ namespace Greenshot.Editor
 
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
-                    CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),
+                    new ImageSharpFileFormatHandler(),
+                    // After ImageSharp, so it only takes what ImageSharp doesn't declare: loading TIFF (#1472), WIC can't map 1 and 8 bit TIFF
+                    new DefaultFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support

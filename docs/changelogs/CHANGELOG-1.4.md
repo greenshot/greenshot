@@ -177,6 +177,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Ensures lossless PNG exports
 - By @danrhodes
 
+**Smaller PNG files**
+- PNG files, uploads, attachments and the clipboard are written as small as possible without losing anything, like optipng does
+- Images with few colors get much smaller
+- Greenshot now reads and writes PNG, JPEG, BMP, GIF and WebP files with ImageSharp for everyone, not only for beta testers
+- For problems, greenshot.ini has OutputFilePngCompressionLevel (default 9) and ClipboardPngCompressionLevel (default 8) to save faster, and OutputFilePngPalette to turn off PNG files with a palette
+- The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
+
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler
 - By @tsiakoulias
