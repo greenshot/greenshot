@@ -429,9 +429,8 @@ namespace Greenshot.Viewer.Views
 
         /// <summary>
         /// The destination window of the recipes (without the preview, the viewer shows the capture), owned by the viewer.
-        /// It also offers to forward the capture to a recipe.
         /// </summary>
-        private (IDestination Destination, CaptureRecipe Recipe) ChooseDestination(IReadOnlyList<IDestination> destinations, string error) =>
+        private IDestination ChooseDestination(IReadOnlyList<IDestination> destinations, string error) =>
             DynamicDestinationWindow.Choose(this, null, destinations, error);
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)

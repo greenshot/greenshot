@@ -952,6 +952,11 @@ namespace Greenshot.Base.Languages
         string PickerDestinations { get; }
 
         /// <summary>
+        /// Forward the capture to a recipe
+        /// </summary>
+        string PickerForwardToRecipe { get; }
+
+        /// <summary>
         /// Run Recipe
         /// </summary>
         string PickerRunRecipe { get; }

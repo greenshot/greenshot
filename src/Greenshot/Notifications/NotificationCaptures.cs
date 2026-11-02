@@ -198,20 +198,7 @@ namespace Greenshot.Notifications
                 return false;
             }
 
-            surface.CaptureDetails ??= new CaptureDetails();
-            var payload = new CapturePayload
-            {
-                Surface = surface,
-                RawCapture = new Capture(surface.GetImageForExport())
-                {
-                    CaptureDetails = surface.CaptureDetails
-                }
-            };
-            CaptureFlowRunner.Current.Start(recipe, configure: context =>
-            {
-                context.Payload = payload;
-                context.IsPayloadPreSupplied = true;
-            });
+            CaptureFlowRunner.StartWithCapture(recipe, surface);
             return true;
         }
 

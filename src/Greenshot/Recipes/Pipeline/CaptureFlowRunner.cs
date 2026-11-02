@@ -83,17 +83,17 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
-        /// Run the recipe with a copy of a capture, like a capture it made itself; the flow owns the copy
+        /// Run the recipe with a capture, like a capture it made itself; the flow owns the surface from now on
         /// </summary>
-        public static CaptureFlowHandle StartWithCopy(CaptureRecipe recipe, ISurface copy)
+        public static CaptureFlowHandle StartWithCapture(CaptureRecipe recipe, ISurface surface)
         {
-            copy.CaptureDetails ??= new CaptureDetails();
+            surface.CaptureDetails ??= new CaptureDetails();
             var payload = new CapturePayload
             {
-                Surface = copy,
-                RawCapture = new Capture(copy.GetImageForExport())
+                Surface = surface,
+                RawCapture = new Capture(surface.GetImageForExport())
                 {
-                    CaptureDetails = copy.CaptureDetails
+                    CaptureDetails = surface.CaptureDetails
                 }
             };
             return Current.Start(recipe, configure: context =>

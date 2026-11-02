@@ -45,8 +45,8 @@ settings you can choose a color instead.
 ## Exporting the capture
 
 `E`, the export button or *Export…* in the menu open the destination window, the same one recipes show: save to a file, copy
-to the clipboard, open in the editor, upload, ... or forward the capture to a recipe, which runs with it as if it had captured it.
-The destination or recipe gets a copy of what the viewer shows, so the viewer stays open. When an export fails, the window comes
+to the clipboard, open in the editor, upload, ...
+The destination gets a copy of what the viewer shows, so the viewer stays open. When an export fails, the window comes
 back with the error.
 
 ## Keys
@@ -61,7 +61,7 @@ back with the error.
 | `W` | Window to the size of the zoomed capture |
 | Arrow keys | Move the visible part |
 | `Ctrl` + drag | Move the window |
-| `E` | Export, or forward to a recipe |
+| `E` | Export |
 | `P` | Always on top, or not |
 | `T` | Title bar, or only the capture |
 | `B` | Show or hide the border |

@@ -27,14 +27,13 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
-using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Views;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
     /// Asks for the destination every time, like the <see cref="PickerDestination"/>, but in the destination window:
-    /// with a preview of the capture, a search, and the recipes the capture can be forwarded to.
+    /// with a preview of the capture and a search.
     /// </summary>
     public class DestinationWindowDestination : DestinationBase
     {
@@ -77,24 +76,18 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// Shows the destination window with a preview of the capture. When the user forwards the capture to a recipe, the recipe
-        /// gets a copy and runs on its own.
+        /// Shows the destination window with a preview of the capture
         /// </summary>
         /// <param name="source">The capture</param>
         /// <param name="choices">The destinations to choose from</param>
         /// <param name="error">The error of the last try, or null</param>
         /// <param name="cancellationToken">Closes the window</param>
-        /// <returns>The chosen destination, or null when the window was closed or the capture was forwarded to a recipe</returns>
+        /// <returns>The chosen destination, or null when the window was closed</returns>
         public static Task<IDestination> ChooseAsync(IExportSource source, IReadOnlyList<IDestination> choices, string error, CancellationToken cancellationToken) =>
             source.UseSurfaceAsync(surface =>
             {
                 using var preview = surface.GetImageForExport();
-                var (destination, recipe) = DynamicDestinationWindow.Choose(null, preview, choices, error, cancellationToken);
-                if (recipe != null)
-                {
-                    CaptureFlowRunner.StartWithCopy(recipe, surface.Clone());
-                }
-                return destination;
+                return DynamicDestinationWindow.Choose(null, preview, choices, error, cancellationToken);
             }, cancellationToken);
     }
 }

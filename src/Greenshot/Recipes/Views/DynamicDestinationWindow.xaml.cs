@@ -108,7 +108,7 @@ namespace Greenshot.Recipes.Views
         // Localized UI text strings
         public string CoreDestinationsHeaderText => Texts.Recipe.PickerCoreDestinations;
         public string OtherDestinationsHeaderText => Texts.Recipe.PickerDestinations;
-        public string ForwardToRecipeHeaderText => Texts.Core.ContextmenuRecipeeditor;
+        public string ForwardToRecipeHeaderText => Texts.Recipe.PickerForwardToRecipe;
         public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerRunRecipe;
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
@@ -554,19 +554,19 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// Shows the window modally, with the enabled recipes to forward the capture to. Runs on the UI thread.
+        /// Shows the window modally, with the destinations only: the recipes aren't made for a capture which is handed over
+        /// (they capture themselves), only the DynamicDestination step offers them. Runs on the UI thread.
         /// </summary>
         /// <param name="owner">The window it is centered on, or null</param>
         /// <param name="previewImage">The preview of the capture, or null for none (it can be disposed afterwards)</param>
         /// <param name="destinations">The destinations to choose from</param>
         /// <param name="errorMessage">The error of the last try, or null</param>
         /// <param name="cancellationToken">Closes the window</param>
-        /// <returns>The chosen destination or the recipe to forward the capture to, or neither when the window was closed</returns>
-        public static (IDestination Destination, CaptureRecipe Recipe) Choose(Window owner, Image previewImage, IEnumerable<IDestination> destinations, string errorMessage,
+        /// <returns>The chosen destination, or null when the window was closed</returns>
+        public static IDestination Choose(Window owner, Image previewImage, IEnumerable<IDestination> destinations, string errorMessage,
             CancellationToken cancellationToken = default)
         {
-            var recipes = RecipeManager.Instance.GetAllRecipes().Where(r => r != null && r.IsEnabled).ToList();
-            var window = new DynamicDestinationWindow(null, previewImage, destinations, recipes, errorMessage);
+            var window = new DynamicDestinationWindow(null, previewImage, destinations, null, errorMessage);
             if (owner != null)
             {
                 window.Owner = owner;
@@ -585,7 +585,7 @@ namespace Greenshot.Recipes.Views
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            return (window.SelectedDestination, window.SelectedRecipeToForward);
+            return window.SelectedDestination;
         }
 
         private void DestinationTile_Click(object sender, RoutedEventArgs e)

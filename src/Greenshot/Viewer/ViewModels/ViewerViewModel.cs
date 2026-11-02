@@ -188,26 +188,20 @@ namespace Greenshot.Viewer.ViewModels
         }
 
         /// <summary>
-        /// Export the capture: the user chooses the destination (or a recipe), a failed export shows the choice again with the error.
+        /// Export the capture: the user chooses the destination, a failed export shows the choice again with the error.
         /// The destination or recipe gets a copy, so one which keeps the capture (the editor) has its own and the viewer stays as it is.
         /// </summary>
-        /// <param name="choose">Shows the destinations and the error of the last try (or null), returns the chosen destination or recipe, or nothing</param>
-        public async Task ExportAsync(Func<IReadOnlyList<IDestination>, string, (IDestination Destination, CaptureRecipe Recipe)> choose)
+        /// <param name="choose">Shows the destinations and the error of the last try (or null), returns the chosen destination, or nothing</param>
+        public async Task ExportAsync(Func<IReadOnlyList<IDestination>, string, IDestination> choose)
         {
             string error = null;
             while (_surface != null)
             {
                 var captureDetails = _surface.CaptureDetails;
                 var destinations = DestinationHelper.GetChoices(captureDetails);
-                var (destination, recipe) = choose(destinations, error);
+                var destination = choose(destinations, error);
                 if (_surface == null)
                 {
-                    return;
-                }
-
-                if (recipe != null)
-                {
-                    CaptureFlowRunner.StartWithCopy(recipe, _surface.Clone());
                     return;
                 }
 

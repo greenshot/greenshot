@@ -39,12 +39,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Viewer** (#937, #1624)
 - A new destination shows the capture in a small window of its own, e.g. kept on top to compare it with the screen
 - Real size (1:1), zoom and pan with an overview, only the capture or a thin title bar, an optional border, keys for everything (H shows them)
-- Export from the viewer with the destination window of the recipes, or forward the capture to a recipe
+- Export from the viewer with the destination window of the recipes
 - Settings on the new Viewer tab
 - By @Lakritzator and @daxliniere
 
 **Ask for destination in a window**
-- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture, a search, and the recipes to forward the capture to
+- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture and a search
 
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
