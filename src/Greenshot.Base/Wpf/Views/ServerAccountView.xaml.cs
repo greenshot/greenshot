@@ -36,6 +36,10 @@ namespace Greenshot.Base.Wpf.Views
 
         public ServerAccountView()
         {
+            // This view only binds to the ServerAccountViewModel the settings page gives it.
+            // Without a DataContext of its own it inherits the page's configuration until then,
+            // and WPF reports every binding here as a path error on that configuration.
+            DataContext = null;
             InitializeComponent();
             Loaded += (_, _) =>
             {
