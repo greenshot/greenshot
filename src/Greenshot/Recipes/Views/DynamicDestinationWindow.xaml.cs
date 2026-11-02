@@ -557,6 +557,13 @@ namespace Greenshot.Recipes.Views
         private void OpenFullscreenPreview()
         {
             _isFullPreviewOpen = true;
+            if (PreviewImageSource != null)
+            {
+                // 1:1: a pixel of the capture is a pixel of the screen, whatever the scaling of the screen and the resolution in the image
+                var dpi = VisualTreeHelper.GetDpi(this);
+                FullPreviewImage.Width = PreviewImageSource.PixelWidth / dpi.DpiScaleX;
+                FullPreviewImage.Height = PreviewImageSource.PixelHeight / dpi.DpiScaleY;
+            }
             FullPreviewOverlay.Visibility = Visibility.Visible;
             FullPreviewOverlay.Opacity = 0.0;
             PreviewScale.ScaleX = 0.88;
