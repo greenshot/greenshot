@@ -98,9 +98,3 @@ These are in greenshot.ini only:
 - `OutputFilePngPalette` (default True): write PNG files with few colors with a palette. Set it to False for programs which can't
   read such PNG files.
 - `ProcessEXIFOrientation` (default True): turn photos upright when opening them.
-- `ExportMetadata` (default `CaptureTime`): which details are written into saved images. `CaptureTime`: when the screen was
-  captured. `Author`: the values of `ExportMetadataAuthor` and `ExportMetadataCopyright`. Private: `Source` (window title, web
-  address), `Text` (text OCR found), `Barcodes` (barcode and QR code content). Leave it empty to write only the program name and
-  the resolution.
-- `ExportMetadataAuthor`, `ExportMetadataCopyright` (default empty): your name and copyright notice, written when
-  `ExportMetadata` contains `Author`.
