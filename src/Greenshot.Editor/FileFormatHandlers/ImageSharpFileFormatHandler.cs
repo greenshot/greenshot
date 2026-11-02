@@ -37,7 +37,6 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
@@ -81,9 +80,10 @@ namespace Greenshot.Editor.FileFormatHandlers
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
             surfaceOutputSettings ??= new SurfaceOutputSettings();
+            var metadata = ExportImageMetadata.ForExport(surface?.CaptureDetails);
             if (extension == ".png")
             {
-                PngOptimizer.Save(bitmap, destination, surfaceOutputSettings);
+                PngOptimizer.Save(bitmap, destination, surfaceOutputSettings, metadata);
                 return true;
             }
             using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
@@ -94,15 +94,8 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
 
-            var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
-
-            // Ensure an EXIF profile exists
-            if (image.Metadata.ExifProfile == null)
-            {
-                image.Metadata.ExifProfile = new ExifProfile();
-            }
-            // Set the Software tag
-            image.Metadata.ExifProfile.SetValue(ExifTag.Software, versionString);
+            // The program name, and the details the user wants, in EXIF and XMP (formats without them skip it)
+            metadata.ApplyTo(image.Metadata);
 
             // Support reducing colors for formats that support it, but only if the setting is enabled
             IQuantizer quantizer = null;

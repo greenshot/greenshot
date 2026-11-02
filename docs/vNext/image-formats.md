@@ -60,6 +60,21 @@ plugin.
 Phones and cameras often store a photo sideways and add a note (EXIF orientation) how to turn it. Greenshot turns such photos
 upright when it opens them, whichever reader opens the file. To switch this off, set `ProcessEXIFOrientation=False` in greenshot.ini.
 
+## Details in saved images
+
+Every saved image says it was written by Greenshot and keeps its resolution. By default Greenshot also writes when the screen
+was captured, so file managers can show and sort by "Date taken". An image opened from a file or the clipboard gets no capture
+time, because Greenshot doesn't know it.
+
+You can add your name and a copyright notice. Nothing else is written: no location, no user or computer name, and nothing from
+an image you opened.
+
+| Format | Where the details go |
+|---|---|
+| JPEG, TIFF, JPEG XR | EXIF |
+| PNG, WebP | EXIF and XMP: Windows shows the XMP, other programs the EXIF |
+| BMP, GIF, TGA, PBM | none of these details |
+
 ## Expert settings
 
 These are in greenshot.ini only:
@@ -69,3 +84,8 @@ These are in greenshot.ini only:
 - `OutputFilePngPalette` (default True): write PNG files with few colors with a palette. Set it to False for programs which can't
   read such PNG files.
 - `ProcessEXIFOrientation` (default True): turn photos upright when opening them.
+- `ExportMetadata` (default `CaptureTime`): which details are written into saved images. `CaptureTime`: when the screen was
+  captured. `Author`: the values of `ExportMetadataAuthor` and `ExportMetadataCopyright`. Leave it empty to write only the
+  program name and the resolution.
+- `ExportMetadataAuthor`, `ExportMetadataCopyright` (default empty): your name and copyright notice, written when
+  `ExportMetadata` contains `Author`.
