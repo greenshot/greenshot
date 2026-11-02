@@ -14,7 +14,7 @@ namespace Greenshot.Editor.Forms
     {
         private MeasurementPanel _measurementPanel;
         private QuickColorPalette _quickColors;
-        private ToolStripButton _scaleButton;
+        private ToolStripButton _scaleButton, _polygonButton, _groupButton, _ungroupButton, _rotateObjectButton;
         private DrawableContainer _measuredObject;
         private CheckBox _snapPoints, _snapThrough;
         private NumericUpDown _snappingRadius;
@@ -54,6 +54,17 @@ namespace Greenshot.Editor.Forms
                 DisplayStyle = ToolStripItemDisplayStyle.Image,
                 ToolTipText = "Scale: click two points; hold Shift to snap the angle", AccessibleName = "Scale", Image = CreateScaleIcon()
             };
+            _polygonButton = new ToolStripButton("Polygon") { DisplayStyle = ToolStripItemDisplayStyle.Text, ToolTipText = "Polygon: click vertices, then the first vertex to close; Esc cancels" };
+            _polygonButton.Click += (s, e) => { if (_surface == null) return; _surface.DrawingMode = DrawingModes.Polygon; FocusCanvas(fromKeyboard: false); };
+            toolsToolStrip.Items.Insert(toolsToolStrip.Items.IndexOf(btnFreehand) + 1, _polygonButton);
+            _groupButton = new ToolStripButton("Group") { ToolTipText = "Group selected objects (Ctrl+Alt+G)", Enabled = false };
+            _ungroupButton = new ToolStripButton("Ungroup") { ToolTipText = "Ungroup selected objects (Ctrl+Shift+G)", Enabled = false };
+            _groupButton.Click += (s, e) => { _surface?.GroupSelectedElements(); FocusCanvas(fromKeyboard: false); };
+            _ungroupButton.Click += (s, e) => { _surface?.UngroupSelectedElements(); FocusCanvas(fromKeyboard: false); };
+            toolsToolStrip.Items.Add(_groupButton); toolsToolStrip.Items.Add(_ungroupButton);
+            _rotateObjectButton = new ToolStripButton("Rotate…") { Enabled = false, ToolTipText = "Rotate selected objects by an angle" };
+            _rotateObjectButton.Click += (s, e) => RotateObjects();
+            toolsToolStrip.Items.Add(_rotateObjectButton);
             _scaleButton.Click += (s, e) => BeginCalibration();
             toolsToolStrip.Items.Insert(toolsToolStrip.Items.IndexOf(btnLine) + 1, _scaleButton);
             _quickColors = new QuickColorPalette(propertiesToolStrip, EditorConfiguration);
@@ -104,6 +115,20 @@ namespace Greenshot.Editor.Forms
             return bitmap;
         }
 
+        private void RotateObjects()
+        {
+            if (_surface?.CanRotateObjects != true) return;
+            using var dialog = new Form { Text = "Rotate selected objects", Width = 420, Height = 210, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false };
+            var angle = new NumericUpDown { DecimalPlaces = 4, Minimum = -36000, Maximum = 36000, Width = 140, Left = 16, Top = 75, AccessibleName = "Clockwise rotation delta in degrees" };
+            string current = _surface.SelectedElements.Count == 1 ? "Current angle: " + ((DrawableContainer)_surface.SelectedElements[0]).ObjectAngle.ToString("0.####") + "°. " : _surface.SelectedElements.Count + " objects. ";
+            var label = new Label { Text = current + "Enter clockwise change in degrees. Pivot: mean of selected object centres.", Left = 16, Top = 16, Width = 375, Height = 50 };
+            var ok = new Button { Text = "Rotate", DialogResult = DialogResult.OK, Left = 210, Top = 120 };
+            var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Left = 295, Top = 120 };
+            dialog.Controls.AddRange(new Control[] { label, angle, ok, cancel }); dialog.AcceptButton = ok; dialog.CancelButton = cancel;
+            if (dialog.ShowDialog(this) == DialogResult.OK) _surface.RotateSelectedObjects((double)angle.Value);
+            FocusCanvas(fromKeyboard: false);
+        }
+
         private void BeginCalibration()
         {
             if (_surface == null || _controlsDisabledDueToConfirmable) return;
@@ -126,6 +151,7 @@ namespace Greenshot.Editor.Forms
             _surface.MeasurementsChanged -= SelectedGeometryChanged;
             _surface.ScaleLineCompleted -= CompleteCalibration;
             _surface.CancelScalePreview();
+            _surface.CancelPolygonInteraction();
             if (_measuredObject != null) _measuredObject.GeometryChanged -= SelectedGeometryChanged;
             _measuredObject = null;
             _measurementPanel.RefreshDimensions(null, MeasurementState.Pixels);
@@ -136,6 +162,10 @@ namespace Greenshot.Editor.Forms
         private void UpdateMeasurements()
         {
             if (_measurementPanel == null) return;
+            _rotateObjectButton.Enabled = _surface?.CanRotateObjects == true;
+            _rotateObjectButton.ToolTipText = _rotateObjectButton.Enabled ? "Rotate selected objects by an angle" : Surface.RotationLimit;
+            _groupButton.Enabled = _surface?.CanGroup == true;
+            _ungroupButton.Enabled = _surface?.CanUngroup == true;
             var selected = _surface?.SelectedElements;
             var next = selected?.Count == 1 ? selected.First() as DrawableContainer : null;
             if (!ReferenceEquals(next, _measuredObject))

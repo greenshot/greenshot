@@ -89,7 +89,7 @@ namespace Greenshot.Editor.Drawing
             graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
         }
 
-        public override bool ClickableAt(int x, int y)
+        protected override bool ClickableAtModel(int x, int y)
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 5;
             if (lineThickness > 0)

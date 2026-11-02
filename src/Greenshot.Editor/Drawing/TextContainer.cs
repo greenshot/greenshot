@@ -90,6 +90,17 @@ namespace Greenshot.Editor.Drawing
             OnPropertyChanged("Text");
         }
 
+        internal bool CommitRotatedText(string newText)
+        {
+            if (string.Equals(text, newText, StringComparison.Ordinal)) return false;
+            // Modal confirmations are independent edits, not a native text-box
+            // typing session governed by its LostFocus undo gate.
+            if (IsUndoable) _parent?.MakeUndoable(new TextChangeMemento(this), false);
+            ChangeText(newText, false); // PropertyChanged already invalidates the object.
+            if (_parent != null) _parent.Modified = true;
+            return true;
+        }
+
         public TextContainer(ISurface parent) : base(parent)
         {
             Init();
@@ -279,6 +290,16 @@ namespace Greenshot.Editor.Drawing
 
         public override void OnDoubleClick()
         {
+            if (HasObjectTransform)
+            {
+                using var dialog = new Form { Text = "Edit rotated text", Width = 460, Height = 260, StartPosition = FormStartPosition.CenterParent };
+                var editor = new TextBox { Multiline = true, AcceptsReturn = true, Text = Text, Dock = DockStyle.Fill, ScrollBars = ScrollBars.Both };
+                var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 38, FlowDirection = FlowDirection.RightToLeft };
+                var ok = new Button { Text = "OK", DialogResult = DialogResult.OK }; var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel };
+                buttons.Controls.AddRange(new Control[] { cancel, ok }); dialog.Controls.Add(editor); dialog.Controls.Add(buttons); dialog.AcceptButton = ok; dialog.CancelButton = cancel;
+                if (dialog.ShowDialog(InternalParent.FindForm()) == DialogResult.OK) CommitRotatedText(editor.Text);
+                return;
+            }
             ShowTextBox();
         }
 
@@ -353,12 +374,18 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        internal void EndTextEditingForRotation()
+        {
+            if (_textBox?.Visible == true) HideTextBox();
+        }
+
         /// <summary>
         /// Make sure the size of the font is scaled
         /// </summary>
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
+            if (HasObjectTransform) { ComposeObjectTransform(matrix); return; }
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             int pixelsBefore = rect.Width * rect.Height;
 
@@ -725,7 +752,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override bool ClickableAt(int x, int y)
+        protected override bool ClickableAtModel(int x, int y)
         {
             var r = new NativeRect(Left, Top, Width, Height).Normalize().Inflate(5, 5);
             return r.Contains(x, y);

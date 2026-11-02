@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -465,6 +465,7 @@ namespace Greenshot.Editor.Drawing
             set
             {
                 CancelScalePreview();
+                CancelPolygonInteraction();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -610,6 +611,7 @@ namespace Greenshot.Editor.Drawing
             {
                 LOG.Debug("Disposing surface!");
                 CancelScalePreview();
+                CancelPolygonInteraction();
                 if (_image != null)
                 {
                     _image.Dispose();
@@ -923,6 +925,9 @@ namespace Greenshot.Editor.Drawing
                     break;
                 case DrawingModes.Bitmap:
                     _undrawnElement = new ImageContainer(this);
+                    break;
+                case DrawingModes.Polygon:
+                    _undrawnElement = new PolygonContainer(this);
                     break;
                 case DrawingModes.Path:
                     _undrawnElement = new FreehandContainer(this);
@@ -1962,6 +1967,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (IDrawableContainer drawableContainer in selectedElements)
             {
+                if (IsGroupedMember(drawableContainer)) continue;
                 foreach (IAdorner adorner in drawableContainer.Adorners)
                 {
                     if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
@@ -1992,6 +1998,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (PolygonMouseDown(e)) return;
             if (DrawingMode == DrawingModes.Scale) { StartScalePreview(e); return; }
 
             // Handle Adorners
@@ -2018,10 +2025,7 @@ namespace Greenshot.Editor.Drawing
                     IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
                     if (rightClickedContainer != null)
                     {
-                        selectedList = new DrawableContainerList(ID)
-                        {
-                            rightClickedContainer
-                        };
+                        selectedList = new DrawableContainerList(GroupMembers(rightClickedContainer));
                     }
                 }
 
@@ -2053,6 +2057,8 @@ namespace Greenshot.Editor.Drawing
 
                 if (_mouseDownElement != null)
                 {
+                    if (IsGroupedMember(_mouseDownElement) && !_mouseDownElement.Selected)
+                    { DeselectAllElements(); SelectElement(_mouseDownElement); }
                     _mouseDownElement.Status = EditStatus.MOVING;
                 }
             }
@@ -2067,6 +2073,7 @@ namespace Greenshot.Editor.Drawing
         {
             e = InverseZoomMouseCoordinates(e);
             ClearSnapGuide();
+            if (PolygonMouseUp(e)) return;
             if (DrawingMode == DrawingModes.Scale) { FinishScalePreview(e); return; }
 
             // Handle Adorners
@@ -2220,6 +2227,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (PolygonMouseMove(e)) return;
             if (!_mouseDown && _scalePreview == null)
             {
                 var snapped = PreviewDrawingStart(e.Location);
@@ -2293,6 +2301,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceDoubleClick(object sender, MouseEventArgs e)
         {
+            if (selectedElements.Any(IsGroupedMember)) return;
             selectedElements.OnDoubleClick();
             selectedElements.Invalidate();
         }
@@ -2464,12 +2473,15 @@ namespace Greenshot.Editor.Drawing
             // Draw adorners last
             foreach (var drawableContainer in selectedElements)
             {
+                if (IsGroupedMember(drawableContainer)) continue;
                 foreach (var adorner in drawableContainer.Adorners)
                 {
                     adorner.Paint(paintEventArgs);
                 }
             }
 
+            PaintGroupSelection(targetGraphics);
+            PaintPolygonInteraction(targetGraphics);
             PaintFocusFrame(targetGraphics);
         }
 
@@ -2696,7 +2708,8 @@ namespace Greenshot.Editor.Drawing
         public void RemoveElements(IDrawableContainerList elementsToRemove, bool makeUndoable = true)
         {
             // fix potential issues with iterating a changing list
-            DrawableContainerList cloned = new DrawableContainerList(elementsToRemove);
+            DrawableContainerList cloned = CompleteGroups(elementsToRemove);
+            elementsToRemove = cloned;
 
             if (makeUndoable)
             {
@@ -3108,6 +3121,7 @@ namespace Greenshot.Editor.Drawing
         {
             LOG.DebugFormat("Duplicating {0} selected elements", selectedElements.Count);
             IDrawableContainerList dcs = selectedElements.Clone();
+            RenewGroupIds(dcs);
             dcs.Parent = this;
             dcs.MoveBy(10, 10);
             AddElements(dcs);
@@ -3120,7 +3134,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="container">IDrawableContainerList</param>
         /// <param name="generateEvents">false to skip event generation</param>
-        public void DeselectElement(IDrawableContainer container, bool generateEvents = true)
+        private void DeselectSingleElement(IDrawableContainer container, bool generateEvents = true)
         {
             container.Selected = false;
             if (selectedElements.Remove(container))
@@ -3181,7 +3195,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="container"></param>
         /// <param name="invalidate">false to skip invalidation</param>
         /// <param name="generateEvents">false to skip event generation</param>
-        public void SelectElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
+        private void SelectSingleElement(IDrawableContainer container, bool invalidate = true, bool generateEvents = true)
         {
             if (selectedElements.Contains(container)) return;
 
@@ -3249,6 +3263,10 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == (Keys.Control | Keys.Alt | Keys.G)) return GroupSelectedElements();
+            if (k == (Keys.Control | Keys.Shift | Keys.G)) return UngroupSelectedElements();
+            if (k == Keys.Escape && (_polygonPoints.Count > 0 || _vertexOwner != null || DrawingMode == DrawingModes.Polygon))
+            { CancelPolygonInteraction(); DrawingMode = DrawingModes.None; return true; }
             if (k == Keys.Escape && DrawingMode == DrawingModes.Scale)
             {
                 DrawingMode = DrawingModes.None;
@@ -3463,6 +3481,8 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            if (keys == Keys.Escape && (_polygonPoints.Count > 0 || _vertexOwner != null || DrawingMode == DrawingModes.Polygon))
+            { CancelPolygonInteraction(); DrawingMode = DrawingModes.None; return true; }
             if (keys == Keys.Escape) ClearSnapGuide();
             if (keys == Keys.Escape && DrawingMode == DrawingModes.Scale)
             {
@@ -3509,6 +3529,7 @@ namespace Greenshot.Editor.Drawing
             {
                 case DrawingModes.None:
                 // A freehand line needs a path, an image comes from a file or the clipboard
+                case DrawingModes.Polygon:
                 case DrawingModes.Path:
                 case DrawingModes.Bitmap:
                 case DrawingModes.Scale:
@@ -3599,7 +3620,9 @@ namespace Greenshot.Editor.Drawing
                 return false;
             }
 
-            var elements = _elements.Where(element => element != _cropContainer).ToList();
+            var seenGroups = new HashSet<Guid>();
+            var elements = _elements.Where(element => element != _cropContainer)
+                .Where(element => !(element is DrawableContainer member) || member.GroupId == Guid.Empty || seenGroups.Add(member.GroupId)).ToList();
             // forward continues after the last selected element, backward before the first
             int current = -1;
             for (int i = 0; i < elements.Count; i++)

@@ -9,11 +9,26 @@ namespace Greenshot.Editor.Helpers
     internal static class ObjectSnapHelper
     {
         internal static bool IsLine(IDrawableContainer shape) => shape?.GetType() == typeof(LineContainer) || shape?.GetType() == typeof(ArrowContainer);
-        internal static bool Supported(IDrawableContainer shape) => IsLine(shape) || shape?.GetType() == typeof(RectangleContainer) || shape?.GetType() == typeof(EllipseContainer) || shape?.GetType() == typeof(TextContainer);
+        internal static bool Supported(IDrawableContainer shape) => shape is PolygonContainer || shape is ImageContainer || shape is VectorGraphicsContainer || IsLine(shape) || shape?.GetType() == typeof(RectangleContainer) || shape?.GetType() == typeof(EllipseContainer) || shape?.GetType() == typeof(TextContainer);
 
         internal static IEnumerable<PointF> Targets(IDrawableContainer shape)
         {
+            foreach (var point in LocalTargets(shape)) yield return shape is DrawableContainer model ? model.ModelToImage(point) : point;
+        }
+
+        private static IEnumerable<PointF> LocalTargets(IDrawableContainer shape)
+        {
             if (!Supported(shape)) yield break;
+            if (shape is PolygonContainer polygon)
+            {
+                var vertices = polygon.ModelVertices;
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    var a = vertices[i]; var next = vertices[(i + 1) % vertices.Length];
+                    yield return a; yield return new PointF((a.X + next.X) / 2f, (a.Y + next.Y) / 2f);
+                }
+                yield break;
+            }
             float x = shape.Left, y = shape.Top, r = x + shape.Width, b = y + shape.Height;
             float cx = (x + r) / 2, cy = (y + b) / 2;
             if (IsLine(shape))
@@ -22,7 +37,7 @@ namespace Greenshot.Editor.Helpers
             }
             float l = Math.Min(x, r), t = Math.Min(y, b);
             r = Math.Max(x, r); b = Math.Max(y, b);
-            if (shape.GetType() == typeof(RectangleContainer) || shape.GetType() == typeof(TextContainer))
+            if (shape.GetType() == typeof(RectangleContainer) || shape.GetType() == typeof(TextContainer) || shape is ImageContainer || shape is VectorGraphicsContainer)
             {
                 yield return new PointF(l, t); yield return new PointF(r, t);
                 yield return new PointF(r, b); yield return new PointF(l, b);

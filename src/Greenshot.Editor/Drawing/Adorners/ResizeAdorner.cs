@@ -101,7 +101,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             if (!_isResizeMadeUndoable)
             {
                 _isResizeMadeUndoable = true;
-                Owner.MakeBoundsChangeUndoable(true);
+                Owner.MakeBoundsChangeUndoable(false);
             }
 
             // reset "workbench" rectangle to current bounds

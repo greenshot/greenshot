@@ -113,7 +113,11 @@ namespace Greenshot.Editor.Controls
                 }
                 for (int i = 0; i < values.Count; i++)
                 {
-                    _properties.Rows[i].Cells[1].Value = state.Convert(values[i].Pixels).ToString("0.####", CultureInfo.CurrentCulture);
+                    var property = values[i];
+                    _properties.Rows[i].Cells[0].Value = property.Label;
+                    _properties.Rows[i].Cells[1].ReadOnly = property.ReadOnly;
+                    double converted = property.Power == 0 ? property.Pixels : property.Power == 2 ? property.Pixels * Math.Pow(state.Convert(1), 2) : state.Convert(property.Pixels);
+                    _properties.Rows[i].Cells[1].Value = converted.ToString("0.####", CultureInfo.CurrentCulture);
                     _properties.Rows[i].Cells[1].ErrorText = string.Empty;
                 }
                 _properties.Height = Math.Min(290, _properties.ColumnHeadersHeight + values.Count * _properties.RowTemplate.Height + 3);

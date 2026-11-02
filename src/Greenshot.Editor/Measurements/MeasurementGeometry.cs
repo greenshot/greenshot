@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
@@ -10,6 +12,8 @@ namespace Greenshot.Editor.Measurements
         public string Key { get; }
         public string Label { get; }
         public double Pixels { get; }
+        public int Power { get; set; } = 1;
+        public bool ReadOnly { get; set; }
         public MeasurementProperty(string key, string label, double pixels)
         {
             Key = key; Label = label; Pixels = pixels;
@@ -24,6 +28,26 @@ namespace Greenshot.Editor.Measurements
         internal static IReadOnlyList<MeasurementProperty> GetProperties(IDrawableContainer shape)
         {
             var result = new List<MeasurementProperty>();
+            if (shape is PolygonContainer polygon)
+            {
+                var vertices = polygon.ImageVertices;
+                if (vertices.Length == 0) return result;
+                var point = vertices[polygon.SelectedVertex];
+                result.Add(new MeasurementProperty("VX", "Vertex " + (polygon.SelectedVertex + 1) + " X", point.X));
+                result.Add(new MeasurementProperty("VY", "Vertex " + (polygon.SelectedVertex + 1) + " Y", point.Y));
+                double perimeter = 0;
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    var next = vertices[(i + 1) % vertices.Length];
+                    perimeter += MeasurementCalculator.LineLength(next.X - vertices[i].X, next.Y - vertices[i].Y);
+                }
+                result.Add(new MeasurementProperty("Perimeter", "Perimeter", perimeter) { ReadOnly = true });
+                result.Add(new MeasurementProperty("Area", "Net area (squared units)", Math.Abs(polygon.SignedArea)) { ReadOnly = true, Power = 2 });
+                if (polygon.HasObjectTransform) result.Add(new MeasurementProperty("Angle", "Angle (° clockwise)", polygon.ObjectAngle) { ReadOnly = true, Power = 0 });
+                return result;
+            }
+            if (shape is DrawableContainer rotated && rotated.HasObjectTransform)
+                return RotatedProperties(rotated);
             foreach (var dimension in MeasurementCalculator.GetDimensions(shape))
                 result.Add(new MeasurementProperty(dimension.Label, dimension.Label, dimension.Pixels));
             if (result.Count == 0) return result;
@@ -56,9 +80,21 @@ namespace Greenshot.Editor.Measurements
             error = null;
             try
             {
-                bool known = false;
-                foreach (var property in GetProperties(shape)) if (property.Key == key) { known = true; break; }
-                if (!known) throw new ArgumentException("This property is not available for the selected object.");
+                var property = GetProperties(shape).FirstOrDefault(p => p.Key == key);
+                if (property == null || property.ReadOnly) throw new ArgumentException("This property is read-only or unavailable. Use the object handles to resize rotated objects.");
+                if (shape.HasObjectTransform && IsLine(shape)) return EditRotatedLine(shape, state, key, value);
+                if (shape is PolygonContainer polygon)
+                {
+                    if (key != "VX" && key != "VY") throw new ArgumentException("This measurement is read-only.");
+                    double polygonPixels = state.ToPixels(value); Coordinate(polygonPixels);
+                    float position = (float)polygonPixels;
+                    var point = polygon.ImageVertices[polygon.SelectedVertex];
+                    var next = key == "VX" ? new PointF(position, point.Y) : new PointF(point.X, position);
+                    if (point == next) return true;
+                    polygon.MakeBoundsChangeUndoable(false); polygon.SetImageVertex(polygon.SelectedVertex, next);
+                    if (polygon.Parent != null) polygon.Parent.Modified = true;
+                    return true;
+                }
                 double pixels = state.ToPixels(value);
                 if (double.IsNaN(pixels) || double.IsInfinity(pixels)) throw new ArgumentException("Enter a finite number.");
                 bool length = key.StartsWith("L", StringComparison.Ordinal) || key.StartsWith("D", StringComparison.Ordinal);
@@ -139,6 +175,56 @@ namespace Greenshot.Editor.Measurements
                 return true;
             }
             catch (ArgumentException ex) { error = ex.Message; return false; }
+        }
+
+        private static IReadOnlyList<MeasurementProperty> RotatedProperties(DrawableContainer shape)
+        {
+            var result = new List<MeasurementProperty>();
+            var start = shape.ModelToImage(new PointF(shape.Left, shape.Top));
+            var end = shape.ModelToImage(new PointF(shape.Left + shape.Width, shape.Top + shape.Height));
+            if (IsLine(shape))
+            {
+                result.Add(new MeasurementProperty("L1", "L1", MeasurementCalculator.LineLength(end.X - start.X, end.Y - start.Y)));
+                result.Add(new MeasurementProperty("X1", "Start X", start.X)); result.Add(new MeasurementProperty("Y1", "Start Y", start.Y));
+                result.Add(new MeasurementProperty("X2", "End X", end.X)); result.Add(new MeasurementProperty("Y2", "End Y", end.Y));
+            }
+            else
+            {
+                if (shape.GetType() == typeof(RectangleContainer) || shape.GetType() == typeof(EllipseContainer))
+                {
+                    var x = shape.ModelToImage(new PointF(shape.Left + shape.Width, shape.Top));
+                    var y = shape.ModelToImage(new PointF(shape.Left, shape.Top + shape.Height));
+                    string prefix = shape is EllipseContainer ? "D" : "L";
+                    result.Add(new MeasurementProperty(prefix + "1", "Local " + prefix + "1 (handles)", MeasurementCalculator.LineLength(x.X - start.X, x.Y - start.Y)) { ReadOnly = true });
+                    result.Add(new MeasurementProperty(prefix + "2", "Local " + prefix + "2 (handles)", MeasurementCalculator.LineLength(y.X - start.X, y.Y - start.Y)) { ReadOnly = true });
+                }
+                var center = shape.ImageCentre;
+                result.Add(new MeasurementProperty("XC", "Centre X (image)", center.X) { ReadOnly = true });
+                result.Add(new MeasurementProperty("YC", "Centre Y (image)", center.Y) { ReadOnly = true });
+            }
+            result.Add(new MeasurementProperty("Angle", "Angle (° clockwise)", shape.ObjectAngle) { ReadOnly = true, Power = 0 });
+            return result;
+        }
+
+        private static bool EditRotatedLine(DrawableContainer shape, MeasurementState state, string key, double value)
+        {
+            double pixels = state.ToPixels(value); Coordinate(pixels);
+            var start = shape.ModelToImage(new PointF(shape.Left, shape.Top));
+            var end = shape.ModelToImage(new PointF(shape.Left + shape.Width, shape.Top + shape.Height));
+            if (key == "L1")
+            {
+                double length = MeasurementCalculator.LineLength(end.X - start.X, end.Y - start.Y);
+                if (pixels <= 0 || length == 0) throw new ArgumentException("Enter a positive length for a nonzero line.");
+                end = new PointF((float)(start.X + (end.X - start.X) * pixels / length), (float)(start.Y + (end.Y - start.Y) * pixels / length));
+            }
+            else if (key == "X1") start.X = (float)pixels;
+            else if (key == "Y1") start.Y = (float)pixels;
+            else if (key == "X2") end.X = (float)pixels;
+            else if (key == "Y2") end.Y = (float)pixels;
+            var localStart = DrawableContainer.LocalPixel(shape.ImageToModel(start)); var localEnd = DrawableContainer.LocalPixel(shape.ImageToModel(end));
+            shape.MakeBoundsChangeUndoable(false); shape.Invalidate();
+            shape.Left = localStart.X; shape.Top = localStart.Y; shape.Width = localEnd.X - localStart.X; shape.Height = localEnd.Y - localStart.Y;
+            shape.Invalidate(); if (shape.Parent != null) shape.Parent.Modified = true; return true;
         }
 
         private static int Coordinate(double value)

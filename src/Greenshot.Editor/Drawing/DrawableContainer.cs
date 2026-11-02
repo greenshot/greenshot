@@ -50,7 +50,7 @@ namespace Greenshot.Editor.Drawing
     /// OnPropertyChanged whenever a public property has been changed.
     /// </summary>
     [Serializable]
-    public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
+    public abstract partial class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
         protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
@@ -179,6 +179,12 @@ namespace Greenshot.Editor.Drawing
         [field: NonSerialized]
         public event EventHandler GeometryChanged;
 
+        protected void NotifyGeometryChanged() => GeometryChanged?.Invoke(this, EventArgs.Empty);
+
+        // Optional for projects written before flat grouping was introduced.
+        [OptionalField] private Guid _groupId;
+        public Guid GroupId { get => _groupId; internal set => _groupId = value; }
+
         private int left;
 
         public int Left
@@ -286,7 +292,7 @@ namespace Greenshot.Editor.Drawing
 
         public NativeRect Bounds
         {
-            get => new NativeRect(Left, Top, Width, Height).Normalize();
+            get => VisualBounds;
             set
             {
                 Left = Round(value.Left);
@@ -361,7 +367,7 @@ namespace Greenshot.Editor.Drawing
                     shadow += 10;
                 }
 
-                return new NativeRect(Bounds.Left - offset, Bounds.Top - offset, Bounds.Width + lineThickness + shadow, Bounds.Height + lineThickness + shadow);
+                return TransformBounds(new NativeRect(ModelBounds.Left - offset, ModelBounds.Top - offset, ModelBounds.Width + lineThickness + shadow, ModelBounds.Height + lineThickness + shadow));
             }
         }
 
@@ -369,6 +375,8 @@ namespace Greenshot.Editor.Drawing
         {
             if (Status != EditStatus.UNDRAWN)
             {
+                // Group selection borders span the space between member bounds.
+                if ((_groupId != Guid.Empty || HasObjectTransform) && _parent is Surface surface) { surface.Invalidate(); return; }
                 _parent?.InvalidateElements(DrawingBounds);
             }
         }
@@ -448,6 +456,9 @@ namespace Greenshot.Editor.Drawing
         }
 
         public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters = false)
+            => DrawObjectContent(graphics, bmp, renderMode, clipRectangle, skipInvertedFilters);
+
+        private void DrawModelContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters)
         {
             if (Children.Count > 0)
             {
@@ -515,6 +526,12 @@ namespace Greenshot.Editor.Drawing
 
         public virtual bool ClickableAt(int x, int y)
         {
+            var p = Point.Round(ImageToModel(new PointF(x, y)));
+            return ClickableAtModel(p.X, p.Y);
+        }
+
+        protected virtual bool ClickableAtModel(int x, int y)
+        {
             var r = new NativeRect(Left, Top, Width, Height).Normalize();
             r = r.Inflate(5, 5);
             return r.Contains(x, y);
@@ -554,6 +571,7 @@ namespace Greenshot.Editor.Drawing
 
         public virtual void MoveBy(int dx, int dy)
         {
+            if (HasObjectTransform) { _objectTransform[4] += dx; _objectTransform[5] += dy; NotifyGeometryChanged(); return; }
             Left += dx;
             Top += dy;
         }
@@ -704,6 +722,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public virtual void Transform(Matrix matrix)
         {
+            if (HasObjectTransform && matrix != null) { ComposeObjectTransform(matrix); return; }
             if (matrix == null)
             {
                 return;
@@ -760,7 +779,8 @@ namespace Greenshot.Editor.Drawing
             NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
 
             this.MakeBoundsChangeUndoable(allowMerge: false);
-            this.ApplyBounds(newBounds);
+            if (HasObjectTransform) MoveBy((int)newBounds.Left - Bounds.Left, (int)newBounds.Top - Bounds.Top);
+            else this.ApplyBounds(newBounds);
         }
 
         private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)

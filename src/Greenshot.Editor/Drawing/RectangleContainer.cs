@@ -118,7 +118,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public override bool ClickableAt(int x, int y)
+        protected override bool ClickableAtModel(int x, int y)
         {
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;

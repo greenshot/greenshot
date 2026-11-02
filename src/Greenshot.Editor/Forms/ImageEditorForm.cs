@@ -1159,7 +1159,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji, _scaleButton
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji, _scaleButton, _polygonButton
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1481,6 +1481,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         {
             switch (drawingMode)
             {
+                case DrawingModes.Polygon:
+                    SetButtonChecked(_polygonButton);
+                    break;
                 case DrawingModes.Scale:
                     SetButtonChecked(_scaleButton);
                     break;
@@ -2126,6 +2129,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 // The key belongs to the text field
                 return false;
             }
+
+            if (CanvasHasKeys && (keys == (Keys.Control | Keys.Alt | Keys.G) || keys == (Keys.Control | Keys.Shift | Keys.G)))
+                return _surface.ProcessCmdKey(keys);
 
             if (ProcessTabKey(keys))
             {

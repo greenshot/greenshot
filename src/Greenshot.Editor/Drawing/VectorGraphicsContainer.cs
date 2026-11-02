@@ -107,6 +107,7 @@ namespace Greenshot.Editor.Drawing
         /// <inheritdoc cref="IDrawableContainer"/>
         public override void Transform(Matrix matrix)
         {
+            if (HasObjectTransform) { ComposeObjectTransform(matrix); return; }
             RotationAngle += CalculateAngle(matrix);
             RotationAngle %= 360;
 
@@ -118,7 +119,7 @@ namespace Greenshot.Editor.Drawing
         /// <inheritdoc cref="IDrawableContainer"/>
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-            if (_cachedImage != null && _cachedImage.Size != Bounds.Size)
+            if (_cachedImage != null && _cachedImage.Size != ModelBounds.Size)
             {
                 ResetCachedBitmap();
             }
@@ -134,7 +135,7 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
 
-            graphics.DrawImage(_cachedImage, Bounds);
+            graphics.DrawImage(_cachedImage, ModelBounds);
         }
 
         /// <summary>

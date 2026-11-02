@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Linq;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 
@@ -31,11 +33,13 @@ namespace Greenshot.Editor.Memento
     {
         private IDrawableContainerList _containerList;
         private ISurface _surface;
+        private readonly int[] _positions;
 
         public DeleteElementsMemento(ISurface surface, IDrawableContainerList containerList)
         {
             _surface = surface;
             _containerList = containerList;
+            _positions = containerList.Select(c => surface.Elements.IndexOf(c)).ToArray();
         }
 
         public void Dispose()
@@ -63,6 +67,11 @@ namespace Greenshot.Editor.Memento
         {
             var oldState = new AddElementsMemento(_surface, _containerList);
             _surface.AddElements(_containerList, false);
+            // Members may straddle unrelated objects. Restore their original paint
+            // positions rather than appending a deleted group above everything else.
+            foreach (var member in _containerList) _surface.Elements.Remove(member);
+            foreach (var entry in _containerList.Select((member, i) => new { Member = member, Position = _positions[i] }).OrderBy(e => e.Position))
+                _surface.Elements.Insert(Math.Max(0, Math.Min(entry.Position, _surface.Elements.Count)), entry.Member);
             // After
             _surface.Invalidate();
             return oldState;

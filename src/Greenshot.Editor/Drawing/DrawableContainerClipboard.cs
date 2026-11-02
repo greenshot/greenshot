@@ -66,6 +66,14 @@ namespace Greenshot.Editor.Drawing
                 throw new ArgumentNullException(nameof(elements));
             }
 
+            // Clipboard/context selections can contain just one member. Always copy
+            // the complete group in its existing top-level rendering order.
+            if (elements.Parent is Surface surface && System.Linq.Enumerable.All(elements, surface.Elements.Contains))
+            {
+                var requested = new System.Collections.Generic.HashSet<IDrawableContainer>(
+                    System.Linq.Enumerable.SelectMany(elements, surface.GroupMembers));
+                elements = new DrawableContainerList(System.Linq.Enumerable.Where(surface.Elements, requested.Contains)) { Parent = surface };
+            }
             using var stream = new MemoryStream();
             new BinaryFormatter().Serialize(stream, elements);
             return stream.ToArray();
@@ -90,7 +98,9 @@ namespace Greenshot.Editor.Drawing
                 {
                     Binder = new BinaryFormatterHelper()
                 };
-                return binaryFormatter.Deserialize(stream) as IDrawableContainerList;
+                var elements = binaryFormatter.Deserialize(stream) as IDrawableContainerList;
+                if (elements != null) Surface.RenewGroupIds(elements);
+                return elements;
             }
             catch (Exception ex)
             {

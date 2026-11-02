@@ -34,25 +34,32 @@ namespace Greenshot.Editor.Memento
     {
         private readonly List<Point> _points = new();
         private readonly List<Size> _sizes = new();
+        private readonly List<Point[]> _vertices = new();
+        private readonly List<double[]> _transforms = new();
         private IDrawableContainerList _listOfDrawableContainer;
+        private readonly bool _mergeable;
 
         private void StoreBounds()
         {
             foreach (IDrawableContainer drawableContainer in _listOfDrawableContainer)
             {
+                _vertices.Add((drawableContainer as PolygonContainer)?.ModelVertices);
+                _transforms.Add((drawableContainer as DrawableContainer)?.ObjectTransformState);
                 _points.Add(drawableContainer.Location);
                 _sizes.Add(drawableContainer.Size);
             }
         }
 
-        public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfDrawableContainer)
+        public DrawableContainerBoundsChangeMemento(IDrawableContainerList listOfDrawableContainer, bool mergeable = true)
         {
+            _mergeable = mergeable;
             _listOfDrawableContainer = listOfDrawableContainer;
             StoreBounds();
         }
 
-        public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer)
+        public DrawableContainerBoundsChangeMemento(IDrawableContainer drawableContainer, bool mergeable = true)
         {
+            _mergeable = mergeable;
             _listOfDrawableContainer = new DrawableContainerList
             {
                 drawableContainer
@@ -79,6 +86,7 @@ namespace Greenshot.Editor.Memento
         public bool Merge(IMemento otherMemento)
         {
             if (otherMemento is not DrawableContainerBoundsChangeMemento other) return false;
+            if (!_mergeable || !other._mergeable) return false;
 
             if (ObjectExtensions.CompareLists(_listOfDrawableContainer, other._listOfDrawableContainer))
             {
@@ -91,7 +99,7 @@ namespace Greenshot.Editor.Memento
 
         public IMemento Restore()
         {
-            var oldState = new DrawableContainerBoundsChangeMemento(_listOfDrawableContainer);
+            var oldState = new DrawableContainerBoundsChangeMemento(_listOfDrawableContainer, _mergeable);
             for (int index = 0; index < _listOfDrawableContainer.Count; index++)
             {
                 IDrawableContainer drawableContainer = _listOfDrawableContainer[index];
@@ -101,6 +109,8 @@ namespace Greenshot.Editor.Memento
                 drawableContainer.Top = _points[index].Y;
                 drawableContainer.Width = _sizes[index].Width;
                 drawableContainer.Height = _sizes[index].Height;
+                if (drawableContainer is PolygonContainer polygon) polygon.SetVertices(_vertices[index]);
+                if (drawableContainer is DrawableContainer shape) shape.RestoreObjectTransform(_transforms[index]);
                 // After
                 drawableContainer.Invalidate();
                 drawableContainer.Parent.Modified = true;

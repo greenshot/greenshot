@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
@@ -65,6 +65,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <returns>bool</returns>
         public virtual bool HitTest(NativePoint point)
         {
+            if (Owner is DrawableContainer shape && shape.HasObjectTransform) point = Point.Round(shape.ImageToModel(new PointF(point.X, point.Y)));
             NativeRect hitBounds = Bounds.Inflate(3, 3);
             return hitBounds.Contains(point);
         }
@@ -121,7 +122,8 @@ namespace Greenshot.Editor.Drawing.Adorners
         {
             get
             {
-                NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(Location);
+                NativePoint location = Owner is DrawableContainer shape ? Point.Round(shape.ModelToImage(new PointF(Location.X, Location.Y))) : Location;
+                NativePoint displayLocation = Owner.Parent.ToSurfaceCoordinates(location);
                 return new NativeRect(displayLocation.X - Size.Width / 2, displayLocation.Y - Size.Height / 2, Size.Width, Size.Height);
             }
         }

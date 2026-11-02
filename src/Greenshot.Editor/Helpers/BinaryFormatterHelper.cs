@@ -71,6 +71,7 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.TornEdgeContainer", typeof(TornEdgeContainer) },
             {"Greenshot.Editor.Drawing.EllipseContainer", typeof(EllipseContainer) },
             {"Greenshot.Editor.Drawing.FreehandContainer", typeof(FreehandContainer) },
+            {"Greenshot.Editor.Drawing.PolygonContainer", typeof(PolygonContainer) },
             {"Greenshot.Editor.Drawing.HighlightContainer", typeof(HighlightContainer) },
             {"Greenshot.Editor.Drawing.IconContainer", typeof(IconContainer) },
             {"Greenshot.Editor.Drawing.ObfuscateContainer", typeof(ObfuscateContainer) },

@@ -112,6 +112,8 @@ namespace Greenshot.Editor.Drawing
         internal NativeRectFloat SnapHandleBounds(IDrawableContainer owner, NativeRect original, Positions position, Point pointer,
             NativeRectFloat constrained, ScaleOptions? options)
         {
+            if (owner is DrawableContainer transformed && transformed.HasObjectTransform)
+                return SnapRotatedHandle(transformed, original, position, pointer, options);
             if (!ObjectSnapHelper.Supported(owner) || (!_snapPoints && !_snapThrough)) return constrained;
             bool line = ObjectSnapHelper.IsLine(owner);
             if (line) options = (options ?? ScaleHelper.GetScaleOptions()) & ~ScaleOptions.Rational;

@@ -134,7 +134,7 @@ namespace Greenshot.Editor.Drawing
             return Math.Pow(xDistanceFromCenter, 2) / Math.Pow(caller.Width / 2, 2) + Math.Pow(yDistanceFromCenter, 2) / Math.Pow(caller.Height / 2, 2) < 1;
         }
 
-        public override bool ClickableAt(int x, int y)
+        protected override bool ClickableAtModel(int x, int y)
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);

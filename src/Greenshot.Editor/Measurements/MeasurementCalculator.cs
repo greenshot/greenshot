@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
@@ -10,6 +11,8 @@ namespace Greenshot.Editor.Measurements
 
         public static (string Label, double Pixels)[] GetDimensions(IDrawableContainer container)
         {
+            if (container is DrawableContainer transformed && transformed.HasObjectTransform)
+                return MeasurementGeometry.GetProperties(transformed).Where(p => p.Key == "L1" || p.Key == "L2" || p.Key == "D1" || p.Key == "D2").Select(p => (p.Key, p.Pixels)).ToArray();
             // Exact types exclude crop tools and other specialized descendants.
             var type = container?.GetType();
             if (type == typeof(LineContainer) || type == typeof(ArrowContainer))

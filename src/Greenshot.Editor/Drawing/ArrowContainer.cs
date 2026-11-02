@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -126,14 +126,14 @@ namespace Greenshot.Editor.Drawing
                     path.AddLine(Left, Top, Left + Width, Top + Height);
                     using Matrix matrix = new Matrix();
                     NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-                    return drawingBounds.Inflate(2, 2);
+                    return TransformBounds(drawingBounds.Inflate(2, 2));
                 }
 
                 return NativeRect.Empty;
             }
         }
 
-        public override bool ClickableAt(int x, int y)
+        protected override bool ClickableAtModel(int x, int y)
         {
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS) + 10;
             if (lineThickness > 0)

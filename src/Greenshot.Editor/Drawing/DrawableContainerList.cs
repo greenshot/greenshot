@@ -215,7 +215,7 @@ namespace Greenshot.Editor.Drawing
             bool ret = false;
             foreach (var dc in this)
             {
-                ret |= dc.ClickableAt(x, y);
+                ret |= dc is DrawableContainer shape ? shape.ClickableAtImage(x, y) : dc.ClickableAt(x, y);
             }
 
             return ret;
@@ -231,7 +231,7 @@ namespace Greenshot.Editor.Drawing
         {
             for (int i = Count - 1; i >= 0; i--)
             {
-                if (this[i].ClickableAt(x, y))
+                if (this[i] is DrawableContainer shape ? shape.ClickableAtImage(x, y) : this[i].ClickableAt(x, y))
                 {
                     return this[i];
                 }
@@ -722,6 +722,7 @@ namespace Greenshot.Editor.Drawing
             item.Click += delegate
             {
                 IDrawableContainerList dcs = this.Clone();
+                Surface.RenewGroupIds(dcs);
                 dcs.Parent = surface;
                 dcs.MoveBy(10, 10);
                 surface.AddElements(dcs);

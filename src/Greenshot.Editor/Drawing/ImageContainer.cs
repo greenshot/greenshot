@@ -126,6 +126,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
+            if (HasObjectTransform) { ComposeObjectTransform(matrix); return; }
             if (_image == null)
             {
                 base.Transform(matrix);
@@ -227,7 +228,7 @@ namespace Greenshot.Editor.Drawing
                 });
             }
 
-            graphics.DrawImage(_image, Bounds);
+            graphics.DrawImage(_image, ModelBounds);
         }
 
         /// <summary>
