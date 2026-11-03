@@ -2009,7 +2009,7 @@ namespace Greenshot.Plugin.RecipeEditor
         /// <summary>Show Greenshot's print options window.</summary>
         string ShowPrintOptions { get; }
 
-        /// <summary>Show the Windows printer dialog.</summary>
+        /// <summary>Show the system printer dialog.</summary>
         string ShowPrinterDialog { get; }
 
         /// <summary>

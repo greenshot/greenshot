@@ -46,7 +46,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
     [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
     [StepParameter("ShowPrintOptions", ContractDataType.Boolean, Description = "Show Greenshot print options (empty uses configuration)")]
-    [StepParameter("ShowPrinterDialog", ContractDataType.Boolean, Description = "Show the Windows printer dialog")]
+    [StepParameter("ShowPrinterDialog", ContractDataType.Boolean, Description = "Show the system printer dialog")]
     [StepParameter("AllowRotate", ContractDataType.Boolean, Description = "Rotate to fit the page (Printer)")]
     [StepParameter("AllowEnlarge", ContractDataType.Boolean, Description = "Enlarge to fit the page (Printer)")]
     [StepParameter("AllowShrink", ContractDataType.Boolean, Description = "Shrink to fit the page (Printer)")]
