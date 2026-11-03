@@ -69,7 +69,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Added by @Lakritzator
 
 **Grayscale**
-- The grayscale effect and the grayscale highlight use the luminance of BT.709 in linear light: grays of saturated colors are brighter now and match the brightness of the color (the same in the HDR file)
+- Grayscale keeps the brightness of colors: red, green and blue no longer turn too dark
 
 #### ⚙️ Command Line Interface
 
