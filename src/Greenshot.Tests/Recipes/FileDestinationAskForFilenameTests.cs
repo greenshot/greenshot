@@ -26,6 +26,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
@@ -236,7 +238,7 @@ namespace Greenshot.Tests.Recipes
                 capture.HdrImage = hdrImage;
                 using var tornSurface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
                 var edges = new Greenshot.Base.Effects.TornEdgeEffect { ToothHeight = 2, HorizontalToothRange = 6, VerticalToothRange = 6, GenerateShadow = false };
-                Assert.True(tornSurface.ApplyCrop(new Dapplo.Windows.Common.Structs.NativeRect(4, 4, 56, 24), CutMarkStyle.Torn, edges));
+                Assert.True(tornSurface.ApplyCrop(new NativeRect(4, 4, 56, 24), CutMarkStyle.Torn, edges));
                 Assert.True(HdrExport.CanWriteHdr(tornSurface));
                 var ui = new SaveDialogUserInteraction(path);
 
@@ -387,6 +389,28 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Overlay_HasLayersOnlyWhereSomethingIsDrawn()
+        {
+            using var surface = CreateBrightHdrSurface();
+            var rectangle = new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 };
+            surface.AddElement(rectangle, false, false);
+            // Highlighters draw nothing themselves: no layer after them, however many there are
+            for (int i = 0; i < 3; i++)
+            {
+                var highlight = new HighlightContainer(surface) { Left = 2 * i, Top = 2, Width = 2, Height = 4 };
+                surface.AddElement(highlight, false, false);
+            }
+
+            using var overlay = surface.CreateHdrOverlay();
+
+            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Layer != null).ToArray());
+            var layer = overlay.Steps[0];
+            // The layer is only as big as what is drawn into it, at its place
+            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)),
+                new NativeRect(layer.Location, new NativeSize(layer.Layer.Width, layer.Layer.Height)));
+        }
+
+        [Fact]
         public async Task SaveAsJpegXr_OfAnHdrCapture_IsTheHdrFile_AlsoWithoutHdrFormat()
         {
             string path = TempFile("jxr");
@@ -527,7 +551,7 @@ namespace Greenshot.Tests.Recipes
                 {
                     graphics.Clear(Color.Red);
                 }
-                capture.Cursor = new Dapplo.Windows.Icons.CapturedCursor { ColorLayer = red, Size = new Dapplo.Windows.Common.Structs.NativeSize(2, 2) };
+                capture.Cursor = new Dapplo.Windows.Icons.CapturedCursor { ColorLayer = red, Size = new NativeSize(2, 2) };
                 capture.CursorVisible = true;
                 capture.CursorLocation = new Dapplo.Windows.Common.Structs.NativePoint(2, 1);
                 using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
@@ -641,7 +665,7 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
-                Assert.True(surface.HdrImage.Crop(new Dapplo.Windows.Common.Structs.NativeRect(0, 0, 2, 2)).IsRequested);
+                Assert.True(surface.HdrImage.Crop(new NativeRect(0, 0, 2, 2)).IsRequested);
             }
             finally
             {

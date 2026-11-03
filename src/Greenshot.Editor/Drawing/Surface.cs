@@ -597,74 +597,103 @@ namespace Greenshot.Editor.Drawing
             // obfuscate element) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
             var changedAreas = new List<NativeRect>();
-            var steps = new List<HdrOverlayStep>();
             var invertedGroupsDone = new HashSet<string>();
+
+            // First the plan: the filters, and between them the elements which are drawn into the same layer
+            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn)>();
+            List<DrawableContainer> drawn = null;
+            void AddDrawn(DrawableContainer element)
+            {
+                if (drawn == null)
+                {
+                    drawn = new List<DrawableContainer>();
+                    plan.Add((null, drawn));
+                }
+                drawn.Add(element);
+            }
+            foreach (var element in _elements.OfType<DrawableContainer>())
+            {
+                if (element.Parent == null)
+                {
+                    continue;
+                }
+                if (ChangesPixels(element))
+                {
+                    var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
+                    if (elementFilters == null)
+                    {
+                        AddReplacedAreas(element, bounds, replacedAreas, changedAreas);
+                        continue;
+                    }
+                    // The filters work on what is drawn so far, the next elements go into a new layer
+                    drawn = null;
+                    plan.Add((elementFilters, null));
+                    // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
+                    if (DrawsItself(element))
+                    {
+                        AddDrawn(element);
+                    }
+                    continue;
+                }
+                if (element.DrawingBounds.IntersectsWith(bounds))
+                {
+                    AddDrawn(element);
+                }
+            }
+
+            // Then the layers, each only as big as what is drawn into it
+            var steps = new List<HdrOverlayStep>();
             Bitmap rendered = null;
-            Graphics graphics = null;
             try
             {
-                Graphics Layer()
+                foreach (var (filters, elements) in plan)
                 {
-                    if (graphics == null)
+                    if (filters != null)
                     {
-                        var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
-                        steps.Add(HdrOverlayStep.Of(layer));
-                        graphics = Graphics.FromImage(layer);
+                        steps.AddRange(filters.Select(HdrOverlayStep.Of));
+                        continue;
                     }
-                    return graphics;
-                }
-
-                foreach (var element in _elements.OfType<DrawableContainer>())
-                {
-                    if (element.Parent == null)
+                    var area = elements.Select(element => element.DrawingBounds.Intersect(bounds)).Where(part => part.Width > 0 && part.Height > 0)
+                        .DefaultIfEmpty(NativeRect.Empty).Aggregate((all, part) => all.IsEmpty ? part : all.Union(part));
+                    if (area.Width <= 0 || area.Height <= 0)
                     {
                         continue;
                     }
-                    if (ChangesPixels(element))
+                    var layer = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppArgb);
+                    steps.Add(HdrOverlayStep.Of(layer, area.Location));
+                    using var graphics = Graphics.FromImage(layer);
+                    graphics.TranslateTransform(-area.X, -area.Y);
+                    foreach (var element in elements)
                     {
-                        var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
-                        if (elementFilters == null)
+                        if (ChangesPixels(element))
                         {
-                            AddReplacedAreas(element, bounds, replacedAreas, changedAreas);
+                            element.Draw(graphics, RenderMode.EXPORT);
                             continue;
                         }
-                        // The filters work on what is drawn so far, the next elements go into a new layer
-                        graphics?.Dispose();
-                        graphics = null;
-                        steps.AddRange(elementFilters.Select(HdrOverlayStep.Of));
-                        // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
-                        element.Draw(Layer(), RenderMode.EXPORT);
-                        continue;
-                    }
-                    if (!element.DrawingBounds.IntersectsWith(bounds))
-                    {
-                        continue;
-                    }
-                    if (element is CursorContainer cursorContainer)
-                    {
-                        // A mask cursor (e.g. the I-beam) inverts the image under it
-                        using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
-                        if (cursorLayer != null)
+                        if (element is CursorContainer cursorContainer)
                         {
-                            Layer().DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
+                            // A mask cursor (e.g. the I-beam) inverts the image under it
+                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
+                            if (cursorLayer != null)
+                            {
+                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
+                            }
+                            continue;
                         }
-                        continue;
+                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
                     }
-                    var layerGraphics = Layer();
-                    element.DrawContent(layerGraphics, steps[steps.Count - 1].Layer, RenderMode.EXPORT, bounds);
                 }
-                graphics?.Dispose();
-                graphics = null;
 
                 if (replacedAreas.Count > 0 || changedAreas.Count > 0)
                 {
                     rendered = (Bitmap)GetImage(RenderMode.EXPORT);
                     // The replaced areas are the export as it is, also what is drawn over them
                     using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var layer in steps.Select(step => step.Layer).Where(layer => layer != null))
+                    foreach (var step in steps.Where(step => step.Layer != null))
                     {
-                        using var layerGraphics = Graphics.FromImage(layer);
+                        using var layerGraphics = Graphics.FromImage(step.Layer);
                         layerGraphics.CompositingMode = CompositingMode.SourceCopy;
+                        layerGraphics.TranslateTransform(-step.Location.X, -step.Location.Y);
                         foreach (var area in replacedAreas.Concat(changedAreas))
                         {
                             layerGraphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
@@ -675,7 +704,6 @@ namespace Greenshot.Editor.Drawing
             }
             catch
             {
-                graphics?.Dispose();
                 foreach (var step in steps)
                 {
                     step.Layer?.Dispose();
@@ -775,6 +803,14 @@ namespace Greenshot.Editor.Drawing
                 return new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape));
             }
         }
+
+        /// <summary>
+        /// The element with filters draws something itself: a filter element only its border (see FilterContainer.Draw), e.g. a highlighter
+        /// usually nothing; torn edges and cut marks always
+        /// </summary>
+        private static bool DrawsItself(DrawableContainer element) =>
+            element is not FilterContainer || (element.HasField(FieldType.LINE_THICKNESS) && element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) > 0
+                                              && Colors.IsVisible(element.GetFieldValueAsColor(FieldType.LINE_COLOR)));
 
         /// <summary>
         /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them

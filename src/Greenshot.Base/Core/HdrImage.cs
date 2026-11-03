@@ -471,7 +471,7 @@ namespace Greenshot.Base.Core
                     {
                         if (step.Layer != null)
                         {
-                            composed.BlendSdrOver(step.Layer, new NativePoint(0, 0));
+                            composed.BlendSdrOver(step.Layer, step.Location);
                         }
                         else
                         {

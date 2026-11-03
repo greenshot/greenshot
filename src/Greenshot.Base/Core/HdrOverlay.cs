@@ -84,18 +84,26 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class HdrOverlayStep
     {
-        private HdrOverlayStep(Bitmap layer, ImageFilter filter)
+        private HdrOverlayStep(Bitmap layer, NativePoint location, ImageFilter filter)
         {
             Layer = layer;
+            Location = location;
             Filter = filter;
         }
 
-        public static HdrOverlayStep Of(Bitmap layer) => new(layer ?? throw new ArgumentNullException(nameof(layer)), null);
+        /// <param name="layer">Drawn elements with their alpha</param>
+        /// <param name="location">Where the layer is in the capture: a layer is only as big as what is drawn into it</param>
+        public static HdrOverlayStep Of(Bitmap layer, NativePoint location) => new(layer ?? throw new ArgumentNullException(nameof(layer)), location, null);
 
-        public static HdrOverlayStep Of(ImageFilter filter) => new(null, filter ?? throw new ArgumentNullException(nameof(filter)));
+        public static HdrOverlayStep Of(ImageFilter filter) => new(null, new NativePoint(0, 0), filter ?? throw new ArgumentNullException(nameof(filter)));
 
         /// <summary>
-        /// Drawn elements with their alpha, the size of the capture; null for a filter
+        /// Where the layer is in the capture
+        /// </summary>
+        public NativePoint Location { get; }
+
+        /// <summary>
+        /// Drawn elements with their alpha, at <see cref="Location"/>; null for a filter
         /// </summary>
         public Bitmap Layer { get; }
 
