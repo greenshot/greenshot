@@ -59,11 +59,11 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryEncode(HdrImage hdrImage, string formatId, Stream destination, ICaptureDetails captureDetails, bool includePrivateMetadata, out string error)
+        public bool TryEncode(HdrImage hdrImage, string formatId, ICaptureDetails captureDetails, bool includePrivateMetadata, out EncodedImage encoded, out string error)
         {
+            encoded = null;
             error = null;
             if (hdrImage == null) throw new ArgumentNullException(nameof(hdrImage));
-            if (destination == null) throw new ArgumentNullException(nameof(destination));
             var container = ContainerFor(formatId);
             if (container == Guid.Empty)
             {
@@ -82,8 +82,8 @@ namespace Greenshot.Editor.FileFormatHandlers
                 Metadata = writer => WicFileFormatHandler.WriteMetadata(writer, container, metadata)
             };
 
-            // Encoded into a buffer first: when WIC fails, the destination stays untouched
-            using var buffer = new MemoryStream();
+            // The encoded image is the buffer of the stream, not a copy of it
+            var buffer = new MemoryStream();
             Guid writtenFormat = Guid.Empty;
             try
             {
@@ -105,7 +105,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
 
             Log.Info($"Wrote an HDR {formatId} file of {hdrImage.Width}x{hdrImage.Height} (SDR white {hdrImage.SdrWhiteLevelInNits} nits), {buffer.Length:N0} bytes.");
-            buffer.WriteTo(destination);
+            encoded = new EncodedImage(buffer.GetBuffer(), (int)buffer.Length, formatId);
             return true;
         }
 

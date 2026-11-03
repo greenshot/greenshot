@@ -22,6 +22,7 @@
 using System;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Native;
@@ -38,6 +39,8 @@ namespace Greenshot.Base.Core
     /// above the SDR white level are highlights. Straight (not premultiplied) alpha.
     /// It belongs to the capture next to its tone-mapped 8-bit image (ICapture.HdrImage), the surface takes it over with the image
     /// (ISurface.HdrImage); the owner disposes it. So the capture can be saved as an HDR file, see IHdrImageEncoder.
+    /// The pixels are filled while the HDR image is made (CopyFrom, CopyFromSdr) and not changed after it was handed on: copies of a capture or
+    /// a surface share them (<see cref="Share"/>), each with its own HdrImage; the pixels are released with the last one.
     /// </summary>
     public sealed class HdrImage : IDisposable
     {
@@ -49,27 +52,29 @@ namespace Greenshot.Base.Core
         // One block of memory per image: the WIC encoder takes the pixels as they are, without a copy
         private static readonly Configuration ContiguousConfiguration = CreateConfiguration();
 
+        private readonly SharedPixels _shared;
         private WeakReference<System.Drawing.Image> _belongsTo;
+        private int _disposed;
 
         /// <summary>
         /// A new (transparent black) HDR image
         /// </summary>
         public HdrImage(int width, int height, float sdrWhiteLevelInNits, float displayPeakInNits)
-            : this(new Image<HalfVector4>(ContiguousConfiguration, CheckSize(width), CheckSize(height)), sdrWhiteLevelInNits, displayPeakInNits)
+            : this(new SharedPixels(new Image<HalfVector4>(ContiguousConfiguration, CheckSize(width), CheckSize(height))), sdrWhiteLevelInNits, displayPeakInNits)
         {
         }
 
-        private HdrImage(Image<HalfVector4> pixels, float sdrWhiteLevelInNits, float displayPeakInNits)
+        private HdrImage(SharedPixels shared, float sdrWhiteLevelInNits, float displayPeakInNits)
         {
-            Pixels = pixels;
+            _shared = shared;
             SdrWhiteLevelInNits = sdrWhiteLevelInNits > 0 ? sdrWhiteLevelInNits : 80f;
             DisplayPeakInNits = displayPeakInNits;
         }
 
         /// <summary>
-        /// The pixels, owned by this HDR image
+        /// The pixels, shared with the copies of this HDR image (see <see cref="Share"/>): only read them once it was handed on
         /// </summary>
-        public Image<HalfVector4> Pixels { get; }
+        public Image<HalfVector4> Pixels => Volatile.Read(ref _disposed) == 0 ? _shared.Pixels : throw new ObjectDisposedException(nameof(HdrImage));
 
         public int Width => Pixels.Width;
 
@@ -114,14 +119,25 @@ namespace Greenshot.Base.Core
             {
                 return null;
             }
+            if (clipped.X == 0 && clipped.Y == 0 && clipped.Width == Width && clipped.Height == Height)
+            {
+                // Nothing to cut off: no copy
+                return Share();
+            }
+            // Only the area is copied
             var cropped = Pixels.Clone(context => context.Crop(new Rectangle(clipped.X, clipped.Y, clipped.Width, clipped.Height)));
-            return new HdrImage(cropped, SdrWhiteLevelInNits, DisplayPeakInNits);
+            return new HdrImage(new SharedPixels(cropped), SdrWhiteLevelInNits, DisplayPeakInNits);
         }
 
         /// <summary>
-        /// A copy, e.g. for a copy of the capture. It doesn't belong to an image yet, see <see cref="BelongTo"/>
+        /// The same HDR image for another owner, e.g. a copy of the capture or the surface: the pixels are shared, not copied.
+        /// It doesn't belong to an image yet (see <see cref="BelongTo"/>), and it is disposed by its owner like any other.
         /// </summary>
-        public HdrImage Clone() => new HdrImage(Pixels.Clone(), SdrWhiteLevelInNits, DisplayPeakInNits);
+        public HdrImage Share()
+        {
+            _ = Pixels; // not disposed
+            return new HdrImage(_shared.AddReference(), SdrWhiteLevelInNits, DisplayPeakInNits);
+        }
 
         /// <summary>
         /// The pixels as one block of memory (row after row, <see cref="Stride"/> bytes each), pinned while the action runs; e.g. for an encoder
@@ -243,7 +259,45 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public void Dispose() => Pixels.Dispose();
+        /// <summary>
+        /// Done with this HDR image: the pixels are released when no other copy (see <see cref="Share"/>) uses them
+        /// </summary>
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                _shared.Release();
+            }
+        }
+
+        /// <summary>
+        /// The pixels with the number of HdrImages which use them
+        /// </summary>
+        private sealed class SharedPixels
+        {
+            private int _references = 1;
+
+            public SharedPixels(Image<HalfVector4> pixels)
+            {
+                Pixels = pixels;
+            }
+
+            public Image<HalfVector4> Pixels { get; }
+
+            public SharedPixels AddReference()
+            {
+                Interlocked.Increment(ref _references);
+                return this;
+            }
+
+            public void Release()
+            {
+                if (Interlocked.Decrement(ref _references) == 0)
+                {
+                    Pixels.Dispose();
+                }
+            }
+        }
 
         private static int CheckSize(int size) => size > 0 ? size : throw new ArgumentOutOfRangeException(nameof(size));
 

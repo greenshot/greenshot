@@ -125,17 +125,35 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void CaptureClone_CopiesTheHdrImage_ForTheClonedImage()
+    public void CaptureClone_SharesTheHdrPixels_ForTheClonedImage()
     {
-        using var capture = new Capture { Image = new Bitmap(2, 1) };
+        var capture = new Capture { Image = new Bitmap(2, 1) };
         capture.HdrImage = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
         capture.HdrImage.BelongTo(capture.Image);
+        var original = capture.HdrImage;
 
         using var clone = capture.Clone();
 
-        Assert.NotSame(capture.HdrImage, clone.HdrImage);
-        Assert.Equal(5f, Get(clone.HdrImage, 1, 0)[0], 2);
+        // Its own HdrImage (own link to its own image), but the same pixels: no copy
+        Assert.NotSame(original, clone.HdrImage);
+        Assert.Same(original.Pixels, clone.HdrImage.Pixels);
         Assert.True(clone.HdrImage.BelongsTo(clone.Image));
+        Assert.False(original.BelongsTo(clone.Image));
+
+        // The pixels stay while a copy uses them
+        capture.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => original.Pixels);
+        Assert.Equal(5f, Get(clone.HdrImage, 1, 0)[0], 2);
+    }
+
+    [Fact]
+    public void Crop_ToTheWholeImage_SharesThePixels()
+    {
+        using var hdrImage = CreatePixels(2, 1, (x, y) => Rgba(1, 1, 1));
+
+        using var cropped = hdrImage.Crop(new NativeRect(0, 0, 5, 5));
+
+        Assert.Same(hdrImage.Pixels, cropped.Pixels);
     }
 
     [Fact]
@@ -236,11 +254,25 @@ public class HdrCaptureTests
     }
 
     [Fact]
+    public void EncodedImage_OfABuffer_IsOnlyItsLength()
+    {
+        var buffer = new byte[] { 1, 2, 3, 0, 0, 0 };
+
+        var encoded = new EncodedImage(buffer, 3, WellKnownFileFormats.Jxr);
+
+        Assert.Equal(3, encoded.Length);
+        Assert.Equal(new byte[] { 1, 2, 3 }, encoded.ToArray());
+        using var stream = encoded.OpenRead();
+        Assert.Equal(3, stream.Length);
+    }
+
+    [Fact]
     public void TryEncode_UnknownFormat_Fails()
     {
         var pixels = CreatePixels(1, 1, (x, y) => Rgba(1, 1, 1));
 
-        Assert.False(new WicHdrImageEncoder().TryEncode(pixels, "png", new MemoryStream(), null, false, out string error));
+        Assert.False(new WicHdrImageEncoder().TryEncode(pixels, "png", null, false, out var encoded, out string error));
+        Assert.Null(encoded);
         Assert.NotNull(error);
     }
 
@@ -292,11 +324,9 @@ public class HdrCaptureTests
         var pixels = new HdrImage(2, 1, SdrWhiteNits, 400);
         Set(pixels, 0, 0, Rgba(SdrWhite, SdrWhite, SdrWhite));
         Set(pixels, 1, 0, Rgba(4 * SdrWhite, 2 * SdrWhite, 0.5f));
-        using var stream = new MemoryStream();
+        Assert.True(encoder.TryEncode(pixels, formatId, null, false, out var encoded, out string error), error);
 
-        Assert.True(encoder.TryEncode(pixels, formatId, stream, null, false, out string error), error);
-
-        stream.Position = 0;
+        using var stream = encoded.OpenRead();
         var frame = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
         var converted = new FormatConvertedBitmap(frame, PixelFormats.Rgba128Float, null, 0);
         var values = new float[8];

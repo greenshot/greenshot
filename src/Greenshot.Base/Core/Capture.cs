@@ -273,7 +273,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details; the HDR image is shared (it is never changed).
         /// </summary>
         public Capture Clone()
         {
@@ -292,7 +292,7 @@ namespace Greenshot.Base.Core
 
             if (HdrImage != null)
             {
-                clone.HdrImage = HdrImage.Clone();
+                clone.HdrImage = HdrImage.Share();
                 clone.HdrImage.BelongTo(clone.Image);
             }
 

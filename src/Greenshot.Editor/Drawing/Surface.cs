@@ -870,10 +870,10 @@ namespace Greenshot.Editor.Drawing
                 UploadUrl = UploadUrl
             };
 
-            // The HDR image only while it still shows the image
+            // The HDR image only while it still shows the image; shared, not copied
             if (_hdrImage != null && _hdrImage.BelongsTo(_image))
             {
-                clonedSurface._hdrImage = _hdrImage.Clone();
+                clonedSurface._hdrImage = _hdrImage.Share();
                 clonedSurface._hdrImage.BelongTo(clonedImage);
             }
 

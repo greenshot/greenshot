@@ -563,10 +563,11 @@ namespace Greenshot.Base.Native
                 return null;
             }
 
+            // Only the area goes to the CPU, not the whole monitor
             var stagingDesc = new D3D11_TEXTURE2D_DESC
             {
-                Width = desc.Width,
-                Height = desc.Height,
+                Width = clipped.Width,
+                Height = clipped.Height,
                 MipLevels = 1,
                 ArraySize = 1,
                 Format = desc.Format,
@@ -579,13 +580,14 @@ namespace Greenshot.Base.Native
             device.CreateTexture2D(ref stagingDesc, IntPtr.Zero, out var stagingTexture);
             try
             {
-                context.CopyResource(stagingTexture, hdrTexture);
+                var box = new D3D11_BOX((uint)clipped.Left, (uint)clipped.Top, (uint)clipped.Right, (uint)clipped.Bottom);
+                context.CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, hdrTexture, 0, ref box);
                 int hr = context.Map(stagingTexture, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mapped);
                 if (hr != 0) Marshal.ThrowExceptionForHR(hr);
                 try
                 {
                     var pixels = new HdrImage(clipped.Width, clipped.Height, sdrWhiteLevelInNits, displayPeakInNits);
-                    byte* source = (byte*)mapped.pData + (long)clipped.Y * mapped.RowPitch + (long)clipped.X * HdrImage.BytesPerPixel;
+                    byte* source = (byte*)mapped.pData;
                     pixels.CopyFrom(source, mapped.RowPitch, new NativeSize(clipped.Width, clipped.Height), new NativePoint(0, 0));
                     Log.Debug($"Kept the HDR pixels of {clipped.Width}x{clipped.Height} (SDR white {sdrWhiteLevelInNits} nits).");
                     return pixels;

@@ -318,22 +318,18 @@ namespace Greenshot.Destinations
             CancellationToken cancellationToken)
         {
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
-            byte[] bytes;
+            EncodedImage encoded = null;
             string error = null;
-            using (var buffer = new MemoryStream())
+            // Like the normal file: with the details which are only for the user
+            if (encoder == null || !encoder.TryEncode(hdrImage, formatId, request.Metadata, true, out encoded, out error))
             {
-                // Like the normal file: with the details which are only for the user
-                if (encoder == null || !encoder.TryEncode(hdrImage, formatId, buffer, request.Metadata, true, out error))
-                {
-                    Log.Warn($"Couldn't write the HDR file {path}: {error ?? "no HDR encoder"}");
-                    return (null, Texts.Core.HdrNotSavedFailed);
-                }
-                bytes = buffer.ToArray();
+                Log.Warn($"Couldn't write the HDR file {path}: {error ?? "no HDR encoder"}");
+                return (null, Texts.Core.HdrNotSavedFailed);
             }
 
             try
             {
-                string savedPath = await ExportFiles.SaveEncodedAsync(new EncodedImage(bytes, formatId), path, overwrite, cancellationToken).ConfigureAwait(false);
+                string savedPath = await ExportFiles.SaveEncodedAsync(encoded, path, overwrite, cancellationToken).ConfigureAwait(false);
                 return (savedPath, null);
             }
             catch (FileAlreadyExistsException ex)

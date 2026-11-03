@@ -92,7 +92,7 @@ namespace Greenshot.Base.Interfaces
         void MoveMouseLocation(int x, int y);
 
         /// <summary>
-        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details; the HDR image is shared (it is never changed).
         /// </summary>
         ICapture Clone();
     }
