@@ -62,8 +62,9 @@ namespace Greenshot.Recipes.Pipeline
         /// <param name="context">The flow, its export sources still exist (the kept capture comes from them)</param>
         /// <param name="flowError">Why the flow failed, shown when no export failed (the failure of an export is its row), or null</param>
         /// <param name="cancellationToken">CancellationToken</param>
+        /// <param name="note">A line after the exports (e.g. that the capture had no HDR content), or null</param>
         /// <returns>false when nothing was shown: no exports, or the notification level doesn't show them</returns>
-        public static async Task<bool> ShowAsync(CaptureFlowContext context, string flowError, CancellationToken cancellationToken)
+        public static async Task<bool> ShowAsync(CaptureFlowContext context, string flowError, CancellationToken cancellationToken, string note = null)
         {
             var exports = context.GetExportLog().TakeUnnotified();
             var shown = GetShownExports(exports);
@@ -94,7 +95,7 @@ namespace Greenshot.Recipes.Pipeline
             }
 #endif
             var notification = CreateNotification(shown, barcodes, captureDetails, iconPaths, captureId, thumbnailPath,
-                shown.Any(e => e.Result.Status == ExportStatus.Failed) ? null : flowError);
+                shown.Any(e => e.Result.Status == ExportStatus.Failed) ? null : flowError, shown.Count > 0 ? note : null);
             await context.Ui.InvokeAsync(() => UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log), cancellationToken).ConfigureAwait(false);
 #if !GREENSHOT_LIGHT
             if (captureId != null)
@@ -175,8 +176,9 @@ namespace Greenshot.Recipes.Pipeline
         /// <param name="captureId">The capture kept for the notification, which a click offers in the destination picker, or null</param>
         /// <param name="thumbnailPath">The thumbnail of the capture, or null</param>
         /// <param name="flowError">Why the flow failed, a line of its own and an error notification, or null</param>
+        /// <param name="note">A line after the exports, or null</param>
         internal static Notification CreateNotification(IReadOnlyList<ExportOutcome> shown, IReadOnlyList<IBarcodeFeature> barcodes, ICaptureDetails captureDetails,
-            IReadOnlyDictionary<string, string> iconPaths, string captureId, string thumbnailPath, string flowError = null)
+            IReadOnlyDictionary<string, string> iconPaths, string captureId, string thumbnailPath, string flowError = null, string note = null)
         {
             var lines = shown.Select(e =>
             {
@@ -188,6 +190,10 @@ namespace Greenshot.Recipes.Pipeline
                 }
                 return new NotificationLine(GetMessage(e), iconPath);
             }).ToList();
+            if (!string.IsNullOrEmpty(note))
+            {
+                lines.Add(new NotificationLine(note));
+            }
             if (!string.IsNullOrEmpty(flowError))
             {
                 lines.Add(new NotificationLine(flowError));

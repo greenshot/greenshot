@@ -98,14 +98,24 @@ namespace Greenshot.Base.Core
         /// This method will call the CaptureRectangle with the screenbounds, therefore Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
-        public static Task<ICapture> CaptureScreenAsync(ICapture capture, CancellationToken cancellationToken = default)
+        public static Task<ICapture> CaptureScreenAsync(ICapture capture, CancellationToken cancellationToken = default) =>
+            CaptureScreenAsync(capture, false, cancellationToken);
+
+        /// <summary>
+        /// Capture the whole screen, with the HDR content of its HDR displays (ICapture.HdrImage) when keepHdr is set
+        /// </summary>
+        /// <param name="capture">ICapture to fill, null to create one</param>
+        /// <param name="keepHdr">Keep the HDR content, see CaptureFlowContext.CaptureHdr</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>A Capture Object with the Screen as an Image</returns>
+        public static Task<ICapture> CaptureScreenAsync(ICapture capture, bool keepHdr, CancellationToken cancellationToken = default)
         {
             if (capture == null)
             {
                 capture = new Capture();
             }
 
-            return CaptureRectangleAsync(capture, capture.ScreenBounds, cancellationToken);
+            return CaptureRectangleAsync(capture, capture.ScreenBounds, keepHdr, cancellationToken);
         }
 
         /// <summary>
@@ -115,11 +125,22 @@ namespace Greenshot.Base.Core
         /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>A Capture Object with a part of the Screen as an Image, null when nothing could be captured</returns>
-        public static async Task<ICapture> CaptureRectangleAsync(ICapture capture, NativeRect captureBounds, CancellationToken cancellationToken = default)
+        public static Task<ICapture> CaptureRectangleAsync(ICapture capture, NativeRect captureBounds, CancellationToken cancellationToken = default) =>
+            CaptureRectangleAsync(capture, captureBounds, false, cancellationToken);
+
+        /// <summary>
+        /// Capture the area of the screen, with the HDR content of the HDR displays in it (ICapture.HdrImage) when keepHdr is set
+        /// </summary>
+        /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
+        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
+        /// <param name="keepHdr">Keep the HDR content, see CaptureFlowContext.CaptureHdr</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>A Capture Object with a part of the Screen as an Image, null when nothing could be captured</returns>
+        public static async Task<ICapture> CaptureRectangleAsync(ICapture capture, NativeRect captureBounds, bool keepHdr, CancellationToken cancellationToken = default)
         {
             capture ??= new Capture();
 
-            var result = await ScreenCapture.CaptureRectangleAsync(captureBounds, cancellationToken).ConfigureAwait(false);
+            var result = await ScreenCapture.CaptureRectangleAsync(captureBounds, keepHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 return null;
@@ -128,6 +149,7 @@ namespace Greenshot.Base.Core
             capture.Image = result.Image;
             capture.Location = result.Location;
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            capture.HdrImage = result.HdrImage;
             return capture;
         }
 
@@ -155,11 +177,22 @@ namespace Greenshot.Base.Core
         /// <param name="capture">ICapture to fill, null to create one</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture, null when nothing could be captured</returns>
-        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default)
+        public static Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default) =>
+            CaptureWindowAsync(windowToCapture, capture, false, cancellationToken);
+
+        /// <summary>
+        /// Capture the window, with its HDR image (ICapture.HdrImage) when keepHdr is set and the window is on an HDR display
+        /// </summary>
+        /// <param name="windowToCapture">IInteropWindow</param>
+        /// <param name="capture">ICapture to fill, null to create one</param>
+        /// <param name="keepHdr">Keep the HDR image, see CaptureFlowContext.CaptureHdr</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ICapture, null when nothing could be captured</returns>
+        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture, bool keepHdr, CancellationToken cancellationToken = default)
         {
             capture ??= new Capture();
 
-            var result = await ScreenCapture.CaptureWindowAsync(windowToCapture, cancellationToken).ConfigureAwait(false);
+            var result = await ScreenCapture.CaptureWindowAsync(windowToCapture, keepHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 return null;
@@ -169,6 +202,7 @@ namespace Greenshot.Base.Core
             capture.Location = result.Location;
             capture.CaptureDetails.Title = windowToCapture.GetCaption();
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            capture.HdrImage = result.HdrImage;
             return capture;
         }
     }

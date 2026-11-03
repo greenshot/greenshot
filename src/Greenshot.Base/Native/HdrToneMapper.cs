@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Greenshot.Base.Native.DirectX;
 using log4net;
@@ -197,6 +198,18 @@ internal sealed class HdrToneMapper : IDisposable
         public IntPtr ColorContext;
     }
 
+    /// <summary>
+    /// D2D1_RECT_F: left, top, right, bottom
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct D2D1RectF
+    {
+        public float Left;
+        public float Top;
+        public float Right;
+        public float Bottom;
+    }
+
     #endregion
 
     /// <summary>
@@ -241,14 +254,15 @@ internal sealed class HdrToneMapper : IDisposable
     /// <param name="d3dDevice">The D3D11 device to create the render target texture on.</param>
     /// <param name="whiteLevelInNits">The brightness in nits which becomes white, see <see cref="HdrContent.WhiteLevelInNits"/>.</param>
     /// <param name="peakInNits">The brightest pixel in nits: when it is brighter than the white level, it is compressed into it.</param>
-    /// <param name="width">Texture width in pixels.</param>
-    /// <param name="height">Texture height in pixels.</param>
-    /// <returns>A new <c>B8G8R8A8_UNORM</c> texture containing the tone-mapped SDR result.
+    /// <param name="area">The area of the HDR texture which is tone mapped (only it, not the whole monitor); the result has its size.</param>
+    /// <returns>A new <c>B8G8R8A8_UNORM</c> texture of the size of the area containing the tone-mapped SDR result.
     /// The caller owns this texture and must release it via <c>Marshal.ReleaseComObject</c>.</returns>
     public ID3D11Texture2D ToneMapToSdr(
         ID3D11Texture2D hdrTexture, ID3D11Device d3dDevice,
-        float whiteLevelInNits, float peakInNits, int width, int height)
+        float whiteLevelInNits, float peakInNits, Rectangle area)
     {
+        int width = area.Width;
+        int height = area.Height;
         IntPtr pHdrSurface = IntPtr.Zero;
         IntPtr pSdrSurface = IntPtr.Zero;
         IntPtr pSourceBitmap = IntPtr.Zero;
@@ -373,11 +387,16 @@ internal sealed class HdrToneMapper : IDisposable
             beginDrawFn(_pDeviceContext);
 
             var drawImageFn = GetVtableDelegate<DrawImageDelegate>(_pDeviceContext, VT_D2D1DC_DrawImage);
-            drawImageFn(_pDeviceContext, pEffectOutput,
-                IntPtr.Zero /* targetOffset = origin */,
-                IntPtr.Zero /* imageRect = full image */,
-                D2D1_INTERPOLATION_MODE_LINEAR,
-                D2D1_COMPOSITE_MODE_SOURCE_OVER);
+            unsafe
+            {
+                // The area of the image at the origin of the target: the effects only run for these pixels
+                var imageRect = new D2D1RectF { Left = area.Left, Top = area.Top, Right = area.Right, Bottom = area.Bottom };
+                drawImageFn(_pDeviceContext, pEffectOutput,
+                    IntPtr.Zero /* targetOffset = origin */,
+                    (IntPtr)(&imageRect),
+                    D2D1_INTERPOLATION_MODE_LINEAR,
+                    D2D1_COMPOSITE_MODE_SOURCE_OVER);
+            }
 
             var endDrawFn = GetVtableDelegate<EndDrawDelegate>(_pDeviceContext, VT_D2D1DC_EndDraw);
             hr = endDrawFn(_pDeviceContext, IntPtr.Zero, IntPtr.Zero);

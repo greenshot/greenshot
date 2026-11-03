@@ -120,6 +120,19 @@ namespace Greenshot.Base.Recipes.Pipeline
         public bool IsPayloadPreSupplied { get; set; }
 
         /// <summary>
+        /// The Source step captures with the HDR content of HDR displays (its Hdr parameter): the capture keeps it in ICapture.HdrImage,
+        /// for whatever uses it later (e.g. the HdrFormat of SaveFile). Read by the code which takes the capture, also after the selection
+        /// on the live screen.
+        /// </summary>
+        public bool CaptureHdr { get; set; }
+
+        /// <summary>
+        /// The Source step asks for HDR explicitly (Hdr true, not only the setting): the HDR image is marked as requested (HdrImage.IsRequested),
+        /// so Save as suggests JPEG XR
+        /// </summary>
+        public bool CaptureHdrRequested { get; set; }
+
+        /// <summary>
         /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
         /// (e.g. to hand the final image to an AI tool). Not copied to branch contexts.
         /// </summary>

@@ -3181,6 +3181,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("AlignDpi", value); OnPropertyChanged(nameof(AlignDpiMode)); }
         }
 
+        public string SourceScreenMode
+        {
+            get => GetParam("ScreenMode", "");
+            set { SetParamOrRemoveIfEmpty("ScreenMode", value); OnPropertyChanged(nameof(SourceScreenMode)); }
+        }
+
+        public string SourceHdr
+        {
+            get => GetTriStateParam("Hdr");
+            set { SetTriStateParam("Hdr", value); OnPropertyChanged(nameof(SourceHdr)); }
+        }
+
         public string AllowWindowSnappingMode
         {
             get => GetTriStateParam("AllowWindowSnapping");
@@ -3209,6 +3221,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetTriStateParam("CopyPathToClipboard");
             set { SetTriStateParam("CopyPathToClipboard", value); OnPropertyChanged(nameof(OutputFileCopyPath)); }
+        }
+
+        public string OutputFileHdrFormat
+        {
+            get => GetParam("HdrFormat", "");
+            set { SetParamOrRemoveIfEmpty("HdrFormat", value); OnPropertyChanged(nameof(OutputFileHdrFormat)); }
+        }
+
+        public string OutputFileAskForFilename
+        {
+            get => GetTriStateParam("AskForFilename");
+            set { SetTriStateParam("AskForFilename", value); OnPropertyChanged(nameof(OutputFileAskForFilename)); }
         }
 
         public string OutputFileJpegQuality
@@ -3925,11 +3949,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(SoundFilePath));
             OnPropertyChanged(nameof(ScreenCaptureMode));
             OnPropertyChanged(nameof(AlignDpiMode));
+            OnPropertyChanged(nameof(SourceScreenMode));
+            OnPropertyChanged(nameof(SourceHdr));
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));
             OnPropertyChanged(nameof(OutputFilePromptQuality));
             OnPropertyChanged(nameof(OutputFileAllowOverwrite));
             OnPropertyChanged(nameof(OutputFileCopyPath));
+            OnPropertyChanged(nameof(OutputFileHdrFormat));
+            OnPropertyChanged(nameof(OutputFileAskForFilename));
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));

@@ -365,8 +365,142 @@ namespace Greenshot.Editor.Drawing
             {
                 _image = value;
                 UpdateSize();
+                ImageChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        /// <summary>
+        /// The image was replaced: an effect, a crop, an undo or redo of them. E.g. whether it can still be saved as HDR file changed.
+        /// </summary>
+        public event EventHandler ImageChanged;
+
+        /// <summary>
+        /// The HDR image taken over from the capture, owned by the surface; not serialized (the .greenshot file has no HDR)
+        /// </summary>
+        [NonSerialized] private HdrImage _hdrImage;
+
+        /// <summary>
+        /// The HDR images made for the images of a crop or a rotation (see DeriveHdrImage), newest last: undo and redo bring back an image,
+        /// its HDR image is found again by BelongsTo. Owned by the surface.
+        /// </summary>
+        [NonSerialized] private readonly List<HdrImage> _derivedHdrImages = new List<HdrImage>();
+
+        /// <inheritdoc />
+        public HdrImage HdrImage => _derivedHdrImages.LastOrDefault(hdrImage => hdrImage.BelongsTo(_image)) ?? _hdrImage;
+
+        /// <summary>
+        /// The image is replaced by one made from it (a crop, a rotation): the HDR image of the old image, made the same way, belongs to the new one
+        /// </summary>
+        /// <param name="oldImage">The image before</param>
+        /// <param name="newImage">The new image</param>
+        /// <param name="derive">Makes the new HDR image from the old one, null when it can't</param>
+        private void DeriveHdrImage(Image oldImage, Image newImage, Func<HdrImage, HdrImage> derive)
+        {
+            var hdrImage = HdrImage;
+            if (hdrImage == null || !hdrImage.BelongsTo(oldImage) || newImage == null)
+            {
+                return;
+            }
+            PruneDerivedHdrImages(false);
+            var derivedHdrImage = derive(hdrImage);
+            if (derivedHdrImage != null)
+            {
+                derivedHdrImage.BelongTo(newImage);
+                _derivedHdrImages.Add(derivedHdrImage);
+            }
+        }
+
+        /// <inheritdoc />
+        public HdrOverlay CreateHdrOverlay()
+        {
+            if (_image == null || _elements == null || _elements.Count == 0)
+            {
+                return null;
+            }
+            var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
+
+            // Elements which change the pixels under them (blur, pixelate, highlight, cut marks, torn edges) can't be drawn on their own:
+            // their areas are taken from the export as they are. An inverted filter changes everything around it.
+            var replacedAreas = new List<NativeRect>();
+            foreach (var element in _elements.OfType<DrawableContainer>().Where(ChangesPixels))
+            {
+                IEnumerable<NativeRect> areas;
+                if (element is TornEdgeContainer tornEdges)
+                {
+                    // Only the bands of the torn edges, the rest of the image keeps its HDR content
+                    areas = tornEdges.EdgeAreas();
+                }
+                else if (element.HasFilters)
+                {
+                    // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
+                    int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
+                    int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
+                    int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
+                    areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
+                }
+                else
+                {
+                    // A cut mark: what it draws
+                    areas = new[] { element.DrawingBounds };
+                }
+                foreach (var area in areas.Select(area => area.Intersect(bounds)))
+                {
+                    if (area.Width > 0 && area.Height > 0)
+                    {
+                        replacedAreas.Add(area);
+                    }
+                }
+            }
+
+            Bitmap rendered = replacedAreas.Count > 0 ? (Bitmap)GetImage(RenderMode.EXPORT) : null;
+            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                using (var graphics = Graphics.FromImage(layer))
+                {
+                    // The other elements with their alpha, in their order
+                    foreach (var element in _elements.OfType<DrawableContainer>())
+                    {
+                        if (element.Parent == null || ChangesPixels(element) || !element.DrawingBounds.IntersectsWith(bounds))
+                        {
+                            continue;
+                        }
+                        if (element is CursorContainer cursorContainer)
+                        {
+                            // A mask cursor (e.g. the I-beam) inverts the image under it
+                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
+                            if (cursorLayer != null)
+                            {
+                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
+                            }
+                            continue;
+                        }
+                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
+                    }
+
+                    // The replaced areas are the export as it is, also what is drawn over them
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                    using var clear = new SolidBrush(Color.Transparent);
+                    foreach (var area in replacedAreas)
+                    {
+                        graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
+                    }
+                }
+                return new HdrOverlay(layer, rendered, replacedAreas);
+            }
+            catch
+            {
+                layer.Dispose();
+                rendered?.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them
+        /// </summary>
+        private static bool ChangesPixels(DrawableContainer element) =>
+            element.HasFilters || element is CutMarkContainer || element is TornEdgeContainer;
 
         [NonSerialized] private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         [NonSerialized] private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
@@ -596,6 +730,9 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            // The HDR image comes along with the image, the surface owns both now
+            _hdrImage = capture.HdrImage;
+
             // Make sure the image is NOT disposed, we took the reference directly into ourselves
             ((Capture) capture).NullImage();
 
@@ -612,6 +749,14 @@ namespace Greenshot.Editor.Drawing
                     _image.Dispose();
                     _image = null;
                 }
+
+                _hdrImage?.Dispose();
+                _hdrImage = null;
+                foreach (var derivedHdrImage in _derivedHdrImages)
+                {
+                    derivedHdrImage.Dispose();
+                }
+                _derivedHdrImages.Clear();
 
                 if (_buffer != null)
                 {
@@ -681,6 +826,7 @@ namespace Greenshot.Editor.Drawing
                 IMemento top = _undoStack.Pop();
                 _redoStack.Push(top.Restore());
                 _inUndoRedo = false;
+                PruneDerivedHdrImages(false);
             }
         }
 
@@ -695,6 +841,7 @@ namespace Greenshot.Editor.Drawing
                 IMemento top = _redoStack.Pop();
                 _undoStack.Push(top.Restore());
                 _inUndoRedo = false;
+                PruneDerivedHdrImages(false);
             }
         }
 
@@ -739,9 +886,41 @@ namespace Greenshot.Editor.Drawing
 
                     _undoStack.Push(memento);
                     LimitUndoImages();
+                    // The newest HDR image is made just before its image becomes the surface's (a crop, an effect)
+                    PruneDerivedHdrImages(true);
                 }
             }
         }
+
+        /// <summary>
+        /// Release the HDR images made for a crop or rotation whose image can't come back: it is neither the surface's image nor kept by an undo
+        /// or redo step (e.g. the redo steps are dropped after a new change, the oldest undo steps by LimitUndoImages).
+        /// </summary>
+        /// <param name="keepNewest">Keep the newest one: it was just made for the image which becomes the surface's right after</param>
+        private void PruneDerivedHdrImages(bool keepNewest)
+        {
+            if (_derivedHdrImages.Count == 0)
+            {
+                return;
+            }
+            var images = _undoStack.Concat(_redoStack).Select(MementoImage).Where(image => image != null).Append(_image).ToList();
+            var newest = keepNewest ? _derivedHdrImages[_derivedHdrImages.Count - 1] : null;
+            foreach (var unused in _derivedHdrImages.Where(derived => !ReferenceEquals(derived, newest) && !images.Any(derived.BelongsTo)).ToList())
+            {
+                _derivedHdrImages.Remove(unused);
+                unused.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// The image an undo or redo step brings back, null when it brings back none
+        /// </summary>
+        private static Image MementoImage(IMemento memento) => memento switch
+        {
+            SurfaceBackgroundChangeMemento backgroundChangeMemento => backgroundChangeMemento.Image,
+            SurfaceCutOutMemento cutOutMemento => cutOutMemento.Image,
+            _ => null
+        };
 
         /// <summary>
         /// Every effect or crop keeps the previous image for undo, drop the oldest steps when they use more than this
@@ -855,6 +1034,14 @@ namespace Greenshot.Editor.Drawing
                 LastSaveFullPath = LastSaveFullPath,
                 UploadUrl = UploadUrl
             };
+
+            // The HDR image only while it still shows the image; shared, not copied
+            var hdrImage = HdrImage;
+            if (hdrImage != null && hdrImage.BelongsTo(_image))
+            {
+                clonedSurface._hdrImage = hdrImage.Share();
+                clonedSurface._hdrImage.BelongTo(clonedImage);
+            }
 
             if (_elements != null && _elements.Count > 0)
             {
@@ -1352,7 +1539,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Back on the UI thread
-            ApplyEffectResult(newImage, matrix);
+            ApplyEffectResult(newImage, matrix, effect);
         }
 
         private static async Task<Image> ApplyEffectOnPoolAsync(Image sourceImage, IEffect effect, Matrix matrix)
@@ -1368,13 +1555,14 @@ namespace Greenshot.Editor.Drawing
         {
             var matrix = new Matrix();
             var newImage = ImageHelper.ApplyEffect(sourceImage, effect, matrix);
-            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix);
+            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix, effect);
         }
 
         /// <summary>
-        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards
+        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards.
+        /// A rotation rotates the HDR image too, other effects leave it behind (the capture can't be saved as an HDR file then).
         /// </summary>
-        private void ApplyEffectResult(Image newImage, Matrix matrix)
+        private void ApplyEffectResult(Image newImage, Matrix matrix, IEffect effect)
         {
             if (newImage == null)
             {
@@ -1387,6 +1575,7 @@ namespace Greenshot.Editor.Drawing
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
             // Make undoable
+            DeriveHdrImage(Image, newImage, hdrImage => effect is RotateEffect rotate ? hdrImage.Rotate(rotate.Angle) : null);
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
             SetImage(newImage, false);
             Invalidate();
@@ -1643,6 +1832,19 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
             // Make undoable, the memento takes the current image
+            // The HDR image is cropped the same way, the room for torn edges is from the image (like what is drawn)
+            DeriveHdrImage(Image, newImage, hdrImage =>
+            {
+                var cropped = hdrImage.Crop(cropRectangle);
+                if (cropped == null || margins.All(m => m == 0))
+                {
+                    return cropped;
+                }
+                using (cropped)
+                {
+                    return HdrImage.Combine(newImage.Width, newImage.Height, new[] { (cropped, new NativePoint(margins[3], margins[0])) });
+                }
+            });
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
 
             // Do not dispose otherwise we can't undo the image!
@@ -1820,6 +2022,32 @@ namespace Greenshot.Editor.Drawing
 
             int moveBy = cutSize - gap;
             var offset = horizontal ? new NativePoint(0, -moveBy) : new NativePoint(-moveBy, 0);
+            // The HDR image is cut out the same way: the part before the band and the part after it, put together (the cut mark is drawn)
+            DeriveHdrImage(Image, newImage, hdrImage =>
+            {
+                int removedStart = cutStart + gap;
+                var before = horizontal ? new NativeRect(0, 0, Image.Width, removedStart) : new NativeRect(0, 0, removedStart, Image.Height);
+                var after = horizontal
+                    ? new NativeRect(0, removedStart + moveBy, Image.Width, Image.Height - removedStart - moveBy)
+                    : new NativeRect(removedStart + moveBy, 0, Image.Width - removedStart - moveBy, Image.Height);
+                using var beforePart = before.Width > 0 && before.Height > 0 ? hdrImage.Crop(before) : null;
+                using var afterPart = after.Width > 0 && after.Height > 0 ? hdrImage.Crop(after) : null;
+                var parts = new List<(HdrImage, NativePoint)>();
+                if (beforePart != null)
+                {
+                    parts.Add((beforePart, new NativePoint(0, 0)));
+                }
+                if (afterPart != null)
+                {
+                    parts.Add((afterPart, horizontal ? new NativePoint(0, removedStart) : new NativePoint(removedStart, 0)));
+                }
+                var combined = HdrImage.Combine(newImage.Width, newImage.Height, parts);
+                if (combined != null)
+                {
+                    combined.IsRequested = hdrImage.IsRequested;
+                }
+                return combined;
+            });
             // Make undoable, the memento takes the current image
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
 

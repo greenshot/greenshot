@@ -160,6 +160,7 @@ namespace Greenshot.Base.Recipes
                 ValidateNode(node, i, nodeIds, result);
             }
             WarnAboutRegionWithoutSelection(recipe, result);
+            WarnAboutHdrFileWithoutHdrCapture(recipe, result);
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
@@ -181,6 +182,19 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Version, id, name and requirements, the same for recipes and extensions
         /// </summary>
+        /// <summary>
+        /// A SaveFile step with HdrFormat needs the HDR content of the capture, which only a Source step with Hdr takes:
+        /// without it the normal file is always saved. A recipe forwarded a capture (no Source step of its own) isn't warned.
+        /// </summary>
+        private static void WarnAboutHdrFileWithoutHdrCapture(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            bool hasSource = recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
+            if (hasSource && HdrOutput.SavesHdrFile(recipe) && !HdrOutput.CapturesHdr(recipe))
+            {
+                result.AddWarning("A SaveFile step saves an HDR file (HdrFormat), but the Source step doesn't capture with the HDR content (Hdr is false): the normal file is always saved.");
+            }
+        }
+
         /// <summary>
         /// A Region source only captures the screen, the user selects the region in the InteractiveSelection step after it.
         /// Without that step the whole screen goes on, which is easy to miss when writing a recipe. AI tools give the region themselves.

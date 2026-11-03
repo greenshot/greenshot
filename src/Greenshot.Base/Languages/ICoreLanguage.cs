@@ -977,6 +977,36 @@ namespace Greenshot.Base.Languages
         string NotificationButtonCopylink { get; }
 
         /// <summary>
+        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the recipe doesn't capture HDR). It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedNoHdr { get; }
+
+        /// <summary>
+        /// No HDR file was saved: the capture itself was changed (e.g. cropped or an effect), the HDR file wouldn't show that. It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedChanged { get; }
+
+        /// <summary>
+        /// The HDR file couldn't be written. The capture was saved as {0}.
+        /// </summary>
+        string HdrNotSavedFailed { get; }
+
+        /// <summary>
+        /// HDR content lost
+        /// </summary>
+        string HdrLostTitle { get; }
+
+        /// <summary>
+        /// The HDR content of this capture was lost by a change of the image (e.g. an effect): {0} would be an 8-bit JPEG XR without the HDR highlights. Save it anyway?
+        /// </summary>
+        string HdrLostQuestion { get; }
+
+        /// <summary>
+        /// No HDR content (not on an HDR display, or nothing brighter than SDR white or outside sRGB): saved as a normal file.
+        /// </summary>
+        string NotificationNoHdr { get; }
+
+        /// <summary>
         /// Greenshot Help
         /// </summary>
         string HelpTitle { get; }

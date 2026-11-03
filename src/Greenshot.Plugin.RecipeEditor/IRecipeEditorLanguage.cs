@@ -1872,6 +1872,66 @@ namespace Greenshot.Plugin.RecipeEditor
         string CopyPathEnabled { get; }
 
         /// <summary>
+        /// Ask Where to Save
+        /// </summary>
+        string AskForFilename { get; }
+
+        /// <summary>
+        /// No, save to the output folder
+        /// </summary>
+        string AskForFilenameNo { get; }
+
+        /// <summary>
+        /// Yes, with the save dialog
+        /// </summary>
+        string AskForFilenameYes { get; }
+
+        /// <summary>
+        /// HDR File
+        /// </summary>
+        string HdrFile { get; }
+
+        /// <summary>
+        /// JPEG XR (lossless, with the highlights)
+        /// </summary>
+        string HdrFileJxr { get; }
+
+        /// <summary>
+        /// Saves an HDR file when the Source step captures HDR (Hdr) and nothing was drawn on the capture, otherwise the normal file
+        /// </summary>
+        string TipHdrFile { get; }
+
+        /// <summary>
+        /// Select on
+        /// </summary>
+        string ScreenMode { get; }
+
+        /// <summary>
+        /// Live screen
+        /// </summary>
+        string ScreenModeLive { get; }
+
+        /// <summary>
+        /// Frozen screen
+        /// </summary>
+        string ScreenModeFrozen { get; }
+
+        /// <summary>
+        /// HDR Content
+        /// </summary>
+        string CaptureHdr { get; }
+
+        /// <summary>
+        /// Keep (of HDR displays)
+        /// </summary>
+        string CaptureHdrEnabled { get; }
+
+        /// <summary>
+        /// Captures the HDR content of HDR displays as well, for steps which use it (e.g. the HDR file of Save to File). Clearer on the live screen.
+        /// </summary>
+        string TipCaptureHdr { get; }
+
+        /// <summary>
         /// JPEG Quality (1-100 or empty=Config)
         /// </summary>
         string JpegQualityConfig { get; }

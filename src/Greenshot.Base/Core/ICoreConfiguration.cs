@@ -84,6 +84,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool CaptureMousepointer { get; set; }
 
+        [Description("Keep the HDR content of HDR displays with a capture, for JPEG XR files (a Source step without Hdr follows this)")]
+        [DefaultValue(false)]
+        bool CaptureHdr { get; set; }
+
         [Description("Use interactive window selection to capture? (false=Capture active window)")]
         [DefaultValue(false)]
         bool CaptureWindowsInteractive { get; set; }

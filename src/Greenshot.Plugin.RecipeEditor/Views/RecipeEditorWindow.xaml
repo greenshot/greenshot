@@ -1050,6 +1050,22 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.Disabled}" Tag="false"/>
                                             </ComboBox>
 
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ScreenMode}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ScreenMode}" SelectedValue="{Binding SelectedNode.SourceScreenMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ScreenModeLive}" Tag="Live"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.ScreenModeFrozen}" Tag="Frozen"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CaptureHdr}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CaptureHdr}" ToolTip="{wpf:Text RecipeEditor.TipCaptureHdr}" SelectedValue="{Binding SelectedNode.SourceHdr, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CaptureHdrEnabled}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
+
                                             <TextBlock Text="{wpf:Text RecipeEditor.DelayMs}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.DelayMs}" Text="{Binding SelectedNode.DelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
@@ -2546,6 +2562,20 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.CopyPathEnabled}" Tag="true"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.Disabled}" Tag="false"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.AskForFilename}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AskForFilename}" SelectedValue="{Binding SelectedNode.OutputFileAskForFilename, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.AskForFilenameNo}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.AskForFilenameYes}" Tag="true"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.HdrFile}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.HdrFile}" ToolTip="{wpf:Text RecipeEditor.TipHdrFile}" SelectedValue="{Binding SelectedNode.OutputFileHdrFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.HdrFileJxr}" Tag="Auto"/>
                                             </ComboBox>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.JpegQualityConfig}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
