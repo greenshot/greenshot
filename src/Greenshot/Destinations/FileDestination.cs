@@ -299,7 +299,10 @@ namespace Greenshot.Destinations
             if (!canWrite)
             {
                 Log.Info(hasHdr ? "Not saving an HDR file, the capture's image was changed." : "Not saving an HDR file, the capture has no HDR content (not on an HDR display, or the Source step doesn't capture HDR).");
-                return (null, hasHdr ? Texts.Core.HdrNotSavedChanged : Texts.Core.HdrNotSavedNoHdr);
+                // Auto: an HDR file when there is HDR content, quietly the normal file without it (e.g. on a PC without an HDR display);
+                // Jxr asks for it, and HDR content which was lost is always told
+                bool quiet = !hasHdr && string.Equals(_options?.HdrFormat, HdrOutput.Auto, StringComparison.OrdinalIgnoreCase);
+                return (null, quiet ? null : hasHdr ? Texts.Core.HdrNotSavedChanged : Texts.Core.HdrNotSavedNoHdr);
             }
 
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
@@ -370,6 +373,10 @@ namespace Greenshot.Destinations
         /// <param name="normalFormat">The format of the normal file, e.g. PNG</param>
         private static void NotifyHdrFallback(ExportRequest request, string reasonText, string normalFormat)
         {
+            if (reasonText == null)
+            {
+                return;
+            }
             string message = string.Format(reasonText, normalFormat);
             request.Ui.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("HDR fallback notification", Log);
         }

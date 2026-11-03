@@ -449,8 +449,10 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
-        [Fact]
-        public async Task NoHdrImage_DialogSuggestsNothing_SavesTheNormalFile_AndTellsWhy()
+        [Theory]
+        [InlineData("Jxr", true)]
+        [InlineData("Auto", false)]
+        public async Task NoHdrImage_DialogSuggestsNothing_SavesTheNormalFile_JxrTellsWhy_AutoQuietly(string hdrFormat, bool told)
         {
             string path = TempFile("png");
             try
@@ -458,12 +460,12 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(false);
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+                var result = await ExportAsync(surface, ui, hdrFormat);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Null(Assert.Single(ui.Dialogs).Format);
                 Assert.False(ui.Dialogs[0].HdrAvailable);
-                Assert.Single(ui.Notifications);
+                Assert.Equal(told ? 1 : 0, ui.Notifications.Count);
                 Assert.True(File.Exists(path));
             }
             finally

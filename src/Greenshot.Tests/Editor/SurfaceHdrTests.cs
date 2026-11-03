@@ -70,6 +70,27 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void CutOut_CutsTheHdrImageTheSameWay()
+        {
+            using var surface = CreateSurface();
+
+            // The columns 1 and 2 are cut out, 0 and 3 are joined
+            Assert.True(surface.ApplyCutOut(new NativeRect(1, 0, 2, 2), CropContainer.CropModes.Vertical));
+
+            Assert.True(HdrExport.CanWriteHdr(surface));
+            Assert.Equal(2, surface.HdrImage.Width);
+            // Two tiles (before and after the band), together they cover it
+            using (var composed = surface.HdrImage.Compose((Bitmap)surface.Image))
+            {
+                Assert.Equal((0f, 1f), Get(composed, 0, 1));
+                Assert.Equal((3f, 1f), Get(composed, 1, 1));
+            }
+
+            surface.Undo();
+            Assert.Equal(4, surface.HdrImage.Width);
+        }
+
+        [Fact]
         public void Crop_CropsTheHdrImage_Undo_BringsBackTheWholeOne()
         {
             using var surface = CreateSurface();

@@ -36,7 +36,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
-    [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Only for an unedited capture of the live screen or a window, otherwise the normal Format is saved.", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
+    [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Needs a capture with HDR content (Hdr of Source, or the setting) whose image wasn't changed, otherwise the normal Format is saved (Auto quietly).", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]

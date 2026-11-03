@@ -564,7 +564,7 @@
                 "Jxr"
               ],
               "default": "None",
-              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a Source step with Hdr and an unedited capture; otherwise the normal Format is saved and a notification says why."
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved: with Jxr a notification says why, with Auto only when HDR content was lost."
             },
             "AskForFilename": {
               "type": "boolean",

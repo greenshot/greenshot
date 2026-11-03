@@ -401,12 +401,7 @@ namespace Greenshot.Editor.Drawing
             {
                 return;
             }
-            // Those whose image is gone can't be brought back
-            foreach (var unlinked in _derivedHdrImages.Where(derived => !derived.IsLinked).ToList())
-            {
-                _derivedHdrImages.Remove(unlinked);
-                unlinked.Dispose();
-            }
+            PruneDerivedHdrImages(false);
             var derivedHdrImage = derive(hdrImage);
             if (derivedHdrImage != null)
             {
@@ -831,6 +826,7 @@ namespace Greenshot.Editor.Drawing
                 IMemento top = _undoStack.Pop();
                 _redoStack.Push(top.Restore());
                 _inUndoRedo = false;
+                PruneDerivedHdrImages(false);
             }
         }
 
@@ -845,6 +841,7 @@ namespace Greenshot.Editor.Drawing
                 IMemento top = _redoStack.Pop();
                 _undoStack.Push(top.Restore());
                 _inUndoRedo = false;
+                PruneDerivedHdrImages(false);
             }
         }
 
@@ -889,9 +886,41 @@ namespace Greenshot.Editor.Drawing
 
                     _undoStack.Push(memento);
                     LimitUndoImages();
+                    // The newest HDR image is made just before its image becomes the surface's (a crop, an effect)
+                    PruneDerivedHdrImages(true);
                 }
             }
         }
+
+        /// <summary>
+        /// Release the HDR images made for a crop or rotation whose image can't come back: it is neither the surface's image nor kept by an undo
+        /// or redo step (e.g. the redo steps are dropped after a new change, the oldest undo steps by LimitUndoImages).
+        /// </summary>
+        /// <param name="keepNewest">Keep the newest one: it was just made for the image which becomes the surface's right after</param>
+        private void PruneDerivedHdrImages(bool keepNewest)
+        {
+            if (_derivedHdrImages.Count == 0)
+            {
+                return;
+            }
+            var images = _undoStack.Concat(_redoStack).Select(MementoImage).Where(image => image != null).Append(_image).ToList();
+            var newest = keepNewest ? _derivedHdrImages[_derivedHdrImages.Count - 1] : null;
+            foreach (var unused in _derivedHdrImages.Where(derived => !ReferenceEquals(derived, newest) && !images.Any(derived.BelongsTo)).ToList())
+            {
+                _derivedHdrImages.Remove(unused);
+                unused.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// The image an undo or redo step brings back, null when it brings back none
+        /// </summary>
+        private static Image MementoImage(IMemento memento) => memento switch
+        {
+            SurfaceBackgroundChangeMemento backgroundChangeMemento => backgroundChangeMemento.Image,
+            SurfaceCutOutMemento cutOutMemento => cutOutMemento.Image,
+            _ => null
+        };
 
         /// <summary>
         /// Every effect or crop keeps the previous image for undo, drop the oldest steps when they use more than this
@@ -1993,6 +2022,32 @@ namespace Greenshot.Editor.Drawing
 
             int moveBy = cutSize - gap;
             var offset = horizontal ? new NativePoint(0, -moveBy) : new NativePoint(-moveBy, 0);
+            // The HDR image is cut out the same way: the part before the band and the part after it, put together (the cut mark is drawn)
+            DeriveHdrImage(Image, newImage, hdrImage =>
+            {
+                int removedStart = cutStart + gap;
+                var before = horizontal ? new NativeRect(0, 0, Image.Width, removedStart) : new NativeRect(0, 0, removedStart, Image.Height);
+                var after = horizontal
+                    ? new NativeRect(0, removedStart + moveBy, Image.Width, Image.Height - removedStart - moveBy)
+                    : new NativeRect(removedStart + moveBy, 0, Image.Width - removedStart - moveBy, Image.Height);
+                using var beforePart = before.Width > 0 && before.Height > 0 ? hdrImage.Crop(before) : null;
+                using var afterPart = after.Width > 0 && after.Height > 0 ? hdrImage.Crop(after) : null;
+                var parts = new List<(HdrImage, NativePoint)>();
+                if (beforePart != null)
+                {
+                    parts.Add((beforePart, new NativePoint(0, 0)));
+                }
+                if (afterPart != null)
+                {
+                    parts.Add((afterPart, horizontal ? new NativePoint(0, removedStart) : new NativePoint(removedStart, 0)));
+                }
+                var combined = HdrImage.Combine(newImage.Width, newImage.Height, parts);
+                if (combined != null)
+                {
+                    combined.IsRequested = hdrImage.IsRequested;
+                }
+                return combined;
+            });
             // Make undoable, the memento takes the current image
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
 
