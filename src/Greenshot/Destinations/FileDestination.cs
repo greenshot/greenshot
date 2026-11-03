@@ -287,7 +287,7 @@ namespace Greenshot.Destinations
         private async Task<(HdrImage HdrImage, string FormatId, string ReasonText)> GetHdrToSaveAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             // IsModified can't tell: a new capture counts as modified until it is saved. The HDR image still shows the capture when the surface
-            // has the image it was taken with and nothing drawn on it; the mouse cursor is left out of the HDR file.
+            // has the image it was taken with and nothing drawn on it except the mouse cursor, which is drawn into the HDR file too.
             var (hdrImage, unchanged) = await request.Source.UseSurfaceAsync(surface =>
             {
                 var surfaceHdrImage = surface.HdrImage;
@@ -320,18 +320,27 @@ namespace Greenshot.Destinations
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
             EncodedImage encoded = null;
             string error = null;
-            // Only the HDR displays are in the HDR image: the parts of SDR displays come from the capture's image now, on the UI thread
-            // which owns it (it was checked to be the image of the HDR image). One HDR display which covers the capture needs nothing of it.
-            HdrImage composed = null;
-            if (!hdrImage.IsComplete)
+            // Only the HDR displays are in the HDR image: the parts of SDR displays come from the capture's image now, and the mouse cursor
+            // (when it was captured) is drawn over it, on the UI thread which owns them (the image was checked to be the image of the HDR image).
+            // One HDR display which covers the capture, without a cursor, is written as it is.
+            var (composed, changed) = await request.Source.UseSurfaceAsync(surface =>
             {
-                composed = await request.Source.UseSurfaceAsync(surface => surface.Image is System.Drawing.Bitmap sdrImage && hdrImage.BelongsTo(sdrImage) ? hdrImage.Compose(sdrImage) : null,
-                    cancellationToken).ConfigureAwait(false);
-                if (composed == null)
+                if (!(surface.Image is System.Drawing.Bitmap sdrImage) || !hdrImage.BelongsTo(sdrImage))
                 {
-                    Log.Warn($"Couldn't compose the HDR file {path}: the capture's image changed.");
-                    return (null, Texts.Core.HdrNotSavedChanged);
+                    return ((HdrImage)null, true);
                 }
+                var cursor = surface.Elements.OfType<ICursorContainer>().FirstOrDefault(element => element.Cursor != null);
+                if (hdrImage.IsComplete && cursor == null)
+                {
+                    return (null, false);
+                }
+                using var cursorLayer = cursor != null ? HdrImage.CreateCursorLayer(sdrImage, cursor.Cursor, cursor.Bounds) : null;
+                return (hdrImage.Compose(sdrImage, cursorLayer, cursor?.Bounds.Location ?? default), false);
+            }, cancellationToken).ConfigureAwait(false);
+            if (changed)
+            {
+                Log.Warn($"Couldn't compose the HDR file {path}: the capture's image changed.");
+                return (null, Texts.Core.HdrNotSavedChanged);
             }
             using (composed)
             {

@@ -27,6 +27,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -208,29 +209,105 @@ namespace Greenshot.Base.Core
         /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
         /// </summary>
         /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
+        /// <param name="overlay">An 8-bit layer drawn over it at the SDR white level, e.g. the mouse cursor (see <see cref="CreateCursorLayer"/>); null for none</param>
+        /// <param name="overlayLocation">Where the layer goes</param>
         /// <returns>A complete HDR image, the caller disposes it</returns>
-        public HdrImage Compose(Bitmap sdrImage)
+        public HdrImage Compose(Bitmap sdrImage, Bitmap overlay = null, NativePoint overlayLocation = default)
         {
             CheckNotDisposed();
-            if (IsComplete)
+            if (IsComplete && overlay == null)
             {
                 return Share();
             }
-            if (sdrImage == null) throw new ArgumentNullException(nameof(sdrImage));
+            if (sdrImage == null && !IsComplete) throw new ArgumentNullException(nameof(sdrImage));
 
             var composed = new HdrImage(Width, Height, SdrWhiteLevelInNits, DisplayPeakInNits);
             try
             {
-                composed.CopyFromSdrAround(sdrImage, _tiles.Select(tile => tile.Area).ToArray());
+                if (!IsComplete)
+                {
+                    composed.CopyFromSdrAround(sdrImage, _tiles.Select(tile => tile.Area).ToArray());
+                }
                 foreach (var tile in _tiles)
                 {
                     composed.CopyFrom(tile.Shared.Pixels, tile.Area.Location);
+                }
+                if (overlay != null)
+                {
+                    composed.BlendSdrOver(overlay, overlayLocation);
                 }
                 return composed;
             }
             catch
             {
                 composed.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The mouse cursor as an 8-bit layer with alpha, to draw it over the HDR image (<see cref="Compose"/>) like the editor draws it over the
+        /// capture. An alpha cursor is drawn alone, so its soft edges and shadow are blended with the HDR pixels; a mask cursor (which inverts the
+        /// screen, e.g. the I-beam) is drawn over the 8-bit image and only its changed pixels are taken.
+        /// </summary>
+        /// <param name="sdrImage">The capture's 8-bit image, for a mask cursor</param>
+        /// <param name="cursor">The cursor</param>
+        /// <param name="bounds">Where the cursor is drawn on the capture, and how big</param>
+        /// <returns>The layer at bounds.Location, the caller disposes it; null when nothing of it is on the capture</returns>
+        public static unsafe Bitmap CreateCursorLayer(Bitmap sdrImage, CapturedCursor cursor, NativeRect bounds)
+        {
+            if (cursor == null || bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                return null;
+            }
+            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                if (cursor.MaskLayer == null || sdrImage == null)
+                {
+                    CursorHelper.DrawCursorOnBitmap(layer, cursor, new NativePoint(0, 0), bounds.Size);
+                    return layer;
+                }
+
+                // The 8-bit pixels under the cursor, with the cursor drawn on them: what changed is the cursor
+                var visible = bounds.Intersect(new NativeRect(0, 0, sdrImage.Width, sdrImage.Height));
+                if (visible.Width <= 0 || visible.Height <= 0)
+                {
+                    layer.Dispose();
+                    return null;
+                }
+                using (var graphics = System.Drawing.Graphics.FromImage(layer))
+                {
+                    graphics.DrawImage(sdrImage, new System.Drawing.Rectangle(visible.X - bounds.X, visible.Y - bounds.Y, visible.Width, visible.Height),
+                        new System.Drawing.Rectangle(visible.X, visible.Y, visible.Width, visible.Height), System.Drawing.GraphicsUnit.Pixel);
+                }
+                using var drawn = (Bitmap)layer.Clone();
+                CursorHelper.DrawCursorOnBitmap(drawn, cursor, new NativePoint(0, 0), bounds.Size);
+                var area = new NativeRect(0, 0, bounds.Width, bounds.Height);
+                var layerData = layer.LockBits(area, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                var drawnData = drawn.LockBits(area, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                try
+                {
+                    for (int y = 0; y < bounds.Height; y++)
+                    {
+                        uint* under = (uint*)((byte*)layerData.Scan0 + (long)y * layerData.Stride);
+                        uint* withCursor = (uint*)((byte*)drawnData.Scan0 + (long)y * drawnData.Stride);
+                        for (int x = 0; x < bounds.Width; x++)
+                        {
+                            under[x] = under[x] == withCursor[x] ? 0u : withCursor[x] | 0xFF000000u;
+                        }
+                    }
+                }
+                finally
+                {
+                    drawn.UnlockBits(drawnData);
+                    layer.UnlockBits(layerData);
+                }
+                return layer;
+            }
+            catch
+            {
+                layer.Dispose();
                 throw;
             }
         }
@@ -357,6 +434,58 @@ namespace Greenshot.Base.Core
             finally
             {
                 source.UnlockBits(bitmapData);
+            }
+        }
+
+        /// <summary>
+        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its colors at the SDR white level, blended in linear light
+        /// (scRGB is linear), so a cursor looks as it did on the screen and its shadow darkens the HDR pixels under it
+        /// </summary>
+        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location)
+        {
+            var target = new NativeRect(location, new NativeSize(layer.Width, layer.Height)).Intersect(new NativeRect(0, 0, Width, Height));
+            if (target.Width <= 0 || target.Height <= 0)
+            {
+                return;
+            }
+            float scale = SdrWhiteLevelInNits / 80f;
+            var linear = new float[256];
+            for (int i = 0; i < 256; i++)
+            {
+                double srgb = i / 255.0;
+                linear[i] = (float)((srgb <= 0.04045 ? srgb / 12.92 : Math.Pow((srgb + 0.055) / 1.055, 2.4)) * scale);
+            }
+            var layerData = layer.LockBits(new NativeRect(target.X - location.X, target.Y - location.Y, target.Width, target.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            try
+            {
+                Pixels.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < target.Height; y++)
+                    {
+                        byte* sourceRow = (byte*)layerData.Scan0 + (long)y * layerData.Stride;
+                        var targetRow = accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width);
+                        for (int x = 0; x < target.Width; x++, sourceRow += 4)
+                        {
+                            byte alpha = sourceRow[3];
+                            if (alpha == 0)
+                            {
+                                continue;
+                            }
+                            float a = alpha / 255f;
+                            var under = targetRow[x].ToVector4();
+                            // BGRA in memory, straight alpha
+                            targetRow[x] = new HalfVector4(
+                                linear[sourceRow[2]] * a + under.X * (1 - a),
+                                linear[sourceRow[1]] * a + under.Y * (1 - a),
+                                linear[sourceRow[0]] * a + under.Z * (1 - a),
+                                a + under.W * (1 - a));
+                        }
+                    }
+                });
+            }
+            finally
+            {
+                layer.UnlockBits(layerData);
             }
         }
 

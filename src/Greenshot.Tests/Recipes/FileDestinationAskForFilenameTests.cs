@@ -195,6 +195,56 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task HdrCaptureWithCursor_HasTheCursorInTheHdrFile()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                // A black HDR capture with a red (alpha) cursor at 2,1
+                var capture = new Capture(new Bitmap(8, 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+                var hdrImage = new HdrImage(8, 4, 240, 400);
+                hdrImage.Pixels.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < 4; y++)
+                    {
+                        accessor.GetRowSpan(y).Fill(new SixLabors.ImageSharp.PixelFormats.HalfVector4(0, 0, 0, 1));
+                    }
+                });
+                hdrImage.BelongTo(capture.Image);
+                capture.HdrImage = hdrImage;
+                var red = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using (var graphics = Graphics.FromImage(red))
+                {
+                    graphics.Clear(Color.Red);
+                }
+                capture.Cursor = new Dapplo.Windows.Icons.CapturedCursor { ColorLayer = red, Size = new Dapplo.Windows.Common.Structs.NativeSize(2, 2) };
+                capture.CursorVisible = true;
+                capture.CursorLocation = new Dapplo.Windows.Common.Structs.NativePoint(2, 1);
+                using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+                Assert.True(surface.HasCursor);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Notifications);
+                var frame = System.Windows.Media.Imaging.BitmapDecoder.Create(new Uri(path), System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat,
+                    System.Windows.Media.Imaging.BitmapCacheOption.OnLoad).Frames[0];
+                var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
+                var row = new float[8 * 4];
+                floats.CopyPixels(new System.Windows.Int32Rect(0, 1, 8, 1), row, 8 * 16, 0);
+                // Next to the cursor the HDR pixels, under it the red of the cursor at the SDR white level (240 nits is 3.0)
+                Assert.Equal(0f, row[0], 2);
+                Assert.Equal(3f, row[2 * 4], 2);
+                Assert.Equal(0f, row[2 * 4 + 1], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
         public async Task HdrCapture_UserPicksPng_SavesThePng_WithoutNotification()
         {
             string path = TempFile("png");
