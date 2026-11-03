@@ -585,10 +585,10 @@ namespace Greenshot.Editor.Drawing
 
             // Elements which change the pixels under them (blur, pixelate, highlight, cut marks, torn edges) can't be drawn on their own:
             // their areas are taken from the export as they are. An inverted filter changes everything around it.
-            // The filters of the highlighter and the magnifier are done on the HDR pixels instead (HdrElementFilters), when nothing drawn
+            // The filters of the highlighter and the magnifier are done on the HDR pixels instead (ElementImageFilters), when nothing drawn
             // before them is in their area (it would be under the filter): then the HDR content under them keeps its highlights.
             var replacedAreas = new List<NativeRect>();
-            var hdrFilters = new List<HdrFilter>();
+            var imageFilters = new List<ImageFilter>();
             var hdrFiltered = new HashSet<DrawableContainer>();
             var drawnBefore = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();
@@ -610,14 +610,14 @@ namespace Greenshot.Editor.Drawing
                         .Where(other => other.Parent != null && other.HasFilters
                                         && string.Join(",", other.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name)) == groupKey)
                         .Select(other => other.Bounds.Normalize()).ToArray();
-                    var changedAreas = HdrElementFilters.ChangedAreas(element, bounds, holes);
+                    var changedAreas = ElementImageFilters.ChangedAreas(element, bounds, holes);
                     bool underIsFree = !drawnBefore.Any(drawn => changedAreas.Any(changed => changed.IntersectsWith(drawn)));
-                    var elementHdrFilters = underIsFree
-                        ? HdrElementFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null)
+                    var elementImageFilters = underIsFree
+                        ? ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null)
                         : null;
-                    if (elementHdrFilters != null)
+                    if (elementImageFilters != null)
                     {
-                        hdrFilters.AddRange(elementHdrFilters);
+                        imageFilters.AddRange(elementImageFilters);
                         hdrFiltered.Add(element);
                         // Its own drawing (a border) is in the layer
                         drawnBefore.Add(element.DrawingBounds);
@@ -692,7 +692,7 @@ namespace Greenshot.Editor.Drawing
                         graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
                     }
                 }
-                return new HdrOverlay(layer, rendered, replacedAreas, hdrFilters);
+                return new HdrOverlay(layer, rendered, replacedAreas, imageFilters);
             }
             catch
             {

@@ -241,5 +241,29 @@ namespace Greenshot.Tests.Core
             Assert.Equal(new[] { new NativeRect(0, 0, 10, 4), new NativeRect(0, 6, 10, 4), new NativeRect(0, 4, 3, 2), new NativeRect(5, 4, 5, 2) }, withHole.TileAreas);
             Assert.Null(ImageEdits.Exclude(new[] { new NativeRect(0, 0, 10, 10) }).Apply(hdrImage));
         }
+
+        [Fact]
+        public void ImageFilters_WorkForAnyPixelType()
+        {
+            // The same filter on an 8-bit and on an HDR image: copy an area from a source and limit it to a marker color (white is 1 here)
+            using var bytes = new SixLabors.ImageSharp.Image<Rgba32>(4, 2, new Rgba32(255, 255, 255, 255));
+            using var halves = new SixLabors.ImageSharp.Image<HalfVector4>(4, 2, new HalfVector4(5, 5, 5, 1));
+            using var black = new SixLabors.ImageSharp.Image<Rgba32>(2, 2, new Rgba32(0, 0, 0, 255));
+            var highlighter = new ImageFilter("Highlight", (image, white) =>
+                SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context => context.LinearHighlight(white, new System.Numerics.Vector3(1, 1, 0),
+                    new SixLabors.ImageSharp.Rectangle(2, 0, 2, 2))));
+
+            foreach (SixLabors.ImageSharp.Image image in new SixLabors.ImageSharp.Image[] { bytes, halves })
+            {
+                ImageFilter.CopyArea(image, black, new SixLabors.ImageSharp.Point(0, 0), new SixLabors.ImageSharp.Rectangle(0, 0, 2, 2));
+                highlighter.Apply(image, 1f);
+            }
+
+            Assert.Equal(new Rgba32(0, 0, 0, 255), bytes[1, 1]);
+            Assert.Equal(new Rgba32(255, 255, 0, 255), bytes[3, 1]);
+            Assert.Equal(0f, halves[1, 1].ToVector4().X, 3);
+            // The highlight is limited to the marker color: yellow at white
+            Assert.Equal(new System.Numerics.Vector4(1, 1, 0, 1), halves[3, 1].ToVector4());
+        }
     }
 }
