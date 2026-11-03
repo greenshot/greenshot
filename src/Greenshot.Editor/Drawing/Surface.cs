@@ -450,16 +450,16 @@ namespace Greenshot.Editor.Drawing
         /// <param name="oldImage">The image before</param>
         /// <param name="newImage">The new image</param>
         /// <param name="edit">The same change for the HDR image, null when it can't be done on it (the new image has no HDR content then)</param>
-        private void DeriveHdrImage(Image oldImage, Image newImage, IHdrEdit edit)
+        private void DeriveHdrImage(Image oldImage, Image newImage, IImageEdit edit)
         {
             if (_hdrImage == null || newImage == null || edit == null)
             {
                 return;
             }
-            IReadOnlyList<IHdrEdit> edits;
+            IReadOnlyList<IImageEdit> edits;
             if (_hdrImage.BelongsTo(oldImage))
             {
-                edits = Array.Empty<IHdrEdit>();
+                edits = Array.Empty<IImageEdit>();
             }
             else
             {
@@ -486,13 +486,13 @@ namespace Greenshot.Editor.Drawing
             private bool _isMade;
             private bool _disposed;
 
-            public HdrVersion(Image image, IReadOnlyList<IHdrEdit> edits)
+            public HdrVersion(Image image, IReadOnlyList<IImageEdit> edits)
             {
                 _image = new WeakReference<Image>(image);
                 Edits = edits;
             }
 
-            public IReadOnlyList<IHdrEdit> Edits { get; }
+            public IReadOnlyList<IImageEdit> Edits { get; }
 
             public bool IsMade
             {
@@ -1740,7 +1740,7 @@ namespace Greenshot.Editor.Drawing
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
             // Make undoable
-            DeriveHdrImage(Image, newImage, HdrEdits.ForEffect(effect, new NativeSize(Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), matrix));
+            DeriveHdrImage(Image, newImage, ImageEdits.ForEffect(effect, new NativeSize(Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), matrix));
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
             SetImage(newImage, false);
             Invalidate();
@@ -1998,7 +1998,7 @@ namespace Greenshot.Editor.Drawing
             var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
             // Make undoable, the memento takes the current image
             // The HDR image is cropped the same way, the room for torn edges is from the image (like what is drawn)
-            DeriveHdrImage(Image, newImage, HdrEdits.Place(cropRectangle, new NativeSize(newImage.Width, newImage.Height), new NativePoint(margins[3], margins[0])));
+            DeriveHdrImage(Image, newImage, ImageEdits.Place(cropRectangle, new NativeSize(newImage.Width, newImage.Height), new NativePoint(margins[3], margins[0])));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
 
             // Do not dispose otherwise we can't undo the image!
@@ -2182,7 +2182,7 @@ namespace Greenshot.Editor.Drawing
             var after = horizontal
                 ? new NativeRect(0, removedStart + moveBy, Image.Width, Image.Height - removedStart - moveBy)
                 : new NativeRect(removedStart + moveBy, 0, Image.Width - removedStart - moveBy, Image.Height);
-            DeriveHdrImage(Image, newImage, HdrEdits.Join(new NativeSize(newImage.Width, newImage.Height), before, new NativePoint(0, 0),
+            DeriveHdrImage(Image, newImage, ImageEdits.Join(new NativeSize(newImage.Width, newImage.Height), before, new NativePoint(0, 0),
                 after, horizontal ? new NativePoint(0, removedStart) : new NativePoint(removedStart, 0)));
             // Make undoable, the memento takes the current image
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements), false);
@@ -2226,7 +2226,7 @@ namespace Greenshot.Editor.Drawing
                 var addedElements = new DrawableContainerList(ID) { tornEdges };
                 var offset = new NativePoint(margin, margin);
                 // The HDR image moves into the room, the torn edges are an element (their bands come from the 8-bit image when saved)
-                DeriveHdrImage(Image, newImage, HdrEdits.Place(new NativeRect(0, 0, Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), offset));
+                DeriveHdrImage(Image, newImage, ImageEdits.Place(new NativeRect(0, 0, Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), offset));
                 MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-margin, -margin), new DrawableContainerList(ID), addedElements), false);
                 ApplyCutOutState(newImage, movedElements, offset, addedElements, new DrawableContainerList(ID));
                 // It was created for the old image size, this makes it cover the new one
@@ -2264,7 +2264,7 @@ namespace Greenshot.Editor.Drawing
             var bounds = new NativeRect(0, 0, Image.Width, Image.Height);
             var drawnAreas = (element is TornEdgeContainer tornEdges ? tornEdges.EdgeAreas() : new[] { drawableContainer.DrawingBounds }.AsEnumerable())
                 .Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList();
-            DeriveHdrImage(Image, newImage, HdrEdits.Exclude(drawnAreas));
+            DeriveHdrImage(Image, newImage, ImageEdits.Exclude(drawnAreas));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;

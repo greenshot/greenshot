@@ -302,7 +302,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The HDR image with the pixels of each tile changed (e.g. a color effect, see HdrEdits), as a new HDR image; this one stays as it is
+        /// The HDR image with the pixels of each tile changed (e.g. a color effect, see ImageEdits), as a new HDR image; this one stays as it is
         /// </summary>
         /// <param name="process">Changes a copy of the pixels of a tile; it gets the SDR white of the tile's display as scRGB value (1.0 = 80 nits)</param>
         public HdrImage Process(Action<IImageProcessingContext, float> process)

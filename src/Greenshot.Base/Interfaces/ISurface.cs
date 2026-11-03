@@ -73,7 +73,7 @@ namespace Greenshot.Base.Interfaces
 
         /// <summary>
         /// The HDR image of the surface's image, null without one; owned by the surface. The HDR image of the capture (taken over from
-        /// ICapture.HdrImage) with the changes of the image which can be done on it too (crop, rotation, resize, most effects, see HdrEdits):
+        /// ICapture.HdrImage) with the changes of the image which can be done on it too (crop, rotation, resize, most effects, see ImageEdits):
         /// those are done only now, when it is asked for (e.g. an HDR file is written), and once. After a change which can't be done on it
         /// (e.g. monochrome) it is the capture's, which no longer belongs to the image (HdrImage.BelongsTo). On the UI thread.
         /// </summary>

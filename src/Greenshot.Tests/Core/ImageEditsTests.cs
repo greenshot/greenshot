@@ -34,14 +34,14 @@ namespace Greenshot.Tests.Core
     /// The edits of the HDR image for the changes of the editor: geometry like the 8-bit image, colors in linear light which look like the
     /// 8-bit effect in the SDR range and keep the highlights where the effect allows it
     /// </summary>
-    public class HdrEditsTests
+    public class ImageEditsTests
     {
         // SDR white of 240 nits in scRGB
         private const float White = 3f;
 
         private static readonly NativeSize Size = new NativeSize(2, 2);
 
-        public HdrEditsTests()
+        public ImageEditsTests()
         {
             TestEnvironment.EnsureInitialized();
         }
@@ -65,7 +65,7 @@ namespace Greenshot.Tests.Core
         private static System.Numerics.Vector4 Apply(IEffect effect, HalfVector4 pixel)
         {
             using var hdrImage = CreateHdrImage(2, 2, pixel);
-            using var result = HdrEdits.ForEffect(effect, Size, Size, new Matrix()).Apply(hdrImage);
+            using var result = ImageEdits.ForEffect(effect, Size, Size, new Matrix()).Apply(hdrImage);
             return result.Pixels[1, 1].ToVector4();
         }
 
@@ -95,7 +95,7 @@ namespace Greenshot.Tests.Core
         {
             using var hdrImage = CreateHdrImage(4, 2, Gray(5));
 
-            using var placed = HdrEdits.Place(new NativeRect(1, 0, 2, 2), new NativeSize(6, 6), new NativePoint(3, 2)).Apply(hdrImage);
+            using var placed = ImageEdits.Place(new NativeRect(1, 0, 2, 2), new NativeSize(6, 6), new NativePoint(3, 2)).Apply(hdrImage);
 
             Assert.Equal(6, placed.Width);
             Assert.Equal(new NativeRect(3, 2, 2, 2), Assert.Single(placed.TileAreas));
@@ -106,7 +106,7 @@ namespace Greenshot.Tests.Core
         {
             using var hdrImage = CreateHdrImage(10, 2, Gray(5));
 
-            using var joined = HdrEdits.Join(new NativeSize(6, 2), new NativeRect(0, 0, 3, 2), new NativePoint(0, 0), new NativeRect(7, 0, 3, 2), new NativePoint(3, 0))
+            using var joined = ImageEdits.Join(new NativeSize(6, 2), new NativeRect(0, 0, 3, 2), new NativePoint(0, 0), new NativeRect(7, 0, 3, 2), new NativePoint(3, 0))
                 .Apply(hdrImage);
 
             Assert.Equal(6, joined.Width);
@@ -117,16 +117,16 @@ namespace Greenshot.Tests.Core
         public void Effects_OfTheEditor_MapToEdits_MonochromeAndReduceColorsDont()
         {
             var size = new NativeSize(10, 10);
-            Assert.NotNull(HdrEdits.ForEffect(new GrayscaleEffect(), size, size, new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new InvertEffect(), size, size, new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new AdjustEffect(), size, size, new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new RemoveTransparencyEffect(), size, size, new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new RotateEffect(90), size, size, new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new ResizeEffect(5, 5, true), size, new NativeSize(5, 5), new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new BorderEffect(), size, new NativeSize(14, 14), new Matrix()));
-            Assert.NotNull(HdrEdits.ForEffect(new ResizeCanvasEffect(1, 1, 1, 1), size, new NativeSize(12, 12), new Matrix()));
-            Assert.Null(HdrEdits.ForEffect(new MonochromeEffect(127), size, size, new Matrix()));
-            Assert.Null(HdrEdits.ForEffect(new ReduceColorsEffect(), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new GrayscaleEffect(), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new InvertEffect(), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new AdjustEffect(), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new RemoveTransparencyEffect(), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new RotateEffect(90), size, size, new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new ResizeEffect(5, 5, true), size, new NativeSize(5, 5), new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new BorderEffect(), size, new NativeSize(14, 14), new Matrix()));
+            Assert.NotNull(ImageEdits.ForEffect(new ResizeCanvasEffect(1, 1, 1, 1), size, new NativeSize(12, 12), new Matrix()));
+            Assert.Null(ImageEdits.ForEffect(new MonochromeEffect(127), size, size, new Matrix()));
+            Assert.Null(ImageEdits.ForEffect(new ReduceColorsEffect(), size, size, new Matrix()));
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace Greenshot.Tests.Core
             matrix.Translate(6, 6);
             using var hdrImage = CreateHdrImage(10, 10, Gray(5));
 
-            using var shadowed = HdrEdits.ForEffect(new DropShadowEffect(), new NativeSize(10, 10), new NativeSize(24, 24), matrix).Apply(hdrImage);
+            using var shadowed = ImageEdits.ForEffect(new DropShadowEffect(), new NativeSize(10, 10), new NativeSize(24, 24), matrix).Apply(hdrImage);
 
             Assert.Equal(new NativeRect(6, 6, 10, 10), Assert.Single(shadowed.TileAreas));
         }
@@ -147,7 +147,7 @@ namespace Greenshot.Tests.Core
             var tornEdge = new TornEdgeEffect { ToothHeight = 3, GenerateShadow = false, Edges = new[] { true, false, true, false } };
             using var hdrImage = CreateHdrImage(20, 20, Gray(5));
 
-            using var torn = HdrEdits.ForEffect(tornEdge, new NativeSize(20, 20), new NativeSize(20, 20), new Matrix()).Apply(hdrImage);
+            using var torn = ImageEdits.ForEffect(tornEdge, new NativeSize(20, 20), new NativeSize(20, 20), new Matrix()).Apply(hdrImage);
 
             // Top and bottom are torn: their bands are left out, left and right stay
             Assert.Equal(new NativeRect(0, 3, 20, 14), Assert.Single(torn.TileAreas));
@@ -236,10 +236,10 @@ namespace Greenshot.Tests.Core
         {
             using var hdrImage = CreateHdrImage(10, 10, Gray(5));
 
-            using var withHole = HdrEdits.Exclude(new[] { new NativeRect(3, 4, 2, 2) }).Apply(hdrImage);
+            using var withHole = ImageEdits.Exclude(new[] { new NativeRect(3, 4, 2, 2) }).Apply(hdrImage);
 
             Assert.Equal(new[] { new NativeRect(0, 0, 10, 4), new NativeRect(0, 6, 10, 4), new NativeRect(0, 4, 3, 2), new NativeRect(5, 4, 5, 2) }, withHole.TileAreas);
-            Assert.Null(HdrEdits.Exclude(new[] { new NativeRect(0, 0, 10, 10) }).Apply(hdrImage));
+            Assert.Null(ImageEdits.Exclude(new[] { new NativeRect(0, 0, 10, 10) }).Apply(hdrImage));
         }
     }
 }

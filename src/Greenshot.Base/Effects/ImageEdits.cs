@@ -26,15 +26,16 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Numerics;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Effects;
+using Greenshot.Base.Core;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Effects
 {
     /// <summary>
-    /// A change of the capture done the same way on its HDR image (a crop, an effect), see <see cref="HdrEdits"/>.
-    /// The editor keeps the edits and does them only when the HDR image is needed (an HDR file is written), see ISurface.HdrImage.
+    /// A change of an image (a crop, an effect) as a description which can be done on another image of the same capture, see <see cref="ImageEdits"/>:
+    /// the editor keeps the edits of its images and does them on the HDR image only when it is needed (an HDR file is written), see ISurface.HdrImage.
+    /// Inside they are ImageSharp operations, which work for any pixel type: when the 8-bit image is an ImageSharp image too, it can get an Apply of its own.
     /// </summary>
-    public interface IHdrEdit
+    public interface IImageEdit
     {
         /// <summary>
         /// What it does, for the log
@@ -48,17 +49,17 @@ namespace Greenshot.Base.Core
     }
 
     /// <summary>
-    /// The edits of the HDR image for the changes of the editor. What isn't in the HDR image (the room around it, e.g. a border or a shadow,
+    /// The edits for the changes of the editor, done on the HDR image. What isn't in the HDR image (the room around it, e.g. a border or a shadow,
     /// the torn teeth) comes from the 8-bit image when the HDR file is written (HdrImage.Compose), like an SDR display.
     /// </summary>
-    public static class HdrEdits
+    public static class ImageEdits
     {
         /// <summary>
         /// An area of the HDR image at a place of a new image of the size, e.g. a crop (the area at 0,0 of an image of its size),
         /// a border (all of it, moved by the border width)
         /// </summary>
-        public static IHdrEdit Place(NativeRect area, NativeSize size, NativePoint location) =>
-            new HdrEdit($"Place {area} at {location} of {size.Width}x{size.Height}", hdrImage =>
+        public static IImageEdit Place(NativeRect area, NativeSize size, NativePoint location) =>
+            new ImageEdit($"Place {area} at {location} of {size.Width}x{size.Height}", hdrImage =>
             {
                 var part = hdrImage.Crop(area);
                 if (part == null || (location.X == 0 && location.Y == 0 && part.Width == size.Width && part.Height == size.Height))
@@ -74,8 +75,8 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Two areas of the HDR image put together in a new image of the size, e.g. a cut out (the parts before and after the band)
         /// </summary>
-        public static IHdrEdit Join(NativeSize size, NativeRect first, NativePoint firstLocation, NativeRect second, NativePoint secondLocation) =>
-            new HdrEdit($"Join {first} and {second} into {size.Width}x{size.Height}", hdrImage =>
+        public static IImageEdit Join(NativeSize size, NativeRect first, NativePoint firstLocation, NativeRect second, NativePoint secondLocation) =>
+            new ImageEdit($"Join {first} and {second} into {size.Width}x{size.Height}", hdrImage =>
             {
                 using var firstPart = first.Width > 0 && first.Height > 0 ? hdrImage.Crop(first) : null;
                 using var secondPart = second.Width > 0 && second.Height > 0 ? hdrImage.Crop(second) : null;
@@ -99,12 +100,12 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// The areas are taken from the 8-bit image, e.g. an element drawn into it (torn edges, cut marks)
         /// </summary>
-        public static IHdrEdit Exclude(IReadOnlyList<NativeRect> areas) =>
-            new HdrEdit($"Exclude {string.Join(", ", areas)}", hdrImage => hdrImage.Exclude(areas));
+        public static IImageEdit Exclude(IReadOnlyList<NativeRect> areas) =>
+            new ImageEdit($"Exclude {string.Join(", ", areas)}", hdrImage => hdrImage.Exclude(areas));
 
-        public static IHdrEdit Rotate(int angle) => new HdrEdit($"Rotate {angle}", hdrImage => hdrImage.Rotate(angle));
+        public static IImageEdit Rotate(int angle) => new ImageEdit($"Rotate {angle}", hdrImage => hdrImage.Rotate(angle));
 
-        public static IHdrEdit Resize(NativeSize size) => new HdrEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));
+        public static IImageEdit Resize(NativeSize size) => new ImageEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));
 
         /// <summary>
         /// The edit of the HDR image for an effect of the editor, null when the effect can't be done on the HDR image (monochrome, reduce colors:
@@ -114,7 +115,7 @@ namespace Greenshot.Base.Core
         /// <param name="oldSize">The size of the image before</param>
         /// <param name="newSize">The size of the image the effect made</param>
         /// <param name="matrix">How the effect moved the image (its offset in the new one), as the elements are moved</param>
-        public static IHdrEdit ForEffect(IEffect effect, NativeSize oldSize, NativeSize newSize, Matrix matrix)
+        public static IImageEdit ForEffect(IEffect effect, NativeSize oldSize, NativeSize newSize, Matrix matrix)
         {
             var all = new NativeRect(0, 0, oldSize.Width, oldSize.Height);
             var offset = matrix == null ? new NativePoint(0, 0) : new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY));
@@ -135,7 +136,7 @@ namespace Greenshot.Base.Core
                     var inside = new NativeRect(left, top, oldSize.Width - left - right, oldSize.Height - top - bottom);
                     if (inside.Width <= 0 || inside.Height <= 0)
                     {
-                        return new HdrEdit("Torn edges over all of it", _ => null);
+                        return new ImageEdit("Torn edges over all of it", _ => null);
                     }
                     var tornOffset = tornEdge.GenerateShadow ? offset : new NativePoint(0, 0);
                     return Place(inside, newSize, new NativePoint(tornOffset.X + left, tornOffset.Y + top));
@@ -160,8 +161,8 @@ namespace Greenshot.Base.Core
             }
         }
 
-        private static IHdrEdit Colors(string name, Action<SixLabors.ImageSharp.Processing.IImageProcessingContext, float> process) =>
-            new HdrEdit(name, hdrImage => hdrImage.Process(process));
+        private static IImageEdit Colors(string name, Action<SixLabors.ImageSharp.Processing.IImageProcessingContext, float> process) =>
+            new ImageEdit(name, hdrImage => hdrImage.Process(process));
 
         /// <summary>
         /// What the adjust effect does to each gray level of the 8-bit image (GDI+ color matrix and gamma), as a curve: the HDR image follows
@@ -178,11 +179,11 @@ namespace Greenshot.Base.Core
             return LinearColorEffects.CurveOf(level => adjusted.GetPixel(level, 0).G);
         }
 
-        private sealed class HdrEdit : IHdrEdit
+        private sealed class ImageEdit : IImageEdit
         {
             private readonly Func<HdrImage, HdrImage> _apply;
 
-            public HdrEdit(string name, Func<HdrImage, HdrImage> apply)
+            public ImageEdit(string name, Func<HdrImage, HdrImage> apply)
             {
                 Name = name;
                 _apply = apply;
