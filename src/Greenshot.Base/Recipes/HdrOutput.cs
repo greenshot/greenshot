@@ -21,6 +21,7 @@
 
 using System;
 using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Base.Recipes
@@ -48,6 +49,27 @@ namespace Greenshot.Base.Recipes
         /// The parameter of the Source step which captures with the HDR content (see CaptureFlowContext.CaptureHdr)
         /// </summary>
         public const string SourceParameterName = "Hdr";
+
+        /// <summary>
+        /// The values of payload.hdr, for a Conditional step or the when of a step, e.g. to ask with a UserPrompt step how to save:
+        /// Available, the capture can be saved as an HDR file; Lost, its HDR content was lost by a change of the image (e.g. an effect);
+        /// None, it has no HDR content (not on an HDR display, or the Source step doesn't capture HDR)
+        /// </summary>
+        public const string StateAvailable = "Available";
+        public const string StateLost = "Lost";
+        public const string StateNone = "None";
+
+        /// <summary>
+        /// The value of payload.hdr for the capture's HDR image and its image
+        /// </summary>
+        public static string StateOf(HdrImage hdrImage, System.Drawing.Image image)
+        {
+            if (hdrImage == null)
+            {
+                return StateNone;
+            }
+            return hdrImage.BelongsTo(image) ? StateAvailable : StateLost;
+        }
 
         /// <summary>
         /// True when a SaveFile step of the recipe saves an HDR file: it needs a capture with the HDR content

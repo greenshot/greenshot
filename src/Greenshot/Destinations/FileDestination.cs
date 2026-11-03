@@ -141,7 +141,12 @@ namespace Greenshot.Destinations
                 {
                     return hdrResult;
                 }
-                // Without it the normal file is saved, the user was told why
+                // Without it the normal file is saved (the log tells why; a recipe can ask before with payload.hdr)
+            }
+
+            if (!await ConfirmHdrLossAsync(request, fullPath, cancellationToken).ConfigureAwait(false))
+            {
+                return ExportResult.Declined;
             }
 
             if (_options?.OutputSettings == null && CoreConfig.OutputFilePromptQuality && request.Ui.IsInteractive)
@@ -195,14 +200,13 @@ namespace Greenshot.Destinations
                 await ClipboardService.Current.SetTextAsync(fullPath, cancellationToken).ConfigureAwait(false);
             }
 
-            await NotifyIfHdrLostAsync(request, fullPath, cancellationToken).ConfigureAwait(false);
             return Saved(captureDetails, fullPath);
         }
 
         /// <summary>
         /// Save the HDR image of the capture as an HDR file (see HdrOutput), next to where the normal file would go with the extension of the HDR format.
         /// Null when the normal file is to be saved: no HDR content (not on an HDR display, the Source step doesn't capture HDR), the capture's image was changed, or the encoder failed.
-        /// Then a notification tells why.
+        /// Only a failure of the encoder is notified; that there is no HDR content is logged, a recipe which wants to ask checks payload.hdr before.
         /// </summary>
         private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, bool overwrite, CancellationToken cancellationToken)
         {
@@ -234,7 +238,7 @@ namespace Greenshot.Destinations
 
         /// <summary>
         /// Save with the save dialog (AskForFilename). With an HDR file possible, the dialog suggests the HDR format and the HDR file is written when the user keeps it;
-        /// another format saves the normal file. Without HDR image the normal file is saved and a notification tells why.
+        /// another format saves the normal file. Without HDR image the normal file is saved.
         /// </summary>
         private async Task<ExportResult> SaveAsAsync(ExportRequest request, CancellationToken cancellationToken)
         {
@@ -272,19 +276,16 @@ namespace Greenshot.Destinations
             }
 
             // Another format picked, or no HDR file possible
+            if (!await ConfirmHdrLossAsync(request, fileName, cancellationToken).ConfigureAwait(false))
+            {
+                return ExportResult.Declined;
+            }
             string savedPath = await SaveToPickedFileAsync(request, fileName, copyPath, cancellationToken).ConfigureAwait(false);
             if (savedPath == null)
             {
                 return ExportResult.Declined;
             }
-            if (reasonText != null)
-            {
-                NotifyHdrFallback(request, reasonText, ImageIO.FormatForFilename(savedPath).ToUpperInvariant());
-            }
-            else
-            {
-                await NotifyIfHdrLostAsync(request, savedPath, cancellationToken).ConfigureAwait(false);
-            }
+            NotifyHdrFallback(request, reasonText, ImageIO.FormatForFilename(savedPath).ToUpperInvariant());
             return Saved(captureDetails, savedPath);
         }
 
@@ -298,11 +299,9 @@ namespace Greenshot.Destinations
             var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (surface.HdrImage != null, HdrExport.CanWriteHdr(surface)), cancellationToken).ConfigureAwait(false);
             if (!canWrite)
             {
+                // Quietly the normal file: a recipe which wants to ask the user checks payload.hdr before (e.g. with a UserPrompt step)
                 Log.Info(hasHdr ? "Not saving an HDR file, the capture's image was changed." : "Not saving an HDR file, the capture has no HDR content (not on an HDR display, or the Source step doesn't capture HDR).");
-                // Auto: an HDR file when there is HDR content, quietly the normal file without it (e.g. on a PC without an HDR display);
-                // Jxr asks for it, and HDR content which was lost is always told
-                bool quiet = !hasHdr && string.Equals(_options?.HdrFormat, HdrOutput.Auto, StringComparison.OrdinalIgnoreCase);
-                return (null, quiet ? null : hasHdr ? Texts.Core.HdrNotSavedChanged : Texts.Core.HdrNotSavedNoHdr);
+                return (null, null);
             }
 
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
@@ -348,25 +347,33 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// A JPEG XR of a capture whose HDR content was lost (its image was changed, e.g. by an effect) is an 8-bit file: the user is told,
-        /// e.g. when an opened HDR file is saved over
+        /// A JPEG XR of a capture whose HDR content was lost (its image was changed, e.g. by an effect) is an 8-bit file, e.g. when an opened HDR file
+        /// is saved over: the user who saves it (the editor, the destination picker) is asked first. A flow saves it without asking, the recipe can
+        /// check payload.hdr before. False when the user doesn't want the file.
         /// </summary>
-        private static async Task NotifyIfHdrLostAsync(ExportRequest request, string fullPath, CancellationToken cancellationToken)
+        internal static async Task<bool> ConfirmHdrLossAsync(ExportRequest request, string fullPath, CancellationToken cancellationToken)
         {
             if (!string.Equals(ImageIO.FormatForFilename(fullPath), WellKnownFileFormats.Jxr, StringComparison.OrdinalIgnoreCase))
             {
-                return;
+                return true;
             }
             bool lost = await request.Source.UseSurfaceAsync(surface => surface.HdrImage != null && !HdrExport.CanWriteHdr(surface), cancellationToken).ConfigureAwait(false);
-            if (lost)
+            if (!lost)
             {
-                Log.Info($"Saved {fullPath} as an 8-bit JPEG XR, the capture's HDR content was lost.");
-                NotifyHdrFallback(request, Texts.Core.HdrNotSavedChanged, "JPEG XR");
+                return true;
             }
+            Log.Info($"Saving {fullPath} as an 8-bit JPEG XR, the capture's HDR content was lost.");
+            if (!request.ManuallyInitiated || !request.Ui.IsInteractive)
+            {
+                return true;
+            }
+            bool? confirmed = await request.Ui.ConfirmAsync(Texts.Core.HdrLostTitle, string.Format(Texts.Core.HdrLostQuestion, Path.GetFileName(fullPath)), false, cancellationToken)
+                .ConfigureAwait(false);
+            return confirmed != false;
         }
 
         /// <summary>
-        /// Tell the user why the normal file was saved instead of the HDR file
+        /// Tell the user that the HDR file couldn't be written and the normal file was saved instead
         /// </summary>
         /// <param name="request">The export</param>
         /// <param name="reasonText">The text which tells why, with {0} for the format of the normal file</param>
@@ -410,12 +417,11 @@ namespace Greenshot.Destinations
             {
                 return null;
             }
-            string savedPath = await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, cancellationToken).ConfigureAwait(false);
-            if (savedPath != null)
+            if (!await ConfirmHdrLossAsync(request, fileNameWithExtension, cancellationToken).ConfigureAwait(false))
             {
-                await NotifyIfHdrLostAsync(request, savedPath, cancellationToken).ConfigureAwait(false);
+                return null;
             }
-            return savedPath;
+            return await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

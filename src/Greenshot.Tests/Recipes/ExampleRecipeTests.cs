@@ -95,6 +95,36 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, true)]
+        public void HdrRegion_AskHowToSave_OnlyWithTheOption_AndHdrContent(bool askHowToSave, bool withHdr, bool asks)
+        {
+            var recipe = RecipeSerializer.LoadFromFile(Path.Combine(FindExamplesDirectory(), "hdr_region_to_file.gsrecipe.json"), false);
+            try
+            {
+                RecipeOptionStore.SetValue(recipe.Id, recipe.FindOption("askHowToSave"), askHowToSave);
+                var capture = new Greenshot.Base.Core.Capture(new System.Drawing.Bitmap(4, 2));
+                if (withHdr)
+                {
+                    var hdrImage = new Greenshot.Base.Core.HdrImage(4, 2, 240, 400);
+                    hdrImage.BelongTo(capture.Image);
+                    capture.HdrImage = hdrImage;
+                }
+                using var context = new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe)
+                {
+                    Payload = new Greenshot.Base.Recipes.Pipeline.CapturePayload(capture)
+                };
+
+                Assert.Equal(asks, recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.UserPrompt).ShouldRun(context));
+            }
+            finally
+            {
+                RecipeOptionStore.Reset(recipe.Id);
+            }
+        }
+
+        [Theory]
         [InlineData("hdr_region_to_file.gsrecipe.json", false)]
         [InlineData("hdr_region_to_file.gsrecipe.json", true)]
         [InlineData("hdr_window_to_file.gsrecipe.json", true)]

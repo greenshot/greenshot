@@ -992,6 +992,16 @@ namespace Greenshot.Base.Languages
         string HdrNotSavedFailed { get; }
 
         /// <summary>
+        /// HDR content lost
+        /// </summary>
+        string HdrLostTitle { get; }
+
+        /// <summary>
+        /// The HDR content of this capture was lost by a change of the image (e.g. an effect): {0} would be an 8-bit JPEG XR without the HDR highlights. Save it anyway?
+        /// </summary>
+        string HdrLostQuestion { get; }
+
+        /// <summary>
         /// Greenshot Help
         /// </summary>
         string HelpTitle { get; }

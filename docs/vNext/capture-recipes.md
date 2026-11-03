@@ -326,7 +326,7 @@ Greenshot expression evaluation separates system information into distinct scope
 | `machine.*` | Windows Machine Environment | System-wide / machine-scoped environment variables (from `EnvironmentVariableTarget.Machine`) | `${machine.computername}`, `${machine.os}`, `${machine.programfiles}` |
 | `config.*` | Greenshot INI Configuration | Live configuration settings from `greenshot.ini` | `${config.language}`, `${config.capturemousepointer}` |
 | `context.*` | Pipeline Flow Context | Variables stored in `context.Properties` or set by preceding steps | `${context.watermark_text}`, `${context.WindowTitle}` |
-| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}` |
+| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture; `payload.hdr` is `Available` (can be saved as an HDR file), `Lost` (an effect changed the image) or `None` (no HDR content), e.g. to ask with a `UserPrompt` step how to save | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}`, `${payload.hdr == 'Available'}` |
 | `now:format` | Date / Time | Current timestamp formatted with .NET DateTime format strings | `${now:yyyy-MM-dd HH:mm:ss}` |
 
 ### Mathematical & Logical Expressions

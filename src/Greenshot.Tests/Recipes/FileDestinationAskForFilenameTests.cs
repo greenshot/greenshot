@@ -92,7 +92,18 @@ namespace Greenshot.Tests.Recipes
 
             public Task<T> RunWithProgressAsync<T>(string title, Func<IProgress<ProgressInfo>, CancellationToken, Task<T>> work, CancellationToken cancellationToken) => work(new Progress<ProgressInfo>(), cancellationToken);
 
-            public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+            /// <summary>
+            /// The answer to a question, null: no question expected
+            /// </summary>
+            public bool? ConfirmAnswer { get; set; }
+
+            public List<string> Questions { get; } = new List<string>();
+
+            public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken)
+            {
+                Questions.Add(message);
+                return ConfirmAnswer.HasValue ? Task.FromResult(ConfirmAnswer) : throw new InvalidOperationException("Not expected");
+            }
         }
 
         /// <summary>
@@ -111,7 +122,7 @@ namespace Greenshot.Tests.Recipes
             return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
         }
 
-        private static async Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat)
+        private static async Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat, bool manuallyInitiated = false)
         {
             var options = new FileDestinationOptions
             {
@@ -123,7 +134,7 @@ namespace Greenshot.Tests.Recipes
             return await Task.Run(async () =>
             {
                 using var source = await SurfaceExportSource.CreateAsync(surface, InlineUiDispatcher.Instance);
-                var request = new ExportRequest(source, surface.CaptureDetails, false, ui);
+                var request = new ExportRequest(source, surface.CaptureDetails, manuallyInitiated, ui);
                 return await new FileDestination(options).ExportAsync(request, CancellationToken.None);
             });
         }
@@ -239,8 +250,11 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
-        [Fact]
-        public async Task SavingAJpegXr_WhoseHdrWasLost_SaysSo()
+        [Theory]
+        [InlineData(false, null)]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        public async Task SavingAJpegXr_WhoseHdrWasLost_TheUserIsAsked_AFlowSavesIt(bool manuallyInitiated, bool? answer)
         {
             string path = TempFile("jxr");
             try
@@ -248,14 +262,16 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateBrightHdrSurface();
                 await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
                 Assert.False(HdrExport.CanWriteHdr(surface));
-                var ui = new SaveDialogUserInteraction(path);
+                var ui = new SaveDialogUserInteraction(path) { ConfirmAnswer = answer };
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, null, manuallyInitiated);
 
-                Assert.Equal(ExportStatus.Succeeded, result.Status);
-                // An 8-bit JPEG XR, and the user is told
-                Assert.Single(ui.Notifications);
-                Assert.True(File.Exists(path));
+                // An 8-bit JPEG XR: the user who saves it is asked first, a flow saves it (the recipe can check payload.hdr); never a notification
+                Assert.Equal(manuallyInitiated ? 1 : 0, ui.Questions.Count);
+                Assert.Empty(ui.Notifications);
+                bool saved = answer != false;
+                Assert.Equal(saved ? ExportStatus.Succeeded : ExportStatus.Declined, result.Status);
+                Assert.Equal(saved, File.Exists(path));
             }
             finally
             {
@@ -450,9 +466,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
-        [InlineData("Jxr", true)]
-        [InlineData("Auto", false)]
-        public async Task NoHdrImage_DialogSuggestsNothing_SavesTheNormalFile_JxrTellsWhy_AutoQuietly(string hdrFormat, bool told)
+        [InlineData("Jxr")]
+        [InlineData("Auto")]
+        public async Task NoHdrImage_DialogSuggestsNothing_SavesTheNormalFile_Quietly(string hdrFormat)
         {
             string path = TempFile("png");
             try
@@ -465,7 +481,8 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Null(Assert.Single(ui.Dialogs).Format);
                 Assert.False(ui.Dialogs[0].HdrAvailable);
-                Assert.Equal(told ? 1 : 0, ui.Notifications.Count);
+                // A recipe which wants to tell or ask checks payload.hdr before
+                Assert.Empty(ui.Notifications);
                 Assert.True(File.Exists(path));
             }
             finally
