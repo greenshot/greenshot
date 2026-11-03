@@ -37,8 +37,11 @@ namespace Greenshot.Base.Core
         /// <param name="rendered">The capture as it is exported (with its elements), for the replaced areas; null without them</param>
         /// <param name="replacedAreas">The areas taken from the rendered capture</param>
         /// <param name="filters">The filters of elements done on the HDR pixels, in the order of the elements; null for none</param>
-        public HdrOverlay(Bitmap layer, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<ImageFilter> filters = null)
+        /// <param name="changedAreas">The areas where only the pixels which the elements changed are taken from the rendered capture; null for none</param>
+        public HdrOverlay(Bitmap layer, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<ImageFilter> filters = null,
+            IReadOnlyList<NativeRect> changedAreas = null)
         {
+            ChangedAreas = changedAreas ?? Array.Empty<NativeRect>();
             Filters = filters ?? Array.Empty<ImageFilter>();
             Layer = layer ?? throw new ArgumentNullException(nameof(layer));
             Rendered = rendered;
@@ -57,10 +60,16 @@ namespace Greenshot.Base.Core
         public Bitmap Rendered { get; }
 
         /// <summary>
-        /// The areas of elements which change the pixels of the capture (blur, pixelate, highlight, cut marks, torn edges): they can't be drawn
+        /// The areas of elements which change the pixels of the capture (blur, pixelate): they can't be drawn
         /// over the HDR pixels, these areas of the HDR file are the rendered 8-bit capture, at the SDR white level. What is blurred stays blurred.
         /// </summary>
         public IReadOnlyList<NativeRect> ReplacedAreas { get; }
+
+        /// <summary>
+        /// The areas of elements which change only some pixels of the capture (the teeth of torn edges, cut marks): there only the pixels which
+        /// the rendered capture has different from the capture's image are taken from it, the others keep their HDR content. Transparent in the layer.
+        /// </summary>
+        public IReadOnlyList<NativeRect> ChangedAreas { get; }
 
         /// <summary>
         /// The filters of elements which can be done on the HDR pixels (e.g. a highlighter, a magnifier), in the order of the elements: they are

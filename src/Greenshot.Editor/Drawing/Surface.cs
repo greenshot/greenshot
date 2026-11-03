@@ -588,6 +588,7 @@ namespace Greenshot.Editor.Drawing
             // The filters of the highlighter and the magnifier are done on the HDR pixels instead (ElementImageFilters), when nothing drawn
             // before them is in their area (it would be under the filter): then the HDR content under them keeps its highlights.
             var replacedAreas = new List<NativeRect>();
+            var changedAreas = new List<NativeRect>();
             var imageFilters = new List<ImageFilter>();
             var hdrFiltered = new HashSet<DrawableContainer>();
             var drawnBefore = new List<NativeRect>();
@@ -610,8 +611,8 @@ namespace Greenshot.Editor.Drawing
                         .Where(other => other.Parent != null && other.HasFilters
                                         && string.Join(",", other.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name)) == groupKey)
                         .Select(other => other.Bounds.Normalize()).ToArray();
-                    var changedAreas = ElementImageFilters.ChangedAreas(element, bounds, holes);
-                    bool underIsFree = !drawnBefore.Any(drawn => changedAreas.Any(changed => changed.IntersectsWith(drawn)));
+                    var filteredAreas = ElementImageFilters.ChangedAreas(element, bounds, holes);
+                    bool underIsFree = !drawnBefore.Any(drawn => filteredAreas.Any(filtered => filtered.IntersectsWith(drawn)));
                     var elementImageFilters = underIsFree
                         ? ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null)
                         : null;
@@ -625,10 +626,12 @@ namespace Greenshot.Editor.Drawing
                     }
                 }
                 IEnumerable<NativeRect> areas;
+                var target = replacedAreas;
                 if (element is TornEdgeContainer tornEdges)
                 {
-                    // Only the bands of the torn edges, the rest of the image keeps its HDR content
+                    // Only the bands of the torn edges, and in them only the pixels of the teeth: the rest keeps its HDR content
                     areas = tornEdges.EdgeAreas();
+                    target = changedAreas;
                 }
                 else if (element.HasFilters)
                 {
@@ -640,19 +643,20 @@ namespace Greenshot.Editor.Drawing
                 }
                 else
                 {
-                    // A cut mark: what it draws
+                    // A cut mark: the pixels it draws
                     areas = new[] { element.DrawingBounds };
+                    target = changedAreas;
                 }
                 foreach (var area in areas.Select(area => area.Intersect(bounds)))
                 {
                     if (area.Width > 0 && area.Height > 0)
                     {
-                        replacedAreas.Add(area);
+                        target.Add(area);
                     }
                 }
             }
 
-            Bitmap rendered = replacedAreas.Count > 0 ? (Bitmap)GetImage(RenderMode.EXPORT) : null;
+            Bitmap rendered = replacedAreas.Count > 0 || changedAreas.Count > 0 ? (Bitmap)GetImage(RenderMode.EXPORT) : null;
             var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
             try
             {
@@ -687,12 +691,12 @@ namespace Greenshot.Editor.Drawing
                     // The replaced areas are the export as it is, also what is drawn over them
                     graphics.CompositingMode = CompositingMode.SourceCopy;
                     using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var area in replacedAreas)
+                    foreach (var area in replacedAreas.Concat(changedAreas))
                     {
                         graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
                     }
                 }
-                return new HdrOverlay(layer, rendered, replacedAreas, imageFilters);
+                return new HdrOverlay(layer, rendered, replacedAreas, imageFilters, changedAreas);
             }
             catch
             {
@@ -1713,7 +1717,7 @@ namespace Greenshot.Editor.Drawing
                 return false;
             }
             _elements.Transform(matrix);
-            DeriveHdrImage(oldImage, newImage, ImageEdits.ForEffect(effect, new NativeSize(oldImage.Width, oldImage.Height), new NativeSize(newImage.Width, newImage.Height), matrix));
+            DeriveHdrImage(oldImage, newImage, ImageEdits.ForEffect(effect, oldImage, newImage, matrix));
             // Without undo the old image isn't needed anymore
             SetImage(newImage, true);
             return true;
@@ -1808,7 +1812,7 @@ namespace Greenshot.Editor.Drawing
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
             // Make undoable
-            DeriveHdrImage(Image, newImage, ImageEdits.ForEffect(effect, new NativeSize(Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), matrix));
+            DeriveHdrImage(Image, newImage, ImageEdits.ForEffect(effect, Image, newImage, matrix));
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
             SetImage(newImage, false);
             Invalidate();
@@ -2332,7 +2336,7 @@ namespace Greenshot.Editor.Drawing
             var bounds = new NativeRect(0, 0, Image.Width, Image.Height);
             var drawnAreas = (element is TornEdgeContainer tornEdges ? tornEdges.EdgeAreas() : new[] { drawableContainer.DrawingBounds }.AsEnumerable())
                 .Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList();
-            DeriveHdrImage(Image, newImage, ImageEdits.Exclude(drawnAreas));
+            DeriveHdrImage(Image, newImage, ImageEdits.ClearChanged(ImageEdits.ChangedPixels(Image, newImage, new NativePoint(0, 0), drawnAreas)));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;

@@ -20,11 +20,15 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 
@@ -113,6 +117,100 @@ namespace Greenshot.Base.Effects
         public static IImageEdit Resize(NativeSize size) => new ImageEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));
 
         /// <summary>
+        /// The pixels which a change of the 8-bit image changed (e.g. the teeth of torn edges) are taken from the 8-bit image, the others keep
+        /// their HDR content (see HdrImage.ClearPixels and <see cref="ChangedPixels"/>)
+        /// </summary>
+        public static IImageEdit ClearChanged(IReadOnlyList<(NativeRect Area, BitArray Changed)> changes) =>
+            new ImageEdit($"Take {changes.Sum(change => change.Area.Width * change.Area.Height)} pixels of {changes.Count} areas from the 8-bit image",
+                hdrImage => hdrImage.ClearPixels(changes));
+
+        /// <summary>
+        /// One edit after the other
+        /// </summary>
+        public static IImageEdit Then(this IImageEdit first, IImageEdit second) =>
+            new ImageEdit($"{first.Name}, {second.Name}", hdrImage =>
+            {
+                using var between = first.Apply(hdrImage);
+                return between == null ? null : second.Apply(between);
+            });
+
+        /// <summary>
+        /// Which pixels of the areas of the new image are different from the old image (which is at the offset in it); outside the old image
+        /// every pixel counts as changed
+        /// </summary>
+        public static IReadOnlyList<(NativeRect Area, BitArray Changed)> ChangedPixels(Image oldImage, Image newImage, NativePoint offset, IEnumerable<NativeRect> areas)
+        {
+            var newBounds = new NativeRect(0, 0, newImage.Width, newImage.Height);
+            var oldBounds = new NativeRect(offset.X, offset.Y, oldImage.Width, oldImage.Height);
+            var changes = new List<(NativeRect, BitArray)>();
+            using var oldBitmap = new Bitmap(oldImage);
+            using var newBitmap = new Bitmap(newImage);
+            foreach (var area in areas.Select(area => area.Intersect(newBounds)).Where(area => area.Width > 0 && area.Height > 0))
+            {
+                var changed = new BitArray(area.Width * area.Height, true);
+                var same = area.Intersect(oldBounds);
+                if (same.Width > 0 && same.Height > 0)
+                {
+                    var newData = newBitmap.LockBits(same, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                    var oldData = oldBitmap.LockBits(new NativeRect(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                    try
+                    {
+                        for (int y = 0; y < same.Height; y++)
+                        {
+                            for (int x = 0; x < same.Width; x++)
+                            {
+                                int newPixel = Marshal.ReadInt32(newData.Scan0, y * newData.Stride + x * 4);
+                                int oldPixel = Marshal.ReadInt32(oldData.Scan0, y * oldData.Stride + x * 4);
+                                changed[(same.Y - area.Y + y) * area.Width + same.X - area.X + x] = newPixel != oldPixel;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        newBitmap.UnlockBits(newData);
+                        oldBitmap.UnlockBits(oldData);
+                    }
+                }
+                changes.Add((area, changed));
+            }
+            return changes;
+        }
+
+        /// <summary>
+        /// The edit of the HDR image for an effect of the editor which made the new image of the old one: like the one for the sizes, but the
+        /// torn edge effect takes only the pixels of the teeth from the 8-bit image (they follow no rectangle)
+        /// </summary>
+        public static IImageEdit ForEffect(IEffect effect, Image oldImage, Image newImage, Matrix matrix)
+        {
+            var oldSize = new NativeSize(oldImage.Width, oldImage.Height);
+            var newSize = new NativeSize(newImage.Width, newImage.Height);
+            if (effect is not TornEdgeEffect tornEdge)
+            {
+                return ForEffect(effect, oldSize, newSize, matrix);
+            }
+            // The image as it is, moved by the shadow; in the bands of the teeth only the pixels which the effect changed come from the 8-bit image
+            var offset = tornEdge.GenerateShadow && matrix != null ? new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY)) : new NativePoint(0, 0);
+            var placed = new NativeRect(offset.X, offset.Y, oldSize.Width, oldSize.Height);
+            var inside = TornEdgeInside(tornEdge, oldSize);
+            var bands = HdrImage.Outside(placed, new[] { new NativeRect(offset.X + inside.X, offset.Y + inside.Y, inside.Width, inside.Height) });
+            return Place(new NativeRect(0, 0, oldSize.Width, oldSize.Height), newSize, offset).Then(ClearChanged(ChangedPixels(oldImage, newImage, offset, bands)));
+        }
+
+        /// <summary>
+        /// The part of the image which the teeth of the torn edge effect don't reach
+        /// </summary>
+        private static NativeRect TornEdgeInside(TornEdgeEffect tornEdge, NativeSize size)
+        {
+            int tooth = Math.Max(tornEdge.ToothHeight, 0);
+            bool[] edges = tornEdge.Edges ?? new[] { true, true, true, true };
+            int top = edges.Length > 0 && edges[0] ? tooth : 0;
+            int right = edges.Length > 1 && edges[1] ? tooth : 0;
+            int bottom = edges.Length > 2 && edges[2] ? tooth : 0;
+            int left = edges.Length > 3 && edges[3] ? tooth : 0;
+            return new NativeRect(left, top, Math.Max(size.Width - left - right, 0), Math.Max(size.Height - top - bottom, 0));
+        }
+
+        /// <summary>
         /// The edit of the HDR image for an effect of the editor, null when the effect can't be done on the HDR image (monochrome, reduce colors:
         /// their result is 8-bit by nature, the capture loses its HDR content then)
         /// </summary>
@@ -131,20 +229,14 @@ namespace Greenshot.Base.Effects
                 case ResizeEffect:
                     return Resize(newSize);
                 case TornEdgeEffect tornEdge:
-                    // The teeth are cut into the image: those bands come from the 8-bit image, the shadow (offset) moves the rest
-                    int tooth = Math.Max(tornEdge.ToothHeight, 0);
-                    bool[] edges = tornEdge.Edges ?? new[] { true, true, true, true };
-                    int top = edges.Length > 0 && edges[0] ? tooth : 0;
-                    int right = edges.Length > 1 && edges[1] ? tooth : 0;
-                    int bottom = edges.Length > 2 && edges[2] ? tooth : 0;
-                    int left = edges.Length > 3 && edges[3] ? tooth : 0;
-                    var inside = new NativeRect(left, top, oldSize.Width - left - right, oldSize.Height - top - bottom);
+                    // Without the images (see the other ForEffect): the bands of the teeth come from the 8-bit image, the shadow (offset) moves the rest
+                    var inside = TornEdgeInside(tornEdge, oldSize);
                     if (inside.Width <= 0 || inside.Height <= 0)
                     {
                         return new ImageEdit("Torn edges over all of it", _ => null);
                     }
                     var tornOffset = tornEdge.GenerateShadow ? offset : new NativePoint(0, 0);
-                    return Place(inside, newSize, new NativePoint(tornOffset.X + left, tornOffset.Y + top));
+                    return Place(inside, newSize, new NativePoint(tornOffset.X + inside.X, tornOffset.Y + inside.Y));
                 case BorderEffect:
                 case DropShadowEffect:
                 case ResizeCanvasEffect:

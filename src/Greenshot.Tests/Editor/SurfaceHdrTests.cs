@@ -252,16 +252,58 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(HdrState.None, surface.HdrState);
         }
 
-        [Fact]
-        public void TornEdgesWithShadow_MoveTheHdrImageIntoTheRoom_DrawnIntoTheImage_TheirBandsAreLeftOut()
+        /// <summary>
+        /// A white capture of 100x100 pixels on an HDR display, all of it highlights of 5.0 (SDR white 3.0)
+        /// </summary>
+        private static Surface CreateBrightSurface()
         {
-            var capture = new Capture(new Bitmap(100, 100, System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+            var bitmap = new Bitmap(100, 100, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+            var capture = new Capture(bitmap);
             var hdrImage = new HdrImage(100, 100, 240, 400);
-            hdrImage.Pixels[50, 50] = new HalfVector4(5, 5, 5, 1);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(5, 5, 5, 1));
+                }
+            });
             hdrImage.BelongTo(capture.Image);
             capture.HdrImage = hdrImage;
-            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
-            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20 };
+            return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+        }
+
+        /// <summary>
+        /// In the row of the composed HDR image between the columns: how many pixels keep the highlight, how many are the 8-bit image (at most SDR white)
+        /// </summary>
+        private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
+        {
+            using var overlay = withElements ? surface.CreateHdrOverlay() : null;
+            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            int highlights = 0, fromSdr = 0;
+            for (int x = fromX; x < toX; x++)
+            {
+                float value = composed.Pixels[x, y].ToVector4().X;
+                if (value > 4.9f)
+                {
+                    highlights++;
+                }
+                else if (value <= 3.05f)
+                {
+                    fromSdr++;
+                }
+            }
+            return (highlights, fromSdr);
+        }
+
+        [Fact]
+        public void TornEdgesWithShadow_MoveTheHdrImageIntoTheRoom_DrawnIntoTheImage_OnlyTheTeethComeFromThe8BitImage()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
             int margin = TornEdgeContainer.GetShadowMargin(settings);
 
             var tornEdges = surface.AddTornEdges(settings);
@@ -272,12 +314,58 @@ namespace Greenshot.Tests.Editor
             Assert.True(surface.ApplyElementToImage(tornEdges));
 
             Assert.Equal(HdrState.Available, surface.HdrState);
-            // The middle keeps its HDR content, the torn bands (with the room for the shadow) come from the 8-bit image
-            var middle = Assert.Single(surface.HdrImage.TileAreas);
-            var bands = tornEdges.EdgeAreas().ToList();
-            Assert.True(Covers(middle, 50 + margin, 50 + margin));
-            Assert.DoesNotContain(bands, band => band.IntersectsWith(middle));
-            Assert.True(surface.HdrImage.HasHdrContent);
+            Assert.True(surface.HdrImage.HasClearedPixels);
+            // In the middle of the band of the top teeth: the teeth come from the 8-bit image, between them the highlights stay
+            var (highlights, fromSdr) = CountRow(surface, margin + 6, margin + 12, margin + 88);
+            Assert.True(highlights > 0, "highlights between the teeth");
+            Assert.True(fromSdr > 0, "torn off teeth");
+            // Below the band all of it keeps its HDR content
+            Assert.Equal((76, 0), CountRow(surface, margin + 20, margin + 12, margin + 88));
+        }
+
+        [Fact]
+        public void TornEdgesElement_WhenSaved_OnlyTheTeethComeFromThe8BitImage()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            surface.AddTornEdges(settings);
+
+            var (highlights, fromSdr) = CountRow(surface, 6, 12, 88, true);
+            Assert.True(highlights > 0, "highlights between the teeth");
+            Assert.True(fromSdr > 0, "torn off teeth");
+            Assert.Equal((76, 0), CountRow(surface, 20, 12, 88, true));
+        }
+
+        [Fact]
+        public void CutOutVertically_WithTornEdges_OnlyTheTeethAndTheGapComeFromThe8BitImage()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
+
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 30, 100), CropContainer.CropModes.Vertical, CutMarkStyle.Torn, settings));
+
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+            // Across the band of the cut mark: the gap and the teeth from the 8-bit image, between the teeth the highlights stay
+            var (highlights, fromSdr) = CountRow(surface, 50, cutMark.Left, cutMark.Left + cutMark.Width, true);
+            Assert.True(highlights > 0, "highlights between the teeth");
+            Assert.True(fromSdr > 0, "gap and teeth");
+            // Left of the band all of it keeps its HDR content
+            Assert.Equal((cutMark.Left, 0), CountRow(surface, 50, 0, cutMark.Left, true));
+        }
+
+        [Fact]
+        public async Task TornEdgeEffect_OnlyTheTeethComeFromThe8BitImage()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(settings));
+
+            var (highlights, fromSdr) = CountRow(surface, 6, 12, 88);
+            Assert.True(highlights > 0, "highlights between the teeth");
+            Assert.True(fromSdr > 0, "torn off teeth");
+            Assert.Equal((76, 0), CountRow(surface, 20, 12, 88));
         }
 
         [Fact]
