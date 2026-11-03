@@ -27,11 +27,11 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.ImageSharpDrawing;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Base.Effects
 {
@@ -152,32 +152,28 @@ namespace Greenshot.Base.Effects
                 var same = area.Intersect(oldBounds);
                 if (same.Width > 0 && same.Height > 0)
                 {
-                    var newData = newBitmap.LockBits(same, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                    try
+                    // The old pixels of the area first: two accessors can't be used together in one action
+                    var oldPixels = new Bgra32[same.Width * same.Height];
+                    BitmapPixels.ProcessPixelRows<Bgra32>(oldBitmap, new Rectangle(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), pixels =>
                     {
-                        var oldData = oldBitmap.LockBits(new NativeRect(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), ImageLockMode.ReadOnly,
-                            PixelFormat.Format32bppArgb);
-                        try
+                        for (int y = 0; y < pixels.Height; y++)
                         {
-                            for (int y = 0; y < same.Height; y++)
+                            pixels.GetRowSpan(y).CopyTo(oldPixels.AsSpan(y * same.Width, same.Width));
+                        }
+                    }, ImageLockMode.ReadOnly);
+                    BitmapPixels.ProcessPixelRows<Bgra32>(newBitmap, same, pixels =>
+                    {
+                        for (int y = 0; y < pixels.Height; y++)
+                        {
+                            var newRow = pixels.GetRowSpan(y);
+                            var oldRow = oldPixels.AsSpan(y * same.Width, same.Width);
+                            int changedRow = (same.Y - area.Y + y) * area.Width + same.X - area.X;
+                            for (int x = 0; x < newRow.Length; x++)
                             {
-                                for (int x = 0; x < same.Width; x++)
-                                {
-                                    int newPixel = Marshal.ReadInt32(newData.Scan0, y * newData.Stride + x * 4);
-                                    int oldPixel = Marshal.ReadInt32(oldData.Scan0, y * oldData.Stride + x * 4);
-                                    changed[(same.Y - area.Y + y) * area.Width + same.X - area.X + x] = newPixel != oldPixel;
-                                }
+                                changed[changedRow + x] = !newRow[x].Equals(oldRow[x]);
                             }
                         }
-                        finally
-                        {
-                            oldBitmap.UnlockBits(oldData);
-                        }
-                    }
-                    finally
-                    {
-                        newBitmap.UnlockBits(newData);
-                    }
+                    }, ImageLockMode.ReadOnly);
                 }
                 changes.Add((area, changed));
             }
