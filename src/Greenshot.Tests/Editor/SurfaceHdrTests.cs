@@ -279,6 +279,21 @@ namespace Greenshot.Tests.Editor
         /// <summary>
         /// In the row of the composed HDR image between the columns: how many pixels keep the highlight, how many are torn off (transparent, or the 8-bit image at most SDR white)
         /// </summary>
+        /// <summary>
+        /// <see cref="CountRow"/> over several rows
+        /// </summary>
+        private static (int Highlights, int FromSdr) CountBand(Surface surface, int fromY, int toY, int fromX, int toX, bool withElements = false)
+        {
+            int highlights = 0, fromSdr = 0;
+            for (int y = fromY; y < toY; y++)
+            {
+                var (rowHighlights, rowFromSdr) = CountRow(surface, y, fromX, toX, withElements);
+                highlights += rowHighlights;
+                fromSdr += rowFromSdr;
+            }
+            return (highlights, fromSdr);
+        }
+
         private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
         {
             using var overlay = withElements ? surface.CreateHdrOverlay() : null;
@@ -317,7 +332,8 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(HdrState.Available, surface.HdrState);
             Assert.True(surface.HdrImage.HasClearedPixels);
             // In the middle of the band of the top teeth: the teeth come from the 8-bit image, between them the highlights stay
-            var (highlights, fromSdr) = CountRow(surface, margin + 6, margin + 12, margin + 88);
+            // The element chooses its own teeth: over the rows of the band some pixels are torn off, some keep the highlight
+            var (highlights, fromSdr) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
             Assert.True(highlights > 0, "highlights between the teeth");
             Assert.True(fromSdr > 0, "torn off teeth");
             // Below the band all of it keeps its HDR content
@@ -332,7 +348,8 @@ namespace Greenshot.Tests.Editor
 
             surface.AddTornEdges(settings);
 
-            var (highlights, fromSdr) = CountRow(surface, 6, 12, 88, true);
+            // The element chooses its own teeth: over the rows of the band some pixels are torn off, some keep the highlight
+            var (highlights, fromSdr) = CountBand(surface, 1, 12, 12, 88, true);
             Assert.True(highlights > 0, "highlights between the teeth");
             Assert.True(fromSdr > 0, "torn off teeth");
             Assert.Equal((76, 0), CountRow(surface, 20, 12, 88, true));

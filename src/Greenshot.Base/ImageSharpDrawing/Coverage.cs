@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -43,27 +42,6 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="rule">Which parts of overlapping figures are inside, EvenOdd like FillMode.Alternate of GDI+</param>
         public static float[] Of(IPath shape, int width, int height, IntersectionRule rule = IntersectionRule.EvenOdd)
         {
-            if (rule == IntersectionRule.EvenOdd && shape is ComplexPolygon complex)
-            {
-                // Each figure on its own, then even-odd: a pixel inside an even number of figures is outside (e.g. the image with the outline of
-                // its torn edges as hole). Anti-aliased coverage combines like that too: a + b - 2ab
-                float[] combined = null;
-                foreach (var figure in complex.Paths)
-                {
-                    var figureCoverage = Of(figure, width, height, IntersectionRule.NonZero);
-                    if (combined == null)
-                    {
-                        combined = figureCoverage;
-                        continue;
-                    }
-                    for (int i = 0; i < combined.Length; i++)
-                    {
-                        combined[i] = combined[i] + figureCoverage[i] - 2 * combined[i] * figureCoverage[i];
-                    }
-                }
-                return combined ?? new float[Math.Max(width, 0) * Math.Max(height, 0)];
-            }
-
             var coverage = new float[width * height];
             if (width <= 0 || height <= 0)
             {
