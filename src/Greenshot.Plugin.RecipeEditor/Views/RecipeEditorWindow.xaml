@@ -2634,8 +2634,12 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
-                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrintOptions}" IsThreeState="True" IsChecked="{Binding SelectedNode.ShowPrintOptions, Mode=TwoWay}" Margin="0,0,0,6"/>
-                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrinterDialog}" IsChecked="{Binding SelectedNode.ShowPrinterDialog, Mode=TwoWay}" Margin="0,0,0,8"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrintOptions}"
+                                                      IsThreeState="True" IsChecked="{Binding SelectedNode.ShowPrintOptions, Mode=TwoWay}"
+                                                      Margin="0,0,0,6"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrinterDialog}"
+                                                      IsChecked="{Binding SelectedNode.ShowPrinterDialog, Mode=TwoWay}"
+                                                      Margin="0,0,0,8"/>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.AutoRotate}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AutoRotate}" SelectedValue="{Binding SelectedNode.PrinterAllowRotate, Mode=TwoWay}"
