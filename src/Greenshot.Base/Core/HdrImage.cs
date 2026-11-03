@@ -170,6 +170,37 @@ namespace Greenshot.Base.Core
         public bool BelongsTo(System.Drawing.Image image) => image != null && _belongsTo != null && _belongsTo.TryGetTarget(out var own) && ReferenceEquals(own, image);
 
         /// <summary>
+        /// The image it belongs to still exists (e.g. kept by the undo of the editor): otherwise nothing can show this HDR image anymore
+        /// </summary>
+        public bool IsLinked => _belongsTo != null && _belongsTo.TryGetTarget(out _);
+
+        /// <summary>
+        /// The HDR image rotated like the editor rotates the capture (RotateEffect), as a new HDR image; the tiles are rotated with their places
+        /// </summary>
+        /// <param name="angle">90 (clockwise) or 270 / -90 (counterclockwise)</param>
+        /// <returns>The new HDR image, null for another angle</returns>
+        public HdrImage Rotate(int angle)
+        {
+            CheckNotDisposed();
+            bool clockwise = angle == 90;
+            if (!clockwise && angle != 270 && angle != -90)
+            {
+                return null;
+            }
+            var tiles = _tiles.Select(tile =>
+            {
+                var area = tile.Area;
+                // Clockwise the left column becomes the top row: x' = height - y - h, y' = x; counterclockwise x' = y, y' = width - x - w
+                var rotatedArea = clockwise
+                    ? new NativeRect(Height - area.Bottom, area.Left, area.Height, area.Width)
+                    : new NativeRect(area.Top, Width - area.Right, area.Height, area.Width);
+                var rotated = tile.Shared.Pixels.Clone(context => context.Rotate(clockwise ? RotateMode.Rotate90 : RotateMode.Rotate270));
+                return new Tile(rotatedArea, new SharedPixels(rotated), tile.SdrWhiteLevelInNits);
+            }).ToArray();
+            return new HdrImage(Height, Width, tiles, DisplayPeakInNits);
+        }
+
+        /// <summary>
         /// An area of the HDR image as a new HDR image. Only the tiles which are cut are copied (only their part), the others are shared.
         /// </summary>
         /// <param name="area">The area in pixel coordinates, it is clipped to the image</param>

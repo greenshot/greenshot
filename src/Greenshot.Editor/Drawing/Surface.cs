@@ -373,8 +373,41 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         [NonSerialized] private HdrImage _hdrImage;
 
+        /// <summary>
+        /// The HDR images made for the images of a crop or a rotation (see DeriveHdrImage), newest last: undo and redo bring back an image,
+        /// its HDR image is found again by BelongsTo. Owned by the surface.
+        /// </summary>
+        [NonSerialized] private readonly List<HdrImage> _derivedHdrImages = new List<HdrImage>();
+
         /// <inheritdoc />
-        public HdrImage HdrImage => _hdrImage;
+        public HdrImage HdrImage => _derivedHdrImages.LastOrDefault(hdrImage => hdrImage.BelongsTo(_image)) ?? _hdrImage;
+
+        /// <summary>
+        /// The image is replaced by one made from it (a crop, a rotation): the HDR image of the old image, made the same way, belongs to the new one
+        /// </summary>
+        /// <param name="oldImage">The image before</param>
+        /// <param name="newImage">The new image</param>
+        /// <param name="derive">Makes the new HDR image from the old one, null when it can't</param>
+        private void DeriveHdrImage(Image oldImage, Image newImage, Func<HdrImage, HdrImage> derive)
+        {
+            var hdrImage = HdrImage;
+            if (hdrImage == null || !hdrImage.BelongsTo(oldImage) || newImage == null)
+            {
+                return;
+            }
+            // Those whose image is gone can't be brought back
+            foreach (var unlinked in _derivedHdrImages.Where(derived => !derived.IsLinked).ToList())
+            {
+                _derivedHdrImages.Remove(unlinked);
+                unlinked.Dispose();
+            }
+            var derivedHdrImage = derive(hdrImage);
+            if (derivedHdrImage != null)
+            {
+                derivedHdrImage.BelongTo(newImage);
+                _derivedHdrImages.Add(derivedHdrImage);
+            }
+        }
 
         /// <inheritdoc />
         public HdrOverlay CreateHdrOverlay()
@@ -698,6 +731,11 @@ namespace Greenshot.Editor.Drawing
 
                 _hdrImage?.Dispose();
                 _hdrImage = null;
+                foreach (var derivedHdrImage in _derivedHdrImages)
+                {
+                    derivedHdrImage.Dispose();
+                }
+                _derivedHdrImages.Clear();
 
                 if (_buffer != null)
                 {
@@ -943,9 +981,10 @@ namespace Greenshot.Editor.Drawing
             };
 
             // The HDR image only while it still shows the image; shared, not copied
-            if (_hdrImage != null && _hdrImage.BelongsTo(_image))
+            var hdrImage = HdrImage;
+            if (hdrImage != null && hdrImage.BelongsTo(_image))
             {
-                clonedSurface._hdrImage = _hdrImage.Share();
+                clonedSurface._hdrImage = hdrImage.Share();
                 clonedSurface._hdrImage.BelongTo(clonedImage);
             }
 
@@ -1445,7 +1484,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Back on the UI thread
-            ApplyEffectResult(newImage, matrix);
+            ApplyEffectResult(newImage, matrix, effect);
         }
 
         private static async Task<Image> ApplyEffectOnPoolAsync(Image sourceImage, IEffect effect, Matrix matrix)
@@ -1461,13 +1500,14 @@ namespace Greenshot.Editor.Drawing
         {
             var matrix = new Matrix();
             var newImage = ImageHelper.ApplyEffect(sourceImage, effect, matrix);
-            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix);
+            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix, effect);
         }
 
         /// <summary>
-        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards
+        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards.
+        /// A rotation rotates the HDR image too, other effects leave it behind (the capture can't be saved as an HDR file then).
         /// </summary>
-        private void ApplyEffectResult(Image newImage, Matrix matrix)
+        private void ApplyEffectResult(Image newImage, Matrix matrix, IEffect effect)
         {
             if (newImage == null)
             {
@@ -1480,6 +1520,7 @@ namespace Greenshot.Editor.Drawing
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
             // Make undoable
+            DeriveHdrImage(Image, newImage, hdrImage => effect is RotateEffect rotate ? hdrImage.Rotate(rotate.Angle) : null);
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
             SetImage(newImage, false);
             Invalidate();
@@ -1736,6 +1777,19 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
             // Make undoable, the memento takes the current image
+            // The HDR image is cropped the same way, the room for torn edges is from the image (like what is drawn)
+            DeriveHdrImage(Image, newImage, hdrImage =>
+            {
+                var cropped = hdrImage.Crop(cropRectangle);
+                if (cropped == null || margins.All(m => m == 0))
+                {
+                    return cropped;
+                }
+                using (cropped)
+                {
+                    return HdrImage.Combine(newImage.Width, newImage.Height, new[] { (cropped, new NativePoint(margins[3], margins[0])) });
+                }
+            });
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
 
             // Do not dispose otherwise we can't undo the image!
