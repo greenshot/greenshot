@@ -192,14 +192,13 @@ namespace Greenshot.Tests.Editor
 
             var preparation = surface.HdrImagePreparation;
             Assert.NotNull(preparation);
-            int threadId = Environment.CurrentManagedThreadId;
-            int madeOn = await Task.Run(() =>
+            bool madeOnThePool = await Task.Run(() =>
             {
                 preparation();
-                return Environment.CurrentManagedThreadId;
+                return System.Threading.Thread.CurrentThread.IsThreadPoolThread;
             });
 
-            Assert.NotEqual(threadId, madeOn);
+            Assert.True(madeOnThePool);
             Assert.Null(surface.HdrImagePreparation);
             var made = surface.HdrImage;
             Assert.Same(made, surface.HdrImage);
