@@ -3259,7 +3259,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool ShowPrinterDialog
         {
             get => Config.GetParameter<bool?>("ShowPrinterDialog") ?? false;
-            set { SetParam("ShowPrinterDialog", value); OnPropertyChanged(nameof(ShowPrinterDialog)); }
+            set
+            {
+                SetParam("ShowPrinterDialog", value);
+                OnPropertyChanged(nameof(ShowPrinterDialog));
+            }
         }
 
         public string PrinterAllowRotate
