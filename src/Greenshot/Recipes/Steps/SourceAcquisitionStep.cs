@@ -155,6 +155,10 @@ namespace Greenshot.Recipes.Steps
                     // Offset to bitmap coordinates for cropping
                     NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
                     payload.RawCapture.Crop(screenOffsetRect);
+                    if (context.CaptureHdrRequested && payload.RawCapture.HdrImage != null)
+                    {
+                        payload.RawCapture.HdrImage.IsRequested = true;
+                    }
                 }
                 if (alignDpi && payload != null)
                 {
@@ -353,6 +357,8 @@ namespace Greenshot.Recipes.Steps
             }
             // A new capture of the screen (L in the selection) would show the excluded windows
             payload.RawCapture.CaptureDetails.AddMetaData(LiveScreenCaptureSource.FrozenOnlyKey, "true");
+            // The windows are blacked out in the 8-bit image only: the HDR content would still show them
+            payload.RawCapture.HdrImage = null;
             int redacted = AiToolCapture.RedactExcludedWindows(payload.RawCapture.Image, payload.RawCapture.Location);
             if (redacted > 0)
             {

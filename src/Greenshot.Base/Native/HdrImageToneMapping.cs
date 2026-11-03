@@ -84,16 +84,29 @@ namespace Greenshot.Base.Native
             return (80f, 0f);
         }
 
-        private static Bitmap ToBitmapOnGpu(HdrImage hdrImage)
+        private static unsafe Bitmap ToBitmapOnGpu(HdrImage hdrImage)
         {
-            lock (WindowsGraphicsCaptureInterop.DeviceLock)
+            // Direct2D takes the FP16 texture with premultiplied alpha, the HdrImage has straight alpha (the same when it is opaque)
+            using var premultiplied = hdrImage.ClonePremultiplied();
+            void UseTexturePixels(Action<IntPtr> action)
             {
-                if (!WindowsGraphicsCaptureInterop.GetOrCreateDevice(out var device, out var context, out _))
+                if (premultiplied == null)
                 {
-                    return null;
+                    hdrImage.UsePixelMemory(action);
+                    return;
                 }
+                if (!premultiplied.DangerousTryGetSinglePixelMemory(out Memory<SixLabors.ImageSharp.PixelFormats.HalfVector4> memory))
+                {
+                    throw new InvalidOperationException("The premultiplied pixels are not one block of memory.");
+                }
+                using var handle = memory.Pin();
+                action((IntPtr)handle.Pointer);
+            }
+
+            return WindowsGraphicsCaptureInterop.UseDevice((device, context) =>
+            {
                 ID3D11Texture2D texture = null;
-                hdrImage.UsePixelMemory(first =>
+                UseTexturePixels(first =>
                 {
                     var desc = new D3D11_TEXTURE2D_DESC
                     {
@@ -136,7 +149,7 @@ namespace Greenshot.Base.Native
                 {
                     if (texture != null) Marshal.ReleaseComObject(texture);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -157,7 +170,8 @@ namespace Greenshot.Base.Native
                 double srgb = linear <= 0.0031308 ? linear * 12.92 : 1.055 * Math.Pow(linear, 1 / 2.4) - 0.055;
                 encode[i] = (byte)Math.Round(Math.Min(Math.Max(srgb, 0), 1) * 255);
             }
-            byte Encode(float value) => encode[(int)(Math.Min(Math.Max(value * scale, 0f), 1f) * 4096)];
+            // NaN (FP16 can have it) is black, like below 0
+            byte Encode(float value) => float.IsNaN(value) ? (byte)0 : encode[(int)(Math.Min(Math.Max(value * scale, 0f), 1f) * 4096)];
 
             var bitmap = new Bitmap(hdrImage.Width, hdrImage.Height, PixelFormat.Format32bppArgb);
             var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);

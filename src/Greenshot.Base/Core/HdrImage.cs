@@ -403,7 +403,8 @@ namespace Greenshot.Base.Core
         /// <param name="sourceRowPitch">The bytes from one source row to the next</param>
         /// <param name="size">The size of the area to copy</param>
         /// <param name="location">Where the area goes in this image</param>
-        internal unsafe void CopyFrom(byte* source, int sourceRowPitch, NativeSize size, NativePoint location)
+        /// <param name="unpremultiply">The source has premultiplied alpha (a Direct3D texture of Windows.Graphics.Capture): the HDR image has straight alpha</param>
+        internal unsafe void CopyFrom(byte* source, int sourceRowPitch, NativeSize size, NativePoint location, bool unpremultiply = false)
         {
             var target = new NativeRect(location, size).Intersect(new NativeRect(0, 0, Width, Height));
             if (target.Width <= 0 || target.Height <= 0)
@@ -416,9 +417,78 @@ namespace Greenshot.Base.Core
                 for (int y = 0; y < target.Height; y++)
                 {
                     var sourceRow = new ReadOnlySpan<HalfVector4>(first + (long)y * sourceRowPitch, target.Width);
-                    sourceRow.CopyTo(accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width));
+                    var targetRow = accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width);
+                    sourceRow.CopyTo(targetRow);
+                    if (unpremultiply)
+                    {
+                        Unpremultiply(targetRow);
+                    }
                 }
             });
+        }
+
+        // 1.0 as half-float: the alpha of nearly every pixel of a capture
+        private const ushort HalfOne = 0x3C00;
+
+        /// <summary>
+        /// Premultiplied to straight alpha: only the partly transparent pixels (e.g. the rounded corners of a window) change
+        /// </summary>
+        private static void Unpremultiply(Span<HalfVector4> row)
+        {
+            var packed = MemoryMarshal.Cast<HalfVector4, ulong>(row);
+            for (int x = 0; x < packed.Length; x++)
+            {
+                if ((ushort)(packed[x] >> 48) == HalfOne)
+                {
+                    continue;
+                }
+                var pixel = row[x].ToVector4();
+                row[x] = pixel.W > 0.0001f
+                    ? new HalfVector4(pixel.X / pixel.W, pixel.Y / pixel.W, pixel.Z / pixel.W, pixel.W)
+                    : new HalfVector4(0, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        /// The pixels with premultiplied alpha, e.g. for Direct2D which takes an FP16 texture only premultiplied; null when every pixel is opaque
+        /// (then they are the same). The caller disposes it.
+        /// </summary>
+        internal Image<HalfVector4> ClonePremultiplied()
+        {
+            bool opaque = true;
+            Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < accessor.Height && opaque; y++)
+                {
+                    var packed = MemoryMarshal.Cast<HalfVector4, ulong>(accessor.GetRowSpan(y));
+                    for (int x = 0; x < packed.Length; x++)
+                    {
+                        if ((ushort)(packed[x] >> 48) != HalfOne)
+                        {
+                            opaque = false;
+                            break;
+                        }
+                    }
+                }
+            });
+            if (opaque)
+            {
+                return null;
+            }
+            var premultiplied = Pixels.Clone();
+            premultiplied.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < accessor.Height; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        var pixel = row[x].ToVector4();
+                        row[x] = new HalfVector4(pixel.X * pixel.W, pixel.Y * pixel.W, pixel.Z * pixel.W, pixel.W);
+                    }
+                }
+            });
+            return premultiplied;
         }
 
         /// <summary>
@@ -465,7 +535,7 @@ namespace Greenshot.Base.Core
                         {
                             if (y >= area.Top && y < area.Bottom)
                             {
-                                covered.Add((Math.Max(area.Left, 0), Math.Min(area.Right, width)));
+                                covered.Add((Math.Min(Math.Max(area.Left, 0), width), Math.Min(area.Right, width)));
                             }
                         }
                         covered.Sort((a, b) => a.Start.CompareTo(b.Start));
@@ -574,12 +644,14 @@ namespace Greenshot.Base.Core
                             }
                             float a = alpha / 255f;
                             var under = targetRow[x].ToVector4();
-                            // BGRA in memory, straight alpha
+                            // BGRA in memory, straight alpha: "over" with the alpha of both (under is opaque on a capture, not in a torn edge)
+                            float underWeight = under.W * (1 - a);
+                            float outAlpha = a + underWeight;
                             targetRow[x] = new HalfVector4(
-                                linear[sourceRow[2]] * a + under.X * (1 - a),
-                                linear[sourceRow[1]] * a + under.Y * (1 - a),
-                                linear[sourceRow[0]] * a + under.Z * (1 - a),
-                                a + under.W * (1 - a));
+                                (linear[sourceRow[2]] * a + under.X * underWeight) / outAlpha,
+                                (linear[sourceRow[1]] * a + under.Y * underWeight) / outAlpha,
+                                (linear[sourceRow[0]] * a + under.Z * underWeight) / outAlpha,
+                                outAlpha);
                         }
                     }
                 });

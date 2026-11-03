@@ -195,6 +195,7 @@ namespace Greenshot.Destinations
                 await ClipboardService.Current.SetTextAsync(fullPath, cancellationToken).ConfigureAwait(false);
             }
 
+            await NotifyIfHdrLostAsync(request, fullPath, cancellationToken).ConfigureAwait(false);
             return Saved(captureDetails, fullPath);
         }
 
@@ -280,6 +281,10 @@ namespace Greenshot.Destinations
             {
                 NotifyHdrFallback(request, reasonText, ImageIO.FormatForFilename(savedPath).ToUpperInvariant());
             }
+            else
+            {
+                await NotifyIfHdrLostAsync(request, savedPath, cancellationToken).ConfigureAwait(false);
+            }
             return Saved(captureDetails, savedPath);
         }
 
@@ -331,6 +336,30 @@ namespace Greenshot.Destinations
                 Log.InfoFormat("Not overwriting the HDR file {0}, saving the normal file.", ex.Message);
                 return (null, null);
             }
+            catch (Exception ex) when (ex is ExternalException || ex is IOException || ex is UnauthorizedAccessException)
+            {
+                // The normal file is saved then, with its own handling of the problem (e.g. the save as dialog)
+                Log.Warn($"Couldn't write the HDR file {path}, saving the normal file.", ex);
+                return (null, Texts.Core.HdrNotSavedFailed);
+            }
+        }
+
+        /// <summary>
+        /// A JPEG XR of a capture whose HDR content was lost (its image was changed, e.g. by an effect) is an 8-bit file: the user is told,
+        /// e.g. when an opened HDR file is saved over
+        /// </summary>
+        private static async Task NotifyIfHdrLostAsync(ExportRequest request, string fullPath, CancellationToken cancellationToken)
+        {
+            if (!string.Equals(ImageIO.FormatForFilename(fullPath), WellKnownFileFormats.Jxr, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+            bool lost = await request.Source.UseSurfaceAsync(surface => surface.HdrImage != null && !HdrExport.CanWriteHdr(surface), cancellationToken).ConfigureAwait(false);
+            if (lost)
+            {
+                Log.Info($"Saved {fullPath} as an 8-bit JPEG XR, the capture's HDR content was lost.");
+                NotifyHdrFallback(request, Texts.Core.HdrNotSavedChanged, "JPEG XR");
+            }
         }
 
         /// <summary>
@@ -374,7 +403,12 @@ namespace Greenshot.Destinations
             {
                 return null;
             }
-            return await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, cancellationToken).ConfigureAwait(false);
+            string savedPath = await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, cancellationToken).ConfigureAwait(false);
+            if (savedPath != null)
+            {
+                await NotifyIfHdrLostAsync(request, savedPath, cancellationToken).ConfigureAwait(false);
+            }
+            return savedPath;
         }
 
         /// <summary>

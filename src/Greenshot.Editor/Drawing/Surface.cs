@@ -429,11 +429,31 @@ namespace Greenshot.Editor.Drawing
             var replacedAreas = new List<NativeRect>();
             foreach (var element in _elements.OfType<DrawableContainer>().Where(ChangesPixels))
             {
-                // A filter changes its Bounds (DrawingBounds has a margin for the handles), a cut mark or torn edge what it draws
-                var area = element.Filters.Any(filter => filter.Invert) ? bounds : (element.HasFilters ? element.Bounds : element.DrawingBounds).Intersect(bounds);
-                if (area.Width > 0 && area.Height > 0)
+                IEnumerable<NativeRect> areas;
+                if (element is TornEdgeContainer tornEdges)
                 {
-                    replacedAreas.Add(area);
+                    // Only the bands of the torn edges, the rest of the image keeps its HDR content
+                    areas = tornEdges.EdgeAreas();
+                }
+                else if (element.HasFilters)
+                {
+                    // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
+                    int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
+                    int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
+                    int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
+                    areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
+                }
+                else
+                {
+                    // A cut mark: what it draws
+                    areas = new[] { element.DrawingBounds };
+                }
+                foreach (var area in areas.Select(area => area.Intersect(bounds)))
+                {
+                    if (area.Width > 0 && area.Height > 0)
+                    {
+                        replacedAreas.Add(area);
+                    }
                 }
             }
 

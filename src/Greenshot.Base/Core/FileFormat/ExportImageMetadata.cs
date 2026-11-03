@@ -390,9 +390,13 @@ public sealed class ExportImageMetadata
                 return (null, null);
             }
             var xmpMeta = XElement.Parse(text.Substring(start, end - start + "</x:xmpmeta>".Length));
-            float? Read(string name) =>
-                xmpMeta.Descendants(GreenshotNs + name).FirstOrDefault() is { } element
-                && float.TryParse(element.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && value > 0 ? value : null;
+            // As element (how Greenshot writes it) or as attribute of the description (how other programs may rewrite it)
+            float? Read(string name)
+            {
+                string text = xmpMeta.Descendants(GreenshotNs + name).FirstOrDefault()?.Value
+                              ?? xmpMeta.Descendants().Select(element => element.Attribute(GreenshotNs + name)?.Value).FirstOrDefault(attribute => attribute != null);
+                return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && value > 0 ? value : null;
+            }
             return (Read(SdrWhiteLevelName), Read(DisplayPeakName));
         }
         catch (System.Xml.XmlException)

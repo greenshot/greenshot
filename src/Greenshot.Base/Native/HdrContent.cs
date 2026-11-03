@@ -112,7 +112,7 @@ internal static class HdrContent
             if (hr != 0) Marshal.ThrowExceptionForHR(hr);
             try
             {
-                return Measure(mapped.pData, mapped.RowPitch, clipped.Width, clipped.Height, sdrWhiteLevelInNits);
+                return Measure(mapped.pData, mapped.RowPitch, clipped.Width, clipped.Height, sdrWhiteLevelInNits, true);
             }
             finally
             {
@@ -132,11 +132,12 @@ internal static class HdrContent
     internal static (float PeakInNits, float HighlightShare) Measure(HdrImage hdrImage, float sdrWhiteLevelInNits)
     {
         (float, float) result = (0, 0);
-        hdrImage.UsePixelMemory(first => result = Measure(first, hdrImage.Stride, hdrImage.Width, hdrImage.Height, sdrWhiteLevelInNits));
+        hdrImage.UsePixelMemory(first => result = Measure(first, hdrImage.Stride, hdrImage.Width, hdrImage.Height, sdrWhiteLevelInNits, false));
         return result;
     }
 
-    private static unsafe (float PeakInNits, float HighlightShare) Measure(IntPtr data, int rowPitch, int width, int height, float sdrWhiteLevelInNits)
+    /// <param name="premultiplied">The texture has premultiplied alpha, an HdrImage straight alpha</param>
+    private static unsafe (float PeakInNits, float HighlightShare) Measure(IntPtr data, int rowPitch, int width, int height, float sdrWhiteLevelInNits, bool premultiplied)
     {
         // scRGB 1.0 is 80 nits
         float sdrWhite = sdrWhiteLevelInNits / 80f * SdrMargin;
@@ -152,7 +153,7 @@ internal static class HdrContent
             {
                 float max = Math.Max(HalfTable[src[0]], Math.Max(HalfTable[src[1]], HalfTable[src[2]]));
                 float a = HalfTable[src[3]];
-                if (a > 0.0001f && a < 1.0f)
+                if (premultiplied && a > 0.0001f && a < 1.0f)
                 {
                     max /= a;
                 }

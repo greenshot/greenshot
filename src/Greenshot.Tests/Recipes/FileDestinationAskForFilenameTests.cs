@@ -198,6 +198,72 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task TornEdgesOfACrop_OnlyTheEdgesAreSdr_TheMiddleKeepsTheHighlights()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                var bigger = new Bitmap(64, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using (var graphics = Graphics.FromImage(bigger))
+                {
+                    graphics.Clear(Color.White);
+                }
+                // A capture big enough for torn edges, cropped with them on all four sides
+                var capture = new Capture(bigger);
+                var hdrImage = new HdrImage(64, 32, 240, 400);
+                hdrImage.Pixels.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < accessor.Height; y++)
+                    {
+                        accessor.GetRowSpan(y).Fill(new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1));
+                    }
+                });
+                hdrImage.BelongTo(capture.Image);
+                capture.HdrImage = hdrImage;
+                using var tornSurface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+                var edges = new Greenshot.Base.Effects.TornEdgeEffect { ToothHeight = 2, HorizontalToothRange = 6, VerticalToothRange = 6, GenerateShadow = false };
+                Assert.True(tornSurface.ApplyCrop(new Dapplo.Windows.Common.Structs.NativeRect(4, 4, 56, 24), CutMarkStyle.Torn, edges));
+                Assert.True(HdrExport.CanWriteHdr(tornSurface));
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(tornSurface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                // The middle keeps the HDR highlights, only the torn bands are from the 8-bit render
+                var row = ReadHdrRow(path, 12);
+                Assert.Equal(5f, row[28 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task SavingAJpegXr_WhoseHdrWasLost_SaysSo()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
+                Assert.False(HdrExport.CanWriteHdr(surface));
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, null);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                // An 8-bit JPEG XR, and the user is told
+                Assert.Single(ui.Notifications);
+                Assert.True(File.Exists(path));
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
         public async Task PixelatedArea_IsTheRenderedCapture_InTheHdrFile()
         {
             string path = TempFile("jxr");

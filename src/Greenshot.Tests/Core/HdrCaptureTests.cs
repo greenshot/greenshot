@@ -193,6 +193,34 @@ public class HdrCaptureTests
     }
 
     [Fact]
+    public void ReadHdrImage_Unpremultiplies_TheTextureIsPremultiplied()
+    {
+        // A half transparent pixel (e.g. a rounded window corner) of SDR white: premultiplied it is 1.5 in the texture
+        float[][] row = { Rgba(SdrWhite / 2, SdrWhite / 2, SdrWhite / 2, 0.5f), Rgba(SdrWhite, SdrWhite, SdrWhite) };
+
+        using var pixels = OnWarp(row, (texture, device, context) => WindowsGraphicsCaptureInterop.ReadHdrImage(texture, device, context, new Rectangle(0, 0, 2, 1), SdrWhiteNits, 400));
+
+        Assert.Equal(SdrWhite, Get(pixels, 0, 0)[0], 2);
+        Assert.Equal(0.5f, Get(pixels, 0, 0)[3], 2);
+        Assert.Equal(SdrWhite, Get(pixels, 1, 0)[0], 2);
+    }
+
+    [Fact]
+    public void CaptureImageReplaced_DropsTheHdrImage_ItDoesNotShowTheNewImage()
+    {
+        using var capture = new Capture { Image = new Bitmap(4, 2) };
+        capture.HdrImage = CreatePixels(4, 2, (x, y) => Rgba(1, 1, 1));
+        capture.HdrImage.BelongTo(capture.Image);
+
+        // E.g. the image of a selection tool
+        capture.Image = new Bitmap(2, 2);
+
+        Assert.Null(capture.HdrImage);
+        Assert.True(capture.Crop(new NativeRect(0, 0, 1, 1)));
+        Assert.Null(capture.HdrImage);
+    }
+
+    [Fact]
     public void CombineHdrImages_KeepsOnlyTheHdrMonitor_ComposePutsTheSdrMonitorAtTheSdrWhiteLevel()
     {
         // The area spans an HDR monitor (left, 2 pixels) and an SDR monitor (right, 2 pixels) whose white is in the result bitmap

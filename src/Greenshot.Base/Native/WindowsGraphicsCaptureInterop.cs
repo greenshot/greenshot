@@ -590,7 +590,7 @@ namespace Greenshot.Base.Native
                 {
                     var pixels = new HdrImage(clipped.Width, clipped.Height, sdrWhiteLevelInNits, displayPeakInNits);
                     byte* source = (byte*)mapped.pData;
-                    pixels.CopyFrom(source, mapped.RowPitch, new NativeSize(clipped.Width, clipped.Height), new NativePoint(0, 0));
+                    pixels.CopyFrom(source, mapped.RowPitch, new NativeSize(clipped.Width, clipped.Height), new NativePoint(0, 0), unpremultiply: true);
                     Log.Debug($"Kept the HDR pixels of {clipped.Width}x{clipped.Height} (SDR white {sdrWhiteLevelInNits} nits).");
                     return pixels;
                 }
@@ -686,6 +686,44 @@ namespace Greenshot.Base.Native
         private static readonly TimeSpan FrameArrivedTimeout = TimeSpan.FromSeconds(1);
 
         /// <summary>
+        /// Use the cached Direct3D device for something other than a screenshot (e.g. tone mapping an HDR file), like a screenshot does:
+        /// one at a time with the screenshots (the device isn't released under a running one), on an MTA thread, released afterwards when
+        /// the KeepGraphicsCaptureReady setting is off, and dropped after a Direct3D error (e.g. the device was removed).
+        /// </summary>
+        /// <returns>The result, default when there is no device</returns>
+        internal static T UseDevice<T>(Func<ID3D11Device, ID3D11DeviceContext, T> use)
+        {
+            CaptureSemaphore.Wait();
+            try
+            {
+                lock (DeviceLock)
+                {
+                    if (!GetOrCreateDevice(out var device, out var context, out _))
+                    {
+                        return default;
+                    }
+                    try
+                    {
+                        return use(device, context);
+                    }
+                    catch (COMException)
+                    {
+                        InvalidateCachedDevice();
+                        throw;
+                    }
+                }
+            }
+            finally
+            {
+                if (!KeepDeviceReady)
+                {
+                    InvalidateCachedDevice();
+                }
+                CaptureSemaphore.Release();
+            }
+        }
+
+        /// <summary>
         /// Captures the visual content of the specified window and returns it as a Bitmap image.
         /// </summary>
         /// <remarks>This method uses Direct3D 11 to capture the window's content.
@@ -760,13 +798,19 @@ namespace Greenshot.Base.Native
                 var childHdrImage = hdrImage != null && TryGetCropRectangle(topLevelWindow, childBounds, bitmap.Size, out var hdrCrop)
                     ? hdrImage.Crop(new NativeRect(hdrCrop.X, hdrCrop.Y, hdrCrop.Width, hdrCrop.Height))
                     : null;
-                var childBitmap = CropToScreenArea(bitmap, topLevelWindow, childBounds);
-                if (childBitmap == null)
+                Bitmap childBitmap = null;
+                try
                 {
-                    childHdrImage?.Dispose();
-                    return (null, null);
+                    childBitmap = CropToScreenArea(bitmap, topLevelWindow, childBounds);
                 }
-                return (childBitmap, childHdrImage);
+                finally
+                {
+                    if (childBitmap == null)
+                    {
+                        childHdrImage?.Dispose();
+                    }
+                }
+                return childBitmap == null ? (null, null) : (childBitmap, childHdrImage);
             }
         }
 

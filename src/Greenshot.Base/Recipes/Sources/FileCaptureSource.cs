@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -149,7 +150,16 @@ namespace Greenshot.Base.Recipes.Sources
             {
                 // An HDR file is opened like an HDR capture: tone mapped, with its HDR image, so it can be saved as HDR file again
                 var hdrImage = TryLoadHdrImage(filename);
-                var fileImage = hdrImage != null ? HdrImageToneMapping.ToBitmap(hdrImage) : ImageIO.LoadImage(filename);
+                Image fileImage;
+                try
+                {
+                    fileImage = hdrImage != null ? HdrImageToneMapping.ToBitmap(hdrImage) : ImageIO.LoadImage(filename);
+                }
+                catch
+                {
+                    hdrImage?.Dispose();
+                    throw;
+                }
                 if (fileImage == null)
                 {
                     hdrImage?.Dispose();

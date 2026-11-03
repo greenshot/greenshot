@@ -100,8 +100,9 @@ namespace Greenshot.Editor.FileFormatHandlers
                 hdrImage = image;
                 return true;
             }
-            catch (COMException ex)
+            catch (Exception ex) when (ex is COMException || ex is IOException || ex is InvalidOperationException || ex is ArgumentException)
             {
+                // Not readable as HDR image: the normal loading tries it
                 Log.Warn($"Couldn't read the HDR image: {ex.Message}");
                 stream.Position = start;
                 return false;

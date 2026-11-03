@@ -277,7 +277,8 @@ namespace Greenshot.Recipes.Steps
 
             // The file destination decides when it saves: it knows if the capture has an HDR image and was edited
             string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);
-            if (HdrOutput.IsHdrFormat(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
+            // Also None: it overrides an earlier SaveFile of the recipe
+            if (!string.IsNullOrWhiteSpace(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
 
             int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
