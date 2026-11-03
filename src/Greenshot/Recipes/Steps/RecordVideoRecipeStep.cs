@@ -47,7 +47,6 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.RecordVideo, "Record Video", "Records a video of a monitor, window or region (Windows Graphics Capture).", "Video")]
     [StepParameter("SourceType", ContractDataType.Enum, DefaultValue = "ActiveWindow", Description = "What to record", AllowedValues = new[] { "ActiveWindow", "Window", "Region", "Monitor" })]
     [StepParameter("MonitorIndex", ContractDataType.Integer, Description = "Monitor to record (Monitor)")]
-    [StepParameter("WindowTitle", ContractDataType.String, Description = "Window to record (Window)")]
     [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Window title regular expression (Window)")]
     [StepParameter("ProcessName", ContractDataType.String, Description = "Process of the window (Window)")]
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match the window title case-sensitively")]
@@ -72,9 +71,8 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("AudioSource", ContractDataType.String, DefaultValue = "None", Description = "Audio to record")]
     [StepParameter("PreventSleepWhileRecording", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the PC awake while recording")]
     [StepParameter("AutoPauseOnSessionLock", ContractDataType.Boolean, DefaultValue = true, Description = "Pause while the PC is locked")]
-    [StepParameter("OutputFilePath", ContractDataType.FilePath, Description = "File to write")]
     [StepParameter("OutputDirectory", ContractDataType.DirectoryPath, Description = "Directory to write to")]
-    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name in OutputDirectory, {yyyyMMdd_HHmmss} is the start time (default Greenshot_{yyyyMMdd_HHmmss}.mp4)")]
     [StepInputVariable("SourceType", ContractDataType.Enum, Description = "What to record, when the parameter is not set")]
     [StepInputVariable("WindowHandle", ContractDataType.Object, Description = "Window to record (set by the caller)")]
     [StepInputVariable("CaptureRegion", ContractDataType.Object, Description = "Region to record (set by the caller)")]
@@ -92,7 +90,7 @@ namespace Greenshot.Recipes.Steps
         /// </summary>
         public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
-            string target = Config.GetParameter<string>("OutputFilePath") ?? Config.GetParameter<string>("OutputDirectory");
+            string target = Config.GetParameter<string>("OutputDirectory");
             if (!string.IsNullOrWhiteSpace(target))
             {
                 yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes the video to {target}");
@@ -227,14 +225,13 @@ namespace Greenshot.Recipes.Steps
                 }
                 else
                 {
-                    string title = Config.GetParameter<string>("WindowTitle", null);
                     string titlePattern = Config.GetParameter<string>("WindowTitlePattern", null);
                     string processName = Config.GetParameter<string>("ProcessName", null);
                     bool matchCase = Config.GetParameter("MatchCase", false);
 
-                    if (!string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName))
+                    if (!string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName))
                     {
-                        var win = WindowHelper.FindMatchingWindow(title, titlePattern, processName, matchCase);
+                        var win = WindowHelper.FindMatchingWindow(titlePattern, processName, matchCase);
                         if (win != null)
                         {
                             hWnd = win.Handle;
@@ -242,7 +239,7 @@ namespace Greenshot.Recipes.Steps
                         }
                         else
                         {
-                            Log.Warn($"No window found matching title='{title}', pattern='{titlePattern}', process='{processName}'. Falling back to foreground window.");
+                            Log.Warn($"No window found matching pattern='{titlePattern}', process='{processName}'. Falling back to foreground window.");
                         }
                     }
 
@@ -359,21 +356,14 @@ namespace Greenshot.Recipes.Steps
 
             options.AutoPauseOnSessionLock = Config.GetParameter("AutoPauseOnSessionLock", true);
 
-            // 11. Output file path & directory
-            string outputPath = Config.GetParameter<string>("OutputFilePath", null);
-
+            // 11. Output directory & file name
             string outputDir = Config.GetParameter<string>("OutputDirectory", null);
 
             string filenamePattern = Config.GetParameter<string>("FilenamePattern", null);
 
-            if (string.IsNullOrWhiteSpace(outputPath) && !string.IsNullOrWhiteSpace(outputDir))
+            if (!string.IsNullOrWhiteSpace(outputDir))
             {
-                string fn = !string.IsNullOrWhiteSpace(filenamePattern) ? filenamePattern : "Greenshot_{yyyyMMdd_HHmmss}.mp4";
-                outputPath = Path.Combine(outputDir, fn);
-            }
-
-            if (!string.IsNullOrWhiteSpace(outputPath))
-            {
+                string outputPath = Path.Combine(outputDir, !string.IsNullOrWhiteSpace(filenamePattern) ? filenamePattern : "Greenshot_{yyyyMMdd_HHmmss}.mp4");
                 outputPath = Environment.ExpandEnvironmentVariables(outputPath);
                 outputPath = outputPath.Replace("{yyyyMMdd_HHmmss}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
                 options.OutputFilePath = outputPath;

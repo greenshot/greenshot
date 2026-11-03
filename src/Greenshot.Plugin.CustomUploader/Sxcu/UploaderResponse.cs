@@ -25,13 +25,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 using Greenshot.Base.Http;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Plugin.CustomUploader.Sxcu;
 
@@ -162,7 +163,8 @@ internal sealed class UploaderResponse
     }
 
     /// <summary>
-    /// {json:data.link}: a JSONPath, "$." in front is optional (ShareX writes it without)
+    /// {json:data.link}: a JSONPath, "$." in front is optional (ShareX writes it without).
+    /// Names (.name or ['name']) and array indexes ([0]) are supported, no wildcards, filters or recursive descent.
     /// </summary>
     internal static string Json(string input, string path)
     {
@@ -177,12 +179,70 @@ internal sealed class UploaderResponse
             path = path.StartsWith("[", StringComparison.Ordinal) ? "$" + path : "$." + path;
         }
 
-        var token = JToken.Parse(input).SelectToken(path);
-        return token switch
+        var node = JsonNode.Parse(input, documentOptions: GreenshotJson.DocumentOptions);
+        int position = 1;
+        while (position < path.Length)
         {
-            null => null,
-            JValue value => Convert.ToString(value.Value, CultureInfo.InvariantCulture),
-            _ => token.ToString(Newtonsoft.Json.Formatting.None)
+            if (node == null)
+            {
+                return null;
+            }
+
+            int end;
+            string name = null;
+            int index = -1;
+            if (path[position] == '.')
+            {
+                end = path.IndexOfAny(new[] { '.', '[' }, position + 1);
+                end = end < 0 ? path.Length : end;
+                name = path.Substring(position + 1, end - position - 1);
+            }
+            else if (path[position] == '[' && (end = path.IndexOf(']', position)) > 0)
+            {
+                string part = path.Substring(position + 1, end - position - 1).Trim();
+                if (part.Length >= 2 && (part[0] == '\'' || part[0] == '"') && part[part.Length - 1] == part[0])
+                {
+                    name = part.Substring(1, part.Length - 2);
+                }
+                else if (!int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out index))
+                {
+                    throw new InvalidOperationException("Only names and array indexes are supported in a JSON path");
+                }
+                end++;
+            }
+            else
+            {
+                throw new InvalidOperationException("Only names and array indexes are supported in a JSON path");
+            }
+
+            if (name is "" or "*")
+            {
+                throw new InvalidOperationException("Only names and array indexes are supported in a JSON path");
+            }
+            if (name != null)
+            {
+                if (node is not JsonObject jsonObject || !jsonObject.TryGetPropertyValue(name, out node))
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                if (node is not JsonArray array || index >= array.Count)
+                {
+                    return null;
+                }
+                node = array[index];
+            }
+            position = end;
+        }
+
+        return node switch
+        {
+            // A null value, as Json.NET gave it
+            null => string.Empty,
+            JsonValue value when value.GetValueKind() == JsonValueKind.String => value.GetValue<string>(),
+            _ => node.ToJsonString(GreenshotJson.Options)
         };
     }
 

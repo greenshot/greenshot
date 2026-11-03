@@ -14,6 +14,9 @@
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+    <PackageReference Include="Dapplo.Windows.Imaging" Version="3.19.3" />
+    <!-- SecurityAccessDeniedException of the .greenshot type check -->
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
 
   <ItemGroup>

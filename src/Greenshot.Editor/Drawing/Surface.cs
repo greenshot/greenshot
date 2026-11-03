@@ -972,6 +972,17 @@ namespace Greenshot.Editor.Drawing
             return bitmapContainer;
         }
 
+        /// <inheritdoc cref="ISurface.AddNextImageContainer"/>
+        public IImageContainer AddNextImageContainer(Image image)
+        {
+            var last = _elements.OfType<ImageContainer>().LastOrDefault();
+            // The whole surface, independent of where the user has scrolled to
+            var canvas = new Rectangle(0, 0, Image.Width, Image.Height);
+            Point? lastLocation = last == null ? null : new Point(last.Left, last.Top);
+            var location = ImageContainerPlacement.Next(lastLocation, canvas, image.Size);
+            return AddImageContainer(image, location.X, location.Y);
+        }
+
         public IImageContainer AddImageContainer(string filename, int x, int y)
         {
             ImageContainer bitmapContainer = new ImageContainer(this);
@@ -1283,7 +1294,7 @@ namespace Greenshot.Editor.Drawing
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
             // Fast enough for the UI thread
             ApplyEffectResult(resizeEffect, Image);
-            _surfaceExpanded(this, null);
+            _surfaceExpanded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -1295,7 +1306,7 @@ namespace Greenshot.Editor.Drawing
             var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
             // Fast enough for the UI thread
             ApplyEffectResult(resizeEffect, Image);
-            _surfaceExpanded(this, null);
+            _surfaceExpanded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -2016,6 +2027,26 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            // check contextmenu, before the adorners: a right click must never start resizing/moving an adorner
+            if (e.Button == MouseButtons.Right)
+            {
+                _mouseStart = e.Location;
+                // The element under the mouse gets the menu, unless it is already part of the selection (then the whole selection gets it)
+                IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
+                if (rightClickedContainer != null && !selectedElements.Contains(rightClickedContainer))
+                {
+                    DeselectAllElements();
+                    SelectElement(rightClickedContainer);
+                }
+
+                if (selectedElements.Count > 0)
+                {
+                    selectedElements.ShowContextMenu(e, this);
+                }
+
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(e);
             if (adorner != null)
@@ -2025,35 +2056,6 @@ namespace Greenshot.Editor.Drawing
             }
 
             _mouseStart = e.Location;
-
-            // check contextmenu
-            if (e.Button == MouseButtons.Right)
-            {
-                IDrawableContainerList selectedList = null;
-                if (selectedElements != null && selectedElements.Count > 0)
-                {
-                    selectedList = selectedElements;
-                }
-                else
-                {
-                    // Single element
-                    IDrawableContainer rightClickedContainer = _elements.ClickableElementAt(_mouseStart.X, _mouseStart.Y);
-                    if (rightClickedContainer != null)
-                    {
-                        selectedList = new DrawableContainerList(ID)
-                        {
-                            rightClickedContainer
-                        };
-                    }
-                }
-
-                if (selectedList != null && selectedList.Count > 0)
-                {
-                    selectedList.ShowContextMenu(e, this);
-                }
-
-                return;
-            }
 
             _mouseDown = true;
             _isSurfaceMoveMadeUndoable = false;
@@ -2123,7 +2125,7 @@ namespace Greenshot.Editor.Drawing
             {
                 // check whether an existing element was clicked
                 IDrawableContainer element = _elements.ClickableElementAt(currentMouse.X, currentMouse.Y);
-                bool shiftModifier = (ModifierKeys & Keys.Shift) == Keys.Shift;
+                bool shiftModifier = (InputState.ModifierKeys & Keys.Shift) == Keys.Shift;
                 if (element != null)
                 {
                     element.Invalidate();
@@ -2644,7 +2646,7 @@ namespace Greenshot.Editor.Drawing
         {
             base.OnGotFocus(e);
             // Tab shows the focus cues of the window; the focus which the canvas gets when the editor opens or after a click doesn't
-            _showFocusFrame = MouseButtons == MouseButtons.None && ShowFocusCues;
+            _showFocusFrame = InputState.MouseButtons == MouseButtons.None && ShowFocusCues;
             InvalidateFocusFrame();
             NotifyAccessibleFocus();
         }
@@ -3322,6 +3324,40 @@ namespace Greenshot.Editor.Drawing
             ResumeLayout();
         }
 
+        /// <inheritdoc />
+        public void InsertElements(IEnumerable<IDrawableContainer> elements)
+        {
+            var elementsToInsert = new DrawableContainerList(elements.Where(element => element != null));
+            if (elementsToInsert.Count == 0)
+            {
+                return;
+            }
+
+            NativeRect area = ToImageCoordinates(GetVisibleArea());
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                area = new NativeRect(0, 0, Image.Width, Image.Height);
+            }
+
+            // Each further element 10 pixels lower and to the right, like dropped elements
+            int offset = 0;
+            foreach (var element in elementsToInsert)
+            {
+                element.Parent = this;
+                double factor = Math.Max(1d, Math.Max(element.Width / (double) area.Width, element.Height / (double) area.Height));
+                element.Width = Math.Max(1, (int) (element.Width / factor));
+                element.Height = Math.Max(1, (int) (element.Height / factor));
+                element.Left = area.Left + (area.Width - element.Width) / 2 + offset;
+                element.Top = area.Top + (area.Height - element.Height) / 2 + offset;
+                offset += 10;
+            }
+
+            DeselectAllElements();
+            AddElements(elementsToInsert);
+            SelectElements(elementsToInsert);
+            Invalidate();
+        }
+
         /// <summary>
         /// Process key presses on the surface, this is called from the editor (and NOT an override from the Control)
         /// </summary>
@@ -3550,7 +3586,7 @@ namespace Greenshot.Editor.Drawing
 
             // Not while a text is typed, or while a mouse button is down: the mouse draws or moves an element, or drags a tab
             // (Esc must reach the window, which cancels the drag of the tab)
-            if (KeysLocked || MouseButtons != MouseButtons.None)
+            if (KeysLocked || InputState.MouseButtons != MouseButtons.None)
             {
                 return false;
             }

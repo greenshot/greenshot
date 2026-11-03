@@ -23,10 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Views;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -49,7 +49,7 @@ namespace Greenshot.Recipes
         {
             try
             {
-                return JToken.Parse(content) is JObject definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
+                return RecipeSerializer.Parse(content) is { ValueKind: JsonValueKind.Object } definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
             }
             catch (Exception)
             {
@@ -214,7 +214,7 @@ namespace Greenshot.Recipes
             var lines = new List<string>();
             if (extension == null) return lines;
 
-            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.Name ?? r.Id).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.DisplayName).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
             lines.Add(recipes.Count == 0
                 ? "• Changes no recipe now (none has a slot it fits in)."
                 : $"• Changes these recipes now: {string.Join(", ", recipes)}.");

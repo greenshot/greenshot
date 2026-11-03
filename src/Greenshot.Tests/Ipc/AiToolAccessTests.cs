@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
@@ -37,7 +38,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -217,9 +217,9 @@ namespace Greenshot.Tests.Ipc
                     Payload = new CapturePayload(new Capture((System.Drawing.Image)bitmap.Clone()))
                 };
 
-                // The recipe's own OCR step: it makes a surface, which takes the image from the capture
-                await new Greenshot.Recipes.Steps.ProcessorExecutionStep(ocrNode).ExecuteAsync(flowContext);
-                Assert.NotNull(flowContext.Payload.Surface);
+                // The recipe's own OCR step
+                await new Greenshot.Recipes.Steps.OcrStep(ocrNode).ExecuteAsync(flowContext);
+                Assert.Equal("Hello OCR", flowContext.Properties["OcrText"]);
 
                 var result = await AiToolIpcHandler.CollectResultAsync(flowContext, 0, CancellationToken.None);
                 Assert.NotNull(result);
@@ -315,10 +315,10 @@ namespace Greenshot.Tests.Ipc
             {
                 var reply = await DispatchAsync("LIST_WINDOWS", TestClient);
                 Assert.Equal("ok", reply.Value<string>("status"));
-                Assert.IsType<JArray>(reply["windows"]);
-                var displays = Assert.IsType<JArray>(reply["displays"]);
+                Assert.IsType<JsonArray>(reply["windows"]);
+                var displays = Assert.IsType<JsonArray>(reply["displays"]);
                 Assert.NotEmpty(displays);
-                foreach (var window in reply["windows"])
+                foreach (var window in reply["windows"].AsArray())
                 {
                     // Ids, not window handles
                     Assert.Matches("^w[0-9]+$", window.Value<string>("id"));
@@ -367,10 +367,10 @@ namespace Greenshot.Tests.Ipc
                 var reply = await DispatchAsync("LIST_AI_TOOLS", TestClient);
                 Assert.Equal("ok", reply.Value<string>("status"));
                 Assert.False(asked);
-                var tools = Assert.IsType<JArray>(reply["tools"]);
+                var tools = Assert.IsType<JsonArray>(reply["tools"]);
                 var captureWindow = tools.Single(t => t.Value<string>("name") == "capture_window");
                 Assert.True(captureWindow.Value<bool>("read_only"));
-                var window = captureWindow["arguments"].Single(a => a.Value<string>("name") == "window");
+                var window = captureWindow["arguments"].AsArray().Single(a => a.Value<string>("name") == "window");
                 Assert.Equal("Window", window.Value<string>("type"));
                 Assert.True(window.Value<bool>("required"));
                 Assert.Contains(tools, t => t.Value<string>("name") == "capture_region");
@@ -652,7 +652,7 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        private static Task<JObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null, string recipe = null)
+        private static Task<JsonObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null, string recipe = null)
         {
             var envelope = new IpcEnvelope
             {
@@ -670,7 +670,7 @@ namespace Greenshot.Tests.Ipc
             return DispatchAsync(envelope, client);
         }
 
-        private static async Task<JObject> DispatchAsync(IpcEnvelope envelope, AiToolClient client)
+        private static async Task<JsonObject> DispatchAsync(IpcEnvelope envelope, AiToolClient client)
         {
             // AI tools are opt-in: these tests are about what happens once they are switched on
             IniConfigRegistry.GetSection<ICoreConfiguration>().AiToolsEnabled = true;
@@ -688,7 +688,7 @@ namespace Greenshot.Tests.Ipc
             int length = BitConverter.ToInt32(lengthBytes, 0);
             byte[] payload = new byte[length];
             Assert.Equal(length, stream.Read(payload, 0, length));
-            return JObject.Parse(Encoding.UTF8.GetString(payload));
+            return JsonNode.Parse(Encoding.UTF8.GetString(payload)).AsObject();
         }
     }
 }

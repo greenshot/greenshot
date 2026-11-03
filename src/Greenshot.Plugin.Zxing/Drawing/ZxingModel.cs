@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Plugin.Zxing.Views;
@@ -30,6 +31,21 @@ namespace Greenshot.Plugin.Zxing.Drawing
 {
     public class ZxingModel : IDoubleClickHandler
     {
+        /// <summary>
+        /// The amount of an EPC payment code ("EUR12.30"): a decimal point or comma, the same in every Windows language;
+        /// a text which isn't a number is taken as it is, "EUR" added when missing.
+        /// </summary>
+        public static string FormatEpcAmount(string amount)
+        {
+            if (string.IsNullOrWhiteSpace(amount)) return string.Empty;
+            string trimmed = amount.Trim();
+            if (double.TryParse(trimmed.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double value))
+            {
+                return string.Format(CultureInfo.InvariantCulture, "EUR{0:F2}", value);
+            }
+            return trimmed.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? trimmed : $"EUR{trimmed}";
+        }
+
         public int FormatIndex { get; set; }
         public int QrCategoryIndex { get; set; }
         
@@ -125,15 +141,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
                     {
                         return string.Empty;
                     }
-                    string formattedAmount = string.Empty;
-                    if (double.TryParse(EpcAmount, out double amt))
-                    {
-                        formattedAmount = string.Format(System.Globalization.CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
-                    }
-                    else if (!string.IsNullOrEmpty(EpcAmount))
-                    {
-                        formattedAmount = EpcAmount.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? EpcAmount : $"EUR{EpcAmount}";
-                    }
+                    string formattedAmount = FormatEpcAmount(EpcAmount);
 
                     return "BCD\n" +
                            "002\n" +

@@ -25,11 +25,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Serialization;
 using Greenshot.Base.Threading;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -126,7 +127,7 @@ namespace Greenshot.Base.Core.OAuth
                     using var body = request.InputStream;
                     using var reader = new StreamReader(body, request.ContentEncoding);
                     string json = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    returnValues = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                    returnValues = JsonSerializer.Deserialize<Dictionary<string, string>>(json, GreenshotJson.Options);
                 }
 
                 // Create the response.

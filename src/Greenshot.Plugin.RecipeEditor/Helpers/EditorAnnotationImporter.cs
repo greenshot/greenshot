@@ -183,6 +183,14 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                 string txt = dict.TryGetValue("Text", out var val) ? val?.ToString() : "";
                 item.Description = $"{type}: {(txt.Length > 20 ? txt.Substring(0, 18) + "..." : txt)}";
             }
+            else if (type == "Image" && container is SvgContainer svgContainer)
+            {
+                // An SVG stays a vector: its file contents
+                item.CanSaveAsFile = true;
+                item.FileExtension = ".svg";
+                item.Description = Texts.Get<IRecipeEditorLanguage>().AnnotationSvg;
+                item.RawData = svgContainer.SvgContent;
+            }
             else if (type == "Image")
             {
                 item.CanSaveAsFile = true;
@@ -198,17 +206,6 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                         item.RawData = ms.ToArray();
                     }
                     catch { }
-                }
-            }
-            else if (type == "Svg")
-            {
-                item.CanSaveAsFile = true;
-                item.FileExtension = ".svg";
-                item.Description = Texts.Get<IRecipeEditorLanguage>().AnnotationSvg;
-
-                if (dict.TryGetValue("Content", out var contentObj) && contentObj is string svgXml && !string.IsNullOrEmpty(svgXml))
-                {
-                    item.RawData = Encoding.UTF8.GetBytes(svgXml);
                 }
             }
             else if (type == "Cursor")
@@ -521,18 +518,10 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                     }
                 }
             }
-            else if (container is SvgContainer svg)
+            else if (container is SvgContainer)
             {
-                dict["Type"] = "Svg";
-                try
-                {
-                    var field = typeof(SvgContainer).GetField("_svgContent", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (field?.GetValue(svg) is MemoryStream ms)
-                    {
-                        dict["Content"] = Encoding.UTF8.GetString(ms.ToArray());
-                    }
-                }
-                catch { }
+                // The SVG itself is added as ImageData or FilePath when it is imported
+                dict["Type"] = "Image";
             }
             else if (container.GetType().Name.IndexOf("Barcode", StringComparison.OrdinalIgnoreCase) >= 0)
             {
@@ -629,7 +618,7 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                 var marginProp = modelType.GetProperty("Margin");
                 if (marginProp?.GetValue(model) is int margin)
                 {
-                    dict["Margin"] = margin;
+                    dict["QuietZone"] = margin;
                 }
 
                 var roundedDotsProp = modelType.GetProperty("RoundedDots");

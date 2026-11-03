@@ -26,12 +26,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Base.Http
 {
@@ -136,16 +137,25 @@ namespace Greenshot.Base.Http
         {
             var result = await SendAsync(new HttpRequestMessage(HttpMethod.Get, uri), cancellationToken).ConfigureAwait(false);
             result.EnsureSuccess();
-            return string.IsNullOrEmpty(result.Content) ? default : JsonConvert.DeserializeObject<T>(result.Content);
+            return string.IsNullOrEmpty(result.Content) ? default : JsonSerializer.Deserialize<T>(result.Content, GreenshotJson.Options);
         }
 
         /// <summary>
         /// Get the content at the url as bytes.
         /// </summary>
         /// <exception cref="HttpRequestException">for an HTTP error</exception>
-        public async Task<byte[]> GetBytesAsync(string url, CancellationToken cancellationToken)
+        public Task<byte[]> GetBytesAsync(string url, CancellationToken cancellationToken) => GetBytesAsync(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
+
+        /// <summary>
+        /// Send the request (with headers of the caller) and read the content as bytes.
+        /// </summary>
+        /// <param name="request">HttpRequestMessage, disposed after sending</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <exception cref="HttpRequestException">for an HTTP error</exception>
+        public async Task<byte[]> GetBytesAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            using var disposeRequest = request;
             using var response = await SendCoreAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {

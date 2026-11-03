@@ -22,9 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Languages;
-using Newtonsoft.Json;
+using Greenshot.Base.Serialization;
 
 namespace Greenshot.Plugin.CustomUploader.Sxcu;
 
@@ -43,6 +44,19 @@ internal static class UploaderFile
     private const string Binary = "Binary";
 
     private static readonly string[] Methods = { "POST", "PUT", "PATCH" };
+
+    /// <summary>
+    /// Reads uploader files as Json.NET (which ShareX uses) does: comments, any casing, numbers where texts are expected.
+    /// Property names as the format has them, types come from the class, never from the file.
+    /// </summary>
+    internal static readonly JsonSerializerOptions JsonOptions = CreateJsonOptions();
+
+    private static JsonSerializerOptions CreateJsonOptions()
+    {
+        var options = GreenshotJson.CreateOptions();
+        options.MaxDepth = 16;
+        return options;
+    }
 
     /// <summary>
     /// What the request (url, parameters, headers, form fields) can use: nothing which asks the user or picks at random,
@@ -80,12 +94,7 @@ internal static class UploaderFile
         UploaderDefinition definition;
         try
         {
-            definition = JsonConvert.DeserializeObject<UploaderDefinition>(json, new JsonSerializerSettings
-            {
-                MaxDepth = 16,
-                // Types come from the class, never from the file
-                TypeNameHandling = TypeNameHandling.None
-            });
+            definition = JsonSerializer.Deserialize<UploaderDefinition>(json, JsonOptions);
         }
         catch (JsonException ex)
         {

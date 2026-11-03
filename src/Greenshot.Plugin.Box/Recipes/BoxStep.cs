@@ -79,7 +79,7 @@ namespace Greenshot.Plugin.Box.Recipes
             context.LogStep("Uploading capture to Box...");
             Log.Info("BoxStep: Executing Box upload.");
 
-            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             string uploadUrl;
             try
             {

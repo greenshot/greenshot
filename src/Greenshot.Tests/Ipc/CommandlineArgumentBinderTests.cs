@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -31,7 +32,6 @@ using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -187,7 +187,7 @@ namespace Greenshot.Tests.Ipc
                 ms.Read(lengthBytes, 0, 4);
                 var payload = new byte[BitConverter.ToUInt32(lengthBytes, 0)];
                 ms.Read(payload, 0, payload.Length);
-                var reply = JObject.Parse(Encoding.UTF8.GetString(payload));
+                var reply = JsonNode.Parse(Encoding.UTF8.GetString(payload)).AsObject();
 
                 Assert.Equal("error", reply.Value<string>("status"));
                 Assert.Equal(CliCommandParser.UsageExitCode, reply.Value<int>("exit_code"));

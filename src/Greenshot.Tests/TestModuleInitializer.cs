@@ -37,9 +37,19 @@ namespace Greenshot.Tests
             // thread throws and the test run is reported as crashed. The tests feed keys with HandleKeyboardEvent instead.
             HotkeyManager.UseKeyboardHook = false;
 
+            // The editor reacts to Shift, Ctrl and pressed mouse buttons while drawing; the tests must not see what the user
+            // does on the desktop during the test run (Shift turned a drawn rectangle into a square)
+            InputState.ModifierKeysSource = () => System.Windows.Forms.Keys.None;
+            InputState.MouseButtonsSource = () => System.Windows.Forms.MouseButtons.None;
+
             // Many classes read their configuration section in a static field. xunit.v3 runs the tests in a random order, so the
             // configuration has to exist before the first test: a type initializer that failed stays broken for the whole run.
             IniConfigHelper.EnsureInitialized();
+
+            // An exception in a window procedure (e.g. a control created on an MTA thread) would show the WinForms exception
+            // dialog on the desktop and block the test run, it has to fail the test which created the window instead
+            // Not only for this thread: the windows of the tests are created on their own threads
+            System.Windows.Forms.Application.SetUnhandledExceptionMode(System.Windows.Forms.UnhandledExceptionMode.ThrowException, false);
         }
     }
 }

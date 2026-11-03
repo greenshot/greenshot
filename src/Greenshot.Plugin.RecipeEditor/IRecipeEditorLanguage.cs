@@ -247,6 +247,11 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepSetVariable { get; }
 
         /// <summary>
+        /// Set Metadata
+        /// </summary>
+        string StepSetMetadata { get; }
+
+        /// <summary>
         /// FLOW &amp; FEEDBACK
         /// </summary>
         string HeaderFlowFeedback { get; }
@@ -277,9 +282,9 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepNotification { get; }
 
         /// <summary>
-        /// Processors / OCR
+        /// OCR (read text)
         /// </summary>
-        string StepProcessors { get; }
+        string StepOcr { get; }
 
         /// <summary>
         /// Standard Output (CLI)
@@ -477,6 +482,26 @@ namespace Greenshot.Plugin.RecipeEditor
         string DisplayName { get; }
 
         /// <summary>
+        /// Run this step
+        /// </summary>
+        string StepEnabled { get; }
+
+        /// <summary>
+        /// When off, the recipe skips this step and goes on with the next ones
+        /// </summary>
+        string TipStepEnabled { get; }
+
+        /// <summary>
+        /// Only when
+        /// </summary>
+        string StepWhen { get; }
+
+        /// <summary>
+        /// Runs the step only when this expression is true, e.g. ${option.add_border}. Empty: always
+        /// </summary>
+        string TipStepWhen { get; }
+
+        /// <summary>
         /// STEP PARAMETERS
         /// </summary>
         string HeaderStepParameters { get; }
@@ -540,11 +565,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// File (empty = the Filename variable, e.g. from the command line)
         /// </summary>
         string SourceFilePath { get; }
-
-        /// <summary>
-        /// Window Title (exact)
-        /// </summary>
-        string WindowTitleExact { get; }
 
         /// <summary>
         /// Window Title Pattern (Regex)
@@ -715,11 +735,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Countdown Delay (ms)
         /// </summary>
         string CountdownDelayMs { get; }
-
-        /// <summary>
-        /// Output MP4 File Path
-        /// </summary>
-        string OutputMp4Path { get; }
 
         /// <summary>
         /// Preset
@@ -1012,9 +1027,24 @@ namespace Greenshot.Plugin.RecipeEditor
         string MaintainAspectRatio { get; }
 
         /// <summary>
-        /// Padding / Margin (px on all sides)
+        /// Left (px)
         /// </summary>
-        string PaddingMargin { get; }
+        string CanvasLeft { get; }
+
+        /// <summary>
+        /// Top (px)
+        /// </summary>
+        string CanvasTop { get; }
+
+        /// <summary>
+        /// Right (px)
+        /// </summary>
+        string CanvasRight { get; }
+
+        /// <summary>
+        /// Bottom (px)
+        /// </summary>
+        string CanvasBottom { get; }
 
         /// <summary>
         /// Background Color (hex value or name)
@@ -1112,6 +1142,61 @@ namespace Greenshot.Plugin.RecipeEditor
         string HintVariableScopes { get; }
 
         /// <summary>
+        /// Choose the details here, not those of the settings
+        /// </summary>
+        string MetadataOwnFields { get; }
+
+        /// <summary>
+        /// Capture time
+        /// </summary>
+        string MetadataCaptureTime { get; }
+
+        /// <summary>
+        /// Author and copyright of the settings
+        /// </summary>
+        string MetadataAuthorField { get; }
+
+        /// <summary>
+        /// Window title and web address
+        /// </summary>
+        string MetadataSource { get; }
+
+        /// <summary>
+        /// Text in the capture (OCR)
+        /// </summary>
+        string MetadataText { get; }
+
+        /// <summary>
+        /// Barcodes and QR codes
+        /// </summary>
+        string MetadataBarcodes { get; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        string MetadataTitle { get; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        string MetadataDescription { get; }
+
+        /// <summary>
+        /// Author
+        /// </summary>
+        string MetadataAuthor { get; }
+
+        /// <summary>
+        /// Copyright
+        /// </summary>
+        string MetadataCopyright { get; }
+
+        /// <summary>
+        /// Title and description may use variables like ${payload.title}. An empty box keeps what the settings write. The title, description, window title, web address, text and barcodes are private: files on this computer get them, before the image leaves it you are asked.
+        /// </summary>
+        string HintMetadata { get; }
+
+        /// <summary>
         /// Annotations
         /// </summary>
         string Annotations { get; }
@@ -1195,11 +1280,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Step label
         /// </summary>
         string AnnotationTypeStepLabel { get; }
-
-        /// <summary>
-        /// SVG
-        /// </summary>
-        string AnnotationTypeSvg { get; }
 
         /// <summary>
         /// Text
@@ -1395,26 +1475,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Image file
         /// </summary>
         string ImageFile { get; }
-
-        /// <summary>
-        /// SVG Source
-        /// </summary>
-        string SvgSource { get; }
-
-        /// <summary>
-        /// Embed (XML)
-        /// </summary>
-        string EmbedXml { get; }
-
-        /// <summary>
-        /// SVG file
-        /// </summary>
-        string SvgFile { get; }
-
-        /// <summary>
-        /// Inline SVG XML
-        /// </summary>
-        string InlineSvg { get; }
 
         /// <summary>
         /// Cursor Source
@@ -1627,16 +1687,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string PromptTimeout { get; }
 
         /// <summary>
-        /// Default Choice Key
-        /// </summary>
-        string DefaultChoice { get; }
-
-        /// <summary>
-        /// Select the fallback or default choice key for timeouts / Enter key
-        /// </summary>
-        string TipDefaultChoice { get; }
-
-        /// <summary>
         /// Decision Choices &amp; Buttons
         /// </summary>
         string DecisionChoices { get; }
@@ -1760,76 +1810,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// End the recipe after writing the message
         /// </summary>
         string StderrEndRecipe { get; }
-
-        /// <summary>
-        /// Processor Execution Mode
-        /// </summary>
-        string ProcessorMode { get; }
-
-        /// <summary>
-        /// ⚡ All Active Processors
-        /// </summary>
-        string ProcessorsAll { get; }
-
-        /// <summary>
-        /// 🔍 OCR Only (Windows 10 OCR)
-        /// </summary>
-        string ProcessorsOcrOnly { get; }
-
-        /// <summary>
-        /// 🛠️ Selected Processors
-        /// </summary>
-        string ProcessorsSelected { get; }
-
-        /// <summary>
-        /// Execution Timing Stage
-        /// </summary>
-        string TimingStage { get; }
-
-        /// <summary>
-        /// Any / All Stages
-        /// </summary>
-        string StageAny { get; }
-
-        /// <summary>
-        /// Before Interactive Selection
-        /// </summary>
-        string StageBefore { get; }
-
-        /// <summary>
-        /// After Interactive Selection
-        /// </summary>
-        string StageAfter { get; }
-
-        /// <summary>
-        /// Active Processors
-        /// </summary>
-        string ActiveProcessors { get; }
-
-        /// <summary>
-        /// Windows OCR (Text &amp; Words Recognition)
-        /// </summary>
-        string ProcessorWindowsOcr { get; }
-
-        /// <summary>
-        /// Window Title Fixer (Auto-detect Window Titles)
-        /// </summary>
-        string ProcessorTitleFix { get; }
-
-        /// <summary>
-        /// Plugin Processors (QR / Barcode Scanner, etc.)
-        /// </summary>
-        string ProcessorPlugins { get; }
-
-        /// <summary>
-        /// Specific Processor IDs (Optional)
-        /// </summary>
-        string ProcessorIds { get; }
-
-        /// <summary>
-        /// Comma-separated processor designations (e.g. Windows10OcrProcessor, TitleFix).
-        /// </summary>
-        string HintProcessorIds { get; }
 
         /// <summary>
         /// Save Directory
@@ -2007,6 +1987,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string EditorCurrent { get; }
 
         /// <summary>
+        /// Import mode of the editor destination
+        /// </summary>
+        string EditorImportMode { get; }
+
+        /// <summary>
+        /// Surface: the capture becomes the surface (current editor) or opens as a tab (available editor)
+        /// </summary>
+        string EditorImportModeSurface { get; }
+
+        /// <summary>
+        /// Image container: the capture is added as image, the surface stays
+        /// </summary>
+        string EditorImportModeImageContainer { get; }
+
+        /// <summary>
         /// Printer Name (empty = Default Printer)
         /// </summary>
         string PrinterName { get; }
@@ -2140,11 +2135,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Show capture thumbnail preview
         /// </summary>
         string ShowThumbnail { get; }
-
-        /// <summary>
-        /// Allow forwarding capture to other recipes
-        /// </summary>
-        string AllowForwarding { get; }
 
         /// <summary>
         /// Auto-Dismiss Timeout (Seconds, 0 = Disabled)
@@ -2420,6 +2410,32 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Values the user sets once in Settings &gt; Recipes (switches and choices also in the quick settings). The steps read them with ${option.key}.
         /// </summary>
         string HintOptions { get; }
+
+        /// <summary>
+        /// TRANSLATIONS
+        /// </summary>
+        string HeaderTranslations { get; }
+
+        /// <summary>
+        /// Translate the texts of this recipe into other languages. ...
+        /// </summary>
+        string HintTranslations { get; }
+
+        /// <summary>
+        /// Add a language
+        /// </summary>
+        string AddTranslationLanguage { get; }
+
+        /// <summary>
+        /// Translations shown below
+        /// </summary>
+        string TranslationLanguageShown { get; }
+
+        /// <summary>
+        /// Remove this language and its texts
+        /// </summary>
+        string TipRemoveLanguage { get; }
+
 
         /// <summary>
         /// Key
@@ -3412,6 +3428,26 @@ namespace Greenshot.Plugin.RecipeEditor
         string TriggerTitleHotkey { get; }
 
         /// <summary>
+        /// {0} (from the general settings)
+        /// </summary>
+        string TriggerHotkeyFromSettings { get; }
+
+        /// <summary>
+        /// {0} (from the option "{1}")
+        /// </summary>
+        string TriggerHotkeyFromOption { get; }
+
+        /// <summary>
+        /// Use a fixed hotkey
+        /// </summary>
+        string TriggerHotkeyUseFixed { get; }
+
+        /// <summary>
+        /// Use the hotkey of an option
+        /// </summary>
+        string TriggerHotkeyUseOption { get; }
+
+        /// <summary>
         /// Context Menu: {0}
         /// </summary>
         string TriggerTitleContextMenu { get; }
@@ -4102,21 +4138,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string AssetEmbeddedImage { get; }
 
         /// <summary>
-        /// Embedded SVG
-        /// </summary>
-        string AssetEmbeddedSvg { get; }
-
-        /// <summary>
-        /// Select SVG Vector Graphic
-        /// </summary>
-        string TitleSelectSvg { get; }
-
-        /// <summary>
-        /// Scalable Vector Graphics (*.svg)
-        /// </summary>
-        string FilterSvg { get; }
-
-        /// <summary>
         /// All Files (*.*)
         /// </summary>
         string FilterAllFiles { get; }
@@ -4142,7 +4163,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string FilterImage { get; }
 
         /// <summary>
-        /// After the capture and the selection, before the processors (OCR, ...).
+        /// After the capture and the selection.
         /// </summary>
         string SlotAfterCapture { get; }
 
@@ -4302,9 +4323,9 @@ namespace Greenshot.Plugin.RecipeEditor
         string SummaryResizeSize { get; }
 
         /// <summary>
-        /// Canvas Padding: {0}px
+        /// Canvas: left {0}, top {1}, right {2}, bottom {3} px
         /// </summary>
-        string SummaryCanvasPadding { get; }
+        string SummaryCanvasSides { get; }
 
         /// <summary>
         /// Monochrome (Thresh: {0})
@@ -4360,6 +4381,16 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Variables (0)
         /// </summary>
         string SummaryVariablesNone { get; }
+
+        /// <summary>
+        /// Details of the settings
+        /// </summary>
+        string SummaryMetadataSettings { get; }
+
+        /// <summary>
+        /// Details: {0}
+        /// </summary>
+        string SummaryMetadata { get; }
 
         /// <summary>
         /// Sound: Enabled
@@ -4497,29 +4528,9 @@ namespace Greenshot.Plugin.RecipeEditor
         string SummaryPromptNone { get; }
 
         /// <summary>
-        /// Processors: Windows OCR
+        /// OCR: the text goes into OcrText
         /// </summary>
-        string SummaryProcessorsOcr { get; }
-
-        /// <summary>
-        /// Processors: {0}
-        /// </summary>
-        string SummaryProcessors { get; }
-
-        /// <summary>
-        /// Processors (None)
-        /// </summary>
-        string SummaryProcessorsNone { get; }
-
-        /// <summary>
-        /// Processors: All ({0})
-        /// </summary>
-        string SummaryProcessorsAllTiming { get; }
-
-        /// <summary>
-        /// Processors: All Active
-        /// </summary>
-        string SummaryProcessorsAll { get; }
+        string SummaryOcr { get; }
 
         /// <summary>
         /// Record Video: {0} ({1} FPS, {2})
@@ -4575,5 +4586,15 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Upload to Dropbox
         /// </summary>
         string SummaryDropbox { get; }
+
+        /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string ManagerBtnGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string ManagerBtnGetMoreTooltip { get; }
     }
 }

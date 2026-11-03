@@ -27,6 +27,7 @@ using Greenshot.Plugin.RecipeEditor;
 using Greenshot.Recipes;
 using Xunit;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Greenshot.Tests.Recipes
 {
@@ -50,8 +51,6 @@ namespace Greenshot.Tests.Recipes
             {
                 RegisterDrawablesCalled = true;
             }
-
-            public string GetDrawableSchemaJson() => null;
         }
 
         private class StepTypeProvider : IRecipeStepProvider
@@ -93,8 +92,6 @@ namespace Greenshot.Tests.Recipes
                 registry.RegisterDrawableFactory(_drawableType, (surface, parameters, context) => null);
                 registry.RegisterDrawableConfigurator(_drawableType, (parameters, owner) => true);
             }
-
-            public string GetDrawableSchemaJson() => null;
         }
 
         public RecipeConfigurationAndEditorTests()
@@ -225,43 +222,176 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void DynamicDestinationStep_ConfiguresCorrectlyInStepNodeViewModel()
         {
-            var config = RecipeStepConfig.CreateDynamicDestination("dyn_dest", "Select Destination", true, true, new[] { "Clipboard", "Editor" }, 15);
+            var config = RecipeStepConfig.CreateDynamicDestination("dyn_dest", "Select Destination", true, new[] { "Clipboard", "Editor" }, 15);
             var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
 
             Assert.True(vm.IsDynamicDestination);
             Assert.Equal("Select Destination", vm.DynamicDestinationTitle);
             Assert.True(vm.DynamicDestinationShowPreview);
-            Assert.True(vm.DynamicDestinationAllowRecipeForwarding);
-            Assert.Equal(15, vm.DynamicDestinationTimeoutSeconds);
+            Assert.Equal("15", vm.DynamicDestinationTimeoutSeconds);
             Assert.Contains("Clipboard", vm.DynamicDestinationSpecificDestinations);
             Assert.Contains("Editor", vm.DynamicDestinationSpecificDestinations);
             Assert.Contains("15s", vm.Summary);
         }
 
         [Fact]
-        public void StepNodeViewModel_StepErrorHandling_UpdatesConfigCorrectly()
+        public void StepNodeViewModel_NumberFields_KeepExpressions()
         {
-            var config = RecipeStepConfig.CreateClipboard("clipboard_step");
+            var config = new RecipeNodeConfig("border", WellKnownStepTypes.Effect).Set("Effect", "Border").Set("Width", "${option.border_thickness}");
             var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
 
-            // Default
-            Assert.Equal("Default", vm.OnErrorAction);
-            Assert.Null(config.OnErrorNodeId);
-            Assert.Null(config.OnErrorRecipeId);
+            // The field shows the expression instead of the default
+            Assert.Equal("${option.border_thickness}", vm.EffectBorderWidth);
 
-            // Set to Step
-            vm.OnErrorAction = "Step";
-            vm.OnErrorNodeId = "dyn_dest";
-            Assert.Equal("dyn_dest", config.OnErrorNodeId);
-            Assert.Null(config.OnErrorRecipeId);
-            Assert.True(vm.IsOnErrorStep);
+            // A number is a number, an expression stays text, empty removes the value
+            vm.EffectBorderWidth = "5";
+            Assert.Equal(5, config.GetParameter<int>("Width"));
+            vm.EffectBorderWidth = "${option.max_width - 4}";
+            Assert.Equal("${option.max_width - 4}", config.GetParameter<string>("Width"));
+            vm.EffectBorderWidth = "";
+            Assert.False(config.Parameters.ContainsKey("Width"));
+            Assert.Equal("2", vm.EffectBorderWidth);
+        }
 
-            // Set to Recipe
-            vm.OnErrorAction = "Recipe";
-            vm.OnErrorRecipeId = "rec_recovery";
-            Assert.Equal("rec_recovery", config.OnErrorRecipeId);
-            Assert.Null(config.OnErrorNodeId);
-            Assert.True(vm.IsOnErrorRecipe);
+        [Fact]
+        public void StepNodeViewModel_ChangingTheEffect_DropsTheValuesOfTheEffectBefore()
+        {
+            var config = new RecipeNodeConfig("effect", WellKnownStepTypes.Effect).Set("Effect", "Border").Set("Width", 3).Set("Color", "#FF0000");
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
+
+            // Border's Color is no canvas color, its Width no new width
+            vm.EffectType = "Resize";
+            Assert.False(config.Parameters.ContainsKey("Color"));
+            Assert.False(config.Parameters.ContainsKey("Width"));
+
+            vm.ResizeWidth = "800";
+            vm.EffectType = "ResizeCanvas";
+            Assert.False(config.Parameters.ContainsKey("Width"));
+            Assert.Equal("ResizeCanvas", config.GetParameter<string>("Effect"));
+        }
+
+        [Fact]
+        public void StepNodeViewModel_AddBranch_TakesAFreeKey()
+        {
+            var config = new RecipeNodeConfig("check", WellKnownStepTypes.Conditional)
+                .Set("Branches", new List<ConditionalBranch> { new ConditionalBranch("A", "${true}"), new ConditionalBranch("B", "${false}"), new ConditionalBranch("C", "else") });
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
+
+            vm.RemoveConditionBranch(vm.ConditionBranches[1]);
+            vm.AddConditionBranchCommand.Execute(null);
+
+            Assert.Equal(new[] { "A", "C", "B" }, vm.ConditionBranches.Select(b => b.Key));
+        }
+
+        [Fact]
+        public void RecipeEditorViewModel_RemovingABranch_RemovesItsTransitions()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe();
+                editorVm.AddStep(WellKnownStepTypes.Conditional);
+                var condition = editorVm.Nodes.First(n => n.IsConditional);
+                var export = editorVm.Nodes.First(n => n.Id == "export");
+                var branch = condition.ConditionBranches[0];
+                if (!editorVm.Connections.Any(c => c.Source == branch.Port))
+                {
+                    editorVm.Connect(branch.Port, export.InputPort);
+                }
+                editorVm.SyncRecipeTransitions();
+                Assert.Contains(editorVm.ActiveRecipe.Flow.Transitions, t => t.From == condition.Id && t.Branch == branch.Key);
+
+                condition.RemoveConditionBranch(branch);
+                editorVm.SyncRecipeTransitions();
+
+                // Neither the branch nor a plain transition of the condition is left
+                Assert.DoesNotContain(editorVm.Connections, c => c.Source == branch.Port);
+                Assert.DoesNotContain(editorVm.ActiveRecipe.Flow.Transitions, t => t.From == condition.Id && (t.Branch == branch.Key || t.IsPlain));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
+        public void StepNodeViewModel_EnabledAndWhen_EditTheNode()
+        {
+            var config = new RecipeNodeConfig("border", WellKnownStepTypes.Effect);
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(config, new System.Windows.Point(0, 0));
+
+            vm.StepEnabled = false;
+            vm.StepWhen = "  ${option.add_border} ";
+            Assert.False(config.Enabled);
+            Assert.Equal("${option.add_border}", config.When);
+
+            vm.StepWhen = " ";
+            Assert.Null(config.When);
+        }
+
+        [Fact]
+        public void TriggerItemViewModel_HotkeyOption_MakesTheTriggerUseTheOption()
+        {
+            var recipe = new CaptureRecipe
+            {
+                Options = new List<RecipeOption>
+                {
+                    new RecipeOption { Key = "hotkey", Type = ContractDataType.Hotkey, DefaultValue = "Ctrl + Alt + F", Label = "Hotkey" },
+                    new RecipeOption { Key = "add_border", Type = ContractDataType.Boolean, DefaultValue = true }
+                }
+            };
+            var trigger = new Greenshot.Plugin.RecipeEditor.ViewModels.TriggerItemViewModel(new Greenshot.Base.Recipes.Triggers.TriggerConfig("Hotkey"), getRecipe: () => recipe);
+
+            Assert.Equal(new[] { "hotkey" }, trigger.HotkeyOptions.Select(o => o.Key));
+            Assert.Null(trigger.HotkeyOptionKey);
+
+            trigger.HotkeyOptionKey = "hotkey";
+            Assert.Equal("${option.hotkey}", trigger.Hotkey);
+            Assert.True(trigger.IsHotkeyReference);
+            Assert.Equal("hotkey", trigger.HotkeyOptionKey);
+        }
+
+        [Fact]
+        public void StepNodeViewModel_OnError_IsTheErrorTransitionOfTheStep()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe();
+                var vm = editorVm.Nodes.First(n => n.Id == "export");
+                Assert.Equal("Default", vm.OnErrorAction);
+                Assert.Empty(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+
+                // A step: one error transition for any error
+                vm.OnErrorAction = "Step";
+                vm.OnErrorNodeId = "feedback";
+                var transition = Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Equal(("export", "feedback", (string)null, "*"), (transition.From, transition.To, transition.Recipe, transition.OnError));
+                Assert.True(vm.IsOnErrorStep);
+                Assert.Single(editorVm.ErrorTransitions);
+
+                // A recipe: the same transition, now to the recipe
+                vm.OnErrorAction = "Recipe";
+                vm.OnErrorRecipeId = "rec_recovery";
+                transition = Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Equal(("export", (string)null, "rec_recovery"), (transition.From, transition.To, transition.Recipe));
+                Assert.True(vm.IsOnErrorRecipe);
+                Assert.Null(vm.OnErrorNodeId);
+
+                // Changed in the list of error transitions: the step shows it
+                editorVm.ErrorTransitions[0].TargetType = "Step";
+                editorVm.ErrorTransitions[0].ToNodeId = "acquire";
+                Assert.Equal("acquire", vm.OnErrorNodeId);
+
+                // Default removes it
+                vm.OnErrorAction = "Default";
+                Assert.Empty(editorVm.ActiveRecipe.Flow.ErrorTransitions);
+                Assert.Empty(editorVm.ErrorTransitions);
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
         }
 
         [Fact]
@@ -324,10 +454,10 @@ namespace Greenshot.Tests.Recipes
 
             Assert.NotNull(editorVm.ActiveRecipe.Flow.ErrorTransitions);
             Assert.Single(editorVm.ActiveRecipe.Flow.ErrorTransitions);
-            var savedTransition = editorVm.ActiveRecipe.Flow.ErrorTransitions[0];
+            var savedTransition = editorVm.ActiveRecipe.Flow.ErrorTransitions.First();
             Assert.Equal("acquire", savedTransition.From);
             Assert.Equal(dynStep.Id, savedTransition.To);
-            Assert.Equal("ClipboardException", savedTransition.ErrorType);
+            Assert.Equal("ClipboardException", savedTransition.OnError);
         }
     }
 }

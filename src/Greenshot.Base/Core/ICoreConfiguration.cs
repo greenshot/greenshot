@@ -67,13 +67,18 @@ namespace Greenshot.Base.Core
         bool WelcomeShown { get; set; }
 
         [DataMember(Name = "Destinations")]
-        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
+        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker, DestinationWindow")]
         [DefaultValue("Picker")]
         List<string> OutputDestinations { get; set; }
 
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }
+
+        [Description("zlib compression level (1-9) for the PNG on the clipboard, it's made on every copy, so a lower level copies faster.")]
+        [DefaultValue(8)]
+        [Range(1, 9, ErrorMessage = "Clipboard PNG compression level must be between 1 and 9.")]
+        int ClipboardPngCompressionLevel { get; set; }
 
         [Description("Should the mouse be captured?")]
         [DefaultValue(true)]
@@ -142,6 +147,15 @@ namespace Greenshot.Base.Core
         [Description("Amount of colors to reduce to, when reducing")]
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
+
+        [Description("zlib compression level (1-9) for PNG files and uploads, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
+        [DefaultValue(9)]
+        [Range(1, 9, ErrorMessage = "PNG compression level must be between 1 and 9.")]
+        int OutputFilePngCompressionLevel { get; set; }
+
+        [Description("Write a PNG with 256 colors or fewer with a palette, which is much smaller. Set to false if an application can't read these PNG files.")]
+        [DefaultValue(true)]
+        bool OutputFilePngPalette { get; set; }
 
         [Description("When saving a screenshot, copy the path to the clipboard?")]
         [DefaultValue(true)]
@@ -359,6 +373,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool CaptureFreezeScreen { get; set; }
 
+        [Description("Ignore the screen reader flag of Windows. When false, while the flag is on, the selection starts on the frozen screen and a region capture starts as window capture. Programs can leave the flag on after the screen reader is gone, true then captures as without a screen reader.")]
+        [DefaultValue(false)]
+        bool IgnoreScreenReader { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
@@ -396,14 +414,6 @@ namespace Greenshot.Base.Core
         [DefaultValue("")]
         string MailApiBCC { get; set; }
 
-        [Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
-        [DefaultValue("")]
-        string OptimizePNGCommand { get; set; }
-
-        [Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.")]
-        [DefaultValue("\"{0}\"")]
-        string OptimizePNGCommandArguments { get; set; }
-
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 
@@ -419,18 +429,36 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }
 
+        [Description("Which details are written into exported images, the program name and resolution are always written. Options: CaptureTime (when the screen was captured), Author (ExportMetadataAuthor and ExportMetadataCopyright), and the private ones Source (window title, web address), Text (text OCR found), Barcodes (content of barcodes and QR codes). Private details are written into saved files; before they leave the computer (upload, e-mail, Office) Greenshot asks, a flow without a window removes them. Empty: none of them.")]
+        [DefaultValue("CaptureTime")]
+        List<ExportMetadataField> ExportMetadata { get; set; }
+
+        [Description("The author written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataAuthor { get; set; }
+
+        [Description("The copyright notice written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataCopyright { get; set; }
+
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
 
-        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas")]
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas. Optionally with a place: 1280x720+100+200 is 100, 200 from the top left of the main monitor, 1280x720+100+200@1920+0 of the monitor at 1920, 0, 1280x720+10+40@notepad.exe of the content of a window of notepad.exe")]
         [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
         List<string> FixedCaptureSizes { get; set; }
 
-        [Description("The sizes of the last region captures, the fixed size capture offers them below its own sizes")]
-        List<string> RecentCaptureSizes { get; set; }
+        [Description("The sizes and places of the last region captures (e.g. 1280x720+100+200@1920+0), the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureAreas { get; set; }
 
-        [Description("The size of the last fixed size capture, the fixed size capture starts with it")]
-        NativeSize FixedCaptureSize { get; set; }
+        [Description("The size and place of the last fixed size capture (e.g. 1280x720+100+200), the fixed size capture starts with it")]
+        string FixedCaptureArea { get; set; }
+
+        [Description("What the fixed size capture remembers of the last region captures: Size, Screen (also the place on the monitor) or Window (also the place in the window of the program, else on the monitor)")]
+        [DefaultValue("Window")]
+        FixedCaptureRemember FixedCaptureRemembers { get; set; }
+
+        [Description("Picking a size with a place in the fixed size capture moves the mouse so the area is there; false: the place is only shown, the area snaps onto it")]
+        [DefaultValue(true)]
+        bool FixedCaptureMovesCursor { get; set; }
 
         [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
         [DefaultValue("TopLeft")]

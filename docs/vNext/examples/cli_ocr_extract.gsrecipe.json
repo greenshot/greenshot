@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "1.0",
+  "version": "2.0",
   "id": "recipe_cli_ocr_extract",
   "name": "CLI Headless OCR Text Extractor",
   "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",
@@ -10,11 +10,11 @@
       "name": "OCR CLI Trigger",
       "enabled": true,
       "parameters": {
-        "command": "ocr",
-        "description": "Extract text from an image file using OCR and return to stdout",
-        "fireAndForget": false,
-        "stdout": "${Payload.ExtractedText}",
-        "arguments": [
+        "Command": "ocr",
+        "Description": "Extract text from an image file using OCR and return to stdout",
+        "FireAndForget": false,
+        "Stdout": "${Payload.ExtractedText}",
+        "Arguments": [
           {
             "name": "file",
             "variable": "Filename",
@@ -40,20 +40,16 @@
       "name": "Load Image File",
       "enabled": true,
       "parameters": {
-        "sourceType": "File",
-        "filename": "${Filename}"
+        "SourceType": "File",
+        "Filename": "${Filename}"
       }
     },
     {
       "id": "ocr_extraction",
-      "stepType": "Processors",
+      "stepType": "Ocr",
       "name": "Perform OCR",
       "enabled": true,
-      "parameters": {
-        "ProcessorIds": [
-          "Windows10OcrProcessor"
-        ]
-      }
+      "parameters": {}
     },
     {
       "id": "print_result",
@@ -61,7 +57,7 @@
       "name": "Print Extracted Text",
       "enabled": true,
       "parameters": {
-        "text": "${Payload.ExtractedText}"
+        "Text": "${Payload.ExtractedText}"
       }
     }
   ],
@@ -69,14 +65,15 @@
     "startNodes": [
       "load_file"
     ],
-    "transitions": {
-      "load_file": [
-        "ocr_extraction"
-      ],
-      "ocr_extraction": [
-        "print_result"
-      ]
-    },
-    "conditionalTransitions": []
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "ocr_extraction"
+      },
+      {
+        "from": "ocr_extraction",
+        "to": "print_result"
+      }
+    ]
   }
 }

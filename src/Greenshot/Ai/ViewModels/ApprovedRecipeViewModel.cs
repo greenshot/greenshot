@@ -40,7 +40,7 @@ namespace Greenshot.Ai.ViewModels
             int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
             string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
             string changedBy = details?.ChangedBy?.Count > 0 ? $" · changed by {string.Join(", ", details.ChangedBy)}" : "";
-            Title = details?.IsExtension == true ? $"Automatic step: {recipe.Name}" : recipe.Name;
+            Title = details?.IsExtension == true ? $"Automatic step: {recipe.DisplayName}" : recipe.DisplayName;
             Subtitle = $"{state}{by}{offText}{changedBy}";
             NeedsAttention = details?.ApprovedAt == null || !details.IsApprovalCurrent || off > 0;
             DisplayText = $"{Title}{by} · {state}{offText}{changedBy}";

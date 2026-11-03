@@ -83,8 +83,7 @@ namespace Greenshot.Recipes.ViewModels
                 item.DiagnosticHint = Texts.Recipe.ApprovalHintIdName;
             }
             // Check for JSON parser / deserializer syntax exceptions
-            else if (rawError.IndexOf("JsonReaderException", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     rawError.IndexOf("JsonSerializationException", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            else if (rawError.IndexOf("JsonException", StringComparison.OrdinalIgnoreCase) >= 0 ||
                      (rawError.IndexOf("line", StringComparison.OrdinalIgnoreCase) >= 0 && rawError.IndexOf("position", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 item.DiagnosticHint = Texts.Recipe.ApprovalHintJsonSyntax;

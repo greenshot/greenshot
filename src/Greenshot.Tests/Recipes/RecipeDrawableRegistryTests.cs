@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -119,13 +120,19 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Drawable",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "https://getgreenshot.org",
-                    ["HorizontalAnchor"] = "Right",
-                    ["VerticalAnchor"] = "Bottom",
-                    ["Width"] = 150,
-                    ["Height"] = 150,
-                    ["Margin"] = 25
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "https://getgreenshot.org",
+                            ["HorizontalAnchor"] = "Right",
+                            ["VerticalAnchor"] = "Bottom",
+                            ["Width"] = 150,
+                            ["Height"] = 150,
+                            ["Margin"] = 25
+                        }
+                    }
                 }
             };
 
@@ -164,11 +171,17 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "GreenshotQR",
-                    ["HorizontalAnchor"] = "Center",
-                    ["VerticalAnchor"] = "Center",
-                    ["Size"] = 200
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "GreenshotQR",
+                            ["HorizontalAnchor"] = "Center",
+                            ["VerticalAnchor"] = "Center",
+                            ["Size"] = 200
+                        }
+                    }
                 }
             };
 
@@ -372,21 +385,45 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("geo:52.5200,13.4050", geoModel.RawText);
         }
 
+        [Theory]
+        [InlineData("15.00", "EUR15.00")]
+        [InlineData("15,5", "EUR15.50")]
+        [InlineData("1500", "EUR1500.00")]
+        [InlineData("EUR3", "EUR3")]
+        [InlineData("", "")]
+        public void ZxingModel_EpcAmount_IsTheSameInEveryWindowsLanguage(string amount, string expected)
+        {
+            var culture = CultureInfo.CurrentCulture;
+            try
+            {
+                // German Windows: "15.00" must not become 1500
+                CultureInfo.CurrentCulture = new CultureInfo("de-DE");
+                Assert.Equal(expected, ZxingModel.FormatEpcAmount(amount));
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = culture;
+            }
+        }
+
         [Fact]
-        public void ZxingPlugin_SchemaProviders_ReturnValidJsonSchemas()
+        public void ZxingPlugin_DeclaresItsAnnotationProperties_AndStepSchema()
         {
             var plugin = new ZxingPlugin();
+            var registry = new RecipeDrawableRegistry();
+            plugin.RegisterDrawables(registry);
 
-            string drawableSchema = plugin.GetDrawableSchemaJson();
-            Assert.NotNull(drawableSchema);
-            Assert.Contains("qrType", drawableSchema);
-            Assert.Contains("epcIban", drawableSchema);
-            Assert.Contains("vcardEmail", drawableSchema);
-            Assert.Contains("wifiSsid", drawableSchema);
-            Assert.Contains("emailTo", drawableSchema);
-            string stepSchema = plugin.GetStepSchemaJson();
-            Assert.NotNull(stepSchema);
-            Assert.Contains("BarcodeScan", stepSchema);
+            foreach (string type in new[] { "QRCode", "Barcode" })
+            {
+                var names = registry.GetProperties(type).Select(p => p.Name).ToList();
+                Assert.Contains("QrType", names);
+                Assert.Contains("EpcIban", names);
+                Assert.Contains("VcardEmail", names);
+                Assert.Contains("WifiSsid", names);
+                Assert.Contains("EmailTo", names);
+                // With the common ones
+                Assert.Contains("HorizontalAnchor", names);
+            }
         }
 
         [Fact]
@@ -454,10 +491,16 @@ namespace Greenshot.Tests.Recipes
                 StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Type"] = "QRCode",
-                    ["Text"] = "GreenshotAspectLock",
-                    ["Width"] = 200,
-                    ["Height"] = 40
+                    ["Annotations"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "QRCode",
+                            ["Text"] = "GreenshotAspectLock",
+                            ["Width"] = 200,
+                            ["Height"] = 40
+                        }
+                    }
                 }
             };
 
@@ -492,7 +535,7 @@ namespace Greenshot.Tests.Recipes
             // Built-in drawables
             Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("StepLabel"));
             Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("Emoji"));
-            Assert.Equal(ScaleOptions.Rational, registry.GetScaleOptions("Svg"));
+            Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Image"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Rectangle"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Text"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("UnknownDrawable"));
@@ -652,6 +695,22 @@ namespace Greenshot.Tests.Recipes
             Assert.NotNull(ic.Image);
             Assert.Equal(64, ic.Image.Width);
             Assert.Equal(64, ic.Image.Height);
+        }
+
+        [Fact]
+        public void Registry_ImageDrawable_WithAnSvg_StaysAVector()
+        {
+            const string svg = "<?xml version=\"1.0\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"20\"><rect width=\"40\" height=\"20\" fill=\"red\"/></svg>";
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+
+            var p = new Dictionary<string, object>
+            {
+                ["ImageData"] = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg))
+            };
+
+            var container = RecipeDrawableRegistry.Instance.CreateDrawable("Image", surface, p, null);
+            Assert.IsType<SvgContainer>(container);
         }
 
         [Fact]

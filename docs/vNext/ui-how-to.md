@@ -29,10 +29,10 @@ and which shared pieces to reuse so every window looks and behaves the same. Whe
 ## A new window
 
 Every Greenshot window uses the same frame: the theme brushes of `ThemeManager`, the shared styles and `ThemedTitleBar` in its first row.
-The Jira upload window (`Greenshot.Plugin.Jira/Views/JiraUploadWindow.xaml`) is a small, complete example:
+The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.xaml`) is a small, complete example:
 
 ```xaml
-<Window x:Class="Greenshot.Plugin.Jira.Views.JiraUploadWindow"
+<Window x:Class="Greenshot.Plugin.Atlassian.Jira.Views.JiraUploadWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
@@ -80,10 +80,11 @@ looks the same and a change of the design is made in one place. Merge the dictio
 |---|---|
 | `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box, expander and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
 | `ButtonStyles.xaml` | `PrimaryButtonStyle` (the main action, e.g. OK), `SecondaryButtonStyle` (the other actions, e.g. Cancel), `WarnButtonStyle`, `ErrorButtonStyle` (strong red, destructive), `LightErrorButtonStyle` (a lighter delete), text-only buttons `PrimaryTextButtonStyle`, `SecondaryTextButtonStyle`, `LinkTextButtonStyle`, `ToolboxButtonStyle`, `PaletteSwatchStyle`, `DefaultRadioButtonStyle`, `FilterChipRadioButtonStyle`, and the caption buttons `TitleBarButtonStyle`, `TitleCloseButtonStyle`. |
+| `ComboBoxStyles.xaml` | `DefaultComboBoxStyle`, the default style of every `ComboBox` in a window which merges it; with `IsEditable="True"` the box takes typing and the list offers values. |
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
 | `ExpanderStyles.xaml` | `ExpanderStyle`: a header with an arrow which turns when the content is shown (settings groups, error details). |
-| `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`. |
-| `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `RemoveEntryButtonStyle` (the small x in it), `AddPillButtonStyle` (the + at the end of the list). |
+| `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`; `ThemeListBox` and `ThemeListBoxItem` for a list without columns, e.g. tiles in a `WrapPanel`. |
+| `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `EditEntryButtonStyle` (its text as a button, e.g. a click changes the entry), `RemoveEntryButtonStyle` (the small x in it), `TakeEntryButtonStyle` (a small + which takes the entry into another list), `AddPillButtonStyle` (the + at the end of the list). |
 | `MenuStyles.xaml` | `GreenshotContextMenuStyle`, `GreenshotMenuItemStyle`, `GreenshotMenuSeparatorStyle`; `ThemedMenu` uses them for the tray menu and the other menus. |
 
 ```xaml

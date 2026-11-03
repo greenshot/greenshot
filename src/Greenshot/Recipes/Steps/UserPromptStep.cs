@@ -29,10 +29,10 @@ using System.Threading.Tasks;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Views;
 using log4net;
-using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Recipes.Steps
@@ -42,10 +42,9 @@ namespace Greenshot.Recipes.Steps
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
     [StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Asks the user to choose; conditional transitions of this node follow the chosen key.", "Interaction")]
-    [StepParameter("Choices", ContractDataType.Object, Required = true, Description = "The choices (key and text)")]
+    [StepParameter("Choices", ContractDataType.Object, ValueType = typeof(List<PromptChoice>), Required = true, Description = "The choices (key and text); the one with IsDefault is the answer to Enter and when the prompt times out")]
     [StepParameter("Title", ContractDataType.String, Description = "Title of the prompt")]
     [StepParameter("Message", ContractDataType.String, Description = "Message of the prompt")]
-    [StepParameter("DefaultChoice", ContractDataType.String, Description = "Choice used when the prompt times out")]
     [StepParameter("ShowPreview", ContractDataType.Boolean, DefaultValue = true, Description = "Show a preview of the capture")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, DefaultValue = 0, Description = "Close the prompt after this many seconds (0: never)")]
     [StepOutputVariable("UserChoice.{NodeId}", ContractDataType.String, "The key of the chosen choice")]
@@ -68,9 +67,7 @@ namespace Greenshot.Recipes.Steps
             string message = Config.GetParameter<string>("Message") ?? "Please select how you would like to proceed with this capture:";
             bool showPreview = Config.GetParameter("ShowPreview", true);
             int timeoutSeconds = Config.GetParameter("TimeoutSeconds", 0);
-            string defaultChoice = Config.GetParameter<string>("DefaultChoice");
-
-            var choices = ParseChoices(Config.GetParameter<object>("Choices"));
+            var choices = ReadChoices(context);
 
             // Capture preview image if enabled
             Image previewImg = null;
@@ -98,7 +95,7 @@ namespace Greenshot.Recipes.Steps
                 // The prompt is UI: shown on the UI thread, the flow waits without blocking
                 chosenKey = await context.Ui.InvokeAsync(() =>
                 {
-                    var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
+                    var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds);
                     // A cancelled flow closes the prompt, the close is posted to the UI thread
                     using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
                            {
@@ -112,7 +109,7 @@ namespace Greenshot.Recipes.Steps
                     }
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
+                    return promptWindow.SelectedChoiceKey ?? (choices.FirstOrDefault(c => c.IsDefault) ?? choices.FirstOrDefault())?.Key ?? "Yes";
                 }, cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -129,53 +126,23 @@ namespace Greenshot.Recipes.Steps
             Log.InfoFormat("UserPromptStep [{0}] user selected choice '{1}'", Config.Id, chosenKey);
         }
 
-        private static List<PromptChoice> ParseChoices(object choicesObj)
+        /// <summary>
+        /// The choices, a label can be an expression (the choices are read as their type, so they are not evaluated with the other parameters)
+        /// </summary>
+        private List<PromptChoice> ReadChoices(CaptureFlowContext context)
         {
-            var list = new List<PromptChoice>();
-            if (choicesObj == null) return list;
-
-            if (choicesObj is IEnumerable<PromptChoice> typedList)
+            var choices = new List<PromptChoice>();
+            foreach (var choice in Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
             {
-                list.AddRange(typedList);
-                return list;
-            }
-
-            if (choicesObj is IEnumerable enumerable && !(choicesObj is string))
-            {
-                foreach (var item in enumerable)
+                if (string.IsNullOrEmpty(choice?.Key)) continue;
+                string label = choice.Label;
+                if (label != null && label.IndexOf("${", StringComparison.Ordinal) >= 0)
                 {
-                    if (item is PromptChoice pc)
-                    {
-                        list.Add(pc);
-                    }
-                    else if (item is IDictionary dict)
-                    {
-                        string k = dict.Contains("Key") ? dict["Key"]?.ToString() : (dict.Contains("key") ? dict["key"]?.ToString() : null);
-                        string l = dict.Contains("Label") ? dict["Label"]?.ToString() : (dict.Contains("label") ? dict["label"]?.ToString() : null);
-                        string s = dict.Contains("Style") ? dict["Style"]?.ToString() : (dict.Contains("style") ? dict["style"]?.ToString() : "Primary");
-                        bool isDef = dict.Contains("IsDefault") && Convert.ToBoolean(dict["IsDefault"]);
-                        bool isCanc = dict.Contains("IsCancel") && Convert.ToBoolean(dict["IsCancel"]);
-                        if (!string.IsNullOrEmpty(k))
-                        {
-                            list.Add(new PromptChoice(k, l ?? k, s, isDef, isCanc));
-                        }
-                    }
-                    else if (item is JObject jobj)
-                    {
-                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
-                        string l = jobj.Value<string>("Label") ?? jobj.Value<string>("label");
-                        string s = jobj.Value<string>("Style") ?? jobj.Value<string>("style") ?? "Primary";
-                        bool isDef = jobj.Value<bool?>("IsDefault") ?? jobj.Value<bool?>("isDefault") ?? false;
-                        bool isCanc = jobj.Value<bool?>("IsCancel") ?? jobj.Value<bool?>("isCancel") ?? false;
-                        if (!string.IsNullOrEmpty(k))
-                        {
-                            list.Add(new PromptChoice(k, l ?? k, s, isDef, isCanc));
-                        }
-                    }
+                    label = ExpressionEvaluator.Instance.Evaluate<string>(label, context, label);
                 }
+                choices.Add(new PromptChoice(choice.Key, label ?? choice.Key, choice.Style, choice.IsDefault, choice.IsCancel));
             }
-
-            return list;
+            return choices;
         }
     }
 }

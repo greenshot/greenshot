@@ -60,6 +60,35 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        public void Validate_RegionSourceWithoutSelection_Warns(bool withSelection, bool aiTool, bool warns)
+        {
+            var recipe = new CaptureRecipe("region_without_selection", "Region")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            recipe.Flow = new RecipeFlowConfig("acquire");
+            if (withSelection)
+            {
+                recipe.Flow.AddTransition("acquire", "select").AddTransition("select", "export");
+            }
+            else
+            {
+                recipe.Nodes.RemoveAll(n => n.Id == "select");
+                recipe.Flow.AddTransition("acquire", "export");
+            }
+            if (aiTool)
+            {
+                recipe.AddTrigger(TriggerConfig.CreateAiTool("region_tool", "Captures a region"));
+            }
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.Equal(warns, result.Warnings.Any(w => w.Contains("InteractiveSelection")));
+        }
+
+        [Theory]
         [InlineData(".png;.jpg", true)]
         [InlineData(".png", true)]
         [InlineData("*.png;*.jpg", false)]
@@ -331,7 +360,7 @@ namespace Greenshot.Tests.Recipes
         {
             // The test brings its own recipe file instead of depending on example files in the repository
             const string recipeJson = @"{
-  ""version"": ""1.0"",
+  ""version"": ""2.0"",
   ""id"": ""recipe_record_active_window"",
   ""name"": ""Record Active Window"",
   ""description"": ""Records the active window as video, started with the Pause key"",
@@ -341,7 +370,7 @@ namespace Greenshot.Tests.Recipes
       ""name"": ""Pause Hotkey"",
       ""enabled"": true,
       ""parameters"": {
-        ""hotkey"": ""Pause""
+        ""Hotkey"": ""Pause""
       }
     }
   ],
@@ -353,7 +382,7 @@ namespace Greenshot.Tests.Recipes
       ""name"": ""Record Active Window"",
       ""enabled"": true,
       ""parameters"": {
-        ""sourceType"": ""ActiveWindow""
+        ""SourceType"": ""ActiveWindow""
       }
     }
   ],

@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep),
                          typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep),
                          typeof(Greenshot.Plugin.Pdf.Recipes.PdfStep)
                      })
@@ -195,7 +195,7 @@ namespace Greenshot.Tests.Recipes
                 foreach (var parameter in node.Parameters)
                 {
                     var declared = contract.FindParameter(parameter.Key);
-                    Assert.True(declared != null || contract.AcceptsUndeclaredParameters, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
+                    Assert.True(declared != null, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
                     if (declared != null && declared.AllowedValues.Count > 0 && parameter.Value is string value)
                     {
                         Assert.Contains(value, declared.AllowedValues, StringComparer.OrdinalIgnoreCase);
@@ -210,8 +210,8 @@ namespace Greenshot.Tests.Recipes
         [Theory]
         [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
         [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
-        [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
         {
             var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();
@@ -460,14 +460,14 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("params", "Params")
                 .AddNode(new RecipeNodeConfig("missing", "Strict").Set("Size", 3))
-                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium").Set("Colour", "red"))
-                .AddNode(new RecipeNodeConfig("fine", "Strict") { OnErrorNodeId = "missing" }.Set("Mode", "fast"));
-            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" });
+                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium"))
+                .AddNode(new RecipeNodeConfig("fine", "Strict").Set("Mode", "fast"));
+            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" })
+                .AddErrorTransition("fine", "missing");
 
             var warnings = Warnings(recipe);
             Assert.Contains(warnings, w => w.Contains("'missing'") && w.Contains("missing required parameter 'Mode'"));
             Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Medium'"));
-            Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Colour'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'fine'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'Size'"));
         }
@@ -477,7 +477,7 @@ namespace Greenshot.Tests.Recipes
         {
             var registry = CreatePipelineRegistry();
             var recipe = new CaptureRecipe("prompt", "Prompt")
-                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variable", "Greeting").Set("Value", "hi"))
+                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variables", new Dictionary<string, object> { ["Greeting"] = "hi" }))
                 .AddNode(new RecipeNodeConfig("print", WellKnownStepTypes.Stdout).Set("Text", "${Greeting} ${UserChoice.set}"));
             recipe.Flow = new RecipeFlowConfig("set").AddTransition("set", "print");
 

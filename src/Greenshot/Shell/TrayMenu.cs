@@ -469,7 +469,7 @@ namespace Greenshot.Shell
                 .OrderBy(entry => string.Equals(entry.Group, "Recipes", StringComparison.OrdinalIgnoreCase) ? 0 : 10)
                 .ThenBy(entry => entry.Group, StringComparer.CurrentCultureIgnoreCase)
                 .ThenBy(entry => entry.Trigger.Order)
-                .ThenBy(entry => entry.Recipe.Name, StringComparer.CurrentCultureIgnoreCase);
+                .ThenBy(entry => entry.Recipe.DisplayName, StringComparer.CurrentCultureIgnoreCase);
             foreach (var entry in menuEntries)
             {
                 var trigger = entry.Trigger;
@@ -675,7 +675,7 @@ namespace Greenshot.Shell
 
             foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
             {
-                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{RecipeText.Translate(recipe.Name ?? recipe.Id)}: {option.DisplayLabel}" : option.DisplayLabel;
+                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{recipe.DisplayName}: {option.DisplayLabel}" : option.DisplayLabel;
                 var value = RecipeOptionStore.GetValue(recipe, option);
                 if (option.Type == ContractDataType.Boolean)
                 {

@@ -36,9 +36,6 @@ namespace Greenshot.Base.Recipes.Contracts
         /// <summary>The class implementing the step, when the contract was built from its attributes.</summary>
         public Type ImplementationType { get; set; }
 
-        /// <summary>The step reads more parameters than declared (e.g. annotation properties): undeclared parameters are not reported.</summary>
-        public bool AcceptsUndeclaredParameters { get; set; }
-
         /// <summary>The parameter with this name, null when not declared.</summary>
         public ParameterContract FindParameter(string name)
         {

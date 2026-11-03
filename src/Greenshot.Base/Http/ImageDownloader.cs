@@ -63,6 +63,34 @@ namespace Greenshot.Base.Http
             return DownloadAsync(HttpService.Current, url, (stream, extension) => fileFormatHandlers.LoadDrawablesFromStream(stream, extension).FirstOrDefault(), cancellationToken);
         }
 
+        /// <summary>
+        /// Download the url to keep the image file as it is, e.g. an SVG stays an SVG. Only an image Greenshot can read is returned.
+        /// </summary>
+        /// <param name="url">Of an image</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ImageFileContent, null when it's not possible</returns>
+        public static Task<ImageFileContent> DownloadImageFileAsync(string url, CancellationToken cancellationToken) =>
+            DownloadImageFileAsync(HttpService.Current, url, cancellationToken);
+
+        internal static Task<ImageFileContent> DownloadImageFileAsync(HttpService httpService, string url, CancellationToken cancellationToken)
+        {
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            return DownloadAsync(httpService, url, (stream, extension) =>
+            {
+                var memoryStream = (MemoryStream)stream;
+                byte[] content = memoryStream.ToArray();
+                // The content decides, an url like .../image.php?id=1 says nothing
+                extension = ImageFileContent.GuessExtension(content) ?? FileFormatHandlerExtensions.NormalizeExtension(extension);
+                if (extension == null || !fileFormatHandlers.TryLoadFromStream(memoryStream, extension, out var bitmap) || bitmap == null)
+                {
+                    return null;
+                }
+
+                bitmap.Dispose();
+                return new ImageFileContent(ImageFileContent.FileNameOf(TryCreateUri(url), extension), extension, content);
+            }, cancellationToken);
+        }
+
         internal static Task<Bitmap> DownloadImageAsync(HttpService httpService, string url, CancellationToken cancellationToken)
         {
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();

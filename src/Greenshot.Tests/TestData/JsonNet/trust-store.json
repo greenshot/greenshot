@@ -1,0 +1,39 @@
+[
+  {
+    "FilePath": "C:\\Users\\Test\\Recipes\\a.gsrecipe.json",
+    "Sha256Hash": "ABCDEF0123",
+    "ApprovedAt": "2026-10-21T20:26:30.123Z",
+    "AllowExternalCommands": true,
+    "RecipeName": "A",
+    "RecipeVersion": "1.0",
+    "Origin": "ai:Claude",
+    "ApprovedContent": "{\"id\":\"a\"}",
+    "Recipes": [
+      {
+        "RecipeId": "a",
+        "ApprovedTriggers": [
+          "Hotkey:Ctrl+A"
+        ],
+        "AllTriggers": false,
+        "AllowedGates": [
+          1,
+          0
+        ],
+        "ReplacesBuiltIn": true
+      }
+    ],
+    "IsAiCreated": true
+  },
+  {
+    "FilePath": "C:\\b.gsrecipe.json",
+    "Sha256Hash": "00",
+    "ApprovedAt": "2025-01-02T03:04:05Z",
+    "AllowExternalCommands": false,
+    "RecipeName": null,
+    "RecipeVersion": null,
+    "Origin": null,
+    "ApprovedContent": null,
+    "Recipes": null,
+    "IsAiCreated": false
+  }
+]

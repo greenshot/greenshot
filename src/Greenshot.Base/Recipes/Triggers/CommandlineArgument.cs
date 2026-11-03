@@ -20,9 +20,8 @@
  */
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Contracts;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Greenshot.Base.Recipes.Triggers
 {
@@ -64,7 +63,7 @@ namespace Greenshot.Base.Recipes.Triggers
         /// FilePath / DirectoryPath values are sanitized and resolved against the caller's working directory,
         /// Integer / Decimal / Boolean values are parsed, Enum values must be one of <see cref="AllowedValues"/>.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter<ContractDataType>))]
         public ContractDataType Type { get; set; } = ContractDataType.String;
 
         /// <summary>

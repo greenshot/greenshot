@@ -112,7 +112,7 @@ namespace Greenshot.Plugin.CustomUploader.Recipes
             }
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
-            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             var destination = new UploaderDestination(_plugin, definition);
             ExportResult result;
             try

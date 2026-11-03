@@ -45,5 +45,9 @@ namespace Greenshot.Base.Recipes
         [Description("Semicolon-separated list of deactivated/disabled recipe IDs.")]
         [DefaultValue(null)]
         string DisabledRecipeIds { get; set; }
+
+        [Description("Whether recipes can be installed from the Greenshot recipe catalog (greenshot:install-recipe links). An administrator switches it off in greenshot-fixed.ini.")]
+        [DefaultValue(true)]
+        bool AllowCatalogInstall { get; set; }
     }
 }

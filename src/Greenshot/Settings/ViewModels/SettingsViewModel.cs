@@ -43,6 +43,7 @@ using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Dapplo.Ini.Internationalization;
+using Greenshot.Viewer;
 
 namespace Greenshot.Settings.ViewModels
 {
@@ -62,6 +63,7 @@ namespace Greenshot.Settings.ViewModels
         {
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+            ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
             _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
@@ -74,7 +76,7 @@ namespace Greenshot.Settings.ViewModels
             // Initialize image formats
             InitializeImageFormats();
 
-            FixedCaptureSizes = new ObservableCollection<NativeSize>(FixedSizeCaptureTool.GetSizes(CoreConfiguration.FixedCaptureSizes, null).Select(entry => entry.Size));
+            InitializeFixedCaptureSizes();
 
             // Initialize window capture modes
             
@@ -83,6 +85,7 @@ namespace Greenshot.Settings.ViewModels
             
             // The options of the recipes (Greenshot Light: those of the built-in recipes)
             InitializeRecipeOptions();
+            InitializeHotkeys();
 
 #if !GREENSHOT_LIGHT
             // Plugins and AI tools: Greenshot Light has neither
@@ -95,6 +98,7 @@ namespace Greenshot.Settings.ViewModels
 
             // Initialize clipboard formats
             InitializeClipboardFormats();
+            InitializeExportMetadata();
 
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {
@@ -113,6 +117,8 @@ namespace Greenshot.Settings.ViewModels
         public ICoreConfiguration CoreConfiguration { get; }
 
         public IEditorConfiguration EditorConfiguration { get; }
+
+        public IViewerConfiguration ViewerConfiguration { get; }
         
         public bool PrintColor
         {
@@ -259,35 +265,6 @@ namespace Greenshot.Settings.ViewModels
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
 
         /// <summary>
-        /// The sizes of the fixed size capture, in the order the number keys pick them, written back on save
-        /// </summary>
-        public ObservableCollection<NativeSize> FixedCaptureSizes { get; }
-
-        /// <summary>
-        /// Adds a size at the end; false when it isn't a size or is already there
-        /// </summary>
-        public bool AddFixedCaptureSize(NativeSize size)
-        {
-            if (size.Width <= 0 || size.Height <= 0 || FixedCaptureSizes.Contains(size))
-            {
-                return false;
-            }
-            FixedCaptureSizes.Add(size);
-            return true;
-        }
-
-        /// <summary>
-        /// Writes the sizes of the fixed size capture back to the configuration
-        /// </summary>
-        public void SaveFixedCaptureSizes()
-        {
-            if (!CoreConfiguration.IsConstant(nameof(ICoreConfiguration.FixedCaptureSizes)))
-            {
-                CoreConfiguration.FixedCaptureSizes = FixedCaptureSizes.Select(FixedSizeCaptureTool.FormatSize).ToList();
-            }
-        }
-
-        /// <summary>
         /// The largest width or height of a new image in the editor
         /// </summary>
         public const int MaximumNewImageSize = 10000;
@@ -344,6 +321,32 @@ namespace Greenshot.Settings.ViewModels
         }
 
         public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
+
+        /// <summary>
+        /// The chosen color of the viewer border, choosing one means the border doesn't follow the light or dark mode
+        /// </summary>
+        public System.Drawing.Color ViewerBorderColor
+        {
+            get => ViewerConfiguration.BorderColor;
+            set
+            {
+                if (ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColor)))
+                {
+                    return;
+                }
+
+                ViewerConfiguration.BorderColor = value;
+                if (!ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColorFollowsTheme)))
+                {
+                    ViewerConfiguration.BorderColorFollowsTheme = false;
+                }
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ViewerBorderBrush));
+            }
+        }
+
+        public Brush ViewerBorderBrush => new SolidColorBrush(Color.FromArgb(ViewerBorderColor.A, ViewerBorderColor.R, ViewerBorderColor.G, ViewerBorderColor.B));
 
         public int IconSize
         {

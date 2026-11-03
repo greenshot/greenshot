@@ -49,6 +49,11 @@ namespace Greenshot.Editor.Drawing
             Size = new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
         }
 
+        /// <summary>
+        /// The SVG file contents
+        /// </summary>
+        public byte[] SvgContent => _svgContent?.ToArray();
+
         protected override void Init()
         {
             base.Init();

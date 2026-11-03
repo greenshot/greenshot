@@ -1,0 +1,10 @@
+{
+  "Version": "16.0.0",
+  "Name": "Discord webhook",
+  "DestinationType": "ImageUploader, FileUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://discord.com/api/webhooks/PASTE_YOUR_WEBHOOK_ID/PASTE_YOUR_WEBHOOK_TOKEN",
+  "Body": "MultipartFormData",
+  "FileFormName": "file",
+  "URL": "{json:attachments[0].url}"
+}

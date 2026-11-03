@@ -73,7 +73,7 @@ namespace Greenshot.Editor.Forms
     /// <summary>
     /// The ImageEditorForm is the editor for Greenshot
     /// </summary>
-    public partial class ImageEditorForm : EditorForm
+    public partial class ImageEditorForm : EditorForm, IEditorWindow
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly IEditorConfiguration EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
@@ -82,6 +82,7 @@ namespace Greenshot.Editor.Forms
         private static readonly List<string> IgnoreDestinations = new()
         {
             nameof(WellKnownDestinations.Picker),
+            nameof(WellKnownDestinations.DestinationWindow),
             EditorDestination.DESIGNATION
         };
 
@@ -123,6 +124,19 @@ namespace Greenshot.Editor.Forms
         {
             (1, 4), (1, 2), (2, 3), (3, 4), (1, 1), (2, 1), (3, 1), (4, 1), (6, 1)
         };
+
+        /// <inheritdoc />
+        public ISurface CurrentSurface => _surface;
+
+        // Raised from FormClosed: Form.Closed is the old event of WinForms
+        private EventHandler _editorWindowClosed;
+
+        /// <inheritdoc />
+        event EventHandler IEditorWindow.Closed
+        {
+            add => _editorWindowClosed += value;
+            remove => _editorWindowClosed -= value;
+        }
 
         /// <summary>
         /// The captures in the open editor windows (every tab is an editor), sorted by title
@@ -187,6 +201,37 @@ namespace Greenshot.Editor.Forms
             window.BringToFront();
             window.Activate();
             return tab;
+        }
+
+        /// <summary>
+        /// The tab which is shown in the last active editor window (else in another open window), the window is brought to the front.
+        /// Minimized windows are restored. Modified or not, the tab is returned.
+        /// </summary>
+        /// <returns>The shown tab, null when no open window shows a capture</returns>
+        internal static EditorTab ShowLastActiveTab()
+        {
+            ThreadAssert.IsUi(nameof(ShowLastActiveTab));
+            var candidates = new List<ImageEditorForm>();
+            if (_lastActiveWindow != null)
+            {
+                candidates.Add(_lastActiveWindow);
+            }
+            candidates.AddRange(OpenWindows.Where(window => window != _lastActiveWindow));
+
+            var window = candidates.FirstOrDefault(w => !w.IsDisposed && !w._closing && w.SelectedTab?.Surface != null);
+            if (window == null)
+            {
+                return null;
+            }
+
+            if (window.WindowState == FormWindowState.Minimized)
+            {
+                window.WindowState = FormWindowState.Normal;
+            }
+
+            window.BringToFront();
+            window.Activate();
+            return window.SelectedTab;
         }
 
         /// <summary>
@@ -461,6 +506,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // The keys reach the canvas without F6
             Shown += (s, e) => FocusCanvas(fromKeyboard: false);
             FormClosed += (s, e) => CloseAllTabs();
+            FormClosed += (s, e) => _editorWindowClosed?.Invoke(this, EventArgs.Empty);
             // Also when the window is disposed without closing it
             Disposed += (s, e) => RemoveFromOpenWindows();
 
@@ -852,13 +898,15 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             bool save;
             if (changedTabs.Count == 1)
             {
-                DialogResult result = MessageBox.Show(this, Texts.Editor.CloseOnSave, Texts.Editor.CloseOnSaveTitle, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.Cancel)
+                const int saveOne = 0, cancelOne = 2;
+                int choice = Greenshot.Base.Wpf.ThemedMessageBox.ShowChoice(Handle, Texts.Editor.CloseOnSaveTitle, Texts.Editor.CloseOnSave, System.Windows.MessageBoxImage.Question,
+                    new[] { Texts.Editor.Save, Texts.Editor.Close, Texts.Core.Cancel }, saveOne, cancelOne);
+                if (choice == cancelOne)
                 {
                     return false;
                 }
 
-                save = result == DialogResult.Yes;
+                save = choice == saveOne;
             }
             else
             {
@@ -3050,7 +3098,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
-                        _surface.AddImageContainer((Bitmap)capture.Image, 100, 100);
+                        _surface.AddNextImageContainer((Bitmap)capture.Image);
                     }
 
                     Activate();
@@ -3468,7 +3516,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return false;
             }
 
-            _fitToCaptureAfterDpiChange = Size == GetOptimalWindowSize();
+            // While a new window is placed it has no capture yet, there is nothing to fit then (AddTab fits it afterwards)
+            _fitToCaptureAfterDpiChange = _surface != null && Size == GetOptimalWindowSize();
             var chromeSize = GetChromeSize();
             var canvasAreaSize = panel1.ClientSize;
             int width = (int)Math.Round(chromeSize.Width * (double)newDpi / oldDpi) + canvasAreaSize.Width;

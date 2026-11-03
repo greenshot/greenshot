@@ -162,6 +162,7 @@ namespace Greenshot.Base.Recipes.Sources
                 capture.CaptureDetails.AddMetaData("filename", Path.GetFileNameWithoutExtension(filename));
                 capture.CaptureDetails.AddMetaData("basename", Path.GetFileNameWithoutExtension(filename));
                 capture.CaptureDetails.AddMetaData("extension", Path.GetExtension(filename));
+                ImageMetadataReader.ReadInto(capture.CaptureDetails, filename);
 
                 var payload = new CapturePayload(capture);
                 return Task.FromResult<ICapturePayload>(payload);

@@ -37,6 +37,14 @@ namespace Greenshot.Tests
 
         /// <summary>Tests that change the real Windows clipboard: they run alone, never in parallel with other tests.</summary>
         public const string Clipboard = "Clipboard";
+
+        /// <summary>Tests that replace the held keys or mouse buttons of <c>InputState</c>: they run alone, the editor tests read it.</summary>
+        public const string InputState = "InputState";
+    }
+
+    [CollectionDefinition(TestCollections.InputState, DisableParallelization = true)]
+    public class InputStateCollection
+    {
     }
 
     [CollectionDefinition(TestCollections.Clipboard, DisableParallelization = true)]

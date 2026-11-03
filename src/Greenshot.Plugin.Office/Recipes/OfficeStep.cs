@@ -98,7 +98,7 @@ namespace Greenshot.Plugin.Office.Recipes
             context.LogStep($"Exporting capture to Office application ({appName})...");
             Log.InfoFormat("OfficeStep: Exporting capture to {0}", appName);
 
-            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
             await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
             // The Notification step shows it

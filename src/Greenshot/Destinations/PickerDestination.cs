@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base;
@@ -45,9 +44,7 @@ namespace Greenshot.Destinations
         /// </summary>
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var destinations = DestinationHelper.GetAllDestinations()
-                .Where(destination => !Designation.Equals(destination.Designation) && destination.IsAvailableFor(request.Metadata))
-                .ToList();
+            var destinations = DestinationHelper.GetChoices(request.Metadata);
 
             while (true)
             {
