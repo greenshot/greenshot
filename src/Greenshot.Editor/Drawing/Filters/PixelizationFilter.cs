@@ -121,12 +121,30 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
+            using var pixelated = Pixelate(applyBitmap, rect, null, out var applyRect);
+            if (pixelated != null)
+            {
+                graphics.DrawImage(pixelated, applyRect, new Rectangle(0, 0, pixelated.Width, pixelated.Height), GraphicsUnit.Pixel);
+            }
+        }
+
+        /// <summary>
+        /// The pixelated area of the bitmap. The same pixels give the same blocks and noise each time (the noise comes from the filter's key),
+        /// so the HDR file is pixelated in the blocks of the editor (see ElementImageFilters).
+        /// </summary>
+        /// <param name="applyBitmap">The pixels to pixelate</param>
+        /// <param name="rect">The area</param>
+        /// <param name="blocks">When not null, gets the blocks, relative to applyRect</param>
+        /// <param name="applyRect">The pixelated area of the bitmap</param>
+        /// <returns>The pixelated area, the caller disposes it; null when nothing is pixelated</returns>
+        internal Bitmap Pixelate(Bitmap applyBitmap, NativeRect rect, List<Rectangle> blocks, out NativeRect applyRect)
+        {
             int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
             if (pixelSize <= 1 || applyRect.Width == 0 || applyRect.Height == 0)
             {
                 // Nothing to do
-                return;
+                return null;
             }
 
             if (applyRect.Width < pixelSize)
@@ -152,140 +170,150 @@ namespace Greenshot.Editor.Drawing.Filters
             using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);
 
             // The blocks don't overlap, so every block is read and written in place
-            using Bitmap pixelated = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
-            BitmapPixels.ProcessPixelRows<Bgra32>(pixelated, pixels =>
+            var pixelated = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
+            try
             {
-                int jitter = Math.Max(1, pixelSize / 3);
+                BitmapPixels.ProcessPixelRows<Bgra32>(pixelated, pixels => PixelateBlocks(pixels, pixelSize, cryptoRandom, blocks));
+            }
+            catch
+            {
+                pixelated.Dispose();
+                throw;
+            }
+            return pixelated;
+        }
 
-                // Generate randomized row boundaries (Y coordinates)
-                List<int> yCoords = new List<int>();
-                yCoords.Add(0);
-                int currentY = 0;
-                while (currentY < pixels.Height)
+        private static void PixelateBlocks(BitmapPixelAccessor<Bgra32> pixels, int pixelSize, CryptoRandomBuffer cryptoRandom, List<Rectangle> blocks)
+        {
+            int jitter = Math.Max(1, pixelSize / 3);
+
+            // Generate randomized row boundaries (Y coordinates)
+            List<int> yCoords = new List<int>();
+            yCoords.Add(0);
+            int currentY = 0;
+            while (currentY < pixels.Height)
+            {
+                int nextStep = pixelSize + cryptoRandom.GetNextInt(-jitter, jitter);
+                if (nextStep < 2) nextStep = 2;
+                currentY += nextStep;
+                if (currentY >= pixels.Height)
+                {
+                    yCoords.Add(pixels.Height);
+                    break;
+                }
+                yCoords.Add(currentY);
+            }
+            if (yCoords[yCoords.Count - 1] < pixels.Height)
+            {
+                yCoords.Add(pixels.Height);
+            }
+
+            // Pre-allocate xCoords list to avoid allocation inside the loop
+            List<int> xCoords = new List<int>();
+
+            for (int i = 0; i < yCoords.Count - 1; i++)
+            {
+                int yStart = yCoords[i];
+                int yEnd = yCoords[i + 1];
+
+                // Generate randomized column boundaries (X coordinates) independently for each row
+                xCoords.Clear();
+                xCoords.Add(0);
+                int currentX = 0;
+                while (currentX < pixels.Width)
                 {
                     int nextStep = pixelSize + cryptoRandom.GetNextInt(-jitter, jitter);
                     if (nextStep < 2) nextStep = 2;
-                    currentY += nextStep;
-                    if (currentY >= pixels.Height)
-                    {
-                        yCoords.Add(pixels.Height);
-                        break;
-                    }
-                    yCoords.Add(currentY);
-                }
-                if (yCoords[yCoords.Count - 1] < pixels.Height)
-                {
-                    yCoords.Add(pixels.Height);
-                }
-
-                // Pre-allocate xCoords list to avoid allocation inside the loop
-                List<int> xCoords = new List<int>();
-
-                for (int i = 0; i < yCoords.Count - 1; i++)
-                {
-                    int yStart = yCoords[i];
-                    int yEnd = yCoords[i + 1];
-
-                    // Generate randomized column boundaries (X coordinates) independently for each row
-                    xCoords.Clear();
-                    xCoords.Add(0);
-                    int currentX = 0;
-                    while (currentX < pixels.Width)
-                    {
-                        int nextStep = pixelSize + cryptoRandom.GetNextInt(-jitter, jitter);
-                        if (nextStep < 2) nextStep = 2;
-                        currentX += nextStep;
-                        if (currentX >= pixels.Width)
-                        {
-                            xCoords.Add(pixels.Width);
-                            break;
-                        }
-                        xCoords.Add(currentX);
-                    }
-                    if (xCoords[xCoords.Count - 1] < pixels.Width)
+                    currentX += nextStep;
+                    if (currentX >= pixels.Width)
                     {
                         xCoords.Add(pixels.Width);
+                        break;
+                    }
+                    xCoords.Add(currentX);
+                }
+                if (xCoords[xCoords.Count - 1] < pixels.Width)
+                {
+                    xCoords.Add(pixels.Width);
+                }
+
+                for (int j = 0; j < xCoords.Count - 1; j++)
+                {
+                    int xStart = xCoords[j];
+                    int xEnd = xCoords[j + 1];
+
+                    // Gather colors in this block to compute average and check variation directly (no list allocations)
+                    int sumA = 0, sumR = 0, sumG = 0, sumB = 0;
+                    int count = 0;
+                    int minR = 255, maxR = 0;
+                    int minG = 255, maxG = 0;
+                    int minB = 255, maxB = 0;
+
+                    for (int yy = yStart; yy < yEnd; yy++)
+                    {
+                        var row = pixels.GetRowSpan(yy);
+                        for (int xx = xStart; xx < xEnd; xx++)
+                        {
+                            Bgra32 c = row[xx];
+                            sumA += c.A;
+                            sumR += c.R;
+                            sumG += c.G;
+                            sumB += c.B;
+                            count++;
+
+                            if (c.R < minR) minR = c.R;
+                            if (c.R > maxR) maxR = c.R;
+                            if (c.G < minG) minG = c.G;
+                            if (c.G > maxG) maxG = c.G;
+                            if (c.B < minB) minB = c.B;
+                            if (c.B > maxB) maxB = c.B;
+                        }
                     }
 
-                    for (int j = 0; j < xCoords.Count - 1; j++)
+                    if (count == 0)
                     {
-                        int xStart = xCoords[j];
-                        int xEnd = xCoords[j + 1];
+                        continue;
+                    }
+                    blocks?.Add(new Rectangle(xStart, yStart, xEnd - xStart, yEnd - yStart));
 
-                        // Gather colors in this block to compute average and check variation directly (no list allocations)
-                        int sumA = 0, sumR = 0, sumG = 0, sumB = 0;
-                        int count = 0;
-                        int minR = 255, maxR = 0;
-                        int minG = 255, maxG = 0;
-                        int minB = 255, maxB = 0;
+                    int averageA = sumA / count, averageR = sumR / count, averageG = sumG / count, averageB = sumB / count;
 
-                        for (int yy = yStart; yy < yEnd; yy++)
+                    int diffR = maxR - minR;
+                    int diffG = maxG - minG;
+                    int diffB = maxB - minB;
+                    int maxDiff = Math.Max(diffR, Math.Max(diffG, diffB));
+
+                    // Scale noise based on color variation in the block (maxDiff).
+                    // Solid colors (maxDiff == 0) will have scale = 0, meaning absolutely 0 noise.
+                    double scale = Math.Min(1.0, maxDiff / 32.0);
+
+                    // Generate block-level random color offset: [-12, 12] scaled
+                    int blockNoiseRange = (int)Math.Round(12 * scale);
+                    int blockR = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
+                    int blockG = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
+                    int blockB = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
+
+                    // Generate pixel-level noise range: [-3, 3] scaled
+                    int pixelNoiseRange = (int)Math.Round(3 * scale);
+
+                    for (int yy = yStart; yy < yEnd; yy++)
+                    {
+                        var row = pixels.GetRowSpan(yy);
+                        for (int xx = xStart; xx < xEnd; xx++)
                         {
-                            var row = pixels.GetRowSpan(yy);
-                            for (int xx = xStart; xx < xEnd; xx++)
-                            {
-                                Bgra32 c = row[xx];
-                                sumA += c.A;
-                                sumR += c.R;
-                                sumG += c.G;
-                                sumB += c.B;
-                                count++;
+                            int pixelR = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
+                            int pixelG = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
+                            int pixelB = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
 
-                                if (c.R < minR) minR = c.R;
-                                if (c.R > maxR) maxR = c.R;
-                                if (c.G < minG) minG = c.G;
-                                if (c.G > maxG) maxG = c.G;
-                                if (c.B < minB) minB = c.B;
-                                if (c.B > maxB) maxB = c.B;
-                            }
-                        }
+                            byte r = ClampToByte(averageR + blockR + pixelR);
+                            byte g = ClampToByte(averageG + blockG + pixelG);
+                            byte b = ClampToByte(averageB + blockB + pixelB);
 
-                        if (count == 0)
-                        {
-                            continue;
-                        }
-
-                        int averageA = sumA / count, averageR = sumR / count, averageG = sumG / count, averageB = sumB / count;
-
-                        int diffR = maxR - minR;
-                        int diffG = maxG - minG;
-                        int diffB = maxB - minB;
-                        int maxDiff = Math.Max(diffR, Math.Max(diffG, diffB));
-
-                        // Scale noise based on color variation in the block (maxDiff).
-                        // Solid colors (maxDiff == 0) will have scale = 0, meaning absolutely 0 noise.
-                        double scale = Math.Min(1.0, maxDiff / 32.0);
-
-                        // Generate block-level random color offset: [-12, 12] scaled
-                        int blockNoiseRange = (int)Math.Round(12 * scale);
-                        int blockR = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
-                        int blockG = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
-                        int blockB = blockNoiseRange > 0 ? cryptoRandom.GetNextInt(-blockNoiseRange, blockNoiseRange) : 0;
-
-                        // Generate pixel-level noise range: [-3, 3] scaled
-                        int pixelNoiseRange = (int)Math.Round(3 * scale);
-
-                        for (int yy = yStart; yy < yEnd; yy++)
-                        {
-                            var row = pixels.GetRowSpan(yy);
-                            for (int xx = xStart; xx < xEnd; xx++)
-                            {
-                                int pixelR = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
-                                int pixelG = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
-                                int pixelB = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
-
-                                byte r = ClampToByte(averageR + blockR + pixelR);
-                                byte g = ClampToByte(averageG + blockG + pixelG);
-                                byte b = ClampToByte(averageB + blockB + pixelB);
-
-                                row[xx] = new Bgra32(r, g, b, (byte)averageA);
-                            }
+                            row[xx] = new Bgra32(r, g, b, (byte)averageA);
                         }
                     }
                 }
-            });
-
-            graphics.DrawImage(pixelated, applyRect, new Rectangle(0, 0, pixelated.Width, pixelated.Height), GraphicsUnit.Pixel);
+            }
         }
 
         public override void Apply(Graphics graphics, Bitmap applyBitmap, IEnumerable<NativeRect> rects, RenderMode renderMode)

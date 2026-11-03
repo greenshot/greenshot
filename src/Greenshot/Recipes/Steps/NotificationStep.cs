@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
@@ -37,6 +38,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Notification, "Notification", "Shows the notification for the exports before it.", "Feedback")]
     [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
+    [StepParameter(NoHdrNoteParameter, ContractDataType.Boolean, DefaultValue = false, Description = "Say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat")]
     [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
     [StepOutputVariable("EnableCompletionNotification", ContractDataType.Boolean, "Whether the completion notification is shown")]
     public class NotificationStep : ICaptureStep
@@ -65,7 +67,18 @@ namespace Greenshot.Recipes.Steps
             }
             // The exports since the previous Notification step (of all destination and plugin steps, also of parallel branches),
             // one notification shows them
-            await ExportNotification.ShowAsync(context, null, cancellationToken).ConfigureAwait(false);
+            await ExportNotification.ShowAsync(context, null, cancellationToken, GetNote(context)).ConfigureAwait(false);
+        }
+
+        public const string NoHdrNoteParameter = "NoHdrNote";
+
+        /// <summary>
+        /// The line about the capture after the exports, null for none
+        /// </summary>
+        internal string GetNote(CaptureFlowContext context)
+        {
+            bool noHdrNote = Config.GetParameter(NoHdrNoteParameter, false);
+            return noHdrNote && HdrOutput.StateOf(context.Payload) == HdrOutput.StateNone ? Texts.Core.NotificationNoHdr : null;
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)

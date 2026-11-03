@@ -116,11 +116,12 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public sealed class SaveFileRequest
     {
-        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null, string format = null)
+        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null, string format = null, bool hdrAvailable = false)
         {
             CaptureDetails = captureDetails;
             SuggestedPath = suggestedPath;
             Format = format;
+            HdrAvailable = hdrAvailable;
         }
 
         public ICaptureDetails CaptureDetails { get; }
@@ -128,6 +129,11 @@ namespace Greenshot.Base.Interfaces
         public string SuggestedPath { get; }
 
         public string Format { get; }
+
+        /// <summary>
+        /// The capture can be saved as HDR file (JPEG XR), the dialog says so
+        /// </summary>
+        public bool HdrAvailable { get; }
     }
 
     /// <summary>

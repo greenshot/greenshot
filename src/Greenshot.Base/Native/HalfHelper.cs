@@ -26,7 +26,7 @@ namespace Greenshot.Base.Native;
 /// </summary>
 /// <remarks>
 /// .NET Framework 4.8 does not include <c>System.Half</c>, so this helper provides the necessary
-/// conversion from half-float (used in <c>DXGI_FORMAT_R16G16B16A16_FLOAT</c> textures) to single-precision float.
+/// conversions between half-float (used in <c>DXGI_FORMAT_R16G16B16A16_FLOAT</c> textures and HDR files) and single-precision float.
 /// </remarks>
 internal static class HalfHelper
 {
@@ -85,5 +85,59 @@ internal static class HalfHelper
         }
 
         return *(float*)&f;
+    }
+
+    /// <summary>
+    /// Converts a single-precision float to an IEEE 754 half-precision value, rounding to the nearest (ties to even).
+    /// Too large values become infinity, NaN stays NaN, too small values become (signed) zero or a subnormal.
+    /// </summary>
+    /// <param name="value">The float value.</param>
+    /// <returns>The half-float encoded as a <see cref="ushort"/>.</returns>
+    public static unsafe ushort FloatToHalf(float value)
+    {
+        uint f = *(uint*)&value;
+        uint sign = (f >> 16) & 0x8000u;
+        int exponent = (int)((f >> 23) & 0xFF);
+        uint mantissa = f & 0x7FFFFFu;
+
+        if (exponent == 0xFF)
+        {
+            // Infinity or NaN (keep a mantissa bit for NaN)
+            return (ushort)(sign | 0x7C00u | (mantissa != 0 ? 0x200u : 0u));
+        }
+
+        int halfExponent = exponent - 127 + 15;
+        if (halfExponent >= 31)
+        {
+            return (ushort)(sign | 0x7C00u);
+        }
+
+        if (halfExponent <= 0)
+        {
+            if (halfExponent < -10)
+            {
+                return (ushort)sign;
+            }
+            // Subnormal: the implicit 1 becomes explicit, shifted into place
+            mantissa |= 0x800000u;
+            int shift = 14 - halfExponent;
+            uint halfMantissa = mantissa >> shift;
+            uint remainder = mantissa & ((1u << shift) - 1);
+            uint halfway = 1u << (shift - 1);
+            if (remainder > halfway || (remainder == halfway && (halfMantissa & 1) != 0))
+            {
+                halfMantissa++;
+            }
+            return (ushort)(sign | halfMantissa);
+        }
+
+        uint result = sign | ((uint)halfExponent << 10) | (mantissa >> 13);
+        uint rest = mantissa & 0x1FFFu;
+        // Round to nearest, ties to even; a carry into the exponent is correct (it may become infinity)
+        if (rest > 0x1000u || (rest == 0x1000u && (result & 1) != 0))
+        {
+            result++;
+        }
+        return (ushort)result;
     }
 }

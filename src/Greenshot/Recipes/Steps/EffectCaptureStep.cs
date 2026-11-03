@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Effects;
@@ -104,15 +103,10 @@ namespace Greenshot.Recipes.Steps
 
             try
             {
-                using (var matrix = new Matrix())
+                // Like the editor: the elements move with the image, the HDR image of an HDR capture gets the same edit
+                if (surface.ApplyEffect(effect))
                 {
-                    var newImage = effect.Apply(surface.Image, matrix);
-                    if (newImage != null)
-                    {
-                        surface.Image = newImage;
-                        surface.Elements?.Transform(matrix);
-                        surface.Modified = true;
-                    }
+                    surface.Modified = true;
                 }
             }
             catch (Exception ex)

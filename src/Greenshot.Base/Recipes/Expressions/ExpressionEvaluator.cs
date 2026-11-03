@@ -707,6 +707,9 @@ namespace Greenshot.Base.Recipes.Expressions
                     return payload.RawCapture?.CaptureDetails?.Title ?? string.Empty;
                 case "filename":
                     return payload.RawCapture?.CaptureDetails?.Filename ?? string.Empty;
+                case "hdr":
+                    // Available, Lost or None, see HdrOutput.StateOf
+                    return HdrOutput.StateOf(payload);
             }
 
             if (payload.Metadata != null && payload.Metadata.TryGetValue(key, out var metaVal))

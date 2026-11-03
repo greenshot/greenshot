@@ -68,6 +68,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
 
+**Grayscale**
+- Grayscale keeps the brightness of colors
+
 #### ⚙️ Command Line Interface
 
 **Redesigned CLI with System.CommandLine**
@@ -116,6 +119,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
 - HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
 - Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
+- HDR captures: on an HDR display Greenshot can save the bright highlights as a JPEG XR file, also after editing. Switch it on in Settings > Capture.
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)

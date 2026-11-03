@@ -1506,6 +1506,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
 
+            ActiveRecipe?.RenameNodeTranslations(oldId, newId);
+
             SyncRecipeTransitions();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRenamedStep, oldId, newId);
@@ -1931,6 +1933,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            // A translation of a removed node or choice would make the file invalid
+            ActiveRecipe.RemoveUnusedTranslations();
             if (_extension != null)
             {
                 return SaveActiveExtensionTo(filePath);

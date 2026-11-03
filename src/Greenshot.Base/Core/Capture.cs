@@ -94,12 +94,35 @@ namespace Greenshot.Base.Core
                 {
                     Log.Debug("Image is removed.");
                 }
+
+                // Another image (e.g. of a selection tool): the HDR image doesn't show it, and must not be linked to it later (Crop, Clone)
+                if (_hdrImage != null && !_hdrImage.BelongsTo(_image))
+                {
+                    HdrImage = null;
+                }
             }
         }
 
         public void NullImage()
         {
             _image = null;
+            _hdrImage = null;
+        }
+
+        private HdrImage _hdrImage;
+
+        /// <inheritdoc />
+        public HdrImage HdrImage
+        {
+            get => _hdrImage;
+            set
+            {
+                if (!ReferenceEquals(_hdrImage, value))
+                {
+                    _hdrImage?.Dispose();
+                }
+                _hdrImage = value;
+            }
         }
 
         private CapturedCursor _cursor;
@@ -203,10 +226,12 @@ namespace Greenshot.Base.Core
             if (disposing)
             {
                 _image?.Dispose();
+                _hdrImage?.Dispose();
                 _cursor?.Dispose();
             }
 
             _image = null;
+            _hdrImage = null;
             _cursor = null;
         }
 
@@ -217,6 +242,7 @@ namespace Greenshot.Base.Core
         public bool Crop(NativeRect cropRectangle)
         {
             Log.Debug("Cropping to: " + cropRectangle);
+            bool hdrImageBelongs = _hdrImage?.BelongsTo(_image) == true;
             if (!ImageHelper.Crop(ref _image, ref cropRectangle))
             {
                 return false;
@@ -231,6 +257,10 @@ namespace Greenshot.Base.Core
 
             // What was found outside the selection is no longer in the capture
             CaptureDetails.CropFeatures(cropRectangle);
+
+            // The HDR image shows the same area as the image, when it belonged to the image
+            HdrImage = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
+            _hdrImage?.BelongTo(_image);
 
             return true;
         }
@@ -247,7 +277,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details; the HDR image is shared (it is never changed).
         /// </summary>
         public Capture Clone()
         {
@@ -262,6 +292,12 @@ namespace Greenshot.Base.Core
             if (Image != null)
             {
                 clone.Image = ImageHelper.Clone(Image);
+            }
+
+            if (HdrImage != null && HdrImage.BelongsTo(Image))
+            {
+                clone.HdrImage = HdrImage.Share();
+                clone.HdrImage.BelongTo(clone.Image);
             }
 
             if (Cursor != null)

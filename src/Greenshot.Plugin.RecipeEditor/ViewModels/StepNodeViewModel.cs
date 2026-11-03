@@ -92,6 +92,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public ICommand RemoveCommand { get; }
 
+        /// <summary>
+        /// Takes the values of the branch with the same key from the settings of the node, keeping this view model and its pin
+        /// </summary>
+        internal void Apply(ConditionalBranch branch)
+        {
+            if (!string.Equals(_expression, branch.Expression, StringComparison.Ordinal))
+            {
+                _expression = branch.Expression ?? "${true}";
+                OnPropertyChanged(nameof(Expression));
+            }
+        }
+
         public ConditionBranchViewModel(string key, string expression, StepNodeViewModel node, Action onChanged = null, Action<ConditionBranchViewModel> onRemove = null)
         {
             _key = key ?? "A";
@@ -175,6 +187,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// The answer to Escape and closing the prompt: one choice at most
+        /// </summary>
         public bool IsCancel
         {
             get => _isCancel;
@@ -182,6 +197,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (SetField(ref _isCancel, value))
                 {
+                    if (value && _node != null)
+                    {
+                        foreach (var other in _node.PromptChoices.Where(c => c != this))
+                        {
+                            other.IsCancel = false;
+                        }
+                    }
                     _onChanged?.Invoke();
                 }
             }
@@ -204,6 +226,35 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         public PromptChoice ToPromptChoice() => new PromptChoice(Key, Label, Style, IsDefault, IsCancel);
+
+        /// <summary>
+        /// Takes the values of the choice with the same key from the settings of the node, keeping this view model and its pin
+        /// </summary>
+        internal void Apply(PromptChoice choice)
+        {
+            string label = choice.Label ?? choice.Key;
+            string style = choice.Style ?? "Primary";
+            if (!string.Equals(_label, label, StringComparison.Ordinal))
+            {
+                _label = label;
+                OnPropertyChanged(nameof(Label));
+            }
+            if (!string.Equals(_style, style, StringComparison.Ordinal))
+            {
+                _style = style;
+                OnPropertyChanged(nameof(Style));
+            }
+            if (_isDefault != choice.IsDefault)
+            {
+                _isDefault = choice.IsDefault;
+                OnPropertyChanged(nameof(IsDefault));
+            }
+            if (_isCancel != choice.IsCancel)
+            {
+                _isCancel = choice.IsCancel;
+                OnPropertyChanged(nameof(IsCancel));
+            }
+        }
     }
 
     public class VariableItemViewModel : ViewModelBase
@@ -2697,27 +2748,62 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void LoadConditionBranches()
         {
-            foreach (var old in ConditionBranches) Output.Remove(old.Port);
-            ConditionBranches.Clear();
-            Output.Remove(OutputPort);
-
-            foreach (var branch in Config.GetParameter<List<ConditionalBranch>>("Branches") ?? new List<ConditionalBranch>())
+            var configured = (Config.GetParameter<List<ConditionalBranch>>("Branches") ?? new List<ConditionalBranch>())
+                .Where(b => !string.IsNullOrEmpty(b?.Key) || !string.IsNullOrEmpty(b?.Expression))
+                .ToList();
+            bool useDefaults = configured.Count == 0;
+            if (useDefaults)
             {
-                if (string.IsNullOrEmpty(branch?.Key) && string.IsNullOrEmpty(branch?.Expression)) continue;
-                var b = new ConditionBranchViewModel(branch.Key ?? "A", branch.Expression ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                ConditionBranches.Add(b);
-                Output.Add(b.Port);
+                configured.Add(new ConditionalBranch("A", "${payload.width > 800}"));
+                configured.Add(new ConditionalBranch("B", "else"));
             }
 
-            if (ConditionBranches.Count == 0)
+            var previous = ConditionBranches.ToList();
+            var branches = new List<ConditionBranchViewModel>();
+            foreach (var branch in configured)
             {
-                var b1 = new ConditionBranchViewModel("A", "${payload.width > 800}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                var b2 = new ConditionBranchViewModel("B", "else", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                ConditionBranches.Add(b1);
-                ConditionBranches.Add(b2);
-                Output.Add(b1.Port);
-                Output.Add(b2.Port);
+                string key = branch.Key ?? "A";
+                var existing = previous.FirstOrDefault(b => string.Equals(b.Key, key, StringComparison.Ordinal));
+                if (existing != null)
+                {
+                    previous.Remove(existing);
+                    existing.Apply(branch);
+                    branches.Add(existing);
+                }
+                else
+                {
+                    branches.Add(new ConditionBranchViewModel(key, branch.Expression ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch));
+                }
+            }
+            SetPinItems(ConditionBranches, branches, previous, b => b.Port);
+
+            if (useDefaults)
+            {
                 SyncConditionBranchesToConfig();
+            }
+        }
+
+        /// <summary>
+        /// Shows the branches or choices of the node, each with its output pin. A branch or choice which is still there keeps its
+        /// view model and pin, so the connections from it stay when the node reloads its settings (e.g. after its title changed).
+        /// The connections from the pins of the removed ones are removed.
+        /// </summary>
+        private void SetPinItems<T>(ObservableCollection<T> items, List<T> newItems, List<T> removed, Func<T, StepPortViewModel> port)
+        {
+            if (!items.SequenceEqual(newItems))
+            {
+                foreach (var old in items) Output.Remove(port(old));
+                items.Clear();
+                foreach (var item in newItems)
+                {
+                    items.Add(item);
+                    Output.Add(port(item));
+                }
+            }
+            Output.Remove(OutputPort);
+            foreach (var item in removed)
+            {
+                PortRemovedHandler?.Invoke(port(item));
             }
         }
 
@@ -2762,26 +2848,36 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void LoadPromptChoices()
         {
-            foreach (var old in PromptChoices) Output.Remove(old.Port);
-            PromptChoices.Clear();
-            Output.Remove(OutputPort);
-
-            foreach (var choice in Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
+            var configured = (Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
+                .Where(c => !string.IsNullOrEmpty(c?.Key))
+                .ToList();
+            bool useDefaults = configured.Count == 0;
+            if (useDefaults)
             {
-                if (string.IsNullOrEmpty(choice?.Key)) continue;
-                var c = new PromptChoiceViewModel(choice.Key, choice.Label ?? choice.Key, choice.Style ?? "Primary", choice.IsDefault, choice.IsCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                PromptChoices.Add(c);
-                Output.Add(c.Port);
+                configured.Add(new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true));
+                configured.Add(new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true));
             }
 
-            if (PromptChoices.Count == 0)
+            var previous = PromptChoices.ToList();
+            var choices = new List<PromptChoiceViewModel>();
+            foreach (var choice in configured)
             {
-                var c1 = new PromptChoiceViewModel("Yes", "Yes, Proceed", "Primary", true, false, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                var c2 = new PromptChoiceViewModel("No", "No, Cancel", "Secondary", false, true, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                PromptChoices.Add(c1);
-                PromptChoices.Add(c2);
-                Output.Add(c1.Port);
-                Output.Add(c2.Port);
+                var existing = previous.FirstOrDefault(c => string.Equals(c.Key, choice.Key, StringComparison.Ordinal));
+                if (existing != null)
+                {
+                    previous.Remove(existing);
+                    existing.Apply(choice);
+                    choices.Add(existing);
+                }
+                else
+                {
+                    choices.Add(new PromptChoiceViewModel(choice.Key, choice.Label ?? choice.Key, choice.Style ?? "Primary", choice.IsDefault, choice.IsCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice));
+                }
+            }
+            SetPinItems(PromptChoices, choices, previous, c => c.Port);
+
+            if (useDefaults)
+            {
                 SyncPromptChoicesToConfig();
             }
         }
@@ -3181,6 +3277,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("AlignDpi", value); OnPropertyChanged(nameof(AlignDpiMode)); }
         }
 
+        public string SourceScreenMode
+        {
+            get => GetParam("ScreenMode", "");
+            set { SetParamOrRemoveIfEmpty("ScreenMode", value); OnPropertyChanged(nameof(SourceScreenMode)); }
+        }
+
+        public string SourceHdr
+        {
+            get => GetTriStateParam("Hdr");
+            set { SetTriStateParam("Hdr", value); OnPropertyChanged(nameof(SourceHdr)); }
+        }
+
         public string AllowWindowSnappingMode
         {
             get => GetTriStateParam("AllowWindowSnapping");
@@ -3209,6 +3317,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetTriStateParam("CopyPathToClipboard");
             set { SetTriStateParam("CopyPathToClipboard", value); OnPropertyChanged(nameof(OutputFileCopyPath)); }
+        }
+
+        public string OutputFileHdrFormat
+        {
+            get => GetParam("HdrFormat", "");
+            set { SetParamOrRemoveIfEmpty("HdrFormat", value); OnPropertyChanged(nameof(OutputFileHdrFormat)); }
+        }
+
+        public string OutputFileAskForFilename
+        {
+            get => GetTriStateParam("AskForFilename");
+            set { SetTriStateParam("AskForFilename", value); OnPropertyChanged(nameof(OutputFileAskForFilename)); }
         }
 
         public string OutputFileJpegQuality
@@ -3925,11 +4045,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(SoundFilePath));
             OnPropertyChanged(nameof(ScreenCaptureMode));
             OnPropertyChanged(nameof(AlignDpiMode));
+            OnPropertyChanged(nameof(SourceScreenMode));
+            OnPropertyChanged(nameof(SourceHdr));
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));
             OnPropertyChanged(nameof(OutputFilePromptQuality));
             OnPropertyChanged(nameof(OutputFileAllowOverwrite));
             OnPropertyChanged(nameof(OutputFileCopyPath));
+            OnPropertyChanged(nameof(OutputFileHdrFormat));
+            OnPropertyChanged(nameof(OutputFileAskForFilename));
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));

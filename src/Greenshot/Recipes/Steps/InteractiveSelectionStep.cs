@@ -72,13 +72,13 @@ namespace Greenshot.Recipes.Steps
 
         /// <param name="config">RecipeNodeConfig</param>
         /// <param name="selector">IInteractiveCaptureSelector, default the capture window</param>
-        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture</param>
+        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture (with the HDR content when the Source step asks for it, CaptureFlowContext.CaptureHdr)</param>
         internal InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector, Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> captureArea)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "InteractiveSelectionStep";
             _selector = selector ?? new InteractiveCaptureSelector();
-            _captureArea = captureArea ?? ScreenCapture.CaptureRectangleAsync;
+            _captureArea = captureArea;
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
@@ -237,11 +237,19 @@ namespace Greenshot.Recipes.Steps
             var capture = context.Payload.RawCapture;
             var screenBounds = capture.ScreenBounds;
             var screenArea = area.IsEmpty ? screenBounds : area.Offset(screenBounds.X, screenBounds.Y);
-            var result = await _captureArea(screenArea, cancellationToken).ConfigureAwait(false);
+            var result = _captureArea != null
+                ? await _captureArea(screenArea, cancellationToken).ConfigureAwait(false)
+                // With the HDR content when the Source step asks for it (Hdr)
+                : await ScreenCapture.CaptureRectangleAsync(screenArea, context.CaptureHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 context.Abort($"Capturing the selection {screenArea} failed.");
                 return false;
+            }
+            capture.HdrImage = result.HdrImage;
+            if (context.CaptureHdrRequested && capture.HdrImage != null)
+            {
+                capture.HdrImage.IsRequested = true;
             }
             if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
             {

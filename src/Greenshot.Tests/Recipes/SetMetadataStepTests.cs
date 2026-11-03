@@ -176,6 +176,7 @@ namespace Greenshot.Tests.Recipes
 
             public ICaptureDetails CaptureDetails { get; set; } = new CaptureDetails();
             public Image Image { get; set; }
+            public HdrImage HdrImage { get; set; }
             public void NullImage() => Image = null;
             public NativeRect ScreenBounds { get; set; }
             public CapturedCursor Cursor { get; set; }

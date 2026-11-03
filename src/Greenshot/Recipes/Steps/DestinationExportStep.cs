@@ -36,11 +36,13 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Needs a capture with HDR content (Hdr of Source, or the setting) whose image wasn't changed, otherwise the normal Format is saved (Auto quietly).", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
     [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
     [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
+    [StepParameter("AskForFilename", ContractDataType.Boolean, Description = "Ask for the file with the save dialog instead of saving directly (SaveFile); with HdrFormat the dialog suggests the HDR format")]
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
     [StepParameter("ImportMode", ContractDataType.Enum, DefaultValue = "OpenAsCapture", Description = "OpenAsCapture: the capture becomes the surface (CurrentEditor replaces it, AvailableEditor opens a tab); AddAsImage: the capture is added as image (Editor)", AllowedValues = new[] { "OpenAsCapture", "AddAsImage" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
@@ -71,6 +73,8 @@ namespace Greenshot.Recipes.Steps
     [StepOutputVariable("Destination.PromptQuality", ContractDataType.Boolean, "The PromptQuality parameter, for the destinations", Conditional = true, WhenParameter = "PromptQuality")]
     [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
     [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
+    [StepOutputVariable("Destination.HdrFormat", ContractDataType.String, "The HdrFormat parameter, for the file destination", Conditional = true, WhenParameter = HdrOutput.ParameterName)]
+    [StepOutputVariable("Destination.AskForFilename", ContractDataType.Boolean, "The AskForFilename parameter, for the file destination", Conditional = true, WhenParameter = "AskForFilename")]
     [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
@@ -267,6 +271,14 @@ namespace Greenshot.Recipes.Steps
 
             bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard");
             if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
+
+            bool? askForFilename = Config.GetParameter<bool?>("AskForFilename");
+            if (askForFilename.HasValue) context.Properties["Destination.AskForFilename"] = askForFilename.Value;
+
+            // The file destination decides when it saves: it knows if the capture has an HDR image and was edited
+            string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);
+            // Also None: it overrides an earlier SaveFile of the recipe
+            if (!string.IsNullOrWhiteSpace(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
 
             int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
