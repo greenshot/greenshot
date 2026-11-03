@@ -72,6 +72,7 @@ namespace Greenshot.Recipes.Steps
     [StepOutputVariable("Destination.PromptQuality", ContractDataType.Boolean, "The PromptQuality parameter, for the destinations", Conditional = true, WhenParameter = "PromptQuality")]
     [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
     [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
+    [StepOutputVariable("Destination.HdrFormat", ContractDataType.String, "The HdrFormat parameter, for the file destination", Conditional = true, WhenParameter = HdrOutput.ParameterName)]
     [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
