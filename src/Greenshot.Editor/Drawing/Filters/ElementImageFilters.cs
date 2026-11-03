@@ -49,8 +49,9 @@ namespace Greenshot.Editor.Drawing.Filters
         /// DrawableContainerList), null when the group was done already by another element</param>
         /// <param name="invertedFrom">The element of the group whose inverted filters are used (like the editor: the selected one, else the
         /// first), null for this element</param>
+        /// <param name="sdrImage">The 8-bit image of the capture, which the editor shows: the highlighter works on the HDR pixels as strong as on it</param>
         public static IReadOnlyList<ImageFilter> Create(DrawableContainer element, NativeRect bounds, IReadOnlyList<NativeRect> invertedHoles,
-            DrawableContainer invertedFrom = null)
+            DrawableContainer invertedFrom = null, System.Drawing.Bitmap sdrImage = null)
         {
             if (element is ObfuscateContainer)
             {
@@ -77,7 +78,7 @@ namespace Greenshot.Editor.Drawing.Filters
                     var area = element.Bounds.Normalize().Intersect(bounds);
                     areas = area.Width > 0 && area.Height > 0 ? new[] { area } : Array.Empty<NativeRect>();
                 }
-                var imageFilter = Create(filter, element.Bounds.Normalize(), areas.Select(ToRectangle).ToList(), bounds);
+                var imageFilter = Create(filter, element.Bounds.Normalize(), areas.Select(ToRectangle).ToList(), bounds, sdrImage);
                 if (imageFilter == null)
                 {
                     return null;
@@ -87,13 +88,36 @@ namespace Greenshot.Editor.Drawing.Filters
             return imageFilters;
         }
 
-        private static ImageFilter Create(AbstractFilter filter, NativeRect elementBounds, IReadOnlyList<Rectangle> areas, NativeRect bounds)
+        private static ImageFilter Create(AbstractFilter filter, NativeRect elementBounds, IReadOnlyList<Rectangle> areas, NativeRect bounds, System.Drawing.Bitmap sdrImage)
         {
             switch (filter)
             {
                 case HighlightFilter:
                     var color = filter.GetFieldValueAsColor(FieldType.FILL_COLOR);
                     var highlight = new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
+                    if (sdrImage != null && sdrImage.Width >= bounds.Width && sdrImage.Height >= bounds.Height)
+                    {
+                        // As strong as in the editor: each channel of the HDR pixel gets the factor which the highlighter applies to the 8-bit
+                        // pixel (the editor shows it tone mapped). A minimum of the HDR pixel itself would cut its highlights down to the color.
+                        var factors = areas.Select(area => HighlightFactors(sdrImage, area, highlight)).ToList();
+                        return new ImageFilter($"Highlight {color} like the 8-bit image", (pixels, _) => pixels.Mutate(context =>
+                        {
+                            for (int i = 0; i < areas.Count; i++)
+                            {
+                                var area = areas[i];
+                                var areaFactors = factors[i];
+                                context.ProcessPixelRowsAsVector4((row, start) =>
+                                {
+                                    int offset = (start.Y - area.Y) * area.Width + start.X - area.X;
+                                    for (int x = 0; x < row.Length; x++)
+                                    {
+                                        var factor = areaFactors[offset + x];
+                                        row[x] = new Vector4(row[x].X * factor.X, row[x].Y * factor.Y, row[x].Z * factor.Z, row[x].W);
+                                    }
+                                }, area);
+                            }
+                        }));
+                    }
                     return new ImageFilter($"Highlight {color}", (pixels, white) => pixels.Mutate(context =>
                     {
                         foreach (var area in areas)
@@ -167,5 +191,35 @@ namespace Greenshot.Editor.Drawing.Filters
         }
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+
+        /// <summary>
+        /// For each pixel of the area: the factor of each channel which the highlighter applies to the 8-bit pixel, in linear light
+        /// (min(color, value) / value; 1 for black)
+        /// </summary>
+        private static Vector3[] HighlightFactors(System.Drawing.Bitmap sdrImage, Rectangle area, Vector3 color)
+        {
+            // The linear value of every 8-bit level
+            var linear = new float[256];
+            for (int level = 0; level < 256; level++)
+            {
+                linear[level] = LinearColorEffects.Decode(level / 255f);
+            }
+            var marker = new Vector3(LinearColorEffects.Decode(color.X), LinearColorEffects.Decode(color.Y), LinearColorEffects.Decode(color.Z));
+            float Factor(byte level, float markerChannel) => level == 0 ? 1f : Math.Min(markerChannel, linear[level]) / linear[level];
+
+            var factors = new Vector3[area.Width * area.Height];
+            BitmapPixels.ProcessPixelRows<SixLabors.ImageSharp.PixelFormats.Bgra32>(sdrImage, new System.Drawing.Rectangle(area.X, area.Y, area.Width, area.Height), pixels =>
+            {
+                for (int y = 0; y < pixels.Height; y++)
+                {
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        factors[y * area.Width + x] = new Vector3(Factor(row[x].R, marker.X), Factor(row[x].G, marker.Y), Factor(row[x].B, marker.Z));
+                    }
+                }
+            }, System.Drawing.Imaging.ImageLockMode.ReadOnly);
+            return factors;
+        }
     }
 }

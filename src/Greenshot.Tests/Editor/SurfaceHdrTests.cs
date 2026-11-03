@@ -542,6 +542,43 @@ namespace Greenshot.Tests.Editor
             return surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
         }
 
+        [Theory]
+        // Bright red bricks (orange in the tone mapped 8-bit image): the yellow marker changes nothing, like in the editor
+        [InlineData(255, 128, 0, 8f, 2f, 0.1f, 8f, 2f, 0.1f)]
+        // White (a highlight of 5): the marker takes the blue, the highlight stays as bright
+        [InlineData(255, 255, 255, 5f, 5f, 5f, 5f, 5f, 0f)]
+        public void TextHighlighter_IsAsStrongAsInTheEditor(int red, int green, int blue, float hdrRed, float hdrGreen, float hdrBlue,
+            float expectedRed, float expectedGreen, float expectedBlue)
+        {
+            var bitmap = new Bitmap(20, 10, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.FromArgb(red, green, blue));
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(20, 10, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 10; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(hdrRed, hdrGreen, hdrBlue, 1));
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var marker = new HighlightContainer(surface) { Left = 2, Top = 2, Width = 10, Height = 6 };
+            marker.Filters.OfType<Greenshot.Editor.Drawing.Filters.HighlightFilter>().Single().SetFieldValue(FieldType.FILL_COLOR, Color.FromArgb(255, 255, 255, 0));
+            surface.AddElement(marker, false, false);
+
+            using var composed = Compose(surface);
+
+            var pixel = composed.Pixels[5, 5].ToVector4();
+            Assert.Equal(expectedRed, pixel.X, 1);
+            Assert.Equal(expectedGreen, pixel.Y, 1);
+            Assert.Equal(expectedBlue, pixel.Z, 1);
+        }
+
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;
     }
 }

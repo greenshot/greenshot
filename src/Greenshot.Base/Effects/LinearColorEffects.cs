@@ -197,7 +197,7 @@ namespace Greenshot.Base.Effects
         /// <summary>
         /// The linear value of an sRGB encoded value, beyond 0 and 1 mirrored and continued (scRGB)
         /// </summary>
-        internal static float Decode(float encoded)
+        public static float Decode(float encoded)
         {
             float magnitude = Math.Abs(encoded);
             float linear = magnitude <= 0.04045f ? magnitude / 12.92f : (float)Math.Pow((magnitude + 0.055f) / 1.055f, 2.4);

@@ -799,7 +799,7 @@ namespace Greenshot.Editor.Drawing
             // The settings of the group's filters are those of its selected element, else of its first (like the editor)
             var representative = group.FirstOrDefault(other => other.Selected) ?? group.FirstOrDefault(other => other.Status == EditStatus.IDLE) ?? element;
             bool drawsTheGroup = groupKey.Length == 0 || (invertedGroupsDone.Add(groupKey) && holes.Length > 0);
-            return ElementImageFilters.Create(element, bounds, drawsTheGroup ? holes : null, representative);
+            return ElementImageFilters.Create(element, bounds, drawsTheGroup ? holes : null, representative, _image as Bitmap);
         }
 
         private static string InvertedFilterKey(DrawableContainer element) =>
