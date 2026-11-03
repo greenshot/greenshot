@@ -116,7 +116,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
 - HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
 - Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
-- Real HDR files: a recipe can save a region (selected on the live screen) or a window of an HDR screen as a lossless HDR file (JPEG XR, built into Windows). The highlights are kept as they were on the screen (the `HdrFormat` option of the SaveFile step, `ScreenMode: Live` of the Source step); the "HDR Region to File" and "HDR Window to File" recipes show how
+- Real HDR files: a recipe can save a region (selected on the live screen) or a window of an HDR screen as a lossless HDR file (JPEG XR, built into Windows). The highlights are kept as they were on the screen (the `HdrFormat` option of the SaveFile step, `ScreenMode: Live` of the Source step; with `AskForFilename` the SaveFile step asks with the save dialog, which suggests JPEG XR); the "HDR Region to File" and "HDR Window to File" recipes show how
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)

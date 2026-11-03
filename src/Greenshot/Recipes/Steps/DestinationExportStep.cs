@@ -42,6 +42,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
     [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
     [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
+    [StepParameter("AskForFilename", ContractDataType.Boolean, Description = "Ask for the file with the save dialog instead of saving directly (SaveFile); with HdrFormat the dialog suggests the HDR format")]
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
     [StepParameter("ImportMode", ContractDataType.Enum, DefaultValue = "OpenAsCapture", Description = "OpenAsCapture: the capture becomes the surface (CurrentEditor replaces it, AvailableEditor opens a tab); AddAsImage: the capture is added as image (Editor)", AllowedValues = new[] { "OpenAsCapture", "AddAsImage" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
@@ -73,6 +74,7 @@ namespace Greenshot.Recipes.Steps
     [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
     [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
     [StepOutputVariable("Destination.HdrFormat", ContractDataType.String, "The HdrFormat parameter, for the file destination", Conditional = true, WhenParameter = HdrOutput.ParameterName)]
+    [StepOutputVariable("Destination.AskForFilename", ContractDataType.Boolean, "The AskForFilename parameter, for the file destination", Conditional = true, WhenParameter = "AskForFilename")]
     [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
@@ -269,6 +271,9 @@ namespace Greenshot.Recipes.Steps
 
             bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard");
             if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
+
+            bool? askForFilename = Config.GetParameter<bool?>("AskForFilename");
+            if (askForFilename.HasValue) context.Properties["Destination.AskForFilename"] = askForFilename.Value;
 
             // The file destination decides when it saves: it knows if the capture has HDR pixels and was edited
             string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);

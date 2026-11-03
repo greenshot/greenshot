@@ -562,6 +562,11 @@
               "default": "None",
               "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Only for an unedited capture of the live screen (ScreenMode Live) or of a window; otherwise the normal Format is saved and a notification says why."
             },
+            "AskForFilename": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'SaveFile' step: ask for the file with the save dialog instead of saving directly to the configured location. With HdrFormat the dialog suggests the HDR format; picking another format saves the normal file. Without a user to ask (e.g. a command line capture) the file is saved directly."
+            },
             "FrameRate": {
               "type": "integer",
               "minimum": 1,
