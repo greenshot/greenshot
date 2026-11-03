@@ -97,6 +97,12 @@ namespace Greenshot.Base.Interfaces
         bool IsHdrRequested { get; }
 
         /// <summary>
+        /// The HDR image of the surface's image, e.g. read from a .greenshot file; the surface owns it (and drops what it had). Ignored when the
+        /// size doesn't match the image.
+        /// </summary>
+        void SetHdrImage(HdrImage hdrImage);
+
+        /// <summary>
         /// What is drawn on the capture (the elements, the mouse cursor included), to put over the HDR image for an HDR file; null without elements.
         /// On the UI thread, the caller disposes it.
         /// </summary>

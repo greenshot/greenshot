@@ -27,6 +27,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -56,6 +57,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             try
             {
                 bitmap.Save(stream, ImageFormat.Png);
+                WriteHdrImage(stream, surface, bitmap);
                 using MemoryStream tmpStream = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
                 long bytesWritten = surface.SaveElementsToStream(tmpStream);
                 using BinaryWriter writer = new BinaryWriter(tmpStream);
@@ -104,6 +106,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 captureBitmap = ImageHelper.Clone(tmpImage) as Bitmap;
             }
 
+            HdrImage hdrImage = null;
             // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
             const int markerSize = 14;
             surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
@@ -120,7 +123,9 @@ namespace Greenshot.Editor.FileFormatHandlers
                 surfaceFileStream.Seek(-fileSizeLocation, SeekOrigin.End);
                 using BinaryReader reader = new BinaryReader(surfaceFileStream);
                 long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
+                long elementsStart = surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
+                hdrImage = ReadHdrImage(surfaceFileStream, reader, elementsStart);
+                surfaceFileStream.Seek(elementsStart, SeekOrigin.Begin);
                 returnSurface.LoadElementsFromStream(surfaceFileStream);
             }
 
@@ -128,9 +133,93 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 returnSurface.Image = captureBitmap;
                 Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", captureBitmap.Width, captureBitmap.Height, captureBitmap.PixelFormat, captureBitmap.HorizontalResolution, captureBitmap.VerticalResolution);
+                if (hdrImage != null)
+                {
+                    returnSurface.SetHdrImage(hdrImage);
+                    hdrImage = null;
+                }
             }
+            hdrImage?.Dispose();
 
             return returnSurface;
+        }
+
+        /// <summary>
+        /// Between the image and the elements: an HDR image as JPEG XR, whether HDR was asked for, its length and this tag. An older Greenshot
+        /// reads the elements from the end of the file, it doesn't see it.
+        /// </summary>
+        private static readonly byte[] HdrTag = Encoding.ASCII.GetBytes("GreenshotHDR");
+
+        /// <summary>
+        /// The HDR image of the surface (with the edits of the editor, without the elements: they are in the file too), so the capture is
+        /// HDR again when the file is opened. Nothing without HDR content or without a JPEG XR encoder.
+        /// </summary>
+        private static void WriteHdrImage(Stream stream, ISurface surface, Bitmap bitmap)
+        {
+            if (surface.HdrState != HdrState.Available)
+            {
+                return;
+            }
+            var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
+            if (encoder == null || !encoder.CanEncode(WellKnownFileFormats.Jxr))
+            {
+                Log.Info("No JPEG XR encoder, the .greenshot file is saved without its HDR content.");
+                return;
+            }
+            var hdrImage = surface.HdrImage;
+            if (hdrImage == null || !hdrImage.HasHdrContent)
+            {
+                return;
+            }
+            using var complete = hdrImage.Compose(bitmap);
+            if (!encoder.TryEncode(complete, WellKnownFileFormats.Jxr, surface.CaptureDetails, true, out var encoded, out string error))
+            {
+                Log.Warn($"The .greenshot file is saved without its HDR content: {error}");
+                return;
+            }
+            var bytes = encoded.ToArray();
+            using var writer = new BinaryWriter(stream, Encoding.ASCII, true);
+            writer.Write(bytes);
+            writer.Write(surface.IsHdrRequested);
+            writer.Write((long)bytes.Length);
+            writer.Write(HdrTag);
+        }
+
+        /// <summary>
+        /// The HDR image before the elements (see <see cref="WriteHdrImage"/>), null when the file has none (also every older one)
+        /// </summary>
+        private static HdrImage ReadHdrImage(Stream stream, BinaryReader reader, long elementsStart)
+        {
+            const int trailerSize = 1 + 8;
+            if (elementsStart < HdrTag.Length + trailerSize)
+            {
+                return null;
+            }
+            stream.Seek(elementsStart - HdrTag.Length, SeekOrigin.Begin);
+            var tag = reader.ReadBytes(HdrTag.Length);
+            if (!tag.AsSpan().SequenceEqual(HdrTag))
+            {
+                return null;
+            }
+            stream.Seek(elementsStart - HdrTag.Length - trailerSize, SeekOrigin.Begin);
+            bool requested = reader.ReadBoolean();
+            long length = reader.ReadInt64();
+            long start = elementsStart - HdrTag.Length - trailerSize - length;
+            var decoder = SimpleServiceProvider.Current.GetInstance<IHdrImageDecoder>(true);
+            if (length <= 0 || start < 0 || decoder == null)
+            {
+                Log.Info("The HDR content of the .greenshot file can't be read here.");
+                return null;
+            }
+            stream.Seek(start, SeekOrigin.Begin);
+            using var hdrStream = new MemoryStream(reader.ReadBytes((int)length), false);
+            if (!decoder.TryDecode(hdrStream, out var hdrImage))
+            {
+                Log.Warn("The HDR content of the .greenshot file couldn't be read.");
+                return null;
+            }
+            hdrImage.IsRequested = requested;
+            return hdrImage;
         }
     }
 }
