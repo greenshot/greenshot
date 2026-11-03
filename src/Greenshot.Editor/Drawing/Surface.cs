@@ -658,9 +658,9 @@ namespace Greenshot.Editor.Drawing
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
             // In the order of the elements: what they draw goes into layers. The filters which can be done on the HDR pixels (ElementImageFilters:
-            // highlighter, area highlight, grayscale, magnifier; the cut of torn edges and cut marks) are steps between the layers, so they work
-            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (blur and pixelate of the
-            // obfuscate element) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
+            // highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut marks) are steps between the layers, so they work
+            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (e.g. an inverted
+            // pixelate, a filter of a plugin) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
             var changedAreas = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();

@@ -579,6 +579,83 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(expectedBlue, pixel.Z, 1);
         }
 
+        [Theory]
+        [InlineData(FilterContainer.PreparedFilter.PIXELIZE)]
+        [InlineData(FilterContainer.PreparedFilter.BLUR)]
+        public void Obfuscate_KeepsTheBrightnessOfTheHdrPixels(FilterContainer.PreparedFilter preset)
+        {
+            // White in the 8-bit image, 5 (400 nits) in the HDR image: taken from the 8-bit image it would be the SDR white (3, 240 nits)
+            var bitmap = new Bitmap(40, 40, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(40, 40, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 40; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(5, 5, 5, 1));
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 5, Top = 5, Width = 30, Height = 30 };
+            obfuscate.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, preset);
+            surface.AddElement(obfuscate, false, false);
+
+            using var composed = Compose(surface);
+
+            var pixel = composed.Pixels[20, 20].ToVector4();
+            Assert.Equal(5f, pixel.X, 1);
+            Assert.Equal(5f, pixel.Y, 1);
+            Assert.Equal(5f, pixel.Z, 1);
+        }
+
+        [Fact]
+        public void Pixelate_HidesTheHdrPixelsInBlocks()
+        {
+            // Stripes of 1 pixel in both images: pixelated, each block has one value (the average, with the editor's noise)
+            var bitmap = new Bitmap(40, 40, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+                for (int x = 0; x < 40; x += 2)
+                {
+                    graphics.FillRectangle(Brushes.Black, x, 0, 1, 40);
+                }
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(40, 40, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 40; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < 40; x++)
+                    {
+                        row[x] = x % 2 == 0 ? new HalfVector4(0, 0, 0, 1) : new HalfVector4(6, 6, 6, 1);
+                    }
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 0, Top = 0, Width = 40, Height = 40 };
+            obfuscate.Filters.OfType<Greenshot.Editor.Drawing.Filters.PixelizationFilter>().Single().SetFieldValue(FieldType.PIXEL_SIZE, 10);
+            surface.AddElement(obfuscate, false, false);
+
+            using var composed = Compose(surface);
+
+            // No stripe is left: the blocks (10 +- 3 pixels, random) differ only by the noise, the brightness stays the average of the HDR pixels (3).
+            // Only the first blocks: the last one of a row is cut at the edge, it may have only one pixel.
+            var values = Enumerable.Range(0, 21).Select(x => composed.Pixels[x, 20].ToVector4().X).ToArray();
+            Assert.All(values, value => Assert.InRange(value, 1.2f, 5f));
+            Assert.InRange(values.Average(), 2.2f, 3.8f);
+        }
+
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;
     }
 }

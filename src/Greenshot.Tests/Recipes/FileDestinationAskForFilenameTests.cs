@@ -285,7 +285,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task PixelatedArea_IsTheRenderedCapture_InTheHdrFile()
+        public async Task PixelatedArea_KeepsTheHdrBrightness_InTheHdrFile()
         {
             string path = TempFile("jxr");
             try
@@ -298,8 +298,8 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 var row = ReadHdrRow(path, 4);
-                // What is pixelated is the 8-bit capture (white), not the HDR content under it
-                Assert.Equal(3f, row[6 * 4], 2);
+                // The HDR content is pixelated, in the blocks of the editor: as bright as around it, not the SDR white of the 8-bit capture
+                Assert.Equal(5f, row[6 * 4], 2);
                 Assert.Equal(5f, row[14 * 4], 2);
             }
             finally

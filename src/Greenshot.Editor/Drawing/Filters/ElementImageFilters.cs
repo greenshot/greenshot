@@ -35,8 +35,8 @@ namespace Greenshot.Editor.Drawing.Filters
 {
     /// <summary>
     /// The filters of an element as ImageFilters (ImageSharp, any pixel type, in linear light), used on the HDR pixels for an HDR file (see
-    /// HdrOverlay.Filters): the highlighter, the area highlight (brightness and blur outside), grayscale and the magnifier, like on the 8-bit image. Hiding filters
-    /// (blur and pixelate of the obfuscate element) are not: their area comes from the 8-bit image, so exactly what is shown is hidden.
+    /// HdrOverlay.Filters): the highlighter, the area highlight (brightness and blur outside), grayscale, the magnifier and the blur and pixelate of
+    /// the obfuscate element, like on the 8-bit image. The pixelate uses the blocks and noise of the editor.
     /// </summary>
     internal static class ElementImageFilters
     {
@@ -53,10 +53,6 @@ namespace Greenshot.Editor.Drawing.Filters
         public static IReadOnlyList<ImageFilter> Create(DrawableContainer element, NativeRect bounds, IReadOnlyList<NativeRect> invertedHoles,
             DrawableContainer invertedFrom = null, System.Drawing.Bitmap sdrImage = null)
         {
-            if (element is ObfuscateContainer)
-            {
-                return null;
-            }
             var imageFilters = new List<ImageFilter>();
             // First the inverted filters of the group, then the element's own, like the editor (DrawableContainerList.Draw, then DrawContent
             // with skipInvertedFilters)
@@ -184,13 +180,129 @@ namespace Greenshot.Editor.Drawing.Filters
                         FloatPixels.Mutate(magnified, context => context.Resize(elementBounds.Width, elementBounds.Height, KnownResamplers.NearestNeighbor));
                         ImageFilter.CopyArea(pixels, magnified, new Point(elementBounds.X, elementBounds.Y), ToRectangle(elementBounds));
                     });
+                case PixelizationFilter pixelization:
+                    return Pixelate(pixelization, elementBounds, bounds, sdrImage);
                 default:
-                    // Pixelate, or a filter of a plugin
+                    // A filter of a plugin
                     return null;
             }
         }
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+
+        /// <summary>
+        /// Pixelate the HDR pixels in the blocks and with the noise of the editor (PixelizationFilter.Pixelate of the 8-bit image): each block
+        /// gets the average of its HDR pixels, each pixel the noise of the editor's pixel as factor (in linear light). Taking the area from the
+        /// 8-bit image would put it in at most as bright as SDR white, darker than the HDR pixels around it.
+        /// </summary>
+        private static ImageFilter Pixelate(PixelizationFilter filter, NativeRect elementBounds, NativeRect bounds, System.Drawing.Bitmap sdrImage)
+        {
+            if (filter.Invert || sdrImage == null || sdrImage.Width < bounds.Width || sdrImage.Height < bounds.Height)
+            {
+                // Inverted, the editor pixelates around the element: from the 8-bit image
+                return null;
+            }
+            var blocks = new List<System.Drawing.Rectangle>();
+            Vector3[] noise;
+            Rectangle area;
+            using (var pixelated = filter.Pixelate(sdrImage, elementBounds, blocks, out var applyRect))
+            {
+                if (pixelated == null)
+                {
+                    return new ImageFilter("Pixelate nothing", (_, _) => { });
+                }
+                area = ToRectangle(applyRect);
+                noise = PixelateNoise(sdrImage, pixelated, area, blocks);
+            }
+            return new ImageFilter($"Pixelate {blocks.Count} blocks like the 8-bit image", (pixels, _) =>
+            {
+                var values = new Vector4[area.Width * area.Height];
+                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
+                    row.CopyTo(values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length)), area));
+                foreach (var block in blocks)
+                {
+                    var sum = Vector4.Zero;
+                    for (int y = block.Top; y < block.Bottom; y++)
+                    {
+                        for (int x = block.Left; x < block.Right; x++)
+                        {
+                            sum += values[y * area.Width + x];
+                        }
+                    }
+                    var average = sum / (block.Width * block.Height);
+                    for (int y = block.Top; y < block.Bottom; y++)
+                    {
+                        for (int x = block.Left; x < block.Right; x++)
+                        {
+                            int index = y * area.Width + x;
+                            values[index] = new Vector4(average.X * noise[index].X, average.Y * noise[index].Y, average.Z * noise[index].Z, average.W);
+                        }
+                    }
+                }
+                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
+                    values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length).CopyTo(row), area));
+            });
+        }
+
+        /// <summary>
+        /// For each pixel of the pixelated area: the noise of the editor, as factor of each channel in linear light (the pixelated value / the
+        /// average of its block; 1 for a black block)
+        /// </summary>
+        private static Vector3[] PixelateNoise(System.Drawing.Bitmap sdrImage, System.Drawing.Bitmap pixelated, Rectangle area,
+            IReadOnlyList<System.Drawing.Rectangle> blocks)
+        {
+            var linear = new float[256];
+            for (int level = 0; level < 256; level++)
+            {
+                linear[level] = LinearColorEffects.Decode(level / 255f);
+            }
+            var source = new SixLabors.ImageSharp.PixelFormats.Bgra32[area.Width * area.Height];
+            var result = new SixLabors.ImageSharp.PixelFormats.Bgra32[area.Width * area.Height];
+            BitmapPixels.ProcessPixelRows<SixLabors.ImageSharp.PixelFormats.Bgra32>(sdrImage, new System.Drawing.Rectangle(area.X, area.Y, area.Width, area.Height), pixels =>
+            {
+                for (int y = 0; y < pixels.Height; y++)
+                {
+                    pixels.GetRowSpan(y).CopyTo(source.AsSpan(y * area.Width, area.Width));
+                }
+            }, System.Drawing.Imaging.ImageLockMode.ReadOnly);
+            BitmapPixels.ProcessPixelRows<SixLabors.ImageSharp.PixelFormats.Bgra32>(pixelated, pixels =>
+            {
+                for (int y = 0; y < pixels.Height; y++)
+                {
+                    pixels.GetRowSpan(y).CopyTo(result.AsSpan(y * area.Width, area.Width));
+                }
+            }, System.Drawing.Imaging.ImageLockMode.ReadOnly);
+
+            float Factor(byte value, int average) => average == 0 ? 1f : linear[value] / linear[average];
+            var noise = new Vector3[area.Width * area.Height];
+            foreach (var block in blocks)
+            {
+                // The average of the block, like the editor
+                int sumR = 0, sumG = 0, sumB = 0;
+                for (int y = block.Top; y < block.Bottom; y++)
+                {
+                    for (int x = block.Left; x < block.Right; x++)
+                    {
+                        var pixel = source[y * area.Width + x];
+                        sumR += pixel.R;
+                        sumG += pixel.G;
+                        sumB += pixel.B;
+                    }
+                }
+                int count = block.Width * block.Height;
+                int averageR = sumR / count, averageG = sumG / count, averageB = sumB / count;
+                for (int y = block.Top; y < block.Bottom; y++)
+                {
+                    for (int x = block.Left; x < block.Right; x++)
+                    {
+                        int index = y * area.Width + x;
+                        var pixel = result[index];
+                        noise[index] = new Vector3(Factor(pixel.R, averageR), Factor(pixel.G, averageG), Factor(pixel.B, averageB));
+                    }
+                }
+            }
+            return noise;
+        }
 
         /// <summary>
         /// For each pixel of the area: the factor of each channel which the highlighter applies to the 8-bit pixel, in linear light
