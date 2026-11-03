@@ -898,31 +898,27 @@ namespace Greenshot.Base.Core
         public static Image CreateGrayscale(Image sourceImage)
         {
             Bitmap clone = (Bitmap) Clone(sourceImage);
-            ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
-            {
-                new[]
-                {
-                    .3f, .3f, .3f, 0, 0
-                },
-                new[]
-                {
-                    .59f, .59f, .59f, 0, 0
-                },
-                new[]
-                {
-                    .11f, .11f, .11f, 0, 0
-                },
-                new float[]
-                {
-                    0, 0, 0, 1, 0
-                },
-                new float[]
-                {
-                    0, 0, 0, 0, 1
-                }
-            });
-            ApplyColorMatrix(clone, grayscaleMatrix);
+            ApplyGrayscale(clone);
             return clone;
+        }
+
+        /// <summary>
+        /// Make the bitmap gray of the same brightness, like the HDR image (LinearColorEffects.LinearGrayscale): the luminance of BT.709 in linear light
+        /// </summary>
+        /// <param name="bitmap">Bitmap to change</param>
+        public static unsafe void ApplyGrayscale(Bitmap bitmap)
+        {
+            // Locked as 32 bit ARGB the rows have no gaps, ImageSharp works on the pixels of the bitmap
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+            try
+            {
+                using var pixels = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(bitmapData.Scan0.ToPointer(), bitmap.Width, bitmap.Height);
+                SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(pixels, context => context.LinearGrayscale(srgbEncoded: true));
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
 
         /// <summary>

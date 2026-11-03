@@ -22,6 +22,7 @@
 using System;
 using System.Numerics;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.Effects
@@ -38,7 +39,10 @@ namespace Greenshot.Base.Effects
         /// <summary>
         /// Gray of the same brightness: the luminance of BT.709 (the sRGB primaries) in linear light
         /// </summary>
-        public static IImageProcessingContext LinearGrayscale(this IImageProcessingContext context, Rectangle? area = null) =>
+        /// <param name="context">The processing</param>
+        /// <param name="area">Only this area, null for all of it</param>
+        /// <param name="srgbEncoded">The values are sRGB encoded (an 8-bit image): they are made linear for it, and encoded again</param>
+        public static IImageProcessingContext LinearGrayscale(this IImageProcessingContext context, Rectangle? area = null, bool srgbEncoded = false) =>
             context.Process(row =>
             {
                 for (int x = 0; x < row.Length; x++)
@@ -47,7 +51,7 @@ namespace Greenshot.Base.Effects
                     float luminance = 0.2126f * pixel.X + 0.7152f * pixel.Y + 0.0722f * pixel.Z;
                     row[x] = new Vector4(luminance, luminance, luminance, pixel.W);
                 }
-            }, area);
+            }, area, srgbEncoded ? PixelConversionModifiers.SRgbCompand : PixelConversionModifiers.None);
 
         /// <summary>
         /// The negative, like the 8-bit image: each channel inverted in sRGB encoding between black and white. Highlights become black,
@@ -168,8 +172,9 @@ namespace Greenshot.Base.Effects
             }, area);
         }
 
-        private static IImageProcessingContext Process(this IImageProcessingContext context, PixelRowOperation operation, Rectangle? area) =>
-            area.HasValue ? context.ProcessPixelRowsAsVector4(operation, area.Value) : context.ProcessPixelRowsAsVector4(operation);
+        private static IImageProcessingContext Process(this IImageProcessingContext context, PixelRowOperation operation, Rectangle? area,
+            PixelConversionModifiers modifiers = PixelConversionModifiers.None) =>
+            area.HasValue ? context.ProcessPixelRowsAsVector4(operation, area.Value, modifiers) : context.ProcessPixelRowsAsVector4(operation, modifiers);
 
         private static Vector3 ToLinear(Vector3 encoded, float white) => new Vector3(Decode(encoded.X), Decode(encoded.Y), Decode(encoded.Z)) * white;
 

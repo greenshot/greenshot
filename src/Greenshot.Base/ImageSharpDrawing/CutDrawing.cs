@@ -44,16 +44,23 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return;
             }
-            int width = image.Width;
-            var coverage = Coverage.Of(shape, width, image.Height, rule);
+            // The coverage only where the shape is
+            var bounds = shape.Bounds;
+            var area = Rectangle.Intersect(Rectangle.FromLTRB((int)Math.Floor(bounds.Left), (int)Math.Floor(bounds.Top), (int)Math.Ceiling(bounds.Right),
+                (int)Math.Ceiling(bounds.Bottom)), new Rectangle(0, 0, image.Width, image.Height));
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                return;
+            }
+            var coverage = Coverage.Of(shape.Translate(-area.X, -area.Y), area.Width, area.Height, rule);
             image.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
             {
-                int offset = start.Y * width + start.X;
+                int offset = (start.Y - area.Y) * area.Width + start.X - area.X;
                 for (int x = 0; x < row.Length; x++)
                 {
                     row[x].W *= 1f - coverage[offset + x];
                 }
-            }));
+            }, area));
         }
 
         /// <summary>

@@ -265,5 +265,25 @@ namespace Greenshot.Tests.Core
             // The highlight is limited to the marker color: yellow at white
             Assert.Equal(new System.Numerics.Vector4(1, 1, 0, 1), halves[3, 1].ToVector4());
         }
+
+        [Theory]
+        [InlineData(255, 0, 0)]
+        [InlineData(0, 255, 0)]
+        [InlineData(0, 0, 255)]
+        public void Grayscale_OfASaturatedColor_IsTheSameGrayInThe8BitAndTheHdrImage(int red, int green, int blue)
+        {
+            using var bitmap = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.FromArgb(red, green, blue));
+            }
+            using var gray8Bit = (Bitmap)ImageHelper.CreateGrayscale(bitmap);
+            int expected = gray8Bit.GetPixel(1, 1).R;
+
+            var grayHdr = Apply(new GrayscaleEffect(), new HalfVector4(Linear(red), Linear(green), Linear(blue), 1));
+
+            Assert.Equal(expected, gray8Bit.GetPixel(1, 1).G);
+            Assert.InRange(Level(grayHdr.X), expected - 1, expected + 1);
+        }
     }
 }

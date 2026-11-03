@@ -102,5 +102,20 @@ namespace Greenshot.Tests.ImageSharpDrawing
             Assert.InRange(shadow, 0.1f, 2.9f);
             Assert.Equal(1f, torn[18, 10].ToVector4().W, 2);
         }
+
+        [Fact]
+        public void CutAway_OfAShapeInTheMiddle_OnlyItsPixels_AlsoPartlyOutsideTheImage()
+        {
+            using var image = new Image<HalfVector4>(10, 10, new HalfVector4(5, 5, 5, 1));
+
+            CutDrawing.CutAway(image, Square(4, 3, 3));
+            CutDrawing.CutAway(image, Square(8, 8, 5));
+
+            Assert.Equal(0f, image[5, 4].ToVector4().W, 3);
+            Assert.Equal(0f, image[9, 9].ToVector4().W, 3);
+            Assert.Equal(1f, image[3, 4].ToVector4().W, 3);
+            Assert.Equal(1f, image[5, 6].ToVector4().W, 3);
+            Assert.Equal(1f, image[1, 1].ToVector4().W, 3);
+        }
     }
 }

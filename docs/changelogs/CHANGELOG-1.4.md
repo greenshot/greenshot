@@ -68,6 +68,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
 
+**Grayscale**
+- The grayscale effect and the grayscale highlight use the luminance of BT.709 in linear light: grays of saturated colors are brighter now and match the brightness of the color (the same in the HDR file)
+
 #### ⚙️ Command Line Interface
 
 **Redesigned CLI with System.CommandLine**
