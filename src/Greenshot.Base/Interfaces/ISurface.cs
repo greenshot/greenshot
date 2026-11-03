@@ -78,6 +78,12 @@ namespace Greenshot.Base.Interfaces
         HdrImage HdrImage { get; }
 
         /// <summary>
+        /// What is drawn on the capture (the elements, the mouse cursor included), to put over the HDR image for an HDR file; null without elements.
+        /// On the UI thread, the caller disposes it.
+        /// </summary>
+        HdrOverlay CreateHdrOverlay();
+
+        /// <summary>
         /// Get the current Image from the Editor for Exporting (save/upload etc)
         /// Don't forget to call image.Dispose() when finished!!!
         /// </summary>

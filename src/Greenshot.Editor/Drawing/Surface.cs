@@ -376,6 +376,78 @@ namespace Greenshot.Editor.Drawing
         /// <inheritdoc />
         public HdrImage HdrImage => _hdrImage;
 
+        /// <inheritdoc />
+        public HdrOverlay CreateHdrOverlay()
+        {
+            if (_image == null || _elements == null || _elements.Count == 0)
+            {
+                return null;
+            }
+            var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
+
+            // Elements which change the pixels under them (blur, pixelate, highlight, cut marks, torn edges) can't be drawn on their own:
+            // their areas are taken from the export as they are. An inverted filter changes everything around it.
+            var replacedAreas = new List<NativeRect>();
+            foreach (var element in _elements.OfType<DrawableContainer>().Where(ChangesPixels))
+            {
+                // A filter changes its Bounds (DrawingBounds has a margin for the handles), a cut mark or torn edge what it draws
+                var area = element.Filters.Any(filter => filter.Invert) ? bounds : (element.HasFilters ? element.Bounds : element.DrawingBounds).Intersect(bounds);
+                if (area.Width > 0 && area.Height > 0)
+                {
+                    replacedAreas.Add(area);
+                }
+            }
+
+            Bitmap rendered = replacedAreas.Count > 0 ? (Bitmap)GetImage(RenderMode.EXPORT) : null;
+            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                using (var graphics = Graphics.FromImage(layer))
+                {
+                    // The other elements with their alpha, in their order
+                    foreach (var element in _elements.OfType<DrawableContainer>())
+                    {
+                        if (element.Parent == null || ChangesPixels(element) || !element.DrawingBounds.IntersectsWith(bounds))
+                        {
+                            continue;
+                        }
+                        if (element is CursorContainer cursorContainer)
+                        {
+                            // A mask cursor (e.g. the I-beam) inverts the image under it
+                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
+                            if (cursorLayer != null)
+                            {
+                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
+                            }
+                            continue;
+                        }
+                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
+                    }
+
+                    // The replaced areas are the export as it is, also what is drawn over them
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                    using var clear = new SolidBrush(Color.Transparent);
+                    foreach (var area in replacedAreas)
+                    {
+                        graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
+                    }
+                }
+                return new HdrOverlay(layer, rendered, replacedAreas);
+            }
+            catch
+            {
+                layer.Dispose();
+                rendered?.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them
+        /// </summary>
+        private static bool ChangesPixels(DrawableContainer element) =>
+            element.HasFilters || element is CutMarkContainer || element is TornEdgeContainer;
+
         [NonSerialized] private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         [NonSerialized] private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         [NonSerialized] private Fraction _zoomFactor = Fraction.Identity;

@@ -140,7 +140,7 @@ namespace Greenshot.Destinations
                 {
                     return hdrResult;
                 }
-                // Without HDR image the normal file is saved, the user was told why
+                // Without it the normal file is saved, the user was told why
             }
 
             if (_options?.OutputSettings == null && CoreConfig.OutputFilePromptQuality && request.Ui.IsInteractive)
@@ -199,21 +199,21 @@ namespace Greenshot.Destinations
 
         /// <summary>
         /// Save the HDR image of the capture as an HDR file (see HdrOutput), next to where the normal file would go with the extension of the HDR format.
-        /// Null when the normal file is to be saved: no HDR image (not on an HDR display, the Source step doesn't capture HDR), the capture was edited, or the encoder failed.
+        /// Null when the normal file is to be saved: no HDR content (not on an HDR display, the Source step doesn't capture HDR), the capture's image was changed, or the encoder failed.
         /// Then a notification tells why.
         /// </summary>
         private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, bool overwrite, CancellationToken cancellationToken)
         {
             string normalFormat = Path.GetExtension(fullPath)?.TrimStart('.').ToUpperInvariant();
-            var (hdrImage, formatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
-            if (hdrImage == null)
+            var (formatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
+            if (formatId == null)
             {
                 Log.Info($"Saving {fullPath} instead of an HDR file.");
                 NotifyHdrFallback(request, reasonText, normalFormat);
                 return null;
             }
 
-            var (hdrPath, failure) = await WriteHdrFileAsync(request, hdrImage, formatId, Path.ChangeExtension(fullPath, "." + formatId), overwrite, cancellationToken).ConfigureAwait(false);
+            var (hdrPath, failure) = await WriteHdrFileAsync(request, formatId, Path.ChangeExtension(fullPath, "." + formatId), overwrite, cancellationToken).ConfigureAwait(false);
             if (hdrPath == null)
             {
                 if (failure != null)
@@ -231,19 +231,18 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// Save with the save dialog (AskForFilename). With HDR image to save, the dialog suggests the HDR format and the HDR file is written when the user keeps it;
+        /// Save with the save dialog (AskForFilename). With an HDR file possible, the dialog suggests the HDR format and the HDR file is written when the user keeps it;
         /// another format saves the normal file. Without HDR image the normal file is saved and a notification tells why.
         /// </summary>
         private async Task<ExportResult> SaveAsAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             var captureDetails = request.Metadata;
             bool copyPath = _options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard;
-            HdrImage hdrImage = null;
             string hdrFormatId = null;
             string reasonText = null;
             if (HdrOutput.IsHdrFormat(_options?.HdrFormat))
             {
-                (hdrImage, hdrFormatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
+                (hdrFormatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
             string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, format: hdrFormatId), cancellationToken).ConfigureAwait(false);
@@ -252,10 +251,10 @@ namespace Greenshot.Destinations
                 return ExportResult.Declined;
             }
 
-            if (hdrImage != null && string.Equals(ImageIO.FormatForFilename(fileName), hdrFormatId, StringComparison.OrdinalIgnoreCase))
+            if (hdrFormatId != null && string.Equals(ImageIO.FormatForFilename(fileName), hdrFormatId, StringComparison.OrdinalIgnoreCase))
             {
                 // The user picked the file: overwrite
-                var (hdrPath, failure) = await WriteHdrFileAsync(request, hdrImage, hdrFormatId, fileName, true, cancellationToken).ConfigureAwait(false);
+                var (hdrPath, failure) = await WriteHdrFileAsync(request, hdrFormatId, fileName, true, cancellationToken).ConfigureAwait(false);
                 if (hdrPath != null)
                 {
                     if (copyPath)
@@ -281,23 +280,17 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// The HDR image of the capture (owned by the surface) which can be saved, with the HDR format to write.
-        /// No image when the normal file is to be saved; the text (with {0} for the normal format) tells why.
+        /// The HDR format to write when the capture can be saved as an HDR file (it has HDR content and its image is unchanged; what is drawn on it
+        /// goes into the HDR file at the SDR white level). No format when the normal file is to be saved; the text (with {0} for the normal format) tells why.
         /// </summary>
-        private async Task<(HdrImage HdrImage, string FormatId, string ReasonText)> GetHdrToSaveAsync(ExportRequest request, CancellationToken cancellationToken)
+        private async Task<(string FormatId, string ReasonText)> GetHdrToSaveAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            // IsModified can't tell: a new capture counts as modified until it is saved. The HDR image still shows the capture when the surface
-            // has the image it was taken with and nothing drawn on it except the mouse cursor, which is drawn into the HDR file too.
-            var (hdrImage, unchanged) = await request.Source.UseSurfaceAsync(surface =>
+            // IsModified can't tell: a new capture counts as modified until it is saved
+            var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (surface.HdrImage != null, HdrExport.CanWriteHdr(surface)), cancellationToken).ConfigureAwait(false);
+            if (!canWrite)
             {
-                var surfaceHdrImage = surface.HdrImage;
-                return (surfaceHdrImage, surfaceHdrImage != null && surfaceHdrImage.BelongsTo(surface.Image) && surface.Elements.All(element => element is ICursorContainer));
-            }, cancellationToken).ConfigureAwait(false);
-            if (!unchanged)
-            {
-                string reason = hdrImage == null ? "the capture has no HDR image (not on an HDR display, or the Source step doesn't capture HDR)" : "something was drawn on the capture or it was changed";
-                Log.Info($"Not saving an HDR file, {reason}.");
-                return (null, null, hdrImage == null ? Texts.Core.HdrNotSavedNoHdr : Texts.Core.HdrNotSavedChanged);
+                Log.Info(hasHdr ? "Not saving an HDR file, the capture's image was changed." : "Not saving an HDR file, the capture has no HDR content (not on an HDR display, or the Source step doesn't capture HDR).");
+                return (null, hasHdr ? Texts.Core.HdrNotSavedChanged : Texts.Core.HdrNotSavedNoHdr);
             }
 
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
@@ -305,51 +298,23 @@ namespace Greenshot.Destinations
             if (encoder == null || formatId == null || !encoder.CanEncode(formatId))
             {
                 Log.Warn($"No encoder can write the HDR format {_options?.HdrFormat} on this system.");
-                return (null, null, Texts.Core.HdrNotSavedFailed);
+                return (null, Texts.Core.HdrNotSavedFailed);
             }
-            return (hdrImage, formatId, null);
+            return (formatId, null);
         }
 
         /// <summary>
         /// Write the HDR file. No path when it wasn't written: the text (with {0} for the normal format) tells why,
         /// or it's null when the file exists and may not be overwritten (then the normal file is saved, as before).
         /// </summary>
-        private static async Task<(string Path, string ReasonText)> WriteHdrFileAsync(ExportRequest request, HdrImage hdrImage, string formatId, string path, bool overwrite,
+        private static async Task<(string Path, string ReasonText)> WriteHdrFileAsync(ExportRequest request, string formatId, string path, bool overwrite,
             CancellationToken cancellationToken)
         {
-            var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
-            EncodedImage encoded = null;
-            string error = null;
-            // Only the HDR displays are in the HDR image: the parts of SDR displays come from the capture's image now, and the mouse cursor
-            // (when it was captured) is drawn over it, on the UI thread which owns them (the image was checked to be the image of the HDR image).
-            // One HDR display which covers the capture, without a cursor, is written as it is.
-            var (composed, changed) = await request.Source.UseSurfaceAsync(surface =>
+            // Like the normal file: with the details which are only for the user
+            var (encoded, reasonText) = await HdrExport.EncodeAsync(request.Source, formatId, true, cancellationToken).ConfigureAwait(false);
+            if (encoded == null)
             {
-                if (!(surface.Image is System.Drawing.Bitmap sdrImage) || !hdrImage.BelongsTo(sdrImage))
-                {
-                    return ((HdrImage)null, true);
-                }
-                var cursor = surface.Elements.OfType<ICursorContainer>().FirstOrDefault(element => element.Cursor != null);
-                if (hdrImage.IsComplete && cursor == null)
-                {
-                    return (null, false);
-                }
-                using var cursorLayer = cursor != null ? HdrImage.CreateCursorLayer(sdrImage, cursor.Cursor, cursor.Bounds) : null;
-                return (hdrImage.Compose(sdrImage, cursorLayer, cursor?.Bounds.Location ?? default), false);
-            }, cancellationToken).ConfigureAwait(false);
-            if (changed)
-            {
-                Log.Warn($"Couldn't compose the HDR file {path}: the capture's image changed.");
-                return (null, Texts.Core.HdrNotSavedChanged);
-            }
-            using (composed)
-            {
-                // Like the normal file: with the details which are only for the user
-                if (encoder == null || !encoder.TryEncode(composed ?? hdrImage, formatId, request.Metadata, true, out encoded, out error))
-                {
-                    Log.Warn($"Couldn't write the HDR file {path}: {error ?? "no HDR encoder"}");
-                    return (null, Texts.Core.HdrNotSavedFailed);
-                }
+                return (null, reasonText);
             }
 
             try

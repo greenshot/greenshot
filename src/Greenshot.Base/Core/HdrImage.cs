@@ -209,10 +209,9 @@ namespace Greenshot.Base.Core
         /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
         /// </summary>
         /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
-        /// <param name="overlay">An 8-bit layer drawn over it at the SDR white level, e.g. the mouse cursor (see <see cref="CreateCursorLayer"/>); null for none</param>
-        /// <param name="overlayLocation">Where the layer goes</param>
+        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it at the SDR white level; null for nothing</param>
         /// <returns>A complete HDR image, the caller disposes it</returns>
-        public HdrImage Compose(Bitmap sdrImage, Bitmap overlay = null, NativePoint overlayLocation = default)
+        public HdrImage Compose(Bitmap sdrImage, HdrOverlay overlay = null)
         {
             CheckNotDisposed();
             if (IsComplete && overlay == null)
@@ -234,7 +233,11 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
-                    composed.BlendSdrOver(overlay, overlayLocation);
+                    foreach (var area in overlay.ReplacedAreas)
+                    {
+                        composed.ReplaceWithSdr(overlay.Rendered, area);
+                    }
+                    composed.BlendSdrOver(overlay.Layer, new NativePoint(0, 0));
                 }
                 return composed;
             }
@@ -246,8 +249,8 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The mouse cursor as an 8-bit layer with alpha, to draw it over the HDR image (<see cref="Compose"/>) like the editor draws it over the
-        /// capture. An alpha cursor is drawn alone, so its soft edges and shadow are blended with the HDR pixels; a mask cursor (which inverts the
+        /// The mouse cursor as an 8-bit layer with alpha, to draw it over the HDR image (in the HdrOverlay of the surface) like the editor draws it
+        /// over the capture. An alpha cursor is drawn alone, so its soft edges and shadow are blended with the HDR pixels; a mask cursor (which inverts the
         /// screen, e.g. the I-beam) is drawn over the 8-bit image and only its changed pixels are taken.
         /// </summary>
         /// <param name="sdrImage">The capture's 8-bit image, for a mask cursor</param>
@@ -427,6 +430,48 @@ namespace Greenshot.Base.Core
                                 targetRow[x * 4 + 3] = pixel[3] == 255 ? one : HalfHelper.FloatToHalf(pixel[3] / 255f);
                             }
                             x = Math.Max(x, end);
+                        }
+                    }
+                });
+            }
+            finally
+            {
+                source.UnlockBits(bitmapData);
+            }
+        }
+
+        /// <summary>
+        /// Replace an area of this complete HDR image while it is made with the pixels of an 8-bit image of the same size, at the SDR white level,
+        /// alpha included (e.g. the transparent part of a torn edge)
+        /// </summary>
+        private unsafe void ReplaceWithSdr(Bitmap source, NativeRect area)
+        {
+            if (source == null)
+            {
+                return;
+            }
+            var target = area.Intersect(new NativeRect(0, 0, Math.Min(Width, source.Width), Math.Min(Height, source.Height)));
+            if (target.Width <= 0 || target.Height <= 0)
+            {
+                return;
+            }
+            ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
+            var bitmapData = source.LockBits(target, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            try
+            {
+                Pixels.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < target.Height; y++)
+                    {
+                        byte* sourceRow = (byte*)bitmapData.Scan0 + (long)y * bitmapData.Stride;
+                        var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width));
+                        for (int x = 0; x < target.Width; x++, sourceRow += 4)
+                        {
+                            // BGRA in memory
+                            targetRow[x * 4] = table[sourceRow[2]];
+                            targetRow[x * 4 + 1] = table[sourceRow[1]];
+                            targetRow[x * 4 + 2] = table[sourceRow[0]];
+                            targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(sourceRow[3] / 255f);
                         }
                     }
                 });

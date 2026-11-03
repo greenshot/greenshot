@@ -33,6 +33,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
@@ -128,6 +129,120 @@ namespace Greenshot.Tests.Recipes
         }
 
         private static string TempFile(string extension) => Path.Combine(Path.GetTempPath(), $"ask_{Guid.NewGuid():N}.{extension}");
+
+        /// <summary>
+        /// A capture of 16x8 pixels on an HDR display: white in the 8-bit image, HDR highlights of 5.0 (400 nits) in the HDR image
+        /// </summary>
+        private static Surface CreateBrightHdrSurface()
+        {
+            var bitmap = new Bitmap(16, 8, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(16, 8, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1));
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+        }
+
+        /// <summary>
+        /// A row of an HDR file as RGBA floats (scRGB: 3.0 is the SDR white of 240 nits)
+        /// </summary>
+        private static float[] ReadHdrRow(string path, int y)
+        {
+            var frame = System.Windows.Media.Imaging.BitmapDecoder.Create(new Uri(path), System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat,
+                System.Windows.Media.Imaging.BitmapCacheOption.OnLoad).Frames[0];
+            var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
+            var row = new float[frame.PixelWidth * 4];
+            floats.CopyPixels(new System.Windows.Int32Rect(0, y, frame.PixelWidth, 1), row, frame.PixelWidth * 16, 0);
+            return row;
+        }
+
+        [Fact]
+        public async Task DrawnElement_IsInTheHdrFile_AtTheSdrWhiteLevel_TheRestKeepsTheHighlights()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                var rectangle = new RectangleContainer(surface) { Left = 2, Top = 2, Width = 8, Height = 4 };
+                rectangle.SetFieldValue(FieldType.SHADOW, false);
+                surface.AddElement(rectangle, false, false);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Notifications);
+                var row = ReadHdrRow(path, 4);
+                // The red border at the left: red at the SDR white level, no green
+                Assert.True(row[2 * 4] > 1.5f, $"red {row[2 * 4]}");
+                Assert.True(row[2 * 4 + 1] < 0.5f, $"green {row[2 * 4 + 1]}");
+                // Inside the (unfilled) rectangle and next to it the HDR highlights
+                Assert.Equal(5f, row[6 * 4], 2);
+                Assert.Equal(5f, row[14 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task PixelatedArea_IsTheRenderedCapture_InTheHdrFile()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                surface.AddElement(new ObfuscateContainer(surface) { Left = 4, Top = 2, Width = 6, Height = 4 }, false, false);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                var row = ReadHdrRow(path, 4);
+                // What is pixelated is the 8-bit capture (white), not the HDR content under it
+                Assert.Equal(3f, row[6 * 4], 2);
+                Assert.Equal(5f, row[14 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task SaveAsJpegXr_OfAnHdrCapture_IsTheHdrFile_AlsoWithoutHdrFormat()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                surface.AddElement(new RectangleContainer(surface) { Left = 2, Top = 2, Width = 8, Height = 4 }, false, false);
+                var ui = new SaveDialogUserInteraction(path);
+
+                // Like the editor's Save as: no HdrFormat, the user picks JPEG XR
+                var result = await ExportAsync(surface, ui, null);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                // Away from the rectangle and its shadow: the HDR highlights
+                Assert.Equal(5f, ReadHdrRow(path, 0)[15 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
 
         [Fact]
         public async Task HdrCapture_DialogSuggestsJpegXr_AndWritesTheHdrFile()

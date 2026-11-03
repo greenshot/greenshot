@@ -60,7 +60,25 @@ namespace Greenshot.Base.Core.Export
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (outputSettings == null) throw new ArgumentNullException(nameof(outputSettings));
-            return await SaveEncodedAsync(() => source.EncodeAsync(outputSettings, cancellationToken), fullPath, allowOverwrite, cancellationToken).ConfigureAwait(false);
+            return await SaveEncodedAsync(() => EncodeAsync(source, outputSettings, cancellationToken), fullPath, allowOverwrite, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// The file of the source: JPEG XR of a capture with HDR content is the HDR file (with what is drawn on it), everything else the normal file
+        /// </summary>
+        private static async Task<EncodedImage> EncodeAsync(IExportSource source, SurfaceOutputSettings outputSettings, CancellationToken cancellationToken)
+        {
+            if (string.Equals(outputSettings.Format, FileFormat.WellKnownFileFormats.Jxr, StringComparison.OrdinalIgnoreCase)
+                && await source.UseSurfaceAsync(HdrExport.CanWriteHdr, cancellationToken).ConfigureAwait(false))
+            {
+                var (encoded, _) = await HdrExport.EncodeAsync(source, FileFormat.WellKnownFileFormats.Jxr, outputSettings.IncludePrivateMetadata, cancellationToken).ConfigureAwait(false);
+                if (encoded != null)
+                {
+                    return encoded;
+                }
+                Log.Info("The HDR file couldn't be written, saving the normal JPEG XR file.");
+            }
+            return await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

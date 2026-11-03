@@ -982,7 +982,7 @@ namespace Greenshot.Base.Languages
         string HdrNotSavedNoHdr { get; }
 
         /// <summary>
-        /// No HDR file was saved: something was drawn on the capture or it was changed, the HDR file wouldn't show that. It was saved as {0}.
+        /// No HDR file was saved: the capture itself was changed (e.g. cropped or an effect), the HDR file wouldn't show that. It was saved as {0}.
         /// </summary>
         string HdrNotSavedChanged { get; }
 
