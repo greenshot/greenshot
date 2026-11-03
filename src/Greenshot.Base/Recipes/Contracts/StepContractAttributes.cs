@@ -80,6 +80,13 @@ namespace Greenshot.Base.Recipes.Contracts
         /// </summary>
         public Type ValueType { get; set; }
 
+        /// <summary>
+        /// A text the user sees (e.g. the title of a window), which a recipe can translate in its "translations" as
+        /// "nodes.{nodeId}.{parameter}". For a list of <see cref="PromptChoice"/> the label of each choice is translatable,
+        /// as "nodes.{nodeId}.{parameter}.{key}". See <see cref="FlowDefinition.GetNodeTexts"/>.
+        /// </summary>
+        public bool Translatable { get; set; }
+
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -167,7 +174,8 @@ namespace Greenshot.Base.Recipes.Contracts
                     p.AllowedValues,
                     p.SupportsExpressions)
                 {
-                    ValueType = p.ValueType
+                    ValueType = p.ValueType,
+                    Translatable = p.Translatable
                 };
                 if (p.AllowedValuesProvider != null)
                 {
