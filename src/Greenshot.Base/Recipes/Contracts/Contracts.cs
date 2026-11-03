@@ -57,6 +57,9 @@ namespace Greenshot.Base.Recipes.Contracts
         [JsonIgnore]
         public Type ValueType { get; set; }
 
+        /// <summary>A text the user sees, which the translations of a recipe can translate, see <see cref="StepParameterAttribute.Translatable"/>.</summary>
+        public bool Translatable { get; set; }
+
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);
 

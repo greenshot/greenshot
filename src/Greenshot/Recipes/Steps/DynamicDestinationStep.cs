@@ -45,7 +45,7 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user change the capture with an editor recipe and pick a destination.", "Destination")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
-    [StepParameter("Title", ContractDataType.String, Description = "Title of the flyout")]
+    [StepParameter("Title", ContractDataType.String, Translatable = true, Description = "Title of the flyout")]
     [StepParameter("Destinations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "Destinations to offer (default: all)")]
     [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
