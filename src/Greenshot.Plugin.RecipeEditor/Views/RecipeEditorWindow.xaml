@@ -3190,7 +3190,7 @@
                                                             <TextBlock Text="{Binding Original}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap" FontStyle="Italic"
                                                                        Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                             <TextBox AutomationProperties.Name="{Binding Path, TargetNullValue=''}" AutomationProperties.HelpText="{Binding Original, TargetNullValue=''}"
-                                                                     Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" Padding="4,2" Margin="0,1"
+                                                                     Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" AcceptsReturn="True" Padding="4,2" Margin="0,1"
                                                                      Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                         </StackPanel>
