@@ -277,7 +277,7 @@ namespace Greenshot.Tests.Editor
         }
 
         /// <summary>
-        /// In the row of the composed HDR image between the columns: how many pixels keep the highlight, how many are the 8-bit image (at most SDR white)
+        /// In the row of the composed HDR image between the columns: how many pixels keep the highlight, how many are torn off (transparent, or the 8-bit image at most SDR white)
         /// </summary>
         private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
         {
@@ -286,12 +286,13 @@ namespace Greenshot.Tests.Editor
             int highlights = 0, fromSdr = 0;
             for (int x = fromX; x < toX; x++)
             {
-                float value = composed.Pixels[x, y].ToVector4().X;
-                if (value > 4.9f)
+                var pixel = composed.Pixels[x, y].ToVector4();
+                // A torn off pixel is transparent (cut away in the HDR image) or the 8-bit image
+                if (pixel.W > 0.99f && pixel.X > 4.9f)
                 {
                     highlights++;
                 }
-                else if (value <= 3.05f)
+                else if (pixel.W < 0.01f || pixel.X <= 3.05f)
                 {
                     fromSdr++;
                 }
@@ -366,6 +367,89 @@ namespace Greenshot.Tests.Editor
             Assert.True(highlights > 0, "highlights between the teeth");
             Assert.True(fromSdr > 0, "torn off teeth");
             Assert.Equal((76, 0), CountRow(surface, 20, 12, 88));
+        }
+
+        /// <summary>
+        /// The pixels of the composed HDR image (with the elements) in the rows which are partly covered: edge pixels of the teeth
+        /// </summary>
+        private static System.Collections.Generic.List<System.Numerics.Vector4> EdgePixels(Surface surface, int fromY, int toY)
+        {
+            using var overlay = surface.CreateHdrOverlay();
+            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            var edge = new System.Collections.Generic.List<System.Numerics.Vector4>();
+            for (int y = fromY; y < toY; y++)
+            {
+                for (int x = 0; x < composed.Width; x++)
+                {
+                    var pixel = composed.Pixels[x, y].ToVector4();
+                    if (pixel.W > 0.05f && pixel.W < 0.95f)
+                    {
+                        edge.Add(pixel);
+                    }
+                }
+            }
+            return edge;
+        }
+
+        [Fact]
+        public async Task TornEdgeEffect_IsDrawnForReal_TheEdgeOfTheTeethKeepsTheHdrColor()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(settings));
+
+            // One HDR image of all of it, drawn by ImageSharp
+            Assert.True(surface.HdrImage.IsComplete);
+            var edge = EdgePixels(surface, 0, 12);
+            Assert.NotEmpty(edge);
+            // Anti-aliased: partly transparent, with the color of the HDR image (not the tone mapped 8-bit image)
+            Assert.All(edge, pixel => Assert.Equal(5f, pixel.X, 1));
+        }
+
+        [Fact]
+        public async Task TornEdgeEffectWithShadow_TheShadowIsDrawnInTheHdrImage()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = true };
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(settings));
+
+            var hdrImage = surface.HdrImage;
+            var sdrImage = (Bitmap)surface.Image;
+            Assert.Equal(sdrImage.Size, new Size(hdrImage.Width, hdrImage.Height));
+            // Where the 8-bit image has its shadow (black, partly transparent, outside the image) the HDR image has one too
+            int shadows = 0;
+            for (int y = hdrImage.Height - 20; y < hdrImage.Height; y++)
+            {
+                for (int x = 20; x < 80; x++)
+                {
+                    var sdr = sdrImage.GetPixel(x, y);
+                    if (sdr.A > 20 && sdr.A < 235 && sdr.R < 40)
+                    {
+                        var hdr = hdrImage.Pixels[x, y].ToVector4();
+                        Assert.InRange(hdr.W, 0.01f, 0.99f);
+                        Assert.Equal(0f, hdr.X, 2);
+                        shadows++;
+                    }
+                }
+            }
+            Assert.True(shadows > 0, "a shadow below the image");
+            // The middle of the image keeps its highlights
+            Assert.Equal(5f, hdrImage.Pixels[hdrImage.Width / 2, hdrImage.Height / 2].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void TornEdgesElement_IsCutForReal_TheEdgeOfTheTeethKeepsTheHdrColor()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            surface.AddTornEdges(settings);
+
+            var edge = EdgePixels(surface, 0, 12);
+            Assert.NotEmpty(edge);
+            Assert.All(edge, pixel => Assert.Equal(5f, pixel.X, 1));
         }
 
         [Fact]

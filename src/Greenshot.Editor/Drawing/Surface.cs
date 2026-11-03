@@ -36,6 +36,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.ImageSharpDrawing;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -625,6 +626,15 @@ namespace Greenshot.Editor.Drawing
                         continue;
                     }
                 }
+                if (element.Parent != null && CreateCutAway(element, bounds) is { } cutAway && !drawnBefore.Any(drawn => cutAway.Areas.Any(area => area.IntersectsWith(drawn))))
+                {
+                    // Torn edges and cut marks are drawn for real: what they cut away is cut out of the HDR pixels (ImageSharp, the same shape),
+                    // what they draw (fill, shadow, edge lines) is in the layer
+                    imageFilters.Add(cutAway.Filter);
+                    hdrFiltered.Add(element);
+                    drawnBefore.Add(element.DrawingBounds);
+                    continue;
+                }
                 IEnumerable<NativeRect> areas;
                 var target = replacedAreas;
                 if (element is TornEdgeContainer tornEdges)
@@ -709,6 +719,46 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them
         /// </summary>
+        /// <summary>
+        /// For torn edges and cut marks: cutting away what they cut away from the HDR pixels (ImageSharpDrawing.CutDrawing, the shape of
+        /// CreateCutPath) and the areas where it happens; null for other elements and when nothing is cut away
+        /// </summary>
+        private static (ImageFilter Filter, IReadOnlyList<NativeRect> Areas)? CreateCutAway(DrawableContainer element, NativeRect bounds)
+        {
+            GraphicsPath cutPath;
+            IReadOnlyList<NativeRect> areas;
+            switch (element)
+            {
+                case TornEdgeContainer tornEdges:
+                    // The torn off parts are replaced by the fill color (see TornEdgeContainer.Draw), so they are cut out first
+                    cutPath = tornEdges.CreateCutPath();
+                    areas = tornEdges.EdgeAreas().ToList();
+                    break;
+                case CutMarkContainer cutMark:
+                    // A gap with a fill color is drawn over the image, only a transparent gap is cut out
+                    cutPath = cutMark.HasTransparentGap ? cutMark.CreateCutPath() : null;
+                    areas = new[] { cutMark.DrawingBounds };
+                    if (cutPath == null)
+                    {
+                        // Nothing to cut out, the cut mark is drawn in the layer
+                        return (new ImageFilter("Cut mark with a fill color", (_, _) => { }), areas);
+                    }
+                    break;
+                default:
+                    return null;
+            }
+            using (cutPath)
+            {
+                var shape = cutPath == null ? null : GdiPaths.ToPath(cutPath);
+                if (shape == null)
+                {
+                    return null;
+                }
+                return (new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape)),
+                    areas.Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList());
+            }
+        }
+
         private static bool ChangesPixels(DrawableContainer element) =>
             element.HasFilters || element is CutMarkContainer || element is TornEdgeContainer;
 

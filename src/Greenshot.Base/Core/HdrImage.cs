@@ -362,6 +362,24 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// A complete HDR image drawn anew from this one (e.g. the torn edge effect, see ImageSharpDrawing.CutDrawing), as a new complete HDR image
+        /// </summary>
+        /// <param name="draw">Makes the new pixels from the pixels of this one and the SDR white as scRGB value; it must use their configuration</param>
+        /// <returns>The new HDR image, null when this one isn't complete (the parts of SDR displays are only in the 8-bit image)</returns>
+        public HdrImage Redraw(Func<Image<HalfVector4>, float, Image<HalfVector4>> draw)
+        {
+            if (draw == null) throw new ArgumentNullException(nameof(draw));
+            CheckNotDisposed();
+            if (!IsComplete)
+            {
+                return null;
+            }
+            var pixels = draw(Pixels, SdrWhiteLevelInNits / 80f);
+            var tile = new Tile(new NativeRect(0, 0, pixels.Width, pixels.Height), new SharedPixels(pixels), SdrWhiteLevelInNits);
+            return new HdrImage(pixels.Width, pixels.Height, new[] { tile }, DisplayPeakInNits) { IsRequested = IsRequested, HasClearedPixels = HasClearedPixels };
+        }
+
+        /// <summary>
         /// The HDR image with the pixels of each tile changed (e.g. a color effect, see ImageEdits), as a new HDR image; this one stays as it is
         /// </summary>
         /// <param name="process">Changes a copy of the pixels of a tile; it gets the SDR white of the tile's display as scRGB value (1.0 = 80 nits)</param>

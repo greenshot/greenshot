@@ -31,6 +31,7 @@ using System.Runtime.InteropServices;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.ImageSharpDrawing;
 
 namespace Greenshot.Base.Effects
 {
@@ -188,12 +189,31 @@ namespace Greenshot.Base.Effects
             {
                 return ForEffect(effect, oldSize, newSize, matrix);
             }
-            // The image as it is, moved by the shadow; in the bands of the teeth only the pixels which the effect changed come from the 8-bit image
             var offset = tornEdge.GenerateShadow && matrix != null ? new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY)) : new NativePoint(0, 0);
+
+            // The HDR image of one display is drawn for real (ImageSharp): cut by the same teeth, over its shadow and the background
+            var outline = ImageHelper.CreateTornEdgeOutline(oldSize.Width, oldSize.Height, tornEdge.ToothHeight, tornEdge.HorizontalToothRange, tornEdge.VerticalToothRange,
+                tornEdge.Edges ?? new[] { true, true, true, true }, tornEdge.Seed);
+            var shape = new SixLabors.ImageSharp.Drawing.Polygon(outline.Select(point => new SixLabors.ImageSharp.PointF(point.X, point.Y)).ToArray());
+            (float, int)? shadow = tornEdge.GenerateShadow ? (tornEdge.Darkness, tornEdge.ShadowSize) : null;
+            var backgroundColor = tornEdge.BackgroundColor;
+
+            // Over several displays the parts of the SDR displays are only in the 8-bit image: the image as it is, moved by the shadow, and in the
+            // bands of the teeth the pixels which the effect changed from the 8-bit image
             var placed = new NativeRect(offset.X, offset.Y, oldSize.Width, oldSize.Height);
             var inside = TornEdgeInside(tornEdge, oldSize);
             var bands = HdrImage.Outside(placed, new[] { new NativeRect(offset.X + inside.X, offset.Y + inside.Y, inside.Width, inside.Height) });
-            return Place(new NativeRect(0, 0, oldSize.Width, oldSize.Height), newSize, offset).Then(ClearChanged(ChangedPixels(oldImage, newImage, offset, bands)));
+            var fromSdr = Place(new NativeRect(0, 0, oldSize.Width, oldSize.Height), newSize, offset).Then(ClearChanged(ChangedPixels(oldImage, newImage, offset, bands)));
+
+            return new ImageEdit($"Torn edges (seed {tornEdge.Seed})", hdrImage => hdrImage.Redraw((pixels, white) =>
+            {
+                var background = backgroundColor.A == 0
+                    ? Vector4.Zero
+                    : new Vector4(LinearColorEffects.Decode(backgroundColor.R / 255f) * white, LinearColorEffects.Decode(backgroundColor.G / 255f) * white,
+                        LinearColorEffects.Decode(backgroundColor.B / 255f) * white, backgroundColor.A / 255f);
+                return CutDrawing.TornEdge(pixels, shape, new SixLabors.ImageSharp.Size(newSize.Width, newSize.Height), new SixLabors.ImageSharp.Point(offset.X, offset.Y),
+                    shadow, background);
+            }) ?? fromSdr.Apply(hdrImage));
         }
 
         /// <summary>

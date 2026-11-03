@@ -256,6 +256,113 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The outline of what stays of an image with torn edges (see CreateTornEdge): the same seed gives the same teeth, e.g. for the HDR image
+        /// </summary>
+        /// <param name="width">The width of the image</param>
+        /// <param name="height">The height of the image</param>
+        /// <param name="toothHeight">How large (height) is each tooth</param>
+        /// <param name="horizontalToothRange">How wide is a horizontal tooth</param>
+        /// <param name="verticalToothRange">How wide is a vertical tooth</param>
+        /// <param name="edges">Which edges are torn, clockwise: 0=top,1=right,2=bottom,3=left</param>
+        /// <param name="seed">The seed of the teeth, null for random ones</param>
+        public static List<NativePoint> CreateTornEdgeOutline(int width, int height, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges, int? seed = null)
+        {
+            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
+            int horizontalRegions = (int) Math.Round((float) width / horizontalToothRange);
+            int verticalRegions = (int) Math.Round((float) height / verticalToothRange);
+
+            var topLeft = new NativePoint(0, 0);
+            var topRight = new NativePoint(width, 0);
+            var bottomLeft = new NativePoint(0, height);
+            var bottomRight = new NativePoint(width, height);
+
+            var points = new List<NativePoint>();
+
+            if (edges[0])
+            {
+                // calculate starting point only if the left edge is torn
+                if (!edges[3])
+                {
+                    points.Add(topLeft);
+                }
+                else
+                {
+                    points.Add(new NativePoint(random.Next(1, toothHeight), random.Next(1, toothHeight)));
+                }
+
+                for (int i = 1; i < horizontalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(i * horizontalToothRange, random.Next(1, toothHeight)));
+                }
+
+                points.Add(new NativePoint(width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // set start & endpoint to be the default "whole-line"
+                points.Add(topLeft);
+                points.Add(topRight);
+            }
+
+            // Right
+            if (edges[1])
+            {
+                for (int i = 1; i < verticalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(width - random.Next(1, toothHeight), i * verticalToothRange));
+                }
+
+                points.Add(new NativePoint(width - random.Next(1, toothHeight), height - random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = topRight;
+                // set endpoint to be the default "whole-line"
+                points.Add(bottomRight);
+            }
+
+            // Bottom
+            if (edges[2])
+            {
+                for (int i = 1; i < horizontalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(width - i * horizontalToothRange, height - random.Next(1, toothHeight)));
+                }
+
+                points.Add(new NativePoint(random.Next(1, toothHeight), height - random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = bottomRight;
+                // set endpoint to be the default "whole-line"
+                points.Add(bottomLeft);
+            }
+
+            // Left
+            if (edges[3])
+            {
+                // One fewer as the end point is the starting point
+                for (int i = 1; i < verticalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
+                }
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = bottomLeft;
+                // set endpoint to be the default "whole-line"
+                points.Add(topLeft);
+            }
+
+            // End point always is the starting point
+            points[points.Count - 1] = points[0];
+            return points;
+        }
+
+        /// <summary>
         /// Make the picture look like it's torn
         /// </summary>
         /// <param name="sourceImage">Bitmap to make torn edge off</param>
@@ -269,98 +376,7 @@ namespace Greenshot.Base.Core
             Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
-                Random random = seed.HasValue ? new Random(seed.Value) : new Random();
-                int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
-                int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
-
-                var topLeft = new NativePoint(0, 0);
-                var topRight = new NativePoint(sourceImage.Width, 0);
-                var bottomLeft = new NativePoint(0, sourceImage.Height);
-                var bottomRight = new NativePoint(sourceImage.Width, sourceImage.Height);
-
-                var points = new List<NativePoint>();
-
-                if (edges[0])
-                {
-                    // calculate starting point only if the left edge is torn
-                    if (!edges[3])
-                    {
-                        points.Add(topLeft);
-                    }
-                    else
-                    {
-                        points.Add(new NativePoint(random.Next(1, toothHeight), random.Next(1, toothHeight)));
-                    }
-
-                    for (int i = 1; i < horizontalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(i * horizontalToothRange, random.Next(1, toothHeight)));
-                    }
-
-                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // set start & endpoint to be the default "whole-line"
-                    points.Add(topLeft);
-                    points.Add(topRight);
-                }
-
-                // Right
-                if (edges[1])
-                {
-                    for (int i = 1; i < verticalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), i * verticalToothRange));
-                    }
-
-                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = topRight;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(bottomRight);
-                }
-
-                // Bottom
-                if (edges[2])
-                {
-                    for (int i = 1; i < horizontalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(sourceImage.Width - i * horizontalToothRange, sourceImage.Height - random.Next(1, toothHeight)));
-                    }
-
-                    points.Add(new NativePoint(random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = bottomRight;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(bottomLeft);
-                }
-
-                // Left
-                if (edges[3])
-                {
-                    // One fewer as the end point is the starting point
-                    for (int i = 1; i < verticalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
-                    }
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = bottomLeft;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(topLeft);
-                }
-
-                // End point always is the starting point
-                points[points.Count - 1] = points[0];
+                var points = CreateTornEdgeOutline(sourceImage.Width, sourceImage.Height, toothHeight, horizontalToothRange, verticalToothRange, edges, seed);
 
                 DrawLines(path, points);
 
