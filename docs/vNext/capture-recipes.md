@@ -292,11 +292,15 @@ other languages, in the file itself, so they travel with it:
   `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
   the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
   only the texts it has.
+- The texts a step shows are named by their node: `nodes.{nodeId}.Title` and `nodes.{nodeId}.Message` of a
+  `UserPrompt`, `nodes.{nodeId}.Choices.{key}` for the label of one of its choices, and `nodes.{nodeId}.Title` of a
+  `DynamicDestination`. A translation may hold expressions (`${...}`) like the text of the file.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
 - The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
   then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
-  there moves the translations of the menu texts of the triggers after it.
+  there moves the translations of the menu texts of the triggers after it. Renaming a node keeps the translations of
+  its texts; the translations of a removed node or choice are removed when the recipe is saved.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---

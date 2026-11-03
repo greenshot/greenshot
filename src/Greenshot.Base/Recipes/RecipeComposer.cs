@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using Greenshot.Base.Recipes.Pipeline;
+
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
@@ -211,7 +213,9 @@ namespace Greenshot.Base.Recipes
                 var clone = node.Clone();
                 clone.Id = Map(node.Id);
                 clone.ContributedBy = extension.Id;
-                clone.Parameters = (Dictionary<string, object>)RewriteOptionReferences(clone.Parameters, extension.Id);
+                // The texts the user sees come from the translations of the automatic step, its node ids change here
+                var translated = extension.TranslateNodeParameters(node, StepRegistry.Instance.GetContract(node.StepType));
+                clone.Parameters = (Dictionary<string, object>)RewriteOptionReferences(translated, extension.Id);
                 clone.When = RewriteOptionReferences(clone.When, extension.Id);
                 chain.Nodes.Add(clone);
             }
