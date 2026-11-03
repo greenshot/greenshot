@@ -365,8 +365,14 @@ namespace Greenshot.Editor.Drawing
             {
                 _image = value;
                 UpdateSize();
+                ImageChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        /// <summary>
+        /// The image was replaced: an effect, a crop, an undo or redo of them. E.g. whether it can still be saved as HDR file changed.
+        /// </summary>
+        public event EventHandler ImageChanged;
 
         /// <summary>
         /// The HDR image taken over from the capture, owned by the surface; not serialized (the .greenshot file has no HDR)

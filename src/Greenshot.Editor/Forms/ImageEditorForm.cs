@@ -93,6 +93,7 @@ namespace Greenshot.Editor.Forms
 
         // The surface of the selected tab
         private Surface _surface;
+        private ToolStripStatusLabel _hdrLabel;
         private List<BidirectionalBinding> _fieldBindings = new();
         private ToolStripButton[] _toolbarButtons;
         private bool _showWithoutActivation;
@@ -455,6 +456,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
+            CreateHdrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
             timing.Mark("InitializeComponent");
@@ -1052,6 +1054,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             dimensionsLabel.Text = _surface.Image.Width + "x" + _surface.Image.Height;
             UpdateZoomControls(_surface.ZoomFactor);
+            UpdateHdrLabel();
             AlignCanvasPositionAfterResize();
             panel1.AutoScrollPosition = tab.ScrollPosition;
 
@@ -1108,6 +1111,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             _surface.BackgroundColorChanged += BackgroundColorChanged;
             _surface.LineThicknessChanged += LineThicknessChanged;
             _surface.ShadowChanged += ShadowChanged;
+            _surface.ImageChanged += SurfaceImageChanged;
             _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
             BindFieldControls();
         }
@@ -1122,6 +1126,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             _surface.BackgroundColorChanged -= BackgroundColorChanged;
             _surface.LineThicknessChanged -= LineThicknessChanged;
             _surface.ShadowChanged -= ShadowChanged;
+            _surface.ImageChanged -= SurfaceImageChanged;
             _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
             foreach (var binding in _fieldBindings)
             {
@@ -1484,6 +1489,44 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        /// <summary>
+        /// Shows whether the capture has HDR content and can be saved as HDR file (JPEG XR), next to its size
+        /// </summary>
+        private void CreateHdrLabel()
+        {
+            _hdrLabel = new ToolStripStatusLabel
+            {
+                Name = "hdrLabel",
+                BorderSides = ToolStripStatusLabelBorderSides.All,
+                BorderStyle = Border3DStyle.Sunken,
+                DisplayStyle = ToolStripItemDisplayStyle.Text,
+                Font = new Font(statusStrip1.Font, FontStyle.Bold),
+                Visible = false
+            };
+            statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(dimensionsLabel) + 1, _hdrLabel);
+        }
+
+        private void UpdateHdrLabel()
+        {
+            if (_hdrLabel == null)
+            {
+                return;
+            }
+            bool hasHdr = _surface?.HdrImage != null;
+            _hdrLabel.Visible = hasHdr;
+            if (!hasHdr)
+            {
+                return;
+            }
+            bool canWriteHdr = HdrExport.CanWriteHdr(_surface);
+            _hdrLabel.Text = Texts.Editor.HdrBadge;
+            _hdrLabel.Enabled = canWriteHdr;
+            _hdrLabel.ToolTipText = canWriteHdr ? Texts.Editor.HdrBadgeTooltip : Texts.Editor.HdrBadgeLostTooltip;
+            _hdrLabel.AccessibleName = Texts.Editor.HdrBadge + ": " + _hdrLabel.ToolTipText;
+        }
+
+        private void SurfaceImageChanged(object sender, EventArgs e) => UpdateHdrLabel();
+
         private void SurfaceSizeChanged(object sender, EventArgs e)
         {
             if (MatchSizeToCapture)
