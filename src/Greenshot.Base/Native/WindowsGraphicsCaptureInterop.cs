@@ -466,10 +466,11 @@ namespace Greenshot.Base.Native
             var height = clipped.Height;
             long bytesPerRow = (long)width * 4;
 
+            // Only the part goes to the CPU, not the whole texture
             var stagingDesc = new D3D11_TEXTURE2D_DESC
             {
-                Width = desc.Width,
-                Height = desc.Height,
+                Width = width,
+                Height = height,
                 MipLevels = 1,
                 ArraySize = 1,
                 Format = desc.Format,
@@ -484,7 +485,8 @@ namespace Greenshot.Base.Native
 
             try
             {
-                context.CopyResource(textureCopy, texture);
+                var box = new D3D11_BOX((uint)clipped.Left, (uint)clipped.Top, (uint)clipped.Right, (uint)clipped.Bottom);
+                context.CopySubresourceRegion(textureCopy, 0, 0, 0, 0, texture, 0, ref box);
 
                 // Test HRESULT of Map
                 int hr = context.Map(textureCopy, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mappedResource);
@@ -494,7 +496,7 @@ namespace Greenshot.Base.Native
                 {
                     BitmapData bmpData = target.LockBits(new Rectangle(targetLocation, clipped.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
-                    byte* sourcePtr = (byte*)mappedResource.pData + (long)clipped.Y * mappedResource.RowPitch + (long)clipped.X * 4;
+                    byte* sourcePtr = (byte*)mappedResource.pData;
                     byte* destPtr = (byte*)bmpData.Scan0;
 
                     for (int y = 0; y < height; y++)
@@ -616,16 +618,8 @@ namespace Greenshot.Base.Native
             ID3D11Texture2D hdrTexture, ID3D11Device device,
             ID3D11DeviceContext context, float sdrWhiteLevelInNits, float displayPeakInNits = 0)
         {
-            D3D11_TEXTURE2D_DESC desc;
-            hdrTexture.GetDesc(out desc);
-
-            var (peakInNits, highlightShare) = HdrContent.Measure(hdrTexture, device, context, sdrWhiteLevelInNits);
-            float whiteLevelInNits = HdrContent.WhiteLevelInNits(sdrWhiteLevelInNits, displayPeakInNits, peakInNits, highlightShare);
-            Log.Info($"HDR tone mapping {desc.Width}x{desc.Height}: SDR white {sdrWhiteLevelInNits} nits, display peak {displayPeakInNits:F0} nits, brightest pixel {peakInNits:F0} nits, {highlightShare:P0} brighter than SDR white, white at {whiteLevelInNits:F0} nits.");
-
-            // Not cached: creating it takes a few milliseconds, and it belongs to the device it was created with
-            using var toneMapper = new HdrToneMapper(device);
-            var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, whiteLevelInNits, peakInNits, desc.Width, desc.Height);
+            hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+            var sdrTexture = ToneMapHdrTexture(hdrTexture, device, context, new Rectangle(0, 0, desc.Width, desc.Height), sdrWhiteLevelInNits, displayPeakInNits, null);
             try
             {
                 return TransformTextureToBitmap(sdrTexture, device, context);
@@ -634,6 +628,39 @@ namespace Greenshot.Base.Native
             {
                 Marshal.ReleaseComObject(sdrTexture);
             }
+        }
+
+        /// <summary>
+        /// Tone map an area of an FP16 HDR texture to an 8-bit SDR texture of the size of the area, see HdrContent and HdrToneMapper.
+        /// The brightness is measured, tone mapped and read back only for the area: a selection of a monitor costs what its size costs.
+        /// </summary>
+        /// <param name="hdrTexture">The captured FP16 (R16G16B16A16_FLOAT) texture.</param>
+        /// <param name="device">The D3D11 device used for creating resources.</param>
+        /// <param name="context">The D3D11 device context for copy/map operations.</param>
+        /// <param name="area">The area of the texture, it is clipped to the texture</param>
+        /// <param name="sdrWhiteLevelInNits">The SDR white level in nits for the display.</param>
+        /// <param name="displayPeakInNits">The brightest the display can show, 0 if unknown.</param>
+        /// <param name="hdrImage">The HDR image of the same area when it was read already: its brightness is measured, without reading the texture again</param>
+        /// <returns>The SDR texture (released by the caller), null when the area is outside the texture</returns>
+        internal static ID3D11Texture2D ToneMapHdrTexture(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, Rectangle area,
+            float sdrWhiteLevelInNits, float displayPeakInNits, HdrImage hdrImage)
+        {
+            hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+            var clipped = Rectangle.Intersect(area, new Rectangle(0, 0, desc.Width, desc.Height));
+            if (clipped.Width <= 0 || clipped.Height <= 0)
+            {
+                return null;
+            }
+
+            var (peakInNits, highlightShare) = hdrImage != null && hdrImage.Width == clipped.Width && hdrImage.Height == clipped.Height
+                ? HdrContent.Measure(hdrImage, sdrWhiteLevelInNits)
+                : HdrContent.Measure(hdrTexture, device, context, sdrWhiteLevelInNits, clipped);
+            float whiteLevelInNits = HdrContent.WhiteLevelInNits(sdrWhiteLevelInNits, displayPeakInNits, peakInNits, highlightShare);
+            Log.Info($"HDR tone mapping {clipped.Width}x{clipped.Height} of {desc.Width}x{desc.Height}: SDR white {sdrWhiteLevelInNits} nits, display peak {displayPeakInNits:F0} nits, brightest pixel {peakInNits:F0} nits, {highlightShare:P0} brighter than SDR white, white at {whiteLevelInNits:F0} nits.");
+
+            // Not cached: creating it takes a few milliseconds, and it belongs to the device it was created with
+            using var toneMapper = new HdrToneMapper(device);
+            return toneMapper.ToneMapToSdr(hdrTexture, device, whiteLevelInNits, peakInNits, clipped);
         }
 
         private static void ConfigureCaptureSession(GraphicsCaptureSession session)
@@ -1022,14 +1049,34 @@ namespace Greenshot.Base.Native
 
                 if (request.IsHdr)
                 {
+                    // Only the area which is needed: the part of the monitor in the target, or the whole frame
+                    texture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+                    var area = request.Target != null ? request.TargetSourceRect : new Rectangle(0, 0, desc.Width, desc.Height);
                     if (request.KeepHdr)
                     {
-                        // Read before the texture is released below, only the area which is needed
-                        texture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
-                        var area = request.Target != null ? request.TargetSourceRect : new Rectangle(0, 0, desc.Width, desc.Height);
+                        // Read before the texture is released below
                         request.HdrImage = ReadHdrImage(texture, d3d11Device, context, area, request.SdrWhiteLevelInNits, request.DisplayPeakInNits);
                     }
-                    return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits, request.DisplayPeakInNits);
+                    var sdrTexture = ToneMapHdrTexture(texture, d3d11Device, context, area, request.SdrWhiteLevelInNits, request.DisplayPeakInNits, request.HdrImage);
+                    if (sdrTexture == null)
+                    {
+                        return null;
+                    }
+                    try
+                    {
+                        if (request.Target != null)
+                        {
+                            // Like an SDR monitor: straight into the bitmap of the whole area
+                            CopyTextureToBitmap(sdrTexture, d3d11Device, context, new Rectangle(0, 0, area.Width, area.Height), request.Target, request.TargetLocation);
+                            request.WroteTarget = true;
+                            return null;
+                        }
+                        return TransformTextureToBitmap(sdrTexture, d3d11Device, context);
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(sdrTexture);
+                    }
                 }
 
                 if (request.Target != null)

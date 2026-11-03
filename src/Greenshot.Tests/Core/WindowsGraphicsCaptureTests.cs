@@ -92,6 +92,61 @@ public class WindowsGraphicsCaptureTests
         Assert.NotNull(bitmap);
     }
 
+    [HdrFact]
+    public async Task TestCaptureAreaOfHdrMonitor_WithHdrImage()
+    {
+        IntPtr hdrMonitor = HdrFactAttribute.FindHdrMonitor();
+        var bounds = DisplayInfo.AllDisplayInfos.First(display => display.MonitorHandle == hdrMonitor).Bounds;
+        // A part of the HDR monitor only: measured, tone mapped and read back is only this area
+        var area = new Dapplo.Windows.Common.Structs.NativeRect(bounds.X + 100, bounds.Y + 100, 300, 200);
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
+        _output.WriteLine($"Captured {area} in {stopwatch.ElapsedMilliseconds} ms");
+        using (bitmap)
+        using (hdrImage)
+        {
+            Assert.NotNull(bitmap);
+            Assert.Equal(300, bitmap.Width);
+            Assert.Equal(200, bitmap.Height);
+            Assert.NotNull(hdrImage);
+            Assert.Equal(300, hdrImage.Width);
+            Assert.Equal(200, hdrImage.Height);
+            // The capture is written, not left transparent
+            Assert.Equal(255, bitmap.GetPixel(150, 100).A);
+        }
+    }
+
+    [HdrFact]
+    public async Task TestCaptureAcrossMonitors_SdrAndHdr()
+    {
+        IntPtr hdrMonitor = HdrFactAttribute.FindHdrMonitor();
+        var displays = DisplayInfo.AllDisplayInfos;
+        var hdrBounds = displays.First(display => display.MonitorHandle == hdrMonitor).Bounds;
+        var other = displays.FirstOrDefault(display => display.MonitorHandle != hdrMonitor && display.Bounds.Top <= hdrBounds.Top + 100 && display.Bounds.Bottom >= hdrBounds.Top + 300
+            && (display.Bounds.Right == hdrBounds.Left || display.Bounds.Left == hdrBounds.Right));
+        if (other == null)
+        {
+            Assert.Skip("No monitor next to the HDR monitor.");
+        }
+        int seam = other.Bounds.Right == hdrBounds.Left ? hdrBounds.Left : hdrBounds.Right;
+        var area = new Dapplo.Windows.Common.Structs.NativeRect(seam - 150, hdrBounds.Top + 100, 300, 200);
+
+        var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
+        _output.WriteLine($"Captured {area} across {other.Bounds} and {hdrBounds}");
+        using (bitmap)
+        using (hdrImage)
+        {
+            Assert.NotNull(bitmap);
+            Assert.Equal(300, bitmap.Width);
+            // Both halves are written: the HDR monitor's part straight into the result like the SDR monitor's
+            Assert.Equal(255, bitmap.GetPixel(75, 100).A);
+            Assert.Equal(255, bitmap.GetPixel(225, 100).A);
+            Assert.NotNull(hdrImage);
+            Assert.Equal(300, hdrImage.Width);
+        }
+    }
+
     [Fact]
     public void TestCaptureSessionBorderRequiredInterop()
     {
