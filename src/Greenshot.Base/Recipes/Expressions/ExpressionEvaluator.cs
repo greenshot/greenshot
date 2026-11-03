@@ -709,7 +709,7 @@ namespace Greenshot.Base.Recipes.Expressions
                     return payload.RawCapture?.CaptureDetails?.Filename ?? string.Empty;
                 case "hdr":
                     // Available, Lost or None, see HdrOutput.StateOf
-                    return HdrOutput.StateOf(surface != null ? surface.HdrImage : payload.RawCapture?.HdrImage, image);
+                    return HdrOutput.StateOf(payload);
             }
 
             if (payload.Metadata != null && payload.Metadata.TryGetValue(key, out var metaVal))

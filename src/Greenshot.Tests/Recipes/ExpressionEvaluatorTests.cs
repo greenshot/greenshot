@@ -123,6 +123,7 @@ namespace Greenshot.Tests.Recipes
             if (withHdr)
             {
                 var hdrImage = new HdrImage(4, 2, 240, 400);
+                hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                 hdrImage.BelongTo(capture.Image);
                 capture.HdrImage = hdrImage;
             }
@@ -141,6 +142,7 @@ namespace Greenshot.Tests.Recipes
             using var image = new Bitmap(4, 2);
             using var changed = new Bitmap(4, 2);
             using var hdrImage = new HdrImage(4, 2, 240, 400);
+            hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
             hdrImage.BelongTo(image);
 
             Assert.Equal(HdrOutput.StateAvailable, HdrOutput.StateOf(hdrImage, image));

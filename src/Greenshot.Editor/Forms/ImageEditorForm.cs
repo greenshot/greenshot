@@ -1518,7 +1518,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             {
                 return;
             }
-            bool hasHdr = _surface?.HdrImage != null;
+            // Without highlights or colors outside sRGB the capture is shown as a normal one
+            bool hasHdr = _surface?.HdrImage?.HasHdrContent == true;
             _hdrLabel.Visible = hasHdr;
             if (!hasHdr)
             {

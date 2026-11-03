@@ -108,6 +108,7 @@ namespace Greenshot.Tests.Recipes
                 if (withHdr)
                 {
                     var hdrImage = new Greenshot.Base.Core.HdrImage(4, 2, 240, 400);
+                    hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                     hdrImage.BelongTo(capture.Image);
                     capture.HdrImage = hdrImage;
                 }

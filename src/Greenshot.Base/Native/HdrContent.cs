@@ -136,6 +136,52 @@ internal static class HdrContent
         return result;
     }
 
+    /// <summary>
+    /// A channel below this is a color outside sRGB (scRGB has the sRGB primaries), the margin covers FP16 rounding
+    /// </summary>
+    private const float OutsideSrgb = -0.01f;
+
+    /// <summary>
+    /// True when a pixel of the part of one HDR display (straight alpha) is something an 8-bit sRGB file can't show: a highlight (a channel brighter
+    /// than SDR white) or a color outside sRGB (a channel below 0, e.g. the saturated colors of an HDR video or a P3 photo). Stops at the first one.
+    /// </summary>
+    internal static unsafe bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits)
+    {
+        if (!pixels.DangerousTryGetSinglePixelMemory(out Memory<SixLabors.ImageSharp.PixelFormats.HalfVector4> memory))
+        {
+            // Every HdrImage is made with ContiguousConfiguration
+            throw new InvalidOperationException("The pixels of the HDR image are not one block of memory.");
+        }
+        float sdrWhite = sdrWhiteLevelInNits / 80f * SdrMargin;
+        int width = pixels.Width;
+        using var handle = memory.Pin();
+        ushort* first = (ushort*)handle.Pointer;
+        // PARALLEL: rows are independent, the first one found stops the others
+        var result = Parallel.For(0, pixels.Height, (row, state) =>
+        {
+            ushort* src = first + (long)row * width * 4;
+            for (int x = 0; x < width; x++, src += 4)
+            {
+                // A transparent pixel shows nothing
+                if (!(HalfTable[src[3]] > 0.0001f))
+                {
+                    continue;
+                }
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    float value = HalfTable[src[channel]];
+                    // NaN fails the comparisons, infinity is no content
+                    if ((value > sdrWhite || value < OutsideSrgb) && !float.IsInfinity(value))
+                    {
+                        state.Stop();
+                        return;
+                    }
+                }
+            }
+        });
+        return !result.IsCompleted;
+    }
+
     /// <param name="premultiplied">The texture has premultiplied alpha, an HdrImage straight alpha</param>
     private static unsafe (float PeakInNits, float HighlightShare) Measure(IntPtr data, int rowPitch, int width, int height, float sdrWhiteLevelInNits, bool premultiplied)
     {

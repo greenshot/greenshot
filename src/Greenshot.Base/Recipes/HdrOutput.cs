@@ -64,11 +64,20 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public static string StateOf(HdrImage hdrImage, System.Drawing.Image image)
         {
-            if (hdrImage == null)
+            if (hdrImage == null || !hdrImage.HasHdrContent)
             {
                 return StateNone;
             }
             return hdrImage.BelongsTo(image) ? StateAvailable : StateLost;
+        }
+
+        /// <summary>
+        /// The value of payload.hdr for the capture of a flow: of its surface once there is one, otherwise of the capture
+        /// </summary>
+        public static string StateOf(Pipeline.ICapturePayload payload)
+        {
+            var surface = payload?.Surface;
+            return surface != null ? StateOf(surface.HdrImage, surface.Image) : StateOf(payload?.RawCapture?.HdrImage, payload?.RawCapture?.Image);
         }
 
         /// <summary>

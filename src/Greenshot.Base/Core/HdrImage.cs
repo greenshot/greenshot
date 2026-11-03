@@ -182,6 +182,29 @@ namespace Greenshot.Base.Core
         /// </summary>
         public bool IsRequested { get; set; }
 
+        // 0: not measured yet, 1: with HDR content, 2: without
+        private int _hasHdrContent;
+
+        /// <summary>
+        /// Something an 8-bit sRGB file can't show: a highlight (brighter than SDR white) or a color outside sRGB. Without it (e.g. a normal window
+        /// on an HDR display) an HDR file would only look like the normal one, so the capture counts as one without HDR content: no HDR file,
+        /// no HDR badge, payload.hdr is None. Measured once, when it is first asked for (the pixels are complete then).
+        /// </summary>
+        public bool HasHdrContent
+        {
+            get
+            {
+                CheckNotDisposed();
+                int known = Volatile.Read(ref _hasHdrContent);
+                if (known == 0)
+                {
+                    known = _tiles.Any(tile => Native.HdrContent.HasHdrContent(tile.Shared.Pixels, tile.SdrWhiteLevelInNits)) ? 1 : 2;
+                    Volatile.Write(ref _hasHdrContent, known);
+                }
+                return known == 1;
+            }
+        }
+
         /// <summary>
         /// The HDR image rotated like the editor rotates the capture (RotateEffect), as a new HDR image; the tiles are rotated with their places
         /// </summary>

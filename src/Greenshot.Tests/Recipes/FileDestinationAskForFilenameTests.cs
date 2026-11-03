@@ -115,6 +115,8 @@ namespace Greenshot.Tests.Recipes
             if (withHdr)
             {
                 var hdrImage = new HdrImage(8, 4, 240, 400);
+                // A highlight: without one the capture has no HDR content
+                hdrImage.Pixels[7, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                 hdrImage.BelongTo(capture.Image);
                 capture.HdrImage = hdrImage;
             }
@@ -367,6 +369,7 @@ namespace Greenshot.Tests.Recipes
                 var capture = new Capture(bitmap);
                 using (var hdrDisplay = new HdrImage(4, 4, 240, 400))
                 {
+                    hdrDisplay.Pixels[3, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                     capture.HdrImage = HdrImage.Combine(8, 4, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
                 }
                 capture.HdrImage.BelongTo(capture.Image);
@@ -409,6 +412,7 @@ namespace Greenshot.Tests.Recipes
                         accessor.GetRowSpan(y).Fill(new SixLabors.ImageSharp.PixelFormats.HalfVector4(0, 0, 0, 1));
                     }
                 });
+                hdrImage.Pixels[7, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                 hdrImage.BelongTo(capture.Image);
                 capture.HdrImage = hdrImage;
                 var red = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);

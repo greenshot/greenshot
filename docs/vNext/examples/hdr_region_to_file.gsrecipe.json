@@ -2,7 +2,7 @@
   "version": "2.0",
   "id": "recipe_hdr_region_to_file",
   "name": "HDR Region to File",
-  "description": "Select a region on the live screen of an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (an SDR display, an edited capture) a PNG is saved.",
+  "description": "Select a region on the live screen of an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (an SDR display, nothing brighter than SDR white) a PNG is saved, the notification says so.",
   "triggers": [
     {
       "triggerType": "ContextMenu",
@@ -100,7 +100,9 @@
       "name": "Completion Notification",
       "enabled": true,
       "when": "${option.openInEditor == false}",
-      "parameters": {}
+      "parameters": {
+        "NoHdrNote": true
+      }
     },
     {
       "id": "editor",
@@ -141,7 +143,7 @@
   "translations": {
     "de-DE": {
       "name": "HDR-Bereich als Datei",
-      "description": "Einen Bereich auf dem laufenden Bildschirm eines HDR-Displays auswählen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (SDR-Display, bearbeitete Aufnahme) wird ein PNG gespeichert.",
+      "description": "Einen Bereich auf dem laufenden Bildschirm eines HDR-Displays auswählen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (SDR-Display, nichts heller als SDR-Weiß) wird ein PNG gespeichert, die Benachrichtigung sagt es.",
       "options.askForFilename.label": "Fragen, wo die HDR-Datei gespeichert wird",
       "options.askForFilename.description": "Öffnet den Speichern-Dialog mit JPEG XR, statt im Ausgabeordner zu speichern",
       "options.openInEditor.label": "Stattdessen im Editor öffnen",

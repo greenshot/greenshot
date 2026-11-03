@@ -1002,6 +1002,11 @@ namespace Greenshot.Base.Languages
         string HdrLostQuestion { get; }
 
         /// <summary>
+        /// No HDR content (not on an HDR display, or nothing brighter than SDR white or outside sRGB): saved as a normal file.
+        /// </summary>
+        string NotificationNoHdr { get; }
+
+        /// <summary>
         /// Greenshot Help
         /// </summary>
         string HelpTitle { get; }

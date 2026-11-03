@@ -38,11 +38,11 @@ namespace Greenshot.Base.Core.Export
         private static readonly ILog Log = LogManager.GetLogger(typeof(HdrExport));
 
         /// <summary>
-        /// True when an HDR file can be written of the surface: it has HDR content and its image is still the one it was taken with
+        /// True when an HDR file can be written of the surface: it has HDR content (HdrImage.HasHdrContent) and its image is still the one it was taken with
         /// (not cropped, rotated or changed by an effect). What is drawn on it doesn't matter, it goes into the HDR file. On the UI thread.
         /// </summary>
         public static bool CanWriteHdr(ISurface surface) =>
-            surface?.HdrImage != null && surface.HdrImage.BelongsTo(surface.Image);
+            surface?.HdrImage != null && surface.HdrImage.BelongsTo(surface.Image) && surface.HdrImage.HasHdrContent;
 
         /// <summary>
         /// Encode the HDR file of the export source. No file when it can't be written: the text (with {0} for the format of the normal file) tells why.
@@ -64,7 +64,7 @@ namespace Greenshot.Base.Core.Export
             // On the UI thread, which owns the surface: the SDR displays and the elements come from its image
             var (hdrImage, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
             {
-                if (surface.HdrImage == null)
+                if (surface.HdrImage == null || !surface.HdrImage.HasHdrContent)
                 {
                     return ((HdrImage)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }

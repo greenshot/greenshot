@@ -296,7 +296,8 @@ namespace Greenshot.Destinations
         private async Task<(string FormatId, string ReasonText)> GetHdrToSaveAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             // IsModified can't tell: a new capture counts as modified until it is saved
-            var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (surface.HdrImage != null, HdrExport.CanWriteHdr(surface)), cancellationToken).ConfigureAwait(false);
+            var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (HdrOutput.StateOf(surface.HdrImage, surface.Image) != HdrOutput.StateNone, HdrExport.CanWriteHdr(surface)),
+                cancellationToken).ConfigureAwait(false);
             if (!canWrite)
             {
                 // Quietly the normal file: a recipe which wants to ask the user checks payload.hdr before (e.g. with a UserPrompt step)
@@ -357,7 +358,7 @@ namespace Greenshot.Destinations
             {
                 return true;
             }
-            bool lost = await request.Source.UseSurfaceAsync(surface => surface.HdrImage != null && !HdrExport.CanWriteHdr(surface), cancellationToken).ConfigureAwait(false);
+            bool lost = await request.Source.UseSurfaceAsync(surface => HdrOutput.StateOf(surface.HdrImage, surface.Image) == HdrOutput.StateLost, cancellationToken).ConfigureAwait(false);
             if (!lost)
             {
                 return true;

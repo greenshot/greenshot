@@ -564,12 +564,17 @@
                 "Jxr"
               ],
               "default": "None",
-              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved: with Jxr a notification says why, with Auto only when HDR content was lost."
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting; something brighter than SDR white or outside sRGB) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved quietly. To tell or ask the user, check ${payload.hdr} (Available, Lost, None) before, e.g. with a UserPrompt step, or use NoHdrNote of the Notification step."
             },
             "AskForFilename": {
               "type": "boolean",
               "default": false,
               "description": "Used by 'SaveFile' step: ask for the file with the save dialog instead of saving directly to the configured location. With HdrFormat the dialog suggests the HDR format; picking another format saves the normal file. Without a user to ask (e.g. a command line capture) the file is saved directly."
+            },
+            "NoHdrNote": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'Notification' step: say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat."
             },
             "FrameRate": {
               "type": "integer",

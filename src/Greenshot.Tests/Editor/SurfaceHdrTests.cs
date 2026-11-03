@@ -45,7 +45,7 @@ namespace Greenshot.Tests.Editor
         }
 
         /// <summary>
-        /// A capture of 4x2 pixels with an HDR image whose red is the x and green the y of the pixel
+        /// A capture of 4x2 pixels with an HDR image whose red is the x and green the y of the pixel, its blue is a highlight
         /// </summary>
         private static Surface CreateSurface()
         {
@@ -55,7 +55,7 @@ namespace Greenshot.Tests.Editor
             {
                 for (int x = 0; x < 4; x++)
                 {
-                    hdrImage.Pixels[x, y] = new HalfVector4(x, y, 0, 1);
+                    hdrImage.Pixels[x, y] = new HalfVector4(x, y, 5, 1);
                 }
             }
             hdrImage.BelongTo(capture.Image);
