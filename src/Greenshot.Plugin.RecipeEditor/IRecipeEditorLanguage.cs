@@ -2006,25 +2006,11 @@ namespace Greenshot.Plugin.RecipeEditor
         /// </summary>
         string PrinterName { get; }
 
-        /// <summary>
-        /// Print Interaction Mode
-        /// </summary>
-        string PrintInteractionMode { get; }
+        /// <summary>Show Greenshot's print options window.</summary>
+        string ShowPrintOptions { get; }
 
-        /// <summary>
-        /// Show the quick print dialog before printing
-        /// </summary>
-        string PrintInteractionModeQuickPrintDialog { get; }
-
-        /// <summary>
-        /// Full printer dialog
-        /// </summary>
-        string PrintInteractionModeFullPrinterDialog { get; }
-
-        /// <summary>
-        /// Silent (Direct Print)
-        /// </summary>
-        string PrintDialogSilent { get; }
+        /// <summary>Show the Windows printer dialog.</summary>
+        string ShowPrinterDialog { get; }
 
         /// <summary>
         /// Auto-Rotate to Fit Page

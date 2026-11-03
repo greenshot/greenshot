@@ -2415,7 +2415,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ClipboardCustomText"] = "${Payload.ExtractedText}";
                     break;
                 case WellKnownStepTypes.Printer:
-                    dict["PrintInteractionMode"] = "FullPrinterDialog";
+                    dict["ShowPrintOptions"] = true;
                     break;
                 case WellKnownStepTypes.CustomDestination:
                     dict["CustomDestinationId"] = "Clipboard";
