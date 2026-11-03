@@ -79,7 +79,8 @@ namespace Greenshot.Base.Effects
                 {
                     return curve[last] + (encoded - 1f) * slopeAtWhite;
                 }
-                float position = Math.Max(encoded, 0f) * last;
+                // Below black and NaN (a broken pixel) are black: the index must be in the curve
+                float position = encoded > 0f ? encoded * last : 0f;
                 int index = (int)position;
                 float fraction = position - index;
                 return curve[index] + (curve[index + 1] - curve[index]) * fraction;

@@ -28,6 +28,7 @@ using System.Threading;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
+using Greenshot.Base.Effects;
 using Greenshot.Base.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -298,7 +299,8 @@ namespace Greenshot.Base.Core
                 {
                     return null;
                 }
-                var resized = tile.Shared.Pixels.Clone(context => context.Resize(scaledArea.Width, scaledArea.Height, KnownResamplers.Bicubic));
+                // On float pixels: ImageSharp would mix HalfVector4 on its scaled values (see FloatPixels)
+                var resized = FloatPixels.Clone(tile.Shared.Pixels, context => context.Resize(scaledArea.Width, scaledArea.Height, KnownResamplers.Bicubic));
                 return new Tile(scaledArea, new SharedPixels(resized), tile.SdrWhiteLevelInNits);
             }).Where(tile => tile != null).ToArray();
             return tiles.Length == 0 ? null : new HdrImage(width, height, tiles, DisplayPeakInNits) { IsRequested = IsRequested, HasClearedPixels = HasClearedPixels };
@@ -464,11 +466,19 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
-                    // The filters see the image under them, the replaced areas are the export as it is (also over a filter), the elements go on top
-                    foreach (var filter in overlay.Filters)
+                    // The elements in their order: a filter works on what is drawn before it
+                    foreach (var step in overlay.Steps)
                     {
-                        filter.Apply(composed.Pixels, composed.SdrWhiteLevelInNits / 80f);
+                        if (step.Layer != null)
+                        {
+                            composed.BlendSdrOver(step.Layer, new NativePoint(0, 0));
+                        }
+                        else
+                        {
+                            step.Filter.Apply(composed.Pixels, composed.SdrWhiteLevelInNits / 80f);
+                        }
                     }
+                    // The replaced areas are the export as it is, with everything which is drawn over them
                     foreach (var area in overlay.ReplacedAreas)
                     {
                         composed.ReplaceWithSdr(overlay.Rendered, area);
@@ -485,7 +495,6 @@ namespace Greenshot.Base.Core
                             composed.ReplaceWithSdr(overlay.Rendered, area);
                         }
                     }
-                    composed.BlendSdrOver(overlay.Layer, new NativePoint(0, 0));
                 }
                 return composed;
             }

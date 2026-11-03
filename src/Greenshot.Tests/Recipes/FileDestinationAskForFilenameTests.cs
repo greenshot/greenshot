@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -316,8 +317,8 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateBrightHdrSurface();
                 if (rectangleBefore)
                 {
-                    // Drawn before the filter, so it's under it: the filter can't be done on the HDR pixels then
-                    surface.AddElement(new RectangleContainer(surface) { Left = 5, Top = 3, Width = 2, Height = 2 }, false, false);
+                    // Drawn before the filter, so it's under it: the filter works on it too, like in the editor
+                    surface.AddElement(new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 }, false, false);
                 }
                 var highlight = new HighlightContainer(surface) { Left = 4, Top = 2, Width = 6, Height = 4 };
                 highlight.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, preparedFilter);
@@ -364,13 +365,25 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task Magnifier_OverAnElementDrawnBefore_IsTheRenderedCapture()
+        public async Task Magnifier_OverAnElementDrawnBefore_MagnifiesItToo_TheHighlightsStay()
         {
             var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.MAGNIFICATION, true);
 
-            // The area comes from the 8-bit export: at most SDR white
-            Assert.InRange(row[9 * 4], 0f, 3.05f);
+            // Like in the editor: the element drawn before is magnified with the capture, between its lines the highlights stay
+            var magnified = Enumerable.Range(4, 6).Select(x => row[x * 4]).ToList();
+            Assert.Contains(magnified, value => value < 4.6f);
+            Assert.Contains(magnified, value => value > 4.9f);
             Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task AreaHighlight_OverAnElementDrawnBefore_KeepsTheHdrContent()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.AREA_HIGHLIGHT, true);
+
+            // The rest of the capture is darkened but keeps its HDR content (not the 8-bit export), the area itself keeps the highlights
+            Assert.InRange(row[0], 3.1f, 4.9f);
+            Assert.Equal(5f, row[5 * 4], 2);
         }
 
         [Fact]

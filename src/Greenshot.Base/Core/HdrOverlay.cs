@@ -33,26 +33,24 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class HdrOverlay : IDisposable
     {
-        /// <param name="layer">The drawn elements with their alpha, the size of the capture</param>
+        /// <param name="steps">The layers of drawn elements and the filters done on the HDR pixels, in the order of the elements</param>
         /// <param name="rendered">The capture as it is exported (with its elements), for the replaced areas; null without them</param>
         /// <param name="replacedAreas">The areas taken from the rendered capture</param>
-        /// <param name="filters">The filters of elements done on the HDR pixels, in the order of the elements; null for none</param>
         /// <param name="changedAreas">The areas where only the pixels which the elements changed are taken from the rendered capture; null for none</param>
-        public HdrOverlay(Bitmap layer, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<ImageFilter> filters = null,
-            IReadOnlyList<NativeRect> changedAreas = null)
+        public HdrOverlay(IReadOnlyList<HdrOverlayStep> steps, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<NativeRect> changedAreas = null)
         {
+            Steps = steps ?? throw new ArgumentNullException(nameof(steps));
             ChangedAreas = changedAreas ?? Array.Empty<NativeRect>();
-            Filters = filters ?? Array.Empty<ImageFilter>();
-            Layer = layer ?? throw new ArgumentNullException(nameof(layer));
             Rendered = rendered;
             ReplacedAreas = replacedAreas ?? Array.Empty<NativeRect>();
         }
 
         /// <summary>
-        /// The drawn elements (arrows, text, shapes, the mouse cursor, ...) with their alpha, blended over the HDR pixels.
-        /// Transparent in the replaced areas.
+        /// In the order of the elements: layers of drawn elements (arrows, text, shapes, the mouse cursor, ...) with their alpha, blended over
+        /// the HDR pixels, and between them the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn
+        /// edges): a filter changes what is drawn before it, like in the editor. The layers are transparent in the replaced and changed areas.
         /// </summary>
-        public Bitmap Layer { get; }
+        public IReadOnlyList<HdrOverlayStep> Steps { get; }
 
         /// <summary>
         /// The capture as exported, with its elements: where the replaced areas come from
@@ -71,16 +69,39 @@ namespace Greenshot.Base.Core
         /// </summary>
         public IReadOnlyList<NativeRect> ChangedAreas { get; }
 
-        /// <summary>
-        /// The filters of elements which can be done on the HDR pixels (e.g. a highlighter, a magnifier), in the order of the elements: they are
-        /// done first, then the replaced areas and the drawn elements go over them. Their elements are drawn in the layer without the filter.
-        /// </summary>
-        public IReadOnlyList<ImageFilter> Filters { get; }
-
         public void Dispose()
         {
-            Layer.Dispose();
+            foreach (var step in Steps)
+            {
+                step.Layer?.Dispose();
+            }
             Rendered?.Dispose();
         }
+    }
+
+    /// <summary>
+    /// A step of an HdrOverlay: a layer of drawn elements, or a filter of an element done on the HDR pixels
+    /// </summary>
+    public sealed class HdrOverlayStep
+    {
+        private HdrOverlayStep(Bitmap layer, ImageFilter filter)
+        {
+            Layer = layer;
+            Filter = filter;
+        }
+
+        public static HdrOverlayStep Of(Bitmap layer) => new(layer ?? throw new ArgumentNullException(nameof(layer)), null);
+
+        public static HdrOverlayStep Of(ImageFilter filter) => new(null, filter ?? throw new ArgumentNullException(nameof(filter)));
+
+        /// <summary>
+        /// Drawn elements with their alpha, the size of the capture; null for a filter
+        /// </summary>
+        public Bitmap Layer { get; }
+
+        /// <summary>
+        /// A filter of an element; null for a layer
+        /// </summary>
+        public ImageFilter Filter { get; }
     }
 }

@@ -153,23 +153,30 @@ namespace Greenshot.Base.Effects
                 if (same.Width > 0 && same.Height > 0)
                 {
                     var newData = newBitmap.LockBits(same, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                    var oldData = oldBitmap.LockBits(new NativeRect(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
                     try
                     {
-                        for (int y = 0; y < same.Height; y++)
+                        var oldData = oldBitmap.LockBits(new NativeRect(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), ImageLockMode.ReadOnly,
+                            PixelFormat.Format32bppArgb);
+                        try
                         {
-                            for (int x = 0; x < same.Width; x++)
+                            for (int y = 0; y < same.Height; y++)
                             {
-                                int newPixel = Marshal.ReadInt32(newData.Scan0, y * newData.Stride + x * 4);
-                                int oldPixel = Marshal.ReadInt32(oldData.Scan0, y * oldData.Stride + x * 4);
-                                changed[(same.Y - area.Y + y) * area.Width + same.X - area.X + x] = newPixel != oldPixel;
+                                for (int x = 0; x < same.Width; x++)
+                                {
+                                    int newPixel = Marshal.ReadInt32(newData.Scan0, y * newData.Stride + x * 4);
+                                    int oldPixel = Marshal.ReadInt32(oldData.Scan0, y * oldData.Stride + x * 4);
+                                    changed[(same.Y - area.Y + y) * area.Width + same.X - area.X + x] = newPixel != oldPixel;
+                                }
                             }
+                        }
+                        finally
+                        {
+                            oldBitmap.UnlockBits(oldData);
                         }
                     }
                     finally
                     {
                         newBitmap.UnlockBits(newData);
-                        oldBitmap.UnlockBits(oldData);
                     }
                 }
                 changes.Add((area, changed));
@@ -195,7 +202,10 @@ namespace Greenshot.Base.Effects
             var outline = ImageHelper.CreateTornEdgeOutline(oldSize.Width, oldSize.Height, tornEdge.ToothHeight, tornEdge.HorizontalToothRange, tornEdge.VerticalToothRange,
                 tornEdge.Edges ?? new[] { true, true, true, true }, tornEdge.Seed);
             var shape = new SixLabors.ImageSharp.Drawing.Polygon(outline.Select(point => new SixLabors.ImageSharp.PointF(point.X, point.Y)).ToArray());
-            (float, int)? shadow = tornEdge.GenerateShadow ? (tornEdge.Darkness, tornEdge.ShadowSize) : null;
+            // Like ImageHelper.CreateShadow: with the blur of GDI+ (odd size) the shadow is 0.1 darker
+            int oddShadowSize = (tornEdge.ShadowSize & 1) == 0 ? tornEdge.ShadowSize + 1 : tornEdge.ShadowSize;
+            float darkness = Dapplo.Windows.Gdi32.GdiPlusApi.IsBlurPossible(oddShadowSize) ? tornEdge.Darkness + 0.1f : tornEdge.Darkness;
+            (float, int)? shadow = tornEdge.GenerateShadow ? (darkness, tornEdge.ShadowSize) : null;
             var backgroundColor = tornEdge.BackgroundColor;
 
             // Over several displays the parts of the SDR displays are only in the 8-bit image: the image as it is, moved by the shadow, and in the

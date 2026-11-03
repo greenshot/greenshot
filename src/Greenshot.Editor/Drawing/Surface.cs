@@ -452,9 +452,15 @@ namespace Greenshot.Editor.Drawing
         /// <param name="oldImage">The image before</param>
         /// <param name="newImage">The new image</param>
         /// <param name="edit">The same change for the HDR image, null when it can't be done on it (the new image has no HDR content then)</param>
-        private void DeriveHdrImage(Image oldImage, Image newImage, IImageEdit edit)
+        private void DeriveHdrImage(Image oldImage, Image newImage, IImageEdit edit) => DeriveHdrImage(oldImage, newImage, () => edit);
+
+        /// <summary>
+        /// Like <see cref="DeriveHdrImage(Image, Image, IImageEdit)"/>, the edit is only made when the old image has an HDR version
+        /// (e.g. the pixel mask of torn edges costs copies of the images)
+        /// </summary>
+        private void DeriveHdrImage(Image oldImage, Image newImage, Func<IImageEdit> createEdit)
         {
-            if (_hdrImage == null || newImage == null || edit == null)
+            if (_hdrImage == null || newImage == null)
             {
                 return;
             }
@@ -472,6 +478,11 @@ namespace Greenshot.Editor.Drawing
                 }
                 edits = version.Edits;
             }
+            var edit = createEdit();
+            if (edit == null)
+            {
+                return;
+            }
             PruneHdrVersions(false);
             _hdrVersions.Add(new HdrVersion(newImage, edits.Append(edit).ToList()));
         }
@@ -482,10 +493,12 @@ namespace Greenshot.Editor.Drawing
         private sealed class HdrVersion : IDisposable
         {
             private readonly WeakReference<Image> _image;
-            // Made on the UI thread or on a pool thread (see HdrImagePreparation), released on the UI thread
-            private readonly object _lock = new object();
-            private HdrImage _made;
-            private bool _isMade;
+            // Made on the UI thread or on a pool thread (see HdrImagePreparation), read and released on the UI thread: making takes this lock,
+            // so it is done once; reading and releasing don't wait for it
+            private readonly object _makeLock = new object();
+            private readonly object _stateLock = new object();
+            private volatile HdrImage _made;
+            private volatile bool _isMade;
             private bool _disposed;
 
             public HdrVersion(Image image, IReadOnlyList<IImageEdit> edits)
@@ -498,30 +511,12 @@ namespace Greenshot.Editor.Drawing
 
             public IReadOnlyList<IImageEdit> Edits { get; }
 
-            public bool IsMade
-            {
-                get
-                {
-                    lock (_lock)
-                    {
-                        return _isMade;
-                    }
-                }
-            }
+            public bool IsMade => _isMade;
 
             /// <summary>
             /// The HDR image once it was made, null when nothing of the HDR content is left
             /// </summary>
-            public HdrImage Made
-            {
-                get
-                {
-                    lock (_lock)
-                    {
-                        return _made;
-                    }
-                }
-            }
+            public HdrImage Made => _made;
 
             public bool BelongsTo(Image image) => image != null && _image.TryGetTarget(out var own) && ReferenceEquals(own, image);
 
@@ -531,11 +526,14 @@ namespace Greenshot.Editor.Drawing
             /// </summary>
             public HdrImage Make(HdrImage original)
             {
-                lock (_lock)
+                lock (_makeLock)
                 {
-                    if (_isMade || _disposed)
+                    lock (_stateLock)
                     {
-                        return _made;
+                        if (_isMade || _disposed)
+                        {
+                            return _made;
+                        }
                     }
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var current = original.Share();
@@ -558,15 +556,24 @@ namespace Greenshot.Editor.Drawing
                         _ = current.HasHdrContent;
                     }
                     LOG.Info($"Made the HDR image of the editor's image in {stopwatch.ElapsedMilliseconds} ms: {string.Join(", ", Edits.Select(edit => edit.Name))}");
-                    _made = current;
-                    _isMade = true;
-                    return _made;
+                    lock (_stateLock)
+                    {
+                        if (_disposed)
+                        {
+                            // Released while it was made
+                            current?.Dispose();
+                            return null;
+                        }
+                        _made = current;
+                        _isMade = true;
+                        return current;
+                    }
                 }
             }
 
             public void Dispose()
             {
-                lock (_lock)
+                lock (_stateLock)
                 {
                     _disposed = true;
                     _made?.Dispose();
@@ -584,165 +591,175 @@ namespace Greenshot.Editor.Drawing
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
-            // Elements which change the pixels under them (blur, pixelate, highlight, cut marks, torn edges) can't be drawn on their own:
-            // their areas are taken from the export as they are. An inverted filter changes everything around it.
-            // The filters of the highlighter and the magnifier are done on the HDR pixels instead (ElementImageFilters), when nothing drawn
-            // before them is in their area (it would be under the filter): then the HDR content under them keeps its highlights.
+            // In the order of the elements: what they draw goes into layers. The filters which can be done on the HDR pixels (ElementImageFilters:
+            // highlighter, area highlight, grayscale, magnifier; the cut of torn edges and cut marks) are steps between the layers, so they work
+            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (blur and pixelate of the
+            // obfuscate element) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
             var changedAreas = new List<NativeRect>();
-            var imageFilters = new List<ImageFilter>();
-            var hdrFiltered = new HashSet<DrawableContainer>();
-            var drawnBefore = new List<NativeRect>();
+            var steps = new List<HdrOverlayStep>();
             var invertedGroupsDone = new HashSet<string>();
-            foreach (var element in _elements.OfType<DrawableContainer>())
-            {
-                if (!ChangesPixels(element))
-                {
-                    if (element.Parent != null)
-                    {
-                        drawnBefore.Add(element.DrawingBounds);
-                    }
-                    continue;
-                }
-                if (element.HasFilters && element.Parent != null)
-                {
-                    // Inverted filters of elements with the same filters work together outside all of them (like DrawableContainerList.Draw)
-                    string groupKey = string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
-                    var holes = groupKey.Length == 0 ? Array.Empty<NativeRect>() : _elements.OfType<DrawableContainer>()
-                        .Where(other => other.Parent != null && other.HasFilters
-                                        && string.Join(",", other.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name)) == groupKey)
-                        .Select(other => other.Bounds.Normalize()).ToArray();
-                    var filteredAreas = ElementImageFilters.ChangedAreas(element, bounds, holes);
-                    bool underIsFree = !drawnBefore.Any(drawn => filteredAreas.Any(filtered => filtered.IntersectsWith(drawn)));
-                    var elementImageFilters = underIsFree
-                        ? ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null)
-                        : null;
-                    if (elementImageFilters != null)
-                    {
-                        imageFilters.AddRange(elementImageFilters);
-                        hdrFiltered.Add(element);
-                        // Its own drawing (a border) is in the layer
-                        drawnBefore.Add(element.DrawingBounds);
-                        continue;
-                    }
-                }
-                if (element.Parent != null && CreateCutAway(element, bounds) is { } cutAway && !drawnBefore.Any(drawn => cutAway.Areas.Any(area => area.IntersectsWith(drawn))))
-                {
-                    // Torn edges and cut marks are drawn for real: what they cut away is cut out of the HDR pixels (ImageSharp, the same shape),
-                    // what they draw (fill, shadow, edge lines) is in the layer
-                    imageFilters.Add(cutAway.Filter);
-                    hdrFiltered.Add(element);
-                    drawnBefore.Add(element.DrawingBounds);
-                    continue;
-                }
-                IEnumerable<NativeRect> areas;
-                var target = replacedAreas;
-                if (element is TornEdgeContainer tornEdges)
-                {
-                    // Only the bands of the torn edges, and in them only the pixels of the teeth: the rest keeps its HDR content
-                    areas = tornEdges.EdgeAreas();
-                    target = changedAreas;
-                }
-                else if (element.HasFilters)
-                {
-                    // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
-                    int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
-                    int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
-                    int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
-                    areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
-                }
-                else
-                {
-                    // A cut mark: the pixels it draws
-                    areas = new[] { element.DrawingBounds };
-                    target = changedAreas;
-                }
-                foreach (var area in areas.Select(area => area.Intersect(bounds)))
-                {
-                    if (area.Width > 0 && area.Height > 0)
-                    {
-                        target.Add(area);
-                    }
-                }
-            }
-
-            Bitmap rendered = replacedAreas.Count > 0 || changedAreas.Count > 0 ? (Bitmap)GetImage(RenderMode.EXPORT) : null;
-            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+            Bitmap rendered = null;
+            Graphics graphics = null;
             try
             {
-                using (var graphics = Graphics.FromImage(layer))
+                Graphics Layer()
                 {
-                    // The other elements with their alpha, in their order
-                    foreach (var element in _elements.OfType<DrawableContainer>())
+                    if (graphics == null)
                     {
-                        if (element.Parent == null || (ChangesPixels(element) && !hdrFiltered.Contains(element)) || !element.DrawingBounds.IntersectsWith(bounds))
-                        {
-                            continue;
-                        }
-                        if (hdrFiltered.Contains(element))
-                        {
-                            // The filter is done on the HDR pixels, only what the element draws itself goes here
-                            element.Draw(graphics, RenderMode.EXPORT);
-                            continue;
-                        }
-                        if (element is CursorContainer cursorContainer)
-                        {
-                            // A mask cursor (e.g. the I-beam) inverts the image under it
-                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
-                            if (cursorLayer != null)
-                            {
-                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
-                            }
-                            continue;
-                        }
-                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
+                        var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
+                        steps.Add(HdrOverlayStep.Of(layer));
+                        graphics = Graphics.FromImage(layer);
                     }
+                    return graphics;
+                }
 
-                    // The replaced areas are the export as it is, also what is drawn over them
-                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                    using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var area in replacedAreas.Concat(changedAreas))
+                foreach (var element in _elements.OfType<DrawableContainer>())
+                {
+                    if (element.Parent == null)
                     {
-                        graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
+                        continue;
+                    }
+                    if (ChangesPixels(element))
+                    {
+                        var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
+                        if (elementFilters == null)
+                        {
+                            AddReplacedAreas(element, bounds, replacedAreas, changedAreas);
+                            continue;
+                        }
+                        // The filters work on what is drawn so far, the next elements go into a new layer
+                        graphics?.Dispose();
+                        graphics = null;
+                        steps.AddRange(elementFilters.Select(HdrOverlayStep.Of));
+                        // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
+                        element.Draw(Layer(), RenderMode.EXPORT);
+                        continue;
+                    }
+                    if (!element.DrawingBounds.IntersectsWith(bounds))
+                    {
+                        continue;
+                    }
+                    if (element is CursorContainer cursorContainer)
+                    {
+                        // A mask cursor (e.g. the I-beam) inverts the image under it
+                        using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
+                        if (cursorLayer != null)
+                        {
+                            Layer().DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
+                        }
+                        continue;
+                    }
+                    var layerGraphics = Layer();
+                    element.DrawContent(layerGraphics, steps[steps.Count - 1].Layer, RenderMode.EXPORT, bounds);
+                }
+                graphics?.Dispose();
+                graphics = null;
+
+                if (replacedAreas.Count > 0 || changedAreas.Count > 0)
+                {
+                    rendered = (Bitmap)GetImage(RenderMode.EXPORT);
+                    // The replaced areas are the export as it is, also what is drawn over them
+                    using var clear = new SolidBrush(Color.Transparent);
+                    foreach (var layer in steps.Select(step => step.Layer).Where(layer => layer != null))
+                    {
+                        using var layerGraphics = Graphics.FromImage(layer);
+                        layerGraphics.CompositingMode = CompositingMode.SourceCopy;
+                        foreach (var area in replacedAreas.Concat(changedAreas))
+                        {
+                            layerGraphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
+                        }
                     }
                 }
-                return new HdrOverlay(layer, rendered, replacedAreas, imageFilters, changedAreas);
+                return new HdrOverlay(steps, rendered, replacedAreas, changedAreas);
             }
             catch
             {
-                layer.Dispose();
+                graphics?.Dispose();
+                foreach (var step in steps)
+                {
+                    step.Layer?.Dispose();
+                }
                 rendered?.Dispose();
                 throw;
             }
         }
 
         /// <summary>
-        /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them
+        /// The filters of the element which can be done on the HDR pixels (see ElementImageFilters, CreateCutAway), null when it can't
         /// </summary>
+        private IReadOnlyList<ImageFilter> CreateImageFilters(DrawableContainer element, NativeRect bounds, HashSet<string> invertedGroupsDone)
+        {
+            if (!element.HasFilters)
+            {
+                var cutAway = CreateCutAway(element);
+                return cutAway == null ? null : new[] { cutAway };
+            }
+            // Inverted filters of elements with the same filters work together outside all of them, once (like DrawableContainerList.Draw)
+            string groupKey = InvertedFilterKey(element);
+            var holes = groupKey.Length == 0
+                ? Array.Empty<NativeRect>()
+                : _elements.OfType<DrawableContainer>().Where(other => other.Parent != null && other.HasFilters && InvertedFilterKey(other) == groupKey)
+                    .Select(other => other.Bounds.Normalize()).ToArray();
+            return ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null);
+        }
+
+        private static string InvertedFilterKey(DrawableContainer element) =>
+            string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
+
+        /// <summary>
+        /// The areas of an element whose effect can't be drawn on the HDR pixels: from the export as it is (replaced), or only the pixels which it
+        /// changed (changed: torn edges and cut marks, when their cut can't be drawn)
+        /// </summary>
+        private static void AddReplacedAreas(DrawableContainer element, NativeRect bounds, List<NativeRect> replacedAreas, List<NativeRect> changedAreas)
+        {
+            IEnumerable<NativeRect> areas;
+            var target = replacedAreas;
+            if (element is TornEdgeContainer tornEdges)
+            {
+                // Only the bands of the torn edges, and in them only the pixels of the teeth: the rest keeps its HDR content
+                areas = tornEdges.EdgeAreas();
+                target = changedAreas;
+            }
+            else if (element.HasFilters)
+            {
+                // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
+                int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
+                int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
+                int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
+                areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
+            }
+            else
+            {
+                // A cut mark: the pixels it draws
+                areas = new[] { element.DrawingBounds };
+                target = changedAreas;
+            }
+            foreach (var area in areas.Select(area => area.Intersect(bounds)))
+            {
+                if (area.Width > 0 && area.Height > 0)
+                {
+                    target.Add(area);
+                }
+            }
+        }
+
         /// <summary>
         /// For torn edges and cut marks: cutting away what they cut away from the HDR pixels (ImageSharpDrawing.CutDrawing, the shape of
-        /// CreateCutPath) and the areas where it happens; null for other elements and when nothing is cut away
+        /// CreateCutPath); what they draw themselves is drawn over it. Null for other elements.
         /// </summary>
-        private static (ImageFilter Filter, IReadOnlyList<NativeRect> Areas)? CreateCutAway(DrawableContainer element, NativeRect bounds)
+        private static ImageFilter CreateCutAway(DrawableContainer element)
         {
             GraphicsPath cutPath;
-            IReadOnlyList<NativeRect> areas;
             switch (element)
             {
                 case TornEdgeContainer tornEdges:
                     // The torn off parts are replaced by the fill color (see TornEdgeContainer.Draw), so they are cut out first
                     cutPath = tornEdges.CreateCutPath();
-                    areas = tornEdges.EdgeAreas().ToList();
                     break;
                 case CutMarkContainer cutMark:
                     // A gap with a fill color is drawn over the image, only a transparent gap is cut out
                     cutPath = cutMark.HasTransparentGap ? cutMark.CreateCutPath() : null;
-                    areas = new[] { cutMark.DrawingBounds };
-                    if (cutPath == null)
-                    {
-                        // Nothing to cut out, the cut mark is drawn in the layer
-                        return (new ImageFilter("Cut mark with a fill color", (_, _) => { }), areas);
-                    }
                     break;
                 default:
                     return null;
@@ -752,13 +769,16 @@ namespace Greenshot.Editor.Drawing
                 var shape = cutPath == null ? null : GdiPaths.ToPath(cutPath);
                 if (shape == null)
                 {
-                    return null;
+                    // Nothing to cut out, the element only draws
+                    return new ImageFilter($"Nothing to cut away ({element.GetType().Name})", (_, _) => { });
                 }
-                return (new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape)),
-                    areas.Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList());
+                return new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape));
             }
         }
 
+        /// <summary>
+        /// The element changes the pixels of the capture under it (a filter, a cut mark, a torn edge), it can't be drawn without them
+        /// </summary>
         private static bool ChangesPixels(DrawableContainer element) =>
             element.HasFilters || element is CutMarkContainer || element is TornEdgeContainer;
 
@@ -1767,7 +1787,7 @@ namespace Greenshot.Editor.Drawing
                 return false;
             }
             _elements.Transform(matrix);
-            DeriveHdrImage(oldImage, newImage, ImageEdits.ForEffect(effect, oldImage, newImage, matrix));
+            DeriveHdrImage(oldImage, newImage, () => ImageEdits.ForEffect(effect, oldImage, newImage, matrix));
             // Without undo the old image isn't needed anymore
             SetImage(newImage, true);
             return true;
@@ -1862,7 +1882,7 @@ namespace Greenshot.Editor.Drawing
             // Make sure the elements move according to the offset the effect made the bitmap move
             _elements.Transform(matrix);
             // Make undoable
-            DeriveHdrImage(Image, newImage, ImageEdits.ForEffect(effect, Image, newImage, matrix));
+            DeriveHdrImage(Image, newImage, () => ImageEdits.ForEffect(effect, Image, newImage, matrix));
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
             SetImage(newImage, false);
             Invalidate();
@@ -2386,7 +2406,7 @@ namespace Greenshot.Editor.Drawing
             var bounds = new NativeRect(0, 0, Image.Width, Image.Height);
             var drawnAreas = (element is TornEdgeContainer tornEdges ? tornEdges.EdgeAreas() : new[] { drawableContainer.DrawingBounds }.AsEnumerable())
                 .Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList();
-            DeriveHdrImage(Image, newImage, ImageEdits.ClearChanged(ImageEdits.ChangedPixels(Image, newImage, new NativePoint(0, 0), drawnAreas)));
+            DeriveHdrImage(Image, newImage, () => ImageEdits.ClearChanged(ImageEdits.ChangedPixels(Image, newImage, new NativePoint(0, 0), drawnAreas)));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;

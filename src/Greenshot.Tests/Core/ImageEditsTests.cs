@@ -285,5 +285,39 @@ namespace Greenshot.Tests.Core
             Assert.Equal(expected, gray8Bit.GetPixel(1, 1).G);
             Assert.InRange(Level(grayHdr.X), expected - 1, expected + 1);
         }
+
+        [Fact]
+        public void Resize_OfTransparentPixels_KeepsThemTransparent_TheHighlightsStay()
+        {
+            // The left half a highlight of 5, the right half transparent (e.g. torn off pixels)
+            using var hdrImage = new HdrImage(16, 4, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    accessor.GetRowSpan(y).Slice(0, 8).Fill(Gray(5));
+                }
+            });
+
+            using var half = hdrImage.Resize(8, 2);
+
+            for (int x = 0; x < 8; x++)
+            {
+                var pixel = half.Pixels[x, 1].ToVector4();
+                Assert.False(float.IsNaN(pixel.X) || float.IsInfinity(pixel.X), $"pixel {x}");
+                Assert.InRange(pixel.W, 0f, 1f);
+                Assert.InRange(pixel.X, -0.5f, 5.5f);
+            }
+            Assert.Equal(5f, half.Pixels[1, 1].ToVector4().X, 1);
+            Assert.Equal(0f, half.Pixels[7, 1].ToVector4().W, 2);
+        }
+
+        [Fact]
+        public void Adjust_OfABrokenPixel_DoesNotFail()
+        {
+            var adjusted = Apply(new AdjustEffect { Brightness = 1.2f }, new HalfVector4(float.NaN, 1, 1, 1));
+
+            Assert.True(adjusted.Y > 1f);
+        }
     }
 }

@@ -80,15 +80,6 @@ namespace Greenshot.Editor.Drawing.Filters
             return imageFilters;
         }
 
-        /// <summary>
-        /// The areas of the image which the element's filters change, to check that nothing drawn before is in them
-        /// </summary>
-        public static IReadOnlyList<NativeRect> ChangedAreas(DrawableContainer element, NativeRect bounds, IReadOnlyList<NativeRect> invertedHoles)
-        {
-            bool inverted = element.Filters.Any(filter => filter.Invert);
-            return inverted ? HdrImage.Outside(bounds, invertedHoles ?? Array.Empty<NativeRect>()) : new[] { element.Bounds.Normalize().Intersect(bounds) };
-        }
-
         private static ImageFilter Create(AbstractFilter filter, NativeRect elementBounds, IReadOnlyList<Rectangle> areas, NativeRect bounds)
         {
             switch (filter)
@@ -134,7 +125,9 @@ namespace Greenshot.Editor.Drawing.Filters
                         {
                             // The pixels around the area are read too
                             var around = Rectangle.Intersect(Rectangle.Inflate(area, 2 * radius, 2 * radius), new Rectangle(0, 0, pixels.Width, pixels.Height));
-                            using var blurred = pixels.Clone(context => context.Crop(around).BoxBlur(radius).BoxBlur(radius));
+                            // On float pixels: ImageSharp would mix HalfVector4 on its scaled values (see FloatPixels)
+                            using var blurred = FloatPixels.Of(pixels, around);
+                            FloatPixels.Mutate(blurred, context => context.BoxBlur(radius).BoxBlur(radius));
                             ImageFilter.CopyArea(pixels, blurred, new Point(around.X, around.Y), area);
                         }
                     });
@@ -154,8 +147,8 @@ namespace Greenshot.Editor.Drawing.Filters
                     }
                     return new ImageFilter($"Magnify {factor}x", (pixels, _) =>
                     {
-                        using var magnified = pixels.Clone(context => context.Crop(ToRectangle(source))
-                            .Resize(elementBounds.Width, elementBounds.Height, KnownResamplers.NearestNeighbor));
+                        using var magnified = FloatPixels.Of(pixels, ToRectangle(source));
+                        FloatPixels.Mutate(magnified, context => context.Resize(elementBounds.Width, elementBounds.Height, KnownResamplers.NearestNeighbor));
                         ImageFilter.CopyArea(pixels, magnified, new Point(elementBounds.X, elementBounds.Y), ToRectangle(elementBounds));
                     });
                 default:
