@@ -159,11 +159,11 @@ namespace Greenshot.Base.Core
             CaptureWindowAsync(windowToCapture, capture, false, cancellationToken);
 
         /// <summary>
-        /// Capture the window, with its HDR pixels (CaptureDetails.HdrPixels) when keepHdr is set and the window is on an HDR display
+        /// Capture the window, with its HDR image (ICapture.HdrImage) when keepHdr is set and the window is on an HDR display
         /// </summary>
         /// <param name="windowToCapture">IInteropWindow</param>
         /// <param name="capture">ICapture to fill, null to create one</param>
-        /// <param name="keepHdr">Keep the HDR pixels, see HdrOutput</param>
+        /// <param name="keepHdr">Keep the HDR image, see HdrOutput</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture, null when nothing could be captured</returns>
         public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture, bool keepHdr, CancellationToken cancellationToken = default)
@@ -180,7 +180,7 @@ namespace Greenshot.Base.Core
             capture.Location = result.Location;
             capture.CaptureDetails.Title = windowToCapture.GetCaption();
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
-            capture.CaptureDetails.HdrPixels = result.HdrPixels;
+            capture.HdrImage = result.HdrImage;
             return capture;
         }
     }

@@ -27,7 +27,7 @@ using Greenshot.Base.Recipes.Pipeline;
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// The HDR file a recipe saves (the HdrFormat parameter of its SaveFile step), see HdrPixels and IHdrImageEncoder
+    /// The HDR file a recipe saves (the HdrFormat parameter of its SaveFile step), see HdrImage and IHdrImageEncoder
     /// </summary>
     public static class HdrOutput
     {
@@ -46,7 +46,7 @@ namespace Greenshot.Base.Recipes
         public const string Jxr = "Jxr";
 
         /// <summary>
-        /// True when a SaveFile step of the recipe saves an HDR file: the capture keeps its HDR pixels then (they cost memory, 8 bytes per pixel)
+        /// True when a SaveFile step of the recipe saves an HDR file: the capture keeps its HDR image then (they cost memory, 8 bytes per pixel)
         /// </summary>
         public static bool IsRequested(CaptureRecipe recipe) =>
             recipe?.Nodes?.Any(node => node != null

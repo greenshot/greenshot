@@ -50,9 +50,6 @@ namespace Greenshot.Base.Core
         public float DpiY { get; set; }
 
         /// <inheritdoc />
-        public HdrPixels HdrPixels { get; set; }
-
-        /// <inheritdoc />
         public List<IDetectedFeature> Features { get; } = new List<IDetectedFeature>();
 
         /// <inheritdoc />
@@ -187,9 +184,7 @@ namespace Greenshot.Base.Core
                 DpiX = DpiX,
                 DpiY = DpiY,
                 CaptureMode = CaptureMode,
-                CropArea = CropArea,
-                // Never changed after it is created: shared
-                HdrPixels = HdrPixels
+                CropArea = CropArea
             };
 
             if (MetaData != null)

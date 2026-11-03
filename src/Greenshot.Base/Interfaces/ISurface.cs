@@ -72,6 +72,12 @@ namespace Greenshot.Base.Interfaces
         Image Image { get; set; }
 
         /// <summary>
+        /// The HDR image of the capture the surface was made from (taken over from ICapture.HdrImage), null without one; owned by the surface.
+        /// It shows the capture as it was taken: when the image was replaced it no longer belongs to it (HdrImage.BelongsTo).
+        /// </summary>
+        HdrImage HdrImage { get; }
+
+        /// <summary>
         /// Get the current Image from the Editor for Exporting (save/upload etc)
         /// Don't forget to call image.Dispose() when finished!!!
         /// </summary>

@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces
@@ -73,12 +72,6 @@ namespace Greenshot.Base.Interfaces
         float DpiX { get; set; }
 
         float DpiY { get; set; }
-
-        /// <summary>
-        /// The HDR pixels of the capture when it was taken on an HDR display and a recipe asked for them (see the HdrFormat of the SaveFile step),
-        /// null otherwise. They belong to the unedited capture: an edited capture is saved without them.
-        /// </summary>
-        HdrPixels HdrPixels { get; set; }
 
         /// <summary>
         /// Store the detected features for this capture

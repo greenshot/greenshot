@@ -275,7 +275,7 @@ namespace Greenshot.Recipes.Steps
             bool? askForFilename = Config.GetParameter<bool?>("AskForFilename");
             if (askForFilename.HasValue) context.Properties["Destination.AskForFilename"] = askForFilename.Value;
 
-            // The file destination decides when it saves: it knows if the capture has HDR pixels and was edited
+            // The file destination decides when it saves: it knows if the capture has an HDR image and was edited
             string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);
             if (HdrOutput.IsHdrFormat(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
 

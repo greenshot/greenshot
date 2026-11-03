@@ -368,6 +368,14 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        /// <summary>
+        /// The HDR image taken over from the capture, owned by the surface; not serialized (the .greenshot file has no HDR)
+        /// </summary>
+        [NonSerialized] private HdrImage _hdrImage;
+
+        /// <inheritdoc />
+        public HdrImage HdrImage => _hdrImage;
+
         [NonSerialized] private Matrix _zoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         [NonSerialized] private Matrix _inverseZoomMatrix = new Matrix(1, 0, 0, 1, 0, 0);
         [NonSerialized] private Fraction _zoomFactor = Fraction.Identity;
@@ -596,6 +604,9 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            // The HDR image comes along with the image, the surface owns both now
+            _hdrImage = capture.HdrImage;
+
             // Make sure the image is NOT disposed, we took the reference directly into ourselves
             ((Capture) capture).NullImage();
 
@@ -612,6 +623,9 @@ namespace Greenshot.Editor.Drawing
                     _image.Dispose();
                     _image = null;
                 }
+
+                _hdrImage?.Dispose();
+                _hdrImage = null;
 
                 if (_buffer != null)
                 {
@@ -855,6 +869,13 @@ namespace Greenshot.Editor.Drawing
                 LastSaveFullPath = LastSaveFullPath,
                 UploadUrl = UploadUrl
             };
+
+            // The HDR image only while it still shows the image
+            if (_hdrImage != null && _hdrImage.BelongsTo(_image))
+            {
+                clonedSurface._hdrImage = _hdrImage.Clone();
+                clonedSurface._hdrImage.BelongTo(clonedImage);
+            }
 
             if (_elements != null && _elements.Count > 0)
             {

@@ -100,6 +100,23 @@ namespace Greenshot.Base.Core
         public void NullImage()
         {
             _image = null;
+            _hdrImage = null;
+        }
+
+        private HdrImage _hdrImage;
+
+        /// <inheritdoc />
+        public HdrImage HdrImage
+        {
+            get => _hdrImage;
+            set
+            {
+                if (!ReferenceEquals(_hdrImage, value))
+                {
+                    _hdrImage?.Dispose();
+                }
+                _hdrImage = value;
+            }
         }
 
         private CapturedCursor _cursor;
@@ -203,10 +220,12 @@ namespace Greenshot.Base.Core
             if (disposing)
             {
                 _image?.Dispose();
+                _hdrImage?.Dispose();
                 _cursor?.Dispose();
             }
 
             _image = null;
+            _hdrImage = null;
             _cursor = null;
         }
 
@@ -232,11 +251,11 @@ namespace Greenshot.Base.Core
             // What was found outside the selection is no longer in the capture
             CaptureDetails.CropFeatures(cropRectangle);
 
-            // The HDR pixels show the same area as the image
-            if (CaptureDetails.HdrPixels != null)
+            // The HDR image shows the same area as the image
+            if (_hdrImage != null)
             {
-                CaptureDetails.HdrPixels = CaptureDetails.HdrPixels.Crop(new Rectangle(cropRectangle.X, cropRectangle.Y, cropRectangle.Width, cropRectangle.Height));
-                CaptureDetails.HdrPixels?.BelongTo(_image);
+                HdrImage = _hdrImage.Crop(cropRectangle);
+                _hdrImage?.BelongTo(_image);
             }
 
             return true;
@@ -269,6 +288,12 @@ namespace Greenshot.Base.Core
             if (Image != null)
             {
                 clone.Image = ImageHelper.Clone(Image);
+            }
+
+            if (HdrImage != null)
+            {
+                clone.HdrImage = HdrImage.Clone();
+                clone.HdrImage.BelongTo(clone.Image);
             }
 
             if (Cursor != null)

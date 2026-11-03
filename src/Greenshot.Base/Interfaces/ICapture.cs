@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -42,7 +43,13 @@ namespace Greenshot.Base.Interfaces
         Image Image { get; set; }
 
         /// <summary>
-        /// Null the image
+        /// The HDR image of the capture on an HDR display (see HdrImage), null without one. Owned by the capture: set disposes the previous one,
+        /// the surface takes it over together with the image (see NullImage).
+        /// </summary>
+        HdrImage HdrImage { get; set; }
+
+        /// <summary>
+        /// Null the image and the HDR image without disposing them: the surface took them over
         /// </summary>
         void NullImage();
 

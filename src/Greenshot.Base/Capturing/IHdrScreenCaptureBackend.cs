@@ -29,25 +29,25 @@ using Greenshot.Base.Core;
 namespace Greenshot.Base.Capturing
 {
     /// <summary>
-    /// A capability of a screen capture backend (next to IScreenCaptureBackend): it can also deliver the HDR pixels of what it captures on an HDR display (see HdrPixels).
-    /// The image is the same tone-mapped 8-bit image as without HDR pixels.
+    /// A capability of a screen capture backend (next to IScreenCaptureBackend): it can also deliver the HDR image of what it captures on an HDR display (see HdrImage).
+    /// The image is the same tone-mapped 8-bit image as without HDR image.
     /// </summary>
     public interface IHdrScreenCaptureBackend
     {
         /// <summary>
-        /// Capture the area of the virtual screen with its HDR pixels
+        /// Capture the area of the virtual screen with its HDR image
         /// </summary>
         /// <param name="captureBounds">Screen coordinates</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>The pixels (null when the backend couldn't take them) and the HDR pixels (null without an HDR display in the area)</returns>
-        Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default);
+        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image (null without an HDR display in the area)</returns>
+        Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Capture the window with its HDR pixels, a minimized window is restored first
+        /// Capture the window with its HDR image, a minimized window is restored first
         /// </summary>
         /// <param name="window">IInteropWindow</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>The pixels (null when the backend couldn't take them) and the HDR pixels (null when the window isn't on an HDR display)</returns>
-        Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
+        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image (null when the window isn't on an HDR display)</returns>
+        Task<(Bitmap Image, HdrImage HdrImage)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
     }
 }

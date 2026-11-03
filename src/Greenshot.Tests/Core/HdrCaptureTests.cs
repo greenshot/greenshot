@@ -35,14 +35,16 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Sources;
+using Greenshot.Base.Threading;
 using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Recipes.Steps;
+using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
 namespace Greenshot.Tests.Core;
 
 /// <summary>
-/// HDR captures saved as HDR files: the HDR pixels are read from the FP16 texture (WARP, no HDR monitor needed), cropped and composed,
+/// HDR captures saved as HDR files: the HDR image are read from the FP16 texture (WARP, no HDR monitor needed), cropped and composed,
 /// and written lossless as JPEG XR. scRGB 1.0 is 80 nits, with an SDR white level of 240 nits SDR white is 3.0.
 /// </summary>
 public class HdrCaptureTests
@@ -78,18 +80,18 @@ public class HdrCaptureTests
     {
         var pixels = CreatePixels(4, 2, (x, y) => Rgba(x, y, 0));
 
-        var cropped = pixels.Crop(new Rectangle(1, 1, 2, 5));
+        var cropped = pixels.Crop(new NativeRect(1, 1, 2, 5));
 
         Assert.Equal(2, cropped.Width);
         Assert.Equal(1, cropped.Height);
         Assert.Equal(1f, Get(cropped, 0, 0)[0]);
         Assert.Equal(2f, Get(cropped, 1, 0)[0]);
         Assert.Equal(1f, Get(cropped, 1, 0)[1]);
-        Assert.Null(pixels.Crop(new Rectangle(10, 10, 2, 2)));
+        Assert.Null(pixels.Crop(new NativeRect(10, 10, 2, 2)));
     }
 
     [Fact]
-    public void ScreenCaptureResult_LinksTheHdrPixelsToItsImage()
+    public void ScreenCaptureResult_LinksTheHdrImageToItsImage()
     {
         var pixels = CreatePixels(2, 2, (x, y) => Rgba(1, 1, 1));
         using var image = new Bitmap(2, 2);
@@ -98,26 +100,63 @@ public class HdrCaptureTests
         _ = new ScreenCaptureResult(image, new NativePoint(0, 0), new GraphicsCaptureBackend(), pixels);
 
         Assert.True(pixels.BelongsTo(image));
-        // An effect or the editor replaces the image: the HDR pixels no longer show it
+        // An effect or the editor replaces the image: the HDR image no longer show it
         Assert.False(pixels.BelongsTo(otherImage));
         Assert.False(pixels.BelongsTo(null));
     }
 
     [Fact]
-    public void CaptureCrop_CropsTheHdrPixels_AndLinksThemToTheCroppedImage()
+    public void CaptureCrop_CropsTheHdrImage_AndLinksItToTheCroppedImage()
     {
         using var capture = new Capture { Image = new Bitmap(4, 2) };
         var pixels = CreatePixels(4, 2, (x, y) => Rgba(x, y, 0));
         pixels.BelongTo(capture.Image);
-        capture.CaptureDetails.HdrPixels = pixels;
+        capture.HdrImage = pixels;
 
         Assert.True(capture.Crop(new NativeRect(1, 0, 2, 2)));
 
-        var cropped = capture.CaptureDetails.HdrPixels;
+        var cropped = capture.HdrImage;
         Assert.Equal(2, cropped.Width);
         Assert.Equal(2, cropped.Height);
         Assert.Equal(1f, Get(cropped, 0, 0)[0]);
         Assert.True(cropped.BelongsTo(capture.Image));
+        // The capture owns its HDR image: the uncropped one is gone
+        Assert.Throws<ObjectDisposedException>(() => Get(pixels, 0, 0));
+    }
+
+    [Fact]
+    public void CaptureClone_CopiesTheHdrImage_ForTheClonedImage()
+    {
+        using var capture = new Capture { Image = new Bitmap(2, 1) };
+        capture.HdrImage = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        capture.HdrImage.BelongTo(capture.Image);
+
+        using var clone = capture.Clone();
+
+        Assert.NotSame(capture.HdrImage, clone.HdrImage);
+        Assert.Equal(5f, Get(clone.HdrImage, 1, 0)[0], 2);
+        Assert.True(clone.HdrImage.BelongsTo(clone.Image));
+    }
+
+    [Fact]
+    public void Surface_TakesOverTheHdrImage_AndDisposesIt()
+    {
+        var capture = new Capture { Image = new Bitmap(2, 1) };
+        var hdrImage = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        hdrImage.BelongTo(capture.Image);
+        capture.HdrImage = hdrImage;
+
+        var surface = WinFormsContextGuard.CreateWithoutContext(() => new Greenshot.Editor.Drawing.Surface(capture));
+        capture.Dispose();
+
+        // Taken over with the image, the capture doesn't dispose it any more
+        Assert.Null(capture.HdrImage);
+        Assert.Same(hdrImage, surface.HdrImage);
+        Assert.True(hdrImage.BelongsTo(surface.Image));
+        Assert.Equal(5f, Get(hdrImage, 0, 0)[0], 2);
+
+        surface.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => Get(hdrImage, 0, 0));
     }
 
     [Fact]
@@ -126,9 +165,9 @@ public class HdrCaptureTests
         using var bitmap = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         bitmap.SetPixel(0, 0, System.Drawing.Color.White);
         bitmap.SetPixel(1, 0, System.Drawing.Color.Black);
-        var pixels = new HdrPixels(2, 1, SdrWhiteNits, 400);
+        var pixels = new HdrImage(2, 1, SdrWhiteNits, 400);
 
-        pixels.CopyFromSdr(bitmap, new Rectangle(0, 0, 2, 1), Point.Empty);
+        pixels.CopyFromSdr(bitmap, new NativeRect(0, 0, 2, 1), new NativePoint(0, 0));
 
         Assert.Equal(SdrWhite, Get(pixels, 0, 0)[0], 2);
         Assert.Equal(0f, Get(pixels, 1, 0)[0]);
@@ -136,11 +175,11 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void ReadHdrPixels_FromTheTexture_KeepsHighlights()
+    public void ReadHdrImage_FromTheTexture_KeepsHighlights()
     {
         float[][] row = { Rgba(SdrWhite, SdrWhite, SdrWhite), Rgba(4 * SdrWhite, 2 * SdrWhite, 0.5f), Rgba(0.25f, 0.5f, 1f) };
 
-        var pixels = OnWarp(row, (texture, device, context) => WindowsGraphicsCaptureInterop.ReadHdrPixels(texture, device, context, new Rectangle(1, 0, 5, 1), SdrWhiteNits, 400));
+        var pixels = OnWarp(row, (texture, device, context) => WindowsGraphicsCaptureInterop.ReadHdrImage(texture, device, context, new Rectangle(1, 0, 5, 1), SdrWhiteNits, 400));
 
         // Clipped to the texture: the last two pixels
         Assert.Equal(2, pixels.Width);
@@ -151,7 +190,7 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void ComposeHdrPixels_AnSdrMonitorNextToAnHdrMonitor_IsAtTheSdrWhiteLevel()
+    public void ComposeHdrImage_AnSdrMonitorNextToAnHdrMonitor_IsAtTheSdrWhiteLevel()
     {
         // The area spans an HDR monitor (left, 2 pixels) and an SDR monitor (right, 2 pixels) whose white is in the result bitmap
         using var result = new Bitmap(4, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -160,11 +199,11 @@ public class HdrCaptureTests
         var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
         var requests = new[]
         {
-            new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrPixels = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) },
+            new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) },
             new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetLocation = new Point(2, 0), TargetSourceRect = new Rectangle(0, 0, 2, 1) }
         };
 
-        var composed = WindowsGraphicsCaptureInterop.ComposeHdrPixels(requests, result);
+        var composed = WindowsGraphicsCaptureInterop.ComposeHdrImage(requests, result);
 
         Assert.Equal(4, composed.Width);
         Assert.Equal(5f, Get(composed, 1, 0)[0], 2);
@@ -173,12 +212,12 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void ComposeHdrPixels_WithoutHdrMonitor_IsNull()
+    public void ComposeHdrImage_WithoutHdrMonitor_IsNull()
     {
         using var result = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
 
-        Assert.Null(WindowsGraphicsCaptureInterop.ComposeHdrPixels(requests, result));
+        Assert.Null(WindowsGraphicsCaptureInterop.ComposeHdrImage(requests, result));
     }
 
     [Fact]
@@ -250,7 +289,7 @@ public class HdrCaptureTests
     /// </summary>
     private static float[] RoundTrip(WicHdrImageEncoder encoder, string formatId)
     {
-        var pixels = new HdrPixels(2, 1, SdrWhiteNits, 400);
+        var pixels = new HdrImage(2, 1, SdrWhiteNits, 400);
         Set(pixels, 0, 0, Rgba(SdrWhite, SdrWhite, SdrWhite));
         Set(pixels, 1, 0, Rgba(4 * SdrWhite, 2 * SdrWhite, 0.5f));
         using var stream = new MemoryStream();
@@ -265,9 +304,9 @@ public class HdrCaptureTests
         return values;
     }
 
-    private static HdrPixels CreatePixels(int width, int height, Func<int, int, float[]> pixel)
+    private static HdrImage CreatePixels(int width, int height, Func<int, int, float[]> pixel)
     {
-        var pixels = new HdrPixels(width, height, SdrWhiteNits, 400);
+        var pixels = new HdrImage(width, height, SdrWhiteNits, 400);
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -278,22 +317,12 @@ public class HdrCaptureTests
         return pixels;
     }
 
-    private static void Set(HdrPixels pixels, int x, int y, float[] rgba)
-    {
-        for (int channel = 0; channel < 4; channel++)
-        {
-            pixels.Data[(y * pixels.Width + x) * 4 + channel] = HalfHelper.FloatToHalf(rgba[channel]);
-        }
-    }
+    private static void Set(HdrImage pixels, int x, int y, float[] rgba) => pixels.Pixels[x, y] = new HalfVector4(rgba[0], rgba[1], rgba[2], rgba[3]);
 
-    private static float[] Get(HdrPixels pixels, int x, int y)
+    private static float[] Get(HdrImage pixels, int x, int y)
     {
-        var rgba = new float[4];
-        for (int channel = 0; channel < 4; channel++)
-        {
-            rgba[channel] = HalfHelper.HalfToFloat(pixels.Data[(y * pixels.Width + x) * 4 + channel]);
-        }
-        return rgba;
+        var rgba = pixels.Pixels[x, y].ToVector4();
+        return new[] { rgba.X, rgba.Y, rgba.Z, rgba.W };
     }
 
     private static float[] Rgba(float r, float g, float b, float a = 1) => new[] { r, g, b, a };

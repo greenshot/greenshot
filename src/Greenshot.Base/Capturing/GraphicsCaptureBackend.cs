@@ -63,13 +63,13 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
+        public Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
             return WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
+        public Task<(Bitmap Image, HdrImage HdrImage)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             return WindowsGraphicsCaptureInterop.CaptureWindowWithHdrAsync(window.Handle, cancellationToken);
         }

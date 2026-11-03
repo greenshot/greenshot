@@ -32,8 +32,8 @@ using log4net;
 namespace Greenshot.Editor.FileFormatHandlers
 {
     /// <summary>
-    /// Writes HDR pixels with the WIC encoder of Windows: JPEG XR (WMPhoto, part of Windows).
-    /// It takes the half-float pixels of Windows.Graphics.Capture as they are and write them lossless.
+    /// Writes HDR image with the WIC encoder of Windows: JPEG XR (WMPhoto, part of Windows).
+    /// It takes the half-float pixels of Windows.Graphics.Capture as they are and writes them lossless.
     /// </summary>
     public sealed class WicHdrImageEncoder : IHdrImageEncoder
     {
@@ -59,10 +59,10 @@ namespace Greenshot.Editor.FileFormatHandlers
         }
 
         /// <inheritdoc />
-        public bool TryEncode(HdrPixels pixels, string formatId, Stream destination, ICaptureDetails captureDetails, bool includePrivateMetadata, out string error)
+        public bool TryEncode(HdrImage hdrImage, string formatId, Stream destination, ICaptureDetails captureDetails, bool includePrivateMetadata, out string error)
         {
             error = null;
-            if (pixels == null) throw new ArgumentNullException(nameof(pixels));
+            if (hdrImage == null) throw new ArgumentNullException(nameof(hdrImage));
             if (destination == null) throw new ArgumentNullException(nameof(destination));
             var container = ContainerFor(formatId);
             if (container == Guid.Empty)
@@ -84,28 +84,27 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             // Encoded into a buffer first: when WIC fails, the destination stays untouched
             using var buffer = new MemoryStream();
-            var handle = GCHandle.Alloc(pixels.Data, GCHandleType.Pinned);
+            Guid writtenFormat = Guid.Empty;
             try
             {
-                var result = WicImage.Encode(buffer, options, handle.AddrOfPinnedObject(), pixels.Width, pixels.Height, pixels.Stride, WicPixelFormats.Format64bppRgbaHalf);
-                // WIC converts to what an encoder takes: an 8-bit file would silently lose the HDR highlights
-                if (result.PixelFormat != WicPixelFormats.Format64bppRgbaHalf && result.PixelFormat != WicPixelFormats.Format128bppRgbaFloat)
-                {
-                    error = $"The {formatId} encoder doesn't take HDR pixels (it wrote {result.PixelFormat}).";
-                    return false;
-                }
+                // HalfVector4 is 64bppRGBAHalf bit for bit
+                hdrImage.UsePixelMemory(first =>
+                    writtenFormat = WicImage.Encode(buffer, options, first, hdrImage.Width, hdrImage.Height, hdrImage.Stride, WicPixelFormats.Format64bppRgbaHalf).PixelFormat);
             }
             catch (COMException ex)
             {
                 error = $"Couldn't write the {formatId} file with WIC: {ex.Message}";
                 return false;
             }
-            finally
+
+            // WIC converts to what an encoder takes: an 8-bit file would silently lose the HDR highlights
+            if (writtenFormat != WicPixelFormats.Format64bppRgbaHalf && writtenFormat != WicPixelFormats.Format128bppRgbaFloat)
             {
-                handle.Free();
+                error = $"The {formatId} encoder doesn't take HDR pixels (it wrote {writtenFormat}).";
+                return false;
             }
 
-            Log.Info($"Wrote an HDR {formatId} file of {pixels.Width}x{pixels.Height} (SDR white {pixels.SdrWhiteLevelInNits} nits), {buffer.Length:N0} bytes.");
+            Log.Info($"Wrote an HDR {formatId} file of {hdrImage.Width}x{hdrImage.Height} (SDR white {hdrImage.SdrWhiteLevelInNits} nits), {buffer.Length:N0} bytes.");
             buffer.WriteTo(destination);
             return true;
         }

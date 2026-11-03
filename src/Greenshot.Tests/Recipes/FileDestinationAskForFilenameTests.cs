@@ -95,16 +95,16 @@ namespace Greenshot.Tests.Recipes
         }
 
         /// <summary>
-        /// A new capture as a surface, with HDR pixels when asked
+        /// A new capture as a surface, with an HDR image when asked
         /// </summary>
         private static Surface CreateSurface(bool withHdr)
         {
             var capture = new Capture(new Bitmap(8, 4));
             if (withHdr)
             {
-                var pixels = new HdrPixels(8, 4, 240, 400);
-                pixels.BelongTo(capture.Image);
-                capture.CaptureDetails.HdrPixels = pixels;
+                var hdrImage = new HdrImage(8, 4, 240, 400);
+                hdrImage.BelongTo(capture.Image);
+                capture.HdrImage = hdrImage;
             }
             // Without a WinForms SynchronizationContext on the test thread, nothing pumps it
             return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
@@ -176,7 +176,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task NoHdrPixels_DialogSuggestsNothing_SavesTheNormalFile_AndTellsWhy()
+        public async Task NoHdrImage_DialogSuggestsNothing_SavesTheNormalFile_AndTellsWhy()
         {
             string path = TempFile("png");
             try
