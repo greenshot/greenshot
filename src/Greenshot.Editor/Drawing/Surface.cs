@@ -794,10 +794,12 @@ namespace Greenshot.Editor.Drawing
             var group = groupKey.Length == 0
                 ? new List<DrawableContainer>()
                 : _elements.OfType<DrawableContainer>().Where(other => other.Parent != null && other.HasFilters && InvertedFilterKey(other) == groupKey).ToList();
-            var holes = group.Select(other => other.Bounds.Normalize()).ToArray();
+            // Like the editor: outside of the bounds which have a size; without any, the editor doesn't draw the inverted filters
+            var holes = group.Select(other => other.Bounds).Where(hole => hole.Width > 0 && hole.Height > 0).ToArray();
             // The settings of the group's filters are those of its selected element, else of its first (like the editor)
             var representative = group.FirstOrDefault(other => other.Selected) ?? group.FirstOrDefault(other => other.Status == EditStatus.IDLE) ?? element;
-            return ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null, representative);
+            bool drawsTheGroup = groupKey.Length == 0 || (invertedGroupsDone.Add(groupKey) && holes.Length > 0);
+            return ElementImageFilters.Create(element, bounds, drawsTheGroup ? holes : null, representative);
         }
 
         private static string InvertedFilterKey(DrawableContainer element) =>

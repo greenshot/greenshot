@@ -30,6 +30,7 @@ using Greenshot.Base.Core.Export;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
@@ -507,6 +508,38 @@ namespace Greenshot.Tests.Editor
 
             Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
             Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+        }
+
+        [Fact]
+        public void AreaHighlights_OfAGroup_UseTheSettingsOfTheSelectedOne_LikeTheEditor()
+        {
+            using var surface = CreateBrightSurface();
+            var highlights = new[] { new NativeRect(10, 10, 20, 20), new NativeRect(60, 10, 20, 20) }.Select(area =>
+            {
+                var highlight = new HighlightContainer(surface) { Left = area.X, Top = area.Y, Width = area.Width, Height = area.Height };
+                highlight.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.AREA_HIGHLIGHT);
+                surface.AddElement(highlight, false, false);
+                return highlight;
+            }).ToList();
+            // Only the brightness differs: the second one darkens more, and it is selected
+            highlights[0].Filters.OfType<Greenshot.Editor.Drawing.Filters.BrightnessFilter>().Single().SetFieldValue(FieldType.BRIGHTNESS, 0.9d);
+            highlights[1].Filters.OfType<Greenshot.Editor.Drawing.Filters.BrightnessFilter>().Single().SetFieldValue(FieldType.BRIGHTNESS, 0.5d);
+            highlights[1].Selected = true;
+            using var withSecond = Compose(surface);
+            highlights[1].Selected = false;
+            using var withFirst = Compose(surface);
+
+            // Outside of both: darker with the settings of the second one
+            Assert.True(withSecond.Pixels[50, 80].ToVector4().X < withFirst.Pixels[50, 80].ToVector4().X);
+            // Inside of them the highlights stay
+            Assert.Equal(5f, withSecond.Pixels[20, 20].ToVector4().X, 1);
+            Assert.Equal(5f, withSecond.Pixels[70, 20].ToVector4().X, 1);
+        }
+
+        private static HdrImage Compose(Surface surface)
+        {
+            using var overlay = surface.CreateHdrOverlay();
+            return surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
         }
 
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;

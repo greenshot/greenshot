@@ -57,8 +57,10 @@ namespace Greenshot.Editor.Drawing.Filters
                 return null;
             }
             var imageFilters = new List<ImageFilter>();
-            var filters = element.Filters.OfType<AbstractFilter>().Where(filter => !filter.Invert)
-                .Concat((invertedFrom ?? element).Filters.OfType<AbstractFilter>().Where(filter => filter.Invert));
+            // First the inverted filters of the group, then the element's own, like the editor (DrawableContainerList.Draw, then DrawContent
+            // with skipInvertedFilters)
+            var filters = (invertedFrom ?? element).Filters.OfType<AbstractFilter>().Where(filter => filter.Invert)
+                .Concat(element.Filters.OfType<AbstractFilter>().Where(filter => !filter.Invert));
             foreach (var filter in filters)
             {
                 IReadOnlyList<NativeRect> areas;
