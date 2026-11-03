@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -189,6 +190,78 @@ namespace Greenshot.Tests.Editor
             });
         }
 
+        [Theory]
+        [InlineData(1, 1, false)]
+        [InlineData(2, 1, false)]
+        [InlineData(1, 2, false)]
+        [InlineData(1, 1, true)]
+        [InlineData(2, 1, true)]
+        [InlineData(1, 2, true)]
+        public void OffsetVertexClickAndJitter_SelectWithoutGeometryUndoOrModification(int numerator, int denominator, bool rotated)
+        {
+            Sta(() =>
+            {
+                using var surface = new Surface(new Bitmap(400, 400)); var polygon = Triangle(surface);
+                surface.SelectElement(polygon); if (rotated) surface.RotateSelectedObjects(37);
+                var vertex = polygon.ImageVertices[1];
+                surface.AddElement(new LineContainer(surface) { Left=(int)vertex.X+4, Top=(int)vertex.Y+2, Width=30 });
+                surface.SetObjectSnapping(true,true,8);
+                surface.ZoomFactor = new Greenshot.Base.Core.Fraction((uint)numerator,(uint)denominator);
+                double zoom=(double)numerator/denominator;
+                int x=(int)Math.Round(vertex.X*zoom)+2, y=(int)Math.Round(vertex.Y*zoom);
+                var before=polygon.ModelVertices; var affine=polygon.ObjectTransformState;
+                int history=UndoCount(surface); surface.Modified=false;
+                foreach(int jitter in new[]{0,1})
+                {
+                    polygon.SelectedVertex=0;
+                    Mouse(surface,"SurfaceMouseDown",x,y);
+                    if(jitter!=0) Mouse(surface,"SurfaceMouseMove",x+jitter,y+jitter);
+                    Mouse(surface,"SurfaceMouseUp",x+jitter,y+jitter);
+                    Assert.Equal(1,polygon.SelectedVertex); Assert.Equal(before,polygon.ModelVertices);
+                    Assert.Equal(affine,polygon.ObjectTransformState); Assert.Equal(history,UndoCount(surface));
+                    Assert.False(surface.Modified); Assert.False(surface.Capture);
+                }
+            });
+        }
+
+        [Fact]
+        public void OffsetVertexDrag_PreservesGrabOffsetCommitsOnceAndReturnToStartIsNoOp()
+        {
+            Sta(() =>
+            {
+                using var surface=new Surface(new Bitmap(400,400)); var polygon=Triangle(surface); surface.SelectElement(polygon);
+                var before=polygon.ModelVertices; int history=UndoCount(surface); surface.Modified=false;
+                Mouse(surface,"SurfaceMouseDown",113,10); Mouse(surface,"SurfaceMouseMove",133,25); Mouse(surface,"SurfaceMouseUp",133,25);
+                Assert.Equal(new Point(130,25),polygon.Vertices[1]); Assert.Equal(history+1,UndoCount(surface)); Assert.True(surface.Modified);
+                surface.Undo(); Assert.Equal(before,polygon.ModelVertices); surface.Redo(); Assert.Equal(new Point(130,25),polygon.Vertices[1]);
+                var after=polygon.ModelVertices; history=UndoCount(surface); surface.Modified=false;
+                Mouse(surface,"SurfaceMouseDown",133,25); Mouse(surface,"SurfaceMouseMove",153,45); Mouse(surface,"SurfaceMouseUp",133,25);
+                Assert.Equal(after,polygon.ModelVertices); Assert.Equal(history,UndoCount(surface)); Assert.False(surface.Modified);
+                Assert.False(surface.Capture);
+            });
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void OffsetRotatedVertexDrag_CancellationRestoresGeometryAndHistory(bool changeTool)
+        {
+            Sta(() =>
+            {
+                using var surface=new Surface(new Bitmap(400,400)); var polygon=Triangle(surface); surface.SelectElement(polygon);
+                surface.RotateSelectedObjects(31); surface.ZoomFactor=new Greenshot.Base.Core.Fraction(2,1);
+                var vertex=polygon.ImageVertices[1]; int x=(int)Math.Round(vertex.X*2)+2, y=(int)Math.Round(vertex.Y*2);
+                var before=polygon.ModelVertices; var affine=polygon.ObjectTransformState; int history=UndoCount(surface); surface.Modified=false;
+                Mouse(surface,"SurfaceMouseDown",x,y); Mouse(surface,"SurfaceMouseMove",x+40,y+30);
+                Assert.NotEqual(before,polygon.ModelVertices);
+                var moved=polygon.ImageVertices[1]; Assert.InRange(Math.Abs(moved.X-vertex.X-20),0,1); Assert.InRange(Math.Abs(moved.Y-vertex.Y-15),0,1);
+                if(changeTool)surface.DrawingMode=DrawingModes.Rect; else Assert.True(surface.ProcessCmdKey(Keys.Escape));
+                Assert.Equal(before,polygon.ModelVertices); Assert.Equal(affine,polygon.ObjectTransformState);
+                Assert.Equal(history,UndoCount(surface)); Assert.False(surface.Modified); Assert.False(surface.Capture);
+            });
+        }
+
+        private static int UndoCount(Surface surface) => ((ICollection)typeof(Surface).GetField("_undoStack",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(surface)).Count;
         private static void Click(Surface s, int x, int y) { Mouse(s, "SurfaceMouseDown", x, y); Mouse(s, "SurfaceMouseUp", x, y); }
         private static void Mouse(Surface surface, string method, int x, int y, MouseButtons button = MouseButtons.Left) =>
             typeof(Surface).GetMethod(method, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(surface, new object[] { surface, new MouseEventArgs(button, 1, x, y, 0) });

@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 using Greenshot.Editor.Measurements;
+using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -61,7 +62,8 @@ namespace Greenshot.Editor.FileFormatHandlers
                 long bytesWritten = surface.SaveElementsToStream(tmpStream);
                 if (surface is IMeasurementSurface measured)
                 {
-                    MeasurementMetadata.Write(tmpStream, measured.Measurements);
+                    if (surface is Surface dimensioned) DimensionMetadata.Write(tmpStream, dimensioned.DimensionStyle);
+                    MeasurementMetadata.Write(tmpStream, measured.Measurements, force: surface is Surface);
                     bytesWritten = tmpStream.Length;
                 }
                 using BinaryWriter writer = new BinaryWriter(tmpStream);
@@ -129,6 +131,8 @@ namespace Greenshot.Editor.FileFormatHandlers
                 surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
                 if (returnSurface is IMeasurementSurface measured)
                     measured.RestoreMeasurements(MeasurementMetadata.Read(surfaceFileStream, surfaceFileStream.Position, bytesWritten));
+                if (returnSurface is Surface dimensioned)
+                    dimensioned.RestoreDimensionStyle(DimensionMetadata.Read(surfaceFileStream, surfaceFileStream.Position, bytesWritten));
                 returnSurface.LoadElementsFromStream(surfaceFileStream);
             }
 

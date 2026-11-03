@@ -36,6 +36,7 @@ namespace Greenshot.Editor.Memento
         private readonly List<Size> _sizes = new();
         private readonly List<Point[]> _vertices = new();
         private readonly List<double[]> _transforms = new();
+        private readonly List<double> _groupAngles = new();
         private IDrawableContainerList _listOfDrawableContainer;
         private readonly bool _mergeable;
 
@@ -45,6 +46,7 @@ namespace Greenshot.Editor.Memento
             {
                 _vertices.Add((drawableContainer as PolygonContainer)?.ModelVertices);
                 _transforms.Add((drawableContainer as DrawableContainer)?.ObjectTransformState);
+                _groupAngles.Add((drawableContainer as DrawableContainer)?.GroupReferenceAngle ?? 0);
                 _points.Add(drawableContainer.Location);
                 _sizes.Add(drawableContainer.Size);
             }
@@ -110,7 +112,7 @@ namespace Greenshot.Editor.Memento
                 drawableContainer.Width = _sizes[index].Width;
                 drawableContainer.Height = _sizes[index].Height;
                 if (drawableContainer is PolygonContainer polygon) polygon.SetVertices(_vertices[index]);
-                if (drawableContainer is DrawableContainer shape) shape.RestoreObjectTransform(_transforms[index]);
+                if (drawableContainer is DrawableContainer shape) { shape.GroupReferenceAngle = _groupAngles[index]; shape.RestoreObjectTransform(_transforms[index]); }
                 // After
                 drawableContainer.Invalidate();
                 drawableContainer.Parent.Modified = true;

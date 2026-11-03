@@ -184,6 +184,8 @@ namespace Greenshot.Editor.Drawing
         // Optional for projects written before flat grouping was introduced.
         [OptionalField] private Guid _groupId;
         public Guid GroupId { get => _groupId; internal set => _groupId = value; }
+        [OptionalField] private double _groupReferenceAngle;
+        internal double GroupReferenceAngle { get => _groupReferenceAngle; set => _groupReferenceAngle = Surface.NormalizeRotation(value); }
 
         private int left;
 
@@ -367,7 +369,7 @@ namespace Greenshot.Editor.Drawing
                     shadow += 10;
                 }
 
-                return TransformBounds(new NativeRect(ModelBounds.Left - offset, ModelBounds.Top - offset, ModelBounds.Width + lineThickness + shadow, ModelBounds.Height + lineThickness + shadow));
+                return WithDimensionBounds(TransformBounds(new NativeRect(ModelBounds.Left - offset, ModelBounds.Top - offset, ModelBounds.Width + lineThickness + shadow, ModelBounds.Height + lineThickness + shadow)));
             }
         }
 

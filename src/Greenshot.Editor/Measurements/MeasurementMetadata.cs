@@ -10,9 +10,9 @@ namespace Greenshot.Editor.Measurements
         private const string Magic = "GSPMEAS1";
         internal const int Size = 24;
 
-        internal static void Write(Stream stream, MeasurementState state)
+        internal static void Write(Stream stream, MeasurementState state, bool force = false)
         {
-            if (state == null || !state.IsCalibrated) return;
+            if (state == null || !state.IsCalibrated && !force) return;
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             writer.Write(Encoding.ASCII.GetBytes(Magic));
             writer.Write(1);

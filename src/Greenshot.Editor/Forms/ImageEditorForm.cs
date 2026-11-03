@@ -3560,6 +3560,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
 
             this.btnCursor.Text = Texts.Editor.Cursortool;
+            this.btnCursor.ToolTipText = "Select — click or drag a box";
+            this.btnCursor.AccessibleName = "Select";
             this.btnRect.Text = Texts.Editor.Drawrectangle;
             this.btnEllipse.Text = Texts.Editor.Drawellipse;
             this.btnLine.Text = Texts.Editor.Drawline;

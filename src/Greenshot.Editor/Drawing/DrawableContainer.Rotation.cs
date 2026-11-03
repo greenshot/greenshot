@@ -55,6 +55,12 @@ namespace Greenshot.Editor.Drawing
             ComposeObjectTransform(new[] { c, s, -s, c, pivotX - c * pivotX + s * pivotY, pivotY - s * pivotX - c * pivotY });
         }
         internal void ComposeObjectTransform(Matrix matrix) => ComposeObjectTransform(matrix.Elements.Select(v => (double)v).ToArray());
+        internal void TransformGroupReference(Matrix matrix)
+        {
+            if (GroupId == Guid.Empty) return;
+            var m = matrix.Elements; double a = GroupReferenceAngle * Math.PI / 180, x = Math.Cos(a), y = Math.Sin(a);
+            GroupReferenceAngle = Math.Atan2(m[1] * x + m[3] * y, m[0] * x + m[2] * y) * 180 / Math.PI;
+        }
         private void ComposeObjectTransform(double[] b)
         {
             var a = _objectTransform ?? new double[] { 1, 0, 0, 1, 0, 0 };
@@ -63,7 +69,7 @@ namespace Greenshot.Editor.Drawing
         }
         internal void DrawObjectContent(Graphics graphics, Bitmap bitmap, Greenshot.Base.Interfaces.Drawing.RenderMode mode, NativeRect clip, bool skipInvertedFilters)
         {
-            if (!HasObjectTransform) { DrawModelContent(graphics, bitmap, mode, clip, skipInvertedFilters); return; }
+            if (!HasObjectTransform) { DrawModelContent(graphics, bitmap, mode, clip, skipInvertedFilters); Measurements.DimensionLayout.Draw(graphics, this); return; }
             var saved = graphics.Save();
             try
             {
@@ -73,6 +79,7 @@ namespace Greenshot.Editor.Drawing
                 DrawModelContent(graphics, bitmap, mode, clip, skipInvertedFilters);
             }
             finally { graphics.Restore(saved); }
+            Measurements.DimensionLayout.Draw(graphics, this);
         }
     }
 }

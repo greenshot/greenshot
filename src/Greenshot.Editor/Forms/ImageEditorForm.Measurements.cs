@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Core;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -54,15 +55,15 @@ namespace Greenshot.Editor.Forms
                 DisplayStyle = ToolStripItemDisplayStyle.Image,
                 ToolTipText = "Scale: click two points; hold Shift to snap the angle", AccessibleName = "Scale", Image = CreateScaleIcon()
             };
-            _polygonButton = new ToolStripButton("Polygon") { DisplayStyle = ToolStripItemDisplayStyle.Text, ToolTipText = "Polygon: click vertices, then the first vertex to close; Esc cancels" };
+            _polygonButton = new ToolStripButton("Polygon") { DisplayStyle = ToolStripItemDisplayStyle.Image, AccessibleName = "Polygon", Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPolygon.Image"), ToolTipText = "Polygon: click vertices, then the first vertex to close; Esc cancels" };
             _polygonButton.Click += (s, e) => { if (_surface == null) return; _surface.DrawingMode = DrawingModes.Polygon; FocusCanvas(fromKeyboard: false); };
             toolsToolStrip.Items.Insert(toolsToolStrip.Items.IndexOf(btnFreehand) + 1, _polygonButton);
-            _groupButton = new ToolStripButton("Group") { ToolTipText = "Group selected objects (Ctrl+Alt+G)", Enabled = false };
-            _ungroupButton = new ToolStripButton("Ungroup") { ToolTipText = "Ungroup selected objects (Ctrl+Shift+G)", Enabled = false };
+            _groupButton = new ToolStripButton("Group") { DisplayStyle = ToolStripItemDisplayStyle.Image, AccessibleName = "Group", Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnGroup.Image"), ToolTipText = "Group selected objects (Ctrl+Alt+G)", Enabled = false };
+            _ungroupButton = new ToolStripButton("Ungroup") { DisplayStyle = ToolStripItemDisplayStyle.Image, AccessibleName = "Ungroup", Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnUngroup.Image"), ToolTipText = "Ungroup selected objects (Ctrl+Shift+G)", Enabled = false };
             _groupButton.Click += (s, e) => { _surface?.GroupSelectedElements(); FocusCanvas(fromKeyboard: false); };
             _ungroupButton.Click += (s, e) => { _surface?.UngroupSelectedElements(); FocusCanvas(fromKeyboard: false); };
             toolsToolStrip.Items.Add(_groupButton); toolsToolStrip.Items.Add(_ungroupButton);
-            _rotateObjectButton = new ToolStripButton("Rotate…") { Enabled = false, ToolTipText = "Rotate selected objects by an angle" };
+            _rotateObjectButton = new ToolStripButton("Rotate…") { DisplayStyle = ToolStripItemDisplayStyle.Image, AccessibleName = "Rotate", Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnObjectRotate.Image"), Enabled = false, ToolTipText = "Rotate selected objects by an angle" };
             _rotateObjectButton.Click += (s, e) => RotateObjects();
             toolsToolStrip.Items.Add(_rotateObjectButton);
             _scaleButton.Click += (s, e) => BeginCalibration();
@@ -85,6 +86,7 @@ namespace Greenshot.Editor.Forms
                 if (_measuredObject != null) _measuredObject.GeometryChanged -= SelectedGeometryChanged;
                 _quickColors.Dispose();
                 _scaleButton.Image?.Dispose();
+                foreach (var button in new[] { _polygonButton, _groupButton, _ungroupButton, _rotateObjectButton }) button.Image?.Dispose();
             };
         }
 
@@ -117,15 +119,15 @@ namespace Greenshot.Editor.Forms
 
         private void RotateObjects()
         {
-            if (_surface?.CanRotateObjects != true) return;
+            if (_surface?.CanSetSelectedRotation != true || !_surface.TryGetSelectedRotation(out double currentAngle)) return;
             using var dialog = new Form { Text = "Rotate selected objects", Width = 420, Height = 210, StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false };
-            var angle = new NumericUpDown { DecimalPlaces = 4, Minimum = -36000, Maximum = 36000, Width = 140, Left = 16, Top = 75, AccessibleName = "Clockwise rotation delta in degrees" };
-            string current = _surface.SelectedElements.Count == 1 ? "Current angle: " + ((DrawableContainer)_surface.SelectedElements[0]).ObjectAngle.ToString("0.####") + "°. " : _surface.SelectedElements.Count + " objects. ";
-            var label = new Label { Text = current + "Enter clockwise change in degrees. Pivot: mean of selected object centres.", Left = 16, Top = 16, Width = 375, Height = 50 };
+            var angle = new NumericUpDown { DecimalPlaces = 4, Minimum = -36000, Maximum = 36000, Width = 140, Left = 16, Top = 75, Value = (decimal)Math.Round(currentAngle, 4), AccessibleName = "Absolute clockwise rotation in degrees" };
+            string current = "Current angle: " + currentAngle.ToString("0.####") + "°. ";
+            var label = new Label { Text = current + "Enter absolute clockwise angle in degrees. Pivot: mean of selected object centres.", Left = 16, Top = 16, Width = 375, Height = 50 };
             var ok = new Button { Text = "Rotate", DialogResult = DialogResult.OK, Left = 210, Top = 120 };
             var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Left = 295, Top = 120 };
             dialog.Controls.AddRange(new Control[] { label, angle, ok, cancel }); dialog.AcceptButton = ok; dialog.CancelButton = cancel;
-            if (dialog.ShowDialog(this) == DialogResult.OK) _surface.RotateSelectedObjects((double)angle.Value);
+            if (dialog.ShowDialog(this) == DialogResult.OK) _surface.SetSelectedRotation((double)angle.Value);
             FocusCanvas(fromKeyboard: false);
         }
 
@@ -142,6 +144,7 @@ namespace Greenshot.Editor.Forms
         {
             _surface.SetObjectSnapping(_snapPoints.Checked, _snapThrough.Checked, (int)_snappingRadius.Value);
             _surface.MeasurementsChanged += SelectedGeometryChanged;
+            _surface.DimensionStyleChanged += SelectedGeometryChanged;
             _surface.ScaleLineCompleted += CompleteCalibration;
             UpdateMeasurements();
         }
@@ -149,12 +152,15 @@ namespace Greenshot.Editor.Forms
         private void UnbindMeasurements()
         {
             _surface.MeasurementsChanged -= SelectedGeometryChanged;
+            _surface.DimensionStyleChanged -= SelectedGeometryChanged;
             _surface.ScaleLineCompleted -= CompleteCalibration;
             _surface.CancelScalePreview();
             _surface.CancelPolygonInteraction();
+            _surface.CancelSelectionBox();
             if (_measuredObject != null) _measuredObject.GeometryChanged -= SelectedGeometryChanged;
             _measuredObject = null;
             _measurementPanel.RefreshDimensions(null, MeasurementState.Pixels);
+            _measurementPanel.RefreshDimensionLabels(null);
         }
 
         private void SelectedGeometryChanged(object sender, EventArgs e) => UpdateMeasurements();
@@ -162,8 +168,8 @@ namespace Greenshot.Editor.Forms
         private void UpdateMeasurements()
         {
             if (_measurementPanel == null) return;
-            _rotateObjectButton.Enabled = _surface?.CanRotateObjects == true;
-            _rotateObjectButton.ToolTipText = _rotateObjectButton.Enabled ? "Rotate selected objects by an angle" : Surface.RotationLimit;
+            _rotateObjectButton.Enabled = _surface?.CanSetSelectedRotation == true;
+            _rotateObjectButton.ToolTipText = _rotateObjectButton.Enabled ? "Set absolute rotation angle" : _surface?.CanRotateObjects == true ? Surface.MixedRotationLimit : Surface.RotationLimit;
             _groupButton.Enabled = _surface?.CanGroup == true;
             _ungroupButton.Enabled = _surface?.CanUngroup == true;
             var selected = _surface?.SelectedElements;
@@ -175,6 +181,7 @@ namespace Greenshot.Editor.Forms
                 if (_measuredObject != null) _measuredObject.GeometryChanged += SelectedGeometryChanged;
             }
             _measurementPanel.RefreshDimensions(_measuredObject, _surface?.Measurements ?? MeasurementState.Pixels);
+            _measurementPanel.RefreshDimensionLabels(_surface);
         }
 
         private void RefreshQuickColors()

@@ -104,9 +104,21 @@ namespace Greenshot.Editor.Drawing
 
         internal Point PreviewDrawingStart(Point pointer)
         {
-            if (DrawingMode != DrawingModes.Scale && !ObjectSnapHelper.Supported(_undrawnElement))
+            if (!SupportsDrawingStartSnapping(DrawingMode))
             { ClearSnapGuide(); return pointer; }
             return SnapGesture(pointer, null, null, false);
+        }
+
+        internal static bool SupportsDrawingStartSnapping(DrawingModes mode) => mode == DrawingModes.Line || mode == DrawingModes.Arrow
+            || mode == DrawingModes.Rect || mode == DrawingModes.Ellipse || mode == DrawingModes.Text || mode == DrawingModes.Scale || mode == DrawingModes.Polygon;
+
+        private void ApplySnappedPointer(Point pointer, Point snapped)
+        {
+            // Only a visible editor may move the real pointer. Headless geometry/event
+            // tests and inactive documents still calculate their previews normally.
+            if (_snapTarget == null || pointer == snapped || !IsHandleCreated || FindForm()?.Visible != true || !ClientRectangle.Contains(PointToClient(MousePosition))) return;
+            System.Windows.Forms.Cursor.Position = PointToScreen(new Point(
+                (int)Math.Round(snapped.X * (double)_zoomFactor), (int)Math.Round(snapped.Y * (double)_zoomFactor)));
         }
 
         internal NativeRectFloat SnapHandleBounds(IDrawableContainer owner, NativeRect original, Positions position, Point pointer,

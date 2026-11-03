@@ -16,12 +16,15 @@ namespace Greenshot.Editor.Drawing
         private PolygonContainer _vertexOwner;
         private Point[] _vertexBefore;
         private int _vertexAnchor;
+        private Point _vertexDragStart;
+        private PointF _vertexImageStart;
+        private bool _vertexDragging;
 
         internal void CancelPolygonInteraction()
         {
             _polygonPoints.Clear();
-            if (_vertexOwner != null) _vertexOwner.SetVertices(_vertexBefore);
-            _vertexOwner = null; _vertexBefore = null;
+            if (_vertexOwner != null && _vertexDragging) _vertexOwner.SetVertices(_vertexBefore);
+            _vertexOwner = null; _vertexBefore = null; _vertexDragging = false;
             ClearSnapGuide(); Capture = false; Invalidate();
         }
 
@@ -64,6 +67,7 @@ namespace Greenshot.Editor.Drawing
                 selected.SelectedVertex = i;
                 _vertexOwner = selected; _vertexBefore = selected.ModelVertices;
                 _vertexAnchor = selected.AnticlockwiseNeighbour(i);
+                _vertexDragStart = e.Location; _vertexImageStart = vertices[i]; _vertexDragging = false;
                 Focus(); Capture = true; Invalidate(); return true;
             }
             return false;
@@ -71,8 +75,17 @@ namespace Greenshot.Editor.Drawing
 
         internal void MovePolygonVertex(Point pointer, Keys modifiers)
         {
-            if (_vertexOwner != null) _vertexOwner.SetImageVertex(_vertexOwner.SelectedVertex,
-                PolygonEndpoint(pointer, Point.Round(_vertexOwner.ModelToImage(_vertexBefore[_vertexAnchor])), _vertexOwner, modifiers));
+            if (_vertexOwner == null) return;
+            double dx = pointer.X - _vertexDragStart.X, dy = pointer.Y - _vertexDragStart.Y;
+            // Mouse coordinates are already in image space. Require deliberate screen-space
+            // movement before applying geometry constraints or snapping to the selected vertex.
+            if (!_vertexDragging && (dx * dx + dy * dy) * Math.Pow((double)_zoomFactor, 2) < 16) return;
+            _vertexDragging = true;
+            if (dx == 0 && dy == 0)
+            { _vertexOwner.SetVertices(_vertexBefore); ClearSnapGuide(); return; }
+            var endpoint = Point.Round(new PointF(_vertexImageStart.X + (float)dx, _vertexImageStart.Y + (float)dy));
+            _vertexOwner.SetImageVertex(_vertexOwner.SelectedVertex,
+                PolygonEndpoint(endpoint, Point.Round(_vertexOwner.ModelToImage(_vertexBefore[_vertexAnchor])), _vertexOwner, modifiers));
         }
 
         private bool PolygonMouseMove(MouseEventArgs e)
@@ -84,6 +97,7 @@ namespace Greenshot.Editor.Drawing
             }
             if (DrawingMode != DrawingModes.Polygon) return false;
             _polygonPointer = PolygonEndpoint(e.Location, _polygonPoints.Count == 0 ? (Point?)null : _polygonPoints.Last(), null, ModifierKeys);
+            ApplySnappedPointer(e.Location, _polygonPointer);
             Cursor = Cursors.Cross; Invalidate(); return true;
         }
 
@@ -98,7 +112,7 @@ namespace Greenshot.Editor.Drawing
                     owner.SetVertices(_vertexBefore); owner.MakeBoundsChangeUndoable(false);
                     owner.SetVertices(after); Modified = true;
                 }
-                _vertexOwner = null; _vertexBefore = null; Capture = false; ClearSnapGuide(); Invalidate(); return true;
+                _vertexOwner = null; _vertexBefore = null; _vertexDragging = false; Capture = false; ClearSnapGuide(); Invalidate(); return true;
             }
             return DrawingMode == DrawingModes.Polygon;
         }

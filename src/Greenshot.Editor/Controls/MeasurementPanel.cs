@@ -8,7 +8,7 @@ using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Controls
 {
-    internal sealed class MeasurementPanel : UserControl
+    internal sealed partial class MeasurementPanel : UserControl
     {
         private readonly Button _toggle = new Button { Text = "‹", Dock = DockStyle.Top, Height = 28, AccessibleName = "Expand measurements" };
         private readonly FlowLayoutPanel _body = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, Padding = new Padding(5) };
@@ -64,7 +64,9 @@ namespace Greenshot.Editor.Controls
             };
             _properties.DataError += (s, e) => { e.ThrowException = false; };
             var origin = new Label { Text = "Coordinates: image top-left (0,0).", AutoSize = true, MaximumSize = new Size(215, 0) };
-            _body.Controls.AddRange(new Control[] { _units, _properties, origin, _status, calibrate, _clear });
+            _body.Controls.AddRange(new Control[] { _units, _properties });
+            InitializeDimensionControls();
+            _body.Controls.AddRange(new Control[] { origin, _status, calibrate, _clear });
             Controls.Add(_body);
             Controls.Add(_toggle);
             _body.Visible = false;

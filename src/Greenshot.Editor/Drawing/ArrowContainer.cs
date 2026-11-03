@@ -65,6 +65,12 @@ namespace Greenshot.Editor.Drawing
 
         public override void Draw(Graphics graphics, RenderMode rm)
         {
+            var saved = graphics.Save();
+            try
+            {
+            using var gap = Greenshot.Editor.Measurements.DimensionLayout.ArrowGap(this);
+            using var gapRegion = gap == null ? null : new Region(gap);
+            if (gapRegion != null) graphics.ExcludeClip(gapRegion);
             int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
 
@@ -95,6 +101,8 @@ namespace Greenshot.Editor.Drawing
             using Pen pen = new Pen(lineColor, lineThickness);
             SetArrowHeads(heads, pen);
             graphics.DrawLine(pen, Left, Top, Left + Width, Top + Height);
+            }
+            finally { graphics.Restore(saved); }
         }
 
         private void SetArrowHeads(ArrowHeadCombination heads, Pen pen)
@@ -126,10 +134,10 @@ namespace Greenshot.Editor.Drawing
                     path.AddLine(Left, Top, Left + Width, Top + Height);
                     using Matrix matrix = new Matrix();
                     NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-                    return TransformBounds(drawingBounds.Inflate(2, 2));
+                    return WithDimensionBounds(TransformBounds(drawingBounds.Inflate(2, 2)));
                 }
 
-                return NativeRect.Empty;
+                return WithDimensionBounds(NativeRect.Empty);
             }
         }
 

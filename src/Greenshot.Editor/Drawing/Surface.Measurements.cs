@@ -33,6 +33,7 @@ namespace Greenshot.Editor.Drawing
         {
             Measurements = state ?? MeasurementState.Pixels;
             MeasurementsChanged?.Invoke(this, EventArgs.Empty);
+            Invalidate();
         }
 
         private void TransformMeasurements(Matrix matrix)

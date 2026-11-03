@@ -36,7 +36,7 @@ namespace Greenshot.Editor.Drawing
             var members = CompleteGroups(selectedElements).OfType<DrawableContainer>().ToArray();
             MakeUndoable(new GroupMembershipMemento(this, members), false);
             var id = Guid.NewGuid();
-            foreach (var member in members) member.GroupId = id;
+            foreach (var member in members) { member.GroupId = id; member.GroupReferenceAngle = 0; }
             RefreshGroupSelection(members); Modified = true; return true;
         }
 
@@ -45,7 +45,7 @@ namespace Greenshot.Editor.Drawing
             if (!CanUngroup) return false;
             var members = CompleteGroups(selectedElements).OfType<DrawableContainer>().ToArray();
             MakeUndoable(new GroupMembershipMemento(this, members), false);
-            foreach (var member in members) member.GroupId = Guid.Empty;
+            foreach (var member in members) { member.GroupId = Guid.Empty; member.GroupReferenceAngle = 0; }
             RefreshGroupSelection(members); Modified = true; return true;
         }
 

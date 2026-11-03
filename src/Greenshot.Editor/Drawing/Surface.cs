@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -466,6 +466,7 @@ namespace Greenshot.Editor.Drawing
             {
                 CancelScalePreview();
                 CancelPolygonInteraction();
+                CancelSelectionBox();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -612,6 +613,7 @@ namespace Greenshot.Editor.Drawing
                 LOG.Debug("Disposing surface!");
                 CancelScalePreview();
                 CancelPolygonInteraction();
+                CancelSelectionBox();
                 if (_image != null)
                 {
                     _image.Dispose();
@@ -859,7 +861,8 @@ namespace Greenshot.Editor.Drawing
                 ZoomFactor = ZoomFactor,
                 LastSaveFullPath = LastSaveFullPath,
                 UploadUrl = UploadUrl,
-                Measurements = Measurements
+                Measurements = Measurements,
+                DimensionStyle = DimensionStyle
             };
 
             if (_elements != null && _elements.Count > 0)
@@ -1965,6 +1968,9 @@ namespace Greenshot.Editor.Drawing
         /// <returns>IAdorner</returns>
         private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
         {
+            // A body drag owns its gesture even when the pointer crosses an idle
+            // resize handle. New handle gestures are still resolved on mouse-down.
+            if (_mouseDownElement != null) return null;
             foreach (IDrawableContainer drawableContainer in selectedElements)
             {
                 if (IsGroupedMember(drawableContainer)) continue;
@@ -1998,6 +2004,7 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (e.Button == MouseButtons.Right && CancelSelectionBox()) return;
             if (PolygonMouseDown(e)) return;
             if (DrawingMode == DrawingModes.Scale) { StartScalePreview(e); return; }
 
@@ -2037,6 +2044,8 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (DrawingMode == DrawingModes.None && e.Button == MouseButtons.Left && _elements.ClickableElementAt(e.X, e.Y) == null)
+            { BeginSelectionBox(e.Location, ModifierKeys); return; }
             _mouseDown = true;
             _isSurfaceMoveMadeUndoable = false;
             // The mouse is used, the focus frame is for the keyboard
@@ -2073,6 +2082,7 @@ namespace Greenshot.Editor.Drawing
         {
             e = InverseZoomMouseCoordinates(e);
             ClearSnapGuide();
+            if (FinishSelectionBox(e)) return;
             if (PolygonMouseUp(e)) return;
             if (DrawingMode == DrawingModes.Scale) { FinishScalePreview(e); return; }
 
@@ -2227,13 +2237,12 @@ namespace Greenshot.Editor.Drawing
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
             e = InverseZoomMouseCoordinates(e);
+            if (MoveSelectionBox(e.Location)) return;
             if (PolygonMouseMove(e)) return;
             if (!_mouseDown && _scalePreview == null)
             {
                 var snapped = PreviewDrawingStart(e.Location);
-                if (snapped != e.Location && IsHandleCreated && ClientRectangle.Contains(PointToClient(MousePosition)))
-                    System.Windows.Forms.Cursor.Position = PointToScreen(new Point(
-                        (int)Math.Round(snapped.X*(double)_zoomFactor), (int)Math.Round(snapped.Y*(double)_zoomFactor)));
+                ApplySnappedPointer(e.Location, snapped);
             }
             if (DrawingMode == DrawingModes.Scale) { MoveScalePreview(e); return; }
 
@@ -2482,6 +2491,7 @@ namespace Greenshot.Editor.Drawing
 
             PaintGroupSelection(targetGraphics);
             PaintPolygonInteraction(targetGraphics);
+            PaintSelectionBox(targetGraphics);
             PaintFocusFrame(targetGraphics);
         }
 
@@ -3263,6 +3273,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == Keys.Escape && CancelSelectionBox()) return true;
             if (k == (Keys.Control | Keys.Alt | Keys.G)) return GroupSelectedElements();
             if (k == (Keys.Control | Keys.Shift | Keys.G)) return UngroupSelectedElements();
             if (k == Keys.Escape && (_polygonPoints.Count > 0 || _vertexOwner != null || DrawingMode == DrawingModes.Polygon))
@@ -3481,6 +3492,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>true when the key was handled</returns>
         public bool ProcessCanvasKey(Keys keys)
         {
+            if (keys == Keys.Escape && CancelSelectionBox()) return true;
             if (keys == Keys.Escape && (_polygonPoints.Count > 0 || _vertexOwner != null || DrawingMode == DrawingModes.Polygon))
             { CancelPolygonInteraction(); DrawingMode = DrawingModes.None; return true; }
             if (keys == Keys.Escape) ClearSnapGuide();

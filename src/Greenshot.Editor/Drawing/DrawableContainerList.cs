@@ -162,6 +162,7 @@ namespace Greenshot.Editor.Drawing
             Invalidate();
             foreach (var dc in this)
             {
+                if (dc is DrawableContainer member && matrix != null) member.TransformGroupReference(matrix);
                 dc.Transform(matrix);
                 modified = true;
             }

@@ -227,7 +227,7 @@ namespace Greenshot.Tests.Editor
                 surface.AddElement(shape);
                 surface.SelectElement(shape);
                 surface.SetMeasurements(MeasurementState.Calibrate(100, 10, MeasurementUnit.Millimetres));
-                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single();
+                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single(g => g.AccessibleName == "Object dimensions and coordinates");
                 Assert.Equal(5, grid.Rows.Count);
                 grid.Focus();
                 grid.CurrentCell = grid.Rows[0].Cells[1];
@@ -298,8 +298,13 @@ namespace Greenshot.Tests.Editor
                 var shape = new RectangleContainer(surface) { Width = 30, Height = 40 };
                 surface.AddElement(shape);
                 surface.SelectElement(shape);
-                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single();
+                var grid = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single(g => g.AccessibleName == "Object dimensions and coordinates");
                 Assert.Equal("30", grid.Rows[0].Cells[1].Value);
+                var edges = panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<DataGridView>().Single(g => g.AccessibleName == "Edge dimension visibility and length");
+                Assert.Equal(4, edges.Rows.Count);
+                edges.Rows[0].Cells[0].Value = true;
+                Assert.True(shape.IsDimensionVisible(0));
+                surface.Undo(); Assert.False(shape.IsDimensionVisible(0));
                 Assert.Equal(10, grid.Rows.Count);
                 shape.Width = 55;
                 Assert.Equal("55", grid.Rows[0].Cells[1].Value);
@@ -312,6 +317,7 @@ namespace Greenshot.Tests.Editor
                 Assert.Empty(grid.Rows.Cast<DataGridViewRow>());
                 surface.DeselectAllElements();
                 Assert.Empty(grid.Rows.Cast<DataGridViewRow>());
+                Assert.All(panel.Controls.OfType<FlowLayoutPanel>().Single().Controls.OfType<Button>().Where(b => b.Text.StartsWith("Dimension ")), b => Assert.True(b.Enabled));
                 // Optional local visual review, requested explicitly by the test runner.
                 string preview = Environment.GetEnvironmentVariable("GREENSHOTPLUS_PREVIEW");
                 if (!string.IsNullOrEmpty(preview))

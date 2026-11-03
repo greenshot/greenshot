@@ -11,14 +11,16 @@ namespace Greenshot.Editor.Memento
         private readonly Surface _surface;
         private readonly DrawableContainer[] _members;
         private readonly Guid[] _ids;
+        private readonly double[] _angles;
         internal GroupMembershipMemento(Surface surface, DrawableContainer[] members)
         {
             _surface = surface; _members = members; _ids = members.Select(m => m.GroupId).ToArray();
+            _angles = members.Select(m => m.GroupReferenceAngle).ToArray();
         }
         public IMemento Restore()
         {
             var inverse = new GroupMembershipMemento(_surface, _members);
-            for (int i = 0; i < _members.Length; i++) _members[i].GroupId = _ids[i];
+            for (int i = 0; i < _members.Length; i++) { _members[i].GroupId = _ids[i]; _members[i].GroupReferenceAngle = _angles[i]; }
             _surface.RefreshGroupSelection(_members); _surface.Modified = true; return inverse;
         }
         public bool Merge(IMemento other) => false;
