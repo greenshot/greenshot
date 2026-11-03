@@ -130,10 +130,16 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
+            var designations = ResolveDestinationDesignations(context, out bool fromSettings).ToList();
+
+            // Text selected in the text mode (T) of a capture with the destinations of the settings: the text is what was wanted
+            if (fromSettings && await CopySelectedTextAsync(context, cancellationToken).ConfigureAwait(false))
+            {
+                return;
+            }
+
             // Handle custom SaveDirectory & Filename overrides
             ApplyCustomFileSettings(context);
-
-            var designations = ResolveDestinationDesignations(context, out bool fromSettings).ToList();
             List<IDestination> destinations = new List<IDestination>();
 
             foreach (var designation in designations)
@@ -460,6 +466,28 @@ namespace Greenshot.Recipes.Steps
 
                 context.LogStep($"Copied capture to clipboard with {formats.Count} format(s)" + (string.IsNullOrEmpty(textToCopy) ? "." : " (including OCR text)."));
             }
+        }
+
+        /// <summary>
+        /// Copies the text of a selection made in the text mode to the clipboard, instead of exporting the image
+        /// </summary>
+        /// <returns>false when the selection wasn't made in the text mode or has no text, the image is exported as usual</returns>
+        private static async Task<bool> CopySelectedTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
+        {
+            if (context.Payload?.RawCapture?.CaptureDetails?.CaptureMode != CaptureMode.Text)
+            {
+                return false;
+            }
+            string text = context.Payload.ExtractedText;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                // e.g. no recognition language installed: the capture isn't lost
+                context.LogStep("No text was found in the text selection, the capture goes to the destinations.");
+                return false;
+            }
+            await ClipboardService.For(context.Ui).SetTextAsync(text, cancellationToken).ConfigureAwait(false);
+            context.LogStep($"Copied {text.Length} character(s) of the selected text to the clipboard.");
+            return true;
         }
 
         /// <summary>

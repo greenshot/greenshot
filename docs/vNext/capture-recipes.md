@@ -305,7 +305,8 @@ other languages, in the file itself, so they travel with it:
 
 The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
-itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+itself and needs no `Ocr` step. A `Destinations` step which uses the destinations of the settings copies that text to the clipboard
+instead of exporting the image, when the user selected in the text mode (`T`) and text was found; one with its own destinations exports as usual. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
