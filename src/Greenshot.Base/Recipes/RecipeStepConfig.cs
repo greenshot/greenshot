@@ -315,14 +315,12 @@ namespace Greenshot.Base.Recipes
             string id = "dynamic_export",
             string title = "Export Capture",
             bool showPreview = true,
-            bool allowRecipeForwarding = true,
             IEnumerable<string> destinations = null,
             int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.DynamicDestination, title ?? "Export Capture");
             node.Set("Title", title ?? "Export Capture");
             node.Set("ShowPreview", showPreview);
-            node.Set("AllowRecipeForwarding", allowRecipeForwarding);
             if (destinations != null) node.Set("Destinations", destinations.ToList());
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             return node;

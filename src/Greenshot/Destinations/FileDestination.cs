@@ -122,6 +122,8 @@ namespace Greenshot.Destinations
             bool copyPath = _options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard;
             try
             {
+                // A file on this computer gets every detail of ExportMetadata, also the private ones
+                outputSettings.IncludePrivateMetadata = true;
                 fullPath = await ExportFiles.SaveAsync(request.Source, fullPath, overwrite, outputSettings, cancellationToken).ConfigureAwait(false);
             }
             catch (FileAlreadyExistsException ex)
@@ -200,6 +202,7 @@ namespace Greenshot.Destinations
             try
             {
                 // The user picked the file: overwrite
+                outputSettings.IncludePrivateMetadata = true;
                 await ExportFiles.SaveAsync(request.Source, fileNameWithExtension, true, outputSettings, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception e) when (e is ExternalException || e is IOException || e is UnauthorizedAccessException)

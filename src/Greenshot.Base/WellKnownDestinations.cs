@@ -27,10 +27,12 @@ namespace Greenshot.Base
     public enum WellKnownDestinations
     {
         Clipboard,
+        DestinationWindow,
         EMail,
         FileDialog,
         FileNoDialog,
         Picker,
-        Printer
+        Printer,
+        Viewer
     }
 }

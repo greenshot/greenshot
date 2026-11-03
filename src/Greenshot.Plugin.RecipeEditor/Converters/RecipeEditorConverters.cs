@@ -35,6 +35,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Annotation":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8250df")); // Purple
                 case "SetVariable":
+                case "SetMetadata":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0550ae")); // Dark Blue
                 case "ImmediateFeedback":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2da44e")); // Green
@@ -102,6 +103,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "TextEffect": return "🛡️";
                 case "Annotation": return "🎨";
                 case "SetVariable": return "💲";
+                case "SetMetadata": return "🏷️";
                 case "ImmediateFeedback": return "🔊";
                 case "Ocr": return "🔤";
                 case "Destinations": return "↗️";

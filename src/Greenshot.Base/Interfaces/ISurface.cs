@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -96,6 +97,13 @@ namespace Greenshot.Base.Interfaces
             Color fillColor);
 
         IImageContainer AddImageContainer(Image image, int x, int y);
+
+        /// <summary>
+        /// Adds the image as image container at the next place: 20 px after the last image container,
+        /// kept at least 30% on the surface in width and height, else at 10/10 on the surface.
+        /// </summary>
+        IImageContainer AddNextImageContainer(Image image);
+
         ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y);
         IIconContainer AddIconContainer(Icon icon, int x, int y);
         IImageContainer AddImageContainer(string filename, int x, int y);
@@ -158,6 +166,13 @@ namespace Greenshot.Base.Interfaces
 
         void RemoveElements(IDrawableContainerList elements, bool makeUndoable = true);
         void SelectElements(IDrawableContainerList elements);
+
+        /// <summary>
+        /// Add elements, e.g. from a plugin: in the middle of the visible part of the canvas, made smaller when they don't fit there,
+        /// as one undo step, and select them instead of the selection before
+        /// </summary>
+        /// <param name="elements">the elements, created with this surface as parent</param>
+        void InsertElements(IEnumerable<IDrawableContainer> elements);
 
         /// <summary>
         /// Add an element to the surface

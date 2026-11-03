@@ -1,0 +1,93 @@
+---
+title: Greenshot recipes
+permalink: /recipes/
+layout: page
+sitemap: false
+metarobots: noindex,nofollow
+---
+{% comment %}
+The catalog overview, unlisted until a released Greenshot has recipes: no menu entry, noindex, not in the sitemap.
+Greenshot links here with ?from=greenshot&version=<x>; recipes needing a newer Greenshot are hidden.
+Written by tools/website/recipes/build_pages.py in greenshot/greenshot, don't edit it here.
+{% endcomment %}
+<link rel="stylesheet" href="/css/recipes.css?v={{ site.time | date: '%s' }}">
+<p id="recipes-not-yet" class="recipes-intro">Recipes come with Greenshot 1.4, currently in beta.</p>
+<div id="recipes" style="display:none">
+  <p class="recipes-intro">Recipes tell Greenshot what to do with a capture: add a watermark, convert a file, read a QR code,
+  run your own tool. Pick one and click "Install"; Greenshot shows what it does and asks before anything runs.</p>
+
+  <div class="recipes-tools">
+    <input type="search" id="recipe-search" placeholder="Search recipes" aria-label="Search recipes">
+    <button type="button" class="recipe-tag active" data-tag="">all</button>
+    {% assign all_tags = "" | split: "" %}
+    {% for recipe in site.data.recipes.recipes %}{% assign all_tags = all_tags | concat: recipe.tags %}{% endfor %}
+    {% assign all_tags = all_tags | uniq | sort %}
+    {% for tag in all_tags %}<button type="button" class="recipe-tag" data-tag="{{ tag }}">{{ tag }}</button>{% endfor %}
+  </div>
+
+  <ul class="recipe-grid" id="recipe-list">
+  {% for recipe in site.data.recipes.recipes %}
+    <li class="recipe-card" data-min-greenshot="{{ recipe.minGreenshot }}" data-tags="{{ recipe.tags | join: ' ' }}">
+      <h2><a href="/recipes/{{ recipe.id }}/">{{ recipe.name }}</a></h2>
+      <p>{{ recipe.summary }}</p>
+      <div>
+        {% for tag in recipe.tags %}<span class="recipe-tag">{{ tag }}</span>{% endfor %}
+        {% for plugin in recipe.requires %}<span class="recipe-tag recipe-needs" title="Needs this plugin">{{ plugin.name | default: plugin.id }}</span>{% endfor %}
+      </div>
+      <div class="recipe-by">v{{ recipe.version }} &middot; by {% for author in recipe.authors %}{{ author.name }}{% unless forloop.last %}, {% endunless %}{% endfor %}</div>
+    </li>
+  {% endfor %}
+  </ul>
+  <p class="recipes-empty" id="recipes-empty" style="display:none">No recipe matches.</p>
+
+  <div class="recipes-more">Missing a recipe? <a href="https://github.com/greenshot/greenshot-recipes/issues/new?template=request.yml">Suggest one</a>
+  or <a href="https://github.com/greenshot/greenshot-recipes/blob/main/CONTRIBUTING.md">add your own</a>.</div>
+</div>
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('from') !== 'greenshot') {
+      return;
+    }
+    function parse(text) {
+      return (text || '').split(/[.-]/).slice(0, 3).map(function (part) { return parseInt(part, 10) || 0; });
+    }
+    function older(a, b) {
+      for (var i = 0; i < 3; i++) {
+        if ((a[i] || 0) !== (b[i] || 0)) {
+          return (a[i] || 0) < (b[i] || 0);
+        }
+      }
+      return false;
+    }
+    var running = params.get('version') ? parse(params.get('version')) : null;
+    var cards = Array.prototype.slice.call(document.querySelectorAll('#recipe-list .recipe-card'));
+    var search = document.getElementById('recipe-search');
+    var tag = '';
+    function update() {
+      var text = search.value.trim().toLowerCase();
+      var shown = 0;
+      cards.forEach(function (card) {
+        var visible = !(running && older(running, parse(card.getAttribute('data-min-greenshot'))))
+          && (!tag || (' ' + card.getAttribute('data-tags') + ' ').indexOf(' ' + tag + ' ') >= 0)
+          && (!text || card.textContent.toLowerCase().indexOf(text) >= 0);
+        card.style.display = visible ? '' : 'none';
+        shown += visible ? 1 : 0;
+      });
+      document.getElementById('recipes-empty').style.display = shown ? 'none' : '';
+    }
+    search.addEventListener('input', update);
+    document.querySelectorAll('.recipes-tools button[data-tag]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        tag = button.getAttribute('data-tag');
+        document.querySelectorAll('.recipes-tools button[data-tag]').forEach(function (other) {
+          other.classList.toggle('active', other === button);
+        });
+        update();
+      });
+    });
+    update();
+    document.getElementById('recipes-not-yet').style.display = 'none';
+    document.getElementById('recipes').style.display = '';
+  })();
+</script>

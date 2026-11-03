@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
 
@@ -14,6 +17,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
     {
         public TriggerConfig Config { get; }
         private readonly Action _onChanged;
+        private readonly Func<CaptureRecipe> _getRecipe;
 
         public string TriggerType
         {
@@ -25,6 +29,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     Config.TriggerType = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsHotkey));
+                    OnPropertyChanged(nameof(IsHotkeyReference));
+                    OnPropertyChanged(nameof(IsFixedHotkey));
                     OnPropertyChanged(nameof(IsContextMenu));
                     OnPropertyChanged(nameof(IsEditor));
                     OnPropertyChanged(nameof(IsClipboard));
@@ -71,8 +77,82 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public string Hotkey
         {
             get => GetParam("Hotkey", "Ctrl + Alt + R");
-            set { SetParam("Hotkey", value); OnPropertyChanged(nameof(DisplayTitle)); }
+            set
+            {
+                SetParam("Hotkey", value);
+                OnPropertyChanged(nameof(DisplayTitle));
+                OnPropertyChanged(nameof(IsHotkeyReference));
+                OnPropertyChanged(nameof(IsFixedHotkey));
+                OnPropertyChanged(nameof(HotkeySourceText));
+                OnPropertyChanged(nameof(HotkeyOptionKey));
+            }
         }
+
+        /// <summary>
+        /// The hotkey comes from an option ("${option.key}") or the general settings ("${config.Name}"):
+        /// the hotkey window can't show it, recording a hotkey would replace the reference
+        /// </summary>
+        public bool IsHotkeyReference => IsHotkey && (RecipeOptionStore.TryParseReference(Hotkey, out _) || TriggerConfig.TryParseConfigReference(Hotkey, out _));
+
+        public bool IsFixedHotkey => IsHotkey && !IsHotkeyReference;
+
+        /// <summary>
+        /// The hotkey which is used now and where it comes from
+        /// </summary>
+        public string HotkeySourceText
+        {
+            get
+            {
+                if (!IsHotkeyReference) return null;
+                string current = ResolvedHotkey;
+                if (string.IsNullOrEmpty(current)) current = "None";
+                if (RecipeOptionStore.TryParseReference(Hotkey, out var optionKey))
+                {
+                    string label = _getRecipe?.Invoke()?.FindOption(optionKey)?.DisplayLabel ?? optionKey;
+                    return string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerHotkeyFromOption, current, label);
+                }
+                return string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerHotkeyFromSettings, current);
+            }
+        }
+
+        private string ResolvedHotkey
+        {
+            get
+            {
+                var recipe = _getRecipe?.Invoke();
+                return recipe != null ? Config.GetHotkey(recipe) : string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Replaces the reference with the hotkey used now, which can then be changed in the hotkey window
+        /// </summary>
+        public ICommand UseFixedHotkeyCommand { get; }
+
+        /// <summary>
+        /// The Hotkey options of the recipe, which the trigger can use instead of a fixed hotkey
+        /// </summary>
+        public IReadOnlyList<RecipeOption> HotkeyOptions => _getRecipe?.Invoke()?.Options?
+            .Where(o => o != null && o.Type == ContractDataType.Hotkey && !string.IsNullOrWhiteSpace(o.Key)).ToList() ?? new List<RecipeOption>();
+
+        /// <summary>
+        /// The key of the option the hotkey comes from, choosing one makes the trigger use "${option.key}"
+        /// </summary>
+        public string HotkeyOptionKey
+        {
+            get => RecipeOptionStore.TryParseReference(Hotkey, out var optionKey) ? optionKey : null;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) || value == HotkeyOptionKey) return;
+                Hotkey = "${option." + value + "}";
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Reads the options again, they can change while the trigger is shown
+        /// </summary>
+        public void RefreshHotkeyOptions() => OnPropertyChanged(nameof(HotkeyOptions));
 
         public string MenuItemText
         {
@@ -195,7 +275,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get
             {
-                if (IsHotkey) return "⌨ " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleHotkey, Hotkey);
+                if (IsHotkey) return "⌨ " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleHotkey, IsHotkeyReference ? ResolvedHotkey : Hotkey);
                 if (IsContextMenu) return "📋 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleContextMenu, MenuItemText);
                 if (IsEditor) return "🎨 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleEditor, MenuItemText);
                 if (IsClipboard) return string.IsNullOrEmpty(FormatFilter) ? "📋 " + Texts.Get<IRecipeEditorLanguage>().TriggerClipboardMonitor : "📋 " + string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerTitleClipboard, FormatFilter);
@@ -209,11 +289,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public ICommand RemoveCommand { get; }
 
-        public TriggerItemViewModel(TriggerConfig config, Action onChanged = null, Action<TriggerItemViewModel> onRemove = null)
+        public TriggerItemViewModel(TriggerConfig config, Action onChanged = null, Action<TriggerItemViewModel> onRemove = null, Func<CaptureRecipe> getRecipe = null)
         {
             Config = config ?? new TriggerConfig(TriggerConfig.TypeHotkey);
             _onChanged = onChanged;
+            _getRecipe = getRecipe;
             RemoveCommand = new RelayCommand(() => onRemove?.Invoke(this));
+            UseFixedHotkeyCommand = new RelayCommand(() =>
+            {
+                string current = ResolvedHotkey;
+                Hotkey = string.IsNullOrEmpty(current) ? "Ctrl + Alt + R" : current;
+            });
         }
 
         private string GetParam(string key, string fallback = "")

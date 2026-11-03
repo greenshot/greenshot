@@ -65,7 +65,9 @@ namespace Greenshot.Base.Core.Export
             ThreadAssert.NotUi($"Export to {destination.Designation}");
             try
             {
-                var request = new ExportRequest(source, captureDetails, manuallyInitiated, userInteraction ?? UserInteraction.Current);
+                var ui = userInteraction ?? UserInteraction.Current;
+                AskBeforePrivateMetadataLeaves(source, ui);
+                var request = new ExportRequest(source, captureDetails, manuallyInitiated, ui);
                 var result = await destination.ExportAsync(request, cancellationToken).ConfigureAwait(false) ?? ExportResult.Declined;
                 Log.InfoFormat("Export to {0}: {1}", destination.Designation, result);
                 return result;
@@ -79,6 +81,18 @@ namespace Greenshot.Base.Core.Export
                 // Also an OperationCanceledException which isn't ours, e.g. an HTTP timeout
                 Log.Error($"Export to {destination.Designation} failed", ex);
                 return ExportResult.Failed(ex.Message, ex);
+            }
+        }
+
+        /// <summary>
+        /// Private details (ExportMetadata) only leave this computer when the user says so: an interactive export asks when the image is encoded
+        /// for a destination which isn't a file, without a window they are removed. For steps which encode the source themselves (uploads).
+        /// </summary>
+        public static void AskBeforePrivateMetadataLeaves(IExportSource source, IUserInteraction userInteraction)
+        {
+            if (source is SurfaceExportSource surfaceSource && userInteraction is { IsInteractive: true })
+            {
+                surfaceSource.AskToKeepPrivateMetadata ??= (details, token) => PrivateMetadataRequest.AskAsync(userInteraction, details, token);
             }
         }
 

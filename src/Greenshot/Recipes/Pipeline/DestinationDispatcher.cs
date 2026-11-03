@@ -177,9 +177,7 @@ namespace Greenshot.Recipes.Pipeline
             CancellationToken cancellationToken)
         {
             var copies = new Dictionary<string, PreparedCopy>();
-            var choices = DestinationHelper.GetAllDestinations()
-                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
-                .ToList();
+            var choices = DestinationHelper.GetChoices(captureDetails);
             while (true)
             {
                 var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);
