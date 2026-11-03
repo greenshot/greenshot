@@ -42,10 +42,14 @@ namespace Greenshot.Base.Controls
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;
         private readonly ICaptureDetails _captureDetails;
+        private readonly bool _hdrAvailable;
 
-        public SaveImageFileDialog(ICaptureDetails captureDetails)
+        /// <param name="captureDetails">The details of the capture, for the file name</param>
+        /// <param name="hdrAvailable">The capture can be saved as HDR file: JPEG XR is labeled "(HDR)"</param>
+        public SaveImageFileDialog(ICaptureDetails captureDetails, bool hdrAvailable = false)
         {
             _captureDetails = captureDetails;
+            _hdrAvailable = hdrAvailable;
             Init();
         }
 
@@ -132,7 +136,8 @@ namespace Greenshot.Base.Controls
                     FormatId = format.Id,
                     Extensions = format.SaveableExtensions.ToArray(),
                     PreferredExtension = format.PreferredExtension,
-                    Label = format.GetDisplayName()
+                    // JPEG XR of a capture with HDR content is the HDR file
+                    Label = _hdrAvailable && WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Jxr, format.Id) ? format.GetDisplayName() + " (HDR)" : format.GetDisplayName()
                 };
             }
         }

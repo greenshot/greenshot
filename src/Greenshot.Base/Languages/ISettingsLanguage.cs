@@ -167,6 +167,16 @@ namespace Greenshot.Base.Languages
         string CaptureMousepointer { get; }
 
         /// <summary>
+        /// Keep the HDR content of HDR displays (for JPEG XR files)
+        /// </summary>
+        string CaptureHdr { get; }
+
+        /// <summary>
+        /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.
+        /// </summary>
+        string TipCaptureHdr { get; }
+
+        /// <summary>
         /// Use interactive window capture mode
         /// </summary>
         string CaptureWindowsInteractive { get; }

@@ -66,7 +66,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
     [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen, where the selection shows what is captured.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]
-    [StepParameter(HdrParameter, ContractDataType.Boolean, DefaultValue = false, Description = "Capture with the HDR content of HDR displays (screen, region, window, last region): the capture keeps it, e.g. for the HdrFormat of SaveFile. Only HDR displays are kept, the SDR displays are in the normal image.")]
+    [StepParameter(HdrParameter, ContractDataType.Boolean, Description = "Capture with the HDR content of HDR displays (screen, region, window, last region): the capture keeps it, e.g. for the HdrFormat of SaveFile or a JPEG XR file (default: settings). Only HDR displays are kept, the SDR displays are in the normal image.")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
     [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
     [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
@@ -136,7 +136,7 @@ namespace Greenshot.Recipes.Steps
             bool alignDpi = Config.GetParameter("AlignDpi", true);
 
             // The capture knows whether it is taken with the HDR content, whatever uses it later; also for the selection on the live screen
-            context.CaptureHdr = Config.GetParameter<bool?>(HdrParameter) == true;
+            context.CaptureHdr = Config.GetParameter<bool?>(HdrParameter) ?? CoreConfig.CaptureHdr;
 
             // 4. Handle pre-supplied region (e.g. command-line or programmatic region capture)
             if (context.Properties.TryGetValue("PreSuppliedRegion", out var regionObj) &&

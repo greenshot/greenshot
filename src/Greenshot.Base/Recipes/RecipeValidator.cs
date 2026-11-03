@@ -191,7 +191,7 @@ namespace Greenshot.Base.Recipes
             bool hasSource = recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
             if (hasSource && HdrOutput.SavesHdrFile(recipe) && !HdrOutput.CapturesHdr(recipe))
             {
-                result.AddWarning("A SaveFile step saves an HDR file (HdrFormat), but no Source step captures with the HDR content (Hdr): the normal file is always saved.");
+                result.AddWarning("A SaveFile step saves an HDR file (HdrFormat), but the Source step doesn't capture with the HDR content (Hdr is false): the normal file is always saved.");
             }
         }
 

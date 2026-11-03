@@ -58,14 +58,14 @@ namespace Greenshot.Base.Recipes
                 && IsHdrFormat(node.GetParameter<string>(ParameterName))) == true;
 
         /// <summary>
-        /// True when a Source step of the recipe can capture with the HDR content: its Hdr is true, or an expression (e.g. an option) which may be
+        /// True when a Source step of the recipe can capture with the HDR content: its Hdr is true, an expression (e.g. an option) which may be,
+        /// or not set (then the setting CaptureHdr decides). Only Hdr false never captures it.
         /// </summary>
         public static bool CapturesHdr(CaptureRecipe recipe) =>
             recipe?.Nodes?.Any(node => node != null
                 && string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase)
-                && node.Parameters != null && node.Parameters.TryGetValue(SourceParameterName, out var value)
-                && (value is bool hdr && hdr
-                    || value is string text && (bool.TryParse(text, out var parsed) ? parsed : text.IndexOf("${", StringComparison.Ordinal) >= 0))) == true;
+                && !(node.Parameters != null && node.Parameters.TryGetValue(SourceParameterName, out var value)
+                     && (value is bool hdr && !hdr || value is string text && bool.TryParse(text, out var parsed) && !parsed))) == true;
 
         /// <summary>
         /// True for a value which saves an HDR file (not empty, not None)

@@ -318,13 +318,14 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void SavesHdrFile_OnlyForASaveFileStepWithAnHdrFormat_CapturesHdr_ForASourceWithHdr()
+    public void SavesHdrFile_OnlyForASaveFileStepWithAnHdrFormat_CapturesHdr_ForASourceWithoutHdrFalse()
     {
         var recipe = new CaptureRecipe("hdr_test", "HDR test");
         recipe.Nodes.Add(new RecipeNodeConfig("source", WellKnownStepTypes.Source));
         recipe.Nodes.Add(new RecipeNodeConfig("save", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "None"));
         Assert.False(HdrOutput.SavesHdrFile(recipe));
-        Assert.False(HdrOutput.CapturesHdr(recipe));
+        // Without Hdr the setting decides: it may
+        Assert.True(HdrOutput.CapturesHdr(recipe));
 
         recipe.Nodes.Add(new RecipeNodeConfig("save_hdr", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "Jxr"));
         Assert.True(HdrOutput.SavesHdrFile(recipe));
@@ -347,10 +348,14 @@ public class HdrCaptureTests
         recipe.Nodes.Add(new RecipeNodeConfig("save", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "Auto"));
         recipe.Flow = new RecipeFlowConfig("source").AddTransition("source", "save");
 
-        Assert.Contains(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr"));
+        // Without Hdr the setting decides
+        Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr is false"));
+
+        recipe.Nodes[0].Set(HdrOutput.SourceParameterName, false);
+        Assert.Contains(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr is false"));
 
         recipe.Nodes[0].Set(HdrOutput.SourceParameterName, true);
-        Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("(Hdr)"));
+        Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr is false"));
     }
 
     [Fact]

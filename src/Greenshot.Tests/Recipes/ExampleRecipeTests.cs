@@ -69,7 +69,7 @@ namespace Greenshot.Tests.Recipes
                 var recipe = RecipeSerializer.LoadFromFile(Path.Combine(directory, name), false);
                 Assert.True(HdrOutput.SavesHdrFile(recipe), name);
                 Assert.True(HdrOutput.CapturesHdr(recipe), name);
-                Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("(Hdr)"));
+                Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr is false"));
             }
         }
 

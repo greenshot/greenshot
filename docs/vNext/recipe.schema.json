@@ -346,8 +346,7 @@
             },
             "Hdr": {
               "type": "boolean",
-              "default": false,
-              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile'). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
+              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile', a JPEG XR file). Not set: the setting 'Keep the HDR content of HDR displays' (CaptureHdr). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
             },
             "Filename": {
               "type": "string",

@@ -257,6 +257,8 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
+                // JPEG XR is labeled as the HDR file
+                Assert.True(ui.Dialogs[0].HdrAvailable);
                 Assert.Empty(ui.Notifications);
                 byte[] bytes = File.ReadAllBytes(path);
                 // JPEG XR: "II", 0xBC
@@ -394,6 +396,7 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Null(Assert.Single(ui.Dialogs).Format);
+                Assert.False(ui.Dialogs[0].HdrAvailable);
                 Assert.Single(ui.Notifications);
                 Assert.True(File.Exists(path));
             }
