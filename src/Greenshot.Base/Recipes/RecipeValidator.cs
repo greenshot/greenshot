@@ -684,9 +684,16 @@ namespace Greenshot.Base.Recipes
                 ValidateAnnotationNode(node, result);
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) &&
-                node.GetParameter<List<PromptChoice>>("Choices") is { } choices && choices.Count(c => c?.IsDefault == true) > 1)
+                node.GetParameter<List<PromptChoice>>("Choices") is { } choices)
             {
-                result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
+                if (choices.Count(c => c?.IsDefault == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
+                }
+                if (choices.Count(c => c?.IsCancel == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsCancel'.");
+                }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
             {
@@ -887,10 +894,11 @@ namespace Greenshot.Base.Recipes
                 }
                 foreach (var text in language.Value)
                 {
-                    if (!paths.Contains(text.Key))
+                    if (!paths.Contains(text.Key) && !definition.IsTextOfUnknownStep(text.Key))
                     {
                         result.AddError($"Translations '{language.Key}': '{text.Key}' is not a text of this file, use \"name\", \"description\", " +
-                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\" or \"triggers.{index}.menuItemText\".");
+                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\", \"triggers.{index}.menuItemText\", " +
+                                        "\"nodes.{nodeId}.{parameter}\" (e.g. the Title of a UserPrompt) or \"nodes.{nodeId}.Choices.{key}\".");
                     }
                     else if (string.IsNullOrWhiteSpace(text.Value))
                     {
