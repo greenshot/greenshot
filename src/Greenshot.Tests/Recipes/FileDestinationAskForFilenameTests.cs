@@ -262,7 +262,7 @@ namespace Greenshot.Tests.Recipes
             try
             {
                 using var surface = CreateBrightHdrSurface();
-                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.MonochromeEffect(127)));
                 Assert.False(HdrExport.CanWriteHdr(surface));
                 var ui = new SaveDialogUserInteraction(path) { ConfirmAnswer = answer };
 
@@ -321,6 +321,32 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // Away from the rectangle and its shadow: the HDR highlights
                 Assert.Equal(5f, ReadHdrRow(path, 0)[15 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task EffectsOfTheEditor_AreInTheHdrFile_TheBorderFromThe8BitImage()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.BorderEffect { Width = 2, Color = Color.Black }));
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, null);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Notifications);
+                var row = ReadHdrRow(path, 4);
+                // The black border of the 8-bit image, then the gray highlight of the capture (the luminance of 5, 5, 5 is 5)
+                Assert.Equal(0f, row[0], 2);
+                Assert.Equal(5f, row[2 * 4], 2);
             }
             finally
             {

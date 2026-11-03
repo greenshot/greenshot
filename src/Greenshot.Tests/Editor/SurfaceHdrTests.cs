@@ -20,8 +20,10 @@
  */
 
 using System;
+using System.Linq;
 using System.Drawing;
 using System.Threading.Tasks;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
@@ -128,14 +130,119 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public async Task AnotherEffect_LeavesTheHdrImageBehind()
+        public async Task Monochrome_LeavesTheHdrImageBehind()
+        {
+            using var surface = CreateSurface();
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(new MonochromeEffect(127)));
+
+            Assert.Equal(HdrState.Lost, surface.HdrState);
+            Assert.NotNull(surface.HdrImage);
+            Assert.False(HdrExport.CanWriteHdr(surface));
+        }
+
+        [Fact]
+        public async Task Grayscale_IsDoneOnTheHdrImage_InLinearLight()
         {
             using var surface = CreateSurface();
 
             await Task.Run(() => surface.ApplyBitmapEffectAsync(new GrayscaleEffect()));
 
-            Assert.NotNull(surface.HdrImage);
-            Assert.False(HdrExport.CanWriteHdr(surface));
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            var pixel = surface.HdrImage.Pixels[3, 1].ToVector4();
+            // BT.709 of (3, 1, 5): the highlight of blue stays in the luminance
+            float luminance = 0.2126f * 3 + 0.7152f * 1 + 0.0722f * 5;
+            Assert.Equal(luminance, pixel.X, 2);
+            Assert.Equal(luminance, pixel.Y, 2);
+            Assert.Equal(luminance, pixel.Z, 2);
         }
+
+        [Fact]
+        public async Task Edits_AreDoneOnlyWhenTheHdrImageIsAskedFor_UndoComesBackToTheCapture()
+        {
+            using var surface = CreateSurface();
+            var original = surface.HdrImage;
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(new InvertEffect()));
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(new BorderEffect { Width = 2 }));
+
+            // Nothing was made for the state
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            var made = surface.HdrImage;
+            Assert.NotSame(original, made);
+            Assert.Same(made, surface.HdrImage);
+            Assert.Equal(8, made.Width);
+            Assert.Equal(6, made.Height);
+            // The capture inside the border, the border itself comes from the 8-bit image
+            Assert.False(made.IsComplete);
+            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(made.TileAreas));
+
+            surface.Undo();
+            surface.Undo();
+            Assert.Same(original, surface.HdrImage);
+            Assert.Equal(HdrState.Available, surface.HdrState);
+        }
+
+        [Fact]
+        public async Task Resize_ResizesTheHdrImage_TheHighlightsStay()
+        {
+            using var surface = CreateSurface();
+
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(new ResizeEffect(8, 4, false)));
+
+            var hdrImage = surface.HdrImage;
+            Assert.Equal(8, hdrImage.Width);
+            Assert.Equal(4, hdrImage.Height);
+            // The blue of 5 everywhere: bicubic keeps a constant as it is
+            Assert.Equal(5f, hdrImage.Pixels[4, 2].ToVector4().Z, 1);
+        }
+
+        [Fact]
+        public void CropWithoutTheHighlights_IsKnownWhenTheHdrImageIsMade()
+        {
+            var capture = new Capture(new Bitmap(4, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+            var hdrImage = new HdrImage(4, 2, 240, 400);
+            hdrImage.Pixels[3, 1] = new HalfVector4(5, 5, 5, 1);
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+
+            Assert.True(surface.ApplyCrop(new NativeRect(0, 0, 2, 2)));
+
+            // Decided by the capture until the crop is done on the HDR image
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.False(surface.HdrImage.HasHdrContent);
+            Assert.Equal(HdrState.None, surface.HdrState);
+        }
+
+        [Fact]
+        public void TornEdgesWithShadow_MoveTheHdrImageIntoTheRoom_DrawnIntoTheImage_TheirBandsAreLeftOut()
+        {
+            var capture = new Capture(new Bitmap(100, 100, System.Drawing.Imaging.PixelFormat.Format32bppArgb));
+            var hdrImage = new HdrImage(100, 100, 240, 400);
+            hdrImage.Pixels[50, 50] = new HalfVector4(5, 5, 5, 1);
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20 };
+            int margin = TornEdgeContainer.GetShadowMargin(settings);
+
+            var tornEdges = surface.AddTornEdges(settings);
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
+
+            Assert.True(surface.ApplyElementToImage(tornEdges));
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            // The middle keeps its HDR content, the torn bands (with the room for the shadow) come from the 8-bit image
+            var middle = Assert.Single(surface.HdrImage.TileAreas);
+            var bands = tornEdges.EdgeAreas().ToList();
+            Assert.True(Covers(middle, 50 + margin, 50 + margin));
+            Assert.DoesNotContain(bands, band => band.IntersectsWith(middle));
+            Assert.True(surface.HdrImage.HasHdrContent);
+        }
+
+        private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;
     }
 }

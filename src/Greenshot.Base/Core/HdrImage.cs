@@ -232,6 +232,92 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The HDR image resized like the editor resizes the capture (ResizeEffect: bicubic, the whole image to the new size), as a new HDR image;
+        /// each tile is resized to its scaled place
+        /// </summary>
+        /// <returns>The new HDR image, null when no tile is left (a size so small that a tile has no pixel)</returns>
+        public HdrImage Resize(int width, int height)
+        {
+            CheckNotDisposed();
+            double scaleX = CheckSize(width) / (double)Width;
+            double scaleY = CheckSize(height) / (double)Height;
+            var tiles = _tiles.Select(tile =>
+            {
+                var area = tile.Area;
+                int left = (int)Math.Round(area.Left * scaleX);
+                int top = (int)Math.Round(area.Top * scaleY);
+                var scaledArea = new NativeRect(left, top, (int)Math.Round(area.Right * scaleX) - left, (int)Math.Round(area.Bottom * scaleY) - top);
+                if (scaledArea.Width <= 0 || scaledArea.Height <= 0)
+                {
+                    return null;
+                }
+                var resized = tile.Shared.Pixels.Clone(context => context.Resize(scaledArea.Width, scaledArea.Height, KnownResamplers.Bicubic));
+                return new Tile(scaledArea, new SharedPixels(resized), tile.SdrWhiteLevelInNits);
+            }).Where(tile => tile != null).ToArray();
+            return tiles.Length == 0 ? null : new HdrImage(width, height, tiles, DisplayPeakInNits) { IsRequested = IsRequested };
+        }
+
+        /// <summary>
+        /// The HDR image without the areas, as a new HDR image: e.g. what an element drawn into the image covers. Those areas come from the
+        /// 8-bit image when it is composed, like an SDR display. A tile with an area in it is split into the rectangles around it (copied).
+        /// </summary>
+        /// <returns>The new HDR image, null when nothing is left</returns>
+        public HdrImage Exclude(IEnumerable<NativeRect> areas)
+        {
+            CheckNotDisposed();
+            var pieces = _tiles.Select(tile => (Tile: tile, Area: tile.Area)).ToList();
+            foreach (var area in areas ?? Enumerable.Empty<NativeRect>())
+            {
+                pieces = pieces.SelectMany(piece => Subtract(piece.Area, area).Select(rest => (piece.Tile, Area: rest))).ToList();
+            }
+            var tiles = pieces.Select(piece =>
+            {
+                if (piece.Area.Equals(piece.Tile.Area))
+                {
+                    return piece.Tile.Share();
+                }
+                var crop = new Rectangle(piece.Area.X - piece.Tile.Area.X, piece.Area.Y - piece.Tile.Area.Y, piece.Area.Width, piece.Area.Height);
+                return new Tile(piece.Area, new SharedPixels(piece.Tile.Shared.Pixels.Clone(context => context.Crop(crop))), piece.Tile.SdrWhiteLevelInNits);
+            }).ToArray();
+            return tiles.Length == 0 ? null : new HdrImage(Width, Height, tiles, DisplayPeakInNits) { IsRequested = IsRequested };
+        }
+
+        /// <summary>
+        /// The rectangles of the area which are outside of the hole: above, below, left and right of it
+        /// </summary>
+        private static IEnumerable<NativeRect> Subtract(NativeRect area, NativeRect hole)
+        {
+            var inside = area.Intersect(hole);
+            if (inside.Width <= 0 || inside.Height <= 0)
+            {
+                return new[] { area };
+            }
+            return new[]
+            {
+                new NativeRect(area.Left, area.Top, area.Width, inside.Top - area.Top),
+                new NativeRect(area.Left, inside.Bottom, area.Width, area.Bottom - inside.Bottom),
+                new NativeRect(area.Left, inside.Top, inside.Left - area.Left, inside.Height),
+                new NativeRect(inside.Right, inside.Top, area.Right - inside.Right, inside.Height)
+            }.Where(rest => rest.Width > 0 && rest.Height > 0);
+        }
+
+        /// <summary>
+        /// The HDR image with the pixels of each tile changed (e.g. a color effect, see HdrEdits), as a new HDR image; this one stays as it is
+        /// </summary>
+        /// <param name="process">Changes a copy of the pixels of a tile; it gets the SDR white of the tile's display as scRGB value (1.0 = 80 nits)</param>
+        public HdrImage Process(Action<IImageProcessingContext, float> process)
+        {
+            if (process == null) throw new ArgumentNullException(nameof(process));
+            CheckNotDisposed();
+            var tiles = _tiles.Select(tile =>
+            {
+                var processed = tile.Shared.Pixels.Clone(context => process(context, tile.SdrWhiteLevelInNits / 80f));
+                return new Tile(tile.Area, new SharedPixels(processed), tile.SdrWhiteLevelInNits);
+            }).ToArray();
+            return new HdrImage(Width, Height, tiles, DisplayPeakInNits) { IsRequested = IsRequested };
+        }
+
+        /// <summary>
         /// An area of the HDR image as a new HDR image. Only the tiles which are cut are copied (only their part), the others are shared.
         /// </summary>
         /// <param name="area">The area in pixel coordinates, it is clipped to the image</param>

@@ -38,11 +38,11 @@ namespace Greenshot.Base.Core.Export
         private static readonly ILog Log = LogManager.GetLogger(typeof(HdrExport));
 
         /// <summary>
-        /// True when an HDR file can be written of the surface: it has HDR content (HdrImage.HasHdrContent) and its image is still the one it was taken with
-        /// (not cropped, rotated or changed by an effect). What is drawn on it doesn't matter, it goes into the HDR file. On the UI thread.
+        /// True when an HDR file can be written of the surface: it has HDR content (HdrImage.HasHdrContent) and its image was changed only in ways
+        /// which can be done on the HDR image too (ISurface.HdrState, e.g. a crop, an effect but monochrome). What is drawn on it doesn't matter,
+        /// it goes into the HDR file. The HDR image isn't made for it. On the UI thread.
         /// </summary>
-        public static bool CanWriteHdr(ISurface surface) =>
-            surface?.HdrImage != null && surface.HdrImage.BelongsTo(surface.Image) && surface.HdrImage.HasHdrContent;
+        public static bool CanWriteHdr(ISurface surface) => surface?.HdrState == HdrState.Available;
 
         /// <summary>
         /// Encode the HDR file of the export source. No file when it can't be written: the text (with {0} for the format of the normal file) tells why.
@@ -64,16 +64,23 @@ namespace Greenshot.Base.Core.Export
             // On the UI thread, which owns the surface: the SDR displays and the elements come from its image
             var (hdrImage, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
             {
-                if (surface.HdrImage == null || !surface.HdrImage.HasHdrContent)
+                var state = surface.HdrState;
+                if (state == HdrState.None)
                 {
                     return ((HdrImage)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }
-                if (!CanWriteHdr(surface) || !(surface.Image is Bitmap sdrImage))
+                if (state == HdrState.Lost || !(surface.Image is Bitmap sdrImage))
                 {
                     return (null, surface.CaptureDetails, Texts.Core.HdrNotSavedChanged);
                 }
+                // Made now, with the edits of the editor (e.g. a crop): a crop may have left no HDR content
+                var surfaceHdrImage = surface.HdrImage;
+                if (surfaceHdrImage == null || !surfaceHdrImage.HasHdrContent)
+                {
+                    return (null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
+                }
                 using var overlay = surface.CreateHdrOverlay();
-                return (surface.HdrImage.Compose(sdrImage, overlay), surface.CaptureDetails, (string)null);
+                return (surfaceHdrImage.Compose(sdrImage, overlay), surface.CaptureDetails, (string)null);
             }, cancellationToken).ConfigureAwait(false);
             if (hdrImage == null)
             {

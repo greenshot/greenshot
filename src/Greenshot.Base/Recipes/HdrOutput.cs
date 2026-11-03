@@ -77,7 +77,7 @@ namespace Greenshot.Base.Recipes
         public static string StateOf(Pipeline.ICapturePayload payload)
         {
             var surface = payload?.Surface;
-            return surface != null ? StateOf(surface.HdrImage, surface.Image) : StateOf(payload?.RawCapture?.HdrImage, payload?.RawCapture?.Image);
+            return surface != null ? surface.HdrState.ToString() : StateOf(payload?.RawCapture?.HdrImage, payload?.RawCapture?.Image);
         }
 
         /// <summary>
