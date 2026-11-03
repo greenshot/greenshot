@@ -368,6 +368,48 @@ namespace Greenshot.Editor.Drawing
                 _image = value;
                 UpdateSize();
                 ImageChanged?.Invoke(this, EventArgs.Empty);
+                MeasureHdrContentInBackground();
+            }
+        }
+
+        /// <summary>
+        /// In the editor: the HDR image of a new image (e.g. after a crop) is made on the thread pool, so the HDR badge shows whether HDR content
+        /// is left (see HdrState) without waiting for a save; ImageChanged is raised again when it is known
+        /// </summary>
+        private void MeasureHdrContentInBackground()
+        {
+            if (!IsHandleCreated)
+            {
+                return;
+            }
+            var preparation = HdrImagePreparation;
+            if (preparation != null)
+            {
+                _ = MeasureHdrContentAsync(preparation);
+            }
+        }
+
+        private async Task MeasureHdrContentAsync(Action preparation)
+        {
+            try
+            {
+                await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+                preparation();
+                if (!IsDisposed && IsHandleCreated)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        if (!IsDisposed)
+                        {
+                            ImageChanged?.Invoke(this, EventArgs.Empty);
+                        }
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                // The HDR image is made again when it is saved
+                LOG.Warn("Couldn't make the HDR image of the editor's image in the background", ex);
             }
         }
 
@@ -485,6 +527,11 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
             PruneHdrVersions(false);
+            // Only the newest version keeps its HDR image: an older one (e.g. after an undo) is made again when it is needed
+            foreach (var older in _hdrVersions)
+            {
+                older.ReleaseMade();
+            }
             _hdrVersions.Add(new HdrVersion(newImage, edits.Append(edit).ToList()));
         }
 
@@ -569,6 +616,24 @@ namespace Greenshot.Editor.Drawing
                         _isMade = true;
                         return current;
                     }
+                }
+            }
+
+            /// <summary>
+            /// Release the HDR image once it was made, to save memory: it is made again when it is asked for. A version without HDR image
+            /// (nothing is left of it) stays as it is.
+            /// </summary>
+            public void ReleaseMade()
+            {
+                lock (_stateLock)
+                {
+                    if (_made == null)
+                    {
+                        return;
+                    }
+                    _isMade = false;
+                    _made.Dispose();
+                    _made = null;
                 }
             }
 
@@ -726,11 +791,13 @@ namespace Greenshot.Editor.Drawing
             }
             // Inverted filters of elements with the same filters work together outside all of them, once (like DrawableContainerList.Draw)
             string groupKey = InvertedFilterKey(element);
-            var holes = groupKey.Length == 0
-                ? Array.Empty<NativeRect>()
-                : _elements.OfType<DrawableContainer>().Where(other => other.Parent != null && other.HasFilters && InvertedFilterKey(other) == groupKey)
-                    .Select(other => other.Bounds.Normalize()).ToArray();
-            return ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null);
+            var group = groupKey.Length == 0
+                ? new List<DrawableContainer>()
+                : _elements.OfType<DrawableContainer>().Where(other => other.Parent != null && other.HasFilters && InvertedFilterKey(other) == groupKey).ToList();
+            var holes = group.Select(other => other.Bounds.Normalize()).ToArray();
+            // The settings of the group's filters are those of its selected element, else of its first (like the editor)
+            var representative = group.FirstOrDefault(other => other.Selected) ?? group.FirstOrDefault(other => other.Status == EditStatus.IDLE) ?? element;
+            return ElementImageFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null, representative);
         }
 
         private static string InvertedFilterKey(DrawableContainer element) =>

@@ -47,14 +47,19 @@ namespace Greenshot.Editor.Drawing.Filters
         /// <param name="bounds">The image</param>
         /// <param name="invertedHoles">For inverted filters (they work outside of the elements): the bounds of the elements of the group (see
         /// DrawableContainerList), null when the group was done already by another element</param>
-        public static IReadOnlyList<ImageFilter> Create(DrawableContainer element, NativeRect bounds, IReadOnlyList<NativeRect> invertedHoles)
+        /// <param name="invertedFrom">The element of the group whose inverted filters are used (like the editor: the selected one, else the
+        /// first), null for this element</param>
+        public static IReadOnlyList<ImageFilter> Create(DrawableContainer element, NativeRect bounds, IReadOnlyList<NativeRect> invertedHoles,
+            DrawableContainer invertedFrom = null)
         {
             if (element is ObfuscateContainer)
             {
                 return null;
             }
             var imageFilters = new List<ImageFilter>();
-            foreach (var filter in element.Filters.OfType<AbstractFilter>())
+            var filters = element.Filters.OfType<AbstractFilter>().Where(filter => !filter.Invert)
+                .Concat((invertedFrom ?? element).Filters.OfType<AbstractFilter>().Where(filter => filter.Invert));
+            foreach (var filter in filters)
             {
                 IReadOnlyList<NativeRect> areas;
                 if (filter.Invert)

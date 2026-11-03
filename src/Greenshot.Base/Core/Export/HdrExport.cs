@@ -63,11 +63,12 @@ namespace Greenshot.Base.Core.Export
             }
 
             // The edits of the editor (e.g. a resize) are done on the thread pool, not on the UI thread
-            var preparation = await source.UseSurfaceAsync(surface => surface.HdrState == HdrState.Available ? surface.HdrImagePreparation : null, cancellationToken)
+            // Once taken, the preparation holds a share of the HDR image which only running it releases: not cancelled while it is taken
+            cancellationToken.ThrowIfCancellationRequested();
+            var preparation = await source.UseSurfaceAsync(surface => surface.HdrState == HdrState.Available ? surface.HdrImagePreparation : null, CancellationToken.None)
                 .ConfigureAwait(false);
             if (preparation != null)
             {
-                // Not cancelled once taken: it releases its share of the HDR image when it ran
                 await ThreadPoolSwitch.SwitchToThreadPoolAsync();
                 preparation();
             }
