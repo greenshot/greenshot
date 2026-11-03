@@ -22,6 +22,16 @@
     }
   ],
   "requires": [],
+  "options": [
+    {
+      "key": "askForFilename",
+      "type": "Boolean",
+      "default": false,
+      "label": "Ask where to save the HDR file",
+      "description": "Opens the save dialog with JPEG XR chosen, instead of saving to the output folder",
+      "quickSettings": true
+    }
+  ],
   "nodes": [
     {
       "id": "source",
@@ -38,8 +48,16 @@
       "enabled": true,
       "parameters": {
         "HdrFormat": "Auto",
-        "Format": "png"
+        "Format": "png",
+        "AskForFilename": "${option.askForFilename}"
       }
+    },
+    {
+      "id": "notify",
+      "stepType": "Notification",
+      "name": "Completion Notification",
+      "enabled": true,
+      "parameters": {}
     }
   ],
   "flow": {
@@ -50,8 +68,21 @@
       {
         "from": "source",
         "to": "save"
+      },
+      {
+        "from": "save",
+        "to": "notify"
       }
     ]
+  },
+  "translations": {
+    "de-DE": {
+      "name": "HDR-Fenster als Datei",
+      "description": "Das aktive Fenster auf einem HDR-Display aufnehmen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (ein Fenster auf einem SDR-Display) wird ein PNG gespeichert.",
+      "options.askForFilename.label": "Fragen, wo die HDR-Datei gespeichert wird",
+      "options.askForFilename.description": "Öffnet den Speichern-Dialog mit JPEG XR, statt im Ausgabeordner zu speichern",
+      "triggers.0.menuItemText": "HDR-Fenster als Datei"
+    }
   },
   "showInContextMenu": true
 }

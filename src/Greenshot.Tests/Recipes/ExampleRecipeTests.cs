@@ -71,6 +71,32 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
+        [Theory]
+        [InlineData("hdr_region_to_file.gsrecipe.json", false)]
+        [InlineData("hdr_region_to_file.gsrecipe.json", true)]
+        [InlineData("hdr_window_to_file.gsrecipe.json", true)]
+        public void HdrExamples_AskForFilename_FollowsTheOption(string name, bool ask)
+        {
+            var recipe = RecipeSerializer.LoadFromFile(Path.Combine(FindExamplesDirectory(), name), false);
+            try
+            {
+                RecipeOptionStore.SetValue(recipe.Id, recipe.FindOption("askForFilename"), ask);
+                var save = recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.SaveFile);
+                var resolved = new RecipeNodeConfig(save.Id, save.StepType)
+                {
+                    Parameters = Greenshot.Base.Recipes.Expressions.ExpressionEvaluator.Instance.ResolveParameters(save.Parameters, new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe))
+                };
+
+                Assert.Equal(ask, resolved.GetParameter<bool?>("AskForFilename"));
+                // The notification of the save comes after it
+                Assert.Contains(recipe.Nodes, node => node.StepType == WellKnownStepTypes.Notification);
+            }
+            finally
+            {
+                RecipeOptionStore.Reset(recipe.Id);
+            }
+        }
+
         /// <summary>
         /// docs\vNext\examples of the repository, found from the test's directory
         /// </summary>
