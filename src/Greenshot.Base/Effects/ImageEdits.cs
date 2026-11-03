@@ -144,8 +144,11 @@ namespace Greenshot.Base.Effects
             var newBounds = new NativeRect(0, 0, newImage.Width, newImage.Height);
             var oldBounds = new NativeRect(offset.X, offset.Y, oldImage.Width, oldImage.Height);
             var changes = new List<(NativeRect, BitArray)>();
-            using var oldBitmap = new Bitmap(oldImage);
-            using var newBitmap = new Bitmap(newImage);
+            // Read where they are: a copy only of an image which isn't a bitmap (e.g. a metafile)
+            using var oldCopy = oldImage is Bitmap ? null : new Bitmap(oldImage);
+            using var newCopy = newImage is Bitmap ? null : new Bitmap(newImage);
+            var oldBitmap = oldCopy ?? (Bitmap)oldImage;
+            var newBitmap = newCopy ?? (Bitmap)newImage;
             foreach (var area in areas.Select(area => area.Intersect(newBounds)).Where(area => area.Width > 0 && area.Height > 0))
             {
                 var changed = new BitArray(area.Width * area.Height, true);
