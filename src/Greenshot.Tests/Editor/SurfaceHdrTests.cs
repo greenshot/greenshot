@@ -614,6 +614,53 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(5f, pixel.Z, 1);
         }
 
+        [Theory]
+        [InlineData(9, 3.6)]
+        [InlineData(30, 12.96)]
+        public void ObfuscateBlur_IsAtLeastAsStrongAsInTheEditor_AndNotFiner(int blurRadius, double editorSigma)
+        {
+            // A line of HDR 6 on black. The editor's blur of it (measured on the 8-bit image): below radius 20 the box blur (sigma 3.64 for 9),
+            // from 20 on the one of GDI+ (12.96 for 30)
+            var bitmap = new Bitmap(200, 20, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.Black);
+                graphics.FillRectangle(Brushes.White, 100, 0, 1, 20);
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(200, 20, 240, 480);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 20; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    row.Fill(new HalfVector4(0, 0, 0, 1));
+                    row[100] = new HalfVector4(6, 6, 6, 1);
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 0, Top = 0, Width = 200, Height = 20 };
+            obfuscate.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
+            obfuscate.Filters.OfType<Greenshot.Editor.Drawing.Filters.BlurFilter>().Single().SetFieldValue(FieldType.BLUR_RADIUS, blurRadius);
+            surface.AddElement(obfuscate, false, false);
+
+            using var composed = Compose(surface);
+
+            var values = Enumerable.Range(0, 200).Select(x => (double)composed.Pixels[x, 10].ToVector4().X).ToArray();
+            double sum = values.Sum();
+            double mean = values.Select((value, x) => x * value).Sum() / sum;
+            double sigma = Math.Sqrt(values.Select((value, x) => (x - mean) * (x - mean) * value).Sum() / sum);
+            Assert.True(sigma >= editorSigma, $"sigma {sigma:F2}, the editor {editorSigma}");
+            // Each value is one of the levels of the 8-bit image (relative to the SDR white of 3)
+            Assert.All(values, value =>
+            {
+                float level = LinearColorEffects.Encode((float)value / 3f) * 255;
+                Assert.Equal(Math.Round(level), level, 1);
+            });
+        }
+
         [Fact]
         public void Pixelate_HidesTheHdrPixelsInBlocks()
         {

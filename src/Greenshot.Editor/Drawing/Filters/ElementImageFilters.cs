@@ -139,10 +139,13 @@ namespace Greenshot.Editor.Drawing.Filters
                         }
                     }));
                 case BlurFilter:
-                    // Like ImageHelper.ApplyBoxBlur: a box of the (odd) radius as width, twice
-                    int range = filter.GetFieldValueAsInt(FieldType.BLUR_RADIUS) | 1;
-                    int radius = range / 2;
-                    return new ImageFilter($"Blur {range}", (pixels, _) =>
+                    // Like the editor (BlurFilter): from radius 20 on the blur of GDI+, a Gaussian (measured: sigma 0.42-0.43 x the radius), here a bit
+                    // stronger, so the HDR file never shows more than the editor; below a box of the (odd) radius as width, twice (ImageHelper.ApplyBoxBlur)
+                    int blurRadius = filter.GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+                    bool gaussian = Dapplo.Windows.Gdi32.GdiPlusApi.IsBlurPossible(blurRadius);
+                    int range = blurRadius | 1;
+                    int radius = gaussian ? (int)Math.Ceiling(3 * GdiBlurSigma * blurRadius) : range / 2;
+                    return new ImageFilter(gaussian ? $"Gaussian blur {blurRadius}" : $"Blur {range}", (pixels, white) =>
                     {
                         if (radius < 1 || areas.Count == 0)
                         {
@@ -154,7 +157,26 @@ namespace Greenshot.Editor.Drawing.Filters
                         var around = Rectangle.Intersect(Rectangle.Inflate(all, 2 * radius, 2 * radius), new Rectangle(0, 0, pixels.Width, pixels.Height));
                         // On float pixels: ImageSharp would mix HalfVector4 on its scaled values (see FloatPixels)
                         using var blurred = FloatPixels.Of(pixels, around);
-                        FloatPixels.Mutate(blurred, context => context.BoxBlur(radius).BoxBlur(radius));
+                        FloatPixels.Mutate(blurred, context =>
+                        {
+                            if (gaussian)
+                            {
+                                context.GaussianBlur(GdiBlurSigma * blurRadius);
+                            }
+                            else
+                            {
+                                context.BoxBlur(radius).BoxBlur(radius);
+                            }
+                            // Not finer than the 8-bit image: finer values would make it easier to undo the blur
+                            context.ProcessPixelRowsAsVector4(row =>
+                            {
+                                for (int x = 0; x < row.Length; x++)
+                                {
+                                    row[x] = new Vector4(ToSdrSteps(row[x].X, white), ToSdrSteps(row[x].Y, white), ToSdrSteps(row[x].Z, white),
+                                        (float)Math.Round(row[x].W * 255) / 255);
+                                }
+                            });
+                        });
                         foreach (var area in areas)
                         {
                             ImageFilter.CopyArea(pixels, blurred, new Point(around.X, around.Y), area);
@@ -189,6 +211,17 @@ namespace Greenshot.Editor.Drawing.Filters
         }
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+
+        /// <summary>
+        /// The sigma of the Gaussian blur for the GDI+ blur of the editor, per pixel of the radius (measured 0.42-0.43, a bit more)
+        /// </summary>
+        private const float GdiBlurSigma = 0.45f;
+
+        /// <summary>
+        /// The linear value rounded to the steps of the 8-bit image: the sRGB levels of the white, continued above it
+        /// </summary>
+        private static float ToSdrSteps(float linear, float white) =>
+            LinearColorEffects.Decode((float)Math.Round(LinearColorEffects.Encode(linear / white) * 255) / 255) * white;
 
         /// <summary>
         /// Pixelate the HDR pixels in the blocks and with the noise of the editor (PixelizationFilter.Pixelate of the 8-bit image): each block
