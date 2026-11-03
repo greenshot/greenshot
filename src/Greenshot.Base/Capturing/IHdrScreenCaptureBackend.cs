@@ -29,10 +29,10 @@ using Greenshot.Base.Core;
 namespace Greenshot.Base.Capturing
 {
     /// <summary>
-    /// A backend which can also deliver the HDR pixels of what it captures on an HDR display (see HdrPixels).
+    /// A capability of a screen capture backend (next to IScreenCaptureBackend): it can also deliver the HDR pixels of what it captures on an HDR display (see HdrPixels).
     /// The image is the same tone-mapped 8-bit image as without HDR pixels.
     /// </summary>
-    public interface IHdrScreenCaptureBackend : IScreenCaptureBackend
+    public interface IHdrScreenCaptureBackend
     {
         /// <summary>
         /// Capture the area of the virtual screen with its HDR pixels

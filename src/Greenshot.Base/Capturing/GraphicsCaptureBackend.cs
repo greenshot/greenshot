@@ -32,7 +32,7 @@ namespace Greenshot.Base.Capturing
     /// <summary>
     /// Windows.Graphics.Capture: hardware accelerated (WARP when there is no GPU), captures windows without what covers them, HDR aware.
     /// </summary>
-    public sealed class GraphicsCaptureBackend : IHdrScreenCaptureBackend
+    public sealed class GraphicsCaptureBackend : IScreenCaptureBackend, IHdrScreenCaptureBackend
     {
         /// <summary>
         /// The name of this backend, as it is stored in the capture metadata
