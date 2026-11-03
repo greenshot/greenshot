@@ -117,17 +117,19 @@ namespace Greenshot.Editor.Drawing.Filters
                     int radius = range / 2;
                     return new ImageFilter($"Blur {range}", (pixels, _) =>
                     {
-                        if (radius < 1)
+                        if (radius < 1 || areas.Count == 0)
                         {
                             return;
                         }
+                        // Blurred once, like the editor under its clip: the areas (e.g. the bands around the holes of an area highlight) must not
+                        // read what is blurred for another one. The pixels around them are read too.
+                        var all = areas.Aggregate(Rectangle.Union);
+                        var around = Rectangle.Intersect(Rectangle.Inflate(all, 2 * radius, 2 * radius), new Rectangle(0, 0, pixels.Width, pixels.Height));
+                        // On float pixels: ImageSharp would mix HalfVector4 on its scaled values (see FloatPixels)
+                        using var blurred = FloatPixels.Of(pixels, around);
+                        FloatPixels.Mutate(blurred, context => context.BoxBlur(radius).BoxBlur(radius));
                         foreach (var area in areas)
                         {
-                            // The pixels around the area are read too
-                            var around = Rectangle.Intersect(Rectangle.Inflate(area, 2 * radius, 2 * radius), new Rectangle(0, 0, pixels.Width, pixels.Height));
-                            // On float pixels: ImageSharp would mix HalfVector4 on its scaled values (see FloatPixels)
-                            using var blurred = FloatPixels.Of(pixels, around);
-                            FloatPixels.Mutate(blurred, context => context.BoxBlur(radius).BoxBlur(radius));
                             ImageFilter.CopyArea(pixels, blurred, new Point(around.X, around.Y), area);
                         }
                     });

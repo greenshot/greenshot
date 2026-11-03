@@ -460,7 +460,8 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         private void DeriveHdrImage(Image oldImage, Image newImage, Func<IImageEdit> createEdit)
         {
-            if (_hdrImage == null || newImage == null)
+            // Without HDR content (e.g. a normal window on an HDR display) there is nothing to edit
+            if (_hdrImage == null || newImage == null || !_hdrImage.HasHdrContent)
             {
                 return;
             }

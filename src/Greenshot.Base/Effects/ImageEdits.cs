@@ -278,7 +278,9 @@ namespace Greenshot.Base.Effects
                 case RemoveTransparencyEffect removeTransparency:
                     var color = removeTransparency.Color;
                     var background = new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
-                    return Colors($"Remove transparency on {color}", (context, white) => context.LinearBackground(white, background));
+                    // Cleared pixels stay cleared: the 8-bit image has them with the background (e.g. the shadow of torn edges on it)
+                    return new ImageEdit($"Remove transparency on {color}", hdrImage => hdrImage.Process((context, white) =>
+                        context.LinearBackground(white, background, hdrImage.HasClearedPixels)));
                 default:
                     return null;
             }

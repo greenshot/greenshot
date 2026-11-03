@@ -884,7 +884,8 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// Fill the transparent pixels of the tiles of this complete HDR image while it is made from the 8-bit image of the same size, at the SDR
-        /// white level: the cleared pixels (see <see cref="ClearPixels"/>). A pixel which is transparent in the capture is transparent in it too.
+        /// white level: the cleared pixels (see <see cref="ClearPixels"/>), partly cleared ones (a resize mixed them) go over the 8-bit pixel. A pixel
+        /// which is transparent in the capture is transparent in it too.
         /// </summary>
         private unsafe void FillTransparentFromSdr(Bitmap source, NativeRect[] tileAreas)
         {
@@ -903,16 +904,31 @@ namespace Greenshot.Base.Core
                             var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(y));
                             for (int x = area.Left; x < area.Right; x++)
                             {
-                                // A half of 0 (or -0) is a cleared alpha
-                                if ((targetRow[x * 4 + 3] & 0x7FFF) != 0)
+                                byte* pixel = sourceRow + x * 4;
+                                // A half of 0 (or -0) is a cleared alpha: the 8-bit pixel
+                                if ((targetRow[x * 4 + 3] & 0x7FFF) == 0)
+                                {
+                                    targetRow[x * 4] = table[pixel[2]];
+                                    targetRow[x * 4 + 1] = table[pixel[1]];
+                                    targetRow[x * 4 + 2] = table[pixel[0]];
+                                    targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(pixel[3] / 255f);
+                                    continue;
+                                }
+                                // Partly cleared (e.g. a resize mixed a cleared pixel in): over the 8-bit pixel, in linear light
+                                float alpha = HalfHelper.HalfToFloat(targetRow[x * 4 + 3]);
+                                if (!(alpha < 1f))
                                 {
                                     continue;
                                 }
-                                byte* pixel = sourceRow + x * 4;
-                                targetRow[x * 4] = table[pixel[2]];
-                                targetRow[x * 4 + 1] = table[pixel[1]];
-                                targetRow[x * 4 + 2] = table[pixel[0]];
-                                targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(pixel[3] / 255f);
+                                float sdrAlpha = pixel[3] / 255f * (1f - alpha);
+                                float outAlpha = alpha + sdrAlpha;
+                                for (int channel = 0; channel < 3; channel++)
+                                {
+                                    float hdr = HalfHelper.HalfToFloat(targetRow[x * 4 + channel]);
+                                    float sdr = HalfHelper.HalfToFloat(table[pixel[2 - channel]]);
+                                    targetRow[x * 4 + channel] = HalfHelper.FloatToHalf(outAlpha > 0f ? (hdr * alpha + sdr * sdrAlpha) / outAlpha : 0f);
+                                }
+                                targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(outAlpha);
                             }
                         }
                     }

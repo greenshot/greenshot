@@ -43,7 +43,10 @@ namespace Greenshot.Editor.Drawing.Filters
             // The luminance of BT.709 in linear light, like the grayscale effect and the HDR image
             using Bitmap gray = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
             ImageHelper.ApplyGrayscale(gray);
-            graphics.DrawImage(gray, applyRect, new Rectangle(0, 0, gray.Width, gray.Height), GraphicsUnit.Pixel);
+            // Mirrored at the edges: when the editor zooms, GDI+ would mix the border pixels with transparency
+            using var attributes = new ImageAttributes();
+            attributes.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
+            graphics.DrawImage(gray, applyRect, 0, 0, gray.Width, gray.Height, GraphicsUnit.Pixel, attributes);
         }
     }
 }

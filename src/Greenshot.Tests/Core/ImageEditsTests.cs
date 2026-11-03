@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -318,6 +319,75 @@ namespace Greenshot.Tests.Core
             var adjusted = Apply(new AdjustEffect { Brightness = 1.2f }, new HalfVector4(float.NaN, 1, 1, 1));
 
             Assert.True(adjusted.Y > 1f);
+        }
+
+        /// <summary>
+        /// A highlight of 5 with the left column cleared (it is taken from the 8-bit image when composed)
+        /// </summary>
+        private static HdrImage CreateClearedHdrImage()
+        {
+            using var hdrImage = CreateHdrImage(8, 2, Gray(5));
+            var cleared = new System.Collections.BitArray(2, true);
+            return hdrImage.ClearPixels(new[] { (new NativeRect(0, 0, 1, 2), cleared) });
+        }
+
+        [Fact]
+        public void RemoveTransparency_KeepsTheClearedPixels_TheyComeFromThe8BitImage()
+        {
+            using var cleared = CreateClearedHdrImage();
+
+            using var removed = ImageEdits.ForEffect(new RemoveTransparencyEffect { Color = Color.White }, new NativeSize(8, 2), new NativeSize(8, 2), new Matrix()).Apply(cleared);
+
+            Assert.Equal(0f, removed.Pixels[0, 1].ToVector4().W, 3);
+            Assert.Equal(1f, removed.Pixels[4, 1].ToVector4().W, 3);
+        }
+
+        [Fact]
+        public void Resize_OfClearedPixels_TheEdgeGoesOverThe8BitImage()
+        {
+            using var cleared = CreateClearedHdrImage();
+            using var resized = cleared.Resize(16, 4);
+            using var sdr = new Bitmap(16, 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(sdr))
+            {
+                graphics.Clear(Color.White);
+            }
+
+            using var composed = resized.Compose(sdr);
+
+            // The 8-bit image is opaque: so is the HDR file, also where the resize mixed cleared pixels in
+            for (int x = 0; x < 16; x++)
+            {
+                Assert.Equal(1f, composed.Pixels[x, 2].ToVector4().W, 2);
+            }
+            Assert.Equal(White, composed.Pixels[0, 2].ToVector4().X, 2);
+            Assert.Equal(5f, composed.Pixels[12, 2].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Grayscale_OfABitmapWithGapsBetweenItsRows_IsTheSame()
+        {
+            using var packed = new Bitmap(3, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var memory = Marshal.AllocHGlobal(2 * 16);
+            try
+            {
+                using (var padded = new Bitmap(3, 2, 16, System.Drawing.Imaging.PixelFormat.Format32bppArgb, memory))
+                {
+                    foreach (var bitmap in new[] { packed, padded })
+                    {
+                        bitmap.SetPixel(0, 0, Color.Red);
+                        bitmap.SetPixel(2, 1, Color.Blue);
+                        ImageHelper.ApplyGrayscale(bitmap);
+                    }
+                    Assert.Equal(packed.GetPixel(0, 0), padded.GetPixel(0, 0));
+                    Assert.Equal(packed.GetPixel(2, 1), padded.GetPixel(2, 1));
+                    Assert.Equal(packed.GetPixel(0, 0).R, packed.GetPixel(0, 0).G);
+                }
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(memory);
+            }
         }
     }
 }

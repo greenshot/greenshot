@@ -908,12 +908,23 @@ namespace Greenshot.Base.Core
         /// <param name="bitmap">Bitmap to change</param>
         public static unsafe void ApplyGrayscale(Bitmap bitmap)
         {
-            // Locked as 32 bit ARGB the rows have no gaps, ImageSharp works on the pixels of the bitmap
+            // ImageSharp works on the pixels of the bitmap, locked as 32 bit ARGB
             var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             try
             {
-                using var pixels = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(bitmapData.Scan0.ToPointer(), bitmap.Width, bitmap.Height);
-                SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(pixels, context => context.LinearGrayscale(srgbEncoded: true));
+                if (bitmapData.Stride == bitmap.Width * 4)
+                {
+                    // The rows have no gaps: one image
+                    using var pixels = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(bitmapData.Scan0.ToPointer(), bitmap.Width, bitmap.Height);
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(pixels, context => context.LinearGrayscale(srgbEncoded: true));
+                    return;
+                }
+                // Rows with gaps or bottom-up (a bitmap on memory of its own): row by row
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    using var row = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(((byte*)bitmapData.Scan0 + (long)y * bitmapData.Stride), bitmap.Width, 1);
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(row, context => context.LinearGrayscale(srgbEncoded: true));
+                }
             }
             finally
             {

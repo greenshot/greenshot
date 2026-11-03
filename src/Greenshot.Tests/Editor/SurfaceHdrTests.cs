@@ -495,6 +495,21 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(HdrState.Available, surface.HdrState);
         }
 
+        [Fact]
+        public void Highlighters_WithoutBorder_NeedNoLayerOfTheirOwn()
+        {
+            using var surface = CreateBrightSurface();
+            for (int i = 0; i < 3; i++)
+            {
+                surface.AddElement(new HighlightContainer(surface) { Left = 10 + i * 20, Top = 10, Width = 10, Height = 10 }, false, false);
+            }
+
+            using var overlay = surface.CreateHdrOverlay();
+
+            Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
+            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+        }
+
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;
     }
 }

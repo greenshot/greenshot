@@ -117,7 +117,8 @@ namespace Greenshot.Base.Effects
         /// <param name="context">The processing</param>
         /// <param name="white">The value of white</param>
         /// <param name="background">The background as sRGB encoded values between 0 and 1</param>
-        public static IImageProcessingContext LinearBackground(this IImageProcessingContext context, float white, Vector3 background)
+        /// <param name="keepTransparent">Fully transparent pixels stay, e.g. the cleared pixels of an HDR image which are taken from the 8-bit image</param>
+        public static IImageProcessingContext LinearBackground(this IImageProcessingContext context, float white, Vector3 background, bool keepTransparent = false)
         {
             var linear = ToLinear(background, white);
             return context.Process(row =>
@@ -125,6 +126,10 @@ namespace Greenshot.Base.Effects
                 for (int x = 0; x < row.Length; x++)
                 {
                     var pixel = row[x];
+                    if (keepTransparent && !(pixel.W > 0f))
+                    {
+                        continue;
+                    }
                     float alpha = Clamp01(pixel.W);
                     var color = new Vector3(pixel.X, pixel.Y, pixel.Z) * alpha + linear * (1f - alpha);
                     row[x] = new Vector4(color, 1f);
