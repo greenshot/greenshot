@@ -72,10 +72,29 @@ namespace Greenshot.Base.Interfaces
         Image Image { get; set; }
 
         /// <summary>
-        /// The HDR image of the capture the surface was made from (taken over from ICapture.HdrImage), null without one; owned by the surface.
-        /// It shows the capture as it was taken: when the image was replaced it no longer belongs to it (HdrImage.BelongsTo).
+        /// The HDR image of the surface's image, null without one; owned by the surface. The HDR image of the capture (taken over from
+        /// ICapture.HdrImage) with the changes of the image which can be done on it too (crop, rotation, resize, most effects, see ImageEdits):
+        /// those are done only now, when it is asked for (e.g. an HDR file is written), and once. After a change which can't be done on it
+        /// (e.g. monochrome) it is the capture's, which no longer belongs to the image (HdrImage.BelongsTo). On the UI thread.
         /// </summary>
         HdrImage HdrImage { get; }
+
+        /// <summary>
+        /// The HDR content of the image without making its HDR image (see HdrImage): e.g. for the HDR badge, or whether an HDR file can be written.
+        /// Available is decided by the capture's HDR content; whether a crop left a highlight is only known when the HDR image is made.
+        /// </summary>
+        HdrState HdrState { get; }
+
+        /// <summary>
+        /// Makes the HDR image (see HdrImage) with the edits of the editor on the thread which calls it, e.g. on the thread pool before an
+        /// HDR file is written: the UI thread only gets it then. Taken on the UI thread; null when there is nothing to make.
+        /// </summary>
+        Action HdrImagePreparation { get; }
+
+        /// <summary>
+        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file): Save as suggests JPEG XR (HdrImage.IsRequested)
+        /// </summary>
+        bool IsHdrRequested { get; }
 
         /// <summary>
         /// What is drawn on the capture (the elements, the mouse cursor included), to put over the HDR image for an HDR file; null without elements.
@@ -235,6 +254,12 @@ namespace Greenshot.Base.Interfaces
         void ResizeCanvas(int left, int right, int top, int bottom);
         void ResizeCanvas(Expansion expansion);
         System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Apply the effect on the calling thread without undo, e.g. the Effect step of a recipe: the elements move with the image, the HDR image
+        /// gets the same edit (ImageEdits), like with ApplyBitmapEffectAsync. False when the effect changed nothing.
+        /// </summary>
+        bool ApplyEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }
 

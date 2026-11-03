@@ -23,8 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
@@ -235,7 +238,7 @@ namespace Greenshot.Tests.Recipes
                 capture.HdrImage = hdrImage;
                 using var tornSurface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
                 var edges = new Greenshot.Base.Effects.TornEdgeEffect { ToothHeight = 2, HorizontalToothRange = 6, VerticalToothRange = 6, GenerateShadow = false };
-                Assert.True(tornSurface.ApplyCrop(new Dapplo.Windows.Common.Structs.NativeRect(4, 4, 56, 24), CutMarkStyle.Torn, edges));
+                Assert.True(tornSurface.ApplyCrop(new NativeRect(4, 4, 56, 24), CutMarkStyle.Torn, edges));
                 Assert.True(HdrExport.CanWriteHdr(tornSurface));
                 var ui = new SaveDialogUserInteraction(path);
 
@@ -262,7 +265,7 @@ namespace Greenshot.Tests.Recipes
             try
             {
                 using var surface = CreateBrightHdrSurface();
-                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.MonochromeEffect(127)));
                 Assert.False(HdrExport.CanWriteHdr(surface));
                 var ui = new SaveDialogUserInteraction(path) { ConfirmAnswer = answer };
 
@@ -282,7 +285,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task PixelatedArea_IsTheRenderedCapture_InTheHdrFile()
+        public async Task PixelatedArea_KeepsTheHdrBrightness_InTheHdrFile()
         {
             string path = TempFile("jxr");
             try
@@ -295,14 +298,116 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 var row = ReadHdrRow(path, 4);
-                // What is pixelated is the 8-bit capture (white), not the HDR content under it
-                Assert.Equal(3f, row[6 * 4], 2);
+                // The HDR content is pixelated, in the blocks of the editor: as bright as around it, not the SDR white of the 8-bit capture
+                Assert.Equal(5f, row[6 * 4], 2);
                 Assert.Equal(5f, row[14 * 4], 2);
             }
             finally
             {
                 File.Delete(path);
             }
+        }
+
+        /// <summary>
+        /// Save the 16x8 bright HDR capture (5.0, SDR white 3.0) with a highlight element of the filter over 4,2 6x4 as JPEG XR: row 4 of the file
+        /// </summary>
+        private static async Task<float[]> SaveWithHighlightAsync(FilterContainer.PreparedFilter preparedFilter, bool rectangleBefore)
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                if (rectangleBefore)
+                {
+                    // Drawn before the filter, so it's under it: the filter works on it too, like in the editor
+                    surface.AddElement(new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 }, false, false);
+                }
+                var highlight = new HighlightContainer(surface) { Left = 4, Top = 2, Width = 6, Height = 4 };
+                highlight.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, preparedFilter);
+                surface.AddElement(highlight, false, false);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                return ReadHdrRow(path, 4);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task Magnifier_IsDoneOnTheHdrPixels_TheHighlightsStay()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.MAGNIFICATION, false);
+
+            Assert.Equal(5f, row[6 * 4], 2);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task AreaHighlight_DarkensTheHdrPixelsOutside_TheHighlightsStayInside()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.AREA_HIGHLIGHT, false);
+
+            Assert.Equal(5f, row[6 * 4], 2);
+            // Darker than the highlight, but still brighter than SDR white: not the 8-bit capture
+            Assert.InRange(row[14 * 4], 3.1f, 4.9f);
+        }
+
+        [Fact]
+        public async Task TextHighlighter_LimitsTheHdrPixelsToItsColor()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, false);
+
+            Assert.InRange(row[6 * 4 + 2], 0f, 3.05f);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task Magnifier_OverAnElementDrawnBefore_MagnifiesItToo_TheHighlightsStay()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.MAGNIFICATION, true);
+
+            // Like in the editor: the element drawn before is magnified with the capture, between its lines the highlights stay
+            var magnified = Enumerable.Range(4, 6).Select(x => row[x * 4]).ToList();
+            Assert.Contains(magnified, value => value < 4.6f);
+            Assert.Contains(magnified, value => value > 4.9f);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task AreaHighlight_OverAnElementDrawnBefore_KeepsTheHdrContent()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.AREA_HIGHLIGHT, true);
+
+            // The rest of the capture is darkened but keeps its HDR content (not the 8-bit export), the area itself keeps the highlights
+            Assert.InRange(row[0], 3.1f, 4.9f);
+            Assert.Equal(5f, row[5 * 4], 2);
+        }
+
+        [Fact]
+        public void Overlay_HasLayersOnlyWhereSomethingIsDrawn()
+        {
+            using var surface = CreateBrightHdrSurface();
+            var rectangle = new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 };
+            surface.AddElement(rectangle, false, false);
+            // Highlighters draw nothing themselves: no layer after them, however many there are
+            for (int i = 0; i < 3; i++)
+            {
+                var highlight = new HighlightContainer(surface) { Left = 2 * i, Top = 2, Width = 2, Height = 4 };
+                surface.AddElement(highlight, false, false);
+            }
+
+            using var overlay = surface.CreateHdrOverlay();
+
+            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Layer != null).ToArray());
+            var layer = overlay.Steps[0];
+            // The layer is only as big as what is drawn into it, at its place
+            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)),
+                new NativeRect(layer.Location, new NativeSize(layer.Layer.Width, layer.Layer.Height)));
         }
 
         [Fact]
@@ -321,6 +426,32 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // Away from the rectangle and its shadow: the HDR highlights
                 Assert.Equal(5f, ReadHdrRow(path, 0)[15 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task EffectsOfTheEditor_AreInTheHdrFile_TheBorderFromThe8BitImage()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.GrayscaleEffect()));
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.BorderEffect { Width = 2, Color = Color.Black }));
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, null);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Notifications);
+                var row = ReadHdrRow(path, 4);
+                // The black border of the 8-bit image, then the gray highlight of the capture (the luminance of 5, 5, 5 is 5)
+                Assert.Equal(0f, row[0], 2);
+                Assert.Equal(5f, row[2 * 4], 2);
             }
             finally
             {
@@ -420,7 +551,7 @@ namespace Greenshot.Tests.Recipes
                 {
                     graphics.Clear(Color.Red);
                 }
-                capture.Cursor = new Dapplo.Windows.Icons.CapturedCursor { ColorLayer = red, Size = new Dapplo.Windows.Common.Structs.NativeSize(2, 2) };
+                capture.Cursor = new Dapplo.Windows.Icons.CapturedCursor { ColorLayer = red, Size = new NativeSize(2, 2) };
                 capture.CursorVisible = true;
                 capture.CursorLocation = new Dapplo.Windows.Common.Structs.NativePoint(2, 1);
                 using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
@@ -534,7 +665,7 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
-                Assert.True(surface.HdrImage.Crop(new Dapplo.Windows.Common.Structs.NativeRect(0, 0, 2, 2)).IsRequested);
+                Assert.True(surface.HdrImage.Crop(new NativeRect(0, 0, 2, 2)).IsRequested);
             }
             finally
             {

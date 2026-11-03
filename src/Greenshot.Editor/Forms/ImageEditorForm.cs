@@ -1518,8 +1518,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             {
                 return;
             }
-            // Without highlights or colors outside sRGB the capture is shown as a normal one
-            bool hasHdr = _surface?.HdrImage?.HasHdrContent == true;
+            // Without highlights or colors outside sRGB the capture is shown as a normal one; decided without making the HDR image
+            bool hasHdr = _surface != null && _surface.HdrState != HdrState.None;
             _hdrLabel.Visible = hasHdr;
             if (!hasHdr)
             {

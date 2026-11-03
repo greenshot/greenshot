@@ -68,6 +68,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
 
+**Grayscale**
+- Grayscale keeps the brightness of colors
+
 #### ⚙️ Command Line Interface
 
 **Redesigned CLI with System.CommandLine**
@@ -116,7 +119,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
 - HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
 - Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
-- Real HDR files: on an HDR display Greenshot can keep the HDR content of a capture and save it as a lossless JPEG XR (built into Windows) with the highlights as they were on the screen. Only the HDR displays are kept, the SDR displays come from the normal image. Switch it on for every capture in Settings > Capture ("Keep the HDR content of HDR displays"), or per recipe with `Hdr` of the Source step; Save as JPEG XR (also from the editor) then writes the HDR file, with what was drawn on it in SDR on top (blur and pixelate areas as they are shown), and a crop or rotation in the editor keeps it. The editor shows "HDR" in its status bar for such a capture. HDR files (also Game Bar screenshots) are opened tone mapped like a capture instead of clipped, and keep their HDR content. The `HdrFormat` and `AskForFilename` options of the SaveFile step save an HDR file directly or with the save dialog; the "HDR Region to File" (with "Open in the editor instead") and "HDR Window to File" recipes show how
+- HDR captures: on an HDR display Greenshot can save the bright highlights as a JPEG XR file, also after editing. Switch it on in Settings > Capture.
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)

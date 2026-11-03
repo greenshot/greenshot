@@ -252,7 +252,7 @@ namespace Greenshot.Destinations
             }
 
             var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
-                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.HdrImage.IsRequested), cancellationToken).ConfigureAwait(false);
+                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.IsHdrRequested), cancellationToken).ConfigureAwait(false);
             string suggestedFormat = hdrFormatId ?? (hdrRequested ? WellKnownFileFormats.Jxr : null);
             string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, format: suggestedFormat, hdrAvailable: hdrFormatId != null || hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileName == null)
@@ -296,7 +296,7 @@ namespace Greenshot.Destinations
         private async Task<(string FormatId, string ReasonText)> GetHdrToSaveAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             // IsModified can't tell: a new capture counts as modified until it is saved
-            var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (HdrOutput.StateOf(surface.HdrImage, surface.Image) != HdrOutput.StateNone, HdrExport.CanWriteHdr(surface)),
+            var (hasHdr, canWrite) = await request.Source.UseSurfaceAsync(surface => (surface.HdrState != HdrState.None, HdrExport.CanWriteHdr(surface)),
                 cancellationToken).ConfigureAwait(false);
             if (!canWrite)
             {
@@ -358,7 +358,7 @@ namespace Greenshot.Destinations
             {
                 return true;
             }
-            bool lost = await request.Source.UseSurfaceAsync(surface => HdrOutput.StateOf(surface.HdrImage, surface.Image) == HdrOutput.StateLost, cancellationToken).ConfigureAwait(false);
+            bool lost = await request.Source.UseSurfaceAsync(surface => surface.HdrState == HdrState.Lost, cancellationToken).ConfigureAwait(false);
             if (!lost)
             {
                 return true;
@@ -411,7 +411,7 @@ namespace Greenshot.Destinations
             // JPEG XR of a capture with HDR content is the HDR file (see ExportFiles), the dialog says so; when HDR was asked for
             // (a Source step with Hdr, an opened HDR file) it is suggested, only the setting keeps the configured format
             var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
-                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.HdrImage.IsRequested), cancellationToken).ConfigureAwait(false);
+                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.IsHdrRequested), cancellationToken).ConfigureAwait(false);
             string fileNameWithExtension = await request.Ui.PickSaveFileAsync(
                 new SaveFileRequest(request.Metadata, format: hdrRequested ? WellKnownFileFormats.Jxr : null, hdrAvailable: hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileNameWithExtension == null)
