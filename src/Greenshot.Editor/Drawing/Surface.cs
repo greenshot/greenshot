@@ -423,26 +423,6 @@ namespace Greenshot.Editor.Drawing
         public bool IsHdrRequested => _hdrImage?.IsRequested == true;
 
         /// <inheritdoc />
-        public void SetHdrImage(HdrImage hdrImage)
-        {
-            if (hdrImage != null && (_image == null || hdrImage.Width != _image.Width || hdrImage.Height != _image.Height))
-            {
-                LOG.Warn($"The HDR image ({hdrImage.Width}x{hdrImage.Height}) doesn't fit the image, it is ignored.");
-                hdrImage.Dispose();
-                return;
-            }
-            foreach (var hdrVersion in _hdrVersions)
-            {
-                hdrVersion.Dispose();
-            }
-            _hdrVersions.Clear();
-            _hdrImage?.Dispose();
-            _hdrImage = hdrImage;
-            _hdrImage?.BelongTo(_image);
-            ImageChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <inheritdoc />
         public Action HdrImagePreparation
         {
             get
