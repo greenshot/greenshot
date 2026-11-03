@@ -94,6 +94,8 @@ namespace Greenshot.Editor.Forms
         // The surface of the selected tab
         private Surface _surface;
         private ToolStripStatusLabel _hdrLabel;
+        private Font _hdrActiveFont;
+        private Font _hdrLostFont;
         private List<BidirectionalBinding> _fieldBindings = new();
         private ToolStripButton[] _toolbarButtons;
         private bool _showWithoutActivation;
@@ -1485,25 +1487,29 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
-        /// This is called when the size of the surface chances, used for resizing and displaying the size information
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <summary>
         /// Shows whether the capture has HDR content and can be saved as HDR file (JPEG XR), next to its size
         /// </summary>
         private void CreateHdrLabel()
         {
+            // Active: dark text on amber, like a badge; lost: grey and struck through, so it doesn't depend on the color alone
+            _hdrActiveFont = new Font(statusStrip1.Font, FontStyle.Bold);
+            _hdrLostFont = new Font(statusStrip1.Font, FontStyle.Bold | FontStyle.Strikeout);
             _hdrLabel = new ToolStripStatusLabel
             {
                 Name = "hdrLabel",
                 BorderSides = ToolStripStatusLabelBorderSides.All,
                 BorderStyle = Border3DStyle.Sunken,
                 DisplayStyle = ToolStripItemDisplayStyle.Text,
-                Font = new Font(statusStrip1.Font, FontStyle.Bold),
+                Font = _hdrActiveFont,
+                Padding = new Padding(4, 0, 4, 0),
                 Visible = false
             };
             statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(dimensionsLabel) + 1, _hdrLabel);
+            Disposed += (sender, args) =>
+            {
+                _hdrActiveFont.Dispose();
+                _hdrLostFont.Dispose();
+            };
         }
 
         private void UpdateHdrLabel()
@@ -1520,13 +1526,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
             bool canWriteHdr = HdrExport.CanWriteHdr(_surface);
             _hdrLabel.Text = Texts.Editor.HdrBadge;
-            _hdrLabel.Enabled = canWriteHdr;
+            // Enabled also when it's lost: a disabled item shows no tooltip which says why
+            _hdrLabel.Font = canWriteHdr ? _hdrActiveFont : _hdrLostFont;
+            _hdrLabel.BackColor = canWriteHdr ? Color.FromArgb(255, 196, 0) : Color.Empty;
+            _hdrLabel.ForeColor = canWriteHdr ? Color.Black : SystemColors.GrayText;
             _hdrLabel.ToolTipText = canWriteHdr ? Texts.Editor.HdrBadgeTooltip : Texts.Editor.HdrBadgeLostTooltip;
             _hdrLabel.AccessibleName = Texts.Editor.HdrBadge + ": " + _hdrLabel.ToolTipText;
         }
 
         private void SurfaceImageChanged(object sender, EventArgs e) => UpdateHdrLabel();
 
+        /// <summary>
+        /// This is called when the size of the surface chances, used for resizing and displaying the size information
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SurfaceSizeChanged(object sender, EventArgs e)
         {
             if (MatchSizeToCapture)
