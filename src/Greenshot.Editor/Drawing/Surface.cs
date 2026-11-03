@@ -421,6 +421,28 @@ namespace Greenshot.Editor.Drawing
         /// <inheritdoc />
         public bool IsHdrRequested => _hdrImage?.IsRequested == true;
 
+        /// <inheritdoc />
+        public Action HdrImagePreparation
+        {
+            get
+            {
+                var version = _hdrImage == null ? null : _hdrVersions.LastOrDefault(hdrVersion => hdrVersion.BelongsTo(_image));
+                if (version == null || version.IsMade)
+                {
+                    return null;
+                }
+                // Its own share of the capture's HDR image: it stays usable when the editor is closed in the meantime
+                var original = _hdrImage.Share();
+                return () =>
+                {
+                    using (original)
+                    {
+                        version.Make(original);
+                    }
+                };
+            }
+        }
+
         /// <summary>
         /// The image is replaced by one made from it (a crop, an effect): the edits of the old image's HDR version and this one are the HDR version
         /// of the new image. Nothing is done to the HDR image now.
@@ -458,6 +480,11 @@ namespace Greenshot.Editor.Drawing
         private sealed class HdrVersion : IDisposable
         {
             private readonly WeakReference<Image> _image;
+            // Made on the UI thread or on a pool thread (see HdrImagePreparation), released on the UI thread
+            private readonly object _lock = new object();
+            private HdrImage _made;
+            private bool _isMade;
+            private bool _disposed;
 
             public HdrVersion(Image image, IReadOnlyList<IHdrEdit> edits)
             {
@@ -467,50 +494,80 @@ namespace Greenshot.Editor.Drawing
 
             public IReadOnlyList<IHdrEdit> Edits { get; }
 
-            public bool IsMade { get; private set; }
+            public bool IsMade
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return _isMade;
+                    }
+                }
+            }
 
             /// <summary>
             /// The HDR image once it was made, null when nothing of the HDR content is left
             /// </summary>
-            public HdrImage Made { get; private set; }
+            public HdrImage Made
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return _made;
+                    }
+                }
+            }
 
             public bool BelongsTo(Image image) => image != null && _image.TryGetTarget(out var own) && ReferenceEquals(own, image);
 
             /// <summary>
-            /// The HDR image of the version: the edits done on the capture's HDR image, the first time it is asked for
+            /// The HDR image of the version: the edits done on the capture's HDR image, the first time it is asked for (on any thread;
+            /// a second caller waits for the first). Also measures its HDR content (HdrImage.HasHdrContent), which is asked for next.
             /// </summary>
             public HdrImage Make(HdrImage original)
             {
-                if (IsMade)
+                lock (_lock)
                 {
-                    return Made;
-                }
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var current = original.Share();
-                foreach (var edit in Edits)
-                {
-                    using var previous = current;
-                    current = edit.Apply(previous);
-                    if (current == null)
+                    if (_isMade || _disposed)
                     {
-                        break;
+                        return _made;
                     }
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    var current = original.Share();
+                    foreach (var edit in Edits)
+                    {
+                        using var previous = current;
+                        current = edit.Apply(previous);
+                        if (current == null)
+                        {
+                            break;
+                        }
+                    }
+                    if (current != null)
+                    {
+                        if (_image.TryGetTarget(out var image))
+                        {
+                            current.BelongTo(image);
+                        }
+                        current.IsRequested = original.IsRequested;
+                        _ = current.HasHdrContent;
+                    }
+                    LOG.Info($"Made the HDR image of the editor's image in {stopwatch.ElapsedMilliseconds} ms: {string.Join(", ", Edits.Select(edit => edit.Name))}");
+                    _made = current;
+                    _isMade = true;
+                    return _made;
                 }
-                if (current != null && _image.TryGetTarget(out var image))
-                {
-                    current.BelongTo(image);
-                    current.IsRequested = original.IsRequested;
-                }
-                LOG.Info($"Made the HDR image of the editor's image in {stopwatch.ElapsedMilliseconds} ms: {string.Join(", ", Edits.Select(edit => edit.Name))}");
-                Made = current;
-                IsMade = true;
-                return Made;
             }
 
             public void Dispose()
             {
-                Made?.Dispose();
-                Made = null;
+                lock (_lock)
+                {
+                    _disposed = true;
+                    _made?.Dispose();
+                    _made = null;
+                }
             }
         }
 

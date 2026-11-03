@@ -86,6 +86,12 @@ namespace Greenshot.Base.Interfaces
         HdrState HdrState { get; }
 
         /// <summary>
+        /// Makes the HDR image (see HdrImage) with the edits of the editor on the thread which calls it, e.g. on the thread pool before an
+        /// HDR file is written: the UI thread only gets it then. Taken on the UI thread; null when there is nothing to make.
+        /// </summary>
+        Action HdrImagePreparation { get; }
+
+        /// <summary>
         /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file): Save as suggests JPEG XR (HdrImage.IsRequested)
         /// </summary>
         bool IsHdrRequested { get; }

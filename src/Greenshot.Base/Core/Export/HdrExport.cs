@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using log4net;
 using Bitmap = System.Drawing.Bitmap;
 
@@ -59,6 +60,16 @@ namespace Greenshot.Base.Core.Export
             {
                 Log.Warn($"No encoder can write the HDR format {formatId} on this system.");
                 return (null, Texts.Core.HdrNotSavedFailed);
+            }
+
+            // The edits of the editor (e.g. a resize) are done on the thread pool, not on the UI thread
+            var preparation = await source.UseSurfaceAsync(surface => surface.HdrState == HdrState.Available ? surface.HdrImagePreparation : null, cancellationToken)
+                .ConfigureAwait(false);
+            if (preparation != null)
+            {
+                // Not cancelled once taken: it releases its share of the HDR image when it ran
+                await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+                preparation();
             }
 
             // On the UI thread, which owns the surface: the SDR displays and the elements come from its image

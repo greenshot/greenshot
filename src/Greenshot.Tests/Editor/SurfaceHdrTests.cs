@@ -184,6 +184,43 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public async Task Preparation_MakesTheHdrImageOnAnotherThread_TheSurfaceGetsThatOne()
+        {
+            using var surface = CreateSurface();
+            Assert.Null(surface.HdrImagePreparation);
+            await Task.Run(() => surface.ApplyBitmapEffectAsync(new BorderEffect { Width = 2 }));
+
+            var preparation = surface.HdrImagePreparation;
+            Assert.NotNull(preparation);
+            int threadId = Environment.CurrentManagedThreadId;
+            int madeOn = await Task.Run(() =>
+            {
+                preparation();
+                return Environment.CurrentManagedThreadId;
+            });
+
+            Assert.NotEqual(threadId, madeOn);
+            Assert.Null(surface.HdrImagePreparation);
+            var made = surface.HdrImage;
+            Assert.Same(made, surface.HdrImage);
+            Assert.True(made.HasHdrContent);
+        }
+
+        [Fact]
+        public async Task Preparation_AfterTheEditorWasClosed_DoesNothingHarmful()
+        {
+            Action preparation;
+            using (var surface = CreateSurface())
+            {
+                await Task.Run(() => surface.ApplyBitmapEffectAsync(new InvertEffect()));
+                preparation = surface.HdrImagePreparation;
+            }
+
+            // The surface released its HDR images, the preparation has its own share of the capture's
+            await Task.Run(preparation);
+        }
+
+        [Fact]
         public async Task Resize_ResizesTheHdrImage_TheHighlightsStay()
         {
             using var surface = CreateSurface();
