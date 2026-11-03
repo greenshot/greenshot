@@ -173,7 +173,7 @@ namespace Greenshot.Base.Effects
         /// What the adjust effect does to each gray level of the 8-bit image (GDI+ color matrix and gamma), as a curve: the HDR image follows
         /// the 8-bit image exactly in the SDR range
         /// </summary>
-        internal static float[] AdjustCurve(float brightness, float contrast, float gamma)
+        public static float[] AdjustCurve(float brightness, float contrast, float gamma)
         {
             using var gradient = new Bitmap(256, 1, PixelFormat.Format24bppRgb);
             for (int level = 0; level < 256; level++)

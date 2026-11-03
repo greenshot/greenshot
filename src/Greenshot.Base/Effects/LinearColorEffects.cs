@@ -21,23 +21,25 @@
 
 using System;
 using System.Numerics;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.Effects
 {
     /// <summary>
-    /// The color effects of the editor (grayscale, invert, adjust, remove transparency) as ImageSharp processing on linear light (straight alpha),
-    /// for any pixel type: white is the value of white, e.g. the SDR white of an HDR image (scRGB: 1.0 = 80 nits). Values above white are
-    /// highlights, below 0 colors outside sRGB; they are kept where the effect allows it. In the SDR range the result looks like the
-    /// effect of the 8-bit image (which works on sRGB encoded values), so the parts of an HDR file which come from the 8-bit image fit.
+    /// The color effects and filters of the editor (grayscale, invert, adjust, remove transparency, highlighter) as ImageSharp processing on
+    /// linear light (straight alpha), for any pixel type: white is the value of white, e.g. the SDR white of an HDR image (scRGB: 1.0 = 80 nits).
+    /// Values above white are highlights, below 0 colors outside sRGB; they are kept where the effect allows it. In the SDR range the result
+    /// looks like the effect of the 8-bit image (which works on sRGB encoded values), so the parts of an HDR file which come from the 8-bit
+    /// image fit. Each can be limited to an area of the image (a filter of an element).
     /// </summary>
     public static class LinearColorEffects
     {
         /// <summary>
         /// Gray of the same brightness: the luminance of BT.709 (the sRGB primaries) in linear light
         /// </summary>
-        public static IImageProcessingContext LinearGrayscale(this IImageProcessingContext context) =>
-            context.ProcessPixelRowsAsVector4(row =>
+        public static IImageProcessingContext LinearGrayscale(this IImageProcessingContext context, Rectangle? area = null) =>
+            context.Process(row =>
             {
                 for (int x = 0; x < row.Length; x++)
                 {
@@ -45,14 +47,14 @@ namespace Greenshot.Base.Effects
                     float luminance = 0.2126f * pixel.X + 0.7152f * pixel.Y + 0.0722f * pixel.Z;
                     row[x] = new Vector4(luminance, luminance, luminance, pixel.W);
                 }
-            });
+            }, area);
 
         /// <summary>
         /// The negative, like the 8-bit image: each channel inverted in sRGB encoding between black and white. Highlights become black,
         /// colors outside sRGB the inverse of their nearest sRGB color.
         /// </summary>
-        public static IImageProcessingContext LinearInvert(this IImageProcessingContext context, float white) =>
-            context.MapChannels(white, encoded => 1f - Clamp01(encoded));
+        public static IImageProcessingContext LinearInvert(this IImageProcessingContext context, float white, Rectangle? area = null) =>
+            context.MapChannels(white, encoded => 1f - Clamp01(encoded), area);
 
         /// <summary>
         /// A curve for each channel in sRGB encoding (0 is black, 1 white), e.g. of the adjust effect (brightness, contrast, gamma).
@@ -61,7 +63,8 @@ namespace Greenshot.Base.Effects
         /// <param name="context">The processing</param>
         /// <param name="white">The value of white</param>
         /// <param name="curve">257 values of the curve for the encoded values 0, 1/256 … 1 (see <see cref="CurveOf"/>)</param>
-        public static IImageProcessingContext LinearCurve(this IImageProcessingContext context, float white, float[] curve)
+        /// <param name="area">Only this area, null for all of it</param>
+        public static IImageProcessingContext LinearCurve(this IImageProcessingContext context, float white, float[] curve, Rectangle? area = null)
         {
             if (curve == null || curve.Length < 2) throw new ArgumentException("A curve needs at least two values", nameof(curve));
             int last = curve.Length - 1;
@@ -76,7 +79,7 @@ namespace Greenshot.Base.Effects
                 int index = (int)position;
                 float fraction = position - index;
                 return curve[index] + (curve[index + 1] - curve[index]) * fraction;
-            });
+            }, area);
         }
 
         /// <summary>
@@ -111,8 +114,8 @@ namespace Greenshot.Base.Effects
         /// <param name="background">The background as sRGB encoded values between 0 and 1</param>
         public static IImageProcessingContext LinearBackground(this IImageProcessingContext context, float white, Vector3 background)
         {
-            var linear = new Vector3(Decode(background.X), Decode(background.Y), Decode(background.Z)) * white;
-            return context.ProcessPixelRowsAsVector4(row =>
+            var linear = ToLinear(background, white);
+            return context.Process(row =>
             {
                 for (int x = 0; x < row.Length; x++)
                 {
@@ -121,16 +124,37 @@ namespace Greenshot.Base.Effects
                     var color = new Vector3(pixel.X, pixel.Y, pixel.Z) * alpha + linear * (1f - alpha);
                     row[x] = new Vector4(color, 1f);
                 }
-            });
+            }, null);
+        }
+
+        /// <summary>
+        /// A text highlighter of the color, like the highlight filter does to the 8-bit image: each channel is at most the one of the color,
+        /// so highlights under it get the color of the marker
+        /// </summary>
+        /// <param name="context">The processing</param>
+        /// <param name="white">The value of white</param>
+        /// <param name="color">The color as sRGB encoded values between 0 and 1</param>
+        /// <param name="area">Only this area, null for all of it</param>
+        public static IImageProcessingContext LinearHighlight(this IImageProcessingContext context, float white, Vector3 color, Rectangle? area = null)
+        {
+            var linear = ToLinear(color, white);
+            return context.Process(row =>
+            {
+                for (int x = 0; x < row.Length; x++)
+                {
+                    var pixel = row[x];
+                    row[x] = new Vector4(Math.Min(pixel.X, linear.X), Math.Min(pixel.Y, linear.Y), Math.Min(pixel.Z, linear.Z), pixel.W);
+                }
+            }, area);
         }
 
         /// <summary>
         /// Each color channel through the function on its sRGB encoded value (white is 1), alpha stays
         /// </summary>
-        private static IImageProcessingContext MapChannels(this IImageProcessingContext context, float white, Func<float, float> map)
+        private static IImageProcessingContext MapChannels(this IImageProcessingContext context, float white, Func<float, float> map, Rectangle? area)
         {
             if (!(white > 0)) throw new ArgumentOutOfRangeException(nameof(white));
-            return context.ProcessPixelRowsAsVector4(row =>
+            return context.Process(row =>
             {
                 for (int x = 0; x < row.Length; x++)
                 {
@@ -141,8 +165,13 @@ namespace Greenshot.Base.Effects
                         Decode(map(Encode(pixel.Z / white))) * white,
                         pixel.W);
                 }
-            });
+            }, area);
         }
+
+        private static IImageProcessingContext Process(this IImageProcessingContext context, PixelRowOperation operation, Rectangle? area) =>
+            area.HasValue ? context.ProcessPixelRowsAsVector4(operation, area.Value) : context.ProcessPixelRowsAsVector4(operation);
+
+        private static Vector3 ToLinear(Vector3 encoded, float white) => new Vector3(Decode(encoded.X), Decode(encoded.Y), Decode(encoded.Z)) * white;
 
         /// <summary>
         /// sRGB encoding of a linear value, beyond 0 and 1 mirrored and continued (scRGB)

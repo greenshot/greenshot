@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace Greenshot.Base.Core
@@ -35,8 +37,10 @@ namespace Greenshot.Base.Core
         /// <param name="layer">The drawn elements with their alpha, the size of the capture</param>
         /// <param name="rendered">The capture as it is exported (with its elements), for the replaced areas; null without them</param>
         /// <param name="replacedAreas">The areas taken from the rendered capture</param>
-        public HdrOverlay(Bitmap layer, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas)
+        /// <param name="filters">The filters of elements done on the HDR pixels, in the order of the elements; null for none</param>
+        public HdrOverlay(Bitmap layer, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<HdrFilter> filters = null)
         {
+            Filters = filters ?? Array.Empty<HdrFilter>();
             Layer = layer ?? throw new ArgumentNullException(nameof(layer));
             Rendered = rendered;
             ReplacedAreas = replacedAreas ?? Array.Empty<NativeRect>();
@@ -59,10 +63,36 @@ namespace Greenshot.Base.Core
         /// </summary>
         public IReadOnlyList<NativeRect> ReplacedAreas { get; }
 
+        /// <summary>
+        /// The filters of elements which can be done on the HDR pixels (e.g. a highlighter, a magnifier), in the order of the elements: they are
+        /// done first, then the replaced areas and the drawn elements go over them. Their elements are drawn in the layer without the filter.
+        /// </summary>
+        public IReadOnlyList<HdrFilter> Filters { get; }
+
         public void Dispose()
         {
             Layer.Dispose();
             Rendered?.Dispose();
         }
+    }
+
+    /// <summary>
+    /// A filter of an element done on the HDR pixels of the composed HDR image (see HdrOverlay.Filters)
+    /// </summary>
+    public sealed class HdrFilter
+    {
+        /// <param name="name">What it does, for the log</param>
+        /// <param name="apply">Changes the pixels of the complete HDR image; gets the SDR white as scRGB value (1.0 = 80 nits)</param>
+        public HdrFilter(string name, Action<Image<HalfVector4>, float> apply)
+        {
+            Name = name;
+            Apply = apply ?? throw new ArgumentNullException(nameof(apply));
+        }
+
+        public string Name { get; }
+
+        public Action<Image<HalfVector4>, float> Apply { get; }
+
+        public override string ToString() => Name;
     }
 }

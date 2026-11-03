@@ -44,6 +44,7 @@ using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
@@ -584,9 +585,45 @@ namespace Greenshot.Editor.Drawing
 
             // Elements which change the pixels under them (blur, pixelate, highlight, cut marks, torn edges) can't be drawn on their own:
             // their areas are taken from the export as they are. An inverted filter changes everything around it.
+            // The filters of the highlighter and the magnifier are done on the HDR pixels instead (HdrElementFilters), when nothing drawn
+            // before them is in their area (it would be under the filter): then the HDR content under them keeps its highlights.
             var replacedAreas = new List<NativeRect>();
-            foreach (var element in _elements.OfType<DrawableContainer>().Where(ChangesPixels))
+            var hdrFilters = new List<HdrFilter>();
+            var hdrFiltered = new HashSet<DrawableContainer>();
+            var drawnBefore = new List<NativeRect>();
+            var invertedGroupsDone = new HashSet<string>();
+            foreach (var element in _elements.OfType<DrawableContainer>())
             {
+                if (!ChangesPixels(element))
+                {
+                    if (element.Parent != null)
+                    {
+                        drawnBefore.Add(element.DrawingBounds);
+                    }
+                    continue;
+                }
+                if (element.HasFilters && element.Parent != null)
+                {
+                    // Inverted filters of elements with the same filters work together outside all of them (like DrawableContainerList.Draw)
+                    string groupKey = string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
+                    var holes = groupKey.Length == 0 ? Array.Empty<NativeRect>() : _elements.OfType<DrawableContainer>()
+                        .Where(other => other.Parent != null && other.HasFilters
+                                        && string.Join(",", other.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name)) == groupKey)
+                        .Select(other => other.Bounds.Normalize()).ToArray();
+                    var changedAreas = HdrElementFilters.ChangedAreas(element, bounds, holes);
+                    bool underIsFree = !drawnBefore.Any(drawn => changedAreas.Any(changed => changed.IntersectsWith(drawn)));
+                    var elementHdrFilters = underIsFree
+                        ? HdrElementFilters.Create(element, bounds, groupKey.Length == 0 || invertedGroupsDone.Add(groupKey) ? holes : null)
+                        : null;
+                    if (elementHdrFilters != null)
+                    {
+                        hdrFilters.AddRange(elementHdrFilters);
+                        hdrFiltered.Add(element);
+                        // Its own drawing (a border) is in the layer
+                        drawnBefore.Add(element.DrawingBounds);
+                        continue;
+                    }
+                }
                 IEnumerable<NativeRect> areas;
                 if (element is TornEdgeContainer tornEdges)
                 {
@@ -624,8 +661,14 @@ namespace Greenshot.Editor.Drawing
                     // The other elements with their alpha, in their order
                     foreach (var element in _elements.OfType<DrawableContainer>())
                     {
-                        if (element.Parent == null || ChangesPixels(element) || !element.DrawingBounds.IntersectsWith(bounds))
+                        if (element.Parent == null || (ChangesPixels(element) && !hdrFiltered.Contains(element)) || !element.DrawingBounds.IntersectsWith(bounds))
                         {
+                            continue;
+                        }
+                        if (hdrFiltered.Contains(element))
+                        {
+                            // The filter is done on the HDR pixels, only what the element draws itself goes here
+                            element.Draw(graphics, RenderMode.EXPORT);
                             continue;
                         }
                         if (element is CursorContainer cursorContainer)
@@ -649,7 +692,7 @@ namespace Greenshot.Editor.Drawing
                         graphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
                     }
                 }
-                return new HdrOverlay(layer, rendered, replacedAreas);
+                return new HdrOverlay(layer, rendered, replacedAreas, hdrFilters);
             }
             catch
             {

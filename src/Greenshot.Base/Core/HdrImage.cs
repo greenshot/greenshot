@@ -283,6 +283,19 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The rectangles of the area which are outside of all the holes, e.g. where an inverted filter of elements works
+        /// </summary>
+        public static IReadOnlyList<NativeRect> Outside(NativeRect area, IEnumerable<NativeRect> holes)
+        {
+            var rest = new List<NativeRect> { area };
+            foreach (var hole in holes ?? Enumerable.Empty<NativeRect>())
+            {
+                rest = rest.SelectMany(piece => Subtract(piece, hole)).ToList();
+            }
+            return rest;
+        }
+
+        /// <summary>
         /// The rectangles of the area which are outside of the hole: above, below, left and right of it
         /// </summary>
         private static IEnumerable<NativeRect> Subtract(NativeRect area, NativeRect hole)
@@ -381,6 +394,11 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
+                    // The filters see the image under them, the replaced areas are the export as it is (also over a filter), the elements go on top
+                    foreach (var filter in overlay.Filters)
+                    {
+                        filter.Apply(composed.Pixels, composed.SdrWhiteLevelInNits / 80f);
+                    }
                     foreach (var area in overlay.ReplacedAreas)
                     {
                         composed.ReplaceWithSdr(overlay.Rendered, area);

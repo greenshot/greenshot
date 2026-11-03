@@ -305,6 +305,74 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
+        /// <summary>
+        /// Save the 16x8 bright HDR capture (5.0, SDR white 3.0) with a highlight element of the filter over 4,2 6x4 as JPEG XR: row 4 of the file
+        /// </summary>
+        private static async Task<float[]> SaveWithHighlightAsync(FilterContainer.PreparedFilter preparedFilter, bool rectangleBefore)
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateBrightHdrSurface();
+                if (rectangleBefore)
+                {
+                    // Drawn before the filter, so it's under it: the filter can't be done on the HDR pixels then
+                    surface.AddElement(new RectangleContainer(surface) { Left = 5, Top = 3, Width = 2, Height = 2 }, false, false);
+                }
+                var highlight = new HighlightContainer(surface) { Left = 4, Top = 2, Width = 6, Height = 4 };
+                highlight.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, preparedFilter);
+                surface.AddElement(highlight, false, false);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                return ReadHdrRow(path, 4);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task Magnifier_IsDoneOnTheHdrPixels_TheHighlightsStay()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.MAGNIFICATION, false);
+
+            Assert.Equal(5f, row[6 * 4], 2);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task AreaHighlight_DarkensTheHdrPixelsOutside_TheHighlightsStayInside()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.AREA_HIGHLIGHT, false);
+
+            Assert.Equal(5f, row[6 * 4], 2);
+            // Darker than the highlight, but still brighter than SDR white: not the 8-bit capture
+            Assert.InRange(row[14 * 4], 3.1f, 4.9f);
+        }
+
+        [Fact]
+        public async Task TextHighlighter_LimitsTheHdrPixelsToItsColor()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT, false);
+
+            Assert.InRange(row[6 * 4 + 2], 0f, 3.05f);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
+        [Fact]
+        public async Task Magnifier_OverAnElementDrawnBefore_IsTheRenderedCapture()
+        {
+            var row = await SaveWithHighlightAsync(FilterContainer.PreparedFilter.MAGNIFICATION, true);
+
+            // The area comes from the 8-bit export: at most SDR white
+            Assert.InRange(row[9 * 4], 0f, 3.05f);
+            Assert.Equal(5f, row[14 * 4], 2);
+        }
+
         [Fact]
         public async Task SaveAsJpegXr_OfAnHdrCapture_IsTheHdrFile_AlsoWithoutHdrFormat()
         {
