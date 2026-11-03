@@ -977,9 +977,19 @@ namespace Greenshot.Base.Languages
         string NotificationButtonCopylink { get; }
 
         /// <summary>
-        /// No HDR file was saved: the capture has no HDR pixels (it wasn't on an HDR display, or the screen was frozen) or it was edited. It was saved as {0}.
+        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the screen was frozen). It was saved as {0}.
         /// </summary>
-        string HdrNotSaved { get; }
+        string HdrNotSavedNoHdr { get; }
+
+        /// <summary>
+        /// No HDR file was saved: something was drawn on the capture or it was changed, the HDR file wouldn't show that. It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedChanged { get; }
+
+        /// <summary>
+        /// The HDR file couldn't be written. The capture was saved as {0}.
+        /// </summary>
+        string HdrNotSavedFailed { get; }
 
         /// <summary>
         /// Greenshot Help

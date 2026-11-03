@@ -198,9 +198,9 @@ namespace Greenshot.Destinations
                 surface => pixels.BelongsTo(surface.Image) && surface.Elements.All(element => element is ICursorContainer), cancellationToken).ConfigureAwait(false);
             if (!unchanged)
             {
-                string reason = pixels == null ? "the capture has no HDR pixels (not on an HDR display, or the frozen screen)" : "the capture was edited";
+                string reason = pixels == null ? "the capture has no HDR pixels (not on an HDR display, or the frozen screen)" : "something was drawn on the capture or it was changed";
                 Log.Info($"Not saving an HDR file, {reason}: saving {fullPath}.");
-                NotifyHdrFallback(request, normalFormat);
+                NotifyHdrFallback(request, pixels == null ? Texts.Core.HdrNotSavedNoHdr : Texts.Core.HdrNotSavedChanged, normalFormat);
                 return null;
             }
 
@@ -209,7 +209,7 @@ namespace Greenshot.Destinations
             if (encoder == null || formatId == null || !encoder.CanEncode(formatId))
             {
                 Log.Warn($"No encoder can write the HDR format {_options.HdrFormat} on this system, saving {fullPath}.");
-                NotifyHdrFallback(request, normalFormat);
+                NotifyHdrFallback(request, Texts.Core.HdrNotSavedFailed, normalFormat);
                 return null;
             }
 
@@ -220,7 +220,7 @@ namespace Greenshot.Destinations
                 if (!encoder.TryEncode(pixels, formatId, buffer, captureDetails, true, out string error))
                 {
                     Log.Warn($"Couldn't write the HDR file: {error} Saving {fullPath}.");
-                    NotifyHdrFallback(request, normalFormat);
+                    NotifyHdrFallback(request, Texts.Core.HdrNotSavedFailed, normalFormat);
                     return null;
                 }
                 bytes = buffer.ToArray();
@@ -244,9 +244,15 @@ namespace Greenshot.Destinations
             return Saved(captureDetails, hdrPath);
         }
 
-        private static void NotifyHdrFallback(ExportRequest request, string normalFormat)
+        /// <summary>
+        /// Tell the user why the normal file was saved instead of the HDR file
+        /// </summary>
+        /// <param name="request">The export</param>
+        /// <param name="reasonText">The text which tells why, with {0} for the format of the normal file</param>
+        /// <param name="normalFormat">The format of the normal file, e.g. PNG</param>
+        private static void NotifyHdrFallback(ExportRequest request, string reasonText, string normalFormat)
         {
-            string message = string.Format(Texts.Core.HdrNotSaved, normalFormat);
+            string message = string.Format(reasonText, normalFormat);
             request.Ui.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("HDR fallback notification", Log);
         }
 
