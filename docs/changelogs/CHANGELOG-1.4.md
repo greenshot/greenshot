@@ -69,7 +69,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Added by @Lakritzator
 
 **Grayscale**
-- Grayscale keeps the brightness of colors: red, green and blue no longer turn too dark
+- Grayscale keeps the brightness of colors
 
 #### ⚙️ Command Line Interface
 
