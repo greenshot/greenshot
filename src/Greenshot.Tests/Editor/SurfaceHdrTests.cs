@@ -280,6 +280,32 @@ namespace Greenshot.Tests.Editor
             Assert.True(surface.HdrImage.HasHdrContent);
         }
 
+        [Fact]
+        public void ApplyEffect_OfAFlow_KeepsTheHdrContent_WithoutUndo()
+        {
+            using var surface = CreateSurface();
+
+            Assert.True(surface.ApplyEffect(new BorderEffect { Width = 2 }));
+            Assert.True(surface.ApplyEffect(new GrayscaleEffect()));
+
+            Assert.False(surface.CanUndo);
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(surface.HdrImage.TileAreas));
+        }
+
+        [Fact]
+        public void Clear_HasNoHdrContent_UndoBringsItBack()
+        {
+            using var surface = CreateSurface();
+
+            surface.Clear(Color.White);
+
+            Assert.Equal(HdrState.None, surface.HdrState);
+            Assert.Null(surface.HdrImagePreparation);
+            surface.Undo();
+            Assert.Equal(HdrState.Available, surface.HdrState);
+        }
+
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;
     }
 }

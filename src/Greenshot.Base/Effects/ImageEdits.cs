@@ -103,6 +103,11 @@ namespace Greenshot.Base.Effects
         public static IImageEdit Exclude(IReadOnlyList<NativeRect> areas) =>
             new ImageEdit($"Exclude {string.Join(", ", areas)}", hdrImage => hdrImage.Exclude(areas));
 
+        /// <summary>
+        /// The HDR content is gone, e.g. the image was cleared: nothing is left to make, the image has no HDR content (not lost, there is none)
+        /// </summary>
+        public static readonly IImageEdit Remove = new ImageEdit("Remove the HDR content", _ => null);
+
         public static IImageEdit Rotate(int angle) => new ImageEdit($"Rotate {angle}", hdrImage => hdrImage.Rotate(angle));
 
         public static IImageEdit Resize(NativeSize size) => new ImageEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));

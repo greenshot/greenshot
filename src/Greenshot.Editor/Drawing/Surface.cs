@@ -490,6 +490,8 @@ namespace Greenshot.Editor.Drawing
             {
                 _image = new WeakReference<Image>(image);
                 Edits = edits;
+                // Nothing is left to make: e.g. the image was cleared
+                _isMade = edits.Contains(ImageEdits.Remove);
             }
 
             public IReadOnlyList<IImageEdit> Edits { get; }
@@ -1611,6 +1613,8 @@ namespace Greenshot.Editor.Drawing
             //create a blank bitmap the same size as original
             Bitmap newBitmap = ImageHelper.CreateEmptyLike(Image, newColor);
             if (newBitmap == null) return;
+            // The empty image has no HDR content (undo brings it back)
+            DeriveHdrImage(Image, newBitmap, ImageEdits.Remove);
             // Make undoable
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
             SetImage(newBitmap, false);
@@ -1650,6 +1654,27 @@ namespace Greenshot.Editor.Drawing
         /// shows when it takes longer), the result is applied on the UI thread.
         /// </remarks>
         private bool _effectRunning;
+
+        /// <inheritdoc />
+        public bool ApplyEffect(IEffect effect)
+        {
+            if (effect == null || _image == null)
+            {
+                return false;
+            }
+            using var matrix = new Matrix();
+            var oldImage = _image;
+            var newImage = ImageHelper.ApplyEffect(oldImage, effect, matrix);
+            if (newImage == null || ReferenceEquals(newImage, oldImage))
+            {
+                return false;
+            }
+            _elements.Transform(matrix);
+            DeriveHdrImage(oldImage, newImage, ImageEdits.ForEffect(effect, new NativeSize(oldImage.Width, oldImage.Height), new NativeSize(newImage.Width, newImage.Height), matrix));
+            // Without undo the old image isn't needed anymore
+            SetImage(newImage, true);
+            return true;
+        }
 
         public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken cancellationToken = default)
         {

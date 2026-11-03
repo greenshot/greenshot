@@ -254,6 +254,12 @@ namespace Greenshot.Base.Interfaces
         void ResizeCanvas(int left, int right, int top, int bottom);
         void ResizeCanvas(Expansion expansion);
         System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Apply the effect on the calling thread without undo, e.g. the Effect step of a recipe: the elements move with the image, the HDR image
+        /// gets the same edit (ImageEdits), like with ApplyBitmapEffectAsync. False when the effect changed nothing.
+        /// </summary>
+        bool ApplyEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }
 
