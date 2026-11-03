@@ -243,6 +243,10 @@ namespace Greenshot.Recipes.Steps
                 return false;
             }
             capture.HdrImage = result.HdrImage;
+            if (context.CaptureHdrRequested && capture.HdrImage != null)
+            {
+                capture.HdrImage.IsRequested = true;
+            }
             if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
             {
                 // Set by the acquire step for the screen

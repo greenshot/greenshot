@@ -161,6 +161,8 @@ namespace Greenshot.Base.Recipes.Sources
                 if (hdrImage != null)
                 {
                     hdrImage.BelongTo(capture.Image);
+                    // An HDR file: saving it again suggests JPEG XR
+                    hdrImage.IsRequested = true;
                     capture.HdrImage = hdrImage;
                 }
                 capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);

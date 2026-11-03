@@ -136,7 +136,9 @@ namespace Greenshot.Recipes.Steps
             bool alignDpi = Config.GetParameter("AlignDpi", true);
 
             // The capture knows whether it is taken with the HDR content, whatever uses it later; also for the selection on the live screen
-            context.CaptureHdr = Config.GetParameter<bool?>(HdrParameter) ?? CoreConfig.CaptureHdr;
+            var hdr = Config.GetParameter<bool?>(HdrParameter);
+            context.CaptureHdr = hdr ?? CoreConfig.CaptureHdr;
+            context.CaptureHdrRequested = hdr == true;
 
             // 4. Handle pre-supplied region (e.g. command-line or programmatic region capture)
             if (context.Properties.TryGetValue("PreSuppliedRegion", out var regionObj) &&
@@ -269,6 +271,10 @@ namespace Greenshot.Recipes.Steps
                 if (fromScreen && acquired.RawCapture != null)
                 {
                     ProcessScreenCapture(acquired.RawCapture);
+                }
+                if (context.CaptureHdrRequested && acquired.RawCapture?.HdrImage != null)
+                {
+                    acquired.RawCapture.HdrImage.IsRequested = true;
                 }
                 context.Payload = acquired;
             }

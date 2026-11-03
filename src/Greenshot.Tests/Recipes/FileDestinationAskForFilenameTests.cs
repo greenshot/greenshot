@@ -418,9 +418,34 @@ namespace Greenshot.Tests.Recipes
                 var result = await ExportAsync(surface, ui, null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
+                // HDR content only by the setting: the configured format, JPEG XR only marked as HDR
                 Assert.Null(Assert.Single(ui.Dialogs).Format);
+                Assert.True(ui.Dialogs[0].HdrAvailable);
                 Assert.Empty(ui.Notifications);
                 Assert.True(File.Exists(path));
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task RequestedHdr_SuggestsJpegXr()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                using var surface = CreateSurface(true);
+                // A Source step with Hdr, or an opened HDR file
+                surface.HdrImage.IsRequested = true;
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, null);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
+                Assert.True(surface.HdrImage.Crop(new Dapplo.Windows.Common.Structs.NativeRect(0, 0, 2, 2)).IsRequested);
             }
             finally
             {

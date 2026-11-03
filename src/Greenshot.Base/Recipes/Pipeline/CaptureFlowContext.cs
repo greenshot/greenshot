@@ -127,6 +127,12 @@ namespace Greenshot.Base.Recipes.Pipeline
         public bool CaptureHdr { get; set; }
 
         /// <summary>
+        /// The Source step asks for HDR explicitly (Hdr true, not only the setting): the HDR image is marked as requested (HdrImage.IsRequested),
+        /// so Save as suggests JPEG XR
+        /// </summary>
+        public bool CaptureHdrRequested { get; set; }
+
+        /// <summary>
         /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
         /// (e.g. to hand the final image to an AI tool). Not copied to branch contexts.
         /// </summary>

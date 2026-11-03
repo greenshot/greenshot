@@ -29,6 +29,7 @@ using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -245,8 +246,10 @@ namespace Greenshot.Destinations
                 (hdrFormatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
-            bool hdrAvailable = hdrFormatId != null || await request.Source.UseSurfaceAsync(HdrExport.CanWriteHdr, cancellationToken).ConfigureAwait(false);
-            string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, format: hdrFormatId, hdrAvailable: hdrAvailable), cancellationToken).ConfigureAwait(false);
+            var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
+                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.HdrImage.IsRequested), cancellationToken).ConfigureAwait(false);
+            string suggestedFormat = hdrFormatId ?? (hdrRequested ? WellKnownFileFormats.Jxr : null);
+            string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, format: suggestedFormat, hdrAvailable: hdrFormatId != null || hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileName == null)
             {
                 return ExportResult.Declined;
@@ -361,9 +364,12 @@ namespace Greenshot.Destinations
         /// </summary>
         internal static async Task<string> SaveWithDialogAsync(ExportRequest request, bool copyPathToClipboard, CancellationToken cancellationToken)
         {
-            // JPEG XR of a capture with HDR content is the HDR file (see ExportFiles), the dialog says so
-            bool hdrAvailable = await request.Source.UseSurfaceAsync(HdrExport.CanWriteHdr, cancellationToken).ConfigureAwait(false);
-            string fileNameWithExtension = await request.Ui.PickSaveFileAsync(new SaveFileRequest(request.Metadata, hdrAvailable: hdrAvailable), cancellationToken).ConfigureAwait(false);
+            // JPEG XR of a capture with HDR content is the HDR file (see ExportFiles), the dialog says so; when HDR was asked for
+            // (a Source step with Hdr, an opened HDR file) it is suggested, only the setting keeps the configured format
+            var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
+                (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.HdrImage.IsRequested), cancellationToken).ConfigureAwait(false);
+            string fileNameWithExtension = await request.Ui.PickSaveFileAsync(
+                new SaveFileRequest(request.Metadata, format: hdrRequested ? WellKnownFileFormats.Jxr : null, hdrAvailable: hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileNameWithExtension == null)
             {
                 return null;

@@ -94,6 +94,7 @@ namespace Greenshot.Base.Core
             var bounds = new NativeRect(0, 0, CheckSize(width), CheckSize(height));
             var tiles = new List<Tile>();
             float peak = 0;
+            bool requested = false;
             foreach (var (part, location) in parts ?? Enumerable.Empty<(HdrImage, NativePoint)>())
             {
                 if (part == null)
@@ -110,8 +111,9 @@ namespace Greenshot.Base.Core
                     }
                 }
                 peak = Math.Max(peak, part.DisplayPeakInNits);
+                requested |= part.IsRequested;
             }
-            return tiles.Count == 0 ? null : new HdrImage(width, height, tiles.ToArray(), peak);
+            return tiles.Count == 0 ? null : new HdrImage(width, height, tiles.ToArray(), peak) { IsRequested = requested };
         }
 
         public int Width { get; }
@@ -175,6 +177,12 @@ namespace Greenshot.Base.Core
         public bool IsLinked => _belongsTo != null && _belongsTo.TryGetTarget(out _);
 
         /// <summary>
+        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file), not only by the setting: Save as suggests JPEG XR.
+        /// Copied to the HDR images made of it (crop, rotation, copies).
+        /// </summary>
+        public bool IsRequested { get; set; }
+
+        /// <summary>
         /// The HDR image rotated like the editor rotates the capture (RotateEffect), as a new HDR image; the tiles are rotated with their places
         /// </summary>
         /// <param name="angle">90 (clockwise) or 270 / -90 (counterclockwise)</param>
@@ -197,7 +205,7 @@ namespace Greenshot.Base.Core
                 var rotated = tile.Shared.Pixels.Clone(context => context.Rotate(clockwise ? RotateMode.Rotate90 : RotateMode.Rotate270));
                 return new Tile(rotatedArea, new SharedPixels(rotated), tile.SdrWhiteLevelInNits);
             }).ToArray();
-            return new HdrImage(Height, Width, tiles, DisplayPeakInNits);
+            return new HdrImage(Height, Width, tiles, DisplayPeakInNits) { IsRequested = IsRequested };
         }
 
         /// <summary>
@@ -222,7 +230,7 @@ namespace Greenshot.Base.Core
                 .Select(tile => tile.Place(new NativePoint(-clipped.X, -clipped.Y), new NativeRect(0, 0, clipped.Width, clipped.Height)))
                 .Where(tile => tile != null)
                 .ToArray();
-            return tiles.Length == 0 ? null : new HdrImage(clipped.Width, clipped.Height, tiles, DisplayPeakInNits);
+            return tiles.Length == 0 ? null : new HdrImage(clipped.Width, clipped.Height, tiles, DisplayPeakInNits) { IsRequested = IsRequested };
         }
 
         /// <summary>
@@ -232,7 +240,7 @@ namespace Greenshot.Base.Core
         public HdrImage Share()
         {
             CheckNotDisposed();
-            return new HdrImage(Width, Height, _tiles.Select(tile => tile.Share()).ToArray(), DisplayPeakInNits);
+            return new HdrImage(Width, Height, _tiles.Select(tile => tile.Share()).ToArray(), DisplayPeakInNits) { IsRequested = IsRequested };
         }
 
         /// <summary>
