@@ -1,0 +1,70 @@
+{
+  "version": "2.0",
+  "id": "recipe_hdr_region_to_file",
+  "name": "HDR Region to File",
+  "description": "Select a region on the live screen of an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (an SDR display, an edited capture) a PNG is saved.",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "HDR Region Menu Item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "HDR Region to File",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "Ctrl + Shift + PrintScreen"
+      }
+    }
+  ],
+  "requires": [],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "Region",
+        "ScreenMode": "Live"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "enabled": true,
+      "parameters": {
+        "SelectionMode": "Region"
+      }
+    },
+    {
+      "id": "save",
+      "stepType": "SaveFile",
+      "name": "Save as HDR File",
+      "enabled": true,
+      "parameters": {
+        "HdrFormat": "Auto",
+        "Format": "png"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "save"
+      }
+    ]
+  },
+  "showInContextMenu": true
+}

@@ -155,11 +155,22 @@ namespace Greenshot.Base.Core
         /// <param name="capture">ICapture to fill, null to create one</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture, null when nothing could be captured</returns>
-        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default)
+        public static Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture = null, CancellationToken cancellationToken = default) =>
+            CaptureWindowAsync(windowToCapture, capture, false, cancellationToken);
+
+        /// <summary>
+        /// Capture the window, with its HDR pixels (CaptureDetails.HdrPixels) when keepHdr is set and the window is on an HDR display
+        /// </summary>
+        /// <param name="windowToCapture">IInteropWindow</param>
+        /// <param name="capture">ICapture to fill, null to create one</param>
+        /// <param name="keepHdr">Keep the HDR pixels, see HdrOutput</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ICapture, null when nothing could be captured</returns>
+        public static async Task<ICapture> CaptureWindowAsync(IInteropWindow windowToCapture, ICapture capture, bool keepHdr, CancellationToken cancellationToken = default)
         {
             capture ??= new Capture();
 
-            var result = await ScreenCapture.CaptureWindowAsync(windowToCapture, cancellationToken).ConfigureAwait(false);
+            var result = await ScreenCapture.CaptureWindowAsync(windowToCapture, keepHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 return null;
@@ -169,6 +180,7 @@ namespace Greenshot.Base.Core
             capture.Location = result.Location;
             capture.CaptureDetails.Title = windowToCapture.GetCaption();
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            capture.CaptureDetails.HdrPixels = result.HdrPixels;
             return capture;
         }
     }

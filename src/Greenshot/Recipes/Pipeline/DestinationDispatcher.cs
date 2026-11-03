@@ -146,7 +146,8 @@ namespace Greenshot.Recipes.Pipeline
                     {
                         AllowOverwrite = context.Properties.TryGetValue("Destination.AllowOverwrite", out var aoVal) && aoVal is bool ao ? ao : (bool?)null,
                         CopyPathToClipboard = context.Properties.TryGetValue("Destination.CopyPathToClipboard", out var cpVal) && cpVal is bool cp ? cp : (bool?)null,
-                        OutputSettings = sharedFileOutputSettings
+                        OutputSettings = sharedFileOutputSettings,
+                        HdrFormat = context.Properties.TryGetValue("Destination.HdrFormat", out var hdrVal) ? hdrVal as string : null
                     });
                 }
 

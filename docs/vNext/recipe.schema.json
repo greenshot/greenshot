@@ -334,6 +334,16 @@
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
             },
+            "ScreenMode": {
+              "type": "string",
+              "enum": [
+                "Auto",
+                "Live",
+                "Frozen"
+              ],
+              "default": "Auto",
+              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. Live is needed to save an HDR file of the selection (see HdrFormat)."
+            },
             "Filename": {
               "type": "string",
               "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
@@ -541,6 +551,16 @@
             "Format": {
               "type": "string",
               "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
+            },
+            "HdrFormat": {
+              "type": "string",
+              "enum": [
+                "None",
+                "Auto",
+                "Jxr"
+              ],
+              "default": "None",
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Only for an unedited capture of the live screen (ScreenMode Live) or of a window; otherwise the normal Format is saved and a notification says why."
             },
             "FrameRate": {
               "type": "integer",

@@ -1,0 +1,122 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Dapplo.Windows.Imaging;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
+using log4net;
+
+namespace Greenshot.Editor.FileFormatHandlers
+{
+    /// <summary>
+    /// Writes HDR pixels with the WIC encoder of Windows: JPEG XR (WMPhoto, part of Windows).
+    /// It takes the half-float pixels of Windows.Graphics.Capture as they are and write them lossless.
+    /// </summary>
+    public sealed class WicHdrImageEncoder : IHdrImageEncoder
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(WicHdrImageEncoder));
+
+        /// <inheritdoc />
+        public bool CanEncode(string formatId)
+        {
+            var container = ContainerFor(formatId);
+            if (container == Guid.Empty)
+            {
+                return false;
+            }
+            try
+            {
+                return WicCodecs.GetEncoders().Any(codec => codec.ContainerFormat == container);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Couldn't list the WIC encoders: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <inheritdoc />
+        public bool TryEncode(HdrPixels pixels, string formatId, Stream destination, ICaptureDetails captureDetails, bool includePrivateMetadata, out string error)
+        {
+            error = null;
+            if (pixels == null) throw new ArgumentNullException(nameof(pixels));
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
+            var container = ContainerFor(formatId);
+            if (container == Guid.Empty)
+            {
+                error = $"'{formatId}' is no HDR format.";
+                return false;
+            }
+
+            var metadata = ExportImageMetadata.ForExport(captureDetails, includePrivateMetadata);
+            var options = new WicEncodeOptions
+            {
+                ContainerFormat = container,
+                // A screenshot: every pixel matters (text, edges)
+                Lossless = true,
+                DpiX = captureDetails?.DpiX > 0 ? captureDetails.DpiX : 96,
+                DpiY = captureDetails?.DpiY > 0 ? captureDetails.DpiY : 96,
+                Metadata = writer => WicFileFormatHandler.WriteMetadata(writer, container, metadata)
+            };
+
+            // Encoded into a buffer first: when WIC fails, the destination stays untouched
+            using var buffer = new MemoryStream();
+            var handle = GCHandle.Alloc(pixels.Data, GCHandleType.Pinned);
+            try
+            {
+                var result = WicImage.Encode(buffer, options, handle.AddrOfPinnedObject(), pixels.Width, pixels.Height, pixels.Stride, WicPixelFormats.Format64bppRgbaHalf);
+                // WIC converts to what an encoder takes: an 8-bit file would silently lose the HDR highlights
+                if (result.PixelFormat != WicPixelFormats.Format64bppRgbaHalf && result.PixelFormat != WicPixelFormats.Format128bppRgbaFloat)
+                {
+                    error = $"The {formatId} encoder doesn't take HDR pixels (it wrote {result.PixelFormat}).";
+                    return false;
+                }
+            }
+            catch (COMException ex)
+            {
+                error = $"Couldn't write the {formatId} file with WIC: {ex.Message}";
+                return false;
+            }
+            finally
+            {
+                handle.Free();
+            }
+
+            Log.Info($"Wrote an HDR {formatId} file of {pixels.Width}x{pixels.Height} (SDR white {pixels.SdrWhiteLevelInNits} nits), {buffer.Length:N0} bytes.");
+            buffer.WriteTo(destination);
+            return true;
+        }
+
+        private static Guid ContainerFor(string formatId)
+        {
+            if (string.Equals(formatId, WellKnownFileFormats.Jxr, StringComparison.OrdinalIgnoreCase))
+            {
+                return WicContainerFormats.Wmp;
+            }
+            return Guid.Empty;
+        }
+    }
+}

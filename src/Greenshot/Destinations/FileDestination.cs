@@ -30,6 +30,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Settings.Views;
 using log4net;
@@ -57,6 +58,12 @@ namespace Greenshot.Destinations
         /// The output settings to use (the quality was asked already); default: the settings, asking for the quality if configured.
         /// </summary>
         public SurfaceOutputSettings OutputSettings { get; set; }
+
+        /// <summary>
+        /// Save an HDR file (Auto or Jxr: JPEG XR, see HdrOutput) when the capture has HDR pixels and wasn't edited; otherwise the normal file is saved.
+        /// Null or None: the normal file.
+        /// </summary>
+        public string HdrFormat { get; set; }
     }
 
     /// <summary>
@@ -107,6 +114,16 @@ namespace Greenshot.Destinations
             {
                 // The user didn't fix the invalid filename pattern
                 return ExportResult.Declined;
+            }
+
+            if (HdrOutput.IsHdrFormat(_options?.HdrFormat))
+            {
+                var hdrResult = await TrySaveHdrAsync(request, fullPath, overwrite, cancellationToken).ConfigureAwait(false);
+                if (hdrResult != null)
+                {
+                    return hdrResult;
+                }
+                // Without HDR pixels the normal file is saved, the user was told why
             }
 
             if (_options?.OutputSettings == null && CoreConfig.OutputFilePromptQuality && request.Ui.IsInteractive)
@@ -161,6 +178,70 @@ namespace Greenshot.Destinations
             }
 
             return Saved(captureDetails, fullPath);
+        }
+
+        /// <summary>
+        /// Save the HDR pixels of the capture as an HDR file (see HdrOutput), next to where the normal file would go with the extension of the HDR format.
+        /// Null when the normal file is to be saved: no HDR pixels (not on an HDR display, the frozen screen), the capture was edited, or the encoder failed.
+        /// Then a notification tells why.
+        /// </summary>
+        private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, bool overwrite, CancellationToken cancellationToken)
+        {
+            var captureDetails = request.Metadata;
+            var pixels = captureDetails?.HdrPixels;
+            string normalFormat = Path.GetExtension(fullPath)?.TrimStart('.').ToUpperInvariant();
+            if (pixels == null || request.Source.IsModified)
+            {
+                string reason = pixels == null ? "the capture has no HDR pixels (not on an HDR display, or the frozen screen)" : "the capture was edited";
+                Log.Info($"Not saving an HDR file, {reason}: saving {fullPath}.");
+                NotifyHdrFallback(request, normalFormat);
+                return null;
+            }
+
+            var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
+            string formatId = HdrOutput.ResolveFormatId(_options.HdrFormat);
+            if (encoder == null || formatId == null || !encoder.CanEncode(formatId))
+            {
+                Log.Warn($"No encoder can write the HDR format {_options.HdrFormat} on this system, saving {fullPath}.");
+                NotifyHdrFallback(request, normalFormat);
+                return null;
+            }
+
+            byte[] bytes;
+            using (var buffer = new MemoryStream())
+            {
+                // Like the normal file: with the details which are only for the user
+                if (!encoder.TryEncode(pixels, formatId, buffer, captureDetails, true, out string error))
+                {
+                    Log.Warn($"Couldn't write the HDR file: {error} Saving {fullPath}.");
+                    NotifyHdrFallback(request, normalFormat);
+                    return null;
+                }
+                bytes = buffer.ToArray();
+            }
+
+            string hdrPath = Path.ChangeExtension(fullPath, "." + formatId);
+            try
+            {
+                hdrPath = await ExportFiles.SaveEncodedAsync(new EncodedImage(bytes, formatId), hdrPath, overwrite, cancellationToken).ConfigureAwait(false);
+            }
+            catch (FileAlreadyExistsException ex)
+            {
+                Log.InfoFormat("Not overwriting the HDR file {0}, saving the normal file.", ex.Message);
+                return null;
+            }
+
+            if (_options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard)
+            {
+                await ClipboardService.Current.SetTextAsync(hdrPath, cancellationToken).ConfigureAwait(false);
+            }
+            return Saved(captureDetails, hdrPath);
+        }
+
+        private static void NotifyHdrFallback(ExportRequest request, string normalFormat)
+        {
+            string message = string.Format(Texts.Core.HdrNotSaved, normalFormat);
+            request.Ui.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("HDR fallback notification", Log);
         }
 
         /// <summary>

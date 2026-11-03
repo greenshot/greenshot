@@ -545,6 +545,63 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
+        /// Copy an area of an FP16 (R16G16B16A16_FLOAT) texture into HdrPixels, as it is (scRGB half-floats)
+        /// </summary>
+        /// <param name="hdrTexture">The captured FP16 texture</param>
+        /// <param name="device">The Direct3D 11 device, for the staging texture</param>
+        /// <param name="context">The device context, to copy and map</param>
+        /// <param name="area">The area in the texture, it is clipped to the texture</param>
+        /// <param name="sdrWhiteLevelInNits">The SDR white level of the display</param>
+        /// <param name="displayPeakInNits">The brightest the display can show, 0 if unknown</param>
+        /// <returns>The pixels, null when the area is outside the texture</returns>
+        internal static unsafe HdrPixels ReadHdrPixels(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, Rectangle area, float sdrWhiteLevelInNits, float displayPeakInNits)
+        {
+            hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+            var clipped = Rectangle.Intersect(area, new Rectangle(0, 0, desc.Width, desc.Height));
+            if (clipped.Width <= 0 || clipped.Height <= 0)
+            {
+                return null;
+            }
+
+            var stagingDesc = new D3D11_TEXTURE2D_DESC
+            {
+                Width = desc.Width,
+                Height = desc.Height,
+                MipLevels = 1,
+                ArraySize = 1,
+                Format = desc.Format,
+                SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+                Usage = D3D11_USAGE.D3D11_USAGE_STAGING,
+                BindFlags = 0,
+                CPUAccessFlags = D3D11_CPU_ACCESS_FLAG.D3D11_CPU_ACCESS_READ,
+                MiscFlags = 0
+            };
+            device.CreateTexture2D(ref stagingDesc, IntPtr.Zero, out var stagingTexture);
+            try
+            {
+                context.CopyResource(stagingTexture, hdrTexture);
+                int hr = context.Map(stagingTexture, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mapped);
+                if (hr != 0) Marshal.ThrowExceptionForHR(hr);
+                try
+                {
+                    var pixels = new HdrPixels(clipped.Width, clipped.Height, sdrWhiteLevelInNits, displayPeakInNits);
+                    byte* source = (byte*)mapped.pData + (long)clipped.Y * mapped.RowPitch + (long)clipped.X * HdrPixels.BytesPerPixel;
+                    pixels.CopyFrom(source, mapped.RowPitch, clipped.Size, Point.Empty);
+                    Log.Debug($"Kept the HDR pixels of {clipped.Width}x{clipped.Height} (SDR white {sdrWhiteLevelInNits} nits).");
+                    return pixels;
+                }
+                finally
+                {
+                    context.Unmap(stagingTexture, 0);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(stagingTexture);
+            }
+        }
+
+        /// <summary>
         /// Tone maps an FP16 HDR texture to a standard 8-bit SDR bitmap with Direct2D, see HdrContent and HdrToneMapper
         /// </summary>
         /// <param name="hdrTexture">The captured FP16 (R16G16B16A16_FLOAT) texture.</param>
@@ -613,9 +670,22 @@ namespace Greenshot.Base.Native
         /// <returns>A Bitmap object containing the captured image of the specified window. Returns null if the capture operation fails.</returns>
         public static async Task<Bitmap> CaptureWindowToBitmapAsync(IntPtr window, CancellationToken cancellationToken = default)
         {
+            var (bitmap, _) = await CaptureWindowCoreAsync(window, false, cancellationToken).ConfigureAwait(false);
+            return bitmap;
+        }
+
+        /// <summary>
+        /// Like <see cref="CaptureWindowToBitmapAsync"/>, and keeps the HDR pixels when the window is on an HDR display
+        /// </summary>
+        /// <returns>The tone-mapped image (null when the capture failed) and the HDR pixels (null when the window isn't on an HDR display)</returns>
+        public static Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureWindowWithHdrAsync(IntPtr window, CancellationToken cancellationToken = default) =>
+            CaptureWindowCoreAsync(window, true, cancellationToken);
+
+        private static async Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureWindowCoreAsync(IntPtr window, bool keepHdr, CancellationToken cancellationToken)
+        {
             if (window == IntPtr.Zero || !IsSupported)
             {
-                return null;
+                return (null, null);
             }
 
             var topLevelWindow = GetAncestor(window, GetAncestorRoot);
@@ -632,19 +702,29 @@ namespace Greenshot.Base.Native
                 await topLevelInteropWindow.ToForegroundAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            var bitmap = await CaptureItemToBitmapAsync(() => CreateCaptureItemForWindow(topLevelWindow), () => HdrDisplayInfo.GetMonitorForWindow(topLevelWindow), $"window {topLevelWindow}", cancellationToken).ConfigureAwait(false);
+            var request = new CaptureRequest(() => CreateCaptureItemForWindow(topLevelWindow), () => HdrDisplayInfo.GetMonitorForWindow(topLevelWindow), $"window {topLevelWindow}")
+            {
+                KeepHdr = keepHdr
+            };
+            var bitmap = (await CaptureItemsToBitmapsAsync(new[] { request }, cancellationToken).ConfigureAwait(false))[0];
+            var hdrPixels = bitmap != null ? request.HdrPixels : null;
             if (bitmap == null || topLevelWindow == window)
             {
-                return bitmap;
+                return (bitmap, hdrPixels);
             }
 
             if (!GetWindowRect(window, out var childBounds))
             {
                 bitmap.Dispose();
                 Log.Debug($"Can't determine the bounds of the child window {window}.");
-                return null;
+                return (null, null);
             }
-            return CropToScreenArea(bitmap, topLevelWindow, childBounds);
+            // The HDR pixels have the size of the capture of the top-level window: cropped the same way
+            if (hdrPixels != null && TryGetCropRectangle(topLevelWindow, childBounds, bitmap.Size, out var hdrCrop))
+            {
+                hdrPixels = hdrPixels.Crop(hdrCrop);
+            }
+            return (CropToScreenArea(bitmap, topLevelWindow, childBounds), hdrPixels);
         }
 
         /// <summary>
@@ -757,6 +837,16 @@ namespace Greenshot.Base.Native
             public Rectangle TargetSourceRect { get; set; }
             public Point TargetLocation { get; set; }
             public bool WroteTarget { get; set; }
+
+            /// <summary>
+            /// Keep the HDR pixels of an HDR frame (the TargetSourceRect when there is a Target, otherwise the whole frame) in <see cref="HdrPixels"/>
+            /// </summary>
+            public bool KeepHdr { get; set; }
+
+            /// <summary>
+            /// The HDR pixels of the frame, when <see cref="KeepHdr"/> is set and the frame is HDR
+            /// </summary>
+            public HdrPixels HdrPixels { get; set; }
         }
 
         /// <summary>
@@ -916,6 +1006,13 @@ namespace Greenshot.Base.Native
 
                 if (request.IsHdr)
                 {
+                    if (request.KeepHdr)
+                    {
+                        // Read before the texture is released below, only the area which is needed
+                        texture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+                        var area = request.Target != null ? request.TargetSourceRect : new Rectangle(0, 0, desc.Width, desc.Height);
+                        request.HdrPixels = ReadHdrPixels(texture, d3d11Device, context, area, request.SdrWhiteLevelInNits, request.DisplayPeakInNits);
+                    }
                     return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, request.SdrWhiteLevelInNits, request.DisplayPeakInNits);
                 }
 
@@ -956,9 +1053,23 @@ namespace Greenshot.Base.Native
         /// intersect the specified bounds or the bounds are empty.</returns>
         public static async Task<Bitmap> CaptureRectangleAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
+            var (image, _) = await CaptureRectangleCoreAsync(captureBounds, false, cancellationToken).ConfigureAwait(false);
+            return image;
+        }
+
+        /// <summary>
+        /// Like <see cref="CaptureRectangleAsync"/>, and keeps the HDR pixels of the area when a part of it is on an HDR display.
+        /// Parts on SDR displays are put into the HDR pixels at the SDR white level of the HDR display, so they look as on the screen.
+        /// </summary>
+        /// <returns>The tone-mapped image (null when nothing was captured) and the HDR pixels (null without an HDR display in the area)</returns>
+        public static Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default) =>
+            CaptureRectangleCoreAsync(captureBounds, true, cancellationToken);
+
+        private static async Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureRectangleCoreAsync(NativeRect captureBounds, bool keepHdr, CancellationToken cancellationToken)
+        {
             if (captureBounds.Height <= 0 || captureBounds.Width <= 0 || !IsSupported)
             {
-                return null;
+                return (null, null);
             }
 
             // Compute the intersection for each display once, and keep only the displays that actually overlap
@@ -969,16 +1080,16 @@ namespace Greenshot.Base.Native
 
             if (displaysInCapture.Length == 0)
             {
-                return null;
+                return (null, null);
             }
 
             // Fast-path: single monitor captured in its entirety avoids duplicate bitmap allocation and GDI+ blit
-            if (displaysInCapture.Length == 1)
+            if (displaysInCapture.Length == 1 && !keepHdr)
             {
                 var single = displaysInCapture[0];
                 if (single.Intersection.Equals(single.Display.Bounds) && single.Intersection.Equals(captureBounds))
                 {
-                    return await CaptureMonitorToBitmapAsync(single.Display.MonitorHandle, cancellationToken).ConfigureAwait(false);
+                    return (await CaptureMonitorToBitmapAsync(single.Display.MonitorHandle, cancellationToken).ConfigureAwait(false), null);
                 }
             }
 
@@ -995,7 +1106,8 @@ namespace Greenshot.Base.Native
                         item.Intersection.Y - item.Display.Bounds.Y,
                         item.Intersection.Width,
                         item.Intersection.Height),
-                    TargetLocation = new Point(item.Intersection.X - captureBounds.X, item.Intersection.Y - captureBounds.Y)
+                    TargetLocation = new Point(item.Intersection.X - captureBounds.X, item.Intersection.Y - captureBounds.Y),
+                    KeepHdr = keepHdr
                 })
                 .ToArray();
 
@@ -1018,7 +1130,7 @@ namespace Greenshot.Base.Native
                 if (!anyCaptured)
                 {
                     resultBitmap.Dispose();
-                    return null;
+                    return (null, null);
                 }
             }
             catch
@@ -1034,7 +1146,41 @@ namespace Greenshot.Base.Native
                 }
             }
 
-            return resultBitmap;
+            return (resultBitmap, keepHdr ? ComposeHdrPixels(requests, resultBitmap) : null);
+        }
+
+        /// <summary>
+        /// The HDR pixels of the whole area: those of the HDR displays as they are, the other displays from the (SDR) result bitmap at the SDR white level
+        /// of the first HDR display. Null when no display in the area is HDR.
+        /// </summary>
+        internal static HdrPixels ComposeHdrPixels(CaptureRequest[] requests, Bitmap resultBitmap)
+        {
+            var hdrRequests = requests.Where(request => request.HdrPixels != null).ToList();
+            if (hdrRequests.Count == 0)
+            {
+                return null;
+            }
+
+            var reference = hdrRequests[0].HdrPixels;
+            if (requests.Length == 1 && reference.Width == resultBitmap.Width && reference.Height == resultBitmap.Height)
+            {
+                return reference;
+            }
+
+            float peak = hdrRequests.Max(request => request.HdrPixels.DisplayPeakInNits);
+            var composed = new HdrPixels(resultBitmap.Width, resultBitmap.Height, reference.SdrWhiteLevelInNits, peak);
+            foreach (var request in requests)
+            {
+                if (request.HdrPixels != null)
+                {
+                    composed.CopyFrom(request.HdrPixels, request.TargetLocation);
+                }
+                else
+                {
+                    composed.CopyFromSdr(resultBitmap, new Rectangle(request.TargetLocation, request.TargetSourceRect.Size), request.TargetLocation);
+                }
+            }
+            return composed;
         }
 
         /// <summary>

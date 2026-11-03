@@ -117,7 +117,8 @@ namespace Greenshot.Base.Recipes.Sources
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                     var capturedRegion = window.GetInfo().Bounds;
                     context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
-                    capture = await WindowCapture.CaptureWindowAsync(window, capture, cancellationToken).ConfigureAwait(false);
+                    // A recipe which saves an HDR file needs the HDR pixels of the window
+                    capture = await WindowCapture.CaptureWindowAsync(window, capture, HdrOutput.IsRequested(context), cancellationToken).ConfigureAwait(false);
                     if (capture != null)
                     {
                         if (capture.Cursor != null)

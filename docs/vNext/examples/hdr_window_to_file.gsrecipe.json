@@ -1,0 +1,57 @@
+{
+  "version": "2.0",
+  "id": "recipe_hdr_window_to_file",
+  "name": "HDR Window to File",
+  "description": "Capture the active window on an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (a window on an SDR display) a PNG is saved.",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "HDR Window Menu Item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "HDR Window to File",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "Ctrl + Alt + PrintScreen"
+      }
+    }
+  ],
+  "requires": [],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "ActiveWindow"
+      }
+    },
+    {
+      "id": "save",
+      "stepType": "SaveFile",
+      "name": "Save as HDR File",
+      "enabled": true,
+      "parameters": {
+        "HdrFormat": "Auto",
+        "Format": "png"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "save"
+      }
+    ]
+  },
+  "showInContextMenu": true
+}

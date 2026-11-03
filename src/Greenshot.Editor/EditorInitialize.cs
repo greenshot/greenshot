@@ -62,6 +62,12 @@ namespace Greenshot.Editor
                     new WicFileFormatHandler()
                 );
 
+            // HDR files of HDR captures (a recipe's SaveFile step with HdrFormat), registered once: it's looked up with GetInstance
+            if (SimpleServiceProvider.Current.GetAllInstances<IHdrImageEncoder>().Count == 0)
+            {
+                SimpleServiceProvider.Current.AddService<IHdrImageEncoder>(new WicHdrImageEncoder());
+            }
+
             IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
             foreach (var handler in SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<AbstractFileFormatHandler>())
             {

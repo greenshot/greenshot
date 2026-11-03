@@ -36,6 +36,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Only for an unedited capture of the live screen or a window, otherwise the normal Format is saved.", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
@@ -267,6 +268,10 @@ namespace Greenshot.Recipes.Steps
 
             bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard");
             if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
+
+            // The file destination decides when it saves: it knows if the capture has HDR pixels and was edited
+            string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);
+            if (HdrOutput.IsHdrFormat(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
 
             int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");

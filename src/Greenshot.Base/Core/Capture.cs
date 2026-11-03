@@ -232,6 +232,12 @@ namespace Greenshot.Base.Core
             // What was found outside the selection is no longer in the capture
             CaptureDetails.CropFeatures(cropRectangle);
 
+            // The HDR pixels show the same area as the image
+            if (CaptureDetails.HdrPixels != null)
+            {
+                CaptureDetails.HdrPixels = CaptureDetails.HdrPixels.Crop(new Rectangle(cropRectangle.X, cropRectangle.Y, cropRectangle.Width, cropRectangle.Height));
+            }
+
             return true;
         }
 

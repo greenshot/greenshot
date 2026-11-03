@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Greenshot.Base.Core;
 using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Capturing
@@ -31,7 +32,7 @@ namespace Greenshot.Base.Capturing
     /// <summary>
     /// Windows.Graphics.Capture: hardware accelerated (WARP when there is no GPU), captures windows without what covers them, HDR aware.
     /// </summary>
-    public sealed class GraphicsCaptureBackend : IScreenCaptureBackend
+    public sealed class GraphicsCaptureBackend : IHdrScreenCaptureBackend
     {
         /// <summary>
         /// The name of this backend, as it is stored in the capture metadata
@@ -59,6 +60,18 @@ namespace Greenshot.Base.Capturing
         {
             // Restores a minimized window and handles child windows itself
             return WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(window.Handle, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
+        {
+            return WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<(Bitmap Image, HdrPixels HdrPixels)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
+        {
+            return WindowsGraphicsCaptureInterop.CaptureWindowWithHdrAsync(window.Handle, cancellationToken);
         }
     }
 }
