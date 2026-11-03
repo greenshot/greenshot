@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -72,6 +72,20 @@ namespace Greenshot.Base.Core
         /// The bytes of a row
         /// </summary>
         public int Stride => Width * BytesPerPixel;
+
+        // The tone-mapped image these pixels belong to, weak: the capture or the surface owns the image
+        private WeakReference<Image> _image;
+
+        /// <summary>
+        /// Mark the tone-mapped image these pixels belong to. When the image is replaced (an effect, a crop in the editor) the pixels no longer show it.
+        /// </summary>
+        /// <param name="image">The image of the capture, taken together with these pixels</param>
+        public void BelongTo(Image image) => _image = image == null ? null : new WeakReference<Image>(image);
+
+        /// <summary>
+        /// True when these pixels belong to exactly this image (see <see cref="BelongTo"/>)
+        /// </summary>
+        public bool BelongsTo(Image image) => image != null && _image != null && _image.TryGetTarget(out var own) && ReferenceEquals(own, image);
 
         /// <summary>
         /// The area of the pixels, a new instance (the data is copied)

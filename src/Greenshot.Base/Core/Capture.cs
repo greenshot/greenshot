@@ -236,6 +236,7 @@ namespace Greenshot.Base.Core
             if (CaptureDetails.HdrPixels != null)
             {
                 CaptureDetails.HdrPixels = CaptureDetails.HdrPixels.Crop(new Rectangle(cropRectangle.X, cropRectangle.Y, cropRectangle.Width, cropRectangle.Height));
+                CaptureDetails.HdrPixels?.BelongTo(_image);
             }
 
             return true;

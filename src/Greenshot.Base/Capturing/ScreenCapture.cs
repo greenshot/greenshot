@@ -209,6 +209,8 @@ namespace Greenshot.Base.Capturing
             Location = location;
             Backend = backend ?? throw new ArgumentNullException(nameof(backend));
             HdrPixels = hdrPixels;
+            // The HDR pixels show this image, see HdrPixels.BelongsTo
+            hdrPixels?.BelongTo(image);
         }
 
         /// <summary>

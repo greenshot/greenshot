@@ -25,6 +25,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Native;
@@ -84,6 +86,38 @@ public class HdrCaptureTests
         Assert.Equal(2f, Get(cropped, 1, 0)[0]);
         Assert.Equal(1f, Get(cropped, 1, 0)[1]);
         Assert.Null(pixels.Crop(new Rectangle(10, 10, 2, 2)));
+    }
+
+    [Fact]
+    public void ScreenCaptureResult_LinksTheHdrPixelsToItsImage()
+    {
+        var pixels = CreatePixels(2, 2, (x, y) => Rgba(1, 1, 1));
+        using var image = new Bitmap(2, 2);
+        using var otherImage = new Bitmap(2, 2);
+
+        _ = new ScreenCaptureResult(image, new NativePoint(0, 0), new GraphicsCaptureBackend(), pixels);
+
+        Assert.True(pixels.BelongsTo(image));
+        // An effect or the editor replaces the image: the HDR pixels no longer show it
+        Assert.False(pixels.BelongsTo(otherImage));
+        Assert.False(pixels.BelongsTo(null));
+    }
+
+    [Fact]
+    public void CaptureCrop_CropsTheHdrPixels_AndLinksThemToTheCroppedImage()
+    {
+        using var capture = new Capture { Image = new Bitmap(4, 2) };
+        var pixels = CreatePixels(4, 2, (x, y) => Rgba(x, y, 0));
+        pixels.BelongTo(capture.Image);
+        capture.CaptureDetails.HdrPixels = pixels;
+
+        Assert.True(capture.Crop(new NativeRect(1, 0, 2, 2)));
+
+        var cropped = capture.CaptureDetails.HdrPixels;
+        Assert.Equal(2, cropped.Width);
+        Assert.Equal(2, cropped.Height);
+        Assert.Equal(1f, Get(cropped, 0, 0)[0]);
+        Assert.True(cropped.BelongsTo(capture.Image));
     }
 
     [Fact]

@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
@@ -190,7 +192,11 @@ namespace Greenshot.Destinations
             var captureDetails = request.Metadata;
             var pixels = captureDetails?.HdrPixels;
             string normalFormat = Path.GetExtension(fullPath)?.TrimStart('.').ToUpperInvariant();
-            if (pixels == null || request.Source.IsModified)
+            // IsModified can't tell: a new capture counts as modified until it is saved. The HDR pixels still show the capture when the surface
+            // has the image they were taken with and nothing drawn on it; the mouse cursor is left out of the HDR file.
+            bool unchanged = pixels != null && await request.Source.UseSurfaceAsync(
+                surface => pixels.BelongsTo(surface.Image) && surface.Elements.All(element => element is ICursorContainer), cancellationToken).ConfigureAwait(false);
+            if (!unchanged)
             {
                 string reason = pixels == null ? "the capture has no HDR pixels (not on an HDR display, or the frozen screen)" : "the capture was edited";
                 Log.Info($"Not saving an HDR file, {reason}: saving {fullPath}.");
