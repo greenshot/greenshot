@@ -28,8 +28,8 @@
    "resize"
   ],
   "sha256": "1473416ad46a173805dc5346fcf8a7e0445c765960cbf0b3e345d22eade068d2",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/region_fixed_width/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/region_fixed_width/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/region_fixed_width/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/region_fixed_width/README.md"
  }
 }
 ---

@@ -1,8 +1,8 @@
 {
   "indexVersion": 1,
   "repository": "greenshot/greenshot-recipes",
-  "commit": "1c5ed6401282c8307c7fd9197bf9f009bfe350d4",
-  "generated": "2026-11-02T19:47:58Z",
+  "commit": "21f96523c0b07c5674e66fe987a7b865accd5cfa",
+  "generated": "2026-11-03T18:12:03Z",
   "recipes": [
     {
       "id": "cli_annotate_template",
@@ -24,8 +24,8 @@
         "annotation"
       ],
       "sha256": "021e31785b382a7e84fa813382b43625e39d5224b1a39efc3c380e5216092b3c",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_annotate_template/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_annotate_template/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_annotate_template/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_annotate_template/README.md"
     },
     {
       "id": "cli_convert_format",
@@ -47,8 +47,8 @@
         "files"
       ],
       "sha256": "3866321edb284808f3e35ed014fc565769302c42b411e62fff06e619557c8634",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_convert_format/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_convert_format/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_convert_format/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_convert_format/README.md"
     },
     {
       "id": "cli_qr_decode",
@@ -76,8 +76,8 @@
         "qr-code"
       ],
       "sha256": "2b5649d5ad9a4c28f5bfe5a3d3fb45c7d8ac7e51cb2b8aa91b5f4fbd66be55ea",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_qr_decode/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/cli_qr_decode/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_qr_decode/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/cli_qr_decode/README.md"
     },
     {
       "id": "clipboard_format_converter",
@@ -100,8 +100,8 @@
         "editor"
       ],
       "sha256": "08cc23a2a479ae987dd348960124f7b7ee94121c513f3416a9adb20209d97e2c",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/clipboard_format_converter/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/clipboard_format_converter/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/clipboard_format_converter/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/clipboard_format_converter/README.md"
     },
     {
       "id": "dag_watermark_branching",
@@ -123,8 +123,8 @@
         "annotation"
       ],
       "sha256": "898ea7ebc163c2f2c832e6844ce0ead8ab27cc8676e8a886c07fe94ba636b5fb",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/dag_watermark_branching/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/dag_watermark_branching/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/dag_watermark_branching/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/dag_watermark_branching/README.md"
     },
     {
       "id": "editor_confidential_template",
@@ -146,8 +146,8 @@
         "annotation"
       ],
       "sha256": "8413be4cb0d3f114230511bc3ec03dc10762aa349032a825310b37b6e8d77dad",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/editor_confidential_template/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/editor_confidential_template/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/editor_confidential_template/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/editor_confidential_template/README.md"
     },
     {
       "id": "external_command_optimize",
@@ -170,8 +170,54 @@
         "editor"
       ],
       "sha256": "d9a581779686064d825a1b67589199a52eba130d34ca8301d72d2fd2d9767dc5",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/external_command_optimize/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/external_command_optimize/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/external_command_optimize/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/external_command_optimize/README.md"
+    },
+    {
+      "id": "hdr_region_to_file",
+      "version": "1.0.0",
+      "name": "HDR Region to File",
+      "summary": "Select a region on the live screen of an HDR display and save it as a lossless HDR file (JPEG XR), highlights included.",
+      "kind": "recipe",
+      "authors": [
+        {
+          "name": "Robin Krom",
+          "github": "Lakritzator"
+        }
+      ],
+      "license": "MIT",
+      "minGreenshot": "1.4.0",
+      "requires": [],
+      "tags": [
+        "hdr",
+        "file"
+      ],
+      "sha256": "fd3cfda0e220cd5f399072967bbadcf562a45a942367eed2cb7ed4a03ddce7ed",
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/hdr_region_to_file/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/hdr_region_to_file/README.md"
+    },
+    {
+      "id": "hdr_window_to_file",
+      "version": "1.0.0",
+      "name": "HDR Window to File",
+      "summary": "Capture the active window on an HDR display and save it as a lossless HDR file (JPEG XR), highlights included.",
+      "kind": "recipe",
+      "authors": [
+        {
+          "name": "Robin Krom",
+          "github": "Lakritzator"
+        }
+      ],
+      "license": "MIT",
+      "minGreenshot": "1.4.0",
+      "requires": [],
+      "tags": [
+        "hdr",
+        "file"
+      ],
+      "sha256": "c30ea534fb7eb086a6ca1c3892d9164f31e7a9c159d3cab228c4185f714b50f7",
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/hdr_window_to_file/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/hdr_window_to_file/README.md"
     },
     {
       "id": "qr_codes_showcase",
@@ -201,8 +247,8 @@
         "annotation"
       ],
       "sha256": "d99e0f67634b0c90e6d4971b44f31e5f4a4c8861a0dc6abf349c87c7e495ebce",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/qr_codes_showcase/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/qr_codes_showcase/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/qr_codes_showcase/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/qr_codes_showcase/README.md"
     },
     {
       "id": "region_fixed_width",
@@ -224,8 +270,8 @@
         "resize"
       ],
       "sha256": "1473416ad46a173805dc5346fcf8a7e0445c765960cbf0b3e345d22eade068d2",
-      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/region_fixed_width/recipe.gsrecipe.json",
-      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/1c5ed6401282c8307c7fd9197bf9f009bfe350d4/recipes/region_fixed_width/README.md"
+      "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/region_fixed_width/recipe.gsrecipe.json",
+      "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/21f96523c0b07c5674e66fe987a7b865accd5cfa/recipes/region_fixed_width/README.md"
     }
   ]
 }
