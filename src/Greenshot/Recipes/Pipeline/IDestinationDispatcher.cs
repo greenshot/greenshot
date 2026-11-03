@@ -38,7 +38,6 @@ namespace Greenshot.Recipes.Pipeline
         Task DispatchAsync(
             CaptureFlowContext context,
             IEnumerable<IDestination> destinations,
-            CancellationToken cancellationToken = default,
-            bool manuallyInitiated = false);
+            CancellationToken cancellationToken = default);
     }
 }
