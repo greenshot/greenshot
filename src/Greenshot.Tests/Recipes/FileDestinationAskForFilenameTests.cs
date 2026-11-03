@@ -154,6 +154,47 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task HdrCaptureAcrossAnSdrDisplay_IsComposedWhenSaved()
+        {
+            string path = TempFile("jxr");
+            try
+            {
+                // The left half was on an HDR display, the right half on an SDR display (white in the 8-bit image)
+                var bitmap = new Bitmap(8, 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.Clear(Color.White);
+                }
+                var capture = new Capture(bitmap);
+                using (var hdrDisplay = new HdrImage(4, 4, 240, 400))
+                {
+                    capture.HdrImage = HdrImage.Combine(8, 4, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
+                }
+                capture.HdrImage.BelongTo(capture.Image);
+                using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+                Assert.False(surface.HdrImage.IsComplete);
+                var ui = new SaveDialogUserInteraction(path);
+
+                var result = await ExportAsync(surface, ui, HdrOutput.Auto);
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Notifications);
+                var frame = System.Windows.Media.Imaging.BitmapDecoder.Create(new Uri(path), System.Windows.Media.Imaging.BitmapCreateOptions.PreservePixelFormat,
+                    System.Windows.Media.Imaging.BitmapCacheOption.OnLoad).Frames[0];
+                var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
+                var row = new float[8 * 4];
+                floats.CopyPixels(new System.Windows.Int32Rect(0, 0, 8, 1), row, 8 * 16, 0);
+                // The HDR display as it was (black here), the SDR display at the SDR white level: 240 nits is 3.0
+                Assert.Equal(0f, row[0], 2);
+                Assert.Equal(3f, row[7 * 4], 2);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
         public async Task HdrCapture_UserPicksPng_SavesThePng_WithoutNotification()
         {
             string path = TempFile("png");

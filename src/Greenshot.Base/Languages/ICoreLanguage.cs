@@ -977,7 +977,7 @@ namespace Greenshot.Base.Languages
         string NotificationButtonCopylink { get; }
 
         /// <summary>
-        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the screen was frozen). It was saved as {0}.
+        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the recipe doesn't capture HDR). It was saved as {0}.
         /// </summary>
         string HdrNotSavedNoHdr { get; }
 

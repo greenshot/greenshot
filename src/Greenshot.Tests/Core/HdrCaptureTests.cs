@@ -178,21 +178,6 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void CopyFromSdr_PutsSdrWhiteAtTheSdrWhiteLevel()
-    {
-        using var bitmap = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        bitmap.SetPixel(0, 0, System.Drawing.Color.White);
-        bitmap.SetPixel(1, 0, System.Drawing.Color.Black);
-        var pixels = new HdrImage(2, 1, SdrWhiteNits, 400);
-
-        pixels.CopyFromSdr(bitmap, new NativeRect(0, 0, 2, 1), new NativePoint(0, 0));
-
-        Assert.Equal(SdrWhite, Get(pixels, 0, 0)[0], 2);
-        Assert.Equal(0f, Get(pixels, 1, 0)[0]);
-        Assert.Equal(1f, Get(pixels, 1, 0)[3]);
-    }
-
-    [Fact]
     public void ReadHdrImage_FromTheTexture_KeepsHighlights()
     {
         float[][] row = { Rgba(SdrWhite, SdrWhite, SdrWhite), Rgba(4 * SdrWhite, 2 * SdrWhite, 0.5f), Rgba(0.25f, 0.5f, 1f) };
@@ -208,34 +193,80 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void ComposeHdrImage_AnSdrMonitorNextToAnHdrMonitor_IsAtTheSdrWhiteLevel()
+    public void CombineHdrImages_KeepsOnlyTheHdrMonitor_ComposePutsTheSdrMonitorAtTheSdrWhiteLevel()
     {
         // The area spans an HDR monitor (left, 2 pixels) and an SDR monitor (right, 2 pixels) whose white is in the result bitmap
         using var result = new Bitmap(4, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        result.SetPixel(0, 0, System.Drawing.Color.Black);
         result.SetPixel(2, 0, System.Drawing.Color.White);
         result.SetPixel(3, 0, System.Drawing.Color.White);
-        var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        using var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
         var requests = new[]
         {
             new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) },
             new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetLocation = new Point(2, 0), TargetSourceRect = new Rectangle(0, 0, 2, 1) }
         };
 
-        var composed = WindowsGraphicsCaptureInterop.ComposeHdrImage(requests, result);
+        using var combined = WindowsGraphicsCaptureInterop.CombineHdrImages(requests, 4, 1);
 
-        Assert.Equal(4, composed.Width);
+        // Only the HDR monitor, its pixels shared, not copied
+        Assert.Equal(4, combined.Width);
+        Assert.False(combined.IsComplete);
+        Assert.Equal(new[] { new NativeRect(0, 0, 2, 1) }, combined.TileAreas);
+        Assert.Throws<InvalidOperationException>(() => combined.Pixels);
+
+        // Written: the SDR monitor comes from the 8-bit image, the HDR monitor keeps its highlights (not the black of the 8-bit image)
+        using var composed = combined.Compose(result);
+        Assert.True(composed.IsComplete);
+        Assert.Equal(5f, Get(composed, 0, 0)[0], 2);
         Assert.Equal(5f, Get(composed, 1, 0)[0], 2);
         Assert.Equal(SdrWhite, Get(composed, 2, 0)[0], 2);
         Assert.Equal(SdrWhite, Get(composed, 3, 0)[2], 2);
+        Assert.Equal(1f, Get(composed, 3, 0)[3], 2);
     }
 
     [Fact]
-    public void ComposeHdrImage_WithoutHdrMonitor_IsNull()
+    public void CombineHdrImages_WithoutHdrMonitor_IsNull()
     {
-        using var result = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
 
-        Assert.Null(WindowsGraphicsCaptureInterop.ComposeHdrImage(requests, result));
+        Assert.Null(WindowsGraphicsCaptureInterop.CombineHdrImages(requests, 2, 1));
+    }
+
+    [Fact]
+    public void Compose_OfACompleteHdrImage_SharesIt()
+    {
+        using var hdrImage = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+
+        using var composed = hdrImage.Compose(null);
+
+        Assert.Same(hdrImage.Pixels, composed.Pixels);
+    }
+
+    [Fact]
+    public void Crop_OfTiles_KeepsWhatIsInTheArea_NothingOfAnHdrDisplay_IsNull()
+    {
+        // A frozen screen of an SDR monitor (left, 4 pixels) and an HDR monitor (right, 4 pixels)
+        using var hdrMonitor = CreatePixels(4, 2, (x, y) => Rgba(x + 1, y, 0));
+        using var screen = HdrImage.Combine(8, 2, new[] { (hdrMonitor, new NativePoint(4, 0)) });
+
+        // Across both: the part of the HDR monitor at its new place
+        using (var across = screen.Crop(new NativeRect(2, 0, 4, 2)))
+        {
+            Assert.Equal(4, across.Width);
+            Assert.Equal(new[] { new NativeRect(2, 0, 2, 2) }, across.TileAreas);
+        }
+
+        // Only on the HDR monitor: complete, the pixels from x 1
+        using (var onHdr = screen.Crop(new NativeRect(5, 0, 2, 2)))
+        {
+            Assert.True(onHdr.IsComplete);
+            Assert.Equal(2f, Get(onHdr, 0, 0)[0]);
+            Assert.Equal(1f, Get(onHdr, 1, 1)[1]);
+        }
+
+        // Only on the SDR monitor: no HDR content
+        Assert.Null(screen.Crop(new NativeRect(0, 0, 3, 2)));
     }
 
     [Fact]
@@ -287,15 +318,39 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void IsRequested_OnlyForASaveFileStepWithAnHdrFormat()
+    public void SavesHdrFile_OnlyForASaveFileStepWithAnHdrFormat_CapturesHdr_ForASourceWithHdr()
     {
         var recipe = new CaptureRecipe("hdr_test", "HDR test");
+        recipe.Nodes.Add(new RecipeNodeConfig("source", WellKnownStepTypes.Source));
         recipe.Nodes.Add(new RecipeNodeConfig("save", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "None"));
-        Assert.False(HdrOutput.IsRequested(recipe));
+        Assert.False(HdrOutput.SavesHdrFile(recipe));
+        Assert.False(HdrOutput.CapturesHdr(recipe));
 
         recipe.Nodes.Add(new RecipeNodeConfig("save_hdr", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "Jxr"));
-        Assert.True(HdrOutput.IsRequested(recipe));
-        Assert.False(HdrOutput.IsRequested((CaptureRecipe)null));
+        Assert.True(HdrOutput.SavesHdrFile(recipe));
+        Assert.False(HdrOutput.SavesHdrFile(null));
+
+        recipe.Nodes[0].Set(HdrOutput.SourceParameterName, true);
+        Assert.True(HdrOutput.CapturesHdr(recipe));
+        // An option may switch it on
+        recipe.Nodes[0].Set(HdrOutput.SourceParameterName, "${option.hdr}");
+        Assert.True(HdrOutput.CapturesHdr(recipe));
+        recipe.Nodes[0].Set(HdrOutput.SourceParameterName, "false");
+        Assert.False(HdrOutput.CapturesHdr(recipe));
+    }
+
+    [Fact]
+    public void Validator_WarnsAboutAnHdrFileWithoutAnHdrCapture()
+    {
+        var recipe = new CaptureRecipe("hdr_test", "HDR test");
+        recipe.Nodes.Add(new RecipeNodeConfig("source", WellKnownStepTypes.Source).Set("SourceType", "ActiveWindow"));
+        recipe.Nodes.Add(new RecipeNodeConfig("save", WellKnownStepTypes.SaveFile).Set(HdrOutput.ParameterName, "Auto"));
+        recipe.Flow = new RecipeFlowConfig("source").AddTransition("source", "save");
+
+        Assert.Contains(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("Hdr"));
+
+        recipe.Nodes[0].Set(HdrOutput.SourceParameterName, true);
+        Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("(Hdr)"));
     }
 
     [Fact]

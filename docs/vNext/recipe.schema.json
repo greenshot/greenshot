@@ -342,7 +342,12 @@
                 "Frozen"
               ],
               "default": "Auto",
-              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. Live is needed to save an HDR file of the selection (see HdrFormat)."
+              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen: the frozen screen is shown in SDR, the HDR content is there all the same."
+            },
+            "Hdr": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile'). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
             },
             "Filename": {
               "type": "string",
@@ -560,7 +565,7 @@
                 "Jxr"
               ],
               "default": "None",
-              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Only for an unedited capture of the live screen (ScreenMode Live) or of a window; otherwise the normal Format is saved and a notification says why."
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a Source step with Hdr and an unedited capture; otherwise the normal Format is saved and a notification says why."
             },
             "AskForFilename": {
               "type": "boolean",

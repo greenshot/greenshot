@@ -65,7 +65,8 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
-    [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. Live is needed to save an HDR file of the selection.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]
+    [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen, where the selection shows what is captured.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]
+    [StepParameter(HdrParameter, ContractDataType.Boolean, DefaultValue = false, Description = "Capture with the HDR content of HDR displays (screen, region, window, last region): the capture keeps it, e.g. for the HdrFormat of SaveFile. Only HDR displays are kept, the SDR displays are in the normal image.")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
     [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
     [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
@@ -133,6 +134,9 @@ namespace Greenshot.Recipes.Steps
             // 3. Resolve source type & DPI alignment setting
             CaptureSourceType sourceType = Config.GetParameter("SourceType", CaptureSourceType.Region);
             bool alignDpi = Config.GetParameter("AlignDpi", true);
+
+            // The capture knows whether it is taken with the HDR content, whatever uses it later; also for the selection on the live screen
+            context.CaptureHdr = Config.GetParameter<bool?>(HdrParameter) == true;
 
             // 4. Handle pre-supplied region (e.g. command-line or programmatic region capture)
             if (context.Properties.TryGetValue("PreSuppliedRegion", out var regionObj) &&
@@ -461,6 +465,11 @@ namespace Greenshot.Recipes.Steps
         /// The parameter which selects on the live or on the frozen screen: Auto (the setting), Live or Frozen
         /// </summary>
         internal const string ScreenModeParameter = "ScreenMode";
+
+        /// <summary>
+        /// Capture with the HDR content, see CaptureFlowContext.CaptureHdr
+        /// </summary>
+        internal const string HdrParameter = HdrOutput.SourceParameterName;
 
         /// <summary>
         /// Select on the live screen instead of a frozen capture: when the user turned freezing off (or the recipe's ScreenMode is Live),

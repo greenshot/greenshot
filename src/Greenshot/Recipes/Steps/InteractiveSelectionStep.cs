@@ -71,7 +71,7 @@ namespace Greenshot.Recipes.Steps
 
         /// <param name="config">RecipeNodeConfig</param>
         /// <param name="selector">IInteractiveCaptureSelector, default the capture window</param>
-        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture (with the HDR image when the recipe saves an HDR file)</param>
+        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture (with the HDR content when the Source step asks for it, CaptureFlowContext.CaptureHdr)</param>
         internal InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector, Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> captureArea)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
@@ -235,8 +235,8 @@ namespace Greenshot.Recipes.Steps
             var screenArea = area.IsEmpty ? screenBounds : area.Offset(screenBounds.X, screenBounds.Y);
             var result = _captureArea != null
                 ? await _captureArea(screenArea, cancellationToken).ConfigureAwait(false)
-                // A recipe which saves an HDR file needs the HDR image of the selection
-                : await ScreenCapture.CaptureRectangleAsync(screenArea, HdrOutput.IsRequested(context), cancellationToken).ConfigureAwait(false);
+                // With the HDR content when the Source step asks for it (Hdr)
+                : await ScreenCapture.CaptureRectangleAsync(screenArea, context.CaptureHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 context.Abort($"Capturing the selection {screenArea} failed.");

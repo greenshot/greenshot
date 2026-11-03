@@ -20,7 +20,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Dapplo.Windows.Common.Extensions;
@@ -34,14 +36,18 @@ using Bitmap = System.Drawing.Bitmap;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// The HDR image of a capture, as Windows.Graphics.Capture delivers it on an HDR display: RGBA half-floats (HalfVector4, 8 bytes per pixel,
+    /// The HDR content of a capture, as Windows.Graphics.Capture delivers it on an HDR display: RGBA half-floats (HalfVector4, 8 bytes per pixel,
     /// bit for bit DXGI_FORMAT_R16G16B16A16_FLOAT) in scRGB, which is linear light with the sRGB primaries where 1.0 is 80 nits and values
     /// above the SDR white level are highlights. Straight (not premultiplied) alpha.
-    /// It belongs to the capture next to its tone-mapped 8-bit image (ICapture.HdrImage), the surface takes it over with the image
-    /// (ISurface.HdrImage); the owner disposes it. So the capture can be saved as an HDR file, see IHdrImageEncoder.
-    /// The pixels are filled while the HDR image is made (CopyFrom, CopyFromSdr) and not changed after it was handed on: copies of a capture or
-    /// a surface share them (<see cref="Share"/>), each with its own HdrImage; the pixels are released with the last one.
     /// </summary>
+    /// <remarks>
+    /// It holds only what the HDR displays showed: one part (tile) per HDR display at its place in the capture. The parts of SDR displays are
+    /// the same as in the capture's 8-bit image, so they aren't kept twice: <see cref="Compose"/> puts them in, at the SDR white level, when an
+    /// HDR file is written. A capture of one HDR display is one tile which covers it (<see cref="IsComplete"/>), nothing is composed then.
+    /// It belongs to the capture next to its tone-mapped 8-bit image (ICapture.HdrImage), the surface takes it over with the image
+    /// (ISurface.HdrImage); the owner disposes it. The pixels are filled while the HDR image is made and not changed after it was handed on:
+    /// copies of a capture or a surface share them (<see cref="Share"/>), each with its own HdrImage; the pixels are released with the last one.
+    /// </remarks>
     public sealed class HdrImage : IDisposable
     {
         /// <summary>
@@ -52,48 +58,103 @@ namespace Greenshot.Base.Core
         // One block of memory per image: the WIC encoder takes the pixels as they are, without a copy
         private static readonly Configuration ContiguousConfiguration = CreateConfiguration();
 
-        private readonly SharedPixels _shared;
+        private readonly Tile[] _tiles;
         private WeakReference<System.Drawing.Image> _belongsTo;
         private int _disposed;
 
         /// <summary>
-        /// A new (transparent black) HDR image
+        /// A new (transparent black) HDR image, complete: one tile which covers it
         /// </summary>
         public HdrImage(int width, int height, float sdrWhiteLevelInNits, float displayPeakInNits)
-            : this(new SharedPixels(new Image<HalfVector4>(ContiguousConfiguration, CheckSize(width), CheckSize(height))), sdrWhiteLevelInNits, displayPeakInNits)
+            : this(CheckSize(width), CheckSize(height),
+                new[] { new Tile(new NativeRect(0, 0, width, height), new SharedPixels(new Image<HalfVector4>(ContiguousConfiguration, width, height)), sdrWhiteLevelInNits) },
+                displayPeakInNits)
         {
         }
 
-        private HdrImage(SharedPixels shared, float sdrWhiteLevelInNits, float displayPeakInNits)
+        private HdrImage(int width, int height, Tile[] tiles, float displayPeakInNits)
         {
-            _shared = shared;
-            SdrWhiteLevelInNits = sdrWhiteLevelInNits > 0 ? sdrWhiteLevelInNits : 80f;
+            Width = width;
+            Height = height;
+            _tiles = tiles;
             DisplayPeakInNits = displayPeakInNits;
         }
 
         /// <summary>
-        /// The pixels, shared with the copies of this HDR image (see <see cref="Share"/>): only read them once it was handed on
+        /// The HDR image of an area from the HDR images of its HDR displays, without copying them (they are shared, see <see cref="Share"/>).
+        /// The parts stay the caller's to dispose.
         /// </summary>
-        public Image<HalfVector4> Pixels => Volatile.Read(ref _disposed) == 0 ? _shared.Pixels : throw new ObjectDisposedException(nameof(HdrImage));
+        /// <param name="width">The width of the whole area</param>
+        /// <param name="height">The height of the whole area</param>
+        /// <param name="parts">The complete HDR image of each HDR display in the area, with its place in the area</param>
+        /// <returns>The HDR image, null without a part</returns>
+        public static HdrImage Combine(int width, int height, IEnumerable<(HdrImage Part, NativePoint Location)> parts)
+        {
+            var bounds = new NativeRect(0, 0, CheckSize(width), CheckSize(height));
+            var tiles = new List<Tile>();
+            float peak = 0;
+            foreach (var (part, location) in parts ?? Enumerable.Empty<(HdrImage, NativePoint)>())
+            {
+                if (part == null)
+                {
+                    continue;
+                }
+                part.CheckNotDisposed();
+                foreach (var tile in part._tiles)
+                {
+                    var placed = tile.Place(location, bounds);
+                    if (placed != null)
+                    {
+                        tiles.Add(placed);
+                    }
+                }
+                peak = Math.Max(peak, part.DisplayPeakInNits);
+            }
+            return tiles.Count == 0 ? null : new HdrImage(width, height, tiles.ToArray(), peak);
+        }
 
-        public int Width => Pixels.Width;
+        public int Width { get; }
 
-        public int Height => Pixels.Height;
+        public int Height { get; }
 
         /// <summary>
-        /// The bytes of a row
+        /// The bytes of a row of a complete HDR image
         /// </summary>
         public int Stride => Width * BytesPerPixel;
 
         /// <summary>
-        /// The SDR white level of the display the pixels come from: SDR content (normal windows) has this brightness
+        /// The SDR white level of the (first) HDR display: SDR content (normal windows, SDR displays) has this brightness
         /// </summary>
-        public float SdrWhiteLevelInNits { get; }
+        public float SdrWhiteLevelInNits => _tiles[0].SdrWhiteLevelInNits;
 
         /// <summary>
-        /// The brightest the display can show, 0 when unknown
+        /// The brightest the displays can show, 0 when unknown
         /// </summary>
         public float DisplayPeakInNits { get; }
+
+        /// <summary>
+        /// One tile covers the whole HDR image: it can be encoded as it is, without composing it
+        /// </summary>
+        public bool IsComplete => _tiles.Length == 1 && _tiles[0].Area.Equals(new NativeRect(0, 0, Width, Height));
+
+        /// <summary>
+        /// The places of the parts of the HDR displays
+        /// </summary>
+        public IReadOnlyList<NativeRect> TileAreas => _tiles.Select(tile => tile.Area).ToList();
+
+        /// <summary>
+        /// The pixels of a complete HDR image (see <see cref="IsComplete"/>, otherwise <see cref="Compose"/> it), shared with its copies:
+        /// only read them once it was handed on
+        /// </summary>
+        public Image<HalfVector4> Pixels
+        {
+            get
+            {
+                CheckNotDisposed();
+                if (!IsComplete) throw new InvalidOperationException("The HDR image has only the parts of the HDR displays, compose it first.");
+                return _tiles[0].Shared.Pixels;
+            }
+        }
 
         /// <summary>
         /// Mark the tone-mapped image this HDR image belongs to. When the image is replaced (an effect, a crop in the editor) the HDR image no longer shows it.
@@ -108,25 +169,28 @@ namespace Greenshot.Base.Core
         public bool BelongsTo(System.Drawing.Image image) => image != null && _belongsTo != null && _belongsTo.TryGetTarget(out var own) && ReferenceEquals(own, image);
 
         /// <summary>
-        /// An area of the HDR image as a new HDR image (the pixels are copied)
+        /// An area of the HDR image as a new HDR image. Only the tiles which are cut are copied (only their part), the others are shared.
         /// </summary>
         /// <param name="area">The area in pixel coordinates, it is clipped to the image</param>
-        /// <returns>The new HDR image, null when the area is outside</returns>
+        /// <returns>The new HDR image, null when no HDR display shows anything in the area</returns>
         public HdrImage Crop(NativeRect area)
         {
+            CheckNotDisposed();
             var clipped = area.Intersect(new NativeRect(0, 0, Width, Height));
             if (clipped.Width <= 0 || clipped.Height <= 0)
             {
                 return null;
             }
-            if (clipped.X == 0 && clipped.Y == 0 && clipped.Width == Width && clipped.Height == Height)
+            if (clipped.Equals(new NativeRect(0, 0, Width, Height)))
             {
                 // Nothing to cut off: no copy
                 return Share();
             }
-            // Only the area is copied
-            var cropped = Pixels.Clone(context => context.Crop(new Rectangle(clipped.X, clipped.Y, clipped.Width, clipped.Height)));
-            return new HdrImage(new SharedPixels(cropped), SdrWhiteLevelInNits, DisplayPeakInNits);
+            var tiles = _tiles
+                .Select(tile => tile.Place(new NativePoint(-clipped.X, -clipped.Y), new NativeRect(0, 0, clipped.Width, clipped.Height)))
+                .Where(tile => tile != null)
+                .ToArray();
+            return tiles.Length == 0 ? null : new HdrImage(clipped.Width, clipped.Height, tiles, DisplayPeakInNits);
         }
 
         /// <summary>
@@ -135,18 +199,52 @@ namespace Greenshot.Base.Core
         /// </summary>
         public HdrImage Share()
         {
-            _ = Pixels; // not disposed
-            return new HdrImage(_shared.AddReference(), SdrWhiteLevelInNits, DisplayPeakInNits);
+            CheckNotDisposed();
+            return new HdrImage(Width, Height, _tiles.Select(tile => tile.Share()).ToArray(), DisplayPeakInNits);
         }
 
         /// <summary>
-        /// The pixels as one block of memory (row after row, <see cref="Stride"/> bytes each), pinned while the action runs; e.g. for an encoder
+        /// The complete HDR image, e.g. to encode it: the tiles of the HDR displays and, around them, the pixels of the SDR displays from the
+        /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
+        /// </summary>
+        /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
+        /// <returns>A complete HDR image, the caller disposes it</returns>
+        public HdrImage Compose(Bitmap sdrImage)
+        {
+            CheckNotDisposed();
+            if (IsComplete)
+            {
+                return Share();
+            }
+            if (sdrImage == null) throw new ArgumentNullException(nameof(sdrImage));
+
+            var composed = new HdrImage(Width, Height, SdrWhiteLevelInNits, DisplayPeakInNits);
+            try
+            {
+                composed.CopyFromSdrAround(sdrImage, _tiles.Select(tile => tile.Area).ToArray());
+                foreach (var tile in _tiles)
+                {
+                    composed.CopyFrom(tile.Shared.Pixels, tile.Area.Location);
+                }
+                return composed;
+            }
+            catch
+            {
+                composed.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The pixels of a complete HDR image as one block of memory (row after row, <see cref="Stride"/> bytes each), pinned while the action
+        /// runs; e.g. for an encoder
         /// </summary>
         /// <param name="action">Gets the address of the first pixel</param>
         public unsafe void UsePixelMemory(Action<IntPtr> action)
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
-            if (Pixels.DangerousTryGetSinglePixelMemory(out Memory<HalfVector4> memory))
+            var pixels = Pixels;
+            if (pixels.DangerousTryGetSinglePixelMemory(out Memory<HalfVector4> memory))
             {
                 using var handle = memory.Pin();
                 action((IntPtr)handle.Pointer);
@@ -155,7 +253,7 @@ namespace Greenshot.Base.Core
 
             // Not one block (only when the image wasn't made with ContiguousConfiguration): copy the rows
             var copy = new HalfVector4[(long)Width * Height];
-            Pixels.CopyPixelDataTo(copy);
+            pixels.CopyPixelDataTo(copy);
             fixed (HalfVector4* first = copy)
             {
                 action((IntPtr)first);
@@ -163,7 +261,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Copy half-float RGBA rows into the HDR image, e.g. from a mapped FP16 texture
+        /// Copy half-float RGBA rows into a complete HDR image while it is made, e.g. from a mapped FP16 texture
         /// </summary>
         /// <param name="source">The first pixel of the source rectangle</param>
         /// <param name="sourceRowPitch">The bytes from one source row to the next</param>
@@ -188,22 +286,16 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Copy another HDR image (e.g. of one monitor) into this one, clipped to this one. The pixels are copied as they are, not blended.
+        /// Copy pixels into a complete HDR image while it is made, clipped to it. The pixels are copied as they are, not blended.
         /// </summary>
-        /// <param name="source">The HDR image to copy</param>
-        /// <param name="location">Where it goes in this image</param>
-        public void CopyFrom(HdrImage source, NativePoint location)
+        private void CopyFrom(Image<HalfVector4> source, NativePoint location)
         {
-            if (source == null)
-            {
-                return;
-            }
             var target = new NativeRect(location, new NativeSize(source.Width, source.Height)).Intersect(new NativeRect(0, 0, Width, Height));
             if (target.Width <= 0 || target.Height <= 0)
             {
                 return;
             }
-            Pixels.ProcessPixelRows(source.Pixels, (targetAccessor, sourceAccessor) =>
+            Pixels.ProcessPixelRows(source, (targetAccessor, sourceAccessor) =>
             {
                 for (int y = 0; y < target.Height; y++)
                 {
@@ -214,41 +306,50 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Put SDR pixels (e.g. of a monitor without HDR) into the HDR image, at the SDR white level: they look as they did on the screen
+        /// Put the pixels of an 8-bit image of the same size into this complete HDR image at the SDR white level, except where the tiles are:
+        /// they come from the HDR displays, their 8-bit pixels aren't converted for nothing
         /// </summary>
-        /// <param name="source">A bitmap, read as Format32bppArgb</param>
-        /// <param name="sourceRect">The area of the bitmap</param>
-        /// <param name="location">Where the area goes in this image</param>
-        public unsafe void CopyFromSdr(Bitmap source, NativeRect sourceRect, NativePoint location)
+        private unsafe void CopyFromSdrAround(Bitmap source, NativeRect[] tileAreas)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            var target = new NativeRect(location, sourceRect.Size).Intersect(new NativeRect(0, 0, Width, Height));
-            sourceRect = new NativeRect(sourceRect.X + target.X - location.X, sourceRect.Y + target.Y - location.Y, target.Width, target.Height)
-                .Intersect(new NativeRect(0, 0, source.Width, source.Height));
-            if (sourceRect.Width <= 0 || sourceRect.Height <= 0)
-            {
-                return;
-            }
-
+            int width = Math.Min(Width, source.Width);
+            int height = Math.Min(Height, source.Height);
             ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
             ushort one = HalfHelper.FloatToHalf(1f);
-            var bitmapData = source.LockBits(sourceRect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            var bitmapData = source.LockBits(new NativeRect(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             try
             {
                 Pixels.ProcessPixelRows(accessor =>
                 {
-                    for (int y = 0; y < sourceRect.Height; y++)
+                    var covered = new List<(int Start, int End)>();
+                    for (int y = 0; y < height; y++)
                     {
+                        // The columns of this row which a tile covers, sorted
+                        covered.Clear();
+                        foreach (var area in tileAreas)
+                        {
+                            if (y >= area.Top && y < area.Bottom)
+                            {
+                                covered.Add((Math.Max(area.Left, 0), Math.Min(area.Right, width)));
+                            }
+                        }
+                        covered.Sort((a, b) => a.Start.CompareTo(b.Start));
+
                         byte* sourceRow = (byte*)bitmapData.Scan0 + (long)y * bitmapData.Stride;
                         // HalfVector4 is R, G, B, A as half-floats in memory
-                        var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(target.Y + y).Slice(target.X, sourceRect.Width));
-                        for (int x = 0; x < sourceRect.Width; x++, sourceRow += 4)
+                        var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(y));
+                        int x = 0;
+                        foreach (var (start, end) in covered.Append((width, width)))
                         {
-                            // BGRA in memory
-                            targetRow[x * 4] = table[sourceRow[2]];
-                            targetRow[x * 4 + 1] = table[sourceRow[1]];
-                            targetRow[x * 4 + 2] = table[sourceRow[0]];
-                            targetRow[x * 4 + 3] = sourceRow[3] == 255 ? one : HalfHelper.FloatToHalf(sourceRow[3] / 255f);
+                            for (; x < start; x++)
+                            {
+                                // BGRA in memory
+                                byte* pixel = sourceRow + x * 4;
+                                targetRow[x * 4] = table[pixel[2]];
+                                targetRow[x * 4 + 1] = table[pixel[1]];
+                                targetRow[x * 4 + 2] = table[pixel[0]];
+                                targetRow[x * 4 + 3] = pixel[3] == 255 ? one : HalfHelper.FloatToHalf(pixel[3] / 255f);
+                            }
+                            x = Math.Max(x, end);
                         }
                     }
                 });
@@ -266,12 +367,64 @@ namespace Greenshot.Base.Core
         {
             if (Interlocked.Exchange(ref _disposed, 1) == 0)
             {
-                _shared.Release();
+                foreach (var tile in _tiles)
+                {
+                    tile.Shared.Release();
+                }
+            }
+        }
+
+        private void CheckNotDisposed()
+        {
+            if (Volatile.Read(ref _disposed) != 0) throw new ObjectDisposedException(nameof(HdrImage));
+        }
+
+        /// <summary>
+        /// The part of one HDR display: its place in the HDR image, its pixels (shared) and its SDR white level
+        /// </summary>
+        private sealed class Tile
+        {
+            public Tile(NativeRect area, SharedPixels shared, float sdrWhiteLevelInNits)
+            {
+                Area = area;
+                Shared = shared;
+                SdrWhiteLevelInNits = sdrWhiteLevelInNits > 0 ? sdrWhiteLevelInNits : 80f;
+            }
+
+            public NativeRect Area { get; }
+
+            public SharedPixels Shared { get; }
+
+            public float SdrWhiteLevelInNits { get; }
+
+            /// <summary>
+            /// The same pixels for another HdrImage
+            /// </summary>
+            public Tile Share() => new Tile(Area, Shared.AddReference(), SdrWhiteLevelInNits);
+
+            /// <summary>
+            /// The tile moved by the offset and clipped to the bounds, for another HdrImage: the pixels are shared when all of it is inside,
+            /// otherwise only the part inside is copied. Null when nothing of it is inside.
+            /// </summary>
+            public Tile Place(NativePoint offset, NativeRect bounds)
+            {
+                var moved = Area.Offset(offset.X, offset.Y);
+                var part = moved.Intersect(bounds);
+                if (part.Width <= 0 || part.Height <= 0)
+                {
+                    return null;
+                }
+                if (part.Equals(moved))
+                {
+                    return new Tile(moved, Shared.AddReference(), SdrWhiteLevelInNits);
+                }
+                var crop = new Rectangle(part.X - moved.X, part.Y - moved.Y, part.Width, part.Height);
+                return new Tile(part, new SharedPixels(Shared.Pixels.Clone(context => context.Crop(crop))), SdrWhiteLevelInNits);
             }
         }
 
         /// <summary>
-        /// The pixels with the number of HdrImages which use them
+        /// The pixels with the number of tiles which use them
         /// </summary>
         private sealed class SharedPixels
         {

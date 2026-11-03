@@ -39,7 +39,8 @@
       "enabled": true,
       "parameters": {
         "SourceType": "Region",
-        "ScreenMode": "Live"
+        "ScreenMode": "Live",
+        "Hdr": true
       }
     },
     {

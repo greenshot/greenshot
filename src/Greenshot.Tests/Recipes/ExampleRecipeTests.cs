@@ -67,7 +67,9 @@ namespace Greenshot.Tests.Recipes
             foreach (var name in new[] { "hdr_region_to_file.gsrecipe.json", "hdr_window_to_file.gsrecipe.json" })
             {
                 var recipe = RecipeSerializer.LoadFromFile(Path.Combine(directory, name), false);
-                Assert.True(HdrOutput.IsRequested(recipe), name);
+                Assert.True(HdrOutput.SavesHdrFile(recipe), name);
+                Assert.True(HdrOutput.CapturesHdr(recipe), name);
+                Assert.DoesNotContain(RecipeValidator.Validate(recipe).Warnings, warning => warning.Contains("(Hdr)"));
             }
         }
 

@@ -38,7 +38,8 @@
       "stepType": "Source",
       "enabled": true,
       "parameters": {
-        "SourceType": "ActiveWindow"
+        "SourceType": "ActiveWindow",
+        "Hdr": true
       }
     },
     {

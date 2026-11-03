@@ -22,7 +22,6 @@
 using System;
 using System.Linq;
 using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes
 {
@@ -46,17 +45,27 @@ namespace Greenshot.Base.Recipes
         public const string Jxr = "Jxr";
 
         /// <summary>
-        /// True when a SaveFile step of the recipe saves an HDR file: the capture keeps its HDR image then (they cost memory, 8 bytes per pixel)
+        /// The parameter of the Source step which captures with the HDR content (see CaptureFlowContext.CaptureHdr)
         /// </summary>
-        public static bool IsRequested(CaptureRecipe recipe) =>
+        public const string SourceParameterName = "Hdr";
+
+        /// <summary>
+        /// True when a SaveFile step of the recipe saves an HDR file: it needs a capture with the HDR content
+        /// </summary>
+        public static bool SavesHdrFile(CaptureRecipe recipe) =>
             recipe?.Nodes?.Any(node => node != null
                 && string.Equals(node.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase)
                 && IsHdrFormat(node.GetParameter<string>(ParameterName))) == true;
 
         /// <summary>
-        /// True when the context's recipe saves an HDR file
+        /// True when a Source step of the recipe can capture with the HDR content: its Hdr is true, or an expression (e.g. an option) which may be
         /// </summary>
-        public static bool IsRequested(CaptureFlowContext context) => IsRequested(context?.Recipe);
+        public static bool CapturesHdr(CaptureRecipe recipe) =>
+            recipe?.Nodes?.Any(node => node != null
+                && string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase)
+                && node.Parameters != null && node.Parameters.TryGetValue(SourceParameterName, out var value)
+                && (value is bool hdr && hdr
+                    || value is string text && (bool.TryParse(text, out var parsed) ? parsed : text.IndexOf("${", StringComparison.Ordinal) >= 0))) == true;
 
         /// <summary>
         /// True for a value which saves an HDR file (not empty, not None)

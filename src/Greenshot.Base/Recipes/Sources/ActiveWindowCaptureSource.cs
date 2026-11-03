@@ -117,8 +117,8 @@ namespace Greenshot.Base.Recipes.Sources
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                     var capturedRegion = window.GetInfo().Bounds;
                     context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
-                    // A recipe which saves an HDR file needs the HDR image of the window
-                    capture = await WindowCapture.CaptureWindowAsync(window, capture, HdrOutput.IsRequested(context), cancellationToken).ConfigureAwait(false);
+                    // With the HDR content when the Source step asks for it (Hdr)
+                    capture = await WindowCapture.CaptureWindowAsync(window, capture, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                     if (capture != null)
                     {
                         if (capture.Cursor != null)
@@ -134,7 +134,7 @@ namespace Greenshot.Base.Recipes.Sources
             if (!captured)
             {
                 Log.Warn("No active or targeted window to capture or capture failed, falling back to screen capture.");
-                capture = await WindowCapture.CaptureScreenAsync(capture, cancellationToken).ConfigureAwait(false);
+                capture = await WindowCapture.CaptureScreenAsync(capture, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                 capture.CaptureDetails.AddMetaData("source", "Screen");
                 capture.CaptureDetails.Title = "Screen";
             }

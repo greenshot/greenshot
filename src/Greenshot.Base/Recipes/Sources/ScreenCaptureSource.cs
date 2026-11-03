@@ -66,7 +66,7 @@ namespace Greenshot.Base.Recipes.Sources
                     {
                         if (screen.Bounds.Contains(mouseLocation))
                         {
-                            capture = await WindowCapture.CaptureRectangleAsync(capture, screen.Bounds, cancellationToken).ConfigureAwait(false);
+                            capture = await WindowCapture.CaptureRectangleAsync(capture, screen.Bounds, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                             captureTaken = true;
                             if (capture.Cursor != null)
                             {
@@ -81,7 +81,7 @@ namespace Greenshot.Base.Recipes.Sources
                     int screenIndex = CoreConfig.ScreenToCapture - 1; // 1-based in config
                     if (screenIndex >= 0 && screenIndex < Screen.AllScreens.Length)
                     {
-                        capture = await WindowCapture.CaptureRectangleAsync(capture, Screen.AllScreens[screenIndex].Bounds, cancellationToken).ConfigureAwait(false);
+                        capture = await WindowCapture.CaptureRectangleAsync(capture, Screen.AllScreens[screenIndex].Bounds, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                         captureTaken = true;
                     }
                     break;
@@ -92,7 +92,7 @@ namespace Greenshot.Base.Recipes.Sources
 
             if (!captureTaken)
             {
-                capture = await WindowCapture.CaptureScreenAsync(capture, cancellationToken).ConfigureAwait(false);
+                capture = await WindowCapture.CaptureScreenAsync(capture, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
             }
 
             capture.CaptureDetails.Title = "Screen";

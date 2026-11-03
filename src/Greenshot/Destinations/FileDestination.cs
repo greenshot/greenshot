@@ -199,7 +199,7 @@ namespace Greenshot.Destinations
 
         /// <summary>
         /// Save the HDR image of the capture as an HDR file (see HdrOutput), next to where the normal file would go with the extension of the HDR format.
-        /// Null when the normal file is to be saved: no HDR image (not on an HDR display, the frozen screen), the capture was edited, or the encoder failed.
+        /// Null when the normal file is to be saved: no HDR image (not on an HDR display, the Source step doesn't capture HDR), the capture was edited, or the encoder failed.
         /// Then a notification tells why.
         /// </summary>
         private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, bool overwrite, CancellationToken cancellationToken)
@@ -295,7 +295,7 @@ namespace Greenshot.Destinations
             }, cancellationToken).ConfigureAwait(false);
             if (!unchanged)
             {
-                string reason = hdrImage == null ? "the capture has no HDR image (not on an HDR display, or the frozen screen)" : "something was drawn on the capture or it was changed";
+                string reason = hdrImage == null ? "the capture has no HDR image (not on an HDR display, or the Source step doesn't capture HDR)" : "something was drawn on the capture or it was changed";
                 Log.Info($"Not saving an HDR file, {reason}.");
                 return (null, null, hdrImage == null ? Texts.Core.HdrNotSavedNoHdr : Texts.Core.HdrNotSavedChanged);
             }
@@ -320,11 +320,27 @@ namespace Greenshot.Destinations
             var encoder = SimpleServiceProvider.Current.GetInstance<IHdrImageEncoder>(true);
             EncodedImage encoded = null;
             string error = null;
-            // Like the normal file: with the details which are only for the user
-            if (encoder == null || !encoder.TryEncode(hdrImage, formatId, request.Metadata, true, out encoded, out error))
+            // Only the HDR displays are in the HDR image: the parts of SDR displays come from the capture's image now, on the UI thread
+            // which owns it (it was checked to be the image of the HDR image). One HDR display which covers the capture needs nothing of it.
+            HdrImage composed = null;
+            if (!hdrImage.IsComplete)
             {
-                Log.Warn($"Couldn't write the HDR file {path}: {error ?? "no HDR encoder"}");
-                return (null, Texts.Core.HdrNotSavedFailed);
+                composed = await request.Source.UseSurfaceAsync(surface => surface.Image is System.Drawing.Bitmap sdrImage && hdrImage.BelongsTo(sdrImage) ? hdrImage.Compose(sdrImage) : null,
+                    cancellationToken).ConfigureAwait(false);
+                if (composed == null)
+                {
+                    Log.Warn($"Couldn't compose the HDR file {path}: the capture's image changed.");
+                    return (null, Texts.Core.HdrNotSavedChanged);
+                }
+            }
+            using (composed)
+            {
+                // Like the normal file: with the details which are only for the user
+                if (encoder == null || !encoder.TryEncode(composed ?? hdrImage, formatId, request.Metadata, true, out encoded, out error))
+                {
+                    Log.Warn($"Couldn't write the HDR file {path}: {error ?? "no HDR encoder"}");
+                    return (null, Texts.Core.HdrNotSavedFailed);
+                }
             }
 
             try

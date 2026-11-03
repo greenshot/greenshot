@@ -1196,7 +1196,7 @@ namespace Greenshot.Base.Native
                     return (null, null);
                 }
 
-                return (resultBitmap, keepHdr ? ComposeHdrImage(requests, resultBitmap) : null);
+                return (resultBitmap, keepHdr ? CombineHdrImages(requests, resultBitmap.Width, resultBitmap.Height) : null);
             }
             catch
             {
@@ -1209,7 +1209,7 @@ namespace Greenshot.Base.Native
                 {
                     DisposeAll(monitorBitmaps);
                 }
-                // The HDR images of the monitors, ComposeHdrImage took the one it returns
+                // The HDR images of the monitors, the combined one shares their pixels
                 foreach (var request in requests)
                 {
                     request.HdrImage?.Dispose();
@@ -1219,40 +1219,14 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// The HDR image of the whole area: those of the HDR displays as they are, the other displays from the (SDR) result bitmap at the SDR white level
-        /// of the first HDR display. Null when no display in the area is HDR. The HDR images of the requests stay theirs (to dispose), except
-        /// the one which is returned as it is: it is taken from its request.
+        /// The HDR image of the whole area: only the HDR displays, each at its place, without a copy. The SDR displays are only in the
+        /// (SDR) result bitmap, HdrImage.Compose puts them in when an HDR file is written. Null when no display in the area is HDR.
+        /// The HDR images of the requests stay theirs to dispose.
         /// </summary>
-        internal static HdrImage ComposeHdrImage(CaptureRequest[] requests, Bitmap resultBitmap)
-        {
-            var hdrRequests = requests.Where(request => request.HdrImage != null).ToList();
-            if (hdrRequests.Count == 0)
-            {
-                return null;
-            }
-
-            var reference = hdrRequests[0].HdrImage;
-            if (requests.Length == 1 && reference.Width == resultBitmap.Width && reference.Height == resultBitmap.Height)
-            {
-                hdrRequests[0].HdrImage = null;
-                return reference;
-            }
-
-            float peak = hdrRequests.Max(request => request.HdrImage.DisplayPeakInNits);
-            var composed = new HdrImage(resultBitmap.Width, resultBitmap.Height, reference.SdrWhiteLevelInNits, peak);
-            foreach (var request in requests)
-            {
-                if (request.HdrImage != null)
-                {
-                    composed.CopyFrom(request.HdrImage, new NativePoint(request.TargetLocation.X, request.TargetLocation.Y));
-                }
-                else
-                {
-                    composed.CopyFromSdr(resultBitmap, new NativeRect(request.TargetLocation.X, request.TargetLocation.Y, request.TargetSourceRect.Width, request.TargetSourceRect.Height), new NativePoint(request.TargetLocation.X, request.TargetLocation.Y));
-                }
-            }
-            return composed;
-        }
+        internal static HdrImage CombineHdrImages(CaptureRequest[] requests, int width, int height) =>
+            HdrImage.Combine(width, height, requests
+                .Where(request => request.HdrImage != null)
+                .Select(request => (request.HdrImage, new NativePoint(request.TargetLocation.X, request.TargetLocation.Y))));
 
         /// <summary>
         /// Copy a rectangle of 32bpp ARGB pixels as they are, row by row: much faster than Graphics.DrawImage, which blends and filters
