@@ -54,6 +54,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
+    [StepOutputVariable("SelectedMode", ContractDataType.String, "The mode the selection was made in: Region, Window or Text (the user can switch, e.g. T for text)")]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
@@ -82,6 +83,8 @@ namespace Greenshot.Recipes.Steps
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
+            // Without a selection (handed in, pre-supplied region) the mode of the step
+            context.Properties["SelectedMode"] = Config.GetParameter("SelectionMode", CaptureMode.Region).ToString();
             var payload = context.Payload;
             if (payload?.RawCapture == null)
             {
@@ -148,6 +151,7 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
+            context.Properties["SelectedMode"] = selection.FinalMode.ToString();
             if (selection.SelectedWindow != null)
             {
                 payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
