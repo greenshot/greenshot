@@ -347,6 +347,23 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Fill a new HDR image while it is made: its pixels as one block of memory (row after row, <see cref="Stride"/> bytes each),
+        /// pinned while the action writes them; e.g. for a decoder
+        /// </summary>
+        /// <param name="action">Gets the address of the first pixel</param>
+        public unsafe void FillPixelMemory(Action<IntPtr> action)
+        {
+            if (action == null) throw new ArgumentNullException(nameof(action));
+            if (!Pixels.DangerousTryGetSinglePixelMemory(out Memory<HalfVector4> memory))
+            {
+                // Every HdrImage is made with ContiguousConfiguration
+                throw new InvalidOperationException("The pixels of the HDR image are not one block of memory.");
+            }
+            using var handle = memory.Pin();
+            action((IntPtr)handle.Pointer);
+        }
+
+        /// <summary>
         /// The pixels of a complete HDR image as one block of memory (row after row, <see cref="Stride"/> bytes each), pinned while the action
         /// runs; e.g. for an encoder
         /// </summary>

@@ -30,6 +30,14 @@
       "label": "Ask where to save the HDR file",
       "description": "Opens the save dialog with JPEG XR chosen, instead of saving to the output folder",
       "quickSettings": true
+    },
+    {
+      "key": "openInEditor",
+      "type": "Boolean",
+      "default": false,
+      "label": "Open in the editor instead",
+      "description": "Opens the HDR capture in the editor (shown tone mapped) instead of saving it: draw on it, then Save as JPEG XR keeps the HDR highlights, what you drew on top",
+      "quickSettings": true
     }
   ],
   "nodes": [
@@ -56,6 +64,7 @@
       "stepType": "SaveFile",
       "name": "Save as HDR File",
       "enabled": true,
+      "when": "${option.openInEditor == false}",
       "parameters": {
         "HdrFormat": "Auto",
         "Format": "png",
@@ -67,6 +76,15 @@
       "stepType": "Notification",
       "name": "Completion Notification",
       "enabled": true,
+      "when": "${option.openInEditor == false}",
+      "parameters": {}
+    },
+    {
+      "id": "editor",
+      "stepType": "Editor",
+      "name": "Open in the Editor",
+      "enabled": true,
+      "when": "${option.openInEditor}",
       "parameters": {}
     }
   ],
@@ -86,6 +104,10 @@
       {
         "from": "save",
         "to": "notify"
+      },
+      {
+        "from": "notify",
+        "to": "editor"
       }
     ]
   },
@@ -95,6 +117,8 @@
       "description": "Einen Bereich auf dem laufenden Bildschirm eines HDR-Displays auswählen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (SDR-Display, bearbeitete Aufnahme) wird ein PNG gespeichert.",
       "options.askForFilename.label": "Fragen, wo die HDR-Datei gespeichert wird",
       "options.askForFilename.description": "Öffnet den Speichern-Dialog mit JPEG XR, statt im Ausgabeordner zu speichern",
+      "options.openInEditor.label": "Stattdessen im Editor öffnen",
+      "options.openInEditor.description": "Öffnet die HDR-Aufnahme im Editor (dort mit Tone-Mapping angezeigt), statt sie zu speichern: darauf zeichnen, dann Speichern als JPEG XR behält die HDR-Spitzlichter, das Gezeichnete liegt darüber",
       "triggers.0.menuItemText": "HDR-Bereich als Datei"
     }
   },

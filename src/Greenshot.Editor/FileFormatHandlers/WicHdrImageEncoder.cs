@@ -72,6 +72,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
 
             var metadata = ExportImageMetadata.ForExport(captureDetails, includePrivateMetadata);
+            // So the file is tone mapped the same way when it is opened again (see WicHdrImageDecoder)
+            metadata.HdrSdrWhiteLevelInNits = hdrImage.SdrWhiteLevelInNits;
+            metadata.HdrDisplayPeakInNits = hdrImage.DisplayPeakInNits > 0 ? hdrImage.DisplayPeakInNits : (float?)null;
             var options = new WicEncodeOptions
             {
                 ContainerFormat = container,

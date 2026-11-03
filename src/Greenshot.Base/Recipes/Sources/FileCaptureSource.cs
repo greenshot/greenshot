@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Native;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
@@ -146,14 +147,22 @@ namespace Greenshot.Base.Recipes.Sources
 
             try
             {
-                var fileImage = ImageIO.LoadImage(filename);
+                // An HDR file is opened like an HDR capture: tone mapped, with its HDR image, so it can be saved as HDR file again
+                var hdrImage = TryLoadHdrImage(filename);
+                var fileImage = hdrImage != null ? HdrImageToneMapping.ToBitmap(hdrImage) : ImageIO.LoadImage(filename);
                 if (fileImage == null)
                 {
+                    hdrImage?.Dispose();
                     context.Abort($"Could not load image from '{filename}'");
                     return Task.FromResult<ICapturePayload>(null);
                 }
 
                 ICapture capture = new Capture(fileImage);
+                if (hdrImage != null)
+                {
+                    hdrImage.BelongTo(capture.Image);
+                    capture.HdrImage = hdrImage;
+                }
                 capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
                 capture.CaptureDetails.Filename = filename;
                 capture.CaptureDetails.AddMetaData("file", filename);
@@ -173,6 +182,20 @@ namespace Greenshot.Base.Recipes.Sources
             }
             context.Abort($"No filename specified.");
             return Task.FromResult<ICapturePayload>(null);
+        }
+
+        /// <summary>
+        /// The HDR image of an HDR file (see IHdrImageDecoder), null for an 8-bit file or without a decoder
+        /// </summary>
+        private static HdrImage TryLoadHdrImage(string filename)
+        {
+            var decoder = SimpleServiceProvider.Current.GetInstance<IHdrImageDecoder>(true);
+            if (decoder == null || !File.Exists(filename))
+            {
+                return null;
+            }
+            using var stream = File.OpenRead(filename);
+            return decoder.TryDecode(stream, out var hdrImage) ? hdrImage : null;
         }
     }
 }

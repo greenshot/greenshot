@@ -74,6 +74,27 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void HdrRegion_OpenInEditor_OpensTheEditorInsteadOfSaving(bool openInEditor)
+        {
+            var recipe = RecipeSerializer.LoadFromFile(Path.Combine(FindExamplesDirectory(), "hdr_region_to_file.gsrecipe.json"), false);
+            try
+            {
+                RecipeOptionStore.SetValue(recipe.Id, recipe.FindOption("openInEditor"), openInEditor);
+                var context = new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe);
+
+                Assert.Equal(!openInEditor, recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.SaveFile).ShouldRun(context));
+                Assert.Equal(!openInEditor, recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.Notification).ShouldRun(context));
+                Assert.Equal(openInEditor, recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.Editor).ShouldRun(context));
+            }
+            finally
+            {
+                RecipeOptionStore.Reset(recipe.Id);
+            }
+        }
+
+        [Theory]
         [InlineData("hdr_region_to_file.gsrecipe.json", false)]
         [InlineData("hdr_region_to_file.gsrecipe.json", true)]
         [InlineData("hdr_window_to_file.gsrecipe.json", true)]

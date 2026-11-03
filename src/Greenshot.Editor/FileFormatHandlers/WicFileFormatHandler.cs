@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Native;
 using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -313,6 +314,17 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
+            // An HDR file (half or float pixels) is tone mapped like an HDR capture: WIC's conversion to 8 bit would clip everything above 80 nits
+            var hdrDecoder = SimpleServiceProvider.Current.GetInstance<IHdrImageDecoder>(true);
+            if (hdrDecoder != null && hdrDecoder.TryDecode(stream, out var hdrImage))
+            {
+                using (hdrImage)
+                {
+                    bitmap = HdrImageToneMapping.ToBitmap(hdrImage);
+                    return true;
+                }
+            }
+
             Bitmap result = null;
             BitmapData bitmapData = null;
             try
