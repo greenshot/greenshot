@@ -138,10 +138,10 @@ namespace Greenshot.Tests.Recipes
                 HdrFormat = hdrFormat,
                 CopyPathToClipboard = false
             };
-            return ExportAsync(surface, ui, options, manuallyInitiated);
+            return ExportWithOptionsAsync(surface, ui, options, manuallyInitiated);
         }
 
-        private static async Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, FileDestinationOptions options, bool manuallyInitiated = false)
+        private static async Task<ExportResult> ExportWithOptionsAsync(Surface surface, IUserInteraction ui, FileDestinationOptions options, bool manuallyInitiated = false)
         {
             // Without a SynchronizationContext, like a flow: nothing may wait for the UI thread of the test
             return await Task.Run(async () =>
@@ -735,7 +735,7 @@ namespace Greenshot.Tests.Recipes
             var ui = new SaveDialogUserInteraction(null);
             string stepFile = Path.Combine(Path.GetTempPath(), "step folder", "step name.jpg");
 
-            await ExportAsync(surface, ui, new FileDestinationOptions { AskForFilename = true, FilePath = stepFile, CopyPathToClipboard = false });
+            await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { AskForFilename = true, FilePath = stepFile, CopyPathToClipboard = false });
 
             Assert.Equal(stepFile, Assert.Single(ui.Dialogs).SuggestedPath);
         }
@@ -751,7 +751,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(false);
                 var ui = new SaveDialogUserInteraction(null, interactive);
 
-                var result = await ExportAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.AddNumber, CopyPathToClipboard = false });
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.AddNumber, CopyPathToClipboard = false });
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Dialogs);
@@ -773,7 +773,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(false);
                 var ui = new SaveDialogUserInteraction(null);
 
-                var result = await ExportAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
 
                 Assert.Equal(ExportStatus.Declined, result.Status);
                 Assert.Equal(Path.Combine(directory, "capture (2).png"), Assert.Single(ui.Dialogs).SuggestedPath);
@@ -794,7 +794,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(false);
                 var ui = new SaveDialogUserInteraction(null, false);
 
-                var result = await ExportAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal(Path.Combine(directory, "capture (2).png"), result.FilePath);
@@ -814,7 +814,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(false);
                 var ui = new SaveDialogUserInteraction(null, false);
 
-                var result = await ExportAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Overwrite, CopyPathToClipboard = false });
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Overwrite, CopyPathToClipboard = false });
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal(existing, result.FilePath);
