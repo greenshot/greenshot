@@ -99,7 +99,9 @@ namespace Greenshot.Tests.Core
             using var placed = ImageEdits.Place(new NativeRect(1, 0, 2, 2), new NativeSize(6, 6), new NativePoint(3, 2)).Apply(hdrImage);
 
             Assert.Equal(6, placed.Width);
-            Assert.Equal(new NativeRect(3, 2, 2, 2), Assert.Single(placed.TileAreas));
+            // The area at its place, around it transparent
+            Assert.Equal(5f, placed.Pixels[3, 2].ToVector4().X, 1);
+            Assert.Equal(0f, placed.Pixels[0, 0].ToVector4().W, 2);
         }
 
         [Fact]
@@ -111,9 +113,7 @@ namespace Greenshot.Tests.Core
                 .Apply(hdrImage);
 
             Assert.Equal(6, joined.Width);
-            // The two areas cover all of it: one complete image
-            Assert.True(joined.IsComplete);
-            Assert.Equal(new[] { new NativeRect(0, 0, 6, 2) }, joined.TileAreas);
+            Assert.Equal(5f, joined.Pixels[4, 1].ToVector4().X, 1);
         }
 
         [Fact]
@@ -141,19 +141,21 @@ namespace Greenshot.Tests.Core
 
             using var shadowed = ImageEdits.ForEffect(new DropShadowEffect(), new NativeSize(10, 10), new NativeSize(24, 24), matrix).Apply(hdrImage);
 
-            Assert.Equal(new NativeRect(6, 6, 10, 10), Assert.Single(shadowed.TileAreas));
+            Assert.Equal(5f, shadowed.Pixels[6, 6].ToVector4().X, 1);
+            Assert.Equal(0f, shadowed.Pixels[5, 5].ToVector4().W, 2);
         }
 
         [Fact]
-        public void TornEdges_TheBandsOfTheTeethComeFromThe8BitImage()
+        public void TornEdges_WithoutTheImages_LeavesTheBandsOfTheTeethOut()
         {
             var tornEdge = new TornEdgeEffect { ToothHeight = 3, GenerateShadow = false, Edges = new[] { true, false, true, false } };
             using var hdrImage = CreateHdrImage(20, 20, Gray(5));
 
             using var torn = ImageEdits.ForEffect(tornEdge, new NativeSize(20, 20), new NativeSize(20, 20), new Matrix()).Apply(hdrImage);
 
-            // Top and bottom are torn: their bands are left out, left and right stay
-            Assert.Equal(new NativeRect(0, 3, 20, 14), Assert.Single(torn.TileAreas));
+            // Top and bottom are torn: their bands are left out (transparent), left and right stay
+            Assert.Equal(0f, torn.Pixels[10, 1].ToVector4().W, 2);
+            Assert.Equal(5f, torn.Pixels[10, 10].ToVector4().X, 1);
         }
 
         [Theory]
@@ -222,27 +224,19 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void Resize_OfTwoDisplays_ScalesTheirPlaces()
+        public void Resize_OfTwoHdrDisplaysAndAnSdrDisplayBetweenThem_KeepsTheHighlights()
         {
             using var left = CreateHdrImage(4, 4, Gray(5));
             using var right = CreateHdrImage(4, 4, Gray(5));
-            using var both = HdrImage.Combine(12, 4, new[] { (left, new NativePoint(0, 0)), (right, new NativePoint(8, 0)) });
+            using var sdr = CreateBitmap(12, 4, Color.Black);
+            using var both = HdrImage.Combine(sdr, new[] { (left, new NativePoint(0, 0)), (right, new NativePoint(8, 0)) });
 
             using var half = both.Resize(6, 2);
 
-            Assert.Equal(new[] { new NativeRect(0, 0, 2, 2), new NativeRect(4, 0, 2, 2) }, half.TileAreas);
+            // Bicubic mixes across the edge of the displays now (one image, like the 8-bit resize), with its small overshoot
+            Assert.InRange(half.Pixels[0, 1].ToVector4().X, 4.8f, 5.3f);
+            Assert.InRange(half.Pixels[3, 1].ToVector4().X, -0.3f, 0.3f);
             Assert.True(half.HasHdrContent);
-        }
-
-        [Fact]
-        public void Exclude_AHoleInTheMiddle_LeavesTheRectanglesAroundIt()
-        {
-            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
-
-            using var withHole = ImageEdits.Exclude(new[] { new NativeRect(3, 4, 2, 2) }).Apply(hdrImage);
-
-            Assert.Equal(new[] { new NativeRect(0, 0, 10, 4), new NativeRect(0, 6, 10, 4), new NativeRect(0, 4, 3, 2), new NativeRect(5, 4, 5, 2) }, withHole.TileAreas);
-            Assert.Null(ImageEdits.Exclude(new[] { new NativeRect(0, 0, 10, 10) }).Apply(hdrImage));
         }
 
         [Fact]
@@ -324,15 +318,6 @@ namespace Greenshot.Tests.Core
         }
 
         /// <summary>
-        /// An HDR image of the left half only (an HDR display), the right half was an SDR display
-        /// </summary>
-        private static HdrImage CreateLeftHalfHdrImage(int width, int height)
-        {
-            using var left = CreateHdrImage(width / 2, height, Gray(5));
-            return HdrImage.Combine(width, height, new[] { (left, new NativePoint(0, 0)) });
-        }
-
-        /// <summary>
         /// An 8-bit image of one color
         /// </summary>
         private static Bitmap CreateBitmap(int width, int height, Color color)
@@ -344,20 +329,19 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void Complete_PutsTheSdrPartsInAtTheSdrWhite_TheTilesStay()
+        public void Combine_PutsTheSdrDisplaysInAtTheSdrWhite_TheHdrDisplaysOverThem()
         {
-            using var hdrImage = CreateLeftHalfHdrImage(8, 2);
+            using var left = CreateHdrImage(4, 2, Gray(5));
             using var sdr = CreateBitmap(8, 2, Color.White);
 
-            using var complete = hdrImage.Compose(sdr);
+            using var complete = HdrImage.Combine(sdr, new[] { (left, new NativePoint(0, 0)) });
 
-            Assert.True(complete.IsComplete);
             Assert.Equal(5f, complete.Pixels[1, 1].ToVector4().X, 1);
             Assert.Equal(White, complete.Pixels[6, 1].ToVector4().X, 2);
         }
 
         [Fact]
-        public void Room_OfABorder_IsTheBorderOfThe8BitImage_TheHdrImageStaysComplete()
+        public void Room_OfABorder_IsTheBorderOfThe8BitImage()
         {
             using var hdrImage = CreateHdrImage(10, 10, Gray(5));
             using var oldImage = CreateBitmap(10, 10, Color.Gray);
@@ -366,8 +350,6 @@ namespace Greenshot.Tests.Core
             using var newImage = border.Apply(oldImage, matrix);
 
             using var bordered = ImageEdits.ForEffect(border, oldImage, newImage, matrix).Apply(hdrImage);
-
-            Assert.True(bordered.IsComplete);
             Assert.Equal(14, bordered.Width);
             // The border is white at SDR white, the capture keeps its highlight
             Assert.Equal(White, bordered.Pixels[0, 7].ToVector4().X, 2);
@@ -385,8 +367,6 @@ namespace Greenshot.Tests.Core
             using var newImage = (Bitmap)dropShadow.Apply(oldImage, matrix);
 
             using var shadowed = ImageEdits.ForEffect(dropShadow, oldImage, newImage, matrix).Apply(hdrImage);
-
-            Assert.True(shadowed.IsComplete);
             Assert.Equal(newImage.Width, shadowed.Width);
             // Every pixel of the room has the alpha of the 8-bit shadow
             int offset = (int)matrix.OffsetX;
@@ -402,13 +382,11 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void Join_OfTwoPartsWhichCoverAllOfIt_IsComplete()
+        public void Join_OfTwoPartsWhichCoverAllOfIt_HasThePixelsOfBoth()
         {
             using var hdrImage = CreateHdrImage(10, 4, Gray(5));
 
             using var joined = ImageEdits.Join(new NativeSize(6, 4), new NativeRect(0, 0, 3, 4), new NativePoint(0, 0), new NativeRect(7, 0, 3, 4), new NativePoint(3, 0)).Apply(hdrImage);
-
-            Assert.True(joined.IsComplete);
             Assert.Equal(5f, joined.Pixels[4, 2].ToVector4().X, 1);
         }
 
@@ -426,11 +404,9 @@ namespace Greenshot.Tests.Core
                         new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));
             var steps = new[] { HdrOverlayStep.Of(cutAway), HdrOverlayStep.Of(area, draw) };
             using var overlay = new HdrOverlay(steps, null, null);
-            using var saved = hdrImage.Compose(null, overlay);
+            using var saved = hdrImage.Compose(overlay);
 
             using var drawn = ImageEdits.Draw("test", steps).Apply(hdrImage);
-
-            Assert.True(drawn.IsComplete);
             for (int y = 0; y < 30; y++)
             {
                 for (int x = 0; x < 40; x++)
@@ -439,14 +415,6 @@ namespace Greenshot.Tests.Core
                 }
             }
             Assert.Equal(0f, drawn.Pixels[20, 15].ToVector4().W, 2);
-        }
-
-        [Fact]
-        public void Draw_OnAnImageWithOnlyTheHdrDisplays_IsRefused()
-        {
-            using var hdrImage = CreateLeftHalfHdrImage(8, 2);
-
-            Assert.Throws<InvalidOperationException>(() => ImageEdits.Draw("nothing", Array.Empty<HdrOverlayStep>()).Apply(hdrImage));
         }
 
         [Fact]

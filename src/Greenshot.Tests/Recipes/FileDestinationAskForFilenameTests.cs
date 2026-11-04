@@ -502,11 +502,10 @@ namespace Greenshot.Tests.Recipes
                 using (var hdrDisplay = new HdrImage(4, 4, 240, 400))
                 {
                     hdrDisplay.Pixels[3, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
-                    capture.HdrImage = HdrImage.Combine(8, 4, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
+                    capture.HdrImage = HdrImage.Combine(bitmap, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
                 }
                 capture.HdrImage.BelongTo(capture.Image);
                 using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
-                Assert.False(surface.HdrImage.IsComplete);
                 var ui = new SaveDialogUserInteraction(path);
 
                 var result = await ExportAsync(surface, ui, HdrOutput.Auto);

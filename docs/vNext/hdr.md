@@ -102,9 +102,13 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 ## 3. The HDR image of a capture
 
 `HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
-with straight alpha. A capture keeps only what HDR displays showed: one tile per HDR display, at its place in the capture. The parts
-of SDR displays are already in the SDR image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
-written, or once when the capture goes into the editor (see 5).
+with straight alpha. It is one image of the whole capture, like the SDR image: when a capture spans HDR and SDR displays, the parts of
+the SDR displays are put in from the SDR image at the SDR white level when the capture is made (`HdrImage.Combine`), so they look as
+they did on the screen.
+
+**Memory:** a capture with an HDR display keeps this HDR image of all of it next to the SDR image, at 8 bytes per pixel (twice the SDR
+image), also the parts of SDR displays. Three 4K displays take about 200 MB more, also when only one of them is HDR. A capture
+without an HDR display has no HDR image and costs nothing extra.
 
 The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
 `HdrImage`.
@@ -143,10 +147,10 @@ sequenceDiagram
     Export->>Surface: HdrImagePreparation
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
     Export->>Surface: HdrState, CreateHdrOverlay()
-    Surface-->>Export: a share of the HDR image (complete in the editor),<br/>overlay (draw steps, filters, layers)
+    Surface-->>Export: a share of the HDR image,<br/>overlay (draw steps, filters, layers)
     Note over Export,Wic: on the thread pool, the editor goes on
-    Export->>Hdr: Compose(SDR image, overlay)
-    Note over Hdr: SDR displays at SDR white,<br/>then the overlay steps in order
+    Export->>Hdr: Compose(overlay)
+    Note over Hdr: the overlay steps in order
     Hdr-->>Export: composed HDR image
     Export->>Wic: TryEncode(composed, "jxr")
     Wic-->>Save: the JPEG XR file
@@ -163,13 +167,10 @@ later:
 - **Changes of the image** (crop, rotate, resize, cut out, effects) are remembered as `IImageEdit`s (`ImageEdits` in
   Greenshot.Base/Effects). They are ImageSharp operations, which work for any pixel type, and they are only done when an HDR file
   is written. Undo removes them again.
-- **One complete HDR image:** when a capture with HDR content goes into the editor, the parts of the SDR displays are put into its
-  `HdrImage` at the SDR white level once (`Surface.CompleteHdrImage`, `HdrImage.Compose`). From then on the editor has one HDR image
-  of the whole capture next to the SDR image, and every edit is done on both the same way, also across the edge of a display. This
-  costs the memory of the whole capture at 8 bytes per pixel while the editor is open (e.g. about 200 MB for three 4K displays), it
-  is in the log. Without the editor (a destination, a recipe saving the file) nothing is changed: the file is composed once.
+- **Every edit is done on both images the same way**, also across the edge of a display: the HDR image is one image like the SDR
+  image (see 3).
 - **The room an edit adds** (a border, a drop shadow, a bigger canvas, the room for the shadow of torn edges) is taken from the new
-  SDR image at the SDR white level when the edit is made (`ImageEdits.PlaceInRoom`, `Room`), so the HDR image stays complete.
+  SDR image at the SDR white level when the edit is made (`ImageEdits.PlaceInRoom`).
 - **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background (`CutDrawing.TornEdge`).
 - **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`, `HdrImage.Draw`)
   with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.

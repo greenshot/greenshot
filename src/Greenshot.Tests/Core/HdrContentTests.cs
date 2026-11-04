@@ -97,7 +97,8 @@ namespace Greenshot.Tests.Core
         {
             using var left = CreateHdrImage(new HalfVector4(1, 1, 1, 1));
             using var right = CreateHdrImage(new HalfVector4(9, 9, 9, 1));
-            using var both = HdrImage.Combine(12, 2, new[] { (left, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)), (right, new Dapplo.Windows.Common.Structs.NativePoint(8, 0)) });
+            using var sdr = new System.Drawing.Bitmap(12, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var both = HdrImage.Combine(sdr, new[] { (left, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)), (right, new Dapplo.Windows.Common.Structs.NativePoint(8, 0)) });
             using var leftOnly = both.Crop(new Dapplo.Windows.Common.Structs.NativeRect(0, 0, 6, 2));
 
             Assert.True(both.HasHdrContent);

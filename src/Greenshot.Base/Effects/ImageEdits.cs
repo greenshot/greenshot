@@ -53,18 +53,55 @@ namespace Greenshot.Base.Effects
     }
 
     /// <summary>
-    /// The edits for the changes of the editor, done on the HDR image. The editor's HDR image is complete (see HdrImage.Complete): what an edit
-    /// adds around it which isn't in the HDR image (the room of a border, a shadow, a bigger canvas) is taken from the new 8-bit image at the SDR
-    /// white level when the edit is made (see <see cref="Room"/>), so it stays complete.
+    /// The edits for the changes of the editor, done on the HDR image, which is one image of the whole capture like the 8-bit image. What an edit
+    /// adds around the image (the room of a border, a shadow, a bigger canvas) is taken from the new 8-bit image at the SDR white level when the
+    /// edit is made (see <see cref="PlaceInRoom"/>).
     /// </summary>
     public static class ImageEdits
     {
         /// <summary>
-        /// An area of the HDR image at a place of a new image of the size, e.g. a crop (the area at 0,0 of an image of its size),
-        /// a border (all of it, moved by the border width). Around it the new image has no HDR pixels, see <see cref="Room"/>.
+        /// An area of the HDR image at a place of a new image of the size, e.g. a crop (the area at 0,0 of an image of its size). Around it the new
+        /// image is transparent, see <see cref="PlaceInRoom"/> for the room an effect adds.
         /// </summary>
         public static IImageEdit Place(NativeRect area, NativeSize size, NativePoint location) =>
-            new ImageEdit($"Place {area} at {location} of {size.Width}x{size.Height}", hdrImage =>
+            PlaceOver(area, size, location, Array.Empty<(NativeRect, Bgra32[])>(), $"Place {area} at {location} of {size.Width}x{size.Height}");
+
+        /// <summary>
+        /// Like <see cref="Place"/>, around the area the pixels of the new 8-bit image at the SDR white level (e.g. the border, the shadow, the
+        /// background of the room for torn edges). They are read now and kept with the edit, which can be done again later (e.g. after an undo)
+        /// on another thread.
+        /// </summary>
+        /// <param name="area">The area of the HDR image</param>
+        /// <param name="newImage">The new 8-bit image, read now</param>
+        /// <param name="location">Where the area is in the new image</param>
+        public static IImageEdit PlaceInRoom(NativeRect area, Image newImage, NativePoint location)
+        {
+            if (newImage == null) throw new ArgumentNullException(nameof(newImage));
+            var size = new NativeSize(newImage.Width, newImage.Height);
+            var bounds = new NativeRect(0, 0, size.Width, size.Height);
+            var room = new List<(NativeRect, Bgra32[])>();
+            // Read where they are: a copy only of an image which isn't a bitmap (e.g. a metafile)
+            using (var copy = newImage is Bitmap ? null : new Bitmap(newImage))
+            {
+                var bitmap = copy ?? (Bitmap)newImage;
+                foreach (var part in HdrImage.Outside(bounds, new[] { new NativeRect(location, area.Size) }))
+                {
+                    var pixels = new Bgra32[part.Width * part.Height];
+                    BitmapPixels.ProcessPixelRows<Bgra32>(bitmap, new Rectangle(part.X, part.Y, part.Width, part.Height), rows =>
+                    {
+                        for (int y = 0; y < rows.Height; y++)
+                        {
+                            rows.GetRowSpan(y).CopyTo(pixels.AsSpan(y * part.Width, part.Width));
+                        }
+                    }, ImageLockMode.ReadOnly);
+                    room.Add((part, pixels));
+                }
+            }
+            return PlaceOver(area, size, location, room, $"Place {area} at {location} of {size.Width}x{size.Height}, the room from the 8-bit image");
+        }
+
+        private static IImageEdit PlaceOver(NativeRect area, NativeSize size, NativePoint location, IReadOnlyList<(NativeRect, Bgra32[])> room, string name) =>
+            new ImageEdit(name, hdrImage =>
             {
                 var part = hdrImage.Crop(area);
                 if (part == null || (location.X == 0 && location.Y == 0 && part.Width == size.Width && part.Height == size.Height))
@@ -73,56 +110,12 @@ namespace Greenshot.Base.Effects
                 }
                 using (part)
                 {
-                    return HdrImage.Combine(size.Width, size.Height, new[] { (part, location) });
+                    return HdrImage.Combine(size, room, new[] { (part, location) });
                 }
             });
 
         /// <summary>
-        /// Like <see cref="Place"/>, around the area the pixels of the new 8-bit image (e.g. the border, the shadow, the background of the room for
-        /// torn edges): the HDR image stays complete
-        /// </summary>
-        /// <param name="area">The area of the HDR image</param>
-        /// <param name="newImage">The new 8-bit image, read now</param>
-        /// <param name="location">Where the area is in the new image</param>
-        public static IImageEdit PlaceInRoom(NativeRect area, Image newImage, NativePoint location)
-        {
-            var size = new NativeSize(newImage.Width, newImage.Height);
-            var placed = new NativeRect(location, area.Size);
-            return Place(area, size, location).Then(Room(newImage, HdrImage.Outside(new NativeRect(0, 0, size.Width, size.Height), new[] { placed })));
-        }
-
-        /// <summary>
-        /// Where the HDR image has no pixels, the pixels of these areas of the 8-bit image at the SDR white level: e.g. the room which a border adds.
-        /// The pixels are read now and kept with the edit, which can be done again later (e.g. after an undo) on another thread.
-        /// </summary>
-        /// <param name="image">The 8-bit image, of the size of the HDR image</param>
-        /// <param name="areas">The areas, clipped to the image</param>
-        public static IImageEdit Room(Image image, IEnumerable<NativeRect> areas)
-        {
-            if (image == null) throw new ArgumentNullException(nameof(image));
-            var bounds = new NativeRect(0, 0, image.Width, image.Height);
-            var parts = new List<(NativeRect, Bgra32[])>();
-            // Read where they are: a copy only of an image which isn't a bitmap (e.g. a metafile)
-            using var copy = image is Bitmap ? null : new Bitmap(image);
-            var bitmap = copy ?? (Bitmap)image;
-            foreach (var area in areas.Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0))
-            {
-                var pixels = new Bgra32[area.Width * area.Height];
-                BitmapPixels.ProcessPixelRows<Bgra32>(bitmap, new Rectangle(area.X, area.Y, area.Width, area.Height), rows =>
-                {
-                    for (int y = 0; y < rows.Height; y++)
-                    {
-                        rows.GetRowSpan(y).CopyTo(pixels.AsSpan(y * area.Width, area.Width));
-                    }
-                }, ImageLockMode.ReadOnly);
-                parts.Add((area, pixels));
-            }
-            return new ImageEdit($"Room {string.Join(", ", parts.Select(part => part.Item1))} from the 8-bit image", hdrImage => hdrImage.Complete(parts));
-        }
-
-        /// <summary>
-        /// Two areas of the HDR image put together in a new image of the size, e.g. a cut out (the parts before and after the band). When they
-        /// cover all of it, the new HDR image is complete.
+        /// Two areas of the HDR image put together in a new image of the size, e.g. a cut out (the parts before and after the band)
         /// </summary>
         public static IImageEdit Join(NativeSize size, NativeRect first, NativePoint firstLocation, NativeRect second, NativePoint secondLocation) =>
             new ImageEdit($"Join {first} and {second} into {size.Width}x{size.Height}", hdrImage =>
@@ -138,28 +131,8 @@ namespace Greenshot.Base.Effects
                 {
                     parts.Add((secondPart, secondLocation));
                 }
-                var joined = HdrImage.Combine(size.Width, size.Height, parts);
-                if (joined == null)
-                {
-                    return null;
-                }
-                joined.IsRequested = hdrImage.IsRequested;
-                if (joined.IsComplete || joined.TileAreas.Sum(area => (long)area.Width * area.Height) != (long)size.Width * size.Height)
-                {
-                    return joined;
-                }
-                using (joined)
-                {
-                    return joined.Complete(Array.Empty<(NativeRect, Bgra32[])>());
-                }
+                return HdrImage.Combine(size, Array.Empty<(NativeRect, Bgra32[])>(), parts);
             });
-
-        /// <summary>
-        /// The areas are taken from the 8-bit image, e.g. an element drawn into it (torn edges, cut marks)
-        /// </summary>
-        public static IImageEdit Exclude(IReadOnlyList<NativeRect> areas) =>
-            new ImageEdit($"Exclude {string.Join(", ", areas)}", hdrImage => hdrImage.Exclude(areas));
-
         /// <summary>
         /// The HDR content is gone, e.g. the image was cleared: nothing is left to make, the image has no HDR content (not lost, there is none)
         /// </summary>
@@ -267,7 +240,7 @@ namespace Greenshot.Base.Effects
                 case ResizeEffect:
                     return Resize(newSize);
                 case TornEdgeEffect tornEdge:
-                    // Without the images (see the other ForEffect): the bands of the teeth come from the 8-bit image, the shadow (offset) moves the rest
+                    // Without the images (the editor uses the other ForEffect, which draws them): the bands of the teeth are left out, the shadow (offset) moves the rest
                     var inside = TornEdgeInside(tornEdge, oldSize);
                     if (inside.Width <= 0 || inside.Height <= 0)
                     {
@@ -278,7 +251,7 @@ namespace Greenshot.Base.Effects
                 case BorderEffect:
                 case DropShadowEffect:
                 case ResizeCanvasEffect:
-                    // The image as it is, moved into the bigger one; the border, the shadow, the canvas come from the 8-bit image
+                    // The image as it is, moved into the bigger one; without the new image (the editor uses the other ForEffect) the room is transparent
                     return Place(all, newSize, offset);
                 case GrayscaleEffect:
                     return Colors("Grayscale", (context, _) => context.LinearGrayscale());

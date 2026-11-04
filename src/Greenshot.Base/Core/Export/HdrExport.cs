@@ -25,15 +25,12 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using log4net;
-using Bitmap = System.Drawing.Bitmap;
-using ImageLockMode = System.Drawing.Imaging.ImageLockMode;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace Greenshot.Base.Core.Export
 {
     /// <summary>
-    /// Writes the HDR file of a capture: its HDR image (only the HDR displays, see HdrImage) with the SDR displays and what is drawn on it
-    /// (the elements and the mouse cursor, see HdrOverlay) put in at the SDR white level. Used for a JPEG XR file of a capture with HDR content
+    /// Writes the HDR file of a capture: its HDR image (see HdrImage) with what is drawn on it
+    /// (the elements and the mouse cursor, see HdrOverlay). Used for a JPEG XR file of a capture with HDR content
     /// (the editor's Save, Save as, the file destinations) and for the HdrFormat of SaveFile.
     /// </summary>
     public static class HdrExport
@@ -75,38 +72,32 @@ namespace Greenshot.Base.Core.Export
                 preparation();
             }
 
-            // On the UI thread, which owns the surface: what is needed of it is taken (a share of the HDR image, a copy of the 8-bit image, the
-            // elements as an overlay), so the HDR file is put together and written on the thread pool while the editor goes on
-            var (surfaceHdrImage, sdrImage, overlay, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
+            // On the UI thread, which owns the surface: what is needed of it is taken (a share of the HDR image, the elements as an overlay), so the
+            // HDR file is put together and written on the thread pool while the editor goes on
+            var (surfaceHdrImage, overlay, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
             {
                 var state = surface.HdrState;
                 if (state == HdrState.None)
                 {
-                    return ((HdrImage)null, (Bitmap)null, (HdrOverlay)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
+                    return ((HdrImage)null, (HdrOverlay)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }
-                if (state == HdrState.Lost || !(surface.Image is Bitmap surfaceImage))
+                if (state == HdrState.Lost)
                 {
-                    return (null, null, null, surface.CaptureDetails, Texts.Core.HdrNotSavedChanged);
+                    return (null, null, surface.CaptureDetails, Texts.Core.HdrNotSavedChanged);
                 }
                 // Made now, with the edits of the editor (e.g. a crop): a crop may have left no HDR content
                 var hdrImageNow = surface.HdrImage;
                 if (hdrImageNow == null || !hdrImageNow.HasHdrContent)
                 {
-                    return (null, null, null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
+                    return (null, null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }
                 var shared = hdrImageNow.Share();
-                HdrOverlay elements = null;
                 try
                 {
-                    elements = surface.CreateHdrOverlay();
-                    // The 8-bit image is only read where the HDR image has no pixels: the parts of SDR displays next to HDR ones. Everything else,
-                    // the elements too, is drawn on the HDR pixels.
-                    bool needsSdrImage = !shared.IsComplete;
-                    return (shared, needsSdrImage ? ExactCopy(surfaceImage) : null, elements, surface.CaptureDetails, (string)null);
+                    return (shared, surface.CreateHdrOverlay(), surface.CaptureDetails, (string)null);
                 }
                 catch
                 {
-                    elements?.Dispose();
                     shared.Dispose();
                     throw;
                 }
@@ -119,11 +110,10 @@ namespace Greenshot.Base.Core.Export
 
             HdrImage hdrImage;
             using (surfaceHdrImage)
-            using (sdrImage)
             using (overlay)
             {
                 await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-                hdrImage = surfaceHdrImage.Compose(sdrImage, overlay);
+                hdrImage = surfaceHdrImage.Compose(overlay);
             }
             using (hdrImage)
             {
@@ -133,37 +123,6 @@ namespace Greenshot.Base.Core.Export
                     return (null, Texts.Core.HdrNotSavedFailed);
                 }
                 return (encoded, null);
-            }
-        }
-
-        /// <summary>
-        /// A copy with exactly the same pixels (HdrImage.Compose compares them with the export to find what an element changed), which can be read
-        /// on another thread while the editor goes on with its image
-        /// </summary>
-        private static Bitmap ExactCopy(Bitmap source)
-        {
-            var area = new Rectangle(0, 0, source.Width, source.Height);
-            var copy = new Bitmap(source.Width, source.Height, source.PixelFormat);
-            try
-            {
-                copy.SetResolution(source.HorizontalResolution, source.VerticalResolution);
-                var target = copy.LockBits(area, ImageLockMode.WriteOnly, source.PixelFormat);
-                try
-                {
-                    // GDI+ writes the source's pixels straight into the copy's memory
-                    source.LockBits(area, ImageLockMode.ReadOnly | ImageLockMode.UserInputBuffer, source.PixelFormat, target);
-                    source.UnlockBits(target);
-                }
-                finally
-                {
-                    copy.UnlockBits(target);
-                }
-                return copy;
-            }
-            catch
-            {
-                copy.Dispose();
-                throw;
             }
         }
     }

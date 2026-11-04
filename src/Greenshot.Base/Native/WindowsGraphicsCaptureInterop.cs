@@ -1240,7 +1240,7 @@ namespace Greenshot.Base.Native
                     return (null, null);
                 }
 
-                return (resultBitmap, keepHdr ? CombineHdrImages(requests, resultBitmap.Width, resultBitmap.Height) : null);
+                return (resultBitmap, keepHdr ? CombineHdrImages(requests, resultBitmap) : null);
             }
             catch
             {
@@ -1263,12 +1263,11 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// The HDR image of the whole area: only the HDR displays, each at its place, without a copy. The SDR displays are only in the
-        /// (SDR) result bitmap, HdrImage.Compose puts them in when an HDR file is written. Null when no display in the area is HDR.
-        /// The HDR images of the requests stay theirs to dispose.
+        /// The HDR image of the whole area, one image like the result bitmap: the HDR displays each at its place, the SDR displays from the result
+        /// bitmap at the SDR white level. Null when no display in the area is HDR. The HDR images of the requests stay theirs to dispose.
         /// </summary>
-        internal static HdrImage CombineHdrImages(CaptureRequest[] requests, int width, int height) =>
-            HdrImage.Combine(width, height, requests
+        internal static HdrImage CombineHdrImages(CaptureRequest[] requests, Bitmap resultBitmap) =>
+            HdrImage.Combine(resultBitmap, requests
                 .Where(request => request.HdrImage != null)
                 .Select(request => (request.HdrImage, new NativePoint(request.TargetLocation.X, request.TargetLocation.Y))));
 

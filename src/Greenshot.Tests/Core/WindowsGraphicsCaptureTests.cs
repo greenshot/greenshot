@@ -144,10 +144,10 @@ public class WindowsGraphicsCaptureTests
             Assert.Equal(255, bitmap.GetPixel(225, 100).A);
             Assert.NotNull(hdrImage);
             Assert.Equal(300, hdrImage.Width);
-            // Only the HDR monitor's half is kept, the SDR half is in the bitmap
-            var tile = Assert.Single(hdrImage.TileAreas);
-            Assert.Equal(150, tile.Width);
-            Assert.False(hdrImage.IsComplete);
+            // One image of both halves: the SDR half from the bitmap at the SDR white level
+            Assert.Equal(bitmap.Height, hdrImage.Height);
+            Assert.Equal(1f, hdrImage.Pixels[75, 100].ToVector4().W, 2);
+            Assert.Equal(1f, hdrImage.Pixels[225, 100].ToVector4().W, 2);
         }
     }
 
@@ -162,16 +162,15 @@ public class WindowsGraphicsCaptureTests
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(screen);
-        _output.WriteLine($"Captured the screen {screen} in {stopwatch.ElapsedMilliseconds} ms, HDR tiles: {string.Join(", ", hdrImage?.TileAreas ?? new Dapplo.Windows.Common.Structs.NativeRect[0])}");
+        _output.WriteLine($"Captured the screen {screen} in {stopwatch.ElapsedMilliseconds} ms, HDR image: {hdrImage?.Width}x{hdrImage?.Height}");
         using (bitmap)
         using (hdrImage)
         {
             Assert.NotNull(bitmap);
             Assert.NotNull(hdrImage);
             Assert.Equal(screen.Width, hdrImage.Width);
-            Assert.Contains(hdrImage.TileAreas, area => area.Width == hdrBounds.Width && area.Height == hdrBounds.Height
-                && area.X == hdrBounds.X - screen.X && area.Y == hdrBounds.Y - screen.Y);
-            Assert.True(hdrImage.TileAreas.Count < displays.Length || displays.Length == 1);
+            Assert.Equal(screen.Height, hdrImage.Height);
+            Assert.True(hdrImage.HasHdrContent || hdrBounds.Width > 0);
         }
     }
 

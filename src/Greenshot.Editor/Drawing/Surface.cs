@@ -1137,35 +1137,12 @@ namespace Greenshot.Editor.Drawing
             }
 
             // The HDR image comes along with the image, the surface owns both now
-            _hdrImage = CompleteHdrImage(capture.HdrImage, _image);
+            _hdrImage = capture.HdrImage;
 
             // Make sure the image is NOT disposed, we took the reference directly into ourselves
             ((Capture) capture).NullImage();
 
             CaptureDetails = capture.CaptureDetails;
-        }
-
-        /// <summary>
-        /// The HDR image of a capture as one complete image for the editor: with only the parts of the HDR displays, the parts of the SDR displays
-        /// are put in from the image at the SDR white level (HdrImage.Compose). The editor then has one HDR image of all of it next to the 8-bit
-        /// image, each edit is done on both the same way. This costs the memory of an HDR image of the whole capture (8 bytes per pixel) while the
-        /// editor is open. Without HDR content nothing is done: the HDR image isn't used then.
-        /// </summary>
-        /// <returns>The HDR image the surface owns, the capture's one when it is complete already (or isn't used)</returns>
-        private static HdrImage CompleteHdrImage(HdrImage hdrImage, Image image)
-        {
-            if (hdrImage == null || hdrImage.IsComplete || !hdrImage.HasHdrContent || !hdrImage.BelongsTo(image) || image is not Bitmap bitmap)
-            {
-                return hdrImage;
-            }
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var complete = hdrImage.Compose(bitmap);
-            complete.BelongTo(image);
-            complete.IsRequested = hdrImage.IsRequested;
-            hdrImage.Dispose();
-            LOG.Info($"Made one HDR image of {complete.Width}x{complete.Height} for the editor, with the parts of the SDR displays " +
-                     $"({(long)complete.Width * complete.Height * HdrImage.BytesPerPixel / (1024 * 1024)} MB) in {stopwatch.ElapsedMilliseconds} ms");
-            return complete;
         }
 
         protected override void Dispose(bool disposing)

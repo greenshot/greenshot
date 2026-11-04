@@ -221,7 +221,7 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void CombineHdrImages_KeepsOnlyTheHdrMonitor_ComposePutsTheSdrMonitorAtTheSdrWhiteLevel()
+    public void CombineHdrImages_PutsTheSdrMonitorInAtTheSdrWhiteLevel_TheHdrMonitorKeepsItsHighlights()
     {
         // The area spans an HDR monitor (left, 2 pixels) and an SDR monitor (right, 2 pixels) whose white is in the result bitmap
         using var result = new Bitmap(4, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -235,34 +235,40 @@ public class HdrCaptureTests
             new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetLocation = new Point(2, 0), TargetSourceRect = new Rectangle(0, 0, 2, 1) }
         };
 
-        using var combined = WindowsGraphicsCaptureInterop.CombineHdrImages(requests, 4, 1);
+        using var combined = WindowsGraphicsCaptureInterop.CombineHdrImages(requests, result);
 
-        // Only the HDR monitor, its pixels shared, not copied
+        // One image of all of it: the SDR monitor from the 8-bit image, the HDR monitor keeps its highlights (not the black of the 8-bit image)
         Assert.Equal(4, combined.Width);
-        Assert.False(combined.IsComplete);
-        Assert.Equal(new[] { new NativeRect(0, 0, 2, 1) }, combined.TileAreas);
-        Assert.Throws<InvalidOperationException>(() => combined.Pixels);
+        Assert.Equal(5f, Get(combined, 0, 0)[0], 2);
+        Assert.Equal(5f, Get(combined, 1, 0)[0], 2);
+        Assert.Equal(SdrWhite, Get(combined, 2, 0)[0], 2);
+        Assert.Equal(SdrWhite, Get(combined, 3, 0)[2], 2);
+        Assert.Equal(1f, Get(combined, 3, 0)[3], 2);
+    }
 
-        // Written: the SDR monitor comes from the 8-bit image, the HDR monitor keeps its highlights (not the black of the 8-bit image)
-        using var composed = combined.Compose(result);
-        Assert.True(composed.IsComplete);
-        Assert.Equal(5f, Get(composed, 0, 0)[0], 2);
-        Assert.Equal(5f, Get(composed, 1, 0)[0], 2);
-        Assert.Equal(SdrWhite, Get(composed, 2, 0)[0], 2);
-        Assert.Equal(SdrWhite, Get(composed, 3, 0)[2], 2);
-        Assert.Equal(1f, Get(composed, 3, 0)[3], 2);
+    [Fact]
+    public void CombineHdrImages_OfOneHdrMonitorWhichCoversAllOfIt_SharesItsPixels()
+    {
+        using var result = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
+
+        using var combined = WindowsGraphicsCaptureInterop.CombineHdrImages(requests, result);
+
+        Assert.Same(hdr.Pixels, combined.Pixels);
     }
 
     [Fact]
     public void CombineHdrImages_WithoutHdrMonitor_IsNull()
     {
+        using var result = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
 
-        Assert.Null(WindowsGraphicsCaptureInterop.CombineHdrImages(requests, 2, 1));
+        Assert.Null(WindowsGraphicsCaptureInterop.CombineHdrImages(requests, result));
     }
 
     [Fact]
-    public void Compose_OfACompleteHdrImage_SharesIt()
+    public void Compose_WithoutElements_SharesIt()
     {
         using var hdrImage = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
 
@@ -272,29 +278,36 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void Crop_OfTiles_KeepsWhatIsInTheArea_NothingOfAnHdrDisplay_IsNull()
+    public void Crop_OfAScreenOfAnSdrAndAnHdrMonitor_KeepsWhatIsInTheArea_OnlyTheSdrMonitorHasNoHdrContent()
     {
-        // A frozen screen of an SDR monitor (left, 4 pixels) and an HDR monitor (right, 4 pixels)
-        using var hdrMonitor = CreatePixels(4, 2, (x, y) => Rgba(x + 1, y, 0));
-        using var screen = HdrImage.Combine(8, 2, new[] { (hdrMonitor, new NativePoint(4, 0)) });
+        // A frozen screen of an SDR monitor (left, 4 pixels, white in the 8-bit image) and an HDR monitor (right, 4 pixels)
+        using var sdr = new Bitmap(8, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using (var graphics = System.Drawing.Graphics.FromImage(sdr))
+        {
+            graphics.Clear(System.Drawing.Color.White);
+        }
+        using var hdrMonitor = CreatePixels(4, 2, (x, y) => Rgba(x + 4, y, 0));
+        using var screen = HdrImage.Combine(sdr, new[] { (hdrMonitor, new NativePoint(4, 0)) });
 
-        // Across both: the part of the HDR monitor at its new place
+        // Across both: the SDR monitor at the SDR white, then the HDR monitor
         using (var across = screen.Crop(new NativeRect(2, 0, 4, 2)))
         {
             Assert.Equal(4, across.Width);
-            Assert.Equal(new[] { new NativeRect(2, 0, 2, 2) }, across.TileAreas);
+            Assert.Equal(SdrWhite, Get(across, 0, 0)[0], 2);
+            Assert.Equal(4f, Get(across, 2, 0)[0], 2);
+            Assert.True(across.HasHdrContent);
         }
 
-        // Only on the HDR monitor: complete, the pixels from x 1
+        // Only on the HDR monitor: the pixels from x 1
         using (var onHdr = screen.Crop(new NativeRect(5, 0, 2, 2)))
         {
-            Assert.True(onHdr.IsComplete);
-            Assert.Equal(2f, Get(onHdr, 0, 0)[0]);
+            Assert.Equal(5f, Get(onHdr, 0, 0)[0]);
             Assert.Equal(1f, Get(onHdr, 1, 1)[1]);
         }
 
         // Only on the SDR monitor: no HDR content
-        Assert.Null(screen.Crop(new NativeRect(0, 0, 3, 2)));
+        using var onSdr = screen.Crop(new NativeRect(0, 0, 3, 2));
+        Assert.False(onSdr.HasHdrContent);
     }
 
     [Fact]

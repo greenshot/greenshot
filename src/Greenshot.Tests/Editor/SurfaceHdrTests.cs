@@ -83,7 +83,7 @@ namespace Greenshot.Tests.Editor
             Assert.True(HdrExport.CanWriteHdr(surface));
             Assert.Equal(2, surface.HdrImage.Width);
             // Two tiles (before and after the band), together they cover it
-            using (var composed = surface.HdrImage.Compose((Bitmap)surface.Image))
+            using (var composed = surface.HdrImage.Compose())
             {
                 Assert.Equal((0f, 1f), Get(composed, 0, 1));
                 Assert.Equal((3f, 1f), Get(composed, 1, 1));
@@ -175,7 +175,6 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(8, made.Width);
             Assert.Equal(6, made.Height);
             // The capture inside the border, the border itself is from the 8-bit image: complete
-            Assert.True(made.IsComplete);
             Assert.Equal(1f, made.Pixels[3, 3].ToVector4().W, 2);
 
             surface.Undo();
@@ -297,7 +296,7 @@ namespace Greenshot.Tests.Editor
         private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
         {
             using var overlay = withElements ? surface.CreateHdrOverlay() : null;
-            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            using var composed = surface.HdrImage.Compose(overlay);
             int highlights = 0, fromSdr = 0;
             for (int x = fromX; x < toX; x++)
             {
@@ -334,33 +333,28 @@ namespace Greenshot.Tests.Editor
                     accessor.GetRowSpan(y).Fill(new HalfVector4(5, 5, 5, 1));
                 }
             });
-            var hdrImage = HdrImage.Combine(100, 100, new[] { (left, new NativePoint(0, 0)) });
+            var hdrImage = HdrImage.Combine(bitmap, new[] { (left, new NativePoint(0, 0)) });
             hdrImage.BelongTo(capture.Image);
             capture.HdrImage = hdrImage;
             return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
         }
 
         /// <summary>
-        /// The HDR file of the surface as it would be written now, only the pixels of its HDR displays (the rest is the 8-bit image)
+        /// The HDR file of the surface as it would be written now
         /// </summary>
         private static (NativeRect[] TileAreas, System.Numerics.Vector4[,] Pixels) ComposeTiles(Surface surface)
         {
             using var overlay = surface.CreateHdrOverlay();
-            var hdrImage = surface.HdrImage;
-            using var composed = hdrImage.Compose((Bitmap)surface.Image, overlay);
-            var tileAreas = hdrImage.TileAreas.ToArray();
+            using var composed = surface.HdrImage.Compose(overlay);
             var pixels = new System.Numerics.Vector4[composed.Width, composed.Height];
-            foreach (var area in tileAreas)
+            for (int y = 0; y < composed.Height; y++)
             {
-                for (int y = area.Top; y < area.Bottom; y++)
+                for (int x = 0; x < composed.Width; x++)
                 {
-                    for (int x = area.Left; x < area.Right; x++)
-                    {
-                        pixels[x, y] = composed.Pixels[x, y].ToVector4();
-                    }
+                    pixels[x, y] = composed.Pixels[x, y].ToVector4();
                 }
             }
-            return (tileAreas, pixels);
+            return (new[] { new NativeRect(0, 0, composed.Width, composed.Height) }, pixels);
         }
 
         /// <summary>
@@ -414,10 +408,8 @@ namespace Greenshot.Tests.Editor
 
             Assert.Equal(HdrState.Available, surface.HdrState);
             // The room for the shadow is from the 8-bit image: the HDR image stays complete
-            Assert.True(surface.HdrImage.IsComplete);
             AssertApplyingKeepsTheHdrFile(surface, tornEdges);
             // Still one complete image: the teeth are drawn in it
-            Assert.True(surface.HdrImage.IsComplete);
             Assert.Equal(100 + 2 * margin, surface.HdrImage.Width);
             // Between the teeth the highlights stay, below the band all of it keeps them
             var (highlights, tornOff) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
@@ -436,7 +428,6 @@ namespace Greenshot.Tests.Editor
 
             // Also on the side of the SDR display the element is drawn on the HDR pixels, like the element when it is saved: no step at the edge
             AssertApplyingKeepsTheHdrFile(surface, tornEdges);
-            Assert.True(surface.HdrImage.IsComplete);
         }
 
         [Fact]
@@ -445,8 +436,6 @@ namespace Greenshot.Tests.Editor
             using var surface = CreateHalfBrightSurface();
 
             var hdrImage = surface.HdrImage;
-
-            Assert.True(hdrImage.IsComplete);
             Assert.Equal(HdrState.Available, surface.HdrState);
             Assert.Equal(5f, hdrImage.Pixels[10, 50].ToVector4().X, 1);
             // White of the SDR display at the SDR white level: 240 nits are 3.0
@@ -529,7 +518,7 @@ namespace Greenshot.Tests.Editor
         private static System.Collections.Generic.List<System.Numerics.Vector4> EdgePixels(Surface surface, int fromY, int toY)
         {
             using var overlay = surface.CreateHdrOverlay();
-            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            using var composed = surface.HdrImage.Compose(overlay);
             var edge = new System.Collections.Generic.List<System.Numerics.Vector4>();
             for (int y = fromY; y < toY; y++)
             {
@@ -554,7 +543,6 @@ namespace Greenshot.Tests.Editor
             await Task.Run(() => surface.ApplyBitmapEffectAsync(settings));
 
             // One HDR image of all of it, drawn by ImageSharp
-            Assert.True(surface.HdrImage.IsComplete);
             var edge = EdgePixels(surface, 0, 12);
             Assert.NotEmpty(edge);
             // Anti-aliased: partly transparent, with the color of the HDR image (not the tone mapped 8-bit image)
@@ -617,7 +605,6 @@ namespace Greenshot.Tests.Editor
             Assert.False(surface.CanUndo);
             Assert.Equal(HdrState.Available, surface.HdrState);
             // The border is from the 8-bit image: the editor's HDR image stays complete
-            Assert.True(surface.HdrImage.IsComplete);
             Assert.Equal(8, surface.HdrImage.Width);
         }
 
@@ -757,7 +744,7 @@ namespace Greenshot.Tests.Editor
         private static HdrImage Compose(Surface surface)
         {
             using var overlay = surface.CreateHdrOverlay();
-            return surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            return surface.HdrImage.Compose(overlay);
         }
 
         [Theory]
