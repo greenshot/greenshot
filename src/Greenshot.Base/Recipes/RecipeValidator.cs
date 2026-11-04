@@ -965,9 +965,16 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
                 }
+                if (option.Type != ContractDataType.String && string.Equals(option.Format, RecipeOption.FormatTemplate, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddWarning($"Option '{option.Key}': the 'template' format is only used for String options.");
+                }
                 if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
                 {
-                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                    string hint = option.Type == ContractDataType.DirectoryPath
+                        ? @" A folder is a full path, which may use ${user.*} and ${machine.*} values like ${user.pictures}\Greenshot."
+                        : string.Empty;
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.{hint}");
                 }
                 if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
                 {
