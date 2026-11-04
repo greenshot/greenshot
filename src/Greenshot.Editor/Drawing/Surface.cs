@@ -42,6 +42,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Emoji;
@@ -2760,11 +2761,42 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.Height = 25;
                 }
 
+                if (_drawingElement is ObfuscateContainer obfuscateContainer)
+                {
+                    FitObfuscationToText(obfuscateContainer);
+                }
+
                 SelectElement(_drawingElement);
                 _drawingElement.Selected = true;
             }
 
             _drawingElement = null;
+        }
+
+        /// <summary>
+        /// A new obfuscation gets the strength for the text it covers: the OCR lines the capture already has, otherwise its own height.
+        /// OCR isn't started for this.
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
+        {
+            var bounds = obfuscateContainer.Bounds;
+            List<IOcrLineFeature> ocrLines = null;
+            if (CaptureDetails?.Features != null)
+            {
+                lock (CaptureDetails.Features)
+                {
+                    ocrLines = CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
+            }
+
+            int textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, bounds) ?? bounds.Height;
+            var editorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+            ObfuscationStrength.FitToText(obfuscateContainer, textHeight,
+                editorConfig?.BlurRadiusTextHeightPercent ?? ObfuscationStrength.DefaultBlurRadiusPercent,
+                editorConfig?.PixelSizeTextHeightPercent ?? ObfuscationStrength.DefaultPixelSizePercent);
+
+            // The toolbar shows the new values
+            FieldAggregator.UnbindElement(obfuscateContainer);
         }
 
         /// <summary>

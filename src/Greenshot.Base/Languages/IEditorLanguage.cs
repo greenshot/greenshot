@@ -552,14 +552,14 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextEffect { get; }
 
         /// <summary>
-        /// Pixel size:
+        /// Pixel size (% of text height):
         /// </summary>
-        string ObfuscateTextPixelSize { get; }
+        string ObfuscateTextPixelSizeTextHeight { get; }
 
         /// <summary>
-        /// Blur radius:
+        /// Blur radius (% of text height):
         /// </summary>
-        string ObfuscateTextBlurRadius { get; }
+        string ObfuscateTextBlurRadiusTextHeight { get; }
 
         /// <summary>
         /// Color:

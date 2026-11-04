@@ -63,6 +63,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Useful for privacy protection and sensitive information removal
 - Beta feature by @Lakritzator
 
+**Stronger blur and pixelate**
+- A new blur or pixelate area gets a strength that fits the text under it, so large text is hidden as well as small text
+
 **Remove Transparency Feature** (#945)
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
