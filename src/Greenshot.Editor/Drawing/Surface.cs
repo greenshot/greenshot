@@ -2823,7 +2823,8 @@ namespace Greenshot.Editor.Drawing
             {
                 return false;
             }
-            if (_obfuscationOcrTask != null && ReferenceEquals(_obfuscationOcrImage, image))
+            // A failed OCR is tried again with the next obfuscation
+            if (_obfuscationOcrTask != null && !_obfuscationOcrTask.IsFaulted && ReferenceEquals(_obfuscationOcrImage, image))
             {
                 // Done before for this image: when it found nothing there is nothing to wait for
                 return !_obfuscationOcrTask.IsCompleted;
