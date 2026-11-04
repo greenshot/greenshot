@@ -82,6 +82,10 @@ radius, up to the full text height; pixelate held out from about three quarters 
 stops undoing the blur by calculation, not this guessing. For short secrets like PINs, card numbers or passwords, cover the text
 with a filled rectangle (the `Redact` effect of the `TextEffect` recipe step).
 
+**The recognized text still holds what you hid.** The OCR lines stay with the capture, including the text under an
+obfuscation or a filled rectangle. They go with the image when *Text* is chosen for the image metadata (expert setting
+`ExportMetadata`, off by default), and the Windows OCR destination, the AI tool and the recipe `Ocr` step return them too.
+
 ## Implementation Details
 
 ### Files Added
