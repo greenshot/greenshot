@@ -327,4 +327,4 @@ namespace Greenshot.Editor.Drawing
             return returnValue;
         }
    }
-}
+}
