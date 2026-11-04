@@ -179,7 +179,10 @@ later:
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
   brightness. Blur, pixelate, the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
-  and not finer than the levels of the SDR image.
+  and not finer than the levels of the SDR image. Blur and pixelate add the same noise as in the editor (`BlurNoise`), so neither
+  can be undone by calculation. Guessing the text and comparing its blur still works; only a large radius, pixelate or a
+  solid fill hides text from that. The noise is up to 3 levels per color, which the eye doesn't see:
+  ![The blur without and with noise, and the difference 20 times stronger](images/blur-noise-comparison.png)
 - **Layer:** an SDR layer, only for element types of plugins which have no ImageSharp drawing.
 
 ```mermaid

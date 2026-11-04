@@ -2534,8 +2534,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             Bind(textVerticalAlignmentButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.TEXT_VERTICAL_ALIGNMENT), "Value",
                 NotNullValidator.GetInstance());
             Bind(shadowButton, "Checked", _surface.FieldAggregator.GetField(FieldType.SHADOW), "Value", NotNullValidator.GetInstance());
-            Bind(previewQualityUpDown, "Value", _surface.FieldAggregator.GetField(FieldType.PREVIEW_QUALITY), "Value",
-                DecimalDoublePercentageConverter.GetInstance(), NotNullValidator.GetInstance());
             Bind(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
             Bind(cutMarkStyleButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CUT_MARK_STYLE), "Value");
             Bind(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
@@ -2581,7 +2579,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 toothRangeLabel.Visible = toothRangeUpDown.Visible = props.HasFieldValue(FieldType.TOOTH_RANGE);
                 btnApplyToImage.Visible = _surface.SelectedElements?.Any(element => element is CutMarkContainer or TornEdgeContainer) == true;
                 blurRadiusLabel.Visible = blurRadiusUpDown.Visible = props.HasFieldValue(FieldType.BLUR_RADIUS);
-                previewQualityLabel.Visible = previewQualityUpDown.Visible = props.HasFieldValue(FieldType.PREVIEW_QUALITY);
                 magnificationFactorLabel.Visible = magnificationFactorUpDown.Visible = props.HasFieldValue(FieldType.MAGNIFICATION_FACTOR);
                 pixelSizeLabel.Visible = pixelSizeUpDown.Visible = props.HasFieldValue(FieldType.PIXEL_SIZE);
                 brightnessLabel.Visible = brightnessUpDown.Visible = props.HasFieldValue(FieldType.BRIGHTNESS);
@@ -3746,7 +3743,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.alignBottomToolStripMenuItem.Text = Texts.Editor.AlignBottom;
             this.blurRadiusLabel.Text = Texts.Editor.BlurRadius;
             this.brightnessLabel.Text = Texts.Editor.Brightness;
-            this.previewQualityLabel.Text = Texts.Editor.PreviewQuality;
             this.magnificationFactorLabel.Text = Texts.Editor.MagnificationFactor;
             this.pixelSizeLabel.Text = Texts.Editor.PixelSize;
             this.arrowHeadsLabel.Text = Texts.Editor.Arrowheads;
@@ -3784,7 +3780,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             NameByLabel(fontSizeUpDown, fontSizeLabel);
             NameByLabel(blurRadiusUpDown, blurRadiusLabel);
             NameByLabel(brightnessUpDown, brightnessLabel);
-            NameByLabel(previewQualityUpDown, previewQualityLabel);
             NameByLabel(magnificationFactorUpDown, magnificationFactorLabel);
             NameByLabel(pixelSizeUpDown, pixelSizeLabel);
             this.fontFamilyComboBox.Control.AccessibleName = Texts.Editor.FontFamily;

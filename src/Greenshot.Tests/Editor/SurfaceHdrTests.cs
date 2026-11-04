@@ -687,10 +687,11 @@ namespace Greenshot.Tests.Editor
 
             using var composed = Compose(surface);
 
+            // The blur adds its noise: up to 3 levels of the 8-bit image (relative to the SDR white of 3), about 2%
             var pixel = composed.Pixels[20, 20].ToVector4();
-            Assert.Equal(5f, pixel.X, 1);
-            Assert.Equal(5f, pixel.Y, 1);
-            Assert.Equal(5f, pixel.Z, 1);
+            Assert.InRange(pixel.X, 4.85f, 5.15f);
+            Assert.InRange(pixel.Y, 4.85f, 5.15f);
+            Assert.InRange(pixel.Z, 4.85f, 5.15f);
         }
 
         [Theory]
@@ -728,9 +729,12 @@ namespace Greenshot.Tests.Editor
             using var composed = Compose(surface);
 
             var values = Enumerable.Range(0, 200).Select(x => (double)composed.Pixels[x, 10].ToVector4().X).ToArray();
-            double sum = values.Sum();
-            double mean = values.Select((value, x) => x * value).Sum() / sum;
-            double sigma = Math.Sqrt(values.Select((value, x) => (x - mean) * (x - mean) * value).Sum() / sum);
+            // Only 3 sigma of the editor around the line: further away there is only the noise of the blur, which isn't the blur's strength
+            int window = (int)Math.Ceiling(3 * editorSigma);
+            var near = Enumerable.Range(100 - window, 2 * window + 1).ToList();
+            double sum = near.Sum(x => values[x]);
+            double mean = near.Sum(x => x * values[x]) / sum;
+            double sigma = Math.Sqrt(near.Sum(x => (x - mean) * (x - mean) * values[x]) / sum);
             Assert.True(sigma >= editorSigma, $"sigma {sigma:F2}, the editor {editorSigma}");
             // Each value is one of the levels of the 8-bit image (relative to the SDR white of 3)
             Assert.All(values, value =>
@@ -738,6 +742,54 @@ namespace Greenshot.Tests.Editor
                 float level = LinearColorEffects.Encode((float)value / 3f) * 255;
                 Assert.Equal(Math.Round(level), level, 1);
             });
+        }
+
+        [Fact]
+        public void ObfuscateBlur_HasTheNoiseOfTheEditor()
+        {
+            // Gray 128 in both images (the HDR one relative to its SDR white of 3), one highlight far away so it has HDR content
+            var bitmap = new Bitmap(60, 40, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.FromArgb(128, 128, 128));
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(60, 40, 240, 400);
+            float gray = 3f * LinearColorEffects.Decode(128 / 255f);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 40; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(gray, gray, gray, 1));
+                }
+                accessor.GetRowSpan(39)[59] = new HalfVector4(5, 5, 5, 1);
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 10, Top = 10, Width = 30, Height = 20 };
+            obfuscate.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
+            surface.AddElement(obfuscate, false, false);
+
+            using var exported = (Bitmap)surface.GetImageForExport();
+            using var composed = Compose(surface);
+
+            // The blur of the same gray is the gray, what differs is the noise: in the HDR file the same levels as in the editor
+            var levels = new System.Collections.Generic.HashSet<int>();
+            for (int y = 10; y < 30; y++)
+            {
+                for (int x = 10; x < 40; x++)
+                {
+                    var editor = exported.GetPixel(x, y);
+                    var hdr = composed.Pixels[x, y].ToVector4();
+                    Assert.Equal(editor.R, (int)Math.Round(LinearColorEffects.Encode(hdr.X / 3f) * 255));
+                    Assert.Equal(editor.G, (int)Math.Round(LinearColorEffects.Encode(hdr.Y / 3f) * 255));
+                    Assert.Equal(editor.B, (int)Math.Round(LinearColorEffects.Encode(hdr.Z / 3f) * 255));
+                    levels.Add(editor.R);
+                }
+            }
+            Assert.True(levels.Count > 3, "the blurred area has noise");
+            Assert.All(levels, level => Assert.InRange(level, 125, 131));
         }
 
         [Fact]
