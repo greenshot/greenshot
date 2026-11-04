@@ -95,15 +95,18 @@ namespace Greenshot.Base.Core.Export
                     return (null, null, null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }
                 var shared = hdrImageNow.Share();
-                Bitmap copy = null;
+                HdrOverlay elements = null;
                 try
                 {
-                    copy = ExactCopy(surfaceImage);
-                    return (shared, copy, surface.CreateHdrOverlay(), surface.CaptureDetails, (string)null);
+                    elements = surface.CreateHdrOverlay();
+                    // The 8-bit image is only read where the HDR image has no pixels: SDR displays next to HDR ones, cleared pixels (e.g. the
+                    // teeth of torn edges) and what an element of a plugin changed. All other elements are drawn on the HDR pixels.
+                    bool needsSdrImage = !shared.IsComplete || shared.HasClearedPixels || elements?.ChangedAreas.Count > 0;
+                    return (shared, needsSdrImage ? ExactCopy(surfaceImage) : null, elements, surface.CaptureDetails, (string)null);
                 }
                 catch
                 {
-                    copy?.Dispose();
+                    elements?.Dispose();
                     shared.Dispose();
                     throw;
                 }
