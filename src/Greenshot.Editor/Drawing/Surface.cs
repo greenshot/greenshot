@@ -2825,8 +2825,7 @@ namespace Greenshot.Editor.Drawing
             {
                 return false;
             }
-            // A failed OCR is tried again with the next obfuscation
-            if (_obfuscationOcrTask != null && !_obfuscationOcrTask.IsFaulted && ReferenceEquals(_obfuscationOcrImage, image))
+            if (_obfuscationOcrTask != null && ReferenceEquals(_obfuscationOcrImage, image))
             {
                 // Done before for this image: when it found nothing there is nothing to wait for
                 return !_obfuscationOcrTask.IsCompleted;
@@ -2903,7 +2902,7 @@ namespace Greenshot.Editor.Drawing
             catch (Exception ex)
             {
                 LOG.Warn("OCR for the strength of an obfuscation failed, it keeps its value", ex);
-                // Once per image, the next obfuscation tries OCR again
+                // Once per image, also when several obfuscations waited for this OCR
                 if (!ReferenceEquals(_obfuscationOcrFailureShownImage, Image))
                 {
                     _obfuscationOcrFailureShownImage = Image;

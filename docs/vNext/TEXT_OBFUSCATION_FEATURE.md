@@ -66,7 +66,7 @@ A fixed blur radius or pixel size that hides small text leaves large text readab
   Text window, a recipe OCR step or the text capture), the first obfuscation you draw starts OCR of the image once, in the
   background. Until it is done, the obfuscation has the last used value of the toolbar; then it gets the value for its text,
   unless you changed the value meanwhile. The obfuscations drawn after that use the lines found. When OCR fails, the status bar says so
-  once per image and the next obfuscation you draw tries again. Without an OCR provider, when OCR fails, or
+  once and OCR isn't tried again for that image. Without an OCR provider, when OCR fails, or
   without OCR lines under it, the obfuscation keeps the last used value of the toolbar, as before.
   Afterwards the toolbar changes the value as before.
 - **Recipes:** the `TextEffect` step takes `BlurRadiusTextHeightPercent` and `PixelSizeTextHeightPercent` (same defaults).

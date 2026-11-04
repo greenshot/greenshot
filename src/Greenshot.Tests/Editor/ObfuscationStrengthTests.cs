@@ -252,7 +252,7 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void DrawnObfuscation_OcrFails_KeepsTheValue_TellsOncePerImage_AndTriesAgain()
+        public void DrawnObfuscation_OcrFails_KeepsTheValue_TellsOnce_AndDoesNotRunOcrAgain()
         {
             using var surface = new Surface(new Bitmap(400, 300));
             var ocr = new FakeOcrProvider(false, Line(100, 130, 200, 20));
@@ -267,15 +267,18 @@ namespace Greenshot.Tests.Editor
             };
             int lastUsed = Strength(new ObfuscateContainer(surface));
 
+            // Both wait for the same OCR
             var first = Draw(surface);
+            var second = Draw(surface);
             ocr.Fail();
             Assert.Equal(lastUsed, Strength(first));
+            Assert.Equal(lastUsed, Strength(second));
             Assert.Single(errors);
 
-            // The next obfuscation tries again, a second failure isn't reported again
-            Draw(surface);
-            ocr.Fail();
-            Assert.Equal(2, ocr.Calls);
+            // The next obfuscation doesn't run OCR again
+            var third = Draw(surface);
+            Assert.Equal(lastUsed, Strength(third));
+            Assert.Equal(1, ocr.Calls);
             Assert.Single(errors);
         }
     }
