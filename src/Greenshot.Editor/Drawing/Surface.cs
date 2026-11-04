@@ -448,6 +448,11 @@ namespace Greenshot.Editor.Drawing
                 {
                     return HdrState.None;
                 }
+                // An element which can't be drawn on the HDR pixels (of another kind, e.g. a subclass): the HDR file would miss it
+                if (_elements != null && _elements.OfType<DrawableContainer>().Any(element => element.Parent != null && !CanDrawOnHdr(element)))
+                {
+                    return HdrState.Lost;
+                }
                 if (_hdrImage.BelongsTo(_image))
                 {
                     return HdrState.Available;
@@ -657,34 +662,21 @@ namespace Greenshot.Editor.Drawing
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
-            // In the order of the elements: what they draw is drawn with ImageSharp on the HDR pixels (ElementDrawing), the filters which can be done
-            // on the HDR pixels (ElementImageFilters: highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut
-            // marks) are steps between them, so they work on what is drawn before them, like in the editor. Elements without an ImageSharp drawing (e.g.
-            // of a plugin) go into 8-bit layers. Elements which change the pixels under them in another way (a filter of a plugin) can't be drawn on
-            // their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
-            var replacedAreas = new List<NativeRect>();
+            // In the order of the elements: what they draw is drawn with ImageSharp on the HDR pixels (ElementDrawing), their filters are done on
+            // the HDR pixels (ElementImageFilters: highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut
+            // marks) as steps between them, so they work on what is drawn before them, like in the editor. An inverted filter changes everything
+            // around it. Nothing comes from the 8-bit image: an element which can't be drawn this way makes the HDR state Lost (see CanDrawOnHdr).
             var invertedGroupsDone = new HashSet<string>();
-
-            // First the plan: the filters, the elements drawn with ImageSharp on the HDR pixels (see ElementDrawing), and between them the other
-            // elements which are drawn into the same layer
-            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn, HdrOverlayStep Step)>();
-            List<DrawableContainer> drawn = null;
+            var steps = new List<HdrOverlayStep>();
             void AddDrawn(DrawableContainer element)
             {
                 var area = element.DrawingBounds.Intersect(bounds);
                 var draw = area.Width > 0 && area.Height > 0 ? ElementDrawing.Of(element, area.Location) : null;
+                // Null: it draws nothing (e.g. an icon without its icon)
                 if (draw != null)
                 {
-                    drawn = null;
-                    plan.Add((null, null, HdrOverlayStep.Of(area, draw)));
-                    return;
+                    steps.Add(HdrOverlayStep.Of(area, draw));
                 }
-                if (drawn == null)
-                {
-                    drawn = new List<DrawableContainer>();
-                    plan.Add((null, drawn, null));
-                }
-                drawn.Add(element);
             }
             foreach (var element in _elements.OfType<DrawableContainer>())
             {
@@ -692,17 +684,17 @@ namespace Greenshot.Editor.Drawing
                 {
                     continue;
                 }
+                if (!CanDrawOnHdr(element))
+                {
+                    throw new InvalidOperationException($"The element {element.GetType().Name} can't be drawn on the HDR pixels.");
+                }
                 if (ChangesPixels(element))
                 {
                     var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
-                    if (elementFilters == null)
+                    if (elementFilters != null)
                     {
-                        AddReplacedAreas(element, bounds, replacedAreas);
-                        continue;
+                        steps.AddRange(elementFilters.Select(HdrOverlayStep.Of));
                     }
-                    // The filters work on what is drawn so far, the next elements go into a new layer
-                    drawn = null;
-                    plan.Add((elementFilters, null, null));
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
                     {
@@ -715,74 +707,21 @@ namespace Greenshot.Editor.Drawing
                     AddDrawn(element);
                 }
             }
-
-            // Then the layers, each only as big as what is drawn into it
-            var steps = new List<HdrOverlayStep>();
-            Bitmap rendered = null;
-            try
-            {
-                foreach (var (filters, elements, step) in plan)
-                {
-                    if (step != null)
-                    {
-                        steps.Add(step);
-                        continue;
-                    }
-                    if (filters != null)
-                    {
-                        steps.AddRange(filters.Select(HdrOverlayStep.Of));
-                        continue;
-                    }
-                    var area = elements.Select(element => element.DrawingBounds.Intersect(bounds)).Where(part => part.Width > 0 && part.Height > 0)
-                        .DefaultIfEmpty(NativeRect.Empty).Aggregate((all, part) => all.IsEmpty ? part : all.Union(part));
-                    if (area.Width <= 0 || area.Height <= 0)
-                    {
-                        continue;
-                    }
-                    var layer = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppArgb);
-                    steps.Add(HdrOverlayStep.Of(layer, area.Location));
-                    using var graphics = Graphics.FromImage(layer);
-                    graphics.TranslateTransform(-area.X, -area.Y);
-                    foreach (var element in elements)
-                    {
-                        if (ChangesPixels(element))
-                        {
-                            element.Draw(graphics, RenderMode.EXPORT);
-                            continue;
-                        }
-                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
-                    }
-                }
-
-                if (replacedAreas.Count > 0)
-                {
-                    rendered = (Bitmap)GetImage(RenderMode.EXPORT);
-                    // The replaced areas are the export as it is, also what is drawn over them
-                    using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var step in steps.Where(step => step.Layer != null))
-                    {
-                        using var layerGraphics = Graphics.FromImage(step.Layer);
-                        layerGraphics.CompositingMode = CompositingMode.SourceCopy;
-                        layerGraphics.TranslateTransform(-step.Location.X, -step.Location.Y);
-                        foreach (var area in replacedAreas)
-                        {
-                            layerGraphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
-                        }
-                    }
-                }
-                return new HdrOverlay(steps, rendered, replacedAreas);
-            }
-            catch
-            {
-                foreach (var step in steps)
-                {
-                    step.Layer?.Dispose();
-                }
-                rendered?.Dispose();
-                throw;
-            }
+            return new HdrOverlay(steps);
         }
 
+        /// <summary>
+        /// True when the element can be drawn on the HDR pixels: its filters (see ElementImageFilters.Supports) and its drawing (see
+        /// ElementDrawing.Supports)
+        /// </summary>
+        private static bool CanDrawOnHdr(DrawableContainer element)
+        {
+            if (element.HasFilters && !ElementImageFilters.Supports(element))
+            {
+                return false;
+            }
+            return element.HasFilters && !DrawsItself(element) || ElementDrawing.Supports(element);
+        }
         /// <summary>
         /// The filters of the element which can be done on the HDR pixels (see ElementImageFilters, CreateCutAway), null when it can't
         /// </summary>
@@ -808,23 +747,6 @@ namespace Greenshot.Editor.Drawing
 
         private static string InvertedFilterKey(DrawableContainer element) =>
             string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
-
-        /// <summary>
-        /// The area of an element whose filters can't be done on the HDR pixels (e.g. of a plugin): it is taken from the export as it is.
-        /// Torn edges and cut marks are always cut on the HDR pixels (see CreateCutAway).
-        /// </summary>
-        private static void AddReplacedAreas(DrawableContainer element, NativeRect bounds, List<NativeRect> replacedAreas)
-        {
-            // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
-            int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
-            int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
-            int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
-            var area = (element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin)).Intersect(bounds);
-            if (area.Width > 0 && area.Height > 0)
-            {
-                replacedAreas.Add(area);
-            }
-        }
 
         /// <summary>
         /// What the element does to the HDR pixels when it is drawn into the image for good (see ApplyElementToImage), like in an HDR file (see

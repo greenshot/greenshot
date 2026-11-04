@@ -228,12 +228,20 @@ namespace Greenshot.Editor.Drawing.Filters
                         ImageFilter.CopyArea(pixels, result, new Point(visible.X, visible.Y), ToRectangle(visible));
                     });
                 case PixelizationFilter pixelization:
-                    return Pixelate(pixelization, elementBounds, bounds, sdrImage);
+                    return Pixelate(pixelization, elementBounds, areas, bounds, sdrImage);
                 default:
                     // A filter of a plugin
                     return null;
             }
         }
+
+        /// <summary>
+        /// True when all filters of the element can be done on the HDR pixels (see <see cref="Create(DrawableContainer, NativeRect, IReadOnlyList{NativeRect}, DrawableContainer, System.Drawing.Bitmap)"/>):
+        /// the filters of the editor; not an inverted magnifier (no preset makes one, only an old .greenshot file) or a filter of another kind
+        /// </summary>
+        public static bool Supports(DrawableContainer element) =>
+            element.Filters.All(filter => filter is HighlightFilter or BrightnessFilter or GrayscaleFilter or BlurFilter or PixelizationFilter
+                                          || filter is MagnifierFilter { Invert: false });
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
 
@@ -254,12 +262,10 @@ namespace Greenshot.Editor.Drawing.Filters
         /// gets the average of its HDR pixels, each pixel the noise of the editor's pixel as factor (in linear light). Taking the area from the
         /// 8-bit image would put it in at most as bright as SDR white, darker than the HDR pixels around it.
         /// </summary>
-        private static ImageFilter Pixelate(PixelizationFilter filter, NativeRect elementBounds, NativeRect bounds, System.Drawing.Bitmap sdrImage)
+        private static ImageFilter Pixelate(PixelizationFilter filter, NativeRect elementBounds, IReadOnlyList<Rectangle> areas, NativeRect bounds, System.Drawing.Bitmap sdrImage)
         {
-            if (filter.Invert || sdrImage == null || sdrImage.Width < bounds.Width || sdrImage.Height < bounds.Height)
+            if (sdrImage == null || sdrImage.Width < bounds.Width || sdrImage.Height < bounds.Height)
             {
-                // Inverted, the editor pixelates around the element: from the 8-bit image. No editor preset makes an inverted pixelate (only
-                // area highlight and grayscale invert their filters), it can only come from a .greenshot file
                 return null;
             }
             var blocks = new List<System.Drawing.Rectangle>();
@@ -299,8 +305,15 @@ namespace Greenshot.Editor.Drawing.Filters
                         }
                     }
                 }
-                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                    values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length).CopyTo(row), area));
+                // Only into the areas of the filter: inverted, the blocks cover the image, but the elements are holes in it
+                pixels.Mutate(context =>
+                {
+                    foreach (var target in areas.Select(part => Rectangle.Intersect(part, area)).Where(part => part.Width > 0 && part.Height > 0))
+                    {
+                        context.ProcessPixelRowsAsVector4((row, start) =>
+                            values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length).CopyTo(row), target);
+                    }
+                });
             });
         }
 

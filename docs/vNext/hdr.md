@@ -192,13 +192,18 @@ later:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
+  A picture element of its own kind (e.g. the barcode of the Zxing plugin) draws itself into a picture, which is drawn like a picture.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
-  brightness. Blur, pixelate, the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
+  brightness. Blur, pixelate (also inverted), the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
   and not finer than the levels of the SDR image. Blur and pixelate add the same noise as in the editor (`BlurNoise`), so neither
   can be undone by calculation. Guessing the text and comparing its blur still works; only a large radius, pixelate or a
   solid fill hides text from that. The noise is up to 3 levels per color, which the eye doesn't see:
   ![The blur without and with noise, and the difference 20 times stronger](images/blur-noise-comparison.png)
-- **Layer:** an SDR layer, only for element types of plugins which have no ImageSharp drawing.
+
+Nothing of the SDR image goes into the HDR file. The SDR image only gives parameters: the strength of the highlighter and the blocks
+and noise of pixelate, so they look as in the editor. An element which can't be drawn this way (another kind of element, an inverted
+magnifier from an old .greenshot file) makes the HDR state `Lost` (`ElementDrawing.Supports`, `ElementImageFilters.Supports`): the
+badge shows it, and the capture is saved as a normal file.
 
 ```mermaid
 flowchart LR
@@ -207,21 +212,20 @@ flowchart LR
     end
     E1 -->|editor type| D1[Draw step<br/>ImageSharp]
     E2 -->|highlight / obfuscate| F2[Filter step<br/>on HDR pixels]
-    E3 -->|plugin type| L3[SDR layer]
+    E3 -->|other kind| L3[HdrState Lost]
     D1 --> O[HdrOverlay]
     F2 --> O
-    L3 --> O
     O --> C[HdrImage.Compose]
 ```
 
-`HdrImage.Compose` puts it together: the HDR tiles, the SDR displays from the SDR image at SDR white, then each step in order.
+`HdrImage.Compose` puts it together: each step in order on a copy of the HDR image.
 
 ### The white of the elements
 
 An element which is white in the editor can't simply be SDR white in the HDR file. Next to the HDR content it looks gray there,
 because the editor shows the capture tone mapped and its white is brighter than SDR white. The full white of the tone mapping is
 too bright on the other hand. Elements use the geometric middle of the two: `sqrt(SDR white × white of the tone mapping)`. The
-white of the tone mapping comes from `HdrContent`, measured on the composed image. Filters and the SDR displays keep SDR white.
+white of the tone mapping comes from `HdrContent`, measured on the HDR image. Filters and the SDR displays keep SDR white.
 
 ### Drawing with ImageSharp
 

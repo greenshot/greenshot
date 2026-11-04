@@ -44,8 +44,9 @@ namespace Greenshot.Editor.Drawing
     internal static class ElementDrawing
     {
         /// <summary>
-        /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it has no such drawing (it is drawn
-        /// with GDI+ then). Only the editor's own element types: a subclass (e.g. a barcode) may draw differently. Everything is taken from the element
+        /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it draws nothing (e.g. an icon
+        /// without its icon). Only the editor's own element types (see <see cref="Supports"/>): a subclass may draw differently, only a picture of its
+        /// own kind (e.g. a barcode) is drawn by itself into a picture. Everything is taken from the element
         /// now: the drawing runs later on another thread (see HdrExport), while the element may change.
         /// </summary>
         public static Action<Image, ImageValues> Of(DrawableContainer element, NativePoint origin)
@@ -119,6 +120,10 @@ namespace Greenshot.Editor.Drawing
                         lineThickness, lineColor, fillColor, shadow);
                 case ImageContainer picture when element.GetType() == typeof(ImageContainer):
                     return PictureOf(picture.Image, bounds, nearestNeighbor: false, shadow);
+                case ImageContainer:
+                    // A picture of its own kind (e.g. the barcode of the Zxing plugin draws its own bitmap): drawn by itself into a picture of its
+                    // area, which goes on the HDR pixels like a picture
+                    return RenderedOf(element, origin);
                 case IconContainer icon when element.GetType() == typeof(IconContainer):
                     if (icon.Icon == null)
                     {
@@ -207,6 +212,42 @@ namespace Greenshot.Editor.Drawing
             StringAlignment.Far => TextPlacement.Far,
             _ => TextPlacement.Center
         };
+
+        /// <summary>
+        /// True when the element is drawn on the HDR pixels (see <see cref="Of"/>), or draws nothing there (e.g. the crop frame). Elements of
+        /// other types (a subclass of another kind) aren't: the capture can't be saved as HDR file while one is on it.
+        /// </summary>
+        public static bool Supports(DrawableContainer element) => element switch
+        {
+            TornEdgeContainer or CutMarkContainer or StepLabelContainer or ImageContainer or SvgContainer or MetafileContainer or Emoji.EmojiContainer
+                or CropContainer => true,
+            _ => element.GetType() == typeof(HighlightContainer) || element.GetType() == typeof(ObfuscateContainer)
+                 || element.GetType() == typeof(SpeechbubbleContainer) || element.GetType() == typeof(TextContainer)
+                 || element.GetType() == typeof(RectangleContainer) || element.GetType() == typeof(EllipseContainer)
+                 || element.GetType() == typeof(ArrowContainer) || element.GetType() == typeof(LineContainer)
+                 || element.GetType() == typeof(FreehandContainer) || element.GetType() == typeof(IconContainer)
+                 || element.GetType() == typeof(CursorContainer)
+        };
+
+        /// <summary>
+        /// The element drawn by itself (GDI+, as when it is exported) into a picture of its area, drawn into its place like a picture
+        /// </summary>
+        private static Action<Image, ImageValues> RenderedOf(DrawableContainer element, NativePoint origin)
+        {
+            var area = element.DrawingBounds;
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                return null;
+            }
+            using var rendered = new Bitmap(area.Width, area.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(rendered))
+            {
+                graphics.TranslateTransform(-area.X, -area.Y);
+                element.Draw(graphics, Greenshot.Base.Interfaces.Drawing.RenderMode.EXPORT);
+            }
+            // One pixel of the picture is one pixel of the image
+            return PictureOf(rendered, new Rectangle(area.X - origin.X, area.Y - origin.Y, area.Width, area.Height), nearestNeighbor: true, shadow: false);
+        }
 
         /// <summary>
         /// The picture drawn into its place; the picture is copied now, the element may change it later

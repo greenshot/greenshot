@@ -633,7 +633,7 @@ namespace Greenshot.Tests.Editor
             using var overlay = surface.CreateHdrOverlay();
 
             Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
-            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
+            Assert.All(overlay.Steps, step => Assert.NotNull(step.Filter));
         }
 
         [Fact]
@@ -657,11 +657,6 @@ namespace Greenshot.Tests.Editor
             var arrow = new ArrowContainer(surface) { Left = 10, Top = 80, Width = 60, Height = 0 };
             surface.AddElement(arrow, false, false);
 
-            using (var overlay = surface.CreateHdrOverlay())
-            {
-                Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
-                Assert.Empty(overlay.ReplacedAreas);
-            }
             using var composed = Compose(surface);
 
             // The first rectangle is drawn (darker than the highlights around it) and then grayed
@@ -702,10 +697,6 @@ namespace Greenshot.Tests.Editor
             magnifier.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
             surface.AddElement(magnifier, false, false);
 
-            using (var overlay = surface.CreateHdrOverlay())
-            {
-                Assert.Empty(overlay.ReplacedAreas);
-            }
             using var composed = Compose(surface);
 
             Assert.Equal(8f, composed.Pixels[90, 50].ToVector4().X, 1);
@@ -958,6 +949,96 @@ namespace Greenshot.Tests.Editor
             var values = Enumerable.Range(0, 21).Select(x => composed.Pixels[x, 20].ToVector4().X).ToArray();
             Assert.All(values, value => Assert.InRange(value, 1.2f, 5f));
             Assert.InRange(values.Average(), 2.2f, 3.8f);
+        }
+
+        [Fact]
+        public void InvertedPixelate_IsDoneOnTheHdrPixels_AroundTheElement()
+        {
+            // Stripes of 1 pixel: black and a highlight of 6
+            var bitmap = new Bitmap(60, 60, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(60, 60, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 60; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < 60; x++)
+                    {
+                        row[x] = x % 2 == 0 ? new HalfVector4(0, 0, 0, 1) : new HalfVector4(6, 6, 6, 1);
+                    }
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 20, Top = 20, Width = 20, Height = 20 };
+            var pixelate = obfuscate.Filters.OfType<Greenshot.Editor.Drawing.Filters.PixelizationFilter>().Single();
+            pixelate.SetFieldValue(FieldType.PIXEL_SIZE, 10);
+            pixelate.Invert = true;
+            surface.AddElement(obfuscate, false, false);
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            using var composed = Compose(surface);
+
+            // Inside the element the stripes stay, around it they are pixelated (the average of the HDR pixels, with the editor's noise)
+            Assert.Equal(0f, composed.Pixels[30, 30].ToVector4().X, 2);
+            Assert.Equal(6f, composed.Pixels[31, 30].ToVector4().X, 1);
+            var around = Enumerable.Range(0, 15).Select(x => composed.Pixels[x, 5].ToVector4().X).ToArray();
+            Assert.All(around, value => Assert.InRange(value, 1.2f, 5f));
+        }
+
+        /// <summary>
+        /// A picture element of its own kind, like the barcode of the Zxing plugin: it draws itself
+        /// </summary>
+        private sealed class OwnPicture : ImageContainer
+        {
+            public OwnPicture(Surface surface) : base(surface)
+            {
+            }
+
+            public override void Draw(Graphics graphics, Greenshot.Base.Interfaces.Drawing.RenderMode rm)
+            {
+                graphics.FillRectangle(Brushes.Black, Bounds);
+            }
+        }
+
+        /// <summary>
+        /// A rectangle element of its own kind, e.g. of a plugin: it may draw differently, there is no HDR drawing for it
+        /// </summary>
+        private sealed class OwnRectangle : RectangleContainer
+        {
+            public OwnRectangle(Surface surface) : base(surface)
+            {
+            }
+        }
+
+        [Fact]
+        public void PictureOfItsOwnKind_IsDrawnOnTheHdrPixels_LikeAPicture()
+        {
+            using var surface = CreateBrightSurface();
+            surface.AddElement(new OwnPicture(surface) { Left = 40, Top = 40, Width = 20, Height = 20 }, false, false);
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            using var composed = Compose(surface);
+
+            // Black where it draws, the highlights around it stay
+            Assert.Equal(0f, composed.Pixels[50, 50].ToVector4().X, 2);
+            Assert.Equal(5f, composed.Pixels[20, 20].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void ElementWithoutAnHdrDrawing_TheHdrContentIsLost()
+        {
+            using var surface = CreateBrightSurface();
+            var element = new OwnRectangle(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
+            surface.AddElement(element, false, false);
+
+            Assert.Equal(HdrState.Lost, surface.HdrState);
+            Assert.False(HdrExport.CanWriteHdr(surface));
+
+            surface.RemoveElement(element, false);
+            Assert.Equal(HdrState.Available, surface.HdrState);
         }
 
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;

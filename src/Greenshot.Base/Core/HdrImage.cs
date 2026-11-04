@@ -233,10 +233,6 @@ namespace Greenshot.Base.Core
                 {
                     DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
                 }
-                else if (step.Layer != null)
-                {
-                    BlendSdrOver(step.Layer, step.Location, elementWhite);
-                }
                 else
                 {
                     step.Filter.Apply(Pixels, SdrWhiteLevelInNits / 80f);
@@ -408,11 +404,6 @@ namespace Greenshot.Base.Core
             try
             {
                 composed.DrawSteps(overlay.Steps);
-                // The replaced areas are the export as it is, with everything which is drawn over them
-                foreach (var area in overlay.ReplacedAreas)
-                {
-                    composed.ReplaceWithSdr(overlay.Rendered, area);
-                }
                 return composed;
             }
             catch
@@ -647,48 +638,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Replace an area of this complete HDR image while it is made with the pixels of an 8-bit image of the same size, at the SDR white level,
-        /// alpha included (e.g. the transparent part of a torn edge)
-        /// </summary>
-        private unsafe void ReplaceWithSdr(Bitmap source, NativeRect area)
-        {
-            if (source == null)
-            {
-                return;
-            }
-            var target = area.Intersect(new NativeRect(0, 0, Math.Min(Width, source.Width), Math.Min(Height, source.Height)));
-            if (target.Width <= 0 || target.Height <= 0)
-            {
-                return;
-            }
-            ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
-            var bitmapData = source.LockBits(target, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            try
-            {
-                Pixels.ProcessPixelRows(accessor =>
-                {
-                    for (int y = 0; y < target.Height; y++)
-                    {
-                        byte* sourceRow = (byte*)bitmapData.Scan0 + (long)y * bitmapData.Stride;
-                        var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width));
-                        for (int x = 0; x < target.Width; x++, sourceRow += 4)
-                        {
-                            // BGRA in memory
-                            targetRow[x * 4] = table[sourceRow[2]];
-                            targetRow[x * 4 + 1] = table[sourceRow[1]];
-                            targetRow[x * 4 + 2] = table[sourceRow[0]];
-                            targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(sourceRow[3] / 255f);
-                        }
-                    }
-                });
-            }
-            finally
-            {
-                source.UnlockBits(bitmapData);
-            }
-        }
-
-        /// <summary>
         /// Draw an element with ImageSharp on the area of this complete HDR image while it is made: on float pixels (ImageSharp mixes HalfVector4
         /// wrongly, see FloatPixels), its white at the value of white (scRGB)
         /// </summary>
@@ -713,60 +662,6 @@ namespace Greenshot.Base.Core
                     }
                 }
             });
-        }
-
-        /// <summary>
-        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its white at the value of white (scRGB), blended in linear light
-        /// (scRGB is linear), so its shadow darkens the HDR pixels under it
-        /// </summary>
-        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location, float white)
-        {
-            var target = new NativeRect(location, new NativeSize(layer.Width, layer.Height)).Intersect(new NativeRect(0, 0, Width, Height));
-            if (target.Width <= 0 || target.Height <= 0)
-            {
-                return;
-            }
-            float scale = white;
-            var linear = new float[256];
-            for (int i = 0; i < 256; i++)
-            {
-                double srgb = i / 255.0;
-                linear[i] = (float)((srgb <= 0.04045 ? srgb / 12.92 : Math.Pow((srgb + 0.055) / 1.055, 2.4)) * scale);
-            }
-            var layerData = layer.LockBits(new NativeRect(target.X - location.X, target.Y - location.Y, target.Width, target.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            try
-            {
-                Pixels.ProcessPixelRows(accessor =>
-                {
-                    for (int y = 0; y < target.Height; y++)
-                    {
-                        byte* sourceRow = (byte*)layerData.Scan0 + (long)y * layerData.Stride;
-                        var targetRow = accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width);
-                        for (int x = 0; x < target.Width; x++, sourceRow += 4)
-                        {
-                            byte alpha = sourceRow[3];
-                            if (alpha == 0)
-                            {
-                                continue;
-                            }
-                            float a = alpha / 255f;
-                            var under = targetRow[x].ToVector4();
-                            // BGRA in memory, straight alpha: "over" with the alpha of both (under is opaque on a capture, not in a torn edge)
-                            float underWeight = under.W * (1 - a);
-                            float outAlpha = a + underWeight;
-                            targetRow[x] = new HalfVector4(
-                                (linear[sourceRow[2]] * a + under.X * underWeight) / outAlpha,
-                                (linear[sourceRow[1]] * a + under.Y * underWeight) / outAlpha,
-                                (linear[sourceRow[0]] * a + under.Z * underWeight) / outAlpha,
-                                outAlpha);
-                        }
-                    }
-                });
-            }
-            finally
-            {
-                layer.UnlockBits(layerData);
-            }
         }
 
         /// <summary>

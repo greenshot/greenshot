@@ -403,7 +403,7 @@ namespace Greenshot.Tests.Core
                     SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(context, values.ColorOf(new Rgba32(255, 0, 0, 255)), 3f,
                         new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));
             var steps = new[] { HdrOverlayStep.Of(cutAway), HdrOverlayStep.Of(area, draw) };
-            using var overlay = new HdrOverlay(steps, null, null);
+            using var overlay = new HdrOverlay(steps);
             using var saved = hdrImage.Compose(overlay);
 
             using var drawn = ImageEdits.Draw("test", steps).Apply(hdrImage);
