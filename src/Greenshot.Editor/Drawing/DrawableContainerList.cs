@@ -271,6 +271,51 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// The area to repaint for the clip rectangle: a filter reads the pixels under its whole element (pixelate) and around the repainted
+        /// part (blur), so these are repainted too, otherwise it reads what an earlier paint drew there (its own result, an element moved
+        /// away since).
+        /// </summary>
+        /// <param name="clipRectangle">The area which is repainted</param>
+        /// <param name="imageBounds">The image</param>
+        /// <returns>The clip rectangle, grown by what the filters there read</returns>
+        public NativeRect FilterReadArea(NativeRect clipRectangle, NativeRect imageBounds)
+        {
+            var area = clipRectangle;
+            bool grown = true;
+            // A grown area can reach the next filter
+            while (grown)
+            {
+                grown = false;
+                foreach (var drawableContainer in this)
+                {
+                    if (!(drawableContainer is DrawableContainer dc) || !dc.HasFilters || dc.Status != EditStatus.IDLE || !dc.DrawingBounds.IntersectsWith(area))
+                    {
+                        continue;
+                    }
+                    int margin = 0;
+                    bool invert = false;
+                    foreach (IFilter filter in dc.Filters)
+                    {
+                        if (filter is AbstractFilter abstractFilter)
+                        {
+                            margin = Math.Max(margin, abstractFilter.ReadMargin);
+                        }
+                        invert |= filter.Invert;
+                    }
+                    // An inverted filter covers the image outside the element: it reads around the repainted area
+                    var read = invert ? area.Inflate(margin, margin) : dc.DrawingBounds.Inflate(margin, margin);
+                    var grownArea = area.Union(read).Intersect(imageBounds);
+                    if (!grownArea.Equals(area))
+                    {
+                        area = grownArea;
+                        grown = true;
+                    }
+                }
+            }
+            return area;
+        }
+
+        /// <summary>
         /// Check if any of the drawableContainers are inside the rectangle
         /// </summary>
         /// <param name="clipRectangle">NativeRect</param>

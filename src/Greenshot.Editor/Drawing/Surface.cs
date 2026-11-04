@@ -3163,7 +3163,9 @@ namespace Greenshot.Editor.Drawing
                     LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
                 }
 
-                // Elements might need the bitmap, so we copy the part we need
+                // Elements might need the bitmap, so we copy the part we need. The filters read more than the clip rectangle (their
+                // element, the pixels around it), that is repainted too, so they don't read the result of an earlier paint.
+                var bufferRectangle = _elements.FilterReadArea(imageClipRectangle, new NativeRect(0, 0, Image.Width, Image.Height));
                 using (Graphics graphics = Graphics.FromImage(_buffer))
                 {
                     // do not set the following, the containers need to decide this themselves!
@@ -3171,10 +3173,10 @@ namespace Greenshot.Editor.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     //graphics.CompositingQuality = CompositingQuality.HighQuality;
                     //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    DrawBackground(graphics, imageClipRectangle);
-                    graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-                    graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
-                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
+                    DrawBackground(graphics, bufferRectangle);
+                    graphics.DrawImage(Image, bufferRectangle, bufferRectangle, GraphicsUnit.Pixel);
+                    graphics.SetClip(bufferRectangle);
+                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, bufferRectangle);
                 }
 
                 if (_zoomFactor == Fraction.Identity)
