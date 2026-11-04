@@ -96,7 +96,7 @@ namespace Greenshot.Base.Hdr
         {
             if (sdrImage == null) throw new ArgumentNullException(nameof(sdrImage));
             var inArea = new List<(HdrImage, NativePoint)>();
-            bool hasHdrContent = false;
+            var overlaps = new List<System.Drawing.Rectangle>();
             foreach (var (part, location) in _parts)
             {
                 var placed = new NativeRect(location, new NativeSize(part.Width, part.Height));
@@ -107,18 +107,21 @@ namespace Greenshot.Base.Hdr
                 }
                 // Where it is in the area (it may start outside of it: only what is inside is copied)
                 inArea.Add((part, new NativePoint(location.X - area.X, location.Y - area.Y)));
-                hasHdrContent = hasHdrContent || HdrContent.HasHdrContent(part.Pixels, part.SdrWhiteLevelInNits,
-                    new System.Drawing.Rectangle(overlap.X - location.X, overlap.Y - location.Y, overlap.Width, overlap.Height));
+                overlaps.Add(new System.Drawing.Rectangle(overlap.X - location.X, overlap.Y - location.Y, overlap.Width, overlap.Height));
             }
             if (inArea.Count == 0)
             {
-                Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: not on an HDR display, no HDR image.");
+                Log.Info($"Area {area.Width}x{area.Height} at {area.X},{area.Y}: not on an HDR display, no HDR image.");
                 return null;
             }
+            // Measured against the SDR white of the joined image (that of the first part, see HdrImage.Combine), only where each part is in the
+            // area: with displays of different SDR white, what is brighter than one display's white can be below the white of the joined image
+            float joinedSdrWhite = inArea[0].Item1.SdrWhiteLevelInNits;
+            bool hasHdrContent = inArea.Where((part, index) => HdrContent.HasHdrContent(part.Item1.Pixels, joinedSdrWhite, overlaps[index])).Any();
             // E.g. only a normal window on an HDR display: nothing an 8-bit image can't show, no HDR image (also when HDR was asked for)
             if (!hasHdrContent)
             {
-                Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: no HDR content (nothing brighter than SDR white or outside sRGB), no HDR image.");
+                Log.Info($"Area {area.Width}x{area.Height} at {area.X},{area.Y}: no HDR content (nothing brighter than SDR white or outside sRGB), no HDR image.");
                 return null;
             }
             var joined = HdrImage.Combine(sdrImage, inArea);
@@ -127,7 +130,7 @@ namespace Greenshot.Base.Hdr
                 joined.IsRequested |= IsRequested;
                 joined.KnowHasHdrContent(true);
                 joined.BelongTo(sdrImage);
-                Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: joined {joined.Width}x{joined.Height} with HDR content of {inArea.Count} HDR display(s).");
+                Log.Info($"Area {area.Width}x{area.Height} at {area.X},{area.Y}: joined {joined.Width}x{joined.Height} with HDR content of {inArea.Count} HDR display(s).");
             }
             return joined;
         }

@@ -94,7 +94,8 @@ namespace Greenshot.Base.Interfaces
         Action HdrImagePreparation { get; }
 
         /// <summary>
-        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file): Save as suggests JPEG XR (HdrImage.IsRequested)
+        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file, see HdrImage.IsRequested): Save as suggests JPEG XR
+        /// when the HDR file can be written (HdrState Available). Without HDR content there is no HDR image, also when HDR was asked for.
         /// </summary>
         bool IsHdrRequested { get; }
 

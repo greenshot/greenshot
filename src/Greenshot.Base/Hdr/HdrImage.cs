@@ -187,7 +187,7 @@ namespace Greenshot.Base.Hdr
 
         /// <summary>
         /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file), not only by the setting: Save as suggests JPEG XR.
-        /// Copied to the HDR images made of it (crop, rotation, copies).
+        /// Copied to the HDR images made of it (crop, rotation, copies). It keeps no HDR image without HDR content (see HasHdrContent).
         /// </summary>
         public bool IsRequested { get; set; }
 

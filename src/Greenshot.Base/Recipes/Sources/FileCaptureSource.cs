@@ -169,6 +169,12 @@ namespace Greenshot.Base.Recipes.Sources
                 }
 
                 ICapture capture = new Capture(fileImage);
+                // An HDR file without HDR content (nothing brighter than SDR white or outside sRGB) opens as a normal image: no HDR image
+                if (hdrImage != null && !hdrImage.HasHdrContent)
+                {
+                    hdrImage.Dispose();
+                    hdrImage = null;
+                }
                 if (hdrImage != null)
                 {
                     hdrImage.BelongTo(capture.Image);

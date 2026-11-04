@@ -475,6 +475,48 @@ public class HdrCaptureTests
     }
 
     [Fact]
+    public void Surface_JoinsThePartsOfAnUncroppedCapture()
+    {
+        var capture = CreateFrozenScreen();
+
+        var surface = WinFormsContextGuard.CreateWithoutContext(() => new Greenshot.Editor.Drawing.Surface(capture));
+        try
+        {
+            // All of it, the SDR monitor at the SDR white level
+            Assert.Null(capture.HdrParts);
+            Assert.Equal(4, surface.HdrImage.Width);
+            Assert.Equal(5f, Get(surface.HdrImage, 0, 0)[0], 2);
+            Assert.Equal(SdrWhite, Get(surface.HdrImage, 2, 0)[0], 2);
+            Assert.True(surface.HdrImage.BelongsTo(surface.Image));
+        }
+        finally
+        {
+            capture.Dispose();
+            surface.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Join_OfDisplaysWithDifferentSdrWhite_MeasuresAgainstTheWhiteOfTheJoinedImage()
+    {
+        // The first display at 240 nits SDR white (3.0, the white of the joined image), the second at 80 nits (1.0): 200 nits (2.5) are
+        // brighter than the white of the second display, but not than the white of the joined image
+        using var first = CreatePixels(1, 1, (x, y) => Rgba(SdrWhite, SdrWhite, SdrWhite));
+        using var second = new HdrImage(1, 1, 80, 400);
+        Set(second, 0, 0, Rgba(2.5f, 2.5f, 2.5f));
+        using var parts = new HdrParts(new[] { (first.Share(), new NativePoint(0, 0)), (second.Share(), new NativePoint(1, 0)) });
+        using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+        Assert.Null(parts.Join(image, new NativeRect(0, 0, 2, 1)));
+
+        // A highlight above the white of the joined image is HDR content, and the joined image measures alike
+        Set(second, 0, 0, Rgba(5f, 5f, 5f));
+        using var joined = parts.Join(image, new NativeRect(0, 0, 2, 1));
+        Assert.True(joined.HasHdrContent);
+        Assert.Equal(SdrWhiteNits, joined.SdrWhiteLevelInNits);
+    }
+
+    [Fact]
     public void CreateHdrParts_WithoutHdrMonitor_IsNull()
     {
         var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "sdr") { TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
