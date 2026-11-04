@@ -154,11 +154,18 @@ Why there is no `payload.meta.<key>`: today two metadata dictionaries exist:
 - `CaptureDetails.MetaData` (strings), filled only by the Source step: `source` (`Screen`, `Window`, `Clipboard`, `file`)
   for every capture, and for an opened or watched file also `file`, `dirname`, `filename`, `basename`, `extension`
   (`FileCaptureSource.cs:127-132`, `181-186`). The 1.3 file name pattern reaches these as bare `${dirname}` etc.
+  For an opened image file `ImageMetadataReader.ReadInto` (`FileCaptureSource.cs:193`) also reads back what Greenshot
+  writes into its files: the capture time (XMP, else EXIF `DateTimeOriginal` + `OffsetTimeOriginal`) into the capture
+  time and `capturetime`, the title (XMP `dc:title`, else EXIF `XPTitle`) into the title and `windowtitle`, and the web
+  address into `url`. Camera details (location, serial numbers) are deliberately not read.
 - `CapturePayload.Metadata` (objects) in recipes: today only RecordVideo writes `VideoFilePath` and `VideoRecordingResult`
   (`RecordVideoRecipeStep.cs:197-198`).
 
 With the names above most of it gets a proper name: `payload.source`, `payload.file` (full path of the opened file),
-`payload.video.file`. So the known keys become named values, and anything else a step stores goes to `var.*`. The image file metadata (EXIF/XMP fields of
+`payload.video.file`, and for an opened file `payload.time`, `payload.title` and `payload.url` are the values read from
+its EXIF/XMP (else the file's time and name). Other EXIF fields stay unread: if one is wanted later, it gets a named
+value from a fixed list (e.g. `payload.author`, `payload.description`), never a generic `payload.exif.<tag>`, so
+location or serial numbers can't end up in a file name or an upload. So the known keys become named values, and anything else a step stores goes to `var.*`. The image file metadata (EXIF/XMP fields of
 the `SetMetadata` step) is something else and is not a variable.
 
 Decided: `env.X` is the generic environment variable; `user.env.X` and `machine.env.X` are the
