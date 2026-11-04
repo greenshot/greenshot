@@ -239,10 +239,12 @@ namespace Greenshot.Tests.ImageSharpDrawing
             AssertSame(expected, actual);
         }
 
+        // The editor draws the tail as its own shape over the box: its shadow shows inside a box without fill, and with a line thickness of 0 its
+        // line is drawn one pixel wide while the box has none. Here the bubble is one shape, so these cases are compared by the tests below.
         [Theory]
         [InlineData(2, true, true, 100, 80)]
-        [InlineData(0, true, false, 10, 85)]
-        [InlineData(4, false, true, 110, 5)]
+        [InlineData(1, true, false, 10, 85)]
+        [InlineData(4, true, false, 110, 5)]
         public void SpeechBubble_AsTheEditor(int lineThickness, bool fill, bool shadow, int tailX, int tailY)
         {
             using var surface = CreateSurface();
@@ -257,6 +259,38 @@ namespace Greenshot.Tests.ImageSharpDrawing
                 lineThickness, Rgba(Red), Rgba(fill ? HalfBlue : Color.Transparent), shadow));
 
             AssertSame(expected, actual);
+        }
+
+        [Fact]
+        public void SpeechBubble_WithoutLineThickness_HasNoLine()
+        {
+            var withLine = Sharp(image => SpeechBubbles.Bubble(image, ImageValues.Srgb, new Rectangle(25, 15, 60, 35), new SixLabors.ImageSharp.Point(10, 85), 0,
+                Rgba(Red), Rgba(HalfBlue), false));
+            var withoutLine = Sharp(image => SpeechBubbles.Bubble(image, ImageValues.Srgb, new Rectangle(25, 15, 60, 35), new SixLabors.ImageSharp.Point(10, 85), 0,
+                new Rgba32(0, 0, 0, 0), Rgba(HalfBlue), false));
+
+            Assert.Equal(withoutLine, withLine);
+        }
+
+        [Fact]
+        public void SpeechBubble_WithoutFill_KeepsTheBoxEmpty()
+        {
+            var pixels = Sharp(image => SpeechBubbles.Bubble(image, ImageValues.Srgb, new Rectangle(25, 15, 60, 35), new SixLabors.ImageSharp.Point(110, 5), 4,
+                Rgba(Red), new Rgba32(0, 0, 0, 0), true));
+
+            // Inside the box, away from its line and shadow: no shadow of the tail
+            var drawn = new List<string>();
+            for (int y = 25; y < 44; y++)
+            {
+                for (int x = 34; x < 78; x++)
+                {
+                    if (pixels[y * Width + x].A > 0)
+                    {
+                        drawn.Add($"{x},{y}");
+                    }
+                }
+            }
+            Assert.Empty(drawn);
         }
 
         [Theory]

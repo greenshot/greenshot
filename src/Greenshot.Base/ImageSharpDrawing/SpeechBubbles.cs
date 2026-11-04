@@ -55,19 +55,18 @@ namespace Greenshot.Base.ImageSharpDrawing
         {
             // The editor draws the line of the tail outside of the box and the line of the box outside of the tail: the line around both together
             var bubble = BoxShape(rect, lineThickness).Clip(new ShapeOptions { ClippingOperation = ClippingOperation.Union }, TailShape(rect, target));
-            // The editor draws the line of the tail always, with a pen of width 0 one pixel wide
-            float lineWidth = Painting.PenWidth(lineThickness);
-            if (shadow && (lineThickness > 0 && lineColor.A > 0 || fillColor.A > 0))
+            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
+            if (shadow && (lineVisible || fillColor.A > 0))
             {
                 foreach (var (offset, alpha) in Painting.ShadowSteps())
                 {
-                    Painting.Stroke(image, bubble.Translate(offset + 1, offset + 1), lineWidth, new Vector4(0, 0, 0, alpha));
+                    Painting.Stroke(image, bubble.Translate(offset + 1, offset + 1), Painting.PenWidth(lineThickness), new Vector4(0, 0, 0, alpha));
                 }
             }
             Painting.Fill(image, bubble, values.Of(fillColor));
-            if (lineColor.A > 0)
+            if (lineVisible)
             {
-                Painting.Stroke(image, bubble, lineWidth, values.Of(lineColor));
+                Painting.Stroke(image, bubble, lineThickness, values.Of(lineColor));
             }
         }
 
