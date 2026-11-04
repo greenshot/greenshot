@@ -4,16 +4,35 @@ Greenshot captures HDR displays, shows the capture tone mapped in the editor and
 highlights. Everything you draw in the editor is drawn on the HDR pixels too. This document explains how that works and where the
 code is.
 
+## SDR and HDR in short
+
+**SDR** (standard dynamic range) is what screens and image files have shown for decades. Each pixel has red, green and blue values
+from 0 to 255 (8 bits each, together millions of colors), and 255 means "as bright as white". White is the brightest a pixel can be,
+so a sunlit sky and a white page are both just white. PNG, JPEG and BMP files and the clipboard are SDR.
+
+**HDR** (high dynamic range) screens can show more than white: highlights, such as the sun in a video or a lamp in a game, are much
+brighter than a white page next to them. Windows describes such pixels with decimal numbers in linear light (scRGB), where 1.0 is
+80 nits (a measure of brightness) and values can go far above the white of the page. The brightness Windows uses for a white page
+on an HDR screen is the **SDR white level**, e.g. 240 nits (3.0). A pixel above it is a highlight.
+
+In this document:
+
+- the **SDR image** is the normal image of a capture: 8 bits per color, white is the brightest. Every destination, the editor and the
+  clipboard use it;
+- the **HDR image** keeps the decimal values of the HDR screen, highlights included. Only an HDR file (JPEG XR) can hold it;
+- **tone mapping** turns HDR values into the SDR image: it picks which brightness becomes white and fits the brighter values below
+  it, so the image looks right on any screen.
+
 ## The idea in short
 
 1. **Capture or open a file.** Greenshot takes the capture with Windows.Graphics.Capture (DirectX), or opens a JPEG XR file.
-2. **Tone map for SDR.** If there is HDR content, the HDR pixels are tone mapped to an 8-bit image. That image works on any
+2. **Tone map for SDR.** If there is HDR content, the HDR pixels are tone mapped to an SDR image. That image works on any
    screen, in the editor and in every destination, exactly as before.
 3. **Keep the HDR pixels.** Depending on the setting or the recipe, the capture also keeps its HDR pixels as an `HdrImage`, next to
-   the 8-bit image (`ICapture.HdrImage`). Nothing else uses them, they are only available.
+   the SDR image (`ICapture.HdrImage`). Nothing else uses them, they are only available.
 4. **Save as HDR.** When a capture is saved in a format which supports HDR (JPEG XR) and it has HDR content, the HDR pixels are
-   written instead of the 8-bit image.
-5. **Edit the 8-bit image, remember the changes.** The editor shows and edits the tone-mapped 8-bit image, with an HDR badge in the
+   written instead of the SDR image.
+5. **Edit the SDR image, remember the changes.** The editor shows and edits the tone-mapped SDR image, with an HDR badge in the
    status bar to the right of the size. Every change of the image (crop, rotate, effects) is remembered as an edit for the HDR
    image, and every element stays on the surface as it is.
 6. **Replay for the HDR file.** When the HDR file is written, the remembered edits are done on the HDR pixels. Then the elements are
@@ -22,16 +41,16 @@ code is.
 ```mermaid
 flowchart TD
     A[Capture an HDR display<br/>or open a .jxr file] --> B{HDR content?}
-    B -- no --> S[8-bit image only<br/>as on an SDR display]
-    B -- yes --> C[Tone map to the 8-bit image]
+    B -- no --> S[SDR image only<br/>as on an SDR display]
+    B -- yes --> C[Tone map to the SDR image]
     C --> D{CaptureHdr setting<br/>or Hdr of the Source step}
     D -- off --> S
-    D -- on --> E[Capture keeps the HdrImage<br/>next to the 8-bit image]
-    E --> F[Editor: shows the 8-bit image<br/>HDR badge, remembers the edits]
+    D -- on --> E[Capture keeps the HdrImage<br/>next to the SDR image]
+    E --> F[Editor: shows the SDR image<br/>HDR badge, remembers the edits]
     E --> G[Recipe: SaveFile with HdrFormat]
     F --> H{Saved as JPEG XR?}
     G --> H
-    H -- no --> I[8-bit file as always]
+    H -- no --> I[SDR file as always]
     H -- yes --> J[Replay the edits on the HDR pixels<br/>draw the elements with ImageSharp]
     J --> K[Lossless JPEG XR with highlights]
 ```
@@ -51,15 +70,15 @@ The capture keeps the HDR pixels only when it is asked to:
 The live screen (`ScreenMode` `Live` of the `Source` step, or *Freeze the screen while selecting* off) shows HDR content as it is on
 the screen while you select, so it is the better choice for an HDR capture.
 
-## 2. Tone mapping to the 8-bit image
+## 2. Tone mapping to the SDR image
 
-The 8-bit image is what every destination, the editor and the clipboard get, so it has to look right on an SDR screen.
+The SDR image is what every destination, the editor and the clipboard get, so it has to look right on an SDR screen.
 
 - `HdrContent` decides which brightness becomes white. Without HDR content SDR white stays white, so normal windows keep their
   exact colors. When much of the capture is brighter (an HDR video or game) the display's peak becomes white, as the Xbox Game Bar
   does. In between it blends by the share of pixels brighter than SDR white.
 - `HdrToneMapper` does it on the GPU with the Direct2D effects Microsoft uses in its HDR samples (HDR tone map, then white level
-  adjustment), into an 8-bit sRGB texture.
+  adjustment), into an SDR texture (8 bits per color, sRGB).
 - `HdrImageToneMapping` tone maps an HDR image which isn't on the screen, e.g. an opened JPEG XR file. Without a Direct3D device it
   does it on the CPU, with the same white and the highlights clipped.
 
@@ -70,10 +89,10 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 
 `HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
 with straight alpha. It keeps only what HDR displays showed: one tile per HDR display, at its place in the capture. The parts of SDR
-displays are already in the 8-bit image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
+displays are already in the SDR image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
 written.
 
-The `HdrImage` belongs to its 8-bit image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
+The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
 `HdrImage`.
 
 `HdrState` tells what can be done with it. Recipes see it as `payload.hdr`, the editor shows it with the badge:
@@ -92,7 +111,7 @@ write the intensity target, so viewers outside Windows show its files too bright
 
 `HdrExport` writes the file for all ways of saving:
 
-- the editor's Save and Save as with JPEG XR. Without HDR content the editor asks before it saves an 8-bit JPEG XR;
+- the editor's Save and Save as with JPEG XR. Without HDR content the editor asks before it saves an SDR JPEG XR;
 - the file destinations;
 - the `HdrFormat` parameter of the recipe step `SaveFile`: `None`, `Auto` or `Jxr`. With HDR content it saves JPEG XR, without it
   the normal file. Recipes can use `NoHdrNote` of the `Notification` step to tell the user. The example recipes
@@ -111,7 +130,7 @@ sequenceDiagram
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
     Export->>Surface: HdrState, CreateHdrOverlay()
     Surface-->>Export: overlay (draw steps, filters, layers)
-    Export->>Hdr: Compose(8-bit image, overlay)
+    Export->>Hdr: Compose(SDR image, overlay)
     Note over Hdr: SDR displays at SDR white,<br/>then the overlay steps in order
     Hdr-->>Export: composed HDR image
     Export->>Wic: TryEncode(composed, "jxr")
@@ -119,21 +138,21 @@ sequenceDiagram
 ```
 
 Opening a JPEG XR file (`IHdrImageDecoder`, `WicHdrImageDecoder`) works the other way round: the file becomes an `HdrImage`, tone
-mapped to the 8-bit image by `HdrImageToneMapping`, and the editor treats it like an HDR capture.
+mapped to the SDR image by `HdrImageToneMapping`, and the editor treats it like an HDR capture.
 
-## 5. The editor: the 8-bit image and the edits
+## 5. The editor: the SDR image and the edits
 
-The editor works on the 8-bit image as always. It never shows the HDR pixels, but it keeps what it needs to make the HDR file
+The editor works on the SDR image as always. It never shows the HDR pixels, but it keeps what it needs to make the HDR file
 later:
 
 - **Changes of the image** (crop, rotate, resize, cut out, effects) are remembered as `IImageEdit`s (`ImageEdits` in
   Greenshot.Base/Effects). They are ImageSharp operations, which work for any pixel type, and they are only done when an HDR file
   is written. Undo removes them again.
-- **What isn't in the HDR image** comes from the 8-bit image when the file is written, like an SDR display: the room a border, a
+- **What isn't in the HDR image** comes from the SDR image when the file is written, like an SDR display: the room a border, a
   drop shadow or a bigger canvas adds, the teeth of torn edges.
 - **Color effects** (grayscale, invert, adjust, remove transparency) are done on the HDR pixels in linear light, so the highlights
   stay.
-- **Monochrome and reduce colors** make an 8-bit result by nature. The capture loses its HDR content then (`Lost`), and the badge
+- **Monochrome and reduce colors** make an SDR result by nature (black and white, a palette). The capture loses its HDR content then (`Lost`), and the badge
   says so.
 - **Elements** (rectangles, text, arrows, speech bubbles, highlighters, obfuscation...) stay on the surface as they are. They are
   drawn on the HDR pixels only when the file is written.
@@ -146,8 +165,8 @@ later:
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
   brightness. Blur, pixelate, the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
-  and not finer than its 8-bit levels.
-- **Layer:** an 8-bit layer, only for element types of plugins which have no ImageSharp drawing.
+  and not finer than the levels of the SDR image.
+- **Layer:** an SDR layer, only for element types of plugins which have no ImageSharp drawing.
 
 ```mermaid
 flowchart LR
@@ -156,14 +175,14 @@ flowchart LR
     end
     E1 -->|editor type| D1[Draw step<br/>ImageSharp]
     E2 -->|highlight / obfuscate| F2[Filter step<br/>on HDR pixels]
-    E3 -->|plugin type| L3[8-bit layer]
+    E3 -->|plugin type| L3[SDR layer]
     D1 --> O[HdrOverlay]
     F2 --> O
     L3 --> O
     O --> C[HdrImage.Compose]
 ```
 
-`HdrImage.Compose` puts it together: the HDR tiles, the SDR displays from the 8-bit image at SDR white, then each step in order.
+`HdrImage.Compose` puts it together: the HDR tiles, the SDR displays from the SDR image at SDR white, then each step in order.
 
 ### The white of the elements
 
@@ -177,7 +196,7 @@ white of the tone mapping comes from `HdrContent`, measured on the composed imag
 The drawing code uses only ImageSharp's fill, pen, text and image drawing, not a copy of GDI+. The rule is "would a user notice":
 the HDR file looks like the editor, small differences are fine (all lines are anti-aliased, mixing happens in linear light).
 Elements are drawn into an `Image<RgbaVector>`, because ImageSharp blends `HalfVector4` on its scaled values, which is wrong for
-HDR. The knowledge about HDR is only in `ImageValues`, so the same routines can draw into an 8-bit image later. This is a step
+HDR. The knowledge about HDR is only in `ImageValues`, so the same routines can draw into an SDR image later. This is a step
 toward dropping System.Drawing.
 
 ## Where the code is
@@ -194,6 +213,6 @@ toward dropping System.Drawing.
 
 ## Not (yet) supported
 
-- HDR on the clipboard: the clipboard gets the 8-bit image.
-- HDR in `.greenshot` files: they keep the 8-bit image. This waits for the new document model.
+- HDR on the clipboard: the clipboard gets the SDR image.
+- HDR in `.greenshot` files: they keep the SDR image. This waits for the new document model.
 - JPEG XL, see above.
