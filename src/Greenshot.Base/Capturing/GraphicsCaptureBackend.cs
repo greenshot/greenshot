@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Capturing
@@ -63,7 +64,7 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
+        public Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
             return WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken);
         }

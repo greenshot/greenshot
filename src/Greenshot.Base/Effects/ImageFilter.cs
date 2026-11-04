@@ -28,7 +28,7 @@ namespace Greenshot.Base.Effects
 {
     /// <summary>
     /// The filter of an element (e.g. a highlighter, a magnifier) as ImageSharp processing on an area of an image, for any pixel type; used for
-    /// the HDR image of an HDR file (HdrOverlay.Filters, see HdrImage.Compose)
+    /// the HDR image of an HDR file (an ImageSharpStep, see HdrImage.Compose)
     /// </summary>
     public sealed class ImageFilter
     {

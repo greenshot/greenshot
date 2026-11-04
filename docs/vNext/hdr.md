@@ -101,10 +101,19 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 
 ## 3. The HDR image of a capture
 
-`HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
-with straight alpha. It keeps only what HDR displays showed: one tile per HDR display, at its place in the capture. The parts of SDR
-displays are already in the SDR image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
-written.
+`HdrImage` (Greenshot.Base/Hdr) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
+with straight alpha. It is one image of the captured area, like the SDR image: when the area spans HDR and SDR displays, the parts of
+the SDR displays are put in from the SDR image at the SDR white level (`HdrImage.Combine`), so they look as they did on the screen.
+
+This join waits until the area is known. A capture of the screen first keeps only the HDR images of its HDR displays (`HdrParts`,
+`ICapture.HdrParts`), e.g. the frozen screen while the region is selected. Cropping the capture to the selection (`Capture.Crop`)
+joins only that area, and a capture used as it is (the whole screen) is joined when its `HdrImage` is first read. An area with no
+HDR content (e.g. only on an SDR display, or only normal windows) gets no `HdrImage`.
+
+**Memory:** the HDR image of the captured area takes 8 bytes per pixel (twice the SDR image), also for the parts of SDR displays in
+it. While the region is selected on the frozen screen, only the HDR displays are held, at 8 bytes per pixel. A capture without HDR
+content costs nothing extra. For example, a region of 1920x1080 takes about 16 MB more; the whole screen of three 4K displays takes
+about 200 MB more, also when only one of them is HDR.
 
 The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
 `HdrImage`.
@@ -142,11 +151,11 @@ sequenceDiagram
     Save->>Export: EncodeAsync(source, "jxr")
     Export->>Surface: HdrImagePreparation
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
-    Export->>Surface: HdrState, CreateHdrOverlay()
-    Surface-->>Export: a share of the HDR image, a copy of the SDR image,<br/>overlay (draw steps, filters, layers)
+    Export->>Surface: HdrState, CreateImageSharpSteps()
+    Surface-->>Export: a share of the HDR image,<br/>ImageSharp steps (drawn elements, filters)
     Note over Export,Wic: on the thread pool, the editor goes on
-    Export->>Hdr: Compose(SDR image, overlay)
-    Note over Hdr: SDR displays at SDR white,<br/>then the overlay steps in order
+    Export->>Hdr: Compose(steps)
+    Note over Hdr: the steps in order
     Hdr-->>Export: composed HDR image
     Export->>Wic: TryEncode(composed, "jxr")
     Wic-->>Save: the JPEG XR file
@@ -163,8 +172,14 @@ later:
 - **Changes of the image** (crop, rotate, resize, cut out, effects) are remembered as `IImageEdit`s (`ImageEdits` in
   Greenshot.Base/Effects). They are ImageSharp operations, which work for any pixel type, and they are only done when an HDR file
   is written. Undo removes them again.
-- **What isn't in the HDR image** comes from the SDR image when the file is written, like an SDR display: the room a border, a
-  drop shadow or a bigger canvas adds, the teeth of torn edges.
+- **Every edit is done on both images the same way**, also across the edge of a display: the HDR image is one image like the SDR
+  image (see 3).
+- **The room an edit adds** (a border, a drop shadow, a bigger canvas, the room for the shadow of torn edges) is drawn with ImageSharp
+  on the HDR image, like the effect draws it into the SDR image (`RoomDrawing`): the color or background at the SDR white level, the
+  shadow from the alpha of the image, blurred like GDI+ blurs it (a Gaussian, or a box twice). Nothing is taken from the SDR image.
+- **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background (`CutDrawing.TornEdge`).
+- **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`, `HdrImage.Draw`)
+  with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.
 - **Color effects** (grayscale, invert, adjust, remove transparency) are done on the HDR pixels in linear light, so the highlights
   stay.
 - **Monochrome and reduce colors** make an SDR result by nature (black and white, a palette). The capture loses its HDR content then (`Lost`), and the badge
@@ -174,17 +189,29 @@ later:
 
 ## 6. Replaying: the elements on the HDR pixels
 
-`Surface.CreateHdrOverlay` turns the elements into an `HdrOverlay`, a list of steps in z-order:
+`Surface.CreateImageSharpSteps` turns the elements into a list of `ImageSharpStep`s in z-order. They take all they need from the
+elements on the UI thread, and work on any pixel type in the values of the image (`ImageValues`), so they can run later on the thread
+pool, here on the HDR image:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
+  An element of another type (e.g. of a plugin) is drawn when it draws itself with ImageSharp (`IHdrDrawable`). The barcode of the Zxing
+  plugin does: its layout (the modules from the matrix of ZXing.Net, `BarcodeLayout`) is drawn with GDI+ for the editor and with
+  ImageSharp for the HDR file, the same way.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
-  brightness. Blur, pixelate, the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
+  brightness. Blur, pixelate (also inverted), the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
   and not finer than the levels of the SDR image. Blur and pixelate add the same noise as in the editor (`BlurNoise`), so neither
   can be undone by calculation. Guessing the text and comparing its blur still works; only a large radius, pixelate or a
   solid fill hides text from that. The noise is up to 3 levels per color, which the eye doesn't see:
   ![The blur without and with noise, and the difference 20 times stronger](images/blur-noise-comparison.png)
-- **Layer:** an SDR layer, only for element types of plugins which have no ImageSharp drawing.
+
+Nothing of the SDR image goes into the HDR file, and no GDI+ drawing of the editor does. Pictures which an element brings are drawn as
+pictures, at the white of the elements: a picture, the cursor, an emoji (rendered with ImageSharp), and the raster of an SVG (Svg.NET
+draws it with GDI+), a metafile (GDI+) or an icon (`Icon.ToBitmap`), which are made once in the element's size like in the editor.
+The SDR image only gives parameters: the strength of the highlighter and the blocks
+and noise of pixelate, so they look as in the editor. An element which can't be drawn this way (another kind of element, an inverted
+magnifier from an old .greenshot file) makes the HDR state `Lost` (`ElementDrawing.Supports`, `ElementImageFilters.Supports`; an element of another type without `IHdrDrawable`): the
+badge shows it, and the capture is saved as a normal file.
 
 ```mermaid
 flowchart LR
@@ -193,21 +220,20 @@ flowchart LR
     end
     E1 -->|editor type| D1[Draw step<br/>ImageSharp]
     E2 -->|highlight / obfuscate| F2[Filter step<br/>on HDR pixels]
-    E3 -->|plugin type| L3[SDR layer]
-    D1 --> O[HdrOverlay]
+    E3 -->|other kind| L3[HdrState Lost]
+    D1 --> O[ImageSharp steps]
     F2 --> O
-    L3 --> O
     O --> C[HdrImage.Compose]
 ```
 
-`HdrImage.Compose` puts it together: the HDR tiles, the SDR displays from the SDR image at SDR white, then each step in order.
+`HdrImage.Compose` puts it together: each step in order on a copy of the HDR image.
 
 ### The white of the elements
 
 An element which is white in the editor can't simply be SDR white in the HDR file. Next to the HDR content it looks gray there,
 because the editor shows the capture tone mapped and its white is brighter than SDR white. The full white of the tone mapping is
 too bright on the other hand. Elements use the geometric middle of the two: `sqrt(SDR white × white of the tone mapping)`. The
-white of the tone mapping comes from `HdrContent`, measured on the composed image. Filters and the SDR displays keep SDR white.
+white of the tone mapping comes from `HdrContent`, measured on the HDR image. Filters and the SDR displays keep SDR white.
 
 ### Drawing with ImageSharp
 
@@ -221,12 +247,12 @@ toward dropping System.Drawing.
 
 | Part | Where |
 |---|---|
-| HDR pixels of a capture | `Greenshot.Base/Core/HdrImage.cs`, `HdrState.cs` |
+| HDR pixels of a capture | `Greenshot.Base/Hdr/HdrImage.cs`, `HdrParts.cs`, `HdrState.cs` (namespace `Greenshot.Base.Hdr`) |
 | Capturing HDR | `Greenshot.Base/Capturing/IHdrScreenCaptureBackend.cs`, `GraphicsCaptureBackend.cs`, `Native/WindowsGraphicsCaptureInterop.cs` |
-| Tone mapping | `Greenshot.Base/Native/HdrContent.cs`, `HdrToneMapper.cs`, `HdrImageToneMapping.cs` |
+| HDR content and tone mapping | `Greenshot.Base/Hdr/HdrContent.cs`; with Direct3D: `Greenshot.Base/Native/HdrToneMapper.cs`, `HdrImageToneMapping.cs`, `HdrDisplayInfo.cs` |
 | Remembered edits | `Greenshot.Base/Effects/ImageEdits.cs`, `LinearColorEffects.cs`, `FloatPixels.cs` |
-| Elements on HDR pixels | `Greenshot.Base/Core/HdrOverlay.cs`, `Greenshot.Base/ImageSharpDrawing/`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
-| Writing and reading files | `Greenshot.Base/Core/Export/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
+| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/` (`ImageSharpStep.cs`, `ImageSharpSteps.cs`, `RoomDrawing.cs`, ...), `Greenshot.Base/Interfaces/Drawing/IHdrDrawable.cs`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
+| Writing and reading files | `Greenshot.Base/Hdr/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
 | Recipes | `Greenshot.Base/Recipes/HdrOutput.cs`, the `Source`, `SaveFile` and `Notification` steps |
 
 ## Not (yet) supported

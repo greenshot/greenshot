@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -44,12 +45,17 @@ namespace Greenshot.Editor.Drawing
     internal static class ElementDrawing
     {
         /// <summary>
-        /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it has no such drawing (it is drawn
-        /// with GDI+ then). Only the editor's own element types: a subclass (e.g. a barcode) may draw differently. Everything is taken from the element
-        /// now: the drawing runs later on another thread (see HdrExport), while the element may change.
+        /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it draws nothing (e.g. an icon
+        /// without its icon). The editor's own element types (see <see cref="Supports"/>), and an element which draws itself (IHdrDrawable, e.g. the
+        /// barcode of the Zxing plugin); a subclass of another kind may draw differently. Everything is taken from the element now: the drawing runs
+        /// later on another thread (see HdrExport), while the element may change.
         /// </summary>
         public static Action<Image, ImageValues> Of(DrawableContainer element, NativePoint origin)
         {
+            if (element is IHdrDrawable drawsItself)
+            {
+                return drawsItself.CreateHdrDrawing(origin);
+            }
             var elementBounds = element.Bounds;
             var rect = new NativeRect(elementBounds.X - origin.X, elementBounds.Y - origin.Y, elementBounds.Width, elementBounds.Height);
             var bounds = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
@@ -209,6 +215,22 @@ namespace Greenshot.Editor.Drawing
         };
 
         /// <summary>
+        /// True when the element is drawn on the HDR pixels (see <see cref="Of"/>), or draws nothing there (e.g. the crop frame). Elements of
+        /// other types (a subclass of another kind) aren't: the capture can't be saved as HDR file while one is on it.
+        /// </summary>
+        public static bool Supports(DrawableContainer element) => element switch
+        {
+            IHdrDrawable => true,
+            TornEdgeContainer or CutMarkContainer or StepLabelContainer or SvgContainer or MetafileContainer or Emoji.EmojiContainer or CropContainer => true,
+            _ => element.GetType() == typeof(ImageContainer) || element.GetType() == typeof(HighlightContainer) || element.GetType() == typeof(ObfuscateContainer)
+                 || element.GetType() == typeof(SpeechbubbleContainer) || element.GetType() == typeof(TextContainer)
+                 || element.GetType() == typeof(RectangleContainer) || element.GetType() == typeof(EllipseContainer)
+                 || element.GetType() == typeof(ArrowContainer) || element.GetType() == typeof(LineContainer)
+                 || element.GetType() == typeof(FreehandContainer) || element.GetType() == typeof(IconContainer)
+                 || element.GetType() == typeof(CursorContainer)
+        };
+
+        /// <summary>
         /// The picture drawn into its place; the picture is copied now, the element may change it later
         /// </summary>
         private static Action<Image, ImageValues> PictureOf(System.Drawing.Image picture, Rectangle place, bool nearestNeighbor, bool shadow)
@@ -222,7 +244,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// A copy of the bitmap's pixels: the element may change its bitmap later. Disposed when collected, an overlay step has no end of its own.
+        /// A copy of the bitmap's pixels: the element may change its bitmap later. Disposed when collected, an ImageSharpStep has no end of its own.
         /// </summary>
         private static SixLabors.ImageSharp.Image<Rgba32> PixelsOf(Bitmap bitmap)
         {

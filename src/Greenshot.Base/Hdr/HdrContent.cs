@@ -23,11 +23,10 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Greenshot.Base.Core;
+using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
 
-namespace Greenshot.Base.Native;
-
+namespace Greenshot.Base.Hdr;
 /// <summary>
 /// Decides which brightness becomes white in the 8-bit screenshot of an HDR display.
 /// </summary>

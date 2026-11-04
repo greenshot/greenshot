@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Recipes;
 using Xunit;
 
@@ -107,7 +108,7 @@ namespace Greenshot.Tests.Recipes
                 var capture = new Greenshot.Base.Core.Capture(new System.Drawing.Bitmap(4, 2));
                 if (withHdr)
                 {
-                    var hdrImage = new Greenshot.Base.Core.HdrImage(4, 2, 240, 400);
+                    var hdrImage = new Greenshot.Base.Hdr.HdrImage(4, 2, 240, 400);
                     hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
                     hdrImage.BelongTo(capture.Image);
                     capture.HdrImage = hdrImage;

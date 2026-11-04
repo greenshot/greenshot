@@ -44,6 +44,7 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;

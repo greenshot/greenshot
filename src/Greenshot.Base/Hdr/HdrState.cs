@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Hdr
 {
     /// <summary>
     /// The HDR content of a capture (payload.hdr of a recipe, the HDR badge of the editor), see ISurface.HdrState

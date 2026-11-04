@@ -26,6 +26,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -100,11 +101,18 @@ namespace Greenshot.Base.Core
                 {
                     HdrImage = null;
                 }
+                if (_hdrParts != null && !_hdrParts.BelongsTo(_image))
+                {
+                    HdrParts = null;
+                }
             }
         }
 
         public void NullImage()
         {
+            // The surface took the image and the HDR image (it reads HdrImage, which joins the parts); parts which nobody took are released
+            _hdrParts?.Dispose();
+            _hdrParts = null;
             _image = null;
             _hdrImage = null;
         }
@@ -114,14 +122,57 @@ namespace Greenshot.Base.Core
         /// <inheritdoc />
         public HdrImage HdrImage
         {
-            get => _hdrImage;
+            get
+            {
+                JoinHdrParts();
+                return _hdrImage;
+            }
             set
             {
+                HdrParts = null;
                 if (!ReferenceEquals(_hdrImage, value))
                 {
                     _hdrImage?.Dispose();
                 }
                 _hdrImage = value;
+            }
+        }
+
+        private HdrParts _hdrParts;
+
+        /// <inheritdoc />
+        public HdrParts HdrParts
+        {
+            get => _hdrParts;
+            set
+            {
+                if (!ReferenceEquals(_hdrParts, value))
+                {
+                    _hdrParts?.Dispose();
+                }
+                _hdrParts = value;
+                if (value != null)
+                {
+                    _hdrImage?.Dispose();
+                    _hdrImage = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The parts which aren't joined yet into the HDR image of all of the capture, e.g. a capture of the whole screen which isn't cropped
+        /// </summary>
+        private void JoinHdrParts()
+        {
+            if (_hdrParts == null)
+            {
+                return;
+            }
+            var parts = _hdrParts;
+            _hdrParts = null;
+            using (parts)
+            {
+                _hdrImage = parts.BelongsTo(_image) && _image is Bitmap bitmap ? parts.Join(bitmap, new NativeRect(0, 0, bitmap.Width, bitmap.Height)) : null;
             }
         }
 
@@ -227,11 +278,13 @@ namespace Greenshot.Base.Core
             {
                 _image?.Dispose();
                 _hdrImage?.Dispose();
+                _hdrParts?.Dispose();
                 _cursor?.Dispose();
             }
 
             _image = null;
             _hdrImage = null;
+            _hdrParts = null;
             _cursor = null;
         }
 
@@ -243,6 +296,7 @@ namespace Greenshot.Base.Core
         {
             Log.Debug("Cropping to: " + cropRectangle);
             bool hdrImageBelongs = _hdrImage?.BelongsTo(_image) == true;
+            var hdrParts = _hdrParts?.BelongsTo(_image) == true ? _hdrParts : null;
             if (!ImageHelper.Crop(ref _image, ref cropRectangle))
             {
                 return false;
@@ -258,8 +312,27 @@ namespace Greenshot.Base.Core
             // What was found outside the selection is no longer in the capture
             CaptureDetails.CropFeatures(cropRectangle);
 
-            // The HDR image shows the same area as the image, when it belonged to the image
-            HdrImage = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
+            if (hdrParts != null)
+            {
+                // Now the area is known: only it is joined into the HDR image (e.g. the selection on the frozen screen)
+                _hdrParts = null;
+                using (hdrParts)
+                {
+                    HdrImage = _image is Bitmap croppedBitmap ? hdrParts.Join(croppedBitmap, cropRectangle) : null;
+                }
+            }
+            else
+            {
+                // The HDR image shows the same area as the image, when it belonged to the image; without HDR content in the area (e.g. only the part
+                // of an SDR display) it isn't kept, unless HDR was asked for (e.g. an opened JPEG XR file): Save as still suggests JPEG XR then
+                var cropped = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
+                if (cropped != null && !cropped.IsRequested && !cropped.HasHdrContent)
+                {
+                    cropped.Dispose();
+                    cropped = null;
+                }
+                HdrImage = cropped;
+            }
             _hdrImage?.BelongTo(_image);
 
             return true;

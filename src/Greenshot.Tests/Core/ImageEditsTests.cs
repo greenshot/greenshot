@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
@@ -99,7 +100,9 @@ namespace Greenshot.Tests.Core
             using var placed = ImageEdits.Place(new NativeRect(1, 0, 2, 2), new NativeSize(6, 6), new NativePoint(3, 2)).Apply(hdrImage);
 
             Assert.Equal(6, placed.Width);
-            Assert.Equal(new NativeRect(3, 2, 2, 2), Assert.Single(placed.TileAreas));
+            // The area at its place, around it transparent
+            Assert.Equal(5f, placed.Pixels[3, 2].ToVector4().X, 1);
+            Assert.Equal(0f, placed.Pixels[0, 0].ToVector4().W, 2);
         }
 
         [Fact]
@@ -111,7 +114,7 @@ namespace Greenshot.Tests.Core
                 .Apply(hdrImage);
 
             Assert.Equal(6, joined.Width);
-            Assert.Equal(new[] { new NativeRect(0, 0, 3, 2), new NativeRect(3, 0, 3, 2) }, joined.TileAreas);
+            Assert.Equal(5f, joined.Pixels[4, 1].ToVector4().X, 1);
         }
 
         [Fact]
@@ -139,19 +142,21 @@ namespace Greenshot.Tests.Core
 
             using var shadowed = ImageEdits.ForEffect(new DropShadowEffect(), new NativeSize(10, 10), new NativeSize(24, 24), matrix).Apply(hdrImage);
 
-            Assert.Equal(new NativeRect(6, 6, 10, 10), Assert.Single(shadowed.TileAreas));
+            Assert.Equal(5f, shadowed.Pixels[6, 6].ToVector4().X, 1);
+            Assert.Equal(0f, shadowed.Pixels[5, 5].ToVector4().W, 2);
         }
 
         [Fact]
-        public void TornEdges_TheBandsOfTheTeethComeFromThe8BitImage()
+        public void TornEdges_WithoutTheImages_LeavesTheBandsOfTheTeethOut()
         {
             var tornEdge = new TornEdgeEffect { ToothHeight = 3, GenerateShadow = false, Edges = new[] { true, false, true, false } };
             using var hdrImage = CreateHdrImage(20, 20, Gray(5));
 
             using var torn = ImageEdits.ForEffect(tornEdge, new NativeSize(20, 20), new NativeSize(20, 20), new Matrix()).Apply(hdrImage);
 
-            // Top and bottom are torn: their bands are left out, left and right stay
-            Assert.Equal(new NativeRect(0, 3, 20, 14), Assert.Single(torn.TileAreas));
+            // Top and bottom are torn: their bands are left out (transparent), left and right stay
+            Assert.Equal(0f, torn.Pixels[10, 1].ToVector4().W, 2);
+            Assert.Equal(5f, torn.Pixels[10, 10].ToVector4().X, 1);
         }
 
         [Theory]
@@ -220,27 +225,19 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void Resize_OfTwoDisplays_ScalesTheirPlaces()
+        public void Resize_OfTwoHdrDisplaysAndAnSdrDisplayBetweenThem_KeepsTheHighlights()
         {
             using var left = CreateHdrImage(4, 4, Gray(5));
             using var right = CreateHdrImage(4, 4, Gray(5));
-            using var both = HdrImage.Combine(12, 4, new[] { (left, new NativePoint(0, 0)), (right, new NativePoint(8, 0)) });
+            using var sdr = CreateBitmap(12, 4, Color.Black);
+            using var both = HdrImage.Combine(sdr, new[] { (left, new NativePoint(0, 0)), (right, new NativePoint(8, 0)) });
 
             using var half = both.Resize(6, 2);
 
-            Assert.Equal(new[] { new NativeRect(0, 0, 2, 2), new NativeRect(4, 0, 2, 2) }, half.TileAreas);
+            // Bicubic mixes across the edge of the displays now (one image, like the 8-bit resize), with its small overshoot
+            Assert.InRange(half.Pixels[0, 1].ToVector4().X, 4.8f, 5.3f);
+            Assert.InRange(half.Pixels[3, 1].ToVector4().X, -0.3f, 0.3f);
             Assert.True(half.HasHdrContent);
-        }
-
-        [Fact]
-        public void Exclude_AHoleInTheMiddle_LeavesTheRectanglesAroundIt()
-        {
-            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
-
-            using var withHole = ImageEdits.Exclude(new[] { new NativeRect(3, 4, 2, 2) }).Apply(hdrImage);
-
-            Assert.Equal(new[] { new NativeRect(0, 0, 10, 4), new NativeRect(0, 6, 10, 4), new NativeRect(0, 4, 3, 2), new NativeRect(5, 4, 5, 2) }, withHole.TileAreas);
-            Assert.Null(ImageEdits.Exclude(new[] { new NativeRect(0, 0, 10, 10) }).Apply(hdrImage));
         }
 
         [Fact]
@@ -322,46 +319,141 @@ namespace Greenshot.Tests.Core
         }
 
         /// <summary>
-        /// A highlight of 5 with the left column cleared (it is taken from the 8-bit image when composed)
+        /// An 8-bit image of one color
         /// </summary>
-        private static HdrImage CreateClearedHdrImage()
+        private static Bitmap CreateBitmap(int width, int height, Color color)
         {
-            using var hdrImage = CreateHdrImage(8, 2, Gray(5));
-            var cleared = new System.Collections.BitArray(2, true);
-            return hdrImage.ClearPixels(new[] { (new NativeRect(0, 0, 1, 2), cleared) });
+            var bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.Clear(color);
+            return bitmap;
         }
 
         [Fact]
-        public void RemoveTransparency_KeepsTheClearedPixels_TheyComeFromThe8BitImage()
+        public void Combine_PutsTheSdrDisplaysInAtTheSdrWhite_TheHdrDisplaysOverThem()
         {
-            using var cleared = CreateClearedHdrImage();
+            using var left = CreateHdrImage(4, 2, Gray(5));
+            using var sdr = CreateBitmap(8, 2, Color.White);
 
-            using var removed = ImageEdits.ForEffect(new RemoveTransparencyEffect { Color = Color.White }, new NativeSize(8, 2), new NativeSize(8, 2), new Matrix()).Apply(cleared);
+            using var complete = HdrImage.Combine(sdr, new[] { (left, new NativePoint(0, 0)) });
 
-            Assert.Equal(0f, removed.Pixels[0, 1].ToVector4().W, 3);
-            Assert.Equal(1f, removed.Pixels[4, 1].ToVector4().W, 3);
+            Assert.Equal(5f, complete.Pixels[1, 1].ToVector4().X, 1);
+            Assert.Equal(White, complete.Pixels[6, 1].ToVector4().X, 2);
         }
 
         [Fact]
-        public void Resize_OfClearedPixels_TheEdgeGoesOverThe8BitImage()
+        public void Room_OfABorder_IsTheBorderOfThe8BitImage()
         {
-            using var cleared = CreateClearedHdrImage();
-            using var resized = cleared.Resize(16, 4);
-            using var sdr = new Bitmap(16, 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(sdr))
-            {
-                graphics.Clear(Color.White);
-            }
+            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
+            using var oldImage = CreateBitmap(10, 10, Color.Gray);
+            var border = new BorderEffect { Width = 2, Color = Color.White };
+            using var matrix = new Matrix();
+            using var newImage = border.Apply(oldImage, matrix);
 
-            using var composed = resized.Compose(sdr);
+            using var bordered = ImageEdits.ForEffect(border, oldImage, newImage, matrix).Apply(hdrImage);
+            Assert.Equal(14, bordered.Width);
+            // The border is white at SDR white, the capture keeps its highlight
+            Assert.Equal(White, bordered.Pixels[0, 7].ToVector4().X, 2);
+            Assert.Equal(1f, bordered.Pixels[0, 7].ToVector4().W, 2);
+            Assert.Equal(5f, bordered.Pixels[7, 7].ToVector4().X, 1);
+        }
 
-            // The 8-bit image is opaque: so is the HDR file, also where the resize mixed cleared pixels in
-            for (int x = 0; x < 16; x++)
+        [Fact]
+        public void Room_OfADropShadow_IsTheShadowOfThe8BitImage()
+        {
+            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
+            using var oldImage = CreateBitmap(10, 10, Color.Gray);
+            var dropShadow = new DropShadowEffect();
+            using var matrix = new Matrix();
+            using var newImage = (Bitmap)dropShadow.Apply(oldImage, matrix);
+
+            using var shadowed = ImageEdits.ForEffect(dropShadow, oldImage, newImage, matrix).Apply(hdrImage);
+            Assert.Equal(newImage.Width, shadowed.Width);
+            // The room is drawn with ImageSharp: about the alpha of the 8-bit shadow (GDI+ blurs a bit differently), black
+            int offset = (int)matrix.OffsetX;
+            for (int y = 0; y < newImage.Height; y++)
             {
-                Assert.Equal(1f, composed.Pixels[x, 2].ToVector4().W, 2);
+                for (int x = 0; x < newImage.Width; x++)
+                {
+                    if (x >= offset && x < offset + 10 && y >= offset && y < offset + 10)
+                    {
+                        continue;
+                    }
+                    var pixel = shadowed.Pixels[x, y].ToVector4();
+                    Assert.InRange(pixel.W - newImage.GetPixel(x, y).A / 255f, -0.1f, 0.1f);
+                    Assert.Equal(0f, pixel.X, 2);
+                }
             }
-            Assert.Equal(White, composed.Pixels[0, 2].ToVector4().X, 2);
-            Assert.Equal(5f, composed.Pixels[12, 2].ToVector4().X, 1);
+            // The capture keeps its highlight
+            Assert.Equal(5f, shadowed.Pixels[offset + 5, offset + 5].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Room_OfABiggerCanvas_IsItsColorAtTheSdrWhite()
+        {
+            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
+            using var oldImage = CreateBitmap(10, 10, Color.Gray);
+            var canvas = new ResizeCanvasEffect(2, 3, 4, 5) { BackgroundColor = Color.White };
+            using var matrix = new Matrix();
+            using var newImage = (Bitmap)canvas.Apply(oldImage, matrix);
+
+            using var bigger = ImageEdits.ForEffect(canvas, oldImage, newImage, matrix).Apply(hdrImage);
+
+            Assert.Equal(newImage.Width, bigger.Width);
+            Assert.Equal(newImage.Height, bigger.Height);
+            Assert.Equal(White, bigger.Pixels[0, 0].ToVector4().X, 2);
+            Assert.Equal(1f, bigger.Pixels[0, 0].ToVector4().W, 2);
+            Assert.Equal(5f, bigger.Pixels[2, 4].ToVector4().X, 1);
+            Assert.Equal(White, bigger.Pixels[13, 18].ToVector4().X, 2);
+        }
+
+        [Fact]
+        public void PlaceOnBackground_IsTheBackground_OrTransparentForAColorWhichIsntOpaque()
+        {
+            using var hdrImage = CreateHdrImage(4, 4, Gray(5));
+
+            using var onWhite = ImageEdits.PlaceOnBackground(new NativeRect(0, 0, 4, 4), new NativeSize(8, 8), new NativePoint(2, 2), Color.White).Apply(hdrImage);
+            using var onNothing = ImageEdits.PlaceOnBackground(new NativeRect(0, 0, 4, 4), new NativeSize(8, 8), new NativePoint(2, 2), Color.FromArgb(128, 255, 255, 255)).Apply(hdrImage);
+
+            Assert.Equal(White, onWhite.Pixels[0, 0].ToVector4().X, 2);
+            Assert.Equal(5f, onWhite.Pixels[3, 3].ToVector4().X, 1);
+            // Like Surface.ExpandImage: a color which isn't opaque leaves the room transparent
+            Assert.Equal(0f, onNothing.Pixels[0, 0].ToVector4().W, 2);
+        }
+
+        [Fact]
+        public void Join_OfTwoPartsWhichCoverAllOfIt_HasThePixelsOfBoth()
+        {
+            using var hdrImage = CreateHdrImage(10, 4, Gray(5));
+
+            using var joined = ImageEdits.Join(new NativeSize(6, 4), new NativeRect(0, 0, 3, 4), new NativePoint(0, 0), new NativeRect(7, 0, 3, 4), new NativePoint(3, 0)).Apply(hdrImage);
+            Assert.Equal(5f, joined.Pixels[4, 2].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Draw_IsWhatComposeDoesWithTheSameSteps()
+        {
+            using var hdrImage = CreateHdrImage(40, 30, Gray(5));
+            // A cut, then something drawn over the cut
+            var cut = new SixLabors.ImageSharp.Drawing.EllipsePolygon(20, 15, 12, 8);
+            var cutAway = new ImageFilter("Cut", (image, _) => Greenshot.Base.ImageSharpDrawing.CutDrawing.CutAway(image, cut));
+            var area = new NativeRect(10, 5, 20, 20);
+            Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> draw = (image, values) =>
+                SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+                    SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(context, values.ColorOf(new Rgba32(255, 0, 0, 255)), 3f,
+                        new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));
+            var steps = new[] { Greenshot.Base.ImageSharpDrawing.ImageSharpStep.Of(cutAway), Greenshot.Base.ImageSharpDrawing.ImageSharpStep.Of(area, draw) };
+            using var saved = hdrImage.Compose(steps);
+
+            using var drawn = ImageEdits.Draw("test", steps).Apply(hdrImage);
+            for (int y = 0; y < 30; y++)
+            {
+                for (int x = 0; x < 40; x++)
+                {
+                    Assert.Equal(saved.Pixels[x, y], drawn.Pixels[x, y]);
+                }
+            }
+            Assert.Equal(0f, drawn.Pixels[20, 15].ToVector4().W, 2);
         }
 
         [Fact]

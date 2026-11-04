@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -30,6 +29,7 @@ using System.Numerics;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.ImageSharpDrawing;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -54,17 +54,25 @@ namespace Greenshot.Base.Effects
     }
 
     /// <summary>
-    /// The edits for the changes of the editor, done on the HDR image. What isn't in the HDR image (the room around it, e.g. a border or a shadow,
-    /// the torn teeth) comes from the 8-bit image when the HDR file is written (HdrImage.Compose), like an SDR display.
+    /// The edits for the changes of the editor, done on the HDR image, which is one image of the whole capture like the 8-bit image. What an edit
+    /// adds around the image (the room of a border, a shadow, a bigger canvas) is drawn with ImageSharp on the HDR image too (see RoomDrawing),
+    /// nothing is taken from the 8-bit image.
     /// </summary>
     public static class ImageEdits
     {
         /// <summary>
-        /// An area of the HDR image at a place of a new image of the size, e.g. a crop (the area at 0,0 of an image of its size),
-        /// a border (all of it, moved by the border width)
+        /// An area of the HDR image at a place of a new image of the size, e.g. a crop (the area at 0,0 of an image of its size). Around it the new
+        /// image is transparent, see <see cref="PlaceOnBackground"/> for a room with a color.
         /// </summary>
         public static IImageEdit Place(NativeRect area, NativeSize size, NativePoint location) =>
-            new ImageEdit($"Place {area} at {location} of {size.Width}x{size.Height}", hdrImage =>
+            PlaceOnBackground(area, size, location, Color.Transparent);
+
+        /// <summary>
+        /// Like <see cref="Place"/> on a background color, like the editor makes room (e.g. for the shadow of torn edges, see Surface.ExpandImage):
+        /// a color which isn't opaque leaves the room transparent
+        /// </summary>
+        public static IImageEdit PlaceOnBackground(NativeRect area, NativeSize size, NativePoint location, Color background) =>
+            new ImageEdit($"Place {area} at {location} of {size.Width}x{size.Height}{(background.A == 255 ? $" on {background}" : string.Empty)}", hdrImage =>
             {
                 var part = hdrImage.Crop(area);
                 if (part == null || (location.X == 0 && location.Y == 0 && part.Width == size.Width && part.Height == size.Height))
@@ -73,7 +81,8 @@ namespace Greenshot.Base.Effects
                 }
                 using (part)
                 {
-                    return HdrImage.Combine(size.Width, size.Height, new[] { (part, location) });
+                    return part.Redraw((pixels, white) => RoomDrawing.Place(pixels, new SixLabors.ImageSharp.Size(size.Width, size.Height),
+                        new SixLabors.ImageSharp.Point(location.X, location.Y), background.A == 255 ? Linear(background, white) : Vector4.Zero));
                 }
             });
 
@@ -94,19 +103,8 @@ namespace Greenshot.Base.Effects
                 {
                     parts.Add((secondPart, secondLocation));
                 }
-                var joined = HdrImage.Combine(size.Width, size.Height, parts);
-                if (joined != null)
-                {
-                    joined.IsRequested = hdrImage.IsRequested;
-                }
-                return joined;
+                return HdrImage.Combine(size, parts);
             });
-
-        /// <summary>
-        /// The areas are taken from the 8-bit image, e.g. an element drawn into it (torn edges, cut marks)
-        /// </summary>
-        public static IImageEdit Exclude(IReadOnlyList<NativeRect> areas) =>
-            new ImageEdit($"Exclude {string.Join(", ", areas)}", hdrImage => hdrImage.Exclude(areas));
 
         /// <summary>
         /// The HDR content is gone, e.g. the image was cleared: nothing is left to make, the image has no HDR content (not lost, there is none)
@@ -118,12 +116,16 @@ namespace Greenshot.Base.Effects
         public static IImageEdit Resize(NativeSize size) => new ImageEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));
 
         /// <summary>
-        /// The pixels which a change of the 8-bit image changed (e.g. the teeth of torn edges) are taken from the 8-bit image, the others keep
-        /// their HDR content (see HdrImage.ClearPixels and <see cref="ChangedPixels"/>)
+        /// An element drawn into the image for good (torn edges, a cut mark which is applied to the image): its steps (see ISurface.CreateImageSharpSteps)
+        /// are drawn on the HDR pixels, as when the HDR file is written with the element (see HdrImage.Draw)
         /// </summary>
-        public static IImageEdit ClearChanged(IReadOnlyList<(NativeRect Area, BitArray Changed)> changes) =>
-            new ImageEdit($"Take {changes.Sum(change => change.Area.Width * change.Area.Height)} pixels of {changes.Count} areas from the 8-bit image",
-                hdrImage => hdrImage.ClearPixels(changes));
+        /// <param name="name">What is drawn, for the log</param>
+        /// <param name="steps">What the element does: the cut of its filter, then its drawing</param>
+        public static IImageEdit Draw(string name, IReadOnlyList<ImageSharpStep> steps)
+        {
+            if (steps == null) throw new ArgumentNullException(nameof(steps));
+            return new ImageEdit($"Draw {name}", hdrImage => hdrImage.Draw(steps));
+        }
 
         /// <summary>
         /// One edit after the other
@@ -136,68 +138,58 @@ namespace Greenshot.Base.Effects
             });
 
         /// <summary>
-        /// Which pixels of the areas of the new image are different from the old image (which is at the offset in it); outside the old image
-        /// every pixel counts as changed
+        /// An 8-bit sRGB color (straight alpha) in linear light, its white at the value of white
         /// </summary>
-        public static IReadOnlyList<(NativeRect Area, BitArray Changed)> ChangedPixels(Image oldImage, Image newImage, NativePoint offset, IEnumerable<NativeRect> areas)
-        {
-            var newBounds = new NativeRect(0, 0, newImage.Width, newImage.Height);
-            var oldBounds = new NativeRect(offset.X, offset.Y, oldImage.Width, oldImage.Height);
-            var changes = new List<(NativeRect, BitArray)>();
-            // Read where they are: a copy only of an image which isn't a bitmap (e.g. a metafile)
-            using var oldCopy = oldImage is Bitmap ? null : new Bitmap(oldImage);
-            using var newCopy = newImage is Bitmap ? null : new Bitmap(newImage);
-            var oldBitmap = oldCopy ?? (Bitmap)oldImage;
-            var newBitmap = newCopy ?? (Bitmap)newImage;
-            foreach (var area in areas.Select(area => area.Intersect(newBounds)).Where(area => area.Width > 0 && area.Height > 0))
-            {
-                var changed = new BitArray(area.Width * area.Height, true);
-                var same = area.Intersect(oldBounds);
-                if (same.Width > 0 && same.Height > 0)
-                {
-                    // The old pixels of the area first: two accessors can't be used together in one action
-                    var oldPixels = new Bgra32[same.Width * same.Height];
-                    BitmapPixels.ProcessPixelRows<Bgra32>(oldBitmap, new Rectangle(same.X - offset.X, same.Y - offset.Y, same.Width, same.Height), pixels =>
-                    {
-                        for (int y = 0; y < pixels.Height; y++)
-                        {
-                            pixels.GetRowSpan(y).CopyTo(oldPixels.AsSpan(y * same.Width, same.Width));
-                        }
-                    }, ImageLockMode.ReadOnly);
-                    BitmapPixels.ProcessPixelRows<Bgra32>(newBitmap, same, pixels =>
-                    {
-                        for (int y = 0; y < pixels.Height; y++)
-                        {
-                            var newRow = pixels.GetRowSpan(y);
-                            var oldRow = oldPixels.AsSpan(y * same.Width, same.Width);
-                            int changedRow = (same.Y - area.Y + y) * area.Width + same.X - area.X;
-                            for (int x = 0; x < newRow.Length; x++)
-                            {
-                                changed[changedRow + x] = !newRow[x].Equals(oldRow[x]);
-                            }
-                        }
-                    }, ImageLockMode.ReadOnly);
-                }
-                changes.Add((area, changed));
-            }
-            return changes;
-        }
+        private static Vector4 Linear(Color color, float white) =>
+            color.A == 0
+                ? Vector4.Zero
+                : new Vector4(LinearColorEffects.Decode(color.R / 255f) * white, LinearColorEffects.Decode(color.G / 255f) * white,
+                    LinearColorEffects.Decode(color.B / 255f) * white, color.A / 255f);
 
         /// <summary>
         /// The edit of the HDR image for an effect of the editor which made the new image of the old one: like the one for the sizes, but the
-        /// torn edge effect takes only the pixels of the teeth from the 8-bit image (they follow no rectangle)
+        /// effects which add room (the torn edge effect, a border, a drop shadow, a bigger canvas) draw it on the HDR pixels with ImageSharp, like
+        /// the effect draws it into the 8-bit image (see RoomDrawing, CutDrawing)
         /// </summary>
         public static IImageEdit ForEffect(IEffect effect, Image oldImage, Image newImage, Matrix matrix)
         {
             var oldSize = new NativeSize(oldImage.Width, oldImage.Height);
             var newSize = new NativeSize(newImage.Width, newImage.Height);
-            if (effect is not TornEdgeEffect tornEdge)
+            var size = new SixLabors.ImageSharp.Size(newSize.Width, newSize.Height);
+            var offset = matrix == null ? new NativePoint(0, 0) : new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY));
+            var imageOffset = new SixLabors.ImageSharp.Point(offset.X, offset.Y);
+            switch (effect)
             {
-                return ForEffect(effect, oldSize, newSize, matrix);
+                case TornEdgeEffect tornEdge:
+                    return TornEdges(tornEdge, oldSize, size, matrix);
+                case DropShadowEffect dropShadow:
+                    // Like ImageHelper.CreateShadow: with the blur of GDI+ (odd size) the shadow is 0.1 darker
+                    int oddSize = (dropShadow.ShadowSize & 1) == 0 ? dropShadow.ShadowSize + 1 : dropShadow.ShadowSize;
+                    bool gdiBlur = Dapplo.Windows.Gdi32.GdiPlusApi.IsBlurPossible(oddSize);
+                    float darkness = gdiBlur ? dropShadow.Darkness + 0.1f : dropShadow.Darkness;
+                    int shadowSize = dropShadow.ShadowSize;
+                    return new ImageEdit($"Drop shadow {shadowSize}", hdrImage => hdrImage.Redraw((pixels, _) =>
+                        RoomDrawing.DropShadow(pixels, size, imageOffset, darkness, shadowSize, gdiBlur)));
+                case BorderEffect border:
+                    var borderColor = border.Color;
+                    int borderWidth = border.Width;
+                    return new ImageEdit($"Border {borderWidth} {borderColor}", hdrImage => hdrImage.Redraw((pixels, white) =>
+                        RoomDrawing.Border(pixels, borderWidth, Linear(borderColor, white))));
+                case ResizeCanvasEffect canvas:
+                    var canvasColor = canvas.BackgroundColor;
+                    return new ImageEdit($"Canvas {newSize.Width}x{newSize.Height} on {canvasColor}", hdrImage => hdrImage.Redraw((pixels, white) =>
+                        RoomDrawing.Place(pixels, size, imageOffset, Linear(canvasColor, white))));
+                default:
+                    return ForEffect(effect, oldSize, newSize, matrix);
             }
-            var offset = tornEdge.GenerateShadow && matrix != null ? new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY)) : new NativePoint(0, 0);
+        }
 
-            // The HDR image of one display is drawn for real (ImageSharp): cut by the same teeth, over its shadow and the background
+        /// <summary>
+        /// The torn edge effect drawn for real (ImageSharp): the image cut by the same teeth, over its shadow and the background
+        /// </summary>
+        private static IImageEdit TornEdges(TornEdgeEffect tornEdge, NativeSize oldSize, SixLabors.ImageSharp.Size size, Matrix matrix)
+        {
+            var tornOffset = tornEdge.GenerateShadow && matrix != null ? new NativePoint((int)Math.Round(matrix.OffsetX), (int)Math.Round(matrix.OffsetY)) : new NativePoint(0, 0);
             var outline = ImageHelper.CreateTornEdgeOutline(oldSize.Width, oldSize.Height, tornEdge.ToothHeight, tornEdge.HorizontalToothRange, tornEdge.VerticalToothRange,
                 tornEdge.Edges ?? new[] { true, true, true, true }, tornEdge.Seed);
             var shape = new SixLabors.ImageSharp.Drawing.Polygon(outline.Select(point => new SixLabors.ImageSharp.PointF(point.X, point.Y)).ToArray());
@@ -206,23 +198,8 @@ namespace Greenshot.Base.Effects
             float darkness = Dapplo.Windows.Gdi32.GdiPlusApi.IsBlurPossible(oddShadowSize) ? tornEdge.Darkness + 0.1f : tornEdge.Darkness;
             (float, int)? shadow = tornEdge.GenerateShadow ? (darkness, tornEdge.ShadowSize) : null;
             var backgroundColor = tornEdge.BackgroundColor;
-
-            // Over several displays the parts of the SDR displays are only in the 8-bit image: the image as it is, moved by the shadow, and in the
-            // bands of the teeth the pixels which the effect changed from the 8-bit image
-            var placed = new NativeRect(offset.X, offset.Y, oldSize.Width, oldSize.Height);
-            var inside = TornEdgeInside(tornEdge, oldSize);
-            var bands = HdrImage.Outside(placed, new[] { new NativeRect(offset.X + inside.X, offset.Y + inside.Y, inside.Width, inside.Height) });
-            var fromSdr = Place(new NativeRect(0, 0, oldSize.Width, oldSize.Height), newSize, offset).Then(ClearChanged(ChangedPixels(oldImage, newImage, offset, bands)));
-
             return new ImageEdit($"Torn edges (seed {tornEdge.Seed})", hdrImage => hdrImage.Redraw((pixels, white) =>
-            {
-                var background = backgroundColor.A == 0
-                    ? Vector4.Zero
-                    : new Vector4(LinearColorEffects.Decode(backgroundColor.R / 255f) * white, LinearColorEffects.Decode(backgroundColor.G / 255f) * white,
-                        LinearColorEffects.Decode(backgroundColor.B / 255f) * white, backgroundColor.A / 255f);
-                return CutDrawing.TornEdge(pixels, shape, new SixLabors.ImageSharp.Size(newSize.Width, newSize.Height), new SixLabors.ImageSharp.Point(offset.X, offset.Y),
-                    shadow, background);
-            }) ?? fromSdr.Apply(hdrImage));
+                CutDrawing.TornEdge(pixels, shape, size, new SixLabors.ImageSharp.Point(tornOffset.X, tornOffset.Y), shadow, Linear(backgroundColor, white))));
         }
 
         /// <summary>
@@ -258,7 +235,7 @@ namespace Greenshot.Base.Effects
                 case ResizeEffect:
                     return Resize(newSize);
                 case TornEdgeEffect tornEdge:
-                    // Without the images (see the other ForEffect): the bands of the teeth come from the 8-bit image, the shadow (offset) moves the rest
+                    // Without the images (the editor uses the other ForEffect, which draws them): the bands of the teeth are left out, the shadow (offset) moves the rest
                     var inside = TornEdgeInside(tornEdge, oldSize);
                     if (inside.Width <= 0 || inside.Height <= 0)
                     {
@@ -269,7 +246,7 @@ namespace Greenshot.Base.Effects
                 case BorderEffect:
                 case DropShadowEffect:
                 case ResizeCanvasEffect:
-                    // The image as it is, moved into the bigger one; the border, the shadow, the canvas come from the 8-bit image
+                    // The image as it is, moved into the bigger one; without the new image (the editor uses the other ForEffect) the room is transparent
                     return Place(all, newSize, offset);
                 case GrayscaleEffect:
                     return Colors("Grayscale", (context, _) => context.LinearGrayscale());
@@ -281,9 +258,8 @@ namespace Greenshot.Base.Effects
                 case RemoveTransparencyEffect removeTransparency:
                     var color = removeTransparency.Color;
                     var background = new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
-                    // Cleared pixels stay cleared: the 8-bit image has them with the background (e.g. the shadow of torn edges on it)
                     return new ImageEdit($"Remove transparency on {color}", hdrImage => hdrImage.Process((context, white) =>
-                        context.LinearBackground(white, background, hdrImage.HasClearedPixels)));
+                        context.LinearBackground(white, background)));
                 default:
                     return null;
             }

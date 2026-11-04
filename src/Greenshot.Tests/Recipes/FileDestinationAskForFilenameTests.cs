@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
@@ -402,11 +403,10 @@ namespace Greenshot.Tests.Recipes
                 surface.AddElement(highlight, false, false);
             }
 
-            using var overlay = surface.CreateHdrOverlay();
+            var steps = surface.CreateImageSharpSteps();
 
-            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Draw != null).ToArray());
-            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
-            var drawn = overlay.Steps[0];
+            Assert.Equal(new[] { true, false, false, false }, steps.Select(step => step.Draw != null).ToArray());
+            var drawn = steps[0];
             // The rectangle is drawn only where it draws, at its place
             Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));
         }
@@ -502,11 +502,10 @@ namespace Greenshot.Tests.Recipes
                 using (var hdrDisplay = new HdrImage(4, 4, 240, 400))
                 {
                     hdrDisplay.Pixels[3, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
-                    capture.HdrImage = HdrImage.Combine(8, 4, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
+                    capture.HdrImage = HdrImage.Combine(bitmap, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
                 }
                 capture.HdrImage.BelongTo(capture.Image);
                 using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
-                Assert.False(surface.HdrImage.IsComplete);
                 var ui = new SaveDialogUserInteraction(path);
 
                 var result = await ExportAsync(surface, ui, HdrOutput.Auto);
