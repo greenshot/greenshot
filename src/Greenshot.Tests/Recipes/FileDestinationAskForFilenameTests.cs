@@ -404,7 +404,7 @@ namespace Greenshot.Tests.Recipes
             using var overlay = surface.CreateHdrOverlay();
 
             Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Draw != null).ToArray());
-            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
             var drawn = overlay.Steps[0];
             // The rectangle is drawn only where it draws, at its place
             Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));

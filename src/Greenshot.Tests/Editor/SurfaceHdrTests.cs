@@ -507,7 +507,7 @@ namespace Greenshot.Tests.Editor
             using var overlay = surface.CreateHdrOverlay();
 
             Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
-            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
         }
 
         [Fact]
@@ -533,7 +533,7 @@ namespace Greenshot.Tests.Editor
 
             using (var overlay = surface.CreateHdrOverlay())
             {
-                Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+                Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
                 Assert.Empty(overlay.ReplacedAreas);
             }
             using var composed = Compose(surface);
