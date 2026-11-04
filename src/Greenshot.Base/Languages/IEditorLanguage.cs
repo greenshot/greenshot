@@ -562,6 +562,11 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextBlurRadiusTextHeight { get; }
 
         /// <summary>
+        /// Text recognition failed, blur and pixelate keep the toolbar value
+        /// </summary>
+        string ObfuscateOcrFailedKeepsValue { get; }
+
+        /// <summary>
         /// Color:
         /// </summary>
         string ObfuscateTextColor { get; }

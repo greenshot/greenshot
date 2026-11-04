@@ -2777,6 +2777,8 @@ namespace Greenshot.Editor.Drawing
         // The OCR started for drawn obfuscations, once per image
         private Task<List<IOcrLineFeature>> _obfuscationOcrTask;
         private Image _obfuscationOcrImage;
+        // The image for which the editor was told that OCR failed
+        private Image _obfuscationOcrFailureShownImage;
 
         /// <summary>
         /// The OCR provider for drawn obfuscations, tests set their own; null uses the registered one
@@ -2901,6 +2903,12 @@ namespace Greenshot.Editor.Drawing
             catch (Exception ex)
             {
                 LOG.Warn("OCR for the strength of an obfuscation failed, it keeps its value", ex);
+                // Once per image, the next obfuscation tries OCR again
+                if (!ReferenceEquals(_obfuscationOcrFailureShownImage, Image))
+                {
+                    _obfuscationOcrFailureShownImage = Image;
+                    SendMessageEvent(this, SurfaceMessageTyp.Error, global::Greenshot.Base.Languages.Texts.Editor.ObfuscateOcrFailedKeepsValue);
+                }
             }
         }
 

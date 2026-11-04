@@ -170,6 +170,8 @@ namespace Greenshot.Tests.Editor
 
             public void Finish() => _running.SetResult(_lines);
 
+            public void Fail() => _running.SetException(new InvalidOperationException("OCR failed"));
+
             public Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null) => DoOcrAsync((ISurface)null, languageTag);
 
             public Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null)
@@ -247,6 +249,34 @@ namespace Greenshot.Tests.Editor
             Assert.Equal(Expected(untouched, 20), Strength(untouched));
             Assert.Equal(lastUsed + 7, Strength(changed));
             Assert.Equal(1, ocr.Calls);
+        }
+
+        [Fact]
+        public void DrawnObfuscation_OcrFails_KeepsTheValue_TellsOncePerImage_AndTriesAgain()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            var ocr = new FakeOcrProvider(false, Line(100, 130, 200, 20));
+            surface.ObfuscationOcrProvider = ocr;
+            var errors = new List<string>();
+            surface.SurfaceMessage += (sender, e) =>
+            {
+                if (e.MessageType == SurfaceMessageTyp.Error)
+                {
+                    errors.Add(e.Message);
+                }
+            };
+            int lastUsed = Strength(new ObfuscateContainer(surface));
+
+            var first = Draw(surface);
+            ocr.Fail();
+            Assert.Equal(lastUsed, Strength(first));
+            Assert.Single(errors);
+
+            // The next obfuscation tries again, a second failure isn't reported again
+            Draw(surface);
+            ocr.Fail();
+            Assert.Equal(2, ocr.Calls);
+            Assert.Single(errors);
         }
     }
 }
