@@ -389,12 +389,12 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Overlay_HasLayersOnlyWhereSomethingIsDrawn()
+        public void Overlay_DrawsOnlyWhereSomethingIsDrawn()
         {
             using var surface = CreateBrightHdrSurface();
             var rectangle = new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 };
             surface.AddElement(rectangle, false, false);
-            // Highlighters draw nothing themselves: no layer after them, however many there are
+            // Highlighters draw nothing themselves: only their filters, however many there are
             for (int i = 0; i < 3; i++)
             {
                 var highlight = new HighlightContainer(surface) { Left = 2 * i, Top = 2, Width = 2, Height = 4 };
@@ -403,11 +403,11 @@ namespace Greenshot.Tests.Recipes
 
             using var overlay = surface.CreateHdrOverlay();
 
-            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Layer != null).ToArray());
-            var layer = overlay.Steps[0];
-            // The layer is only as big as what is drawn into it, at its place
-            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)),
-                new NativeRect(layer.Location, new NativeSize(layer.Layer.Width, layer.Layer.Height)));
+            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Draw != null).ToArray());
+            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+            var drawn = overlay.Steps[0];
+            // The rectangle is drawn only where it draws, at its place
+            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));
         }
 
         [Fact]
