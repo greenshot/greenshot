@@ -161,6 +161,46 @@ namespace Greenshot.Tests.Editor
             surface.Redo(); Assert.Equal(Color.Magenta, surface.DimensionStyle.BackgroundColor);
         }
         [Fact]
+        public void BackgroundOverrides_AreIndependentUndoableAndPersistWithRememberedColour()
+        {
+            using var surface = new Surface(new Bitmap(500, 400)); var first = Line(surface); var second = Line(surface, 200);
+            var transparent = surface.DimensionStyle.WithBackground(Color.LightYellow).WithBackgroundTransparency(true);
+            surface.SetDimensionStyle(transparent);
+            Assert.Equal(Color.LightYellow.ToArgb(), transparent.WithBackgroundTransparency(false).BackgroundColor.ToArgb());
+            first.SetDimensionBackground(0, Color.Magenta);
+            second.SetDimensionBackground(0, Color.Cyan);
+            first.SetDimensionBackground(0, Color.FromArgb(0, first.GetDimensionBackground(0).Value));
+            surface.Undo(); Assert.Equal(Color.Magenta.ToArgb(), first.GetDimensionBackground(0).Value.ToArgb());
+            surface.Redo(); Assert.Equal(0, first.GetDimensionBackground(0).Value.A);
+            Assert.Equal(Color.Magenta.ToArgb(), Color.FromArgb(255, first.GetDimensionBackground(0).Value).ToArgb());
+            Assert.Equal(Color.Cyan.ToArgb(), second.GetDimensionBackground(0).Value.ToArgb());
+            using (var rendered = (Bitmap)surface.GetImageForExport())
+            {
+                var label = Assert.Single(DimensionLayout.Labels(second)); int cyan = 0;
+                for (int y = label.Bounds.Top; y < label.Bounds.Bottom; y++)
+                for (int x = label.Bounds.Left; x < label.Bounds.Right; x++)
+                    if (rendered.GetPixel(x, y).ToArgb() == Color.Cyan.ToArgb()) cyan++;
+                Assert.True(cyan > 50);
+            }
+            var rectangle = new RectangleContainer(surface) { Left = 250, Top = 150, Width = 100, Height = 100 };
+            surface.AddElement(rectangle, false); rectangle.SetDimensionBackground(0, Color.Red); rectangle.SetDimensionBackground(1, Color.Blue);
+            Assert.Equal(Color.Red.ToArgb(), rectangle.GetDimensionBackground(0).Value.ToArgb());
+            Assert.Equal(Color.Blue.ToArgb(), rectangle.GetDimensionBackground(1).Value.ToArgb());
+            using var bytes = new MemoryStream(); var handler = new GreenshotFileFormatHandler();
+            Assert.True(handler.TrySaveToStream((Bitmap)surface.Image, bytes, ".greenshot", surface)); bytes.Position = 0;
+            using var loaded = (Surface)handler.LoadSurface(bytes);
+            Assert.Equal(Color.LightYellow.ToArgb(), loaded.DimensionStyle.WithBackgroundTransparency(false).BackgroundColor.ToArgb());
+            Assert.Equal(first.GetDimensionBackground(0).Value.ToArgb(), ((DrawableContainer)loaded.Elements[0]).GetDimensionBackground(0).Value.ToArgb());
+            var copies = DrawableContainerClipboard.Deserialize(DrawableContainerClipboard.Serialize(new DrawableContainerList { first, rectangle }));
+            Assert.Equal(first.GetDimensionBackground(0).Value.ToArgb(), ((DrawableContainer)copies[0]).GetDimensionBackground(0).Value.ToArgb());
+            Assert.Equal(Color.Blue.ToArgb(), ((DrawableContainer)copies[1]).GetDimensionBackground(1).Value.ToArgb());
+            ((DrawableContainer)copies[1]).SetDimensionBackground(1, Color.Green);
+            Assert.Equal(Color.Blue.ToArgb(), rectangle.GetDimensionBackground(1).Value.ToArgb());
+            first.SetDimensionBackground(0, null); Assert.Null(first.GetDimensionBackground(0));
+            surface.Undo(); Assert.Equal(0, first.GetDimensionBackground(0).Value.A);
+        }
+
+        [Fact]
         public void Panel_PrecisionGridInheritanceBackgroundAndVisualSmoke()
         {
             Sta(() =>
@@ -177,12 +217,25 @@ namespace Greenshot.Tests.Editor
                 Field<ComboBox>(panel, "_edgeFormat").SelectedIndex = 3; Field<NumericUpDown>(panel, "_edgeDigits").Value = 5;
                 Assert.Equal(5, line.GetDimensionFormat(0).Digits);
                 Field<ComboBox>(panel, "_edgeFormat").SelectedIndex = 0; Assert.Null(line.GetDimensionFormat(0));
-                Field<CheckBox>(panel, "_dimensionTransparent").Checked = false; Assert.Equal(Color.White, surface.DimensionStyle.BackgroundColor);
+                Field<CheckBox>(panel, "_dimensionTransparent").Checked = false; Assert.Equal(Color.White.ToArgb(), line.GetDimensionBackground(0).Value.ToArgb());
+                line.SetDimensionBackground(0, Color.LightYellow);
+                Field<CheckBox>(panel, "_dimensionTransparent").Checked = true;
+                Field<CheckBox>(panel, "_dimensionTransparent").Checked = false;
+                Assert.Equal(Color.LightYellow.ToArgb(), line.GetDimensionBackground(0).Value.ToArgb());
+                Field<CheckBox>(panel, "_inheritDimensionBackground").Checked = true; Assert.Null(line.GetDimensionBackground(0));
                 surface.SetDimensionStyle(surface.DimensionStyle.WithBackground(Color.LightYellow));
                 Assert.Equal(3, surface.DimensionStyle.Format.Digits);
                 using var bitmap = new Bitmap(panel.Width, panel.Height); panel.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size));
                 bitmap.Save(Path.Combine(Path.GetTempPath(), "GreenshotPlus-v080-measurement-panel.png"), ImageFormat.Png);
                 using var rendered = surface.GetImageForExport(); rendered.Save(Path.Combine(Path.GetTempPath(), "GreenshotPlus-v080-rotated-dimension.png"), ImageFormat.Png);
+                var body = Field<FlowLayoutPanel>(panel, "_body");
+                foreach (FlowLayoutPanel section in body.Controls)
+                {
+                    var header = Assert.IsType<Button>(section.Controls[0]); var content = section.Controls[1];
+                    int height = section.Height; Assert.True(content.Visible);
+                    header.PerformClick(); Application.DoEvents(); Assert.False(content.Visible); Assert.True(section.Height < height);
+                    header.PerformClick(); Application.DoEvents(); Assert.True(content.Visible);
+                }
             });
         }
         private static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);

@@ -5,6 +5,21 @@ using Greenshot.Editor.Measurements;
 
 namespace Greenshot.Editor.Memento
 {
+    internal sealed class DimensionBackgroundMemento : IMemento
+    {
+        private readonly DrawableContainer _owner;
+        private readonly int[] _colors;
+        private readonly bool[] _overrides;
+        internal DimensionBackgroundMemento(DrawableContainer owner)
+        { _owner = owner; _colors = owner.DimensionBackgrounds; _overrides = owner.DimensionBackgroundOverrides; }
+        public IMemento Restore()
+        {
+            var inverse = new DimensionBackgroundMemento(_owner); _owner.RestoreDimensionBackgrounds(_colors, _overrides);
+            if (_owner.Parent != null) _owner.Parent.Modified = true; return inverse;
+        }
+        public bool Merge(IMemento other) => false;
+        public void Dispose() { }
+    }
     internal sealed class DimensionVisibilityMemento : IMemento
     {
         private readonly DrawableContainer _owner;

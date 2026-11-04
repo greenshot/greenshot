@@ -56,9 +56,9 @@ namespace Greenshot.Editor.Controls
                 _dimensionDocument.SetDimensionStyle(new DimensionStyle(current.Family,current.Size,current.FontStyle,dialog.Color,current.Format,current.BackgroundColor));
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this,EventArgs.Empty);
             };
-            _body.Controls.AddRange(new Control[] { new Label { Text="Edge dimensions",AutoSize=true },_dimensionEdges });
+            AddCategory("Edge dimensions", _dimensionEdges);
             InitializeDimensionFormatControls();
-            _body.Controls.AddRange(new Control[] { _dimensionStyleLabel,_dimensionFont,_dimensionColor,_dimensionWarning });
+            AddCategory("Dimension font", _dimensionStyleLabel, _dimensionFont, _dimensionColor, _dimensionWarning);
         }
 
         internal void RefreshDimensionLabels(Surface document)

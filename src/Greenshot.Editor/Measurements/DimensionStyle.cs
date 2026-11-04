@@ -20,7 +20,10 @@ namespace Greenshot.Editor.Measurements
             Format = format ?? DimensionFormat.Automatic; BackgroundColor = backgroundColor ?? System.Drawing.Color.Transparent;
         }
         public DimensionStyle WithFormat(DimensionFormat format) => new DimensionStyle(Family, Size, FontStyle, Color, format, BackgroundColor);
-        public DimensionStyle WithBackground(Color color) => new DimensionStyle(Family, Size, FontStyle, Color, Format, color);
+        public DimensionStyle WithBackground(Color color) => new DimensionStyle(Family, Size, FontStyle, Color, Format,
+            color == System.Drawing.Color.Transparent ? System.Drawing.Color.FromArgb(0, BackgroundColor) : color);
+        public DimensionStyle WithBackgroundTransparency(bool transparent) => new DimensionStyle(Family, Size, FontStyle, Color, Format,
+            System.Drawing.Color.FromArgb(transparent ? 0 : 255, BackgroundColor));
         public Font CreateFont()
         {
             try { return new Font(Family, Size * 96 / 72, FontStyle, GraphicsUnit.Pixel); }

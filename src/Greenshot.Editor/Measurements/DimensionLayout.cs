@@ -137,9 +137,10 @@ namespace Greenshot.Editor.Measurements
                 {
                     graphics.TranslateTransform(label.Center.X,label.Center.Y); graphics.RotateTransform(label.Angle);
                     graphics.TextRenderingHint=System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-                    if (style.BackgroundColor.A != 0)
+                    var backgroundColor = owner.GetDimensionBackground(label.Edge.Index) ?? style.BackgroundColor;
+                    if (backgroundColor.A != 0)
                     {
-                        using var background = new SolidBrush(style.BackgroundColor);
+                        using var background = new SolidBrush(backgroundColor);
                         graphics.FillRectangle(background, -label.Width / 2f, -label.Height / 2f, label.Width, label.Height);
                     }
                     TextContainer.DrawText(graphics,new NativeRect(-label.Width/2,-label.Height/2,label.Width,label.Height),0,style.Color,false,format,label.Text,font);

@@ -77,7 +77,11 @@ namespace Greenshot.Editor.Drawing
             base.OnMouseCaptureChanged(e);
             if (!Capture)
             {
-                EndExistingHandleGesture(); CancelSelectionBox(); CancelPolygonInteraction(); ClearSnapGuide();
+                EndExistingHandleGesture(); CancelSelectionBox();
+                // WinForms releases capture after every click. Polygon creation spans
+                // several clicks, whereas a vertex drag must roll back if capture is lost.
+                if (_vertexOwner != null) CancelPolygonInteraction();
+                ClearSnapGuide();
                 _mouseDown = false;
                 if (_mouseDownElement != null) _mouseDownElement.Status = Greenshot.Base.Interfaces.Drawing.EditStatus.IDLE;
                 _mouseDownElement = null;

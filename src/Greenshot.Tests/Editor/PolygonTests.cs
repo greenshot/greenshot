@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
@@ -26,6 +27,89 @@ namespace Greenshot.Tests.Editor
             var polygon = new PolygonContainer(surface);
             polygon.SetVertices(new[] { new Point(10, 10), new Point(110, 10), new Point(10, 110) });
             surface.AddElement(polygon); return polygon;
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void EditorToolbar_FirstReleaseRetainsAnchorAndPreviewThenCompletesPolygon(bool moveWhileHeld)
+        {
+            Sta(() =>
+            {
+                using var surface = new Surface(new Bitmap(400, 400));
+                using var editor = new Greenshot.Editor.Forms.ImageEditorForm(surface, true, false);
+                editor.Show(); Application.DoEvents();
+                var button = (ToolStripButton)typeof(Greenshot.Editor.Forms.ImageEditorForm).GetField("_polygonButton", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
+                button.PerformClick();
+                int downs = 0, ups = 0;
+                int captureLosses = 0;
+                surface.MouseDown += (s, e) => downs++;
+                surface.MouseUp += (s, e) => ups++;
+                surface.MouseCaptureChanged += (s, e) => { if (!surface.Capture) captureLosses++; };
+                NativeMouse(surface, 0x201, 50, 50, true);
+                Assert.True(downs == 1, "Native mouse-down dispatch count: " + downs);
+                if (moveWhileHeld) NativeMouse(surface, 0x200, 80, 65, true);
+                NativeMouse(surface, 0x202, moveWhileHeld ? 80 : 50, moveWhileHeld ? 65 : 50);
+                Assert.True(ups == 1, "Native mouse-up dispatch count: " + ups);
+                Assert.True(captureLosses > 0, "The regression must exercise the native release of mouse capture.");
+                Assert.Equal(DrawingModes.Polygon, surface.DrawingMode);
+                var anchored = (System.Collections.Generic.List<Point>)typeof(Surface).GetField("_polygonPoints", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(surface);
+                Assert.Equal(new[] { new Point(50, 50) }, anchored);
+                NativeMouse(surface, 0x200, 200, 50);
+                using (var preview = new Bitmap(surface.Width, surface.Height))
+                {
+                    surface.DrawToBitmap(preview, new Rectangle(Point.Empty, preview.Size));
+                    int blue = 0;
+                    for (int y = 40; y <= 60; y++) for (int x = 40; x <= 210; x++)
+                        if (preview.GetPixel(x, y).ToArgb() == Color.DeepSkyBlue.ToArgb()) blue++;
+                    Assert.True(blue > 20, "The anchored first segment must remain visible after release.");
+                }
+                foreach (var point in new[] { new Point(200, 50), new Point(50, 200), new Point(50, 50) })
+                { NativeMouse(surface, 0x201, point.X, point.Y, true); NativeMouse(surface, 0x202, point.X, point.Y); }
+                Application.DoEvents();
+                var polygon = Assert.IsType<PolygonContainer>(Assert.Single(surface.Elements));
+                Assert.Equal(new[] { new Point(50, 50), new Point(200, 50), new Point(50, 200) }, polygon.Vertices);
+                Assert.True(polygon.Selected); Assert.Equal(DrawingModes.None, surface.DrawingMode);
+            });
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr handle, int message, IntPtr wParam, IntPtr lParam);
+        private static void NativeMouse(Surface surface, int message, int x, int y, bool pressed = false)
+        {
+            SendMessage(surface.Handle, message, new IntPtr(pressed ? 1 : 0), new IntPtr((y << 16) | (x & 0xffff)));
+            Application.DoEvents();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void NativeVertexDrag_NormalReleaseCommitsAndCaptureLossRollsBack(bool interruptCapture)
+        {
+            Sta(() =>
+            {
+                using var surface = new Surface(new Bitmap(400, 400));
+                using var editor = new Greenshot.Editor.Forms.ImageEditorForm(surface, true, false);
+                editor.Show(); Application.DoEvents();
+                var polygon = Triangle(surface); surface.SelectElement(polygon);
+                var before = polygon.Vertices; int history = UndoCount(surface); surface.Modified = false;
+                NativeMouse(surface, 0x201, 110, 10, true);
+                NativeMouse(surface, 0x200, 140, 40, true);
+                Assert.NotEqual(before, polygon.Vertices);
+                if (interruptCapture) { surface.Capture = false; Application.DoEvents(); }
+                NativeMouse(surface, 0x202, 140, 40);
+                Assert.False(surface.Capture);
+                if (interruptCapture)
+                {
+                    Assert.Equal(before, polygon.Vertices); Assert.Equal(history, UndoCount(surface)); Assert.False(surface.Modified);
+                }
+                else
+                {
+                    Assert.Equal(new Point(140, 40), polygon.Vertices[1]); Assert.Equal(history + 1, UndoCount(surface));
+                    surface.Undo(); Assert.Equal(before, polygon.Vertices);
+                    surface.Redo(); Assert.Equal(new Point(140, 40), polygon.Vertices[1]);
+                }
+            });
         }
 
         [Fact]

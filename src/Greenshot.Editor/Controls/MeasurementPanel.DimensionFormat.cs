@@ -14,7 +14,17 @@ namespace Greenshot.Editor.Controls
         private readonly NumericUpDown _edgeDigits = new NumericUpDown { Width = 36, Minimum = 0, Maximum = 10, AccessibleName = "Selected edge dimension digits" };
         private readonly CheckBox _dimensionTransparent = new CheckBox { Text = "Transparent background", AutoSize = true, AccessibleName = "Transparent dimension background" };
         private readonly Button _dimensionBackground = new Button { Text = "Background colour…", Width = 214, AccessibleName = "Dimension background colour" };
+        private readonly CheckBox _inheritDimensionBackground = new CheckBox { Text = "Use document background", AutoSize = true };
+        private readonly Label _backgroundScope = new Label { AutoSize = true };
         private int SelectedDimensionEdge => _dimensionEdges.CurrentRow?.Tag is int index ? index : -1;
+        private bool HasSelectedDimension => _selected != null && SelectedDimensionEdge >= 0;
+        private Color CurrentDimensionBackground => (HasSelectedDimension ? _selected.GetDimensionBackground(SelectedDimensionEdge) : null)
+            ?? _dimensionDocument?.DimensionStyle.BackgroundColor ?? Color.Transparent;
+        private void SetCurrentDimensionBackground(Color color)
+        {
+            if (HasSelectedDimension) _selected.SetDimensionBackground(SelectedDimensionEdge, color);
+            else _dimensionDocument.SetDimensionStyle(_dimensionDocument.DimensionStyle.WithBackground(color));
+        }
 
         private void InitializeDimensionFormatControls()
         {
@@ -26,10 +36,16 @@ namespace Greenshot.Editor.Controls
                 first.Margin = new Padding(0, 0, 4, 0); second.Margin = Padding.Empty;
                 row.Controls.AddRange(new[] { first, second }); return row;
             }
-            _body.Controls.AddRange(new Control[] {
+            AddCategory("Dimension precision",
                 new Label { Text = "Document precision / digits", AutoSize = true }, Row(_documentFormat, _documentDigits), _applyDimensionFormat,
-                new Label { Text = "Selected edge precision / digits", AutoSize = true }, Row(_edgeFormat, _edgeDigits),
-                _dimensionTransparent, _dimensionBackground });
+                new Label { Text = "Selected edge precision / digits", AutoSize = true }, Row(_edgeFormat, _edgeDigits));
+            AddCategory("Dimension background", _backgroundScope, _inheritDimensionBackground, _dimensionTransparent, _dimensionBackground);
+            _inheritDimensionBackground.CheckedChanged += (s, e) =>
+            {
+                if (_dimensionsUpdating || !HasSelectedDimension) return;
+                _selected.SetDimensionBackground(SelectedDimensionEdge, _inheritDimensionBackground.Checked ? (Color?)null : CurrentDimensionBackground);
+                RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this, EventArgs.Empty);
+            };
             _documentFormat.SelectedIndexChanged += (s,e) => ChangeDocumentFormat();
             _documentDigits.ValueChanged += (s,e) => ChangeDocumentFormat();
             _edgeFormat.SelectedIndexChanged += (s,e) => ChangeEdgeFormat();
@@ -44,17 +60,15 @@ namespace Greenshot.Editor.Controls
             _dimensionTransparent.CheckedChanged += (s,e) =>
             {
                 if (_dimensionsUpdating || _dimensionDocument == null) return;
-                var style = _dimensionDocument.DimensionStyle;
-                _dimensionDocument.SetDimensionStyle(style.WithBackground(_dimensionTransparent.Checked ? Color.Transparent : Color.White));
+                SetCurrentDimensionBackground(Color.FromArgb(_dimensionTransparent.Checked ? 0 : 255, CurrentDimensionBackground));
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this, EventArgs.Empty);
             };
             _dimensionBackground.Click += (s,e) =>
             {
                 if (_dimensionDocument == null) return;
-                var style = _dimensionDocument.DimensionStyle;
-                using var picker = new ColorDialog { Color = style.BackgroundColor.A == 0 ? Color.White : style.BackgroundColor, FullOpen = true };
+                using var picker = new ColorDialog { Color = Color.FromArgb(255, CurrentDimensionBackground), FullOpen = true };
                 if (picker.ShowDialog(FindForm()) != DialogResult.OK) return;
-                _dimensionDocument.SetDimensionStyle(style.WithBackground(picker.Color));
+                SetCurrentDimensionBackground(picker.Color);
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this, EventArgs.Empty);
             };
         }
@@ -95,8 +109,12 @@ namespace Greenshot.Editor.Controls
                 ShowFormat(_edgeFormat, _edgeDigits, _selected?.GetDimensionFormat(SelectedDimensionEdge), true, _selected != null && SelectedDimensionEdge >= 0);
                 _applyDimensionFormat.Enabled = _dimensionDocument != null;
                 _dimensionTransparent.Enabled = _dimensionBackground.Enabled = _dimensionDocument != null;
-                _dimensionTransparent.Checked = style.BackgroundColor.A == 0;
-                _dimensionBackground.BackColor = style.BackgroundColor.A == 0 ? SystemColors.Control : style.BackgroundColor;
+                _backgroundScope.Text = HasSelectedDimension ? "Selected edge background" : "Document default background";
+                _inheritDimensionBackground.Visible = HasSelectedDimension;
+                _inheritDimensionBackground.Checked = HasSelectedDimension && !_selected.GetDimensionBackground(SelectedDimensionEdge).HasValue;
+                var background = CurrentDimensionBackground;
+                _dimensionTransparent.Checked = background.A == 0;
+                _dimensionBackground.BackColor = Color.FromArgb(255, background);
             }
             finally { _dimensionsUpdating = updating; }
         }

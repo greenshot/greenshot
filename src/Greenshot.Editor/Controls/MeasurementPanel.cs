@@ -64,9 +64,9 @@ namespace Greenshot.Editor.Controls
             };
             _properties.DataError += (s, e) => { e.ThrowException = false; };
             var origin = new Label { Text = "Coordinates: image top-left (0,0).", AutoSize = true, MaximumSize = new Size(215, 0) };
-            _body.Controls.AddRange(new Control[] { _units, _properties });
+            AddCategory("Object geometry", _properties, origin);
             InitializeDimensionControls();
-            _body.Controls.AddRange(new Control[] { origin, _status, calibrate, _clear });
+            AddCategory("Units and calibration", _units, _status, calibrate, _clear);
             Controls.Add(_body);
             Controls.Add(_toggle);
             _body.Visible = false;
@@ -76,10 +76,29 @@ namespace Greenshot.Editor.Controls
             _clear.Click += (s, e) => ClearRequested?.Invoke(this, e);
         }
 
+        private void AddCategory(string title, params Control[] controls)
+        {
+            var section = new FlowLayoutPanel { Width = 220, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty };
+            var header = new Button { Text = "▾ " + title, AccessibleName = title, AccessibleDescription = "Collapse " + title,
+                Width = 214, Height = 28, TextAlign = ContentAlignment.MiddleLeft };
+            var content = new FlowLayoutPanel { Width = 220, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty };
+            content.Controls.AddRange(controls);
+            bool expanded = true;
+            header.Click += (s, e) =>
+            {
+                expanded = !expanded; content.Visible = expanded;
+                header.Text = (expanded ? "▾ " : "▸ ") + title;
+                header.AccessibleDescription = (expanded ? "Collapse " : "Expand ") + title;
+            };
+            section.Controls.AddRange(new Control[] { header, content }); _body.Controls.Add(section);
+        }
+
         public void SetExpanded(bool expanded)
         {
             _expanded = expanded;
-            Width = (int)((expanded ? 240 : 26) * DeviceDpi / 96.0);
+            Width = (int)((expanded ? 256 : 26) * DeviceDpi / 96.0);
             _body.Visible = expanded;
             _toggle.Text = expanded ? "Measurements  ›" : "‹";
             _toggle.AccessibleName = expanded ? "Collapse measurements" : "Expand measurements";
