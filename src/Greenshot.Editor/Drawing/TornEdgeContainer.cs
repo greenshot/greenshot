@@ -426,6 +426,19 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// The lines along the torn sides, in image coordinates; none when nothing is torn
+        /// </summary>
+        internal IReadOnlyList<PointF[]> EdgeLines()
+        {
+            if (!HasEdges(out var innerSize))
+            {
+                return Array.Empty<PointF[]>();
+            }
+            CreateOutline(innerSize, out var tornSides);
+            return tornSides;
+        }
+
+        /// <summary>
         /// The shadow of the torn edge effect, cast by what is left of the image into the torn off parts
         /// </summary>
         private void DrawShadow(Graphics graphics)

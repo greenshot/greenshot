@@ -49,9 +49,10 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// In the order of the elements: layers of drawn elements (arrows, text, shapes, the mouse cursor, ...) with their alpha, blended over
-        /// the HDR pixels, and between them the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn
-        /// edges): a filter changes what is drawn before it, like in the editor. The layers are transparent in the replaced and changed areas.
+        /// In the order of the elements: the elements drawn with ImageSharp on the HDR pixels (arrows, text, shapes, the mouse cursor, what torn
+        /// edges draw, ...), the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn edges), and for
+        /// elements without an ImageSharp drawing (e.g. of a plugin) 8-bit layers with their alpha: each step changes what is before it, like in
+        /// the editor. The layers are transparent in the replaced and changed areas.
         /// </summary>
         public IReadOnlyList<HdrOverlayStep> Steps { get; }
 

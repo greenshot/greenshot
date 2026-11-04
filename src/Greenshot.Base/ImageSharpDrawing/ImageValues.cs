@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Numerics;
 using Greenshot.Base.Effects;
 using SixLabors.ImageSharp;
@@ -76,5 +77,18 @@ namespace Greenshot.Base.ImageSharpDrawing
         public Vector4 Of(Vector4 srgb) => _white is float white
             ? new Vector4(LinearColorEffects.Decode(srgb.X) * white, LinearColorEffects.Decode(srgb.Y) * white, LinearColorEffects.Decode(srgb.Z) * white, srgb.W)
             : srgb;
+
+        /// <summary>
+        /// The value with its sRGB color inverted, like a mouse cursor inverts the screen; values above white count as white (they become black)
+        /// </summary>
+        public Vector4 Inverted(Vector4 value)
+        {
+            if (_white is not float white)
+            {
+                return new Vector4(1f - value.X, 1f - value.Y, 1f - value.Z, value.W);
+            }
+            float Invert(float linear) => LinearColorEffects.Decode(1f - LinearColorEffects.Encode(Math.Max(0f, Math.Min(1f, linear / white)))) * white;
+            return new Vector4(Invert(value.X), Invert(value.Y), Invert(value.Z), value.W);
+        }
     }
 }

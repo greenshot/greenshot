@@ -657,10 +657,11 @@ namespace Greenshot.Editor.Drawing
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
-            // In the order of the elements: what they draw goes into layers. The filters which can be done on the HDR pixels (ElementImageFilters:
-            // highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut marks) are steps between the layers, so they work
-            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (e.g. an inverted
-            // pixelate, a filter of a plugin) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
+            // In the order of the elements: what they draw is drawn with ImageSharp on the HDR pixels (ElementDrawing), the filters which can be done
+            // on the HDR pixels (ElementImageFilters: highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut
+            // marks) are steps between them, so they work on what is drawn before them, like in the editor. Elements without an ImageSharp drawing (e.g.
+            // of a plugin) go into 8-bit layers. Elements which change the pixels under them in another way (a filter of a plugin) can't be drawn on
+            // their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
             var changedAreas = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();
@@ -748,16 +749,6 @@ namespace Greenshot.Editor.Drawing
                         if (ChangesPixels(element))
                         {
                             element.Draw(graphics, RenderMode.EXPORT);
-                            continue;
-                        }
-                        if (element is CursorContainer cursorContainer)
-                        {
-                            // A mask cursor (e.g. the I-beam) inverts the image under it
-                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
-                            if (cursorLayer != null)
-                            {
-                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
-                            }
                             continue;
                         }
                         element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);

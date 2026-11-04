@@ -511,6 +511,59 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void Elements_AreDrawnOnTheHdrPixels_InTheirOrder_WithoutLayers()
+        {
+            using var surface = CreateBrightSurface();
+            RectangleContainer AddRectangle(int left)
+            {
+                var rectangle = new RectangleContainer(surface) { Left = left, Top = 40, Width = 20, Height = 20 };
+                rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.Red);
+                rectangle.SetFieldValue(FieldType.SHADOW, false);
+                surface.AddElement(rectangle, false, false);
+                return rectangle;
+            }
+            AddRectangle(10);
+            // Grayscale works outside of the element: on the first rectangle, not on the second one which is drawn after it
+            var grayscale = new HighlightContainer(surface) { Left = 0, Top = 0, Width = 5, Height = 5 };
+            grayscale.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.GRAYSCALE);
+            surface.AddElement(grayscale, false, false);
+            AddRectangle(60);
+            var arrow = new ArrowContainer(surface) { Left = 10, Top = 80, Width = 60, Height = 0 };
+            surface.AddElement(arrow, false, false);
+
+            using (var overlay = surface.CreateHdrOverlay())
+            {
+                Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+                Assert.Empty(overlay.ReplacedAreas);
+            }
+            using var composed = Compose(surface);
+
+            var grayed = composed.Pixels[20, 50].ToVector4();
+            Assert.Equal(grayed.X, grayed.Y, 2);
+            var red = composed.Pixels[70, 50].ToVector4();
+            Assert.True(red.X > 1f && red.Y < 0.1f, $"red: {red}");
+            // Around the elements the highlights stay
+            Assert.Equal(5f, composed.Pixels[50, 20].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Magnifier_PartlyOutsideTheImage_MagnifiesTheHdrPixels()
+        {
+            using var surface = CreateBrightSurface();
+            var magnifier = new HighlightContainer(surface) { Left = 80, Top = 40, Width = 40, Height = 20 };
+            magnifier.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
+            surface.AddElement(magnifier, false, false);
+
+            using (var overlay = surface.CreateHdrOverlay())
+            {
+                Assert.Empty(overlay.ReplacedAreas);
+            }
+            using var composed = Compose(surface);
+
+            Assert.Equal(5f, composed.Pixels[90, 50].ToVector4().X, 1);
+        }
+
+        [Fact]
         public void AreaHighlights_OfAGroup_UseTheSettingsOfTheSelectedOne_LikeTheEditor()
         {
             using var surface = CreateBrightSurface();

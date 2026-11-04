@@ -20,12 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Editor.Drawing.Fields;
+using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 using Image = SixLabors.ImageSharp.Image;
 using Point = SixLabors.ImageSharp.Point;
@@ -114,9 +117,58 @@ namespace Greenshot.Editor.Drawing
                     }
                 case SvgContainer or MetafileContainer or Emoji.EmojiContainer:
                     return PictureOf(((VectorGraphicsContainer)element).RenderedImage, bounds, nearestNeighbor: false, shadow: false);
+                case CursorContainer cursorElement when element.GetType() == typeof(CursorContainer):
+                    var cursor = cursorElement.Cursor;
+                    if (cursor?.ColorLayer == null)
+                    {
+                        return null;
+                    }
+                    var colorLayer = PixelsOf(cursor.ColorLayer);
+                    var maskLayer = cursor.MaskLayer == null ? null : PixelsOf(cursor.MaskLayer);
+                    return (image, values) => MouseCursors.Draw(image, values, colorLayer, maskLayer, bounds);
+                case TornEdgeContainer tornEdges:
+                    return CutOf(element, origin, tornEdges.EdgeLines(), tornEdges.GetSettings(),
+                        element.GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent), lineThickness, lineColor, shadow);
+                case CutMarkContainer cutMark:
+                    return CutOf(element, origin, cutMark.EdgeLines(), cutMark.GetSettings(),
+                        element.GetFieldValueAsColor(FieldType.FILL_COLOR, Color.Transparent), lineThickness, lineColor, shadow);
                 default:
                     return null;
             }
+        }
+
+        /// <summary>
+        /// Torn edges or a cut mark: the image is already cut (see Surface.CreateCutAway), this draws the fill, shadow and edge lines of the cut
+        /// </summary>
+        private static Action<Image, ImageValues> CutOf(DrawableContainer element, NativePoint origin, IReadOnlyList<System.Drawing.PointF[]> edgeLines,
+            TornEdgeEffect settings, Color fillColor, int lineThickness, Rgba32 lineColor, bool shadow)
+        {
+            // All cuts, they overlap: the shadow is cast by what is left of the image
+            var cuts = new List<IPath>();
+            int index = -1;
+            foreach (var cut in CutShadow.GetCuts(element.Parent as Surface, element))
+            {
+                using var cutPath = CutShadow.CreateCutPath(cut);
+                var shape = GdiPaths.ToPath(cutPath);
+                if (shape == null)
+                {
+                    continue;
+                }
+                if (ReferenceEquals(cut, element))
+                {
+                    index = cuts.Count;
+                }
+                cuts.Add(shape.Translate(-origin.X, -origin.Y));
+            }
+            if (index < 0)
+            {
+                // Nothing is cut
+                return (_, _) => { };
+            }
+            var edges = edgeLines.Select(line => line.Select(point => new PointF(point.X - origin.X, point.Y - origin.Y)).ToArray()).ToArray();
+            (float, int, Point)? shadowSettings = shadow ? (settings.Darkness, settings.ShadowSize, new Point(settings.ShadowOffset.X, settings.ShadowOffset.Y)) : null;
+            var fill = fillColor.A == 0 ? default : Rgba(fillColor);
+            return (image, values) => CutDrawing.Cut(image, values, cuts, index, edges, fill, lineThickness, lineColor, shadowSettings);
         }
 
         private static void DrawText(Image image, ImageValues values, TextContainer element, Rectangle bounds, int lineThickness, Rgba32 color, bool shadow)
@@ -146,14 +198,17 @@ namespace Greenshot.Editor.Drawing
             {
                 return null;
             }
-            using var converted = ImageSharpHelper.ConvertToImageSharp(bitmap);
-            if (converted == null)
-            {
-                return null;
-            }
-            var pixels = converted.CloneAs<Rgba32>();
-            // Disposed when collected: an overlay step has no end of its own
+            var pixels = PixelsOf(bitmap);
             return (image, values) => Pictures.Draw(image, values, pixels, place, nearestNeighbor, shadow);
+        }
+
+        /// <summary>
+        /// A copy of the bitmap's pixels: the element may change its bitmap later. Disposed when collected, an overlay step has no end of its own.
+        /// </summary>
+        private static SixLabors.ImageSharp.Image<Rgba32> PixelsOf(Bitmap bitmap)
+        {
+            using var converted = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            return converted.CloneAs<Rgba32>();
         }
 
         private static Rgba32 Rgba(Color color) => new Rgba32(color.R, color.G, color.B, color.A);

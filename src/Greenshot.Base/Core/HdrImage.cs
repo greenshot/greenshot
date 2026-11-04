@@ -27,7 +27,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Icons;
 using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Native;
@@ -506,73 +505,6 @@ namespace Greenshot.Base.Core
             catch
             {
                 composed.Dispose();
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The mouse cursor as an 8-bit layer with alpha, to draw it over the HDR image (in the HdrOverlay of the surface) like the editor draws it
-        /// over the capture. An alpha cursor is drawn alone, so its soft edges and shadow are blended with the HDR pixels; a mask cursor (which inverts the
-        /// screen, e.g. the I-beam) is drawn over the 8-bit image and only its changed pixels are taken.
-        /// </summary>
-        /// <param name="sdrImage">The capture's 8-bit image, for a mask cursor</param>
-        /// <param name="cursor">The cursor</param>
-        /// <param name="bounds">Where the cursor is drawn on the capture, and how big</param>
-        /// <returns>The layer at bounds.Location, the caller disposes it; null when nothing of it is on the capture</returns>
-        public static unsafe Bitmap CreateCursorLayer(Bitmap sdrImage, CapturedCursor cursor, NativeRect bounds)
-        {
-            if (cursor == null || bounds.Width <= 0 || bounds.Height <= 0)
-            {
-                return null;
-            }
-            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
-            try
-            {
-                if (cursor.MaskLayer == null || sdrImage == null)
-                {
-                    CursorHelper.DrawCursorOnBitmap(layer, cursor, new NativePoint(0, 0), bounds.Size);
-                    return layer;
-                }
-
-                // The 8-bit pixels under the cursor, with the cursor drawn on them: what changed is the cursor
-                var visible = bounds.Intersect(new NativeRect(0, 0, sdrImage.Width, sdrImage.Height));
-                if (visible.Width <= 0 || visible.Height <= 0)
-                {
-                    layer.Dispose();
-                    return null;
-                }
-                using (var graphics = System.Drawing.Graphics.FromImage(layer))
-                {
-                    graphics.DrawImage(sdrImage, new System.Drawing.Rectangle(visible.X - bounds.X, visible.Y - bounds.Y, visible.Width, visible.Height),
-                        new System.Drawing.Rectangle(visible.X, visible.Y, visible.Width, visible.Height), System.Drawing.GraphicsUnit.Pixel);
-                }
-                using var drawn = (Bitmap)layer.Clone();
-                CursorHelper.DrawCursorOnBitmap(drawn, cursor, new NativePoint(0, 0), bounds.Size);
-                var area = new NativeRect(0, 0, bounds.Width, bounds.Height);
-                var layerData = layer.LockBits(area, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-                var drawnData = drawn.LockBits(area, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                try
-                {
-                    for (int y = 0; y < bounds.Height; y++)
-                    {
-                        uint* under = (uint*)((byte*)layerData.Scan0 + (long)y * layerData.Stride);
-                        uint* withCursor = (uint*)((byte*)drawnData.Scan0 + (long)y * drawnData.Stride);
-                        for (int x = 0; x < bounds.Width; x++)
-                        {
-                            under[x] = under[x] == withCursor[x] ? 0u : withCursor[x] | 0xFF000000u;
-                        }
-                    }
-                }
-                finally
-                {
-                    drawn.UnlockBits(drawnData);
-                    layer.UnlockBits(layerData);
-                }
-                return layer;
-            }
-            catch
-            {
-                layer.Dispose();
                 throw;
             }
         }
