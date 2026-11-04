@@ -22,12 +22,12 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Greenshot.Editor.Drawing.Filters
+namespace Greenshot.Base.Effects
 {
     /// <summary>
     /// Cryptographically secure random numbers (the AES-CBC encrypted zeros), the same key and IV give the same numbers
     /// </summary>
-    internal sealed class CryptoRandomBuffer : IDisposable
+    public sealed class CryptoRandomBuffer : IDisposable
     {
         private readonly Aes _aes;
         private readonly ICryptoTransform _encryptor;
@@ -90,6 +90,29 @@ namespace Greenshot.Editor.Drawing.Filters
             } while (val >= limit);
 
             return min + (int)(val % range);
+        }
+
+        /// <summary>
+        /// A number from min to max (at most 256 numbers) from one random byte: for many small numbers, e.g. noise
+        /// </summary>
+        public int GetNextSmallInt(int min, int max)
+        {
+            int range = max - min + 1;
+            if (range <= 1) return min;
+            if (range > 256) throw new ArgumentOutOfRangeException(nameof(max), "At most 256 numbers");
+
+            int limit = 256 - 256 % range;
+            int val;
+            do
+            {
+                if (_index >= _buffer.Length)
+                {
+                    Refill();
+                }
+                val = _buffer[_index++];
+            } while (val >= limit);
+
+            return min + val % range;
         }
 
         public void Dispose()
