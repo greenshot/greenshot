@@ -244,6 +244,11 @@ namespace Greenshot.Base.Hdr
         private int _hasHdrContent;
 
         /// <summary>
+        /// Whether it has HDR content, known already (e.g. from the parts it is joined of, see HdrParts.Join): it isn't measured again
+        /// </summary>
+        internal void KnowHasHdrContent(bool hasHdrContent) => Volatile.Write(ref _hasHdrContent, hasHdrContent ? 1 : 2);
+
+        /// <summary>
         /// Something an 8-bit sRGB file can't show: a highlight (brighter than SDR white) or a color outside sRGB. Without it (e.g. a normal window
         /// on an HDR display) an HDR file would only look like the normal one, so the capture counts as one without HDR content: no HDR file,
         /// no HDR badge, payload.hdr is None. Measured once, when it is first asked for.

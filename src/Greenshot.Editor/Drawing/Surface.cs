@@ -1059,7 +1059,8 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            // The HDR image comes along with the image, the surface owns both now
+            // The HDR image comes along with the image, the surface owns both now: of all of the capture when it wasn't cropped
+            capture.JoinHdrParts();
             _hdrImage = capture.HdrImage;
 
             // Make sure the image is NOT disposed, we took the reference directly into ourselves

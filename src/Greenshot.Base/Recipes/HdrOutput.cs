@@ -78,7 +78,21 @@ namespace Greenshot.Base.Recipes
         public static string StateOf(Pipeline.ICapturePayload payload)
         {
             var surface = payload?.Surface;
-            return surface != null ? surface.HdrState.ToString() : StateOf(payload?.RawCapture?.HdrImage, payload?.RawCapture?.Image);
+            if (surface != null)
+            {
+                return surface.HdrState.ToString();
+            }
+            var capture = payload?.RawCapture;
+            // HDR parts which aren't joined yet (e.g. of the frozen screen before the selection) answer without joining them
+            if (capture?.HdrParts is { } hdrParts)
+            {
+                if (!hdrParts.HasHdrContent)
+                {
+                    return StateNone;
+                }
+                return hdrParts.BelongsTo(capture.Image) ? StateAvailable : StateLost;
+            }
+            return StateOf(capture?.HdrImage, capture?.Image);
         }
 
         /// <summary>
