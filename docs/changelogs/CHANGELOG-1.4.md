@@ -160,6 +160,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Ensures continued Dropbox integration
 - By @Copilot
 
+**Box and Dropbox sign-in**
+- Signing in to Box or Dropbox goes straight from the browser back to Greenshot, no longer through the Greenshot website
+- The Box and Dropbox settings show the account, with sign in, test connection and sign out
+- Box and Dropbox uploads work again after restarting Greenshot, you sign in once more after the update
+
 **JIRA Plugin** (#871)
 - Various fixes to improve JIRA plugin functionality
 - The issues of a favourite filter show again on Jira Cloud (Atlassian removed the old search)

@@ -49,25 +49,60 @@ public static class DropboxUtils
     private static readonly JsonSerializerOptions HeaderJson = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Default };
 
     /// <summary>
+    /// The account in the settings: sign in, test, sign out
+    /// </summary>
+    public static OAuth2SignIn SignIn { get; } = new OAuth2SignIn("Dropbox", CreateSettings, StoreSettings, GetAccountAsync);
+
+    /// <summary>
+    /// The OAuth 2 settings with the stored tokens
+    /// </summary>
+    internal static OAuth2Settings CreateSettings() => new OAuth2Settings
+    {
+        AuthorizeUrl = "https://www.dropbox.com/oauth2/authorize",
+        AuthorizeParameters = { { "token_access_type", "offline" } },
+        SignedInUrl = $"https://getgreenshot.org/signed-in/dropbox/?version={Uri.EscapeDataString(EnvironmentInfo.GetGreenshotVersion(true))}",
+        TokenUrl = "https://api.dropbox.com/oauth2/token",
+        CloudServiceName = "Dropbox",
+        ClientId = DropBoxCredentials.CONSUMER_KEY,
+        // Stored encrypted
+        RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken14) ? DropboxConfig.RefreshToken14 : DropboxConfig.RefreshToken14.Decrypt(),
+        AccessToken = DropboxConfig.AccessToken,
+        AccessTokenExpires = DropboxConfig.AccessTokenExpires
+    };
+
+    /// <summary>
+    /// Store the tokens of the settings, on the UI thread
+    /// </summary>
+    internal static void StoreSettings(OAuth2Settings settings)
+    {
+        DropboxConfig.RefreshToken14 = string.IsNullOrEmpty(settings.RefreshToken) ? settings.RefreshToken : settings.RefreshToken.Encrypt();
+        DropboxConfig.AccessToken = settings.AccessToken;
+        DropboxConfig.AccessTokenExpires = settings.AccessTokenExpires;
+    }
+
+    /// <summary>
+    /// The e-mail address of the signed in Dropbox account
+    /// </summary>
+    private static async Task<string> GetAccountAsync(OAuth2Settings settings, IUserInteraction userInteraction, CancellationToken cancellationToken)
+    {
+        var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Post, "https://api.dropboxapi.com/2/users/get_current_account", settings, userInteraction, cancellationToken).ConfigureAwait(false);
+        if (request == null)
+        {
+            return null;
+        }
+
+        string response = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
+        using var document = JsonDocument.Parse(response);
+        return document.RootElement.TryGetProperty("email", out var email) ? email.GetString() : null;
+    }
+
+    /// <summary>
     /// Upload the encoded capture
     /// </summary>
     /// <returns>true when uploaded, false when Dropbox didn't accept it, null when the user didn't authorize</returns>
     public static async Task<bool?> UploadToDropboxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
-        var oauth2Settings = new OAuth2Settings
-        {
-            AuthUrlPattern = "https://www.dropbox.com/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
-            TokenUrl = "https://api.dropbox.com/oauth2/token",
-            RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
-            CloudServiceName = "Dropbox",
-            ClientId = DropBoxCredentials.CONSUMER_KEY,
-            ClientSecret = DropBoxCredentials.CONSUMER_SECRET,
-            AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
-            // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
-            RefreshToken = string.IsNullOrEmpty(DropboxConfig.RefreshToken) ? DropboxConfig.RefreshToken : DropboxConfig.RefreshToken.Decrypt(),
-            AccessToken = DropboxConfig.AccessToken,
-            AccessTokenExpires = DropboxConfig.AccessTokenExpires
-        };
+        var oauth2Settings = CreateSettings();
         try
         {
             IDictionary<string, object> arguments = new Dictionary<string, object>
@@ -100,12 +135,7 @@ public static class DropboxUtils
         finally
         {
             // Copy the settings back to the config (on the UI thread), so they are stored.
-            await UiDispatcher.Current.InvokeAsync(() =>
-            {
-                DropboxConfig.RefreshToken = string.IsNullOrEmpty(oauth2Settings.RefreshToken) ? oauth2Settings.RefreshToken : oauth2Settings.RefreshToken.Encrypt();
-                DropboxConfig.AccessToken = oauth2Settings.AccessToken;
-                DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-            }, CancellationToken.None).ConfigureAwait(false);
+            await UiDispatcher.Current.InvokeAsync(() => StoreSettings(oauth2Settings), CancellationToken.None).ConfigureAwait(false);
         }
     }
 }

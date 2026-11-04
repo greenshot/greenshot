@@ -29,7 +29,7 @@ namespace Greenshot.Plugin.Box;
 
 [IniSection("Box")]
 [Description("Greenshot Box Plugin configuration")]
-public interface IBoxConfiguration : IIniSection, IAfterLoad
+public interface IBoxConfiguration : IIniSection
 {
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
@@ -53,8 +53,9 @@ public interface IBoxConfiguration : IIniSection, IAfterLoad
     string FolderId { get; set; }
 
     /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
-    [Description("Box authorization refresh Token (stored encrypted)")]
-    string RefreshToken { get; set; }
+    /// <remarks>RefreshToken14: the app that signs in via localhost (1.4), the RefreshToken of 1.3 belongs to another app and is not used.</remarks>
+    [Description("Box refresh token (stored encrypted)")]
+    string RefreshToken14 { get; set; }
 
     /// <summary>Runtime-only token - never written to disk, reset to default on every reload.</summary>
     [IniValue(RuntimeOnly = true)]

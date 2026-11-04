@@ -22,6 +22,7 @@ exceptions of the configuration and the logging rules apply everywhere without e
 | `SiteIcon` | The icon of a web site as 32x32 PNG, e.g. for a destination: `favicon.ico` below the site, else the icon link of its start page (same scheme and host), optionally the same for the parent domain. ICO, PNG, GIF and JPEG by their first bytes, 256 KB and 45 seconds at most, null when there is none. Used by the Jira destination and the custom uploader. |
 | `ServerSignIn` | The sign-in to the server of a plugin (Jira, Confluence) with `ServerCredentials`: user name with password or API token (Basic), or a personal access token (Bearer). The credentials of the session or the ones in the Windows Credential Manager (`CredentialStore`, target = the url) first, the sign-in window (`ServerSignInWindow`) only when there are none or the server rejects them. `ServerAccountView` shows the account in the plugin settings with *Sign in*, *Test connection* and *Sign out*. |
 | `OAuth2Helper` (`Greenshot.Base/Core/OAuth`) | The OAuth 2 authorization (browser, local listener) and the token refresh, on top of `HttpService`. |
+| `OAuth2SignIn` (`Greenshot.Base/Core/OAuth`) | The account of an OAuth 2 service (Box, Dropbox) for `ServerAccountView`: sign in in the browser, test the stored refresh token, sign out. `ServerSignIn` and `OAuth2SignIn` both implement `IAccountSignIn`. |
 
 ## Using it
 
@@ -100,6 +101,16 @@ request to a server someone else chose needs: see [custom-uploader.md](custom-up
 request with the bearer token, or null when the user didn't authorize. Box and Dropbox (`Greenshot.Plugin.Box/Api/BoxUtils.cs`,
 `Greenshot.Plugin.Dropbox/Api/DropboxUtils.cs`) show the whole flow, including storing the refresh token encrypted.
 A service needs a registered client id; keep it out of the repository (the `*.Credentials.template` files are filled by the build).
+
+The sign-in opens the browser and waits for the service to redirect back to `http://localhost:{port}/authorize/` (RFC 8252).
+The ports are `OAuth2Settings.LoopbackPorts` (31251 to 31255, the first free one is used), and the service needs all five
+redirect URIs registered, as not every service accepts any port. Every sign-in sends a new random `state` and only a
+GET on that path with that state counts, anything else gets an error page and the listener keeps waiting (4 minutes).
+Only `code`, `error` and `error_description` are taken from the redirect, never a token. With `UsePkce` (default)
+the code is protected with PKCE S256 (RFC 7636); Box doesn't document PKCE and turns it off.
+After a redirect with a code, Greenshot sends the browser on to `SignedInUrl` (Box and Dropbox:
+`https://getgreenshot.org/signed-in/{service}/?version=…` for the version check of the website), a fixed URL with `Referrer-Policy: no-referrer`,
+so the website never sees anything of the sign-in. An error or a missing `SignedInUrl` shows a page from Greenshot.
 
 ### Errors
 

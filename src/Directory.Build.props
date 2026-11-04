@@ -122,17 +122,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Tokens Include="Box13_ClientId">
-      <ReplacementValue>$(Box13_ClientId)</ReplacementValue>
+    <Tokens Include="Box14_ClientId">
+      <ReplacementValue>$(Box14_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Box13_ClientSecret">
-      <ReplacementValue>$(Box13_ClientSecret)</ReplacementValue>
+    <Tokens Include="Box14_ClientSecret">
+      <ReplacementValue>$(Box14_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="DropBox13_ClientId">
-      <ReplacementValue>$(DropBox13_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="DropBox13_ClientSecret">
-      <ReplacementValue>$(DropBox13_ClientSecret)</ReplacementValue>
+    <Tokens Include="DropBox14_ClientId">
+      <ReplacementValue>$(DropBox14_ClientId)</ReplacementValue>
     </Tokens>
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>

@@ -173,10 +173,9 @@ Or ensure initial clone uses: `git clone --depth=0` or full clone without `--dep
 **Context**: Build templates replace credentials for the Box and Dropbox plugins and the Imgur client id of Greenshot (Self-Service deletes earlier Imgur uploads)  
 **Solution for Local Dev**: Credentials are optional for building. Set the relevant environment variables if you need to test those integrations:
 ```powershell
-$env:Box13_ClientId = "your_id"
-$env:Box13_ClientSecret = "your_secret"
-$env:DropBox13_ClientId = "your_id"
-$env:DropBox13_ClientSecret = "your_secret"
+$env:Box14_ClientId = "your_id"
+$env:Box14_ClientSecret = "your_secret"
+$env:DropBox14_ClientId = "your_id"
 $env:Imgur13_ClientId = "your_id"
 ```
 
