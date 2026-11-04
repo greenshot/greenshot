@@ -155,9 +155,9 @@ namespace Greenshot.Recipes.Steps
                     // Offset to bitmap coordinates for cropping
                     NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
                     payload.RawCapture.Crop(screenOffsetRect);
-                    if (context.CaptureHdrRequested && payload.RawCapture.HdrImage != null)
+                    if (context.CaptureHdrRequested)
                     {
-                        payload.RawCapture.HdrImage.IsRequested = true;
+                        HdrParts.MarkRequested(payload.RawCapture);
                     }
                 }
                 if (alignDpi && payload != null)
@@ -276,9 +276,10 @@ namespace Greenshot.Recipes.Steps
                 {
                     ProcessScreenCapture(acquired.RawCapture);
                 }
-                if (context.CaptureHdrRequested && acquired.RawCapture?.HdrImage != null)
+                // Without joining the HDR parts of a frozen screen: that waits for the selection
+                if (context.CaptureHdrRequested)
                 {
-                    acquired.RawCapture.HdrImage.IsRequested = true;
+                    HdrParts.MarkRequested(acquired.RawCapture);
                 }
                 context.Payload = acquired;
             }

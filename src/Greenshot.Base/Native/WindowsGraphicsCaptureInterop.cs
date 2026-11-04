@@ -1165,14 +1165,14 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// Like <see cref="CaptureRectangleAsync"/>, and keeps the HDR image of the area when a part of it is on an HDR display.
-        /// Parts on SDR displays are put into the HDR image at the SDR white level of the HDR display, so they look as on the screen.
+        /// Like <see cref="CaptureRectangleAsync"/>, and keeps the HDR images of the HDR displays in the area, not joined yet (see HdrParts):
+        /// the capture joins them with the image once its area is known (e.g. the selection on the frozen screen).
         /// </summary>
-        /// <returns>The tone-mapped image (null when nothing was captured) and the HDR image (null without an HDR display in the area)</returns>
-        public static Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default) =>
+        /// <returns>The tone-mapped image (null when nothing was captured) and the HDR parts (null without an HDR display in the area)</returns>
+        public static Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default) =>
             CaptureRectangleCoreAsync(captureBounds, true, cancellationToken);
 
-        private static async Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleCoreAsync(NativeRect captureBounds, bool keepHdr, CancellationToken cancellationToken)
+        private static async Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleCoreAsync(NativeRect captureBounds, bool keepHdr, CancellationToken cancellationToken)
         {
             if (captureBounds.Height <= 0 || captureBounds.Width <= 0 || !IsSupported)
             {
@@ -1240,7 +1240,9 @@ namespace Greenshot.Base.Native
                     return (null, null);
                 }
 
-                return (resultBitmap, keepHdr ? CombineHdrImages(requests, resultBitmap) : null);
+                var hdrParts = keepHdr ? CreateHdrParts(requests) : null;
+                hdrParts?.BelongTo(resultBitmap);
+                return (resultBitmap, hdrParts);
             }
             catch
             {
@@ -1253,7 +1255,7 @@ namespace Greenshot.Base.Native
                 {
                     DisposeAll(monitorBitmaps);
                 }
-                // The HDR images of the monitors, the combined one shares their pixels
+                // The HDR images of the monitors, the parts share their pixels
                 foreach (var request in requests)
                 {
                     request.HdrImage?.Dispose();
@@ -1263,13 +1265,17 @@ namespace Greenshot.Base.Native
         }
 
         /// <summary>
-        /// The HDR image of the whole area, one image like the result bitmap: the HDR displays each at its place, the SDR displays from the result
-        /// bitmap at the SDR white level. Null when no display in the area is HDR. The HDR images of the requests stay theirs to dispose.
+        /// The HDR images of the HDR displays in the area, each at its place in the result bitmap, not joined yet (see HdrParts): they share the
+        /// pixels of the requests, which stay theirs to dispose. Null when no display in the area is HDR.
         /// </summary>
-        internal static HdrImage CombineHdrImages(CaptureRequest[] requests, Bitmap resultBitmap) =>
-            HdrImage.Combine(resultBitmap, requests
+        internal static HdrParts CreateHdrParts(CaptureRequest[] requests)
+        {
+            var parts = requests
                 .Where(request => request.HdrImage != null)
-                .Select(request => (request.HdrImage, new NativePoint(request.TargetLocation.X, request.TargetLocation.Y))));
+                .Select(request => (request.HdrImage.Share(), new NativePoint(request.TargetLocation.X, request.TargetLocation.Y)))
+                .ToList();
+            return parts.Count == 0 ? null : new HdrParts(parts);
+        }
 
         /// <summary>
         /// Copy a rectangle of 32bpp ARGB pixels as they are, row by row: much faster than Graphics.DrawImage, which blends and filters

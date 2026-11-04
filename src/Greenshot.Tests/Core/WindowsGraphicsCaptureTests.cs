@@ -101,17 +101,16 @@ public class WindowsGraphicsCaptureTests
         var area = new Dapplo.Windows.Common.Structs.NativeRect(bounds.X + 100, bounds.Y + 100, 300, 200);
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
+        var (bitmap, hdrParts) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
         _output.WriteLine($"Captured {area} in {stopwatch.ElapsedMilliseconds} ms");
         using (bitmap)
-        using (hdrImage)
+        using (hdrParts)
         {
             Assert.NotNull(bitmap);
             Assert.Equal(300, bitmap.Width);
             Assert.Equal(200, bitmap.Height);
-            Assert.NotNull(hdrImage);
-            Assert.Equal(300, hdrImage.Width);
-            Assert.Equal(200, hdrImage.Height);
+            Assert.NotNull(hdrParts);
+            Assert.Equal(new Dapplo.Windows.Common.Structs.NativeRect(0, 0, 300, 200), Assert.Single(hdrParts.Areas));
             // The capture is written, not left transparent
             Assert.Equal(255, bitmap.GetPixel(150, 100).A);
         }
@@ -132,22 +131,19 @@ public class WindowsGraphicsCaptureTests
         int seam = other.Bounds.Right == hdrBounds.Left ? hdrBounds.Left : hdrBounds.Right;
         var area = new Dapplo.Windows.Common.Structs.NativeRect(seam - 150, hdrBounds.Top + 100, 300, 200);
 
-        var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
+        var (bitmap, hdrParts) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(area);
         _output.WriteLine($"Captured {area} across {other.Bounds} and {hdrBounds}");
         using (bitmap)
-        using (hdrImage)
+        using (hdrParts)
         {
             Assert.NotNull(bitmap);
             Assert.Equal(300, bitmap.Width);
             // Both halves are written: the HDR monitor's part straight into the result like the SDR monitor's
             Assert.Equal(255, bitmap.GetPixel(75, 100).A);
             Assert.Equal(255, bitmap.GetPixel(225, 100).A);
-            Assert.NotNull(hdrImage);
-            Assert.Equal(300, hdrImage.Width);
-            // One image of both halves: the SDR half from the bitmap at the SDR white level
-            Assert.Equal(bitmap.Height, hdrImage.Height);
-            Assert.Equal(1f, hdrImage.Pixels[75, 100].ToVector4().W, 2);
-            Assert.Equal(1f, hdrImage.Pixels[225, 100].ToVector4().W, 2);
+            // Only the HDR monitor's half is kept until the area is joined, the SDR half is in the bitmap
+            Assert.NotNull(hdrParts);
+            Assert.Equal(150, Assert.Single(hdrParts.Areas).Width);
         }
     }
 
@@ -161,16 +157,17 @@ public class WindowsGraphicsCaptureTests
         var screen = DisplayInfo.ScreenBounds;
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var (bitmap, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(screen);
-        _output.WriteLine($"Captured the screen {screen} in {stopwatch.ElapsedMilliseconds} ms, HDR image: {hdrImage?.Width}x{hdrImage?.Height}");
+        var (bitmap, hdrParts) = await WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(screen);
+        _output.WriteLine($"Captured the screen {screen} in {stopwatch.ElapsedMilliseconds} ms, HDR parts: {string.Join(", ", hdrParts?.Areas ?? new Dapplo.Windows.Common.Structs.NativeRect[0])}");
         using (bitmap)
-        using (hdrImage)
+        using (hdrParts)
         {
             Assert.NotNull(bitmap);
-            Assert.NotNull(hdrImage);
-            Assert.Equal(screen.Width, hdrImage.Width);
-            Assert.Equal(screen.Height, hdrImage.Height);
-            Assert.True(hdrImage.HasHdrContent || hdrBounds.Width > 0);
+            Assert.NotNull(hdrParts);
+            // Nothing is joined while the region isn't known: only the HDR monitors are kept
+            Assert.Contains(hdrParts.Areas, area => area.Width == hdrBounds.Width && area.Height == hdrBounds.Height
+                && area.X == hdrBounds.X - screen.X && area.Y == hdrBounds.Y - screen.Y);
+            Assert.True(hdrParts.Areas.Count < displays.Length || displays.Length == 1);
         }
     }
 

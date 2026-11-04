@@ -246,10 +246,15 @@ namespace Greenshot.Recipes.Steps
                 context.Abort($"Capturing the selection {screenArea} failed.");
                 return false;
             }
-            capture.HdrImage = result.HdrImage;
-            if (context.CaptureHdrRequested && capture.HdrImage != null)
+            // Only the selection is captured: its HDR parts are joined when the HDR image is first read
+            capture.HdrParts = result.HdrParts;
+            if (result.HdrImage != null)
             {
-                capture.HdrImage.IsRequested = true;
+                capture.HdrImage = result.HdrImage;
+            }
+            if (context.CaptureHdrRequested)
+            {
+                HdrParts.MarkRequested(capture);
             }
             if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
             {

@@ -102,13 +102,18 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 ## 3. The HDR image of a capture
 
 `HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
-with straight alpha. It is one image of the whole capture, like the SDR image: when a capture spans HDR and SDR displays, the parts of
-the SDR displays are put in from the SDR image at the SDR white level when the capture is made (`HdrImage.Combine`), so they look as
-they did on the screen.
+with straight alpha. It is one image of the captured area, like the SDR image: when the area spans HDR and SDR displays, the parts of
+the SDR displays are put in from the SDR image at the SDR white level (`HdrImage.Combine`), so they look as they did on the screen.
 
-**Memory:** a capture with an HDR display keeps this HDR image of all of it next to the SDR image, at 8 bytes per pixel (twice the SDR
-image), also the parts of SDR displays. Three 4K displays take about 200 MB more, also when only one of them is HDR. A capture
-without an HDR display has no HDR image and costs nothing extra.
+This join waits until the area is known. A capture of the screen first keeps only the HDR images of its HDR displays (`HdrParts`,
+`ICapture.HdrParts`), e.g. the frozen screen while the region is selected. Cropping the capture to the selection (`Capture.Crop`)
+joins only that area, and a capture used as it is (the whole screen) is joined when its `HdrImage` is first read. An area with no
+HDR content (e.g. only on an SDR display, or only normal windows) gets no `HdrImage`.
+
+**Memory:** the HDR image of the captured area takes 8 bytes per pixel (twice the SDR image), also for the parts of SDR displays in
+it. While the region is selected on the frozen screen, only the HDR displays are held, at 8 bytes per pixel. A capture without HDR
+content costs nothing extra. For example, a region of 1920x1080 takes about 16 MB more; the whole screen of three 4K displays takes
+about 200 MB more, also when only one of them is HDR.
 
 The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
 `HdrImage`.

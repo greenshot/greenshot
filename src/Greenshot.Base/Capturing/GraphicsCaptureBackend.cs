@@ -63,7 +63,7 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
+        public Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
             return WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken);
         }

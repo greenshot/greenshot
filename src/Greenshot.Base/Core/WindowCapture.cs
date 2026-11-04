@@ -149,7 +149,15 @@ namespace Greenshot.Base.Core
             capture.Image = result.Image;
             capture.Location = result.Location;
             capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
-            capture.HdrImage = result.HdrImage;
+            // The HDR parts are joined once the area is known (a crop, e.g. the selection on the frozen screen) or the HDR image is read
+            if (result.HdrParts != null)
+            {
+                capture.HdrParts = result.HdrParts;
+            }
+            else
+            {
+                capture.HdrImage = result.HdrImage;
+            }
             return capture;
         }
 
