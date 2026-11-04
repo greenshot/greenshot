@@ -29,6 +29,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
 using Greenshot.Base.Interfaces;

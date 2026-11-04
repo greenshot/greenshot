@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;

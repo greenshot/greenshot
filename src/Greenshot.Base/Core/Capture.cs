@@ -26,6 +26,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using log4net;
 

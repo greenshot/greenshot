@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;

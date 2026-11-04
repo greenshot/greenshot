@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using Dapplo.Windows.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using log4net;
 

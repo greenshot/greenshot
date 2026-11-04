@@ -101,7 +101,7 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 
 ## 3. The HDR image of a capture
 
-`HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
+`HdrImage` (Greenshot.Base/Hdr) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
 with straight alpha. It is one image of the captured area, like the SDR image: when the area spans HDR and SDR displays, the parts of
 the SDR displays are put in from the SDR image at the SDR white level (`HdrImage.Combine`), so they look as they did on the screen.
 
@@ -247,12 +247,12 @@ toward dropping System.Drawing.
 
 | Part | Where |
 |---|---|
-| HDR pixels of a capture | `Greenshot.Base/Core/HdrImage.cs`, `HdrState.cs` |
+| HDR pixels of a capture | `Greenshot.Base/Hdr/HdrImage.cs`, `HdrParts.cs`, `HdrState.cs` (namespace `Greenshot.Base.Hdr`) |
 | Capturing HDR | `Greenshot.Base/Capturing/IHdrScreenCaptureBackend.cs`, `GraphicsCaptureBackend.cs`, `Native/WindowsGraphicsCaptureInterop.cs` |
-| Tone mapping | `Greenshot.Base/Native/HdrContent.cs`, `HdrToneMapper.cs`, `HdrImageToneMapping.cs` |
+| HDR content and tone mapping | `Greenshot.Base/Hdr/HdrContent.cs`; with Direct3D: `Greenshot.Base/Native/HdrToneMapper.cs`, `HdrImageToneMapping.cs`, `HdrDisplayInfo.cs` |
 | Remembered edits | `Greenshot.Base/Effects/ImageEdits.cs`, `LinearColorEffects.cs`, `FloatPixels.cs` |
-| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/ImageSharpStep.cs`, `Greenshot.Base/ImageSharpDrawing/`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
-| Writing and reading files | `Greenshot.Base/Core/Export/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
+| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/` (`ImageSharpStep.cs`, `ImageSharpSteps.cs`, `RoomDrawing.cs`, ...), `Greenshot.Base/Interfaces/Drawing/IHdrDrawable.cs`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
+| Writing and reading files | `Greenshot.Base/Hdr/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
 | Recipes | `Greenshot.Base/Recipes/HdrOutput.cs`, the `Source`, `SaveFile` and `Notification` steps |
 
 ## Not (yet) supported

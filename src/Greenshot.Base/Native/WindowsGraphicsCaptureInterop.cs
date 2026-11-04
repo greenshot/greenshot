@@ -35,6 +35,7 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native.DirectX;
 using log4net;
 using Windows.Graphics.Capture;

@@ -28,6 +28,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;

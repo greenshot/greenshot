@@ -22,13 +22,14 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using log4net;
 using ImageSharpStep = Greenshot.Base.ImageSharpDrawing.ImageSharpStep;
 
-namespace Greenshot.Base.Core.Export
+namespace Greenshot.Base.Hdr
 {
     /// <summary>
     /// Writes the HDR file of a capture: its HDR image (see HdrImage) with what is drawn on it

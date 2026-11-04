@@ -23,6 +23,7 @@ using System;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Hdr;
 
 namespace Greenshot.Base.Recipes
 {

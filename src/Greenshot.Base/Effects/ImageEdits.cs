@@ -29,6 +29,7 @@ using System.Numerics;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.ImageSharpDrawing;
 using SixLabors.ImageSharp.PixelFormats;
 

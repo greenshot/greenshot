@@ -24,6 +24,7 @@ using System.Drawing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 
 namespace Greenshot.Base.Interfaces
 {

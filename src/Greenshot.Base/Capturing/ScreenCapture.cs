@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using log4net;
 
 namespace Greenshot.Base.Capturing

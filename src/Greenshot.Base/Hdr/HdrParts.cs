@@ -27,7 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Bitmap = System.Drawing.Bitmap;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Hdr
 {
     /// <summary>
     /// The HDR images of the HDR displays of a screen capture, not joined into one HDR image yet: e.g. of the frozen screen, while the region

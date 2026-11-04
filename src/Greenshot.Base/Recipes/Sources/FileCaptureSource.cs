@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Native;
 using Greenshot.Base.Recipes.Pipeline;

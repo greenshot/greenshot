@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 

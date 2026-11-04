@@ -35,7 +35,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Bitmap = System.Drawing.Bitmap;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Hdr
 {
     /// <summary>
     /// The HDR content of a capture, as Windows.Graphics.Capture delivers it on an HDR display: RGBA half-floats (HalfVector4, 8 bytes per pixel,
@@ -219,23 +219,13 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Do the ImageSharp steps of elements on this HDR image while it is made, in their order: a filter works on what is drawn before it
+        /// Do the ImageSharp steps of elements on this HDR image while it is made (see ImageSharpSteps): the elements in linear light at the white
+        /// of the elements, the filters at the SDR white
         /// </summary>
         private void DrawSteps(IEnumerable<ImageSharpStep> steps)
         {
             var (peakInNits, highlightShare) = HdrContent.Measure(this, SdrWhiteLevelInNits);
-            float elementWhite = ElementWhite(peakInNits, highlightShare);
-            foreach (var step in steps)
-            {
-                if (step.Draw != null)
-                {
-                    DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
-                }
-                else
-                {
-                    step.Filter.Apply(Pixels, SdrWhiteLevelInNits / 80f);
-                }
-            }
+            ImageSharpSteps.Draw(Pixels, steps, ImageValues.Linear(ElementWhite(peakInNits, highlightShare)), SdrWhiteLevelInNits / 80f);
         }
 
         /// <summary>
@@ -266,7 +256,7 @@ namespace Greenshot.Base.Core
                 int known = Volatile.Read(ref _hasHdrContent);
                 if (known == 0)
                 {
-                    known = Native.HdrContent.HasHdrContent(_shared.Pixels, SdrWhiteLevelInNits) ? 1 : 2;
+                    known = HdrContent.HasHdrContent(_shared.Pixels, SdrWhiteLevelInNits) ? 1 : 2;
                     Volatile.Write(ref _hasHdrContent, known);
                 }
                 return known == 1;
@@ -611,33 +601,6 @@ namespace Greenshot.Base.Core
                 halves[x * 4 + 2] = table[pixel.B];
                 halves[x * 4 + 3] = pixel.A == 255 ? one : HalfHelper.FloatToHalf(pixel.A / 255f);
             }
-        }
-
-        /// <summary>
-        /// Draw an element with ImageSharp on the area of this complete HDR image while it is made: on float pixels (ImageSharp mixes HalfVector4
-        /// wrongly, see FloatPixels), its white at the value of white (scRGB)
-        /// </summary>
-        private void DrawOver(NativeRect area, Action<Image, ImageValues> draw, float white)
-        {
-            if (area.Width <= 0 || area.Height <= 0 || area.X < 0 || area.Y < 0 || area.Right > Width || area.Bottom > Height)
-            {
-                return;
-            }
-            var rectangle = new Rectangle(area.X, area.Y, area.Width, area.Height);
-            using var canvas = FloatPixels.Of(Pixels, rectangle);
-            draw(canvas, ImageValues.Linear(white));
-            Pixels.ProcessPixelRows(canvas, (target, drawn) =>
-            {
-                for (int y = 0; y < drawn.Height; y++)
-                {
-                    var targetRow = target.GetRowSpan(area.Y + y).Slice(area.X, area.Width);
-                    var drawnRow = drawn.GetRowSpan(y);
-                    for (int x = 0; x < targetRow.Length; x++)
-                    {
-                        targetRow[x].FromVector4(drawnRow[x].ToVector4());
-                    }
-                }
-            });
         }
 
         /// <summary>

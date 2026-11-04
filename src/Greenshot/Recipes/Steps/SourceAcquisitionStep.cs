@@ -32,6 +32,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 
 using Greenshot.Base.Recipes;

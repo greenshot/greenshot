@@ -36,6 +36,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.ImageSharpDrawing;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;

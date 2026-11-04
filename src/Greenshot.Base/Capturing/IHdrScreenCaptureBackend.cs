@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 
 namespace Greenshot.Base.Capturing
 {
