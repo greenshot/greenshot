@@ -63,6 +63,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Useful for privacy protection and sensitive information removal
 - Beta feature by @Lakritzator
 
+**Stronger blur and pixelate**
+- A new blur or pixelate area over text gets a strength that fits that text, so large text is hidden as well as small text. When the text wasn't recognized yet, OCR runs once in the background
+- An OCR badge in the editor's status bar shows whether the text of the capture is recognized
+
 **Remove Transparency Feature** (#945)
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
