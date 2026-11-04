@@ -107,7 +107,7 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 throw new ArgumentException("Bezier points are a start point and three points per curve", nameof(points));
             }
-            Painting.Stroke(image, new Path(segment), lineThickness, values.Of(lineColor), StrokeJoin.Round, StrokeCap.Round);
+            Painting.Stroke(image, new Path(segment), lineThickness, values.Of(lineColor), JointStyle.Round, EndCapStyle.Round);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Greenshot.Base.ImageSharpDrawing
             }
             if (Vector2.Dot(lineEnd - lineStart, direction) > 0)
             {
-                parts.Add(Strokes.Outline(new PointF[] { lineStart, lineEnd }, false, width));
+                parts.Add(new Path(new LinearLineSegment(lineStart, lineEnd)).GenerateOutline(width));
             }
             return parts;
         }

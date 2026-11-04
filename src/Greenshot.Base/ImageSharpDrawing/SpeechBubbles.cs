@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Base.ImageSharpDrawing
@@ -39,8 +40,8 @@ namespace Greenshot.Base.ImageSharpDrawing
         private const int ArcPoints = 16;
 
         /// <summary>
-        /// Like SpeechbubbleContainer.Draw without the text: the shadow (the outlines of tail and box, 1 to 5 pixels away), the line of the tail outside
-        /// of the box, the box, the line of the box outside of the tail, then the tail
+        /// Like SpeechbubbleContainer.Draw without the text: the shadow (the outline of box and tail, 1 to 5 pixels away), the inside, then the line
+        /// around box and tail
         /// </summary>
         /// <param name="image">The image, any pixel type</param>
         /// <param name="values">The values of the image's pixels</param>
@@ -52,29 +53,22 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="shadow">Draw the shadow</param>
         public static void Bubble(Image image, ImageValues values, Rectangle rect, Point target, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow)
         {
-            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
-            var box = BoxShape(rect, lineThickness);
-            var tail = TailShape(rect, target);
-            if (shadow && (lineVisible || fillColor.A > 0))
+            // The editor draws the line of the tail outside of the box and the line of the box outside of the tail: the line around both together
+            var bubble = BoxShape(rect, lineThickness).Clip(new ShapeOptions { ClippingOperation = ClippingOperation.Union }, TailShape(rect, target));
+            // The editor draws the line of the tail always, with a pen of width 0 one pixel wide
+            float lineWidth = Painting.PenWidth(lineThickness);
+            if (shadow && (lineThickness > 0 && lineColor.A > 0 || fillColor.A > 0))
             {
                 foreach (var (offset, alpha) in Painting.ShadowSteps())
                 {
-                    var black = new Vector4(0, 0, 0, alpha);
-                    Painting.Stroke(image, tail.Translate(offset + 1, offset + 1), Painting.PenWidth(lineThickness), black);
-                    Painting.Stroke(image, box.Translate(offset + 1, offset + 1), Painting.PenWidth(lineThickness), black);
+                    Painting.Stroke(image, bubble.Translate(offset + 1, offset + 1), lineWidth, new Vector4(0, 0, 0, alpha));
                 }
             }
-            // The editor draws the line of the tail always, with a pen of width 0 one pixel wide
+            Painting.Fill(image, bubble, values.Of(fillColor));
             if (lineColor.A > 0)
             {
-                Painting.Fill(image, Strokes.Outline(tail, Painting.PenWidth(lineThickness)), values.Of(lineColor), exclude: box);
+                Painting.Stroke(image, bubble, lineWidth, values.Of(lineColor));
             }
-            Painting.Fill(image, box, values.Of(fillColor));
-            if (lineVisible)
-            {
-                Painting.Fill(image, Strokes.Outline(box, lineThickness), values.Of(lineColor), exclude: tail);
-            }
-            Painting.Fill(image, tail, values.Of(fillColor));
         }
 
         /// <summary>

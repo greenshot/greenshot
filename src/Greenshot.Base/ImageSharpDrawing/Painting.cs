@@ -41,7 +41,7 @@ namespace Greenshot.Base.ImageSharpDrawing
         public const float GdiPixelCenter = 0.5f;
 
         // More than the vertical step of ImageSharp's anti-aliasing (16 rows per pixel), less than half a pixel
-        private const float AliasedNudge = 0.1f;
+        private const float TopLeftRule = 0.1f;
 
         /// <summary>
         /// The shadow of the editor's elements (DrawableContainer.DrawShadow): five steps, each one pixel further right and down, from 100 to 20 of 255
@@ -68,9 +68,8 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="color">The color in the values of the image, straight alpha</param>
         /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
         /// <param name="clip">Only in this area, e.g. the box of a text</param>
-        /// <param name="exclude">Not in this shape, by whole pixels like a GDI+ clip region (Graphics.SetClip with CombineMode.Exclude)</param>
-        public static void Fill(Image image, IPath shape, Vector4 color, bool antialias = true, Rectangle? clip = null, IPath exclude = null) =>
-            Fill(image, shape == null ? Array.Empty<IPath>() : new[] { shape }, color, antialias, clip, exclude);
+        public static void Fill(Image image, IPath shape, Vector4 color, bool antialias = true, Rectangle? clip = null) =>
+            Fill(image, shape == null ? Array.Empty<IPath>() : new[] { shape }, color, antialias, clip);
 
         /// <summary>
         /// Put the color over what the shapes cover together, once also where they overlap (like one GDI+ call draws a line with its arrow heads, or
@@ -81,8 +80,7 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="color">The color in the values of the image, straight alpha</param>
         /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
         /// <param name="clip">Only in this area, e.g. the box of a text</param>
-        /// <param name="exclude">Not in this shape, by whole pixels like a GDI+ clip region (Graphics.SetClip with CombineMode.Exclude)</param>
-        public static void Fill(Image image, IReadOnlyList<IPath> shapes, Vector4 color, bool antialias = true, Rectangle? clip = null, IPath exclude = null)
+        public static void Fill(Image image, IReadOnlyList<IPath> shapes, Vector4 color, bool antialias = true, Rectangle? clip = null)
         {
             if (image == null || shapes == null || shapes.Count == 0 || !(color.W > 0))
             {
@@ -118,14 +116,6 @@ namespace Greenshot.Base.ImageSharpDrawing
                     coverage[i] = Math.Max(coverage[i], shapeCoverage[i]);
                 }
             }
-            if (exclude != null)
-            {
-                var excluded = CoverageOf(exclude, area, false);
-                for (int i = 0; i < coverage.Length; i++)
-                {
-                    coverage[i] *= 1f - excluded[i];
-                }
-            }
             float alpha = Math.Min(color.W, 1f);
             image.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
             {
@@ -150,9 +140,10 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return Coverage.Of(shape.Translate(-area.X, -area.Y), area.Width, area.Height, IntersectionRule.NonZero);
             }
-            // Without anti-aliasing a pixel is inside when more than half of it is covered; one cut in half by an edge is inside on the left and
-            // top edge only, like GDI+ (a line of width 2 is two pixels wide, not one or three): the shape is moved a little up and left
-            var coverage = Coverage.Of(shape.Translate(-area.X - AliasedNudge, -area.Y - AliasedNudge), area.Width, area.Height, IntersectionRule.NonZero);
+            // Without anti-aliasing a pixel is inside when more than half of it is covered. A pixel cut exactly in half by an edge needs a rule, else
+            // a line of width 2 drawn at the editor's coordinates covers three pixels: like GDI+ it is inside on the left and top edge only, by
+            // moving the shape a little up and left
+            var coverage = Coverage.Of(shape.Translate(-area.X - TopLeftRule, -area.Y - TopLeftRule), area.Width, area.Height, IntersectionRule.NonZero);
             for (int i = 0; i < coverage.Length; i++)
             {
                 coverage[i] = coverage[i] > 0.5f ? 1f : 0f;
@@ -170,14 +161,14 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="join">How the line goes around corners, GDI+ pens have miter joins</param>
         /// <param name="cap">How open lines end, GDI+ pens have flat ends</param>
         /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
-        public static void Stroke(Image image, IPath path, float width, Vector4 color, StrokeJoin join = StrokeJoin.Miter, StrokeCap cap = StrokeCap.Flat,
+        public static void Stroke(Image image, IPath path, float width, Vector4 color, JointStyle join = JointStyle.Miter, EndCapStyle cap = EndCapStyle.Butt,
             bool antialias = true)
         {
             if (path == null || !(width > 0) || !(color.W > 0))
             {
                 return;
             }
-            Fill(image, Strokes.Outline(path, width, join, cap), color, antialias);
+            Fill(image, path.GenerateOutline(width, join, cap), color, antialias);
         }
 
         /// <summary>
