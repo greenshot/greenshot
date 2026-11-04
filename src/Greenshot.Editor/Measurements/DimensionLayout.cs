@@ -59,12 +59,10 @@ namespace Greenshot.Editor.Measurements
             if (points.Length < 2) return Array.Empty<DimensionEdge>();
             return Enumerable.Range(0, closed ? points.Length : 1).Select(i => new DimensionEdge { Index=i,A=points[i],B=points[(i+1)%points.Length] }).ToArray();
         }
-        internal static string FormatLength(double pixels, MeasurementState state)
+        internal static string FormatLength(double pixels, MeasurementState state, DimensionFormat format = null)
         {
-            double value = state.Convert(pixels);
-            if (double.IsInfinity(value) || double.IsNaN(value)) return "Out of range";
-            string format = value > 0 && (value < .00005 || value >= 1e9) ? "0.###E+0" : "0.####";
-            return value.ToString(format, CultureInfo.CurrentCulture) + " " + MeasurementState.Symbol(state.Unit);
+            string number = (format ?? DimensionFormat.Automatic).Format(state.Convert(pixels));
+            return number == "Out of range" ? number : number + " " + MeasurementState.Symbol(state.Unit);
         }
         private static StringFormat TextFormat() => new StringFormat(StringFormat.GenericTypographic)
         { Alignment=StringAlignment.Center, LineAlignment=StringAlignment.Center, FormatFlags=StringFormatFlags.NoWrap | StringFormatFlags.MeasureTrailingSpaces };
@@ -82,7 +80,7 @@ namespace Greenshot.Editor.Measurements
             var result = new List<DimensionLabel>();
             foreach (var edge in edges.Where(e => owner.IsDimensionVisible(e.Index) && e.Length > 0))
             {
-                string text = FormatLength(edge.Length,units); var size = graphics.MeasureString(text,font,int.MaxValue,format);
+                string text = FormatLength(edge.Length,units,owner.GetDimensionFormat(edge.Index) ?? style.Format); var size = graphics.MeasureString(text,font,int.MaxValue,format);
                 var label = new DimensionLabel { Edge=edge,Text=text,Width=(int)Math.Ceiling(size.Width)+4,Height=(int)Math.Ceiling(size.Height)+2 };
                 double ux=(edge.B.X-edge.A.X)/edge.Length, uy=(edge.B.Y-edge.A.Y)/edge.Length;
                 float angle=(float)(Math.Atan2(uy,ux)*180/Math.PI); if(angle>90)angle-=180; if(angle < -90)angle+=180; label.Angle=angle;
@@ -139,6 +137,11 @@ namespace Greenshot.Editor.Measurements
                 {
                     graphics.TranslateTransform(label.Center.X,label.Center.Y); graphics.RotateTransform(label.Angle);
                     graphics.TextRenderingHint=System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                    if (style.BackgroundColor.A != 0)
+                    {
+                        using var background = new SolidBrush(style.BackgroundColor);
+                        graphics.FillRectangle(background, -label.Width / 2f, -label.Height / 2f, label.Width, label.Height);
+                    }
                     TextContainer.DrawText(graphics,new NativeRect(-label.Width/2,-label.Height/2,label.Width,label.Height),0,style.Color,false,format,label.Text,font);
                 }
                 finally { graphics.Restore(saved); }

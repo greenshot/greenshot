@@ -984,6 +984,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                EndExistingHandleGesture();
                 CancelScalePreview();
                 CancelPolygonInteraction();
                 CancelSelectionBox();
@@ -1134,6 +1135,7 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                EndExistingHandleGesture();
                 CancelScalePreview();
                 CancelPolygonInteraction();
                 CancelSelectionBox();
@@ -2663,7 +2665,10 @@ namespace Greenshot.Editor.Drawing
             var adorner = FindActiveAdorner(e);
             if (adorner != null)
             {
+                _existingGestureAdorner = adorner;
+                ClearSnapGuide();
                 adorner.MouseDown(sender, e);
+                Capture = true;
                 return;
             }
 
@@ -2712,10 +2717,13 @@ namespace Greenshot.Editor.Drawing
             if (DrawingMode == DrawingModes.Scale) { FinishScalePreview(e); return; }
 
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = _existingGestureAdorner ?? FindActiveAdorner(e);
             if (adorner != null)
             {
                 adorner.MouseUp(sender, e);
+                _existingGestureAdorner = null;
+                ClearSnapGuide();
+                Capture = false;
                 return;
             }
 
@@ -2864,21 +2872,19 @@ namespace Greenshot.Editor.Drawing
             e = InverseZoomMouseCoordinates(e);
             if (MoveSelectionBox(e.Location)) return;
             if (PolygonMouseMove(e)) return;
-            if (!_mouseDown && _scalePreview == null)
-            {
-                var snapped = PreviewDrawingStart(e.Location);
-                ApplySnappedPointer(e.Location, snapped);
-            }
-            if (DrawingMode == DrawingModes.Scale) { MoveScalePreview(e); return; }
-
-            // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            // Existing handles own the event before any creation preview can attract the real pointer.
+            var adorner = _existingGestureAdorner ?? FindActiveAdorner(e);
             if (adorner != null)
             {
                 adorner.MouseMove(sender, e);
                 return;
             }
-
+            if (CanAttractDrawingPointer && _scalePreview == null)
+            {
+                var snapped = PreviewDrawingStart(e.Location);
+                ApplySnappedPointer(e.Location, snapped);
+            }
+            if (DrawingMode == DrawingModes.Scale) { MoveScalePreview(e); return; }
             Point currentMouse = e.Location;
 
             Cursor = DrawingMode != DrawingModes.None ? Cursors.Cross : Cursors.Default;
@@ -3932,6 +3938,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == Keys.Escape && _existingGestureAdorner != null) { EndExistingHandleGesture(); Capture = false; return true; }
             if (k == Keys.Escape && CancelSelectionBox()) return true;
             if (k == (Keys.Control | Keys.Alt | Keys.G)) return GroupSelectedElements();
             if (k == (Keys.Control | Keys.Shift | Keys.G)) return UngroupSelectedElements();

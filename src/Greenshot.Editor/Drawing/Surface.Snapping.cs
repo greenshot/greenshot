@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Base.Core;
 using System.Collections.Generic;
 using System.Drawing;
@@ -113,11 +114,22 @@ namespace Greenshot.Editor.Drawing
         internal static bool SupportsDrawingStartSnapping(DrawingModes mode) => mode == DrawingModes.Line || mode == DrawingModes.Arrow
             || mode == DrawingModes.Rect || mode == DrawingModes.Ellipse || mode == DrawingModes.Text || mode == DrawingModes.Scale || mode == DrawingModes.Polygon;
 
+        [NonSerialized] private IAdorner _existingGestureAdorner;
+        internal bool CanAttractDrawingPointer => SupportsDrawingStartSnapping(DrawingMode) && _existingGestureAdorner == null &&
+            _vertexOwner == null && !_selectionBoxStart.HasValue && _mouseDownElement == null && !_mouseDown &&
+            !selectedElements.SelectMany(element => element.Adorners).Any(adorner => adorner.IsActive);
+        private void EndExistingHandleGesture()
+        {
+            var adorner = _existingGestureAdorner; _existingGestureAdorner = null;
+            adorner?.MouseUp(this, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+            if (adorner != null) Capture = false;
+            ClearSnapGuide();
+        }
         private void ApplySnappedPointer(Point pointer, Point snapped)
         {
             // Only a visible editor may move the real pointer. Headless geometry/event
             // tests and inactive documents still calculate their previews normally.
-            if (_snapTarget == null || pointer == snapped || !IsHandleCreated || FindForm()?.Visible != true || !ClientRectangle.Contains(PointToClient(MousePosition))) return;
+            if (!CanAttractDrawingPointer || _snapTarget == null || pointer == snapped || !IsHandleCreated || FindForm()?.Visible != true || !ClientRectangle.Contains(PointToClient(MousePosition))) return;
             System.Windows.Forms.Cursor.Position = PointToScreen(new Point(
                 (int)Math.Round(snapped.X * (double)_zoomFactor), (int)Math.Round(snapped.Y * (double)_zoomFactor)));
         }
@@ -172,6 +184,14 @@ namespace Greenshot.Editor.Drawing
             using var pen = new Pen(Color.DeepSkyBlue, 1) { DashStyle = DashStyle.Dot };
             if (_snapAnchor != null && _snapEnd != null)
                 graphics.DrawLine(pen, _snapAnchor.Value.X * zoom, _snapAnchor.Value.Y * zoom, _snapEnd.Value.X * zoom, _snapEnd.Value.Y * zoom);
+            if (_existingGestureAdorner != null || _vertexOwner != null || _mouseDownElement != null)
+            {
+                // Existing geometry moves to this target; a small cross cannot be mistaken for the pointer.
+                using var editingPen = new Pen(Color.SlateGray, 1);
+                graphics.DrawLine(editingPen, target.X - 2, target.Y, target.X + 2, target.Y);
+                graphics.DrawLine(editingPen, target.X, target.Y - 2, target.X, target.Y + 2);
+                return;
+            }
             graphics.FillEllipse(Brushes.White, target.X - 3, target.Y - 3, 6, 6);
             graphics.DrawEllipse(Pens.DeepSkyBlue, target.X - 3, target.Y - 3, 6, 6);
         }

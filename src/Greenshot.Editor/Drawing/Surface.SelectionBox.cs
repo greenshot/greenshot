@@ -75,7 +75,13 @@ namespace Greenshot.Editor.Drawing
         protected override void OnMouseCaptureChanged(EventArgs e)
         {
             base.OnMouseCaptureChanged(e);
-            if (!Capture) CancelSelectionBox();
+            if (!Capture)
+            {
+                EndExistingHandleGesture(); CancelSelectionBox(); CancelPolygonInteraction(); ClearSnapGuide();
+                _mouseDown = false;
+                if (_mouseDownElement != null) _mouseDownElement.Status = Greenshot.Base.Interfaces.Drawing.EditStatus.IDLE;
+                _mouseDownElement = null;
+            }
         }
 
         private void PaintSelectionBox(Graphics graphics)

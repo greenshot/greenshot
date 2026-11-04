@@ -15,7 +15,7 @@ namespace Greenshot.Editor.Controls
         {
             Width=214, Height=120, AllowUserToAddRows=false, AllowUserToDeleteRows=false, RowHeadersVisible=false,
             AllowUserToResizeRows=false, AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill,
-            AccessibleName="Edge dimension visibility and length", BackgroundColor=SystemColors.Window
+            AccessibleName="Edge dimension visibility and length", MultiSelect=false, BackgroundColor=SystemColors.Window
         };
         private readonly Button _dimensionFont = new Button { Text="Dimension font…", AutoSize=true };
         private readonly Button _dimensionColor = new Button { Text="Dimension colour…", AutoSize=true };
@@ -44,7 +44,7 @@ namespace Greenshot.Editor.Controls
                 using var font=current.CreateFont(); using var dialog=new FontDialog { Font=font,MinSize=1,MaxSize=144,FontMustExist=true,ShowEffects=true };
                 if(dialog.ShowDialog(FindForm())!=DialogResult.OK)return;
                 using var chosen=dialog.Font;
-                _dimensionDocument.SetDimensionStyle(new DimensionStyle(chosen.Name,chosen.SizeInPoints,chosen.Style,current.Color));
+                _dimensionDocument.SetDimensionStyle(new DimensionStyle(chosen.Name,chosen.SizeInPoints,chosen.Style,current.Color,current.Format,current.BackgroundColor));
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this,EventArgs.Empty);
             };
             _dimensionColor.Click += (s,e) =>
@@ -53,10 +53,12 @@ namespace Greenshot.Editor.Controls
                 var current=_dimensionDocument.DimensionStyle;
                 using var dialog=new ColorDialog { Color=current.Color,FullOpen=true };
                 if(dialog.ShowDialog(FindForm())!=DialogResult.OK)return;
-                _dimensionDocument.SetDimensionStyle(new DimensionStyle(current.Family,current.Size,current.FontStyle,dialog.Color));
+                _dimensionDocument.SetDimensionStyle(new DimensionStyle(current.Family,current.Size,current.FontStyle,dialog.Color,current.Format,current.BackgroundColor));
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this,EventArgs.Empty);
             };
-            _body.Controls.AddRange(new Control[] { new Label { Text="Edge dimensions",AutoSize=true },_dimensionEdges,_dimensionStyleLabel,_dimensionFont,_dimensionColor,_dimensionWarning });
+            _body.Controls.AddRange(new Control[] { new Label { Text="Edge dimensions",AutoSize=true },_dimensionEdges });
+            InitializeDimensionFormatControls();
+            _body.Controls.AddRange(new Control[] { _dimensionStyleLabel,_dimensionFont,_dimensionColor,_dimensionWarning });
         }
 
         internal void RefreshDimensionLabels(Surface document)
@@ -65,16 +67,19 @@ namespace Greenshot.Editor.Controls
             _dimensionDocument=document; _dimensionsUpdating=true;
             try
             {
+                int selectedEdge = SelectedDimensionEdge;
                 _dimensionEdges.Rows.Clear();
                 var edges=DimensionLayout.Edges(_selected);
                 foreach(var edge in edges)
                 {
-                    string length=DimensionLayout.FormatLength(edge.Length,document?.Measurements ?? MeasurementState.Pixels);
+                    string length=DimensionLayout.FormatLength(edge.Length,document?.Measurements ?? MeasurementState.Pixels,_selected.GetDimensionFormat(edge.Index) ?? document?.DimensionStyle.Format);
                     if(edge.Length==0)length+=" (zero; hidden)";
                     int row=_dimensionEdges.Rows.Add(_selected.IsDimensionVisible(edge.Index),edge.Name,length);
                     _dimensionEdges.Rows[row].Tag=edge.Index;
                     _dimensionEdges.Rows[row].Cells[2].ToolTipText=length;
                 }
+                if (selectedEdge >= 0 && selectedEdge < _dimensionEdges.Rows.Count) _dimensionEdges.CurrentCell = _dimensionEdges.Rows[selectedEdge].Cells[1];
+                RefreshDimensionFormatControls();
                 _dimensionEdges.Visible=edges.Length>0;
                 _dimensionEdges.Height=Math.Min(190,_dimensionEdges.ColumnHeadersHeight+edges.Length*_dimensionEdges.RowTemplate.Height+3);
                 _dimensionFont.Enabled=_dimensionColor.Enabled=document!=null;

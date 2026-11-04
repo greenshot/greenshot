@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Greenshot.Editor.Measurements;
 using Greenshot.Editor.Memento;
 
@@ -13,6 +14,15 @@ namespace Greenshot.Editor.Drawing
             if (style == null) throw new ArgumentNullException(nameof(style));
             if (DimensionStyle.Equals(style)) return false;
             MakeUndoable(new DimensionStyleMemento(this), false); RestoreDimensionStyle(style); Modified = true; return true;
+        }
+        public bool ApplyDimensionFormatToAll(DimensionFormat format)
+        {
+            if (format == null) throw new ArgumentNullException(nameof(format));
+            var owners = Elements.OfType<DrawableContainer>().Where(owner => owner.DimensionFormats?.Any(value => value >= 0) == true).ToArray();
+            if (DimensionStyle.Format.Equals(format) && owners.Length == 0) return false;
+            MakeUndoable(new AllDimensionFormatsMemento(this, owners), false);
+            foreach (var owner in owners) owner.RestoreDimensionFormats(null);
+            RestoreDimensionStyle(DimensionStyle.WithFormat(format)); Modified = true; return true;
         }
         internal void RestoreDimensionStyle(DimensionStyle style)
         {

@@ -71,6 +71,7 @@ namespace Greenshot.Editor.Drawing
         private void OnDeserializedInit(StreamingContext context)
         {
             _adorners = new List<IAdorner>();
+            ValidateDimensionFormats();
             OnDeserialized(context);
         }
 

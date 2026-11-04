@@ -34,7 +34,7 @@ namespace Greenshot.Editor.Controls
         public event EventHandler ClearRequested;
         public event EventHandler GeometryEdited;
         public MeasurementUnit SelectedUnit => (MeasurementUnit)Math.Max(0, _units.SelectedIndex);
-        internal bool IsEditingValue => _properties.IsCurrentCellInEditMode;
+        internal bool IsEditingValue => _properties.IsCurrentCellInEditMode || _documentDigits.ContainsFocus || _edgeDigits.ContainsFocus || _documentFormat.ContainsFocus || _edgeFormat.ContainsFocus;
         internal bool IsExpanded => _expanded;
         internal void FocusProperties() { if (_properties.Visible) _properties.Focus(); else _units.Focus(); }
 

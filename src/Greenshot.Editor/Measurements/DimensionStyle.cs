@@ -10,18 +10,23 @@ namespace Greenshot.Editor.Measurements
         public float Size { get; }
         public FontStyle FontStyle { get; }
         public Color Color { get; }
-        public DimensionStyle(string family, float size, FontStyle style, Color color)
+        public DimensionFormat Format { get; }
+        public Color BackgroundColor { get; }
+        public DimensionStyle(string family, float size, FontStyle style, Color color, DimensionFormat format = null, Color? backgroundColor = null)
         {
             if (string.IsNullOrWhiteSpace(family) || family.Length > 128 || float.IsNaN(size) || size < 1 || size > 144 || ((int)style & ~15) != 0)
                 throw new ArgumentException("Invalid dimension font.");
             Family = family; Size = size; FontStyle = style; Color = color;
+            Format = format ?? DimensionFormat.Automatic; BackgroundColor = backgroundColor ?? System.Drawing.Color.Transparent;
         }
+        public DimensionStyle WithFormat(DimensionFormat format) => new DimensionStyle(Family, Size, FontStyle, Color, format, BackgroundColor);
+        public DimensionStyle WithBackground(Color color) => new DimensionStyle(Family, Size, FontStyle, Color, Format, color);
         public Font CreateFont()
         {
             try { return new Font(Family, Size * 96 / 72, FontStyle, GraphicsUnit.Pixel); }
             catch (ArgumentException) { return new Font(FontFamily.GenericSansSerif, Size * 96 / 72, System.Drawing.FontStyle.Regular, GraphicsUnit.Pixel); }
         }
-        public bool Equals(DimensionStyle other) => other != null && Family == other.Family && Size == other.Size && FontStyle == other.FontStyle && Color.ToArgb() == other.Color.ToArgb();
+        public bool Equals(DimensionStyle other) => other != null && Family == other.Family && Size == other.Size && FontStyle == other.FontStyle && Color.ToArgb() == other.Color.ToArgb() && Format.Equals(other.Format) && BackgroundColor.ToArgb() == other.BackgroundColor.ToArgb();
         public override bool Equals(object other) => Equals(other as DimensionStyle);
         public override int GetHashCode() => Family.GetHashCode() ^ Size.GetHashCode() ^ Color.ToArgb() ^ (int)FontStyle;
     }

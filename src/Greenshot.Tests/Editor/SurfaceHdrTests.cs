@@ -544,9 +544,11 @@ namespace Greenshot.Tests.Editor
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void RotatedDimensionedObjects_HdrOverlayMatchesUnclippedDrawingAndPreservesHighlights(bool polygon)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void RotatedDimensionedObjects_HdrOverlayMatchesUnclippedDrawingAndPreservesHighlights(bool polygon, bool background)
         {
             using var surface = CreateBrightSurface();
             Assert.True(surface.ApplyEffect(new ResizeEffect(400, 400, false)));
@@ -565,6 +567,7 @@ namespace Greenshot.Tests.Editor
             surface.AddElement(shape, false); surface.SelectElement(shape);
             foreach (var edge in Greenshot.Editor.Measurements.DimensionLayout.Edges(shape)) shape.SetDimensionVisible(edge.Index, true);
             surface.RotateSelectedObjects(37);
+            if (background) surface.SetDimensionStyle(surface.DimensionStyle.WithBackground(Color.LightYellow));
             using var expected = new Bitmap(400, 400);
             using (var graphics = Graphics.FromImage(expected))
                 shape.DrawContent(graphics, expected, RenderMode.EXPORT, new NativeRect(0, 0, 400, 400));
