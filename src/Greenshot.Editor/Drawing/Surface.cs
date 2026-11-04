@@ -663,7 +663,6 @@ namespace Greenshot.Editor.Drawing
             // of a plugin) go into 8-bit layers. Elements which change the pixels under them in another way (a filter of a plugin) can't be drawn on
             // their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
-            var changedAreas = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();
 
             // First the plan: the filters, the elements drawn with ImageSharp on the HDR pixels (see ElementDrawing), and between them the other
@@ -698,7 +697,7 @@ namespace Greenshot.Editor.Drawing
                     var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
                     if (elementFilters == null)
                     {
-                        AddReplacedAreas(element, bounds, replacedAreas, changedAreas);
+                        AddReplacedAreas(element, bounds, replacedAreas);
                         continue;
                     }
                     // The filters work on what is drawn so far, the next elements go into a new layer
@@ -755,7 +754,7 @@ namespace Greenshot.Editor.Drawing
                     }
                 }
 
-                if (replacedAreas.Count > 0 || changedAreas.Count > 0)
+                if (replacedAreas.Count > 0)
                 {
                     rendered = (Bitmap)GetImage(RenderMode.EXPORT);
                     // The replaced areas are the export as it is, also what is drawn over them
@@ -765,13 +764,13 @@ namespace Greenshot.Editor.Drawing
                         using var layerGraphics = Graphics.FromImage(step.Layer);
                         layerGraphics.CompositingMode = CompositingMode.SourceCopy;
                         layerGraphics.TranslateTransform(-step.Location.X, -step.Location.Y);
-                        foreach (var area in replacedAreas.Concat(changedAreas))
+                        foreach (var area in replacedAreas)
                         {
                             layerGraphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
                         }
                     }
                 }
-                return new HdrOverlay(steps, rendered, replacedAreas, changedAreas);
+                return new HdrOverlay(steps, rendered, replacedAreas);
             }
             catch
             {
@@ -811,39 +810,19 @@ namespace Greenshot.Editor.Drawing
             string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
 
         /// <summary>
-        /// The areas of an element whose effect can't be drawn on the HDR pixels: from the export as it is (replaced), or only the pixels which it
-        /// changed (changed: torn edges and cut marks, when their cut can't be drawn)
+        /// The area of an element whose filters can't be done on the HDR pixels (e.g. of a plugin): it is taken from the export as it is.
+        /// Torn edges and cut marks are always cut on the HDR pixels (see CreateCutAway).
         /// </summary>
-        private static void AddReplacedAreas(DrawableContainer element, NativeRect bounds, List<NativeRect> replacedAreas, List<NativeRect> changedAreas)
+        private static void AddReplacedAreas(DrawableContainer element, NativeRect bounds, List<NativeRect> replacedAreas)
         {
-            IEnumerable<NativeRect> areas;
-            var target = replacedAreas;
-            if (element is TornEdgeContainer tornEdges)
+            // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
+            int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
+            int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
+            int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
+            var area = (element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin)).Intersect(bounds);
+            if (area.Width > 0 && area.Height > 0)
             {
-                // Only the bands of the torn edges, and in them only the pixels of the teeth: the rest keeps its HDR content
-                areas = tornEdges.EdgeAreas();
-                target = changedAreas;
-            }
-            else if (element.HasFilters)
-            {
-                // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
-                int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
-                int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
-                int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
-                areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
-            }
-            else
-            {
-                // A cut mark: the pixels it draws
-                areas = new[] { element.DrawingBounds };
-                target = changedAreas;
-            }
-            foreach (var area in areas.Select(area => area.Intersect(bounds)))
-            {
-                if (area.Width > 0 && area.Height > 0)
-                {
-                    target.Add(area);
-                }
+                replacedAreas.Add(area);
             }
         }
 

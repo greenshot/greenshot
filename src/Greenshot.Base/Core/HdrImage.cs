@@ -493,18 +493,6 @@ namespace Greenshot.Base.Core
                     {
                         composed.ReplaceWithSdr(overlay.Rendered, area);
                     }
-                    foreach (var area in overlay.ChangedAreas)
-                    {
-                        // Only the pixels the element changed (e.g. the teeth of torn edges), the others keep their HDR content
-                        if (sdrImage != null)
-                        {
-                            composed.ReplaceChangedWithSdr(overlay.Rendered, sdrImage, area);
-                        }
-                        else
-                        {
-                            composed.ReplaceWithSdr(overlay.Rendered, area);
-                        }
-                    }
                 }
                 return composed;
             }
@@ -766,62 +754,6 @@ namespace Greenshot.Base.Core
             finally
             {
                 source.UnlockBits(bitmapData);
-            }
-        }
-
-        /// <summary>
-        /// Replace the pixels of an area of this complete HDR image while it is made where the rendered 8-bit image differs from the capture's
-        /// 8-bit image (e.g. the teeth of torn edges, a cut mark), at the SDR white level: the unchanged pixels keep their HDR content
-        /// </summary>
-        private unsafe void ReplaceChangedWithSdr(Bitmap rendered, Bitmap original, NativeRect area)
-        {
-            if (rendered == null)
-            {
-                return;
-            }
-            var target = area.Intersect(new NativeRect(0, 0, Math.Min(Width, Math.Min(rendered.Width, original.Width)), Math.Min(Height, Math.Min(rendered.Height, original.Height))));
-            if (target.Width <= 0 || target.Height <= 0)
-            {
-                return;
-            }
-            ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
-            var renderedData = rendered.LockBits(target, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            try
-            {
-                var originalData = original.LockBits(target, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                try
-                {
-                    Pixels.ProcessPixelRows(accessor =>
-                    {
-                        for (int y = 0; y < target.Height; y++)
-                        {
-                            uint* renderedRow = (uint*)((byte*)renderedData.Scan0 + (long)y * renderedData.Stride);
-                            uint* originalRow = (uint*)((byte*)originalData.Scan0 + (long)y * originalData.Stride);
-                            var targetRow = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(target.Y + y).Slice(target.X, target.Width));
-                            for (int x = 0; x < target.Width; x++)
-                            {
-                                if (renderedRow[x] == originalRow[x])
-                                {
-                                    continue;
-                                }
-                                // BGRA in memory
-                                byte* pixel = (byte*)(renderedRow + x);
-                                targetRow[x * 4] = table[pixel[2]];
-                                targetRow[x * 4 + 1] = table[pixel[1]];
-                                targetRow[x * 4 + 2] = table[pixel[0]];
-                                targetRow[x * 4 + 3] = HalfHelper.FloatToHalf(pixel[3] / 255f);
-                            }
-                        }
-                    });
-                }
-                finally
-                {
-                    original.UnlockBits(originalData);
-                }
-            }
-            finally
-            {
-                rendered.UnlockBits(renderedData);
             }
         }
 
