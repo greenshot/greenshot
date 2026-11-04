@@ -193,7 +193,9 @@ later:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
-  A picture element of its own kind (e.g. the barcode of the Zxing plugin) is drawn as its picture, not with its own GDI+ drawing.
+  An element of another type (e.g. of a plugin) is drawn when it draws itself with ImageSharp (`IHdrDrawable`). The barcode of the Zxing
+  plugin does: its layout (the modules from the matrix of ZXing.Net, `BarcodeLayout`) is drawn with GDI+ for the editor and with
+  ImageSharp for the HDR file, the same way.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
   brightness. Blur, pixelate (also inverted), the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
   and not finer than the levels of the SDR image. Blur and pixelate add the same noise as in the editor (`BlurNoise`), so neither
@@ -206,7 +208,7 @@ pictures, at the white of the elements: a picture, the cursor, an emoji (rendere
 draws it with GDI+), a metafile (GDI+) or an icon (`Icon.ToBitmap`), which are made once in the element's size like in the editor.
 The SDR image only gives parameters: the strength of the highlighter and the blocks
 and noise of pixelate, so they look as in the editor. An element which can't be drawn this way (another kind of element, an inverted
-magnifier from an old .greenshot file) makes the HDR state `Lost` (`ElementDrawing.Supports`, `ElementImageFilters.Supports`): the
+magnifier from an old .greenshot file) makes the HDR state `Lost` (`ElementDrawing.Supports`, `ElementImageFilters.Supports`; an element of another type without `IHdrDrawable`): the
 badge shows it, and the capture is saved as a normal file.
 
 ```mermaid

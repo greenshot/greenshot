@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
@@ -45,12 +46,16 @@ namespace Greenshot.Editor.Drawing
     {
         /// <summary>
         /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it draws nothing (e.g. an icon
-        /// without its icon). Only the editor's own element types (see <see cref="Supports"/>): a subclass may draw differently, only a picture of its
-        /// own kind (e.g. a barcode) is drawn as its picture. Everything is taken from the element
-        /// now: the drawing runs later on another thread (see HdrExport), while the element may change.
+        /// without its icon). The editor's own element types (see <see cref="Supports"/>), and an element which draws itself (IHdrDrawable, e.g. the
+        /// barcode of the Zxing plugin); a subclass of another kind may draw differently. Everything is taken from the element now: the drawing runs
+        /// later on another thread (see HdrExport), while the element may change.
         /// </summary>
         public static Action<Image, ImageValues> Of(DrawableContainer element, NativePoint origin)
         {
+            if (element is IHdrDrawable drawsItself)
+            {
+                return drawsItself.CreateHdrDrawing(origin);
+            }
             var elementBounds = element.Bounds;
             var rect = new NativeRect(elementBounds.X - origin.X, elementBounds.Y - origin.Y, elementBounds.Width, elementBounds.Height);
             var bounds = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
@@ -120,18 +125,6 @@ namespace Greenshot.Editor.Drawing
                         lineThickness, lineColor, fillColor, shadow);
                 case ImageContainer picture when element.GetType() == typeof(ImageContainer):
                     return PictureOf(picture.Image, bounds, nearestNeighbor: false, shadow);
-                case ImageContainer ownPicture:
-                    // A picture of its own kind (e.g. the barcode of the Zxing plugin): its bitmap, like the barcode draws it: filling its place, or
-                    // at its size in the middle of it (a square barcode in a place which isn't), pixel for pixel
-                    if (ownPicture.Image == null)
-                    {
-                        return null;
-                    }
-                    var pictureSize = ownPicture.Image.Size;
-                    var picturePlace = pictureSize.Width == bounds.Width && pictureSize.Height == bounds.Height || pictureSize.Width > bounds.Width || pictureSize.Height > bounds.Height
-                        ? bounds
-                        : new Rectangle(bounds.X + (bounds.Width - pictureSize.Width) / 2, bounds.Y + (bounds.Height - pictureSize.Height) / 2, pictureSize.Width, pictureSize.Height);
-                    return PictureOf(ownPicture.Image, picturePlace, nearestNeighbor: true, shadow: false);
                 case IconContainer icon when element.GetType() == typeof(IconContainer):
                     if (icon.Icon == null)
                     {
@@ -227,9 +220,9 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public static bool Supports(DrawableContainer element) => element switch
         {
-            TornEdgeContainer or CutMarkContainer or StepLabelContainer or ImageContainer or SvgContainer or MetafileContainer or Emoji.EmojiContainer
-                or CropContainer => true,
-            _ => element.GetType() == typeof(HighlightContainer) || element.GetType() == typeof(ObfuscateContainer)
+            IHdrDrawable => true,
+            TornEdgeContainer or CutMarkContainer or StepLabelContainer or SvgContainer or MetafileContainer or Emoji.EmojiContainer or CropContainer => true,
+            _ => element.GetType() == typeof(ImageContainer) || element.GetType() == typeof(HighlightContainer) || element.GetType() == typeof(ObfuscateContainer)
                  || element.GetType() == typeof(SpeechbubbleContainer) || element.GetType() == typeof(TextContainer)
                  || element.GetType() == typeof(RectangleContainer) || element.GetType() == typeof(EllipseContainer)
                  || element.GetType() == typeof(ArrowContainer) || element.GetType() == typeof(LineContainer)

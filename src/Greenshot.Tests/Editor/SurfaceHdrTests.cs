@@ -989,7 +989,7 @@ namespace Greenshot.Tests.Editor
         }
 
         /// <summary>
-        /// A picture element of its own kind, like the barcode of the Zxing plugin: it draws itself
+        /// A picture element of its own kind (e.g. of a plugin) which only draws itself with GDI+: there is no HDR drawing for it
         /// </summary>
         private sealed class OwnPicture : ImageContainer
         {
@@ -999,8 +999,24 @@ namespace Greenshot.Tests.Editor
 
             public override void Draw(Graphics graphics, Greenshot.Base.Interfaces.Drawing.RenderMode rm)
             {
-                // Like the barcode: its bitmap at its size in the middle of its place
-                graphics.DrawImage(Image, Left + (Width - Image.Width) / 2, Top + (Height - Image.Height) / 2, Image.Width, Image.Height);
+                graphics.FillRectangle(Brushes.Black, Bounds);
+            }
+        }
+
+        /// <summary>
+        /// An element of its own kind which draws itself with ImageSharp too (like the barcode of the Zxing plugin): a black square in its place
+        /// </summary>
+        private sealed class OwnHdrDrawing : ImageContainer, Greenshot.Base.Interfaces.Drawing.IHdrDrawable
+        {
+            public OwnHdrDrawing(Surface surface) : base(surface)
+            {
+            }
+
+            public Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> CreateHdrDrawing(NativePoint origin)
+            {
+                var place = new SixLabors.ImageSharp.RectangleF(Left - origin.X, Top - origin.Y, Width, Height);
+                return (image, values) => SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+                    SixLabors.ImageSharp.Drawing.Processing.FillRectangleExtensions.Fill(context, values.ColorOf(new Rgba32(0, 0, 0, 255)), place));
             }
         }
 
@@ -1015,27 +1031,31 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void PictureOfItsOwnKind_IsDrawnOnTheHdrPixels_LikeAPicture()
+        public void PictureOfItsOwnKind_WithoutAnHdrDrawing_TheHdrContentIsLost()
         {
             using var surface = CreateBrightSurface();
-            var black = new Bitmap(10, 10, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(black))
-            {
-                graphics.Clear(Color.Black);
-            }
-            var picture = new OwnPicture(surface) { Image = black };
-            picture.Left = 40;
-            picture.Top = 40;
-            picture.Width = 20;
-            picture.Height = 20;
-            surface.AddElement(picture, false, false);
+            surface.AddElement(new OwnPicture(surface) { Left = 40, Top = 40, Width = 20, Height = 20 }, false, false);
+
+            // Its GDI+ drawing isn't used for the HDR file
+            Assert.Equal(HdrState.Lost, surface.HdrState);
+        }
+
+        [Fact]
+        public void ElementWhichDrawsItselfWithImageSharp_IsDrawnOnTheHdrPixels()
+        {
+            using var surface = CreateBrightSurface();
+            var element = new OwnHdrDrawing(surface);
+            element.Left = 40;
+            element.Top = 40;
+            element.Width = 20;
+            element.Height = 20;
+            surface.AddElement(element, false, false);
 
             Assert.Equal(HdrState.Available, surface.HdrState);
             using var composed = Compose(surface);
 
-            // Its bitmap in the middle of its place (45 to 55), not its GDI+ drawing; the highlights around it stay
+            // Black where it draws, the highlights around it stay
             Assert.Equal(0f, composed.Pixels[50, 50].ToVector4().X, 2);
-            Assert.Equal(5f, composed.Pixels[42, 42].ToVector4().X, 1);
             Assert.Equal(5f, composed.Pixels[20, 20].ToVector4().X, 1);
         }
 

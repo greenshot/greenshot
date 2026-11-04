@@ -52,6 +52,21 @@ namespace Greenshot.Plugin.Zxing.Processing
             bool roundedDots = false,
             int? requestedWidth = null,
             int? requestedHeight = null,
+            int margin = 4) =>
+            Render(CreateLayout(payload, format, foreColor, backColor, roundedDots, requestedWidth, requestedHeight, margin));
+
+        /// <summary>
+        /// The layout of the encoded barcode or QR code, see <see cref="Generate"/>: what is drawn where, without drawing it
+        /// </summary>
+        /// <returns>The layout, or null if payload is empty</returns>
+        public static BarcodeLayout CreateLayout(
+            string payload,
+            BarcodeFormat format = BarcodeFormat.QR_CODE,
+            Color? foreColor = null,
+            Color? backColor = null,
+            bool roundedDots = false,
+            int? requestedWidth = null,
+            int? requestedHeight = null,
             int margin = 4)
         {
             if (string.IsNullOrEmpty(payload))
@@ -71,13 +86,28 @@ namespace Greenshot.Plugin.Zxing.Processing
             var writer = new MultiFormatWriter();
             var matrix = writer.encode(payload, format, 0, 0, hints);
 
-            return RenderMatrix(matrix, fore, back, roundedDots, format, requestedWidth, requestedHeight, margin);
+            return Layout(matrix, fore, back, roundedDots, format, requestedWidth, requestedHeight, margin);
         }
 
         /// <summary>
         /// Renders a BitMatrix into a GDI+ Bitmap.
         /// </summary>
         public static Bitmap RenderMatrix(
+            BitMatrix matrix,
+            Color fore,
+            Color back,
+            bool rounded,
+            BarcodeFormat format,
+            int? requestedWidth = null,
+            int? requestedHeight = null,
+            int margin = 4) =>
+            Render(Layout(matrix, fore, back, rounded, format, requestedWidth, requestedHeight, margin));
+
+        /// <summary>
+        /// The layout of a BitMatrix: the size of the barcode and each module (a square, or a dot for rounded 2D codes; the finder patterns of a
+        /// QR code stay squares)
+        /// </summary>
+        public static BarcodeLayout Layout(
             BitMatrix matrix,
             Color fore,
             Color back,
@@ -117,55 +147,111 @@ namespace Greenshot.Plugin.Zxing.Processing
                 targetHeight = Math.Max(1, (int)Math.Round(matrixHeight * scaleY));
             }
 
-            var bmp = new Bitmap(targetWidth, targetHeight);
+            var modules = new List<BarcodeModule>();
+            for (int y = 0; y < matrixHeight; y++)
+            {
+                for (int x = 0; x < matrixWidth; x++)
+                {
+                    if (!matrix[x, y])
+                    {
+                        continue;
+                    }
+                    float px = x * scaleX;
+                    float py = y * scaleY;
+
+                    bool isFinder = false;
+                    if (rounded && is2D && format == BarcodeFormat.QR_CODE)
+                    {
+                        if (x >= margin && x < margin + 7 && y >= margin && y < margin + 7) isFinder = true;
+                        else if (x >= matrixWidth - margin - 7 && x < matrixWidth - margin && y >= margin && y < margin + 7) isFinder = true;
+                        else if (x >= margin && x < margin + 7 && y >= matrixHeight - margin - 7 && y < matrixHeight - margin) isFinder = true;
+                    }
+
+                    if (rounded && is2D && !isFinder)
+                    {
+                        float sizeX = scaleX - 0.5f;
+                        float sizeY = scaleY - 0.5f;
+                        modules.Add(new BarcodeModule(new RectangleF(px + 0.25f, py + 0.25f, Math.Max(1f, sizeX), Math.Max(1f, sizeY)), true));
+                    }
+                    else
+                    {
+                        modules.Add(new BarcodeModule(new RectangleF(px, py, scaleX, scaleY), false));
+                    }
+                }
+            }
+
+            return new BarcodeLayout(targetWidth, targetHeight, fore, back, modules);
+        }
+
+        /// <summary>
+        /// Renders the layout into a GDI+ Bitmap of its size, e.g. for the editor
+        /// </summary>
+        /// <returns>The bitmap, null without a layout</returns>
+        public static Bitmap Render(BarcodeLayout layout)
+        {
+            if (layout == null) return null;
+
+            var bmp = new Bitmap(layout.Width, layout.Height);
             using (var g = Graphics.FromImage(bmp))
             {
-                g.Clear(back);
+                g.Clear(layout.Back);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                using (var brush = new SolidBrush(fore))
+                using (var brush = new SolidBrush(layout.Fore))
                 {
-                    for (int y = 0; y < matrixHeight; y++)
+                    foreach (var module in layout.Modules)
                     {
-                        for (int x = 0; x < matrixWidth; x++)
+                        if (module.Round)
                         {
-                            if (matrix[x, y])
-                            {
-                                float px = x * scaleX;
-                                float py = y * scaleY;
-
-                                if (rounded && is2D)
-                                {
-                                    bool isFinder = false;
-                                    if (format == BarcodeFormat.QR_CODE)
-                                    {
-                                        if (x >= margin && x < margin + 7 && y >= margin && y < margin + 7) isFinder = true;
-                                        else if (x >= matrixWidth - margin - 7 && x < matrixWidth - margin && y >= margin && y < margin + 7) isFinder = true;
-                                        else if (x >= margin && x < margin + 7 && y >= matrixHeight - margin - 7 && y < matrixHeight - margin) isFinder = true;
-                                    }
-
-                                    if (isFinder)
-                                    {
-                                        g.FillRectangle(brush, px, py, scaleX, scaleY);
-                                    }
-                                    else
-                                    {
-                                        float sizeX = scaleX - 0.5f;
-                                        float sizeY = scaleY - 0.5f;
-                                        g.FillEllipse(brush, px + 0.25f, py + 0.25f, Math.Max(1f, sizeX), Math.Max(1f, sizeY));
-                                    }
-                                }
-                                else
-                                {
-                                    g.FillRectangle(brush, px, py, scaleX, scaleY);
-                                }
-                            }
+                            g.FillEllipse(brush, module.Area);
+                        }
+                        else
+                        {
+                            g.FillRectangle(brush, module.Area);
                         }
                     }
                 }
             }
 
             return bmp;
+        }
+
+        /// <summary>
+        /// Draws the layout with ImageSharp into a place of the image, e.g. on the HDR pixels of an HDR file (see IHdrDrawable): the background,
+        /// then each module, like <see cref="Render"/> draws them with GDI+, scaled to the place
+        /// </summary>
+        /// <param name="image">The image to draw on</param>
+        /// <param name="values">The values of the image (for an HDR image linear light)</param>
+        /// <param name="layout">The layout</param>
+        /// <param name="place">Where the barcode goes on the image</param>
+        public static void Draw(SixLabors.ImageSharp.Image image, Greenshot.Base.ImageSharpDrawing.ImageValues values, BarcodeLayout layout, SixLabors.ImageSharp.Rectangle place)
+        {
+            if (image == null || values == null || layout == null || place.Width <= 0 || place.Height <= 0)
+            {
+                return;
+            }
+            float scaleX = (float)place.Width / layout.Width;
+            float scaleY = (float)place.Height / layout.Height;
+            var back = values.ColorOf(new SixLabors.ImageSharp.PixelFormats.Rgba32(layout.Back.R, layout.Back.G, layout.Back.B, layout.Back.A));
+            var fore = values.ColorOf(new SixLabors.ImageSharp.PixelFormats.Rgba32(layout.Fore.R, layout.Fore.G, layout.Fore.B, layout.Fore.A));
+            SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+            {
+                SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, back,
+                    new SixLabors.ImageSharp.Drawing.RectangularPolygon(place.X, place.Y, place.Width, place.Height));
+                foreach (var module in layout.Modules)
+                {
+                    // GDI+ (PixelOffsetMode.Default) has the middles of the pixels on whole numbers, ImageSharp their edges: half a pixel on,
+                    // so the edges of the modules are anti-aliased the same way as in the bitmap of the editor
+                    float x = place.X + module.Area.X * scaleX + 0.5f;
+                    float y = place.Y + module.Area.Y * scaleY + 0.5f;
+                    float width = module.Area.Width * scaleX;
+                    float height = module.Area.Height * scaleY;
+                    SixLabors.ImageSharp.Drawing.IPath shape = module.Round
+                        ? new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)
+                        : new SixLabors.ImageSharp.Drawing.RectangularPolygon(x, y, width, height);
+                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, shape);
+                }
+            });
         }
 
         /// <summary>
