@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Drawing.Filters
 
         public BlurFilter(DrawableContainer parent) : base(parent)
         {
-            AddField(GetType(), FieldType.BLUR_RADIUS, 3);
+            AddField(GetType(), FieldType.BLUR_RADIUS, 6);
         }
 
         // The box blur runs twice, so a pixel is influenced by pixels up to twice the radius away
