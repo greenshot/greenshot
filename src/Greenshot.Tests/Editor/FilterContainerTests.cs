@@ -108,11 +108,11 @@ namespace Greenshot.Tests.Editor
 
             // An arrow moved over a part of it: the whole blur and the 2 x 5 pixels it reads around it are repainted
             var clip = new NativeRect(110, 105, 5, 5);
-            Assert.Equal(obfuscate.DrawingBounds.Inflate(10, 10).Union(clip).Intersect(image), ((DrawableContainerList)surface.Elements).FilterReadArea(clip, image));
+            Assert.Equal(obfuscate.DrawingBounds.Inflate(10, 10).Union(clip).Intersect(image), surface.Elements.FilterReadArea(clip, image));
 
             // Away from filters only the clip rectangle
             var elsewhere = new NativeRect(300, 250, 10, 10);
-            Assert.Equal(elsewhere, ((DrawableContainerList)surface.Elements).FilterReadArea(elsewhere, image));
+            Assert.Equal(elsewhere, surface.Elements.FilterReadArea(elsewhere, image));
         }
     }
 }

@@ -1571,15 +1571,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(_hdrLabel) + 1, _ocrLabel);
         }
 
-        private void SurfaceTextRecognitionChanged(object sender, EventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((MethodInvoker)UpdateOcrLabel);
-                return;
-            }
-            UpdateOcrLabel();
-        }
+        // The surface runs the OCR from the UI thread and raises this there
+        private void SurfaceTextRecognitionChanged(object sender, EventArgs e) => UpdateOcrLabel();
 
         private void UpdateOcrLabel()
         {

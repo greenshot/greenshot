@@ -2817,15 +2817,8 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
         {
-            var recognition = RecognizeTextAsync();
-            if (!recognition.IsCompleted)
-            {
-                _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer, recognition);
-            }
-            else if (recognition.Status == TaskStatus.RanToCompletion && recognition.Result != null)
-            {
-                FitObfuscationToText(obfuscateContainer, recognition.Result);
-            }
+            // With known lines the task is done and the obfuscation is fitted right away
+            _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer, RecognizeTextAsync());
         }
 
         private List<IOcrLineFeature> OcrLinesOfCapture()
