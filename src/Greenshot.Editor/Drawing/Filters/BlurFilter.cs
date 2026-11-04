@@ -36,22 +36,12 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable]
     public class BlurFilter : AbstractFilter
     {
+        // Read and written by .greenshot files (the editor once had a preview quality, it was never used): kept so files stay compatible
         public double previewQuality;
-
-        public double PreviewQuality
-        {
-            get { return previewQuality; }
-            set
-            {
-                previewQuality = value;
-                OnPropertyChanged("PreviewQuality");
-            }
-        }
 
         public BlurFilter(DrawableContainer parent) : base(parent)
         {
             AddField(GetType(), FieldType.BLUR_RADIUS, 3);
-            AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
         }
 
         // The box blur runs twice, so a pixel is influenced by pixels up to twice the radius away

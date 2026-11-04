@@ -186,8 +186,6 @@ namespace Greenshot.Editor.Forms
 			this.blurRadiusUpDown = new ToolStripNumericUpDown();
 			this.brightnessLabel = new ToolStripLabel();
 			this.brightnessUpDown = new ToolStripNumericUpDown();
-			this.previewQualityLabel = new ToolStripLabel();
-			this.previewQualityUpDown = new ToolStripNumericUpDown();
 			this.magnificationFactorLabel = new ToolStripLabel();
 			this.magnificationFactorUpDown = new ToolStripNumericUpDown();
 			this.pixelSizeLabel = new ToolStripLabel();
@@ -1005,8 +1003,6 @@ namespace Greenshot.Editor.Forms
 									this.blurRadiusUpDown,
 									this.brightnessLabel,
 									this.brightnessUpDown,
-									this.previewQualityLabel,
-									this.previewQualityUpDown,
 									this.magnificationFactorLabel,
 									this.magnificationFactorUpDown,
 									this.pixelSizeLabel,
@@ -1447,39 +1443,6 @@ namespace Greenshot.Editor.Forms
 									0});
 			this.brightnessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.brightnessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
-			// 
-			// previewQualityLabel
-			// 
-			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Text = "Preview quality";
-			// 
-			// previewQualityUpDown
-			// 
-			this.previewQualityUpDown.DecimalPlaces = 0;
-			this.previewQualityUpDown.Increment = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Maximum = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Minimum = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Name = "previewQualityUpDown";
-			this.previewQualityUpDown.Text = "50";
-			this.previewQualityUpDown.Value = new decimal(new int[] {
-									50,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
-			this.previewQualityUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
 			// magnificationFactorLabel
 			// 
@@ -1959,8 +1922,6 @@ namespace Greenshot.Editor.Forms
 		private ToolStripLabel pixelSizeLabel;
 		private ToolStripNumericUpDown magnificationFactorUpDown;
 		private ToolStripLabel magnificationFactorLabel;
-		private ToolStripNumericUpDown previewQualityUpDown;
-		private ToolStripLabel previewQualityLabel;
 		private ToolStripNumericUpDown blurRadiusUpDown;
 		private ToolStripLabel blurRadiusLabel;
 		private ToolStripEx propertiesToolStrip;

@@ -702,11 +702,6 @@ namespace Greenshot.Base.Languages
         string PixelSize { get; }
 
         /// <summary>
-        /// Preview quality
-        /// </summary>
-        string PreviewQuality { get; }
-
-        /// <summary>
         /// Print
         /// </summary>
         string Print { get; }
