@@ -46,7 +46,7 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it draws nothing (e.g. an icon
         /// without its icon). Only the editor's own element types (see <see cref="Supports"/>): a subclass may draw differently, only a picture of its
-        /// own kind (e.g. a barcode) is drawn by itself into a picture. Everything is taken from the element
+        /// own kind (e.g. a barcode) is drawn as its picture. Everything is taken from the element
         /// now: the drawing runs later on another thread (see HdrExport), while the element may change.
         /// </summary>
         public static Action<Image, ImageValues> Of(DrawableContainer element, NativePoint origin)
@@ -120,10 +120,18 @@ namespace Greenshot.Editor.Drawing
                         lineThickness, lineColor, fillColor, shadow);
                 case ImageContainer picture when element.GetType() == typeof(ImageContainer):
                     return PictureOf(picture.Image, bounds, nearestNeighbor: false, shadow);
-                case ImageContainer:
-                    // A picture of its own kind (e.g. the barcode of the Zxing plugin draws its own bitmap): drawn by itself into a picture of its
-                    // area, which goes on the HDR pixels like a picture
-                    return RenderedOf(element, origin);
+                case ImageContainer ownPicture:
+                    // A picture of its own kind (e.g. the barcode of the Zxing plugin): its bitmap, like the barcode draws it: filling its place, or
+                    // at its size in the middle of it (a square barcode in a place which isn't), pixel for pixel
+                    if (ownPicture.Image == null)
+                    {
+                        return null;
+                    }
+                    var pictureSize = ownPicture.Image.Size;
+                    var picturePlace = pictureSize.Width == bounds.Width && pictureSize.Height == bounds.Height || pictureSize.Width > bounds.Width || pictureSize.Height > bounds.Height
+                        ? bounds
+                        : new Rectangle(bounds.X + (bounds.Width - pictureSize.Width) / 2, bounds.Y + (bounds.Height - pictureSize.Height) / 2, pictureSize.Width, pictureSize.Height);
+                    return PictureOf(ownPicture.Image, picturePlace, nearestNeighbor: true, shadow: false);
                 case IconContainer icon when element.GetType() == typeof(IconContainer):
                     if (icon.Icon == null)
                     {
@@ -228,26 +236,6 @@ namespace Greenshot.Editor.Drawing
                  || element.GetType() == typeof(FreehandContainer) || element.GetType() == typeof(IconContainer)
                  || element.GetType() == typeof(CursorContainer)
         };
-
-        /// <summary>
-        /// The element drawn by itself (GDI+, as when it is exported) into a picture of its area, drawn into its place like a picture
-        /// </summary>
-        private static Action<Image, ImageValues> RenderedOf(DrawableContainer element, NativePoint origin)
-        {
-            var area = element.DrawingBounds;
-            if (area.Width <= 0 || area.Height <= 0)
-            {
-                return null;
-            }
-            using var rendered = new Bitmap(area.Width, area.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(rendered))
-            {
-                graphics.TranslateTransform(-area.X, -area.Y);
-                element.Draw(graphics, Greenshot.Base.Interfaces.Drawing.RenderMode.EXPORT);
-            }
-            // One pixel of the picture is one pixel of the image
-            return PictureOf(rendered, new Rectangle(area.X - origin.X, area.Y - origin.Y, area.Width, area.Height), nearestNeighbor: true, shadow: false);
-        }
 
         /// <summary>
         /// The picture drawn into its place; the picture is copied now, the element may change it later

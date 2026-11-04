@@ -999,7 +999,8 @@ namespace Greenshot.Tests.Editor
 
             public override void Draw(Graphics graphics, Greenshot.Base.Interfaces.Drawing.RenderMode rm)
             {
-                graphics.FillRectangle(Brushes.Black, Bounds);
+                // Like the barcode: its bitmap at its size in the middle of its place
+                graphics.DrawImage(Image, Left + (Width - Image.Width) / 2, Top + (Height - Image.Height) / 2, Image.Width, Image.Height);
             }
         }
 
@@ -1017,13 +1018,24 @@ namespace Greenshot.Tests.Editor
         public void PictureOfItsOwnKind_IsDrawnOnTheHdrPixels_LikeAPicture()
         {
             using var surface = CreateBrightSurface();
-            surface.AddElement(new OwnPicture(surface) { Left = 40, Top = 40, Width = 20, Height = 20 }, false, false);
+            var black = new Bitmap(10, 10, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(black))
+            {
+                graphics.Clear(Color.Black);
+            }
+            var picture = new OwnPicture(surface) { Image = black };
+            picture.Left = 40;
+            picture.Top = 40;
+            picture.Width = 20;
+            picture.Height = 20;
+            surface.AddElement(picture, false, false);
 
             Assert.Equal(HdrState.Available, surface.HdrState);
             using var composed = Compose(surface);
 
-            // Black where it draws, the highlights around it stay
+            // Its bitmap in the middle of its place (45 to 55), not its GDI+ drawing; the highlights around it stay
             Assert.Equal(0f, composed.Pixels[50, 50].ToVector4().X, 2);
+            Assert.Equal(5f, composed.Pixels[42, 42].ToVector4().X, 1);
             Assert.Equal(5f, composed.Pixels[20, 20].ToVector4().X, 1);
         }
 

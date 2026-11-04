@@ -174,8 +174,9 @@ later:
   is written. Undo removes them again.
 - **Every edit is done on both images the same way**, also across the edge of a display: the HDR image is one image like the SDR
   image (see 3).
-- **The room an edit adds** (a border, a drop shadow, a bigger canvas, the room for the shadow of torn edges) is taken from the new
-  SDR image at the SDR white level when the edit is made (`ImageEdits.PlaceInRoom`).
+- **The room an edit adds** (a border, a drop shadow, a bigger canvas, the room for the shadow of torn edges) is drawn with ImageSharp
+  on the HDR image, like the effect draws it into the SDR image (`RoomDrawing`): the color or background at the SDR white level, the
+  shadow from the alpha of the image, blurred like GDI+ blurs it (a Gaussian, or a box twice). Nothing is taken from the SDR image.
 - **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background (`CutDrawing.TornEdge`).
 - **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`, `HdrImage.Draw`)
   with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.
@@ -192,7 +193,7 @@ later:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
-  A picture element of its own kind (e.g. the barcode of the Zxing plugin) draws itself into a picture, which is drawn like a picture.
+  A picture element of its own kind (e.g. the barcode of the Zxing plugin) is drawn as its picture, not with its own GDI+ drawing.
 - **Filter:** the filters of highlighters and obfuscation (`ElementImageFilters`), done on the HDR pixels so the area keeps its
   brightness. Blur, pixelate (also inverted), the highlighter, area highlight, grayscale and the magnifier work this way, as strong as in the editor
   and not finer than the levels of the SDR image. Blur and pixelate add the same noise as in the editor (`BlurNoise`), so neither
@@ -200,7 +201,10 @@ later:
   solid fill hides text from that. The noise is up to 3 levels per color, which the eye doesn't see:
   ![The blur without and with noise, and the difference 20 times stronger](images/blur-noise-comparison.png)
 
-Nothing of the SDR image goes into the HDR file. The SDR image only gives parameters: the strength of the highlighter and the blocks
+Nothing of the SDR image goes into the HDR file, and no GDI+ drawing of the editor does. Pictures which an element brings are drawn as
+pictures, at the white of the elements: a picture, the cursor, an emoji (rendered with ImageSharp), and the raster of an SVG (Svg.NET
+draws it with GDI+), a metafile (GDI+) or an icon (`Icon.ToBitmap`), which are made once in the element's size like in the editor.
+The SDR image only gives parameters: the strength of the highlighter and the blocks
 and noise of pixelate, so they look as in the editor. An element which can't be drawn this way (another kind of element, an inverted
 magnifier from an old .greenshot file) makes the HDR state `Lost` (`ElementDrawing.Supports`, `ElementImageFilters.Supports`): the
 badge shows it, and the capture is saved as a normal file.

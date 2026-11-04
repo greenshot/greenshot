@@ -368,17 +368,56 @@ namespace Greenshot.Tests.Core
 
             using var shadowed = ImageEdits.ForEffect(dropShadow, oldImage, newImage, matrix).Apply(hdrImage);
             Assert.Equal(newImage.Width, shadowed.Width);
-            // Every pixel of the room has the alpha of the 8-bit shadow
+            // The room is drawn with ImageSharp: about the alpha of the 8-bit shadow (GDI+ blurs a bit differently), black
             int offset = (int)matrix.OffsetX;
-            for (int x = 0; x < newImage.Width; x++)
+            for (int y = 0; y < newImage.Height; y++)
             {
-                int y = newImage.Height - 2;
-                if (x >= offset && x < offset + 10 && y >= offset && y < offset + 10)
+                for (int x = 0; x < newImage.Width; x++)
                 {
-                    continue;
+                    if (x >= offset && x < offset + 10 && y >= offset && y < offset + 10)
+                    {
+                        continue;
+                    }
+                    var pixel = shadowed.Pixels[x, y].ToVector4();
+                    Assert.InRange(pixel.W - newImage.GetPixel(x, y).A / 255f, -0.1f, 0.1f);
+                    Assert.Equal(0f, pixel.X, 2);
                 }
-                Assert.Equal(newImage.GetPixel(x, y).A / 255f, shadowed.Pixels[x, y].ToVector4().W, 2);
             }
+            // The capture keeps its highlight
+            Assert.Equal(5f, shadowed.Pixels[offset + 5, offset + 5].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Room_OfABiggerCanvas_IsItsColorAtTheSdrWhite()
+        {
+            using var hdrImage = CreateHdrImage(10, 10, Gray(5));
+            using var oldImage = CreateBitmap(10, 10, Color.Gray);
+            var canvas = new ResizeCanvasEffect(2, 3, 4, 5) { BackgroundColor = Color.White };
+            using var matrix = new Matrix();
+            using var newImage = (Bitmap)canvas.Apply(oldImage, matrix);
+
+            using var bigger = ImageEdits.ForEffect(canvas, oldImage, newImage, matrix).Apply(hdrImage);
+
+            Assert.Equal(newImage.Width, bigger.Width);
+            Assert.Equal(newImage.Height, bigger.Height);
+            Assert.Equal(White, bigger.Pixels[0, 0].ToVector4().X, 2);
+            Assert.Equal(1f, bigger.Pixels[0, 0].ToVector4().W, 2);
+            Assert.Equal(5f, bigger.Pixels[2, 4].ToVector4().X, 1);
+            Assert.Equal(White, bigger.Pixels[13, 18].ToVector4().X, 2);
+        }
+
+        [Fact]
+        public void PlaceOnBackground_IsTheBackground_OrTransparentForAColorWhichIsntOpaque()
+        {
+            using var hdrImage = CreateHdrImage(4, 4, Gray(5));
+
+            using var onWhite = ImageEdits.PlaceOnBackground(new NativeRect(0, 0, 4, 4), new NativeSize(8, 8), new NativePoint(2, 2), Color.White).Apply(hdrImage);
+            using var onNothing = ImageEdits.PlaceOnBackground(new NativeRect(0, 0, 4, 4), new NativeSize(8, 8), new NativePoint(2, 2), Color.FromArgb(128, 255, 255, 255)).Apply(hdrImage);
+
+            Assert.Equal(White, onWhite.Pixels[0, 0].ToVector4().X, 2);
+            Assert.Equal(5f, onWhite.Pixels[3, 3].ToVector4().X, 1);
+            // Like Surface.ExpandImage: a color which isn't opaque leaves the room transparent
+            Assert.Equal(0f, onNothing.Pixels[0, 0].ToVector4().W, 2);
         }
 
         [Fact]

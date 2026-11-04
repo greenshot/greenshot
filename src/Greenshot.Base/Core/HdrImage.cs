@@ -98,18 +98,16 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Parts of HDR images at their places in a new HDR image of the size, e.g. an edit of the editor which moves the image into a bigger one
-        /// (see ImageEdits.Place): where no part is, the 8-bit pixels of the areas at the SDR white level (e.g. the room which a border adds),
-        /// what neither covers is transparent. The parts stay the caller's to dispose.
+        /// Parts of HDR images at their places in a new HDR image of the size, e.g. a cut out of the editor (see ImageEdits.Join): what no part
+        /// covers is transparent. The parts stay the caller's to dispose.
         /// </summary>
         /// <param name="size">The size of the new image</param>
-        /// <param name="sdrAreas">Areas of the new 8-bit image and their pixels (row by row, straight alpha)</param>
         /// <param name="parts">The HDR images with their places in the new image</param>
         /// <returns>The HDR image, null without a part</returns>
-        public static HdrImage Combine(NativeSize size, IReadOnlyList<(NativeRect Area, Bgra32[] Pixels)> sdrAreas, IEnumerable<(HdrImage Part, NativePoint Location)> parts)
+        public static HdrImage Combine(NativeSize size, IEnumerable<(HdrImage Part, NativePoint Location)> parts)
         {
             var list = (parts ?? Enumerable.Empty<(HdrImage, NativePoint)>()).Where(part => part.Item1 != null).ToList();
-            return Combine(CheckSize(size.Width), CheckSize(size.Height), list, combined => combined.CopyFromSdr(sdrAreas ?? Array.Empty<(NativeRect, Bgra32[])>()));
+            return Combine(CheckSize(size.Width), CheckSize(size.Height), list, _ => { });
         }
 
         private static HdrImage Combine(int width, int height, IReadOnlyList<(HdrImage Part, NativePoint Location)> parts, Action<HdrImage> fillFromSdr)
@@ -595,28 +593,6 @@ namespace Greenshot.Base.Core
             {
                 source.UnlockBits(bitmapData);
             }
-        }
-
-        /// <summary>
-        /// Put the 8-bit pixels of the areas into this HDR image while it is made, at the SDR white level, clipped to it
-        /// </summary>
-        private void CopyFromSdr(IReadOnlyList<(NativeRect Area, Bgra32[] Pixels)> sdrAreas)
-        {
-            ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
-            var bounds = new NativeRect(0, 0, Width, Height);
-            Pixels.ProcessPixelRows(accessor =>
-            {
-                foreach (var (area, pixels) in sdrAreas)
-                {
-                    if (pixels == null || pixels.Length < (long)area.Width * area.Height) throw new ArgumentException($"The pixels of {area} are missing.", nameof(sdrAreas));
-                    var inside = area.Intersect(bounds);
-                    for (int y = inside.Top; y < inside.Bottom; y++)
-                    {
-                        var sourceRow = new ReadOnlySpan<Bgra32>(pixels, (y - area.Top) * area.Width + inside.Left - area.Left, inside.Width);
-                        ConvertSdr(sourceRow, accessor.GetRowSpan(y).Slice(inside.Left, inside.Width), table);
-                    }
-                }
-            });
         }
 
         /// <summary>

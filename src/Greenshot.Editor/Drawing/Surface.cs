@@ -2187,8 +2187,9 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
             // Make undoable, the memento takes the current image
-            // The HDR image is cropped the same way, the room for torn edges is from the image (like what is drawn): it stays complete
-            DeriveHdrImage(Image, newImage, () => ImageEdits.PlaceInRoom(cropRectangle, newImage, new NativePoint(margins[3], margins[0])));
+            // The HDR image is cropped the same way, on the room for the torn edges like ExpandImage makes it
+            DeriveHdrImage(Image, newImage, ImageEdits.PlaceOnBackground(cropRectangle, new NativeSize(newImage.Width, newImage.Height), new NativePoint(margins[3], margins[0]),
+                settings?.BackgroundColor ?? Color.Transparent));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
 
             // Do not dispose otherwise we can't undo the image!
@@ -2415,8 +2416,9 @@ namespace Greenshot.Editor.Drawing
                 var movedElements = _elements.ToList();
                 var addedElements = new DrawableContainerList(ID) { tornEdges };
                 var offset = new NativePoint(margin, margin);
-                // The HDR image moves into the room, which is from the 8-bit image (the background): it stays complete. The torn edges are an element.
-                DeriveHdrImage(Image, newImage, () => ImageEdits.PlaceInRoom(new NativeRect(0, 0, Image.Width, Image.Height), newImage, offset));
+                // The HDR image moves into the room, on the background like ExpandImage makes it. The torn edges are an element.
+                DeriveHdrImage(Image, newImage, ImageEdits.PlaceOnBackground(new NativeRect(0, 0, Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), offset,
+                    settings.BackgroundColor));
                 MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-margin, -margin), new DrawableContainerList(ID), addedElements), false);
                 ApplyCutOutState(newImage, movedElements, offset, addedElements, new DrawableContainerList(ID));
                 // It was created for the old image size, this makes it cover the new one
