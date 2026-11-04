@@ -21,7 +21,6 @@
 
 
 using System;
-using Greenshot.Base.Core;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -83,40 +82,33 @@ namespace Greenshot.Base.Effects
         }
 
         /// <summary>
-        /// Add the noise of the area to the pixels: they are at the place of the image, the noise is only where its area is
+        /// Add the noise of the area to a row of 8-bit pixels (of an ImageSharp image, or of a bitmap through BitmapPixels): the row starts at
+        /// the place of the image, the noise is only where its area is
         /// </summary>
-        /// <param name="pixels">The 8-bit pixels</param>
-        /// <param name="place">Where the pixels are in the image</param>
+        /// <param name="row">The pixels of the row</param>
+        /// <param name="place">Where the first pixel of the row is in the image</param>
         /// <param name="area">Where the noise is in the image</param>
         /// <param name="offsets">The offsets of the area, see <see cref="For"/></param>
         /// <param name="premultiplied">The pixels have premultiplied alpha: the channels, and so the noise, go up to the alpha</param>
-        public static void AddTo(BitmapPixelAccessor<Bgra32> pixels, Point place, Rectangle area, sbyte[] offsets, bool premultiplied)
+        public static void AddTo(Span<Bgra32> row, Point place, Rectangle area, sbyte[] offsets, bool premultiplied)
         {
-            if (offsets.Length < area.Width * area.Height * 3)
+            int noiseY = place.Y - area.Y;
+            if (noiseY < 0 || noiseY >= area.Height || offsets.Length < area.Width * area.Height * 3)
             {
                 return;
             }
-            for (int y = 0; y < pixels.Height; y++)
+            for (int x = 0; x < row.Length; x++)
             {
-                int noiseY = place.Y + y - area.Y;
-                if (noiseY < 0 || noiseY >= area.Height)
+                int noiseX = place.X + x - area.X;
+                if (noiseX < 0 || noiseX >= area.Width || row[x].A == 0)
                 {
                     continue;
                 }
-                var row = pixels.GetRowSpan(y);
-                for (int x = 0; x < row.Length; x++)
-                {
-                    int noiseX = place.X + x - area.X;
-                    if (noiseX < 0 || noiseX >= area.Width || row[x].A == 0)
-                    {
-                        continue;
-                    }
-                    int index = (noiseY * area.Width + noiseX) * 3;
-                    int max = premultiplied ? row[x].A : 255;
-                    row[x].R = AddLevels(row[x].R, offsets[index], max);
-                    row[x].G = AddLevels(row[x].G, offsets[index + 1], max);
-                    row[x].B = AddLevels(row[x].B, offsets[index + 2], max);
-                }
+                int index = (noiseY * area.Width + noiseX) * 3;
+                int max = premultiplied ? row[x].A : 255;
+                row[x].R = AddLevels(row[x].R, offsets[index], max);
+                row[x].G = AddLevels(row[x].G, offsets[index + 1], max);
+                row[x].B = AddLevels(row[x].B, offsets[index + 2], max);
             }
         }
 

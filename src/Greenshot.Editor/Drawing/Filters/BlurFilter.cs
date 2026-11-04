@@ -79,8 +79,14 @@ namespace Greenshot.Editor.Drawing.Filters
             {
                 var (area, offsets) = Noise(new NativeRect(0, 0, applyBitmap.Width, applyBitmap.Height));
                 bool premultiplied = blurred.PixelFormat == PixelFormat.Format32bppPArgb;
-                BitmapPixels.ProcessPixelRows<Bgra32>(blurred, pixels => BlurNoise.AddTo(pixels,
-                    new SixLabors.ImageSharp.Point(applyRect.X, applyRect.Y), new SixLabors.ImageSharp.Rectangle(area.X, area.Y, area.Width, area.Height), offsets, premultiplied));
+                var noiseArea = new SixLabors.ImageSharp.Rectangle(area.X, area.Y, area.Width, area.Height);
+                BitmapPixels.ProcessPixelRows<Bgra32>(blurred, pixels =>
+                {
+                    for (int y = 0; y < pixels.Height; y++)
+                    {
+                        BlurNoise.AddTo(pixels.GetRowSpan(y), new SixLabors.ImageSharp.Point(applyRect.X, applyRect.Y + y), noiseArea, offsets, premultiplied);
+                    }
+                });
                 graphics.DrawImage(blurred, applyRect, new Rectangle(0, 0, blurred.Width, blurred.Height), GraphicsUnit.Pixel);
             }
         }
