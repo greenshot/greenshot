@@ -507,7 +507,86 @@ namespace Greenshot.Tests.Editor
             using var overlay = surface.CreateHdrOverlay();
 
             Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
-            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
+        }
+
+        [Fact]
+        public void Elements_AreDrawnOnTheHdrPixels_InTheirOrder_WithoutLayers()
+        {
+            using var surface = CreateBrightSurface();
+            RectangleContainer AddRectangle(int left)
+            {
+                var rectangle = new RectangleContainer(surface) { Left = left, Top = 40, Width = 20, Height = 20 };
+                rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.Red);
+                rectangle.SetFieldValue(FieldType.SHADOW, false);
+                surface.AddElement(rectangle, false, false);
+                return rectangle;
+            }
+            AddRectangle(10);
+            // Grayscale works outside of the element: on the first rectangle, not on the second one which is drawn after it
+            var grayscale = new HighlightContainer(surface) { Left = 0, Top = 0, Width = 5, Height = 5 };
+            grayscale.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.GRAYSCALE);
+            surface.AddElement(grayscale, false, false);
+            AddRectangle(60);
+            var arrow = new ArrowContainer(surface) { Left = 10, Top = 80, Width = 60, Height = 0 };
+            surface.AddElement(arrow, false, false);
+
+            using (var overlay = surface.CreateHdrOverlay())
+            {
+                Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
+                Assert.Empty(overlay.ReplacedAreas);
+            }
+            using var composed = Compose(surface);
+
+            // The first rectangle is drawn (darker than the highlights around it) and then grayed
+            var grayed = composed.Pixels[20, 50].ToVector4();
+            Assert.True(grayed.X < 2f, $"grayed: {grayed}");
+            Assert.Equal(grayed.X, grayed.Y, 2);
+            var red = composed.Pixels[70, 50].ToVector4();
+            Assert.True(red.X > 1f && red.Y < 0.1f, $"red: {red}");
+            // Around the elements the highlights stay
+            Assert.Equal(5f, composed.Pixels[50, 20].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Elements_AreWhite_HalfwayBetweenSdrWhite_AndTheWhiteOfTheCaptureInTheEditor()
+        {
+            // All of the capture is a highlight of 400 nits (5.0): the editor shows it as white; the SDR white is 240 nits (3.0)
+            using var surface = CreateBrightSurface();
+            var rectangle = new RectangleContainer(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
+            rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.White);
+            rectangle.SetFieldValue(FieldType.SHADOW, false);
+            surface.AddElement(rectangle, false, false);
+
+            using var composed = Compose(surface);
+
+            Assert.Equal((float)Math.Sqrt(3f * 5f), composed.Pixels[50, 50].ToVector4().X, 2);
+        }
+
+        [Fact]
+        public void Magnifier_PartlyOutsideTheImage_MagnifiesTheHdrPixels()
+        {
+            using var surface = CreateBrightSurface();
+            // A brighter column at x 95: the magnifier (x 80 to 120, 2 times) shows x 90 to 110 of the image, 95 lands at 90 and 91
+            for (int y = 0; y < 100; y++)
+            {
+                surface.HdrImage.Pixels[95, y] = new HalfVector4(8, 8, 8, 1);
+            }
+            var magnifier = new HighlightContainer(surface) { Left = 80, Top = 40, Width = 40, Height = 20 };
+            magnifier.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
+            surface.AddElement(magnifier, false, false);
+
+            using (var overlay = surface.CreateHdrOverlay())
+            {
+                Assert.Empty(overlay.ReplacedAreas);
+            }
+            using var composed = Compose(surface);
+
+            Assert.Equal(8f, composed.Pixels[90, 50].ToVector4().X, 1);
+            Assert.Equal(8f, composed.Pixels[91, 50].ToVector4().X, 1);
+            Assert.Equal(5f, composed.Pixels[95, 50].ToVector4().X, 1);
+            // Outside the magnifier the column stays
+            Assert.Equal(8f, composed.Pixels[95, 20].ToVector4().X, 1);
         }
 
         [Fact]

@@ -657,23 +657,33 @@ namespace Greenshot.Editor.Drawing
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
-            // In the order of the elements: what they draw goes into layers. The filters which can be done on the HDR pixels (ElementImageFilters:
-            // highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut marks) are steps between the layers, so they work
-            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (e.g. an inverted
-            // pixelate, a filter of a plugin) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
+            // In the order of the elements: what they draw is drawn with ImageSharp on the HDR pixels (ElementDrawing), the filters which can be done
+            // on the HDR pixels (ElementImageFilters: highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut
+            // marks) are steps between them, so they work on what is drawn before them, like in the editor. Elements without an ImageSharp drawing (e.g.
+            // of a plugin) go into 8-bit layers. Elements which change the pixels under them in another way (a filter of a plugin) can't be drawn on
+            // their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
             var replacedAreas = new List<NativeRect>();
             var changedAreas = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();
 
-            // First the plan: the filters, and between them the elements which are drawn into the same layer
-            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn)>();
+            // First the plan: the filters, the elements drawn with ImageSharp on the HDR pixels (see ElementDrawing), and between them the other
+            // elements which are drawn into the same layer
+            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn, HdrOverlayStep Step)>();
             List<DrawableContainer> drawn = null;
             void AddDrawn(DrawableContainer element)
             {
+                var area = element.DrawingBounds.Intersect(bounds);
+                var draw = area.Width > 0 && area.Height > 0 ? ElementDrawing.Of(element, area.Location) : null;
+                if (draw != null)
+                {
+                    drawn = null;
+                    plan.Add((null, null, HdrOverlayStep.Of(area, draw)));
+                    return;
+                }
                 if (drawn == null)
                 {
                     drawn = new List<DrawableContainer>();
-                    plan.Add((null, drawn));
+                    plan.Add((null, drawn, null));
                 }
                 drawn.Add(element);
             }
@@ -693,7 +703,7 @@ namespace Greenshot.Editor.Drawing
                     }
                     // The filters work on what is drawn so far, the next elements go into a new layer
                     drawn = null;
-                    plan.Add((elementFilters, null));
+                    plan.Add((elementFilters, null, null));
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
                     {
@@ -712,8 +722,13 @@ namespace Greenshot.Editor.Drawing
             Bitmap rendered = null;
             try
             {
-                foreach (var (filters, elements) in plan)
+                foreach (var (filters, elements, step) in plan)
                 {
+                    if (step != null)
+                    {
+                        steps.Add(step);
+                        continue;
+                    }
                     if (filters != null)
                     {
                         steps.AddRange(filters.Select(HdrOverlayStep.Of));
@@ -734,16 +749,6 @@ namespace Greenshot.Editor.Drawing
                         if (ChangesPixels(element))
                         {
                             element.Draw(graphics, RenderMode.EXPORT);
-                            continue;
-                        }
-                        if (element is CursorContainer cursorContainer)
-                        {
-                            // A mask cursor (e.g. the I-beam) inverts the image under it
-                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
-                            if (cursorLayer != null)
-                            {
-                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
-                            }
                             continue;
                         }
                         element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);

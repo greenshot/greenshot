@@ -20,10 +20,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
+using Greenshot.Base.Effects;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -61,6 +64,74 @@ namespace Greenshot.Base.ImageSharpDrawing
                     row[x].W *= 1f - coverage[offset + x];
                 }
             }, area));
+        }
+
+        /// <summary>
+        /// What a cut (torn edges, a cut mark) draws itself over the image it cut: the fill of its area, the shadow which what is left of the image
+        /// casts into it, and the lines along its edges. Where other cuts overlap it, a later cut gets the shadow, and the edge lines don't show in
+        /// another cut. All shapes in the coordinates of the image, the areas filled even-odd (like FillMode.Alternate of GDI+).
+        /// </summary>
+        /// <param name="image">Draw on it, for HDR pixels an Image&lt;RgbaVector&gt; (see ImageValues)</param>
+        /// <param name="values">The values of the image</param>
+        /// <param name="cuts">The areas of all cuts in the order they are drawn, this one included</param>
+        /// <param name="index">Which of the cuts this is</param>
+        /// <param name="edges">The lines along its edges</param>
+        /// <param name="fillColor">The color of its area, transparent for none</param>
+        /// <param name="lineThickness">The width of the edge lines, 0 for none</param>
+        /// <param name="lineColor">The color of the edge lines</param>
+        /// <param name="shadow">The darkness and size of the shadow, and where the image is from its shadow; null for none</param>
+        public static void Cut(Image image, ImageValues values, IReadOnlyList<IPath> cuts, int index, IEnumerable<PointF[]> edges, Rgba32 fillColor,
+            int lineThickness, Rgba32 lineColor, (float Darkness, int Size, Point Offset)? shadow)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            if (cuts == null) throw new ArgumentNullException(nameof(cuts));
+            var area = cuts[index];
+            if (fillColor.A > 0)
+            {
+                image.Mutate(context => context.Fill(values.ColorOf(fillColor), area));
+            }
+
+            if (shadow is var (darkness, size, offset))
+            {
+                // What is left of the image, moved away from it and blurred; only in this area, a later cut has its own shadow
+                using var shadowLayer = new Image<RgbaVector>(image.Width, image.Height, new RgbaVector(0, 0, 0, darkness));
+                foreach (var cut in cuts)
+                {
+                    CutAway(shadowLayer, cut.Translate(-offset.X, -offset.Y));
+                }
+                FloatPixels.Mutate(shadowLayer, context => context.GaussianBlur(0.4f * Math.Max(1, size)));
+                for (int later = index + 1; later < cuts.Count; later++)
+                {
+                    CutAway(shadowLayer, cuts[later]);
+                }
+                image.Mutate(context => context.Clip(area, inside => inside.DrawImage(shadowLayer, new Point(0, 0), 1f)));
+            }
+
+            if (lineThickness > 0 && lineColor.A > 0)
+            {
+                // The edges are part of the image: where another cut took the image away they don't show
+                using var lines = new Image<RgbaVector>(image.Width, image.Height);
+                var pen = Painting.Pen(values.ColorOf(lineColor), lineThickness, JointStyle.Round);
+                lines.Mutate(context =>
+                {
+                    foreach (var edge in edges)
+                    {
+                        if (edge.Length > 1)
+                        {
+                            context.Draw(pen, new Path(new LinearLineSegment(edge)));
+                        }
+                    }
+                });
+                for (int other = 0; other < cuts.Count; other++)
+                {
+                    if (other != index)
+                    {
+                        CutAway(lines, cuts[other]);
+                    }
+                }
+                image.Mutate(context => context.DrawImage(lines, new Point(0, 0), 1f));
+            }
         }
 
         /// <summary>

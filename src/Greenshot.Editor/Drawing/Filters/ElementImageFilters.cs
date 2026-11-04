@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Editor.Drawing.Fields;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Editor.Drawing.Filters
@@ -191,16 +192,24 @@ namespace Greenshot.Editor.Drawing.Filters
                     // Like the magnifier filter: the middle of the element, enlarged to all of it (nearest neighbor)
                     var source = new NativeRect(elementBounds.X + elementBounds.Width / 2 - elementBounds.Width / factor / 2,
                         elementBounds.Y + elementBounds.Height / 2 - elementBounds.Height / factor / 2, elementBounds.Width / factor, elementBounds.Height / factor);
-                    if (source.Width <= 0 || source.Height <= 0 || !source.Intersect(bounds).Equals(source) || !elementBounds.Intersect(bounds).Equals(elementBounds))
+                    var visible = elementBounds.Intersect(bounds);
+                    var sourceInside = source.Intersect(bounds);
+                    if (source.Width <= 0 || source.Height <= 0 || visible.Width <= 0 || visible.Height <= 0 || sourceInside.Width <= 0 || sourceInside.Height <= 0)
                     {
-                        // Partly outside the image: the 8-bit image shows what GDI+ does there
-                        return null;
+                        return new ImageFilter("Magnify nothing", (_, _) => { });
                     }
                     return new ImageFilter($"Magnify {factor}x", (pixels, _) =>
                     {
-                        using var magnified = FloatPixels.Of(pixels, ToRectangle(source));
+                        // Outside the image there is nothing to magnify (transparent), what is magnified goes over the pixels
+                        using var magnified = new Image<RgbaVector>(source.Width, source.Height);
+                        using (var inside = FloatPixels.Of(pixels, ToRectangle(sourceInside)))
+                        {
+                            magnified.Mutate(context => context.DrawImage(inside, new Point(sourceInside.X - source.X, sourceInside.Y - source.Y), 1f));
+                        }
                         FloatPixels.Mutate(magnified, context => context.Resize(elementBounds.Width, elementBounds.Height, KnownResamplers.NearestNeighbor));
-                        ImageFilter.CopyArea(pixels, magnified, new Point(elementBounds.X, elementBounds.Y), ToRectangle(elementBounds));
+                        using var result = FloatPixels.Of(pixels, ToRectangle(visible));
+                        result.Mutate(context => context.DrawImage(magnified, new Point(elementBounds.X - visible.X, elementBounds.Y - visible.Y), 1f));
+                        ImageFilter.CopyArea(pixels, result, new Point(visible.X, visible.Y), ToRectangle(visible));
                     });
                 case PixelizationFilter pixelization:
                     return Pixelate(pixelization, elementBounds, bounds, sdrImage);

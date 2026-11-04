@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -184,7 +185,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task DrawnElement_IsInTheHdrFile_AtTheSdrWhiteLevel_TheRestKeepsTheHighlights()
+        public async Task DrawnElement_IsInTheHdrFile_TheRestKeepsTheHighlights()
         {
             string path = TempFile("jxr");
             try
@@ -200,7 +201,7 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Notifications);
                 var row = ReadHdrRow(path, 4);
-                // The red border at the left: red at the SDR white level, no green
+                // The red border at the left: red, no green
                 Assert.True(row[2 * 4] > 1.5f, $"red {row[2 * 4]}");
                 Assert.True(row[2 * 4 + 1] < 0.5f, $"green {row[2 * 4 + 1]}");
                 // Inside the (unfilled) rectangle and next to it the HDR highlights
@@ -389,12 +390,12 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Overlay_HasLayersOnlyWhereSomethingIsDrawn()
+        public void Overlay_DrawsOnlyWhereSomethingIsDrawn()
         {
             using var surface = CreateBrightHdrSurface();
             var rectangle = new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 };
             surface.AddElement(rectangle, false, false);
-            // Highlighters draw nothing themselves: no layer after them, however many there are
+            // Highlighters draw nothing themselves: only their filters, however many there are
             for (int i = 0; i < 3; i++)
             {
                 var highlight = new HighlightContainer(surface) { Left = 2 * i, Top = 2, Width = 2, Height = 4 };
@@ -403,11 +404,11 @@ namespace Greenshot.Tests.Recipes
 
             using var overlay = surface.CreateHdrOverlay();
 
-            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Layer != null).ToArray());
-            var layer = overlay.Steps[0];
-            // The layer is only as big as what is drawn into it, at its place
-            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)),
-                new NativeRect(layer.Location, new NativeSize(layer.Layer.Width, layer.Layer.Height)));
+            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Draw != null).ToArray());
+            Assert.DoesNotContain(overlay.Steps, step => step.Layer != null);
+            var drawn = overlay.Steps[0];
+            // The rectangle is drawn only where it draws, at its place
+            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));
         }
 
         [Fact]
@@ -567,9 +568,12 @@ namespace Greenshot.Tests.Recipes
                 var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
                 var row = new float[8 * 4];
                 floats.CopyPixels(new System.Windows.Int32Rect(0, 1, 8, 1), row, 8 * 16, 0);
-                // Next to the cursor the HDR pixels, under it the red of the cursor at the SDR white level (240 nits is 3.0)
+                // Next to the cursor the HDR pixels, under it the red of the cursor: one of 32 pixels is a highlight of 400 nits, the white of the
+                // tone mapping is a bit brighter than the SDR white of 240 nits, the elements are halfway between both
+                float white = (float)Math.Sqrt(240 * HdrContent.WhiteLevelInNits(240, 400, 400, 1 / 32f)) / 80f;
+                Assert.InRange(white, 3.05f, 3.3f);
                 Assert.Equal(0f, row[0], 2);
-                Assert.Equal(3f, row[2 * 4], 2);
+                Assert.Equal(white, row[2 * 4], 2);
                 Assert.Equal(0f, row[2 * 4 + 1], 2);
             }
             finally

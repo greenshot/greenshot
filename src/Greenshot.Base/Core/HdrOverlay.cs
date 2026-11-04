@@ -23,13 +23,16 @@ using System;
 using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
+using Greenshot.Base.ImageSharpDrawing;
+using SixLabors.ImageSharp;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// What is drawn on a capture (the elements of the surface), for an HDR file: it goes over the HDR image at the SDR white level
+    /// What is drawn on a capture (the elements of the surface), for an HDR file: it goes over the HDR image with white halfway between SDR white and the white of the capture as the editor shows it
     /// (see HdrImage.Compose, ISurface.CreateHdrOverlay), so annotations look as on the screen and the HDR content around them keeps its highlights.
+    /// Elements are drawn with ImageSharp on the HDR pixels where they can be (see Greenshot.Base.ImageSharpDrawing), others are 8-bit layers.
     /// </summary>
     public sealed class HdrOverlay : IDisposable
     {
@@ -46,9 +49,10 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// In the order of the elements: layers of drawn elements (arrows, text, shapes, the mouse cursor, ...) with their alpha, blended over
-        /// the HDR pixels, and between them the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn
-        /// edges): a filter changes what is drawn before it, like in the editor. The layers are transparent in the replaced and changed areas.
+        /// In the order of the elements: the elements drawn with ImageSharp on the HDR pixels (arrows, text, shapes, the mouse cursor, what torn
+        /// edges draw, ...), the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn edges), and for
+        /// elements without an ImageSharp drawing (e.g. of a plugin) 8-bit layers with their alpha: each step changes what is before it, like in
+        /// the editor. The layers are transparent in the replaced and changed areas.
         /// </summary>
         public IReadOnlyList<HdrOverlayStep> Steps { get; }
 
@@ -80,16 +84,26 @@ namespace Greenshot.Base.Core
     }
 
     /// <summary>
-    /// A step of an HdrOverlay: a layer of drawn elements, or a filter of an element done on the HDR pixels
+    /// A step of an HdrOverlay: an element drawn on the HDR pixels, a layer of 8-bit drawn elements, or a filter of an element done on the HDR pixels
     /// </summary>
     public sealed class HdrOverlayStep
     {
-        private HdrOverlayStep(Bitmap layer, NativePoint location, ImageFilter filter)
+        private HdrOverlayStep(Bitmap layer, NativePoint location, ImageFilter filter, NativeSize size = default, Action<Image, ImageValues> draw = null)
         {
             Layer = layer;
             Location = location;
             Filter = filter;
+            Size = size;
+            Draw = draw;
         }
+
+        /// <summary>
+        /// An element drawn with ImageSharp on the HDR pixels of the area
+        /// </summary>
+        /// <param name="area">Where the element draws, inside the capture</param>
+        /// <param name="draw">Draws the element on an image of the area (its top left corner is the area's), in the values given</param>
+        public static HdrOverlayStep Of(NativeRect area, Action<Image, ImageValues> draw) =>
+            new(null, area.Location, null, area.Size, draw ?? throw new ArgumentNullException(nameof(draw)));
 
         /// <param name="layer">Drawn elements with their alpha</param>
         /// <param name="location">Where the layer is in the capture: a layer is only as big as what is drawn into it</param>
@@ -103,13 +117,23 @@ namespace Greenshot.Base.Core
         public NativePoint Location { get; }
 
         /// <summary>
-        /// Drawn elements with their alpha, at <see cref="Location"/>; null for a filter
+        /// Drawn elements with their alpha, at <see cref="Location"/>; null for a filter or a drawn element
         /// </summary>
         public Bitmap Layer { get; }
 
         /// <summary>
-        /// A filter of an element; null for a layer
+        /// A filter of an element; null for a layer or a drawn element
         /// </summary>
         public ImageFilter Filter { get; }
+
+        /// <summary>
+        /// The size of the area of a drawn element
+        /// </summary>
+        public NativeSize Size { get; }
+
+        /// <summary>
+        /// Draws the element on an image of its area (see <see cref="Of(NativeRect, Action{Image, ImageValues})"/>); null for a layer or a filter
+        /// </summary>
+        public Action<Image, ImageValues> Draw { get; }
     }
 }

@@ -27,8 +27,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Icons;
 using Greenshot.Base.Effects;
+using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -437,7 +437,7 @@ namespace Greenshot.Base.Core
         /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
         /// </summary>
         /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
-        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it at the SDR white level; null for nothing</param>
+        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it with white halfway between SDR white and the white of the capture as the editor shows it; null for nothing</param>
         /// <returns>A complete HDR image, the caller disposes it</returns>
         public HdrImage Compose(Bitmap sdrImage, HdrOverlay overlay = null)
         {
@@ -466,12 +466,22 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
+                    // The white of the elements: halfway (geometric) between SDR white and the white of the capture as the editor shows it (the white
+                    // level of its tone mapping, HdrImageToneMapping). At SDR white a white element looks gray next to bright HDR content, at the
+                    // white of the tone mapping (up to the display's peak) it is glaring.
+                    var (peakInNits, highlightShare) = HdrContent.Measure(composed, SdrWhiteLevelInNits);
+                    float toneMappingWhite = HdrContent.WhiteLevelInNits(SdrWhiteLevelInNits, DisplayPeakInNits, peakInNits, highlightShare);
+                    float elementWhite = (float)Math.Sqrt(SdrWhiteLevelInNits * toneMappingWhite) / 80f;
                     // The elements in their order: a filter works on what is drawn before it
                     foreach (var step in overlay.Steps)
                     {
-                        if (step.Layer != null)
+                        if (step.Draw != null)
                         {
-                            composed.BlendSdrOver(step.Layer, step.Location);
+                            composed.DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
+                        }
+                        else if (step.Layer != null)
+                        {
+                            composed.BlendSdrOver(step.Layer, step.Location, elementWhite);
                         }
                         else
                         {
@@ -501,73 +511,6 @@ namespace Greenshot.Base.Core
             catch
             {
                 composed.Dispose();
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The mouse cursor as an 8-bit layer with alpha, to draw it over the HDR image (in the HdrOverlay of the surface) like the editor draws it
-        /// over the capture. An alpha cursor is drawn alone, so its soft edges and shadow are blended with the HDR pixels; a mask cursor (which inverts the
-        /// screen, e.g. the I-beam) is drawn over the 8-bit image and only its changed pixels are taken.
-        /// </summary>
-        /// <param name="sdrImage">The capture's 8-bit image, for a mask cursor</param>
-        /// <param name="cursor">The cursor</param>
-        /// <param name="bounds">Where the cursor is drawn on the capture, and how big</param>
-        /// <returns>The layer at bounds.Location, the caller disposes it; null when nothing of it is on the capture</returns>
-        public static unsafe Bitmap CreateCursorLayer(Bitmap sdrImage, CapturedCursor cursor, NativeRect bounds)
-        {
-            if (cursor == null || bounds.Width <= 0 || bounds.Height <= 0)
-            {
-                return null;
-            }
-            var layer = new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb);
-            try
-            {
-                if (cursor.MaskLayer == null || sdrImage == null)
-                {
-                    CursorHelper.DrawCursorOnBitmap(layer, cursor, new NativePoint(0, 0), bounds.Size);
-                    return layer;
-                }
-
-                // The 8-bit pixels under the cursor, with the cursor drawn on them: what changed is the cursor
-                var visible = bounds.Intersect(new NativeRect(0, 0, sdrImage.Width, sdrImage.Height));
-                if (visible.Width <= 0 || visible.Height <= 0)
-                {
-                    layer.Dispose();
-                    return null;
-                }
-                using (var graphics = System.Drawing.Graphics.FromImage(layer))
-                {
-                    graphics.DrawImage(sdrImage, new System.Drawing.Rectangle(visible.X - bounds.X, visible.Y - bounds.Y, visible.Width, visible.Height),
-                        new System.Drawing.Rectangle(visible.X, visible.Y, visible.Width, visible.Height), System.Drawing.GraphicsUnit.Pixel);
-                }
-                using var drawn = (Bitmap)layer.Clone();
-                CursorHelper.DrawCursorOnBitmap(drawn, cursor, new NativePoint(0, 0), bounds.Size);
-                var area = new NativeRect(0, 0, bounds.Width, bounds.Height);
-                var layerData = layer.LockBits(area, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-                var drawnData = drawn.LockBits(area, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                try
-                {
-                    for (int y = 0; y < bounds.Height; y++)
-                    {
-                        uint* under = (uint*)((byte*)layerData.Scan0 + (long)y * layerData.Stride);
-                        uint* withCursor = (uint*)((byte*)drawnData.Scan0 + (long)y * drawnData.Stride);
-                        for (int x = 0; x < bounds.Width; x++)
-                        {
-                            under[x] = under[x] == withCursor[x] ? 0u : withCursor[x] | 0xFF000000u;
-                        }
-                    }
-                }
-                finally
-                {
-                    drawn.UnlockBits(drawnData);
-                    layer.UnlockBits(layerData);
-                }
-                return layer;
-            }
-            catch
-            {
-                layer.Dispose();
                 throw;
             }
         }
@@ -941,17 +884,44 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its colors at the SDR white level, blended in linear light
-        /// (scRGB is linear), so a cursor looks as it did on the screen and its shadow darkens the HDR pixels under it
+        /// Draw an element with ImageSharp on the area of this complete HDR image while it is made: on float pixels (ImageSharp mixes HalfVector4
+        /// wrongly, see FloatPixels), its white at the value of white (scRGB)
         /// </summary>
-        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location)
+        private void DrawOver(NativeRect area, Action<Image, ImageValues> draw, float white)
+        {
+            if (area.Width <= 0 || area.Height <= 0 || area.X < 0 || area.Y < 0 || area.Right > Width || area.Bottom > Height)
+            {
+                return;
+            }
+            var rectangle = new Rectangle(area.X, area.Y, area.Width, area.Height);
+            using var canvas = FloatPixels.Of(Pixels, rectangle);
+            draw(canvas, ImageValues.Linear(white));
+            Pixels.ProcessPixelRows(canvas, (target, drawn) =>
+            {
+                for (int y = 0; y < drawn.Height; y++)
+                {
+                    var targetRow = target.GetRowSpan(area.Y + y).Slice(area.X, area.Width);
+                    var drawnRow = drawn.GetRowSpan(y);
+                    for (int x = 0; x < targetRow.Length; x++)
+                    {
+                        targetRow[x].FromVector4(drawnRow[x].ToVector4());
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its white at the value of white (scRGB), blended in linear light
+        /// (scRGB is linear), so its shadow darkens the HDR pixels under it
+        /// </summary>
+        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location, float white)
         {
             var target = new NativeRect(location, new NativeSize(layer.Width, layer.Height)).Intersect(new NativeRect(0, 0, Width, Height));
             if (target.Width <= 0 || target.Height <= 0)
             {
                 return;
             }
-            float scale = SdrWhiteLevelInNits / 80f;
+            float scale = white;
             var linear = new float[256];
             for (int i = 0; i < 256; i++)
             {
