@@ -3147,6 +3147,7 @@
                                                                     <CheckBox Content="{wpf:Text RecipeEditor.OptionQuickSettings}" IsChecked="{Binding QuickSettings, Mode=TwoWay}" Margin="0,0,10,0"
                                                                               IsEnabled="{Binding CanBeQuickSetting}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                     <CheckBox Content="{wpf:Text RecipeEditor.OptionExpandPlaceholders}" IsChecked="{Binding IsTemplate, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                              IsEnabled="{Binding CanBeTemplate}"
                                                                               ToolTip="{wpf:Text RecipeEditor.TipOptionExpandPlaceholders}"
                                                                               Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                     <StackPanel Orientation="Horizontal">

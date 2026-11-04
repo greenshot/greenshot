@@ -693,7 +693,8 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
   of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
-- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced (`${...}` and
+  the `template` format are only for `String` options). Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
   `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
   folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step
