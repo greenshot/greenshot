@@ -143,7 +143,8 @@ sequenceDiagram
     Export->>Surface: HdrImagePreparation
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
     Export->>Surface: HdrState, CreateHdrOverlay()
-    Surface-->>Export: overlay (draw steps, filters, layers)
+    Surface-->>Export: a share of the HDR image, a copy of the SDR image,<br/>overlay (draw steps, filters, layers)
+    Note over Export,Wic: on the thread pool, the editor goes on
     Export->>Hdr: Compose(SDR image, overlay)
     Note over Hdr: SDR displays at SDR white,<br/>then the overlay steps in order
     Hdr-->>Export: composed HDR image

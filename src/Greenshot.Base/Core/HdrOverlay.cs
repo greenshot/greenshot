@@ -39,11 +39,9 @@ namespace Greenshot.Base.Core
         /// <param name="steps">The layers of drawn elements and the filters done on the HDR pixels, in the order of the elements</param>
         /// <param name="rendered">The capture as it is exported (with its elements), for the replaced areas; null without them</param>
         /// <param name="replacedAreas">The areas taken from the rendered capture</param>
-        /// <param name="changedAreas">The areas where only the pixels which the elements changed are taken from the rendered capture; null for none</param>
-        public HdrOverlay(IReadOnlyList<HdrOverlayStep> steps, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas, IReadOnlyList<NativeRect> changedAreas = null)
+        public HdrOverlay(IReadOnlyList<HdrOverlayStep> steps, Bitmap rendered, IReadOnlyList<NativeRect> replacedAreas)
         {
             Steps = steps ?? throw new ArgumentNullException(nameof(steps));
-            ChangedAreas = changedAreas ?? Array.Empty<NativeRect>();
             Rendered = rendered;
             ReplacedAreas = replacedAreas ?? Array.Empty<NativeRect>();
         }
@@ -52,7 +50,7 @@ namespace Greenshot.Base.Core
         /// In the order of the elements: the elements drawn with ImageSharp on the HDR pixels (arrows, text, shapes, the mouse cursor, what torn
         /// edges draw, ...), the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn edges), and for
         /// elements without an ImageSharp drawing (e.g. of a plugin) 8-bit layers with their alpha: each step changes what is before it, like in
-        /// the editor. The layers are transparent in the replaced and changed areas.
+        /// the editor. The layers are transparent in the replaced areas.
         /// </summary>
         public IReadOnlyList<HdrOverlayStep> Steps { get; }
 
@@ -66,12 +64,6 @@ namespace Greenshot.Base.Core
         /// over the HDR pixels, these areas of the HDR file are the rendered 8-bit capture, at the SDR white level. What is blurred stays blurred.
         /// </summary>
         public IReadOnlyList<NativeRect> ReplacedAreas { get; }
-
-        /// <summary>
-        /// The areas of elements which change only some pixels of the capture (the teeth of torn edges, cut marks): there only the pixels which
-        /// the rendered capture has different from the capture's image are taken from it, the others keep their HDR content. Transparent in the layer.
-        /// </summary>
-        public IReadOnlyList<NativeRect> ChangedAreas { get; }
 
         public void Dispose()
         {
