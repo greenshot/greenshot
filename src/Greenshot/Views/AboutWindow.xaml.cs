@@ -67,7 +67,7 @@ namespace Greenshot.Views
         // Version & Metadata
         public string AppVersionTitle { get; }
         public string BitnessText { get; }
-        public Visibility PortableBadgeVisibility => GreenshotEnvironment.IsPortable ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PortableBadgeVisibility => GreenshotEnvironment.LeavesNoTraces ? Visibility.Visible : Visibility.Collapsed;
         public Visibility BetaTesterBadgeVisibility => CoreConfiguration != null && CoreConfiguration.IsBetaTester ? Visibility.Visible : Visibility.Collapsed;
 
         // URLs & Display strings

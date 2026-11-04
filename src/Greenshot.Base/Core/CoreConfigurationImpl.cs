@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using System.Text.RegularExpressions;
@@ -116,9 +115,9 @@ namespace Greenshot.Base.Core
 
         private string CreateOutputFilePath()
         {
-            if (GreenshotEnvironment.IsPortable)
+            if (GreenshotEnvironment.IsPortableApps)
             {
-                string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
+                string pafOutputFilePath = GreenshotEnvironment.DefaultOutputDirectory;
                 if (!Directory.Exists(pafOutputFilePath))
                 {
                     try
@@ -255,9 +254,7 @@ namespace Greenshot.Base.Core
             var outputFilePath = Path.GetDirectoryName(OutputFileAsFullpath);
             if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
             {
-                OutputFileAsFullpath = GreenshotEnvironment.IsPortable
-                    ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
-                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
+                OutputFileAsFullpath = Path.Combine(GreenshotEnvironment.DefaultOutputDirectory, "dummy.png");
             }
         }
 
@@ -361,9 +358,7 @@ namespace Greenshot.Base.Core
 
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
             {
-                OutputFileAsFullpath = GreenshotEnvironment.IsPortable
-                    ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png")
-                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
+                OutputFileAsFullpath = Path.Combine(GreenshotEnvironment.DefaultOutputDirectory, "dummy.png");
             }
 
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };

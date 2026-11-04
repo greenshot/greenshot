@@ -95,10 +95,7 @@ namespace Greenshot.Base.Core
         {
             StringBuilder environment = new();
             environment.Append("Software version: " + GetGreenshotVersion() + EditionInfo.Suffix);
-            if (GreenshotEnvironment.IsPortable)
-            {
-                environment.Append(" Portable");
-            }
+            environment.Append(GreenshotEnvironment.PortableSuffix);
 
             environment.Append(" (" + OsInfo.Bits + " bit)");
 

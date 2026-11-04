@@ -176,7 +176,7 @@ namespace Greenshot.Shell
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
 
-                // After the configuration is loaded: where it was loaded from tells whether this is the .zip (LeavesNoTraces)
+                // After the configuration is loaded: where it was loaded from tells whether this is the .zip (UsesSettingsNextToExecutable)
                 StartJitProfile();
 
                 // Apply the command line language before the language is used the first time

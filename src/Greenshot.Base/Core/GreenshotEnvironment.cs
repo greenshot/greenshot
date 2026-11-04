@@ -31,11 +31,22 @@ namespace Greenshot.Base.Core
     public static class GreenshotEnvironment
     {
         /// <summary>
-        /// Gets a value indicating whether Greenshot is running in PortableApp (PAF) mode.
-        /// Set to <c>true</c> when the standard PortableApp directory structure
-        /// (<c>App\Greenshot</c> next to the executable) is detected at startup.
+        /// The folder of the PortableApps.com package (GreenshotPortable) when Greenshot.exe runs from its <c>App\Greenshot</c>,
+        /// detected at startup by <c>App\AppInfo\appinfo.ini</c> in that folder; null otherwise.
         /// </summary>
-        public static bool IsPortable { get; set; }
+        public static string PortableAppsDirectory { get; set; }
+
+        /// <summary>
+        /// Finds the folder of the PortableApps.com package for Greenshot.exe in <paramref name="applicationDirectory"/>:
+        /// two folders up (from App\Greenshot), when it has App\AppInfo\appinfo.ini.
+        /// </summary>
+        /// <param name="applicationDirectory">The directory of Greenshot.exe</param>
+        /// <returns>The package folder, or null when Greenshot.exe isn't in a PortableApps.com package</returns>
+        public static string FindPortableAppsDirectory(string applicationDirectory)
+        {
+            var packageDirectory = Path.GetFullPath(Path.Combine(applicationDirectory, @"..\.."));
+            return File.Exists(Path.Combine(packageDirectory, @"App\AppInfo\appinfo.ini")) ? packageDirectory : null;
+        }
 
         /// <summary>
         /// Gets the full path of the active <c>greenshot.ini</c> configuration file.
@@ -50,16 +61,46 @@ namespace Greenshot.Base.Core
         public static string LocalDataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
 
         /// <summary>
-        /// True for the PortableApp and the .zip (greenshot.ini next to Greenshot.exe), these leave nothing on the system
+        /// True when Greenshot.exe runs from the PortableApps.com package (<see cref="PortableAppsDirectory"/>)
         /// </summary>
-        public static bool LeavesNoTraces
+        public static bool IsPortableApps => PortableAppsDirectory != null;
+
+        /// <summary>
+        /// The Data\Settings folder of the PortableApps.com package, where it keeps greenshot.ini; null outside the package
+        /// </summary>
+        public static string PortableAppsSettingsDirectory => IsPortableApps ? Path.Combine(PortableAppsDirectory, @"Data\Settings") : null;
+
+        /// <summary>
+        /// The default folder for saved captures: Documents\Pictures\Greenshots on the drive of the PortableApps.com package
+        /// (the PortableApps.com folders), otherwise the desktop
+        /// </summary>
+        public static string DefaultOutputDirectory => IsPortableApps
+            ? Path.GetFullPath(Path.Combine(PortableAppsDirectory, @"..\..\Documents\Pictures\Greenshots"))
+            : Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        /// <summary>
+        /// True when greenshot.ini was loaded from the folder of Greenshot.exe, like the .zip does with the greenshot.ini it ships.
+        /// Only known after greenshot.ini was loaded.
+        /// </summary>
+        public static bool UsesSettingsNextToExecutable
         {
             get
             {
                 string configLocation = ConfigLocation;
-                return IsPortable || (!string.IsNullOrEmpty(configLocation)
-                    && string.Equals(Path.GetDirectoryName(configLocation)?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
+                return !string.IsNullOrEmpty(configLocation)
+                    && string.Equals(Path.GetDirectoryName(configLocation)?.TrimEnd('\\'), AppContext.BaseDirectory.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
             }
         }
+
+        /// <summary>
+        /// True when Greenshot may only write to its own folders: the PortableApps.com package and settings next to Greenshot.exe (the .zip).
+        /// Then nothing that is optional, like the toast registration or the JIT profile, is written to the system.
+        /// </summary>
+        public static bool LeavesNoTraces => IsPortableApps || UsesSettingsNextToExecutable;
+
+        /// <summary>
+        /// How this Greenshot runs, for the version in the log and the bug report: " PortableApps", " Portable" or empty
+        /// </summary>
+        public static string PortableSuffix => IsPortableApps ? " PortableApps" : UsesSettingsNextToExecutable ? " Portable" : string.Empty;
     }
 }
