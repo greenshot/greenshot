@@ -437,7 +437,7 @@ namespace Greenshot.Base.Core
         /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
         /// </summary>
         /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
-        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it with the white of the capture as the editor shows it (the white level of its tone mapping); null for nothing</param>
+        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it with white halfway between SDR white and the white of the capture as the editor shows it; null for nothing</param>
         /// <returns>A complete HDR image, the caller disposes it</returns>
         public HdrImage Compose(Bitmap sdrImage, HdrOverlay overlay = null)
         {
@@ -466,10 +466,12 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
-                    // The white of the elements is the white of the capture as the editor shows it: the white level of its tone mapping
-                    // (HdrImageToneMapping), so they look the same against the capture as in the editor
+                    // The white of the elements: halfway (geometric) between SDR white and the white of the capture as the editor shows it (the white
+                    // level of its tone mapping, HdrImageToneMapping). At SDR white a white element looks gray next to bright HDR content, at the
+                    // white of the tone mapping (up to the display's peak) it is glaring.
                     var (peakInNits, highlightShare) = HdrContent.Measure(composed, SdrWhiteLevelInNits);
-                    float elementWhite = HdrContent.WhiteLevelInNits(SdrWhiteLevelInNits, DisplayPeakInNits, peakInNits, highlightShare) / 80f;
+                    float toneMappingWhite = HdrContent.WhiteLevelInNits(SdrWhiteLevelInNits, DisplayPeakInNits, peakInNits, highlightShare);
+                    float elementWhite = (float)Math.Sqrt(SdrWhiteLevelInNits * toneMappingWhite) / 80f;
                     // The elements in their order: a filter works on what is drawn before it
                     foreach (var step in overlay.Steps)
                     {

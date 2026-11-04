@@ -547,9 +547,9 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void Elements_HaveTheWhiteOfTheCapture_AsTheEditorShowsIt()
+        public void Elements_AreWhite_HalfwayBetweenSdrWhite_AndTheWhiteOfTheCaptureInTheEditor()
         {
-            // All of the capture is a highlight of 400 nits: the editor shows it as white, a white element is as bright
+            // All of the capture is a highlight of 400 nits (5.0): the editor shows it as white; the SDR white is 240 nits (3.0)
             using var surface = CreateBrightSurface();
             var rectangle = new RectangleContainer(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
             rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.White);
@@ -558,7 +558,7 @@ namespace Greenshot.Tests.Editor
 
             using var composed = Compose(surface);
 
-            Assert.Equal(5f, composed.Pixels[50, 50].ToVector4().X, 1);
+            Assert.Equal((float)Math.Sqrt(3f * 5f), composed.Pixels[50, 50].ToVector4().X, 2);
         }
 
         [Fact]

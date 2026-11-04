@@ -30,7 +30,7 @@ using Bitmap = System.Drawing.Bitmap;
 namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// What is drawn on a capture (the elements of the surface), for an HDR file: it goes over the HDR image with the white of the capture as the editor shows it
+    /// What is drawn on a capture (the elements of the surface), for an HDR file: it goes over the HDR image with white halfway between SDR white and the white of the capture as the editor shows it
     /// (see HdrImage.Compose, ISurface.CreateHdrOverlay), so annotations look as on the screen and the HDR content around them keeps its highlights.
     /// Elements are drawn with ImageSharp on the HDR pixels where they can be (see Greenshot.Base.ImageSharpDrawing), others are 8-bit layers.
     /// </summary>

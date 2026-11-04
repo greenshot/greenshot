@@ -568,10 +568,10 @@ namespace Greenshot.Tests.Recipes
                 var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
                 var row = new float[8 * 4];
                 floats.CopyPixels(new System.Windows.Int32Rect(0, 1, 8, 1), row, 8 * 16, 0);
-                // Next to the cursor the HDR pixels, under it the red of the cursor at the white of the capture as the editor shows it: one of 32 pixels
-                // is a highlight of 400 nits, the white of its tone mapping is a bit brighter than the SDR white of 240 nits
-                float white = HdrContent.WhiteLevelInNits(240, 400, 400, 1 / 32f) / 80f;
-                Assert.InRange(white, 3.1f, 3.5f);
+                // Next to the cursor the HDR pixels, under it the red of the cursor: one of 32 pixels is a highlight of 400 nits, the white of the
+                // tone mapping is a bit brighter than the SDR white of 240 nits, the elements are halfway between both
+                float white = (float)Math.Sqrt(240 * HdrContent.WhiteLevelInNits(240, 400, 400, 1 / 32f)) / 80f;
+                Assert.InRange(white, 3.05f, 3.3f);
                 Assert.Equal(0f, row[0], 2);
                 Assert.Equal(white, row[2 * 4], 2);
                 Assert.Equal(0f, row[2 * 4 + 1], 2);
