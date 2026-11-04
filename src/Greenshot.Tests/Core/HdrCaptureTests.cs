@@ -509,11 +509,55 @@ public class HdrCaptureTests
 
         Assert.Null(parts.Join(image, new NativeRect(0, 0, 2, 1)));
 
-        // A highlight above the white of the joined image is HDR content, and the joined image measures alike
+        // A highlight above the white of the joined image is HDR content, and the joined image measures alike (new parts: they measure once)
         Set(second, 0, 0, Rgba(5f, 5f, 5f));
-        using var joined = parts.Join(image, new NativeRect(0, 0, 2, 1));
+        using var brighter = new HdrParts(new[] { (first.Share(), new NativePoint(0, 0)), (second.Share(), new NativePoint(1, 0)) });
+        using var joined = brighter.Join(image, new NativeRect(0, 0, 2, 1));
         Assert.True(joined.HasHdrContent);
         Assert.Equal(SdrWhiteNits, joined.SdrWhiteLevelInNits);
+    }
+
+    [Theory]
+    [InlineData(2.5f, HdrOutput.StateNone)]
+    [InlineData(5f, HdrOutput.StateAvailable)]
+    public void PayloadHdr_AndTheJoin_Agree_ForDisplaysWithDifferentSdrWhite(float secondDisplay, string expected)
+    {
+        // The first display at 240 nits SDR white (3.0), the second at 80 nits (1.0): 2.5 is brighter than its own white only
+        var first = CreatePixels(1, 1, (x, y) => Rgba(SdrWhite, SdrWhite, SdrWhite));
+        var second = new HdrImage(1, 1, 80, 400);
+        Set(second, 0, 0, Rgba(secondDisplay, secondDisplay, secondDisplay));
+        using var capture = new Capture(new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+        {
+            HdrParts = new HdrParts(new[] { (first, new NativePoint(0, 0)), (second, new NativePoint(1, 0)) })
+        };
+        capture.HdrParts.BelongTo(capture.Image);
+
+        Assert.Equal(expected, HdrOutput.StateOf(new CapturePayload(capture)));
+        capture.JoinHdrParts();
+
+        Assert.Equal(expected == HdrOutput.StateAvailable, capture.HdrImage != null);
+    }
+
+    [Fact]
+    public void Join_OfAllOfTheCapture_UsesTheMeasuredAnswer_OfASmallerAreaMeasures()
+    {
+        using var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
+        using var parts = WindowsGraphicsCaptureInterop.CreateHdrParts(requests);
+        Assert.True(parts.HasHdrContent);
+        // The highlights are gone after it was measured (only to see which join measures again: the pixels are never changed)
+        foreach (var x in new[] { 0, 1 })
+        {
+            Set(hdr, x, 0, Rgba(1f, 1f, 1f));
+        }
+        using var all = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using var one = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+        // All of the capture: the answer of HasHdrContent, no second scan
+        using var joined = parts.Join(all, new NativeRect(0, 0, 2, 1));
+        Assert.NotNull(joined);
+        // A smaller area measures its part
+        Assert.Null(parts.Join(one, new NativeRect(1, 0, 1, 1)));
     }
 
     [Fact]

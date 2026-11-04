@@ -64,11 +64,28 @@ namespace Greenshot.Base.Hdr
         /// </summary>
         public bool IsRequested { get; set; }
 
+        // 0: not measured yet, 1: with HDR content, 2: without
+        private int _hasHdrContent;
+
         /// <summary>
         /// Something of the HDR displays is HDR content (see HdrImage.HasHdrContent), without joining them: e.g. for payload.hdr before the
-        /// selection. Each part measures it once.
+        /// selection. Measured once, like <see cref="Join"/> of all of the capture measures it (against the SDR white of the first part), so
+        /// both give the same answer; that join uses it instead of measuring again.
         /// </summary>
-        public bool HasHdrContent => _parts.Any(part => part.Part.HasHdrContent);
+        public bool HasHdrContent
+        {
+            get
+            {
+                int known = Volatile.Read(ref _hasHdrContent);
+                if (known == 0)
+                {
+                    float joinedSdrWhite = _parts.Count == 0 ? 0 : _parts[0].Part.SdrWhiteLevelInNits;
+                    known = _parts.Any(part => HdrContent.HasHdrContent(part.Part.Pixels, joinedSdrWhite)) ? 1 : 2;
+                    Volatile.Write(ref _hasHdrContent, known);
+                }
+                return known == 1;
+            }
+        }
 
         /// <summary>
         /// Mark the 8-bit image these parts belong to, like HdrImage.BelongTo
@@ -83,7 +100,12 @@ namespace Greenshot.Base.Hdr
         /// <summary>
         /// The same parts for another owner, e.g. a copy of the capture: the pixels are shared, not copied. They don't belong to an image yet.
         /// </summary>
-        public HdrParts Share() => new HdrParts(_parts.Select(part => (part.Part.Share(), part.Location)).ToList()) { IsRequested = IsRequested };
+        public HdrParts Share() => new HdrParts(_parts.Select(part => (part.Part.Share(), part.Location)).ToList())
+        {
+            IsRequested = IsRequested,
+            // The same pixels: the same answer
+            _hasHdrContent = Volatile.Read(ref _hasHdrContent)
+        };
 
         /// <summary>
         /// The HDR image of an area of the capture: the parts of the HDR displays in it, copied once straight into it, and the rest from the 8-bit
@@ -97,10 +119,12 @@ namespace Greenshot.Base.Hdr
             if (sdrImage == null) throw new ArgumentNullException(nameof(sdrImage));
             var inArea = new List<(HdrImage, NativePoint)>();
             var overlaps = new List<System.Drawing.Rectangle>();
+            bool allOfThem = true;
             foreach (var (part, location) in _parts)
             {
                 var placed = new NativeRect(location, new NativeSize(part.Width, part.Height));
                 var overlap = placed.Intersect(area);
+                allOfThem &= overlap.Equals(placed);
                 if (overlap.Width <= 0 || overlap.Height <= 0)
                 {
                     continue;
@@ -115,9 +139,12 @@ namespace Greenshot.Base.Hdr
                 return null;
             }
             // Measured against the SDR white of the joined image (that of the first part, see HdrImage.Combine), only where each part is in the
-            // area: with displays of different SDR white, what is brighter than one display's white can be below the white of the joined image
+            // area: with displays of different SDR white, what is brighter than one display's white can be below the white of the joined image.
+            // An area with all of every part (e.g. all of the capture) is what HasHdrContent measures: measured once.
             float joinedSdrWhite = inArea[0].Item1.SdrWhiteLevelInNits;
-            bool hasHdrContent = inArea.Where((part, index) => HdrContent.HasHdrContent(part.Item1.Pixels, joinedSdrWhite, overlaps[index])).Any();
+            bool hasHdrContent = allOfThem
+                ? HasHdrContent
+                : inArea.Where((part, index) => HdrContent.HasHdrContent(part.Item1.Pixels, joinedSdrWhite, overlaps[index])).Any();
             // E.g. only a normal window on an HDR display: nothing an 8-bit image can't show, no HDR image (also when HDR was asked for)
             if (!hasHdrContent)
             {

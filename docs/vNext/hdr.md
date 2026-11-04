@@ -111,7 +111,8 @@ The join is explicit: cropping the capture to the selection (`Capture.Crop`) joi
 (the whole screen, a window) is joined when the editor takes it (`ICapture.JoinHdrParts`). Reading `HdrImage` never joins, and
 `payload.hdr` asks the parts without joining them. Each part is copied once, straight into the joined image; one part which
 covers all of it is shared, not copied. Whether there is HDR content is measured on the parts, only where they are in the area,
-and the joined image keeps that answer. An area with no HDR content (e.g. only on an SDR display, or only normal windows) gets no
+against the SDR white of the joined image (that of the first display), and the joined image keeps that answer. For all of the
+capture it is measured once: `payload.hdr` and the join give the same answer. An area with no HDR content (e.g. only on an SDR display, or only normal windows) gets no
 `HdrImage`, also when HDR was asked for (`IsRequested`): no HDR content, no HDR image. The same goes for a crop, e.g. of an
 opened JPEG XR file.
 
