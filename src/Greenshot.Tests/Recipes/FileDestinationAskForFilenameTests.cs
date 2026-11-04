@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -184,7 +185,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task DrawnElement_IsInTheHdrFile_AtTheSdrWhiteLevel_TheRestKeepsTheHighlights()
+        public async Task DrawnElement_IsInTheHdrFile_TheRestKeepsTheHighlights()
         {
             string path = TempFile("jxr");
             try
@@ -200,7 +201,7 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Notifications);
                 var row = ReadHdrRow(path, 4);
-                // The red border at the left: red at the SDR white level, no green
+                // The red border at the left: red, no green
                 Assert.True(row[2 * 4] > 1.5f, $"red {row[2 * 4]}");
                 Assert.True(row[2 * 4 + 1] < 0.5f, $"green {row[2 * 4 + 1]}");
                 // Inside the (unfilled) rectangle and next to it the HDR highlights
@@ -567,9 +568,12 @@ namespace Greenshot.Tests.Recipes
                 var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
                 var row = new float[8 * 4];
                 floats.CopyPixels(new System.Windows.Int32Rect(0, 1, 8, 1), row, 8 * 16, 0);
-                // Next to the cursor the HDR pixels, under it the red of the cursor at the SDR white level (240 nits is 3.0)
+                // Next to the cursor the HDR pixels, under it the red of the cursor at the white of the capture as the editor shows it: one of 32 pixels
+                // is a highlight of 400 nits, the white of its tone mapping is a bit brighter than the SDR white of 240 nits
+                float white = HdrContent.WhiteLevelInNits(240, 400, 400, 1 / 32f) / 80f;
+                Assert.InRange(white, 3.1f, 3.5f);
                 Assert.Equal(0f, row[0], 2);
-                Assert.Equal(3f, row[2 * 4], 2);
+                Assert.Equal(white, row[2 * 4], 2);
                 Assert.Equal(0f, row[2 * 4 + 1], 2);
             }
             finally

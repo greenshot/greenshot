@@ -437,7 +437,7 @@ namespace Greenshot.Base.Core
         /// capture's 8-bit image at the SDR white level, so they look as they did on the screen. A complete HDR image is shared, not copied.
         /// </summary>
         /// <param name="sdrImage">The 8-bit image this HDR image belongs to (see <see cref="BelongsTo"/>), only read where no tile is</param>
-        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it at the SDR white level; null for nothing</param>
+        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it with the white of the capture as the editor shows it (the white level of its tone mapping); null for nothing</param>
         /// <returns>A complete HDR image, the caller disposes it</returns>
         public HdrImage Compose(Bitmap sdrImage, HdrOverlay overlay = null)
         {
@@ -466,16 +466,20 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
+                    // The white of the elements is the white of the capture as the editor shows it: the white level of its tone mapping
+                    // (HdrImageToneMapping), so they look the same against the capture as in the editor
+                    var (peakInNits, highlightShare) = HdrContent.Measure(composed, SdrWhiteLevelInNits);
+                    float elementWhite = HdrContent.WhiteLevelInNits(SdrWhiteLevelInNits, DisplayPeakInNits, peakInNits, highlightShare) / 80f;
                     // The elements in their order: a filter works on what is drawn before it
                     foreach (var step in overlay.Steps)
                     {
                         if (step.Draw != null)
                         {
-                            composed.DrawOver(new NativeRect(step.Location, step.Size), step.Draw);
+                            composed.DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
                         }
                         else if (step.Layer != null)
                         {
-                            composed.BlendSdrOver(step.Layer, step.Location);
+                            composed.BlendSdrOver(step.Layer, step.Location, elementWhite);
                         }
                         else
                         {
@@ -879,9 +883,9 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// Draw an element with ImageSharp on the area of this complete HDR image while it is made: on float pixels (ImageSharp mixes HalfVector4
-        /// wrongly, see FloatPixels), its colors at the SDR white level
+        /// wrongly, see FloatPixels), its white at the value of white (scRGB)
         /// </summary>
-        private void DrawOver(NativeRect area, Action<Image, ImageValues> draw)
+        private void DrawOver(NativeRect area, Action<Image, ImageValues> draw, float white)
         {
             if (area.Width <= 0 || area.Height <= 0 || area.X < 0 || area.Y < 0 || area.Right > Width || area.Bottom > Height)
             {
@@ -889,7 +893,7 @@ namespace Greenshot.Base.Core
             }
             var rectangle = new Rectangle(area.X, area.Y, area.Width, area.Height);
             using var canvas = FloatPixels.Of(Pixels, rectangle);
-            draw(canvas, ImageValues.Linear(SdrWhiteLevelInNits / 80f));
+            draw(canvas, ImageValues.Linear(white));
             Pixels.ProcessPixelRows(canvas, (target, drawn) =>
             {
                 for (int y = 0; y < drawn.Height; y++)
@@ -905,17 +909,17 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its colors at the SDR white level, blended in linear light
-        /// (scRGB is linear), so a cursor looks as it did on the screen and its shadow darkens the HDR pixels under it
+        /// Draw an 8-bit layer with alpha over this complete HDR image while it is made: its white at the value of white (scRGB), blended in linear light
+        /// (scRGB is linear), so its shadow darkens the HDR pixels under it
         /// </summary>
-        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location)
+        private unsafe void BlendSdrOver(Bitmap layer, NativePoint location, float white)
         {
             var target = new NativeRect(location, new NativeSize(layer.Width, layer.Height)).Intersect(new NativeRect(0, 0, Width, Height));
             if (target.Width <= 0 || target.Height <= 0)
             {
                 return;
             }
-            float scale = SdrWhiteLevelInNits / 80f;
+            float scale = white;
             var linear = new float[256];
             for (int i = 0; i < 256; i++)
             {

@@ -547,6 +547,21 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void Elements_HaveTheWhiteOfTheCapture_AsTheEditorShowsIt()
+        {
+            // All of the capture is a highlight of 400 nits: the editor shows it as white, a white element is as bright
+            using var surface = CreateBrightSurface();
+            var rectangle = new RectangleContainer(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
+            rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.White);
+            rectangle.SetFieldValue(FieldType.SHADOW, false);
+            surface.AddElement(rectangle, false, false);
+
+            using var composed = Compose(surface);
+
+            Assert.Equal(5f, composed.Pixels[50, 50].ToVector4().X, 1);
+        }
+
+        [Fact]
         public void Magnifier_PartlyOutsideTheImage_MagnifiesTheHdrPixels()
         {
             using var surface = CreateBrightSurface();
