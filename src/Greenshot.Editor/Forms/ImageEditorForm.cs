@@ -1514,6 +1514,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 Visible = false
             };
             statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(dimensionsLabel) + 1, _hdrLabel);
+            // A StatusStrip shows no tooltips by default, the badges explain themselves in theirs
+            statusStrip1.ShowItemToolTips = true;
             Disposed += (sender, args) =>
             {
                 _hdrActiveFont.Dispose();
