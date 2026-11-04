@@ -26,6 +26,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Greenshot.Base.Core;
 using Greenshot.Base.Serialization;
 using log4net;
 
@@ -341,13 +342,7 @@ public sealed class StampLibrary
         category = NormalizeCategory(category);
         string folder = category.Length == 0 ? Directory : Path.Combine(Directory, category.Replace('/', Path.DirectorySeparatorChar));
         System.IO.Directory.CreateDirectory(folder);
-        string path = Path.Combine(folder, baseName + extension);
-        for (int number = 2; File.Exists(path); number++)
-        {
-            path = Path.Combine(folder, $"{baseName} ({number}){extension}");
-        }
-
-        return path;
+        return NumberedFileNames.FirstFree(Path.Combine(folder, baseName + extension));
     }
 
     private StampIndex ReadIndex()

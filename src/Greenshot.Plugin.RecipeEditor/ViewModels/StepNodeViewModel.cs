@@ -3307,10 +3307,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("PromptQuality", value); OnPropertyChanged(nameof(OutputFilePromptQuality)); }
         }
 
-        public string OutputFileAllowOverwrite
+        public string OutputFileIfExists
         {
-            get => GetTriStateParam("AllowOverwrite");
-            set { SetTriStateParam("AllowOverwrite", value); OnPropertyChanged(nameof(OutputFileAllowOverwrite)); }
+            get => GetParam("IfFileExists", "");
+            set { SetParamOrRemoveIfEmpty("IfFileExists", value); OnPropertyChanged(nameof(OutputFileIfExists)); }
         }
 
         public string OutputFileCopyPath
@@ -4050,7 +4050,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));
             OnPropertyChanged(nameof(OutputFilePromptQuality));
-            OnPropertyChanged(nameof(OutputFileAllowOverwrite));
+            OnPropertyChanged(nameof(OutputFileIfExists));
             OnPropertyChanged(nameof(OutputFileCopyPath));
             OnPropertyChanged(nameof(OutputFileHdrFormat));
             OnPropertyChanged(nameof(OutputFileAskForFilename));

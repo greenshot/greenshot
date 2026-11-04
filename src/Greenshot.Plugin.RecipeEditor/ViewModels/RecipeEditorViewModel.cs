@@ -2405,7 +2405,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["SaveDirectory"] = "";
                     dict["FilenamePattern"] = "greenshot ${capturetime}";
                     dict["Format"] = "png";
-                    dict["AllowOverwrite"] = false;
                     break;
                 case WellKnownStepTypes.Clipboard:
                     dict["ClipboardMode"] = "ImageOnly";

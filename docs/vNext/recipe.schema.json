@@ -556,6 +556,10 @@
               "default": "None",
               "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting; something brighter than SDR white or outside sRGB) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved quietly. To tell or ask the user, check ${payload.hdr} (Available, Lost, None) before, e.g. with a UserPrompt step, or use NoHdrNote of the Notification step."
             },
+            "IfFileExists": {
+              "anyOf": [ { "type": "string", "enum": [ "Overwrite", "Ask", "AddNumber" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'SaveFile' and 'Destinations' steps: what happens when the file exists. Overwrite; Ask: the save dialog suggests the next free name (without a user to ask, e.g. a command line capture, the name gets a number); AddNumber: the first free 'name (2).png', 'name (3).png', ... Without it the setting OutputFileIfExists decides."
+            },
             "AskForFilename": {
               "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
               "default": false,
