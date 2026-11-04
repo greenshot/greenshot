@@ -240,16 +240,16 @@ namespace Greenshot.Plugin.Zxing.Processing
                     new SixLabors.ImageSharp.Drawing.RectangularPolygon(place.X, place.Y, place.Width, place.Height));
                 foreach (var module in layout.Modules)
                 {
-                    // GDI+ (PixelOffsetMode.Default) has the middles of the pixels on whole numbers, ImageSharp their edges: half a pixel on,
-                    // so the edges of the modules are anti-aliased the same way as in the bitmap of the editor
-                    float x = place.X + module.Area.X * scaleX + 0.5f;
-                    float y = place.Y + module.Area.Y * scaleY + 0.5f;
+                    float x = place.X + module.Area.X * scaleX;
+                    float y = place.Y + module.Area.Y * scaleY;
                     float width = module.Area.Width * scaleX;
                     float height = module.Area.Height * scaleY;
                     SixLabors.ImageSharp.Drawing.IPath shape = module.Round
                         ? new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)
                         : new SixLabors.ImageSharp.Drawing.RectangularPolygon(x, y, width, height);
-                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, shape);
+                    // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the modules are anti-aliased the
+                    // same way as in its bitmap
+                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(shape));
                 }
             });
         }
