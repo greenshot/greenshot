@@ -30,6 +30,7 @@ work differently there, and they can still change before the release. The docume
 | [accessibility.md](accessibility.md) | Rules for screen readers, keyboard, high contrast and text size, and how to check them |
 | [ui-how-to.md](ui-how-to.md) | Building windows and settings pages: styles, texts, settings |
 | [translation](translation/README.md) | Language packs and how to translate Greenshot |
+| [hdr.md](hdr.md) | HDR captures: tone mapping, the HDR image, the edits of the editor and writing JPEG XR files |
 | [capture-tools.md](capture-tools.md) | How the capture modes and helpers are built, and how a plugin adds its own |
 | [notifications.md](notifications.md) | Notifications: toasts and the tray icon |
 | [http.md](http.md) | Talking to services on the Internet with `HttpService` |
