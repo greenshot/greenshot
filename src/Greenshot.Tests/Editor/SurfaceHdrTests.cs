@@ -174,9 +174,9 @@ namespace Greenshot.Tests.Editor
             Assert.Same(made, surface.HdrImage);
             Assert.Equal(8, made.Width);
             Assert.Equal(6, made.Height);
-            // The capture inside the border, the border itself comes from the 8-bit image
-            Assert.False(made.IsComplete);
-            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(made.TileAreas));
+            // The capture inside the border, the border itself is from the 8-bit image: complete
+            Assert.True(made.IsComplete);
+            Assert.Equal(1f, made.Pixels[3, 3].ToVector4().W, 2);
 
             surface.Undo();
             surface.Undo();
@@ -413,10 +413,12 @@ namespace Greenshot.Tests.Editor
             var tornEdges = surface.AddTornEdges(settings);
 
             Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
+            // The room for the shadow is from the 8-bit image: the HDR image stays complete
+            Assert.True(surface.HdrImage.IsComplete);
             AssertApplyingKeepsTheHdrFile(surface, tornEdges);
-            // Still the one part of the HDR display: the teeth are drawn in it, not taken from the 8-bit image
-            Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
+            // Still one complete image: the teeth are drawn in it
+            Assert.True(surface.HdrImage.IsComplete);
+            Assert.Equal(100 + 2 * margin, surface.HdrImage.Width);
             // Between the teeth the highlights stay, below the band all of it keeps them
             var (highlights, tornOff) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
             Assert.True(highlights > 0, "highlights between the teeth");
@@ -432,8 +434,23 @@ namespace Greenshot.Tests.Editor
 
             var tornEdges = surface.AddTornEdges(settings);
 
+            // Also on the side of the SDR display the element is drawn on the HDR pixels, like the element when it is saved: no step at the edge
             AssertApplyingKeepsTheHdrFile(surface, tornEdges);
-            Assert.Equal(new NativeRect(0, 0, 50, 100), Assert.Single(surface.HdrImage.TileAreas));
+            Assert.True(surface.HdrImage.IsComplete);
+        }
+
+        [Fact]
+        public void CaptureOverAnHdrAndAnSdrDisplay_InTheEditor_IsOneCompleteHdrImage_TheSdrPartAtSdrWhite()
+        {
+            using var surface = CreateHalfBrightSurface();
+
+            var hdrImage = surface.HdrImage;
+
+            Assert.True(hdrImage.IsComplete);
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Equal(5f, hdrImage.Pixels[10, 50].ToVector4().X, 1);
+            // White of the SDR display at the SDR white level: 240 nits are 3.0
+            Assert.Equal(3f, hdrImage.Pixels[90, 50].ToVector4().X, 2);
         }
 
         [Fact]
@@ -599,7 +616,9 @@ namespace Greenshot.Tests.Editor
 
             Assert.False(surface.CanUndo);
             Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(surface.HdrImage.TileAreas));
+            // The border is from the 8-bit image: the editor's HDR image stays complete
+            Assert.True(surface.HdrImage.IsComplete);
+            Assert.Equal(8, surface.HdrImage.Width);
         }
 
         [Fact]

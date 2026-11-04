@@ -184,165 +184,105 @@ namespace Greenshot.Base.Core
         public bool IsRequested { get; set; }
 
         /// <summary>
-        /// Steps of an overlay (see HdrOverlay.Steps) drawn into the HDR pixels for good, as a new HDR image: e.g. torn edges or a cut mark which
-        /// is applied to the image. Unlike <see cref="Compose"/> nothing comes from the 8-bit image: it gets the same element, and outside the
-        /// tiles (SDR displays) it is the only one which has it. The white of the elements is the one of <see cref="Compose"/>. Tiles which no
-        /// step reaches are shared.
+        /// Steps of an overlay (see HdrOverlay.Steps) drawn into the pixels of this complete HDR image for good, as a new complete HDR image: e.g.
+        /// torn edges or a cut mark which is applied to the image in the editor. The same as <see cref="Compose"/> does with them, the white of the
+        /// elements too, so the HDR file stays the same.
         /// </summary>
-        /// <param name="steps">Elements drawn with ImageSharp and filters which change each pixel on its own (ImageFilter.ApplyToPart), in their order</param>
-        public HdrImage DrawOnTiles(IReadOnlyList<HdrOverlayStep> steps)
+        /// <param name="steps">The steps, in their order</param>
+        /// <exception cref="InvalidOperationException">The image isn't complete: the editor makes it complete when it takes it over</exception>
+        public HdrImage Draw(IReadOnlyList<HdrOverlayStep> steps)
         {
             if (steps == null) throw new ArgumentNullException(nameof(steps));
             CheckNotDisposed();
-            if (steps.Any(step => step.Layer != null || (step.Filter != null && step.Filter.ApplyToPart == null)))
-            {
-                throw new ArgumentException("Only elements drawn with ImageSharp and filters which change each pixel on its own can be drawn on the tiles.", nameof(steps));
-            }
-            float elementWhite = ElementWhite();
-            var tiles = new List<Tile>();
+            if (!IsComplete) throw new InvalidOperationException("The HDR image has only the parts of the HDR displays, complete it first.");
+            var drawn = new HdrImage(Width, Height, SdrWhiteLevelInNits, DisplayPeakInNits) { IsRequested = IsRequested };
             try
             {
-                foreach (var tile in _tiles)
+                drawn.CopyFrom(Pixels, new NativePoint(0, 0));
+                drawn.DrawSteps(steps);
+                return drawn;
+            }
+            catch
+            {
+                drawn.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The HDR image as one complete image, as a new HDR image: the tiles, and where no tile is the 8-bit pixels of the areas at the SDR white
+        /// level (e.g. the parts of SDR displays, the room which a border adds), so they look as in the 8-bit image. What neither covers is
+        /// transparent. A complete HDR image is shared, not copied.
+        /// </summary>
+        /// <param name="sdrAreas">Areas of the 8-bit image and their pixels (row by row, straight alpha)</param>
+        public HdrImage Complete(IReadOnlyList<(NativeRect Area, Bgra32[] Pixels)> sdrAreas)
+        {
+            CheckNotDisposed();
+            if (IsComplete)
+            {
+                return Share();
+            }
+            var completed = new HdrImage(Width, Height, SdrWhiteLevelInNits, DisplayPeakInNits) { IsRequested = IsRequested };
+            try
+            {
+                ushort[] table = GetSrgbTable(SdrWhiteLevelInNits);
+                var bounds = new NativeRect(0, 0, Width, Height);
+                completed.Pixels.ProcessPixelRows(accessor =>
                 {
-                    var touching = steps.Where(step => step.Size.Width <= 0 || step.Size.Height <= 0 || new NativeRect(step.Location, step.Size).IntersectsWith(tile.Area)).ToList();
-                    if (touching.Count == 0)
+                    foreach (var (area, pixels) in sdrAreas ?? Array.Empty<(NativeRect, Bgra32[])>())
                     {
-                        tiles.Add(tile.Share());
-                        continue;
-                    }
-                    var pixels = tile.Shared.Pixels.Clone();
-                    try
-                    {
-                        foreach (var step in touching)
+                        if (pixels == null || pixels.Length < (long)area.Width * area.Height) throw new ArgumentException($"The pixels of {area} are missing.", nameof(sdrAreas));
+                        var inside = area.Intersect(bounds);
+                        for (int y = inside.Top; y < inside.Bottom; y++)
                         {
-                            if (step.Draw != null)
+                            var source = pixels.AsSpan((y - area.Top) * area.Width + inside.Left - area.Left, inside.Width);
+                            var target = MemoryMarshal.Cast<HalfVector4, ushort>(accessor.GetRowSpan(y).Slice(inside.Left, inside.Width));
+                            for (int x = 0; x < source.Length; x++)
                             {
-                                DrawOnTile(pixels, tile.Area, new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
-                            }
-                            else
-                            {
-                                step.Filter.ApplyToPart(pixels, new Point(tile.Area.X, tile.Area.Y), tile.SdrWhiteLevelInNits / 80f);
+                                var pixel = source[x];
+                                target[x * 4] = table[pixel.R];
+                                target[x * 4 + 1] = table[pixel.G];
+                                target[x * 4 + 2] = table[pixel.B];
+                                target[x * 4 + 3] = HalfHelper.FloatToHalf(pixel.A / 255f);
                             }
                         }
                     }
-                    catch
-                    {
-                        pixels.Dispose();
-                        throw;
-                    }
-                    tiles.Add(new Tile(tile.Area, new SharedPixels(pixels), tile.SdrWhiteLevelInNits));
-                }
-            }
-            catch
-            {
-                foreach (var tile in tiles)
-                {
-                    tile.Shared.Release();
-                }
-                throw;
-            }
-            return new HdrImage(Width, Height, tiles.ToArray(), DisplayPeakInNits) { IsRequested = IsRequested };
-        }
-
-        /// <summary>
-        /// Each tile drawn anew (e.g. the torn edge effect over several displays, see ImageSharpDrawing.CutDrawing), as a new HDR image of the new
-        /// size; this one stays as it is
-        /// </summary>
-        /// <param name="size">The size of the new image</param>
-        /// <param name="draw">Gets the pixels of a tile, its place and the SDR white of its display as scRGB value; makes the new pixels (in the
-        /// configuration of the tile's pixels) and their place in the new image, which is inside it; null when nothing is left of the tile</param>
-        /// <returns>The new HDR image, null when no tile is left</returns>
-        public HdrImage RedrawTiles(NativeSize size, Func<Image<HalfVector4>, NativeRect, float, (Image<HalfVector4> Pixels, NativeRect Area)?> draw)
-        {
-            if (draw == null) throw new ArgumentNullException(nameof(draw));
-            CheckNotDisposed();
-            var bounds = new NativeRect(0, 0, CheckSize(size.Width), CheckSize(size.Height));
-            var tiles = new List<Tile>();
-            try
-            {
+                });
                 foreach (var tile in _tiles)
                 {
-                    var redrawn = draw(tile.Shared.Pixels, tile.Area, tile.SdrWhiteLevelInNits / 80f);
-                    if (redrawn == null)
-                    {
-                        continue;
-                    }
-                    var (pixels, area) = redrawn.Value;
-                    if (pixels.Width != area.Width || pixels.Height != area.Height || !area.Intersect(bounds).Equals(area))
-                    {
-                        pixels.Dispose();
-                        throw new InvalidOperationException($"The redrawn tile ({pixels.Width}x{pixels.Height} at {area}) doesn't fit into the new image of {size.Width}x{size.Height}.");
-                    }
-                    tiles.Add(new Tile(area, new SharedPixels(pixels), tile.SdrWhiteLevelInNits));
+                    completed.CopyFrom(tile.Shared.Pixels, tile.Area.Location);
                 }
+                return completed;
             }
             catch
             {
-                foreach (var tile in tiles)
-                {
-                    tile.Shared.Release();
-                }
+                completed.Dispose();
                 throw;
             }
-            return tiles.Count == 0 ? null : new HdrImage(size.Width, size.Height, tiles.ToArray(), DisplayPeakInNits) { IsRequested = IsRequested };
         }
 
         /// <summary>
-        /// Draw an element with ImageSharp on the pixels of a tile, where it reaches the tile: on float pixels of its whole area (e.g. the shadow of
-        /// a cut is blurred over all of it), only what falls on the tile is kept
+        /// Do the steps of an overlay on this complete HDR image while it is made, in their order: a filter works on what is drawn before it
         /// </summary>
-        private static void DrawOnTile(Image<HalfVector4> pixels, NativeRect tileArea, NativeRect area, Action<Image, ImageValues> draw, float white)
+        private void DrawSteps(IEnumerable<HdrOverlayStep> steps)
         {
-            var inTile = area.Intersect(tileArea);
-            if (inTile.Width <= 0 || inTile.Height <= 0)
+            var (peakInNits, highlightShare) = HdrContent.Measure(this, SdrWhiteLevelInNits);
+            float elementWhite = ElementWhite(peakInNits, highlightShare);
+            foreach (var step in steps)
             {
-                return;
-            }
-            // The rest of the area is transparent: what is drawn there is in the 8-bit image only
-            using var canvas = new Image<RgbaVector>(area.Width, area.Height);
-            canvas.ProcessPixelRows(pixels, (target, source) =>
-            {
-                for (int y = inTile.Top; y < inTile.Bottom; y++)
+                if (step.Draw != null)
                 {
-                    var sourceRow = source.GetRowSpan(y - tileArea.Top).Slice(inTile.Left - tileArea.Left, inTile.Width);
-                    var targetRow = target.GetRowSpan(y - area.Top).Slice(inTile.Left - area.Left, inTile.Width);
-                    for (int x = 0; x < sourceRow.Length; x++)
-                    {
-                        var value = sourceRow[x].ToVector4();
-                        targetRow[x] = new RgbaVector(value.X, value.Y, value.Z, value.W);
-                    }
+                    DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
                 }
-            });
-            draw(canvas, ImageValues.Linear(white));
-            pixels.ProcessPixelRows(canvas, (target, drawn) =>
-            {
-                for (int y = inTile.Top; y < inTile.Bottom; y++)
+                else if (step.Layer != null)
                 {
-                    var drawnRow = drawn.GetRowSpan(y - area.Top).Slice(inTile.Left - area.Left, inTile.Width);
-                    var targetRow = target.GetRowSpan(y - tileArea.Top).Slice(inTile.Left - tileArea.Left, inTile.Width);
-                    for (int x = 0; x < drawnRow.Length; x++)
-                    {
-                        targetRow[x].FromVector4(drawnRow[x].ToVector4());
-                    }
+                    BlendSdrOver(step.Layer, step.Location, elementWhite);
                 }
-            });
-        }
-
-        /// <summary>
-        /// The white of the elements drawn on this HDR image (see <see cref="Compose"/>), measured on its tiles: the parts of SDR displays count as
-        /// pixels without highlights, as when it is composed
-        /// </summary>
-        private float ElementWhite()
-        {
-            float peakInNits = 0;
-            double highlights = 0;
-            foreach (var tile in _tiles)
-            {
-                var (tilePeak, tileShare) = HdrContent.Measure(tile.Shared.Pixels, SdrWhiteLevelInNits);
-                peakInNits = Math.Max(peakInNits, tilePeak);
-                highlights += tileShare * ((double)tile.Area.Width * tile.Area.Height);
+                else
+                {
+                    step.Filter.Apply(Pixels, SdrWhiteLevelInNits / 80f);
+                }
             }
-            return ElementWhite(peakInNits, (float)(highlights / ((double)Width * Height)));
         }
 
         /// <summary>
@@ -588,24 +528,7 @@ namespace Greenshot.Base.Core
                 }
                 if (overlay != null)
                 {
-                    var (peakInNits, highlightShare) = HdrContent.Measure(composed, SdrWhiteLevelInNits);
-                    float elementWhite = ElementWhite(peakInNits, highlightShare);
-                    // The elements in their order: a filter works on what is drawn before it
-                    foreach (var step in overlay.Steps)
-                    {
-                        if (step.Draw != null)
-                        {
-                            composed.DrawOver(new NativeRect(step.Location, step.Size), step.Draw, elementWhite);
-                        }
-                        else if (step.Layer != null)
-                        {
-                            composed.BlendSdrOver(step.Layer, step.Location, elementWhite);
-                        }
-                        else
-                        {
-                            step.Filter.Apply(composed.Pixels, composed.SdrWhiteLevelInNits / 80f);
-                        }
-                    }
+                    composed.DrawSteps(overlay.Steps);
                     // The replaced areas are the export as it is, with everything which is drawn over them
                     foreach (var area in overlay.ReplacedAreas)
                     {

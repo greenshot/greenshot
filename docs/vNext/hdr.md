@@ -102,9 +102,9 @@ Without HDR content there is no `HdrImage`, and the capture is a normal one.
 ## 3. The HDR image of a capture
 
 `HdrImage` (Greenshot.Base/Core) holds the HDR pixels as an ImageSharp `Image<HalfVector4>`, which is bit for bit the FP16 texture,
-with straight alpha. It keeps only what HDR displays showed: one tile per HDR display, at its place in the capture. The parts of SDR
-displays are already in the SDR image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
-written.
+with straight alpha. A capture keeps only what HDR displays showed: one tile per HDR display, at its place in the capture. The parts
+of SDR displays are already in the SDR image, so they aren't kept twice. They are put in at the SDR white level when the HDR file is
+written, or once when the capture goes into the editor (see 5).
 
 The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
 `HdrImage`.
@@ -143,7 +143,7 @@ sequenceDiagram
     Export->>Surface: HdrImagePreparation
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
     Export->>Surface: HdrState, CreateHdrOverlay()
-    Surface-->>Export: a share of the HDR image, a copy of the SDR image,<br/>overlay (draw steps, filters, layers)
+    Surface-->>Export: a share of the HDR image (complete in the editor),<br/>overlay (draw steps, filters, layers)
     Note over Export,Wic: on the thread pool, the editor goes on
     Export->>Hdr: Compose(SDR image, overlay)
     Note over Hdr: SDR displays at SDR white,<br/>then the overlay steps in order
@@ -163,12 +163,16 @@ later:
 - **Changes of the image** (crop, rotate, resize, cut out, effects) are remembered as `IImageEdit`s (`ImageEdits` in
   Greenshot.Base/Effects). They are ImageSharp operations, which work for any pixel type, and they are only done when an HDR file
   is written. Undo removes them again.
-- **What isn't in the HDR image** comes from the SDR image when the file is written, like an SDR display: the room a border, a
-  drop shadow or a bigger canvas adds. Nothing of the HDR displays' parts is taken from the SDR image.
-- **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background, over several displays on the part of
-  each HDR display (`HdrImage.RedrawTiles`).
-- **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`,
-  `HdrImage.DrawOnTiles`) with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.
+- **One complete HDR image:** when a capture with HDR content goes into the editor, the parts of the SDR displays are put into its
+  `HdrImage` at the SDR white level once (`Surface.CompleteHdrImage`, `HdrImage.Compose`). From then on the editor has one HDR image
+  of the whole capture next to the SDR image, and every edit is done on both the same way, also across the edge of a display. This
+  costs the memory of the whole capture at 8 bytes per pixel while the editor is open (e.g. about 200 MB for three 4K displays), it
+  is in the log. Without the editor (a destination, a recipe saving the file) nothing is changed: the file is composed once.
+- **The room an edit adds** (a border, a drop shadow, a bigger canvas, the room for the shadow of torn edges) is taken from the new
+  SDR image at the SDR white level when the edit is made (`ImageEdits.PlaceInRoom`, `Room`), so the HDR image stays complete.
+- **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background (`CutDrawing.TornEdge`).
+- **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`, `HdrImage.Draw`)
+  with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.
 - **Color effects** (grayscale, invert, adjust, remove transparency) are done on the HDR pixels in linear light, so the highlights
   stay.
 - **Monochrome and reduce colors** make an SDR result by nature (black and white, a palette). The capture loses its HDR content then (`Lost`), and the badge
