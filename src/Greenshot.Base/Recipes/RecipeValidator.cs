@@ -971,8 +971,8 @@ namespace Greenshot.Base.Recipes
                 }
                 if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
                 {
-                    string hint = option.Type == ContractDataType.DirectoryPath && option.DefaultValue is string defaultText && defaultText.Contains("${")
-                        ? @" A folder takes %VARIABLES% like %USERPROFILE%\Pictures, not ${...}."
+                    string hint = option.Type == ContractDataType.DirectoryPath
+                        ? @" A folder is a full path, which may use ${user.*} and ${machine.*} values like ${user.pictures}\Greenshot."
                         : string.Empty;
                     result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.{hint}");
                 }

@@ -190,7 +190,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set
             {
                 // Stored as the type when it fits, as text otherwise (the check reports it).
-                // A folder keeps its %VARIABLES%, the file is used on other PCs.
+                // A folder keeps its ${user.*} values, the file is used on other PCs.
                 Option.DefaultValue = Option.Type != ContractDataType.DirectoryPath && Option.TryConvert(value, out var converted) ? converted : value;
                 OnPropertyChanged();
             }

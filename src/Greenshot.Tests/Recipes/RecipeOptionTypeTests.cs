@@ -71,7 +71,11 @@ namespace Greenshot.Tests.Recipes
         [InlineData(@"Screenshots", false)]
         [InlineData(@"\Screenshots", false)]
         [InlineData(@"C:Screenshots", false)]
-        [InlineData(@"%GREENSHOT_NO_SUCH_VARIABLE%\Screenshots", false)]
+        [InlineData(@"${user.pictures}\Screenshots", true)]
+        [InlineData(@"${user.GREENSHOT_NO_SUCH_VARIABLE}\Screenshots", false)]
+        [InlineData(@"${payload.title}\Screenshots", false)]
+        [InlineData(@"${now}\Screenshots", false)]
+        [InlineData(@"%TEMP%\Screenshots", false)]
         [InlineData("C:\\Screen|shots", false)]
         public void DirectoryOption_TakesOnlyFullPaths(string text, bool valid)
         {
@@ -82,8 +86,8 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void DirectoryOption_ReplacesVariables()
         {
-            var option = new RecipeOption { Key = "folder", Type = ContractDataType.DirectoryPath, DefaultValue = @"%TEMP%\Greenshot" };
-            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%TEMP%\Greenshot"), option.GetDefaultValue());
+            var option = new RecipeOption { Key = "folder", Type = ContractDataType.DirectoryPath, DefaultValue = @"${user.pictures}\Greenshot" };
+            Assert.Equal(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\Greenshot", option.GetDefaultValue());
         }
 
         [Fact]
@@ -159,7 +163,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Validator_ExplainsThatAFolderDefaultTakesNoExpression()
+        public void Validator_TakesAFolderWithUserValues_AndExplainsOtherValues()
         {
             var recipe = CreateRecipe("option_type_folder_expression");
             var folder = recipe.FindOption("folder");
@@ -168,8 +172,12 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
 
-            Assert.Contains(result.Errors, e => e.Contains("'folder'") && e.Contains("%USERPROFILE%"));
+            Assert.DoesNotContain(result.Errors, e => e.Contains("'folder'"));
             Assert.Contains(result.Warnings, w => w.Contains("'folder'") && w.Contains("'template' format"));
+
+            folder.DefaultValue = @"%USERPROFILE%\Pictures";
+            result = RecipeValidator.Validate(recipe);
+            Assert.Contains(result.Errors, e => e.Contains("'folder'") && e.Contains("${user.pictures}"));
         }
 
         [Fact]
