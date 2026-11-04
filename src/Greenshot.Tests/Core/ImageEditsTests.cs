@@ -322,46 +322,160 @@ namespace Greenshot.Tests.Core
         }
 
         /// <summary>
-        /// A highlight of 5 with the left column cleared (it is taken from the 8-bit image when composed)
+        /// The same HDR image as one display and as two displays side by side (left and right half), with a highlight which changes over it
         /// </summary>
-        private static HdrImage CreateClearedHdrImage()
+        private static (HdrImage Whole, HdrImage Halves) CreateWholeAndHalves(int width, int height)
         {
-            using var hdrImage = CreateHdrImage(8, 2, Gray(5));
-            var cleared = new System.Collections.BitArray(2, true);
-            return hdrImage.ClearPixels(new[] { (new NativeRect(0, 0, 1, 2), cleared) });
+            static HalfVector4 PixelAt(int x, int y) => new HalfVector4(2 + x * 0.1f, 3 + y * 0.1f, 5, 1);
+            var whole = new HdrImage(width, height, 240, 400);
+            using var left = new HdrImage(width / 2, height, 240, 400);
+            using var right = new HdrImage(width - width / 2, height, 240, 400);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    whole.Pixels[x, y] = PixelAt(x, y);
+                    if (x < width / 2)
+                    {
+                        left.Pixels[x, y] = PixelAt(x, y);
+                    }
+                    else
+                    {
+                        right.Pixels[x - width / 2, y] = PixelAt(x, y);
+                    }
+                }
+            }
+            var halves = HdrImage.Combine(width, height, new[] { (left, new NativePoint(0, 0)), (right, new NativePoint(width / 2, 0)) });
+            return (whole, halves);
+        }
+
+        /// <summary>
+        /// The pixels of the tiles of the HDR image are the ones of the complete HDR image at the same place
+        /// </summary>
+        private static void AssertTilesAreLike(HdrImage complete, HdrImage tiled)
+        {
+            Assert.True(complete.IsComplete);
+            using var sdr = new Bitmap(tiled.Width, tiled.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var composed = tiled.Compose(sdr);
+            foreach (var area in tiled.TileAreas)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                {
+                    for (int x = area.Left; x < area.Right; x++)
+                    {
+                        var expected = complete.Pixels[x, y].ToVector4();
+                        var actual = composed.Pixels[x, y].ToVector4();
+                        Assert.True(Math.Abs(expected.W - actual.W) < 0.01f, $"alpha at {x},{y}: {actual.W} instead of {expected.W}");
+                        if (expected.W > 0.01f)
+                        {
+                            Assert.True(System.Numerics.Vector3.Distance(new System.Numerics.Vector3(expected.X, expected.Y, expected.Z),
+                                new System.Numerics.Vector3(actual.X, actual.Y, actual.Z)) < 0.02f, $"color at {x},{y}: {actual} instead of {expected}");
+                        }
+                    }
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TornEdgeEffect_OverTwoDisplays_IsDrawnOnEachOfThem_LikeOverOne(bool withShadow)
+        {
+            var tornEdge = new TornEdgeEffect { ToothHeight = 6, HorizontalToothRange = 8, VerticalToothRange = 8, Seed = 3, GenerateShadow = withShadow, ShadowSize = 5 };
+            var (whole, halves) = CreateWholeAndHalves(40, 30);
+            using (whole)
+            using (halves)
+            {
+                int room = withShadow ? 12 : 0;
+                using var oldImage = new Bitmap(40, 30);
+                using var newImage = new Bitmap(40 + room, 30 + room);
+                using var matrix = new Matrix();
+                matrix.Translate(room / 2, room / 2);
+                var edit = ImageEdits.ForEffect(tornEdge, oldImage, newImage, matrix);
+
+                using var tornWhole = edit.Apply(whole);
+                using var tornHalves = edit.Apply(halves);
+
+                // Each display's part where it is moved to, nothing of it is left out or cleared
+                var offset = withShadow ? room / 2 : 0;
+                Assert.Equal(new[] { new NativeRect(offset, offset, 20, 30), new NativeRect(20 + offset, offset, 20, 30) }, tornHalves.TileAreas);
+                AssertTilesAreLike(tornWhole, tornHalves);
+                // The teeth are drawn: some pixels of the band are torn off
+                int tornOff = 0;
+                for (int x = offset; x < 40 + offset; x++)
+                {
+                    if (tornWhole.Pixels[x, offset + 1].ToVector4().X < 1.9f || tornWhole.Pixels[x, offset + 1].ToVector4().W < 0.99f)
+                    {
+                        tornOff++;
+                    }
+                }
+                Assert.True(tornOff > 0, "torn off teeth");
+            }
         }
 
         [Fact]
-        public void RemoveTransparency_KeepsTheClearedPixels_TheyComeFromThe8BitImage()
+        public void Draw_OverTwoDisplays_IsLikeTheElementOverOne_NothingComesFromThe8BitImage()
         {
-            using var cleared = CreateClearedHdrImage();
+            var (whole, halves) = CreateWholeAndHalves(40, 30);
+            using (whole)
+            using (halves)
+            {
+                // A cut across both displays, then something drawn over the cut and the two of them
+                var cut = new SixLabors.ImageSharp.Drawing.EllipsePolygon(20, 15, 12, 8);
+                var cutAway = new ImageFilter("Cut", (image, _) => Greenshot.Base.ImageSharpDrawing.CutDrawing.CutAway(image, cut),
+                    (part, origin, _) => Greenshot.Base.ImageSharpDrawing.CutDrawing.CutAway(part, SixLabors.ImageSharp.Drawing.PathExtensions.Translate(cut, -origin.X, -origin.Y)));
+                var area = new NativeRect(10, 5, 20, 20);
+                Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> draw = (image, values) =>
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+                        SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(context, values.ColorOf(new Rgba32(255, 0, 0, 255)), 3f,
+                            new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));
+                var steps = new[] { HdrOverlayStep.Of(cutAway), HdrOverlayStep.Of(area, draw) };
+                using var sdr = new Bitmap(40, 30, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using var overlay = new HdrOverlay(steps, null, null);
+                // As it is saved while the element is on the image
+                using var saved = whole.Compose(sdr, overlay);
 
-            using var removed = ImageEdits.ForEffect(new RemoveTransparencyEffect { Color = Color.White }, new NativeSize(8, 2), new NativeSize(8, 2), new Matrix()).Apply(cleared);
+                using var drawn = ImageEdits.Draw("test", steps).Apply(halves);
 
-            Assert.Equal(0f, removed.Pixels[0, 1].ToVector4().W, 3);
-            Assert.Equal(1f, removed.Pixels[4, 1].ToVector4().W, 3);
+                Assert.Equal(halves.TileAreas, drawn.TileAreas);
+                AssertTilesAreLike(saved, drawn);
+                // Cut away in the middle
+                using var composed = drawn.Compose(sdr);
+                Assert.Equal(0f, composed.Pixels[20, 15].ToVector4().W, 2);
+            }
         }
 
         [Fact]
-        public void Resize_OfClearedPixels_TheEdgeGoesOverThe8BitImage()
+        public void Draw_OnlyWhatTouchesADisplay_ChangesIt()
         {
-            using var cleared = CreateClearedHdrImage();
-            using var resized = cleared.Resize(16, 4);
-            using var sdr = new Bitmap(16, 4, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            using (var graphics = Graphics.FromImage(sdr))
+            var (whole, halves) = CreateWholeAndHalves(40, 30);
+            using (whole)
+            using (halves)
             {
-                graphics.Clear(Color.White);
-            }
+                var area = new NativeRect(2, 2, 10, 10);
+                Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> draw = (image, values) =>
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+                        SixLabors.ImageSharp.Drawing.Processing.FillRectangleExtensions.Fill(context, values.ColorOf(new Rgba32(0, 0, 255, 255)),
+                            new SixLabors.ImageSharp.RectangleF(0, 0, 10, 10)));
 
-            using var composed = resized.Compose(sdr);
+                using var drawn = ImageEdits.Draw("test", new[] { HdrOverlayStep.Of(area, draw) }).Apply(halves);
 
-            // The 8-bit image is opaque: so is the HDR file, also where the resize mixed cleared pixels in
-            for (int x = 0; x < 16; x++)
-            {
-                Assert.Equal(1f, composed.Pixels[x, 2].ToVector4().W, 2);
+                using var sdr = new Bitmap(40, 30, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using var composed = drawn.Compose(sdr);
+                Assert.True(composed.Pixels[5, 5].ToVector4().X < 0.01f, "drawn on the left display");
+                // The right display is as it was
+                using var before = halves.Compose(sdr);
+                Assert.Equal(before.Pixels[30, 5].ToVector4(), composed.Pixels[30, 5].ToVector4());
             }
-            Assert.Equal(White, composed.Pixels[0, 2].ToVector4().X, 2);
-            Assert.Equal(5f, composed.Pixels[12, 2].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Draw_WithAFilterWhichMixesPixels_IsRefused()
+        {
+            using var hdrImage = CreateHdrImage(4, 4, Gray(5));
+            var blur = new ImageFilter("Blur", (_, _) => { });
+
+            Assert.Throws<ArgumentException>(() => ImageEdits.Draw("blur", new[] { HdrOverlayStep.Of(blur) }).Apply(hdrImage));
         }
 
         [Fact]

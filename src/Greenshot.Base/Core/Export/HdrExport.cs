@@ -99,9 +99,9 @@ namespace Greenshot.Base.Core.Export
                 try
                 {
                     elements = surface.CreateHdrOverlay();
-                    // The 8-bit image is only read where the HDR image has no pixels: SDR displays next to HDR ones and cleared pixels (e.g. the
-                    // torn off teeth). The elements are drawn on the HDR pixels.
-                    bool needsSdrImage = !shared.IsComplete || shared.HasClearedPixels;
+                    // The 8-bit image is only read where the HDR image has no pixels: the parts of SDR displays next to HDR ones. Everything else,
+                    // the elements too, is drawn on the HDR pixels.
+                    bool needsSdrImage = !shared.IsComplete;
                     return (shared, needsSdrImage ? ExactCopy(surfaceImage) : null, elements, surface.CaptureDetails, (string)null);
                 }
                 catch

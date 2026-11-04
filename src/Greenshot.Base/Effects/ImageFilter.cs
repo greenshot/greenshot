@@ -34,15 +34,24 @@ namespace Greenshot.Base.Effects
     {
         /// <param name="name">What it does, for the log</param>
         /// <param name="apply">Changes the pixels of the image; gets the value of white (for an HDR image the SDR white in scRGB, 1.0 = 80 nits)</param>
-        public ImageFilter(string name, Action<Image, float> apply)
+        /// <param name="applyToPart">The same for a part of the image, null when the filter needs all of it (e.g. a blur, which mixes pixels)</param>
+        public ImageFilter(string name, Action<Image, float> apply, Action<Image, Point, float> applyToPart = null)
         {
             Name = name;
             Apply = apply ?? throw new ArgumentNullException(nameof(apply));
+            ApplyToPart = applyToPart;
         }
 
         public string Name { get; }
 
         public Action<Image, float> Apply { get; }
+
+        /// <summary>
+        /// Changes the pixels of a part of the image, e.g. of one HDR display (see HdrImage.DrawOnTiles): it gets the part, where the part's top
+        /// left corner is in the image, and the value of white. Only for a filter which changes each pixel on its own (e.g. the cut of torn
+        /// edges), null for the others.
+        /// </summary>
+        public Action<Image, Point, float> ApplyToPart { get; }
 
         public override string ToString() => Name;
 

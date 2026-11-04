@@ -164,7 +164,11 @@ later:
   Greenshot.Base/Effects). They are ImageSharp operations, which work for any pixel type, and they are only done when an HDR file
   is written. Undo removes them again.
 - **What isn't in the HDR image** comes from the SDR image when the file is written, like an SDR display: the room a border, a
-  drop shadow or a bigger canvas adds, the teeth of torn edges.
+  drop shadow or a bigger canvas adds. Nothing of the HDR displays' parts is taken from the SDR image.
+- **The torn edge effect** is drawn on the HDR pixels: the same teeth, shadow and background, over several displays on the part of
+  each HDR display (`HdrImage.RedrawTiles`).
+- **Applying torn edges or a cut mark to the image** draws the element on the HDR pixels (`ImageEdits.Draw`,
+  `HdrImage.DrawOnTiles`) with the same steps as when it is saved as an element (see 6), so the HDR file stays the same.
 - **Color effects** (grayscale, invert, adjust, remove transparency) are done on the HDR pixels in linear light, so the highlights
   stay.
 - **Monochrome and reduce colors** make an SDR result by nature (black and white, a palette). The capture loses its HDR content then (`Lost`), and the badge

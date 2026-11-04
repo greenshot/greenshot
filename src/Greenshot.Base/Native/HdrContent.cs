@@ -137,6 +137,26 @@ internal static class HdrContent
     }
 
     /// <summary>
+    /// Like <see cref="Measure(HdrImage, float)"/>, of the pixels of one part of an HDR image (one HDR display, straight alpha)
+    /// </summary>
+    internal static unsafe (float PeakInNits, float HighlightShare) Measure(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits)
+    {
+        int rowPitch = pixels.Width * HdrImage.BytesPerPixel;
+        if (pixels.DangerousTryGetSinglePixelMemory(out Memory<SixLabors.ImageSharp.PixelFormats.HalfVector4> memory))
+        {
+            using var handle = memory.Pin();
+            return Measure((IntPtr)handle.Pointer, rowPitch, pixels.Width, pixels.Height, sdrWhiteLevelInNits, false);
+        }
+        // Not one block (only when the image wasn't made with the configuration of HdrImage): copy the rows
+        var copy = new SixLabors.ImageSharp.PixelFormats.HalfVector4[(long)pixels.Width * pixels.Height];
+        pixels.CopyPixelDataTo(copy);
+        fixed (SixLabors.ImageSharp.PixelFormats.HalfVector4* first = copy)
+        {
+            return Measure((IntPtr)first, rowPitch, pixels.Width, pixels.Height, sdrWhiteLevelInNits, false);
+        }
+    }
+
+    /// <summary>
     /// A channel below this is a color outside sRGB (scRGB has the sRGB primaries), the margin covers FP16 rounding
     /// </summary>
     private const float OutsideSrgb = -0.01f;

@@ -149,29 +149,62 @@ namespace Greenshot.Base.ImageSharpDrawing
             Vector4 background) where TPixel : unmanaged, IPixel<TPixel>
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            var coverage = Coverage.Of(outline, source.Width, source.Height, IntersectionRule.NonZero);
-            float[] shadowAlpha = shadow.HasValue ? CreateShadow(coverage, source.Width, source.Height, size, shadow.Value.Darkness, shadow.Value.Size) : null;
+            return TornEdge(source, new Point(0, 0), new Size(source.Width, source.Height), outline, size, imageOffset, shadow, background,
+                new Rectangle(0, 0, size.Width, size.Height));
+        }
 
-            var result = new Image<TPixel>(source.GetConfiguration(), size.Width, size.Height);
-            result.ProcessPixelRows(source, (target, sourceRows) =>
+        /// <summary>
+        /// Like <see cref="TornEdge{TPixel}(Image{TPixel}, IPath, Size, Point, ValueTuple{float, int}?, Vector4)"/> for a part of the image only
+        /// (e.g. the part of one HDR display), as an area of the result. The shadow is the same as for the whole image: it comes from the outline
+        /// only. Where the area has no pixel of the part, it is the shadow over the background, like outside the image.
+        /// </summary>
+        /// <param name="part">The pixels of the part</param>
+        /// <param name="partLocation">Where the part is in the image</param>
+        /// <param name="imageSize">The size of the whole image, which the outline is for</param>
+        /// <param name="outline">What stays of the image, in its coordinates (ImageHelper.CreateTornEdgeOutline)</param>
+        /// <param name="size">The size of the whole result</param>
+        /// <param name="imageOffset">Where the image is in the result</param>
+        /// <param name="shadow">Darkness and size of the shadow, null for none</param>
+        /// <param name="background">The color under everything (straight alpha, in the values of the image), transparent for none</param>
+        /// <param name="area">The area of the result which is made, it is clipped to the result</param>
+        /// <returns>The pixels of the area, in the pixel type and configuration of the part</returns>
+        public static Image<TPixel> TornEdge<TPixel>(Image<TPixel> part, Point partLocation, Size imageSize, IPath outline, Size size, Point imageOffset,
+            (float Darkness, int Size)? shadow, Vector4 background, Rectangle area) where TPixel : unmanaged, IPixel<TPixel>
+        {
+            if (part == null) throw new ArgumentNullException(nameof(part));
+            if (outline == null) throw new ArgumentNullException(nameof(outline));
+            area = Rectangle.Intersect(area, new Rectangle(0, 0, size.Width, size.Height));
+            if (area.Width <= 0 || area.Height <= 0) throw new ArgumentOutOfRangeException(nameof(area), "The area is outside of the result.");
+
+            // The part is only read where it is inside the image
+            var partArea = Rectangle.Intersect(new Rectangle(partLocation.X, partLocation.Y, part.Width, part.Height), new Rectangle(0, 0, imageSize.Width, imageSize.Height));
+            var coverage = partArea.Width > 0 && partArea.Height > 0
+                ? Coverage.Of(outline.Translate(-partArea.X, -partArea.Y), partArea.Width, partArea.Height, IntersectionRule.NonZero)
+                : Array.Empty<float>();
+            float[] shadowAlpha = shadow.HasValue ? CreateShadow(outline, imageSize, size, area, shadow.Value.Darkness, shadow.Value.Size) : null;
+
+            var result = new Image<TPixel>(part.GetConfiguration(), area.Width, area.Height);
+            result.ProcessPixelRows(part, (target, partRows) =>
             {
-                for (int y = 0; y < size.Height; y++)
+                for (int y = 0; y < area.Height; y++)
                 {
                     var targetRow = target.GetRowSpan(y);
-                    int sourceY = y - imageOffset.Y;
-                    var sourceRow = sourceY >= 0 && sourceY < source.Height ? sourceRows.GetRowSpan(sourceY) : default;
-                    for (int x = 0; x < size.Width; x++)
+                    // In the coordinates of the image
+                    int imageY = area.Y + y - imageOffset.Y;
+                    bool rowInPart = imageY >= partArea.Top && imageY < partArea.Bottom;
+                    var partRow = rowInPart ? partRows.GetRowSpan(imageY - partLocation.Y) : default;
+                    for (int x = 0; x < area.Width; x++)
                     {
                         var color = background;
                         if (shadowAlpha != null)
                         {
-                            color = Over(new Vector4(0, 0, 0, shadowAlpha[y * size.Width + x]), color);
+                            color = Over(new Vector4(0, 0, 0, shadowAlpha[y * area.Width + x]), color);
                         }
-                        int sourceX = x - imageOffset.X;
-                        if (!sourceRow.IsEmpty && sourceX >= 0 && sourceX < source.Width)
+                        int imageX = area.X + x - imageOffset.X;
+                        if (rowInPart && imageX >= partArea.Left && imageX < partArea.Right)
                         {
-                            var pixel = sourceRow[sourceX].ToVector4();
-                            pixel.W *= coverage[sourceY * source.Width + sourceX];
+                            var pixel = partRow[imageX - partLocation.X].ToVector4();
+                            pixel.W *= coverage[(imageY - partArea.Y) * partArea.Width + imageX - partArea.X];
                             color = Over(pixel, color);
                         }
                         TPixel value = default;
@@ -185,44 +218,49 @@ namespace Greenshot.Base.ImageSharpDrawing
 
         /// <summary>
         /// The shadow of what stays, like ImageHelper.CreateShadow: its coverage at the darkness, at (size, size) with the odd size, blurred
-        /// with a box of the odd size twice (ImageHelper.ApplyBoxBlur)
+        /// with a box of the odd size twice (ImageHelper.ApplyBoxBlur). Only for an area of the result: the two boxes read the mask up to twice
+        /// their radius around it, the rest isn't made.
         /// </summary>
-        private static float[] CreateShadow(float[] coverage, int width, int height, Size resultSize, float darkness, int shadowSize)
+        /// <returns>The alpha of the shadow for each pixel of the area, row by row</returns>
+        private static float[] CreateShadow(IPath outline, Size imageSize, Size resultSize, Rectangle area, float darkness, int shadowSize)
         {
             int oddSize = (shadowSize & 1) == 0 ? shadowSize + 1 : shadowSize;
-            // Alpha 1 everywhere: the blur premultiplies, the shadow is in the red channel
-            using var mask = new Image<RgbaVector>(resultSize.Width, resultSize.Height, new RgbaVector(0, 0, 0, 1));
-            mask.ProcessPixelRows(accessor =>
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    int maskY = y + oddSize;
-                    if (maskY >= resultSize.Height)
-                    {
-                        break;
-                    }
-                    var row = accessor.GetRowSpan(maskY);
-                    for (int x = 0; x < width && x + oddSize < resultSize.Width; x++)
-                    {
-                        float alpha = coverage[y * width + x] * darkness;
-                        row[x + oddSize] = new RgbaVector(alpha, 0, 0, 1);
-                    }
-                }
-            });
             int radius = oddSize / 2;
+            // Where the result ends the mask ends too: there the blur works on the same pixels as for all of it
+            var maskArea = Rectangle.Intersect(Rectangle.Inflate(area, 2 * radius, 2 * radius), new Rectangle(0, 0, resultSize.Width, resultSize.Height));
+            // The coverage of the image is in the mask at (oddSize, oddSize)
+            var coverageArea = Rectangle.Intersect(new Rectangle(maskArea.X - oddSize, maskArea.Y - oddSize, maskArea.Width, maskArea.Height),
+                new Rectangle(0, 0, imageSize.Width, imageSize.Height));
+            // Alpha 1 everywhere: the blur premultiplies, the shadow is in the red channel
+            using var mask = new Image<RgbaVector>(maskArea.Width, maskArea.Height, new RgbaVector(0, 0, 0, 1));
+            if (coverageArea.Width > 0 && coverageArea.Height > 0)
+            {
+                var coverage = Coverage.Of(outline.Translate(-coverageArea.X, -coverageArea.Y), coverageArea.Width, coverageArea.Height, IntersectionRule.NonZero);
+                mask.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < coverageArea.Height; y++)
+                    {
+                        var row = accessor.GetRowSpan(coverageArea.Y + y + oddSize - maskArea.Y);
+                        for (int x = 0; x < coverageArea.Width; x++)
+                        {
+                            row[coverageArea.X + x + oddSize - maskArea.X] = new RgbaVector(coverage[y * coverageArea.Width + x] * darkness, 0, 0, 1);
+                        }
+                    }
+                });
+            }
             if (radius > 0)
             {
                 mask.Mutate(context => context.BoxBlur(radius).BoxBlur(radius));
             }
-            var shadowAlpha = new float[resultSize.Width * resultSize.Height];
+            var shadowAlpha = new float[area.Width * area.Height];
             mask.ProcessPixelRows(accessor =>
             {
-                for (int y = 0; y < resultSize.Height; y++)
+                for (int y = 0; y < area.Height; y++)
                 {
-                    var row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < resultSize.Width; x++)
+                    var row = accessor.GetRowSpan(area.Y + y - maskArea.Y);
+                    for (int x = 0; x < area.Width; x++)
                     {
-                        shadowAlpha[y * resultSize.Width + x] = row[x].R;
+                        shadowAlpha[y * area.Width + x] = row[area.X + x - maskArea.X].R;
                     }
                 }
             });

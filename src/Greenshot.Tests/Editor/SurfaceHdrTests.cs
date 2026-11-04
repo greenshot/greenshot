@@ -315,8 +315,96 @@ namespace Greenshot.Tests.Editor
             return (highlights, fromSdr);
         }
 
+        /// <summary>
+        /// Like <see cref="CreateBrightSurface"/>, but only the left half was on an HDR display: the right half is in the 8-bit image only
+        /// </summary>
+        private static Surface CreateHalfBrightSurface()
+        {
+            var bitmap = new Bitmap(100, 100, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+            var capture = new Capture(bitmap);
+            using var left = new HdrImage(50, 100, 240, 400);
+            left.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(5, 5, 5, 1));
+                }
+            });
+            var hdrImage = HdrImage.Combine(100, 100, new[] { (left, new NativePoint(0, 0)) });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+        }
+
+        /// <summary>
+        /// The HDR file of the surface as it would be written now, only the pixels of its HDR displays (the rest is the 8-bit image)
+        /// </summary>
+        private static (NativeRect[] TileAreas, System.Numerics.Vector4[,] Pixels) ComposeTiles(Surface surface)
+        {
+            using var overlay = surface.CreateHdrOverlay();
+            var hdrImage = surface.HdrImage;
+            using var composed = hdrImage.Compose((Bitmap)surface.Image, overlay);
+            var tileAreas = hdrImage.TileAreas.ToArray();
+            var pixels = new System.Numerics.Vector4[composed.Width, composed.Height];
+            foreach (var area in tileAreas)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                {
+                    for (int x = area.Left; x < area.Right; x++)
+                    {
+                        pixels[x, y] = composed.Pixels[x, y].ToVector4();
+                    }
+                }
+            }
+            return (tileAreas, pixels);
+        }
+
+        /// <summary>
+        /// Drawing the element into the image gives the HDR file which the element gives while it is on the surface: it is drawn on the HDR
+        /// pixels the same way, nothing comes from the 8-bit image
+        /// </summary>
+        private static void AssertApplyingKeepsTheHdrFile(Surface surface, DrawableContainer element)
+        {
+            var (tilesBefore, before) = ComposeTiles(surface);
+
+            Assert.True(surface.ApplyElementToImage(element));
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Empty(surface.Elements);
+            var (tilesAfter, after) = ComposeTiles(surface);
+            Assert.Equal(tilesBefore, tilesAfter);
+            int changed = 0;
+            foreach (var area in tilesAfter)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                {
+                    for (int x = area.Left; x < area.Right; x++)
+                    {
+                        var expected = before[x, y];
+                        var actual = after[x, y];
+                        Assert.True(Math.Abs(expected.W - actual.W) < 0.02f, $"alpha at {x},{y}: {expected.W} instead of {actual.W}");
+                        if (expected.W > 0.02f)
+                        {
+                            Assert.True(System.Numerics.Vector3.Distance(new System.Numerics.Vector3(expected.X, expected.Y, expected.Z),
+                                new System.Numerics.Vector3(actual.X, actual.Y, actual.Z)) < 0.05f, $"color at {x},{y}: {expected} instead of {actual}");
+                        }
+                        if (expected.W < 0.99f || expected.X < 4.9f)
+                        {
+                            changed++;
+                        }
+                    }
+                }
+            }
+            // The element did something to the HDR pixels
+            Assert.True(changed > 0, "pixels changed by the element");
+        }
+
         [Fact]
-        public void TornEdgesWithShadow_MoveTheHdrImageIntoTheRoom_DrawnIntoTheImage_OnlyTheTeethComeFromThe8BitImage()
+        public void TornEdgesWithShadow_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
         {
             using var surface = CreateBrightSurface();
             var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
@@ -326,18 +414,50 @@ namespace Greenshot.Tests.Editor
 
             Assert.Equal(HdrState.Available, surface.HdrState);
             Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
-
-            Assert.True(surface.ApplyElementToImage(tornEdges));
-
-            Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.True(surface.HdrImage.HasClearedPixels);
-            // In the middle of the band of the top teeth: the teeth come from the 8-bit image, between them the highlights stay
-            // The element chooses its own teeth: over the rows of the band some pixels are torn off, some keep the highlight
-            var (highlights, fromSdr) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
+            AssertApplyingKeepsTheHdrFile(surface, tornEdges);
+            // Still the one part of the HDR display: the teeth are drawn in it, not taken from the 8-bit image
+            Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
+            // Between the teeth the highlights stay, below the band all of it keeps them
+            var (highlights, tornOff) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
             Assert.True(highlights > 0, "highlights between the teeth");
-            Assert.True(fromSdr > 0, "torn off teeth");
-            // Below the band all of it keeps its HDR content
+            Assert.True(tornOff > 0, "torn off teeth");
             Assert.Equal((76, 0), CountRow(surface, margin + 20, margin + 12, margin + 88));
+        }
+
+        [Fact]
+        public void TornEdges_DrawnIntoTheImage_OverAnHdrAndAnSdrDisplay_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateHalfBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            var tornEdges = surface.AddTornEdges(settings);
+
+            AssertApplyingKeepsTheHdrFile(surface, tornEdges);
+            Assert.Equal(new NativeRect(0, 0, 50, 100), Assert.Single(surface.HdrImage.TileAreas));
+        }
+
+        [Fact]
+        public void CutMark_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 30, 100), CropContainer.CropModes.Vertical, CutMarkStyle.Torn, settings));
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+
+            AssertApplyingKeepsTheHdrFile(surface, cutMark);
+        }
+
+        [Fact]
+        public void CutMarkWithATransparentGap_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateHalfBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 10, 100), CropContainer.CropModes.Vertical, CutMarkStyle.Torn, settings));
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+            cutMark.SetFieldValue(FieldType.FILL_COLOR, Color.Transparent);
+            Assert.True(cutMark.HasTransparentGap);
+
+            AssertApplyingKeepsTheHdrFile(surface, cutMark);
         }
 
         [Fact]

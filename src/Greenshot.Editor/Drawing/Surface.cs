@@ -827,6 +827,42 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// What the element does to the HDR pixels when it is drawn into the image for good (see ApplyElementToImage), like in an HDR file (see
+        /// CreateHdrOverlay): the cut of torn edges and cut marks, then what the element draws, with ImageSharp. Null when it can't be done on the
+        /// HDR pixels (a filter which mixes pixels, an element without an ImageSharp drawing, e.g. of a plugin): the image loses its HDR content then.
+        /// </summary>
+        private IReadOnlyList<HdrOverlayStep> CreateHdrSteps(DrawableContainer element)
+        {
+            var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
+            var area = element.DrawingBounds.Intersect(bounds);
+            var steps = new List<HdrOverlayStep>();
+            if (ChangesPixels(element))
+            {
+                var cutAway = element.HasFilters ? null : CreateCutAway(element);
+                if (cutAway?.ApplyToPart == null)
+                {
+                    return null;
+                }
+                steps.Add(HdrOverlayStep.Of(cutAway));
+                if (!DrawsItself(element))
+                {
+                    return steps;
+                }
+            }
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                return steps;
+            }
+            var draw = ElementDrawing.Of(element, area.Location);
+            if (draw == null)
+            {
+                return null;
+            }
+            steps.Add(HdrOverlayStep.Of(area, draw));
+            return steps;
+        }
+
+        /// <summary>
         /// For torn edges and cut marks: cutting away what they cut away from the HDR pixels (ImageSharpDrawing.CutDrawing, the shape of
         /// CreateCutPath); what they draw themselves is drawn over it. Null for other elements.
         /// </summary>
@@ -852,9 +888,11 @@ namespace Greenshot.Editor.Drawing
                 if (shape == null)
                 {
                     // Nothing to cut out, the element only draws
-                    return new ImageFilter($"Nothing to cut away ({element.GetType().Name})", (_, _) => { });
+                    return new ImageFilter($"Nothing to cut away ({element.GetType().Name})", (_, _) => { }, (_, _, _) => { });
                 }
-                return new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape));
+                // Each pixel on its own: also on the part of one HDR display (see HdrImage.DrawOnTiles)
+                return new ImageFilter($"Cut away ({element.GetType().Name})", (image, _) => CutDrawing.CutAway(image, shape),
+                    (part, origin, _) => CutDrawing.CutAway(part, SixLabors.ImageSharp.Drawing.PathExtensions.Translate(shape, -origin.X, -origin.Y)));
             }
         }
 
@@ -2492,11 +2530,8 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var removedElements = new DrawableContainerList(ID) { element };
             var noElements = new List<IDrawableContainer>();
-            // What the element covers is in the 8-bit image now, the HDR image takes it from there (of torn edges only their bands)
-            var bounds = new NativeRect(0, 0, Image.Width, Image.Height);
-            var drawnAreas = (element is TornEdgeContainer tornEdges ? tornEdges.EdgeAreas() : new[] { drawableContainer.DrawingBounds }.AsEnumerable())
-                .Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList();
-            DeriveHdrImage(Image, newImage, () => ImageEdits.ClearChanged(ImageEdits.ChangedPixels(Image, newImage, new NativePoint(0, 0), drawnAreas)));
+            // The HDR image gets the same: the element is drawn on its pixels, as it is now (it is still on the surface, its cut knows the others)
+            DeriveHdrImage(Image, newImage, () => CreateHdrSteps(drawableContainer) is { } steps ? ImageEdits.Draw(element.GetType().Name, steps) : null);
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;
