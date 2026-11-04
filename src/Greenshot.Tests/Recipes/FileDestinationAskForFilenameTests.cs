@@ -402,10 +402,10 @@ namespace Greenshot.Tests.Recipes
                 surface.AddElement(highlight, false, false);
             }
 
-            using var overlay = surface.CreateHdrOverlay();
+            var steps = surface.CreateImageSharpSteps();
 
-            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Draw != null).ToArray());
-            var drawn = overlay.Steps[0];
+            Assert.Equal(new[] { true, false, false, false }, steps.Select(step => step.Draw != null).ToArray());
+            var drawn = steps[0];
             // The rectangle is drawn only where it draws, at its place
             Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));
         }

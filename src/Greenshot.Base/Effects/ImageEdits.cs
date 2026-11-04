@@ -115,12 +115,12 @@ namespace Greenshot.Base.Effects
         public static IImageEdit Resize(NativeSize size) => new ImageEdit($"Resize to {size.Width}x{size.Height}", hdrImage => hdrImage.Resize(size.Width, size.Height));
 
         /// <summary>
-        /// An element drawn into the image for good (torn edges, a cut mark which is applied to the image): its steps (see ISurface.CreateHdrOverlay)
+        /// An element drawn into the image for good (torn edges, a cut mark which is applied to the image): its steps (see ISurface.CreateImageSharpSteps)
         /// are drawn on the HDR pixels, as when the HDR file is written with the element (see HdrImage.Draw)
         /// </summary>
         /// <param name="name">What is drawn, for the log</param>
         /// <param name="steps">What the element does: the cut of its filter, then its drawing</param>
-        public static IImageEdit Draw(string name, IReadOnlyList<HdrOverlayStep> steps)
+        public static IImageEdit Draw(string name, IReadOnlyList<ImageSharpStep> steps)
         {
             if (steps == null) throw new ArgumentNullException(nameof(steps));
             return new ImageEdit($"Draw {name}", hdrImage => hdrImage.Draw(steps));

@@ -151,11 +151,11 @@ sequenceDiagram
     Save->>Export: EncodeAsync(source, "jxr")
     Export->>Surface: HdrImagePreparation
     Note over Export,Hdr: on the thread pool:<br/>the remembered edits on the HDR pixels
-    Export->>Surface: HdrState, CreateHdrOverlay()
-    Surface-->>Export: a share of the HDR image,<br/>overlay (draw steps, filters, layers)
+    Export->>Surface: HdrState, CreateImageSharpSteps()
+    Surface-->>Export: a share of the HDR image,<br/>ImageSharp steps (drawn elements, filters)
     Note over Export,Wic: on the thread pool, the editor goes on
-    Export->>Hdr: Compose(overlay)
-    Note over Hdr: the overlay steps in order
+    Export->>Hdr: Compose(steps)
+    Note over Hdr: the steps in order
     Hdr-->>Export: composed HDR image
     Export->>Wic: TryEncode(composed, "jxr")
     Wic-->>Save: the JPEG XR file
@@ -189,7 +189,9 @@ later:
 
 ## 6. Replaying: the elements on the HDR pixels
 
-`Surface.CreateHdrOverlay` turns the elements into an `HdrOverlay`, a list of steps in z-order:
+`Surface.CreateImageSharpSteps` turns the elements into a list of `ImageSharpStep`s in z-order. They take all they need from the
+elements on the UI thread, and work on any pixel type in the values of the image (`ImageValues`), so they can run later on the thread
+pool, here on the HDR image:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
   Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
@@ -219,7 +221,7 @@ flowchart LR
     E1 -->|editor type| D1[Draw step<br/>ImageSharp]
     E2 -->|highlight / obfuscate| F2[Filter step<br/>on HDR pixels]
     E3 -->|other kind| L3[HdrState Lost]
-    D1 --> O[HdrOverlay]
+    D1 --> O[ImageSharp steps]
     F2 --> O
     O --> C[HdrImage.Compose]
 ```
@@ -249,7 +251,7 @@ toward dropping System.Drawing.
 | Capturing HDR | `Greenshot.Base/Capturing/IHdrScreenCaptureBackend.cs`, `GraphicsCaptureBackend.cs`, `Native/WindowsGraphicsCaptureInterop.cs` |
 | Tone mapping | `Greenshot.Base/Native/HdrContent.cs`, `HdrToneMapper.cs`, `HdrImageToneMapping.cs` |
 | Remembered edits | `Greenshot.Base/Effects/ImageEdits.cs`, `LinearColorEffects.cs`, `FloatPixels.cs` |
-| Elements on HDR pixels | `Greenshot.Base/Core/HdrOverlay.cs`, `Greenshot.Base/ImageSharpDrawing/`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
+| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/ImageSharpStep.cs`, `Greenshot.Base/ImageSharpDrawing/`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
 | Writing and reading files | `Greenshot.Base/Core/Export/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
 | Recipes | `Greenshot.Base/Recipes/HdrOutput.cs`, the `Source`, `SaveFile` and `Notification` steps |
 

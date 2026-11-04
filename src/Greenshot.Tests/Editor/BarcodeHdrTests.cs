@@ -117,8 +117,8 @@ namespace Greenshot.Tests.Editor
             surface.AddElement(barcode, false, false);
 
             Assert.Equal(HdrState.Available, surface.HdrState);
-            using var overlay = surface.CreateHdrOverlay();
-            using var composed = surface.HdrImage.Compose(overlay);
+            var steps = surface.CreateImageSharpSteps();
+            using var composed = surface.HdrImage.Compose(steps);
 
             // The barcode is black and white at the white of the elements, the highlights around it stay
             int black = 0, white = 0;

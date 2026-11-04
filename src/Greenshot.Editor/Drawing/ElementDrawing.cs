@@ -244,7 +244,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// A copy of the bitmap's pixels: the element may change its bitmap later. Disposed when collected, an overlay step has no end of its own.
+        /// A copy of the bitmap's pixels: the element may change its bitmap later. Disposed when collected, an ImageSharpStep has no end of its own.
         /// </summary>
         private static SixLabors.ImageSharp.Image<Rgba32> PixelsOf(Bitmap bitmap)
         {

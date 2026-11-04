@@ -654,11 +654,11 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <inheritdoc />
-        public HdrOverlay CreateHdrOverlay()
+        public IReadOnlyList<ImageSharpStep> CreateImageSharpSteps()
         {
             if (_image == null || _elements == null || _elements.Count == 0)
             {
-                return null;
+                return Array.Empty<ImageSharpStep>();
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
@@ -667,7 +667,7 @@ namespace Greenshot.Editor.Drawing
             // marks) as steps between them, so they work on what is drawn before them, like in the editor. An inverted filter changes everything
             // around it. Nothing comes from the 8-bit image: an element which can't be drawn this way makes the HDR state Lost (see CanDrawOnHdr).
             var invertedGroupsDone = new HashSet<string>();
-            var steps = new List<HdrOverlayStep>();
+            var steps = new List<ImageSharpStep>();
             void AddDrawn(DrawableContainer element)
             {
                 var area = element.DrawingBounds.Intersect(bounds);
@@ -675,7 +675,7 @@ namespace Greenshot.Editor.Drawing
                 // Null: it draws nothing (e.g. an icon without its icon)
                 if (draw != null)
                 {
-                    steps.Add(HdrOverlayStep.Of(area, draw));
+                    steps.Add(ImageSharpStep.Of(area, draw));
                 }
             }
             foreach (var element in _elements.OfType<DrawableContainer>())
@@ -693,7 +693,7 @@ namespace Greenshot.Editor.Drawing
                     var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
                     if (elementFilters != null)
                     {
-                        steps.AddRange(elementFilters.Select(HdrOverlayStep.Of));
+                        steps.AddRange(elementFilters.Select(ImageSharpStep.Of));
                     }
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
@@ -707,7 +707,7 @@ namespace Greenshot.Editor.Drawing
                     AddDrawn(element);
                 }
             }
-            return new HdrOverlay(steps);
+            return steps;
         }
 
         /// <summary>
@@ -750,14 +750,15 @@ namespace Greenshot.Editor.Drawing
 
         /// <summary>
         /// What the element does to the HDR pixels when it is drawn into the image for good (see ApplyElementToImage), like in an HDR file (see
-        /// CreateHdrOverlay): the cut of torn edges and cut marks, then what the element draws, with ImageSharp. Null when it can't be done on the
-        /// HDR pixels (a filter which mixes pixels, an element without an ImageSharp drawing, e.g. of a plugin): the image loses its HDR content then.
+        /// CreateImageSharpSteps()): the cut of torn edges and cut marks, then what the element draws, with ImageSharp. Null when it can't be done
+        /// on the HDR pixels (a filter which mixes pixels, an element without an ImageSharp drawing, e.g. of a plugin): the image loses its HDR
+        /// content then.
         /// </summary>
-        private IReadOnlyList<HdrOverlayStep> CreateHdrSteps(DrawableContainer element)
+        private IReadOnlyList<ImageSharpStep> CreateImageSharpSteps(DrawableContainer element)
         {
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
             var area = element.DrawingBounds.Intersect(bounds);
-            var steps = new List<HdrOverlayStep>();
+            var steps = new List<ImageSharpStep>();
             if (ChangesPixels(element))
             {
                 var cutAway = element.HasFilters ? null : CreateCutAway(element);
@@ -765,7 +766,7 @@ namespace Greenshot.Editor.Drawing
                 {
                     return null;
                 }
-                steps.Add(HdrOverlayStep.Of(cutAway));
+                steps.Add(ImageSharpStep.Of(cutAway));
                 if (!DrawsItself(element))
                 {
                     return steps;
@@ -780,7 +781,7 @@ namespace Greenshot.Editor.Drawing
             {
                 return null;
             }
-            steps.Add(HdrOverlayStep.Of(area, draw));
+            steps.Add(ImageSharpStep.Of(area, draw));
             return steps;
         }
 
@@ -2453,7 +2454,7 @@ namespace Greenshot.Editor.Drawing
             var removedElements = new DrawableContainerList(ID) { element };
             var noElements = new List<IDrawableContainer>();
             // The HDR image gets the same: the element is drawn on its pixels, as it is now (it is still on the surface, its cut knows the others)
-            DeriveHdrImage(Image, newImage, () => CreateHdrSteps(drawableContainer) is { } steps ? ImageEdits.Draw(element.GetType().Name, steps) : null);
+            DeriveHdrImage(Image, newImage, () => CreateImageSharpSteps(drawableContainer) is { } steps ? ImageEdits.Draw(element.GetType().Name, steps) : null);
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;

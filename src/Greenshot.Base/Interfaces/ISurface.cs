@@ -29,6 +29,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Interfaces
@@ -97,10 +98,10 @@ namespace Greenshot.Base.Interfaces
         bool IsHdrRequested { get; }
 
         /// <summary>
-        /// What is drawn on the capture (the elements, the mouse cursor included), to put over the HDR image for an HDR file; null without elements.
-        /// On the UI thread, the caller disposes it.
+        /// What the elements (the mouse cursor included) do to the capture, as ImageSharp steps in their order, e.g. to draw them on the HDR image
+        /// of an HDR file (HdrImage.Compose); empty without elements. On the UI thread: the steps take all they need from the elements now.
         /// </summary>
-        HdrOverlay CreateHdrOverlay();
+        IReadOnlyList<ImageSharpStep> CreateImageSharpSteps();
 
         /// <summary>
         /// Get the current Image from the Editor for Exporting (save/upload etc)

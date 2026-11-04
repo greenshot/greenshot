@@ -197,12 +197,12 @@ namespace Greenshot.Base.Core
         private HdrImage With(Image<HalfVector4> pixels) => new HdrImage(new SharedPixels(pixels), SdrWhiteLevelInNits, DisplayPeakInNits) { IsRequested = IsRequested };
 
         /// <summary>
-        /// Steps of an overlay (see HdrOverlay.Steps) drawn into the pixels for good, as a new HDR image: e.g. torn edges or a cut mark which is
+        /// The ImageSharp steps of elements (see ISurface.CreateImageSharpSteps) drawn into the pixels for good, as a new HDR image: e.g. torn edges or a cut mark which is
         /// applied to the image in the editor. The same as <see cref="Compose"/> does with them, the white of the elements too, so the HDR file
         /// stays the same.
         /// </summary>
         /// <param name="steps">The steps, in their order</param>
-        public HdrImage Draw(IReadOnlyList<HdrOverlayStep> steps)
+        public HdrImage Draw(IReadOnlyList<ImageSharpStep> steps)
         {
             if (steps == null) throw new ArgumentNullException(nameof(steps));
             var drawn = With(Pixels.Clone());
@@ -219,9 +219,9 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Do the steps of an overlay on this HDR image while it is made, in their order: a filter works on what is drawn before it
+        /// Do the ImageSharp steps of elements on this HDR image while it is made, in their order: a filter works on what is drawn before it
         /// </summary>
-        private void DrawSteps(IEnumerable<HdrOverlayStep> steps)
+        private void DrawSteps(IEnumerable<ImageSharpStep> steps)
         {
             var (peakInNits, highlightShare) = HdrContent.Measure(this, SdrWhiteLevelInNits);
             float elementWhite = ElementWhite(peakInNits, highlightShare);
@@ -388,12 +388,12 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// The HDR image to encode it: with the elements drawn on the capture, or this one shared when there are none
         /// </summary>
-        /// <param name="overlay">What is drawn on the capture (see ISurface.CreateHdrOverlay), put over it with white halfway between SDR white and the white of the capture as the editor shows it; null for nothing</param>
+        /// <param name="steps">What the elements do to the capture (see ISurface.CreateImageSharpSteps), drawn with white halfway between SDR white and the white of the capture as the editor shows it; null or none for nothing</param>
         /// <returns>The HDR image, the caller disposes it</returns>
-        public HdrImage Compose(HdrOverlay overlay = null)
+        public HdrImage Compose(IReadOnlyList<ImageSharpStep> steps = null)
         {
             CheckNotDisposed();
-            if (overlay == null)
+            if (steps == null || steps.Count == 0)
             {
                 return Share();
             }
@@ -401,7 +401,7 @@ namespace Greenshot.Base.Core
             composed.IsRequested = false;
             try
             {
-                composed.DrawSteps(overlay.Steps);
+                composed.DrawSteps(steps);
                 return composed;
             }
             catch

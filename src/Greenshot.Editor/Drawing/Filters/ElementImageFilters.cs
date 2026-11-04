@@ -36,7 +36,7 @@ namespace Greenshot.Editor.Drawing.Filters
 {
     /// <summary>
     /// The filters of an element as ImageFilters (ImageSharp, any pixel type, in linear light), used on the HDR pixels for an HDR file (see
-    /// HdrOverlay.Filters): the highlighter, the area highlight (brightness and blur outside), grayscale, the magnifier and the blur and pixelate of
+    /// ImageSharpStep.Filter): the highlighter, the area highlight (brightness and blur outside), grayscale, the magnifier and the blur and pixelate of
     /// the obfuscate element, like on the 8-bit image. The pixelate uses the blocks and noise of the editor.
     /// </summary>
     internal static class ElementImageFilters

@@ -19,18 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using log4net;
+using ImageSharpStep = Greenshot.Base.ImageSharpDrawing.ImageSharpStep;
 
 namespace Greenshot.Base.Core.Export
 {
     /// <summary>
     /// Writes the HDR file of a capture: its HDR image (see HdrImage) with what is drawn on it
-    /// (the elements and the mouse cursor, see HdrOverlay). Used for a JPEG XR file of a capture with HDR content
+    /// (the elements and the mouse cursor, see ISurface.CreateImageSharpSteps). Used for a JPEG XR file of a capture with HDR content
     /// (the editor's Save, Save as, the file destinations) and for the HdrFormat of SaveFile.
     /// </summary>
     public static class HdrExport
@@ -72,14 +74,14 @@ namespace Greenshot.Base.Core.Export
                 preparation();
             }
 
-            // On the UI thread, which owns the surface: what is needed of it is taken (a share of the HDR image, the elements as an overlay), so the
-            // HDR file is put together and written on the thread pool while the editor goes on
-            var (surfaceHdrImage, overlay, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
+            // On the UI thread, which owns the surface: what is needed of it is taken (a share of the HDR image, the elements as ImageSharp steps),
+            // so the HDR file is put together and written on the thread pool while the editor goes on
+            var (surfaceHdrImage, steps, captureDetails, reasonText) = await source.UseSurfaceAsync(surface =>
             {
                 var state = surface.HdrState;
                 if (state == HdrState.None)
                 {
-                    return ((HdrImage)null, (HdrOverlay)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
+                    return ((HdrImage)null, (IReadOnlyList<ImageSharpStep>)null, surface.CaptureDetails, Texts.Core.HdrNotSavedNoHdr);
                 }
                 if (state == HdrState.Lost)
                 {
@@ -94,7 +96,7 @@ namespace Greenshot.Base.Core.Export
                 var shared = hdrImageNow.Share();
                 try
                 {
-                    return (shared, surface.CreateHdrOverlay(), surface.CaptureDetails, (string)null);
+                    return (shared, surface.CreateImageSharpSteps(), surface.CaptureDetails, (string)null);
                 }
                 catch
                 {
@@ -110,10 +112,9 @@ namespace Greenshot.Base.Core.Export
 
             HdrImage hdrImage;
             using (surfaceHdrImage)
-            using (overlay)
             {
                 await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-                hdrImage = surfaceHdrImage.Compose(overlay);
+                hdrImage = surfaceHdrImage.Compose(steps);
             }
             using (hdrImage)
             {

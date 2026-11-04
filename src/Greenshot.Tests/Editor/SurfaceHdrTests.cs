@@ -295,8 +295,8 @@ namespace Greenshot.Tests.Editor
 
         private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
         {
-            using var overlay = withElements ? surface.CreateHdrOverlay() : null;
-            using var composed = surface.HdrImage.Compose(overlay);
+            var steps = withElements ? surface.CreateImageSharpSteps() : null;
+            using var composed = surface.HdrImage.Compose(steps);
             int highlights = 0, fromSdr = 0;
             for (int x = fromX; x < toX; x++)
             {
@@ -344,8 +344,8 @@ namespace Greenshot.Tests.Editor
         /// </summary>
         private static (NativeRect[] TileAreas, System.Numerics.Vector4[,] Pixels) ComposeTiles(Surface surface)
         {
-            using var overlay = surface.CreateHdrOverlay();
-            using var composed = surface.HdrImage.Compose(overlay);
+            var steps = surface.CreateImageSharpSteps();
+            using var composed = surface.HdrImage.Compose(steps);
             var pixels = new System.Numerics.Vector4[composed.Width, composed.Height];
             for (int y = 0; y < composed.Height; y++)
             {
@@ -517,8 +517,8 @@ namespace Greenshot.Tests.Editor
         /// </summary>
         private static System.Collections.Generic.List<System.Numerics.Vector4> EdgePixels(Surface surface, int fromY, int toY)
         {
-            using var overlay = surface.CreateHdrOverlay();
-            using var composed = surface.HdrImage.Compose(overlay);
+            var steps = surface.CreateImageSharpSteps();
+            using var composed = surface.HdrImage.Compose(steps);
             var edge = new System.Collections.Generic.List<System.Numerics.Vector4>();
             for (int y = fromY; y < toY; y++)
             {
@@ -630,10 +630,10 @@ namespace Greenshot.Tests.Editor
                 surface.AddElement(new HighlightContainer(surface) { Left = 10 + i * 20, Top = 10, Width = 10, Height = 10 }, false, false);
             }
 
-            using var overlay = surface.CreateHdrOverlay();
+            var steps = surface.CreateImageSharpSteps();
 
-            Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
-            Assert.All(overlay.Steps, step => Assert.NotNull(step.Filter));
+            Assert.Equal(3, steps.Count(step => step.Filter != null));
+            Assert.All(steps, step => Assert.NotNull(step.Filter));
         }
 
         [Fact]
@@ -734,8 +734,8 @@ namespace Greenshot.Tests.Editor
 
         private static HdrImage Compose(Surface surface)
         {
-            using var overlay = surface.CreateHdrOverlay();
-            return surface.HdrImage.Compose(overlay);
+            var steps = surface.CreateImageSharpSteps();
+            return surface.HdrImage.Compose(steps);
         }
 
         [Theory]

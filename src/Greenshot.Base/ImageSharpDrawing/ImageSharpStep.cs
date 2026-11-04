@@ -20,48 +20,22 @@
  */
 
 using System;
-using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
-using Greenshot.Base.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.ImageSharpDrawing
 {
     /// <summary>
-    /// What is drawn on a capture (the elements of the surface), for an HDR file: it goes over the HDR image with white halfway between SDR white and the white of the capture as the editor shows it
-    /// (see HdrImage.Compose, ISurface.CreateHdrOverlay), so annotations look as on the screen and the HDR content around them keeps its highlights.
-    /// Every element is drawn with ImageSharp on the HDR pixels (see Greenshot.Base.ImageSharpDrawing), nothing comes from the 8-bit image.
+    /// One step of what the elements of the editor do to an image, as ImageSharp operations (see ISurface.CreateImageSharpSteps): an element
+    /// drawn with ImageSharp, or a filter of an element done on the pixels. The steps are made from the elements on the UI thread and take all
+    /// they need from them then, so they can run later on another thread, in their order: each changes what is before it, like in the editor.
+    /// They work on any pixel type, in the values of the image (see ImageValues), e.g. on the HDR pixels of an HDR file (HdrImage.Compose,
+    /// HdrImage.Draw).
     /// </summary>
-    public sealed class HdrOverlay : IDisposable
+    public sealed class ImageSharpStep
     {
-        /// <param name="steps">The elements drawn on the HDR pixels and the filters done on them, in the order of the elements</param>
-        public HdrOverlay(IReadOnlyList<HdrOverlayStep> steps)
-        {
-            Steps = steps ?? throw new ArgumentNullException(nameof(steps));
-        }
-
-        /// <summary>
-        /// In the order of the elements: the elements drawn with ImageSharp on the HDR pixels (arrows, text, shapes, the mouse cursor, what torn
-        /// edges draw, ...) and the filters of elements done on the HDR pixels (e.g. a highlighter, a magnifier, the cut of torn edges): each step
-        /// changes what is before it, like in the editor
-        /// </summary>
-        public IReadOnlyList<HdrOverlayStep> Steps { get; }
-
-        /// <summary>
-        /// Nothing to release: the steps hold only managed data
-        /// </summary>
-        public void Dispose()
-        {
-        }
-    }
-
-    /// <summary>
-    /// A step of an HdrOverlay: an element drawn on the HDR pixels, or a filter of an element done on the HDR pixels
-    /// </summary>
-    public sealed class HdrOverlayStep
-    {
-        private HdrOverlayStep(NativePoint location, ImageFilter filter, NativeSize size = default, Action<Image, ImageValues> draw = null)
+        private ImageSharpStep(NativePoint location, ImageFilter filter, NativeSize size = default, Action<Image, ImageValues> draw = null)
         {
             Location = location;
             Filter = filter;
@@ -70,14 +44,17 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// An element drawn with ImageSharp on the HDR pixels of the area
+        /// An element drawn with ImageSharp on the pixels of the area
         /// </summary>
         /// <param name="area">Where the element draws, inside the capture</param>
         /// <param name="draw">Draws the element on an image of the area (its top left corner is the area's), in the values given</param>
-        public static HdrOverlayStep Of(NativeRect area, Action<Image, ImageValues> draw) =>
+        public static ImageSharpStep Of(NativeRect area, Action<Image, ImageValues> draw) =>
             new(area.Location, null, area.Size, draw ?? throw new ArgumentNullException(nameof(draw)));
 
-        public static HdrOverlayStep Of(ImageFilter filter) => new(new NativePoint(0, 0), filter ?? throw new ArgumentNullException(nameof(filter)));
+        /// <summary>
+        /// A filter of an element, done on all of the image (it knows its areas)
+        /// </summary>
+        public static ImageSharpStep Of(ImageFilter filter) => new(new NativePoint(0, 0), filter ?? throw new ArgumentNullException(nameof(filter)));
 
         /// <summary>
         /// Where the area of a drawn element is in the capture

@@ -441,9 +441,8 @@ namespace Greenshot.Tests.Core
                 SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
                     SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(context, values.ColorOf(new Rgba32(255, 0, 0, 255)), 3f,
                         new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));
-            var steps = new[] { HdrOverlayStep.Of(cutAway), HdrOverlayStep.Of(area, draw) };
-            using var overlay = new HdrOverlay(steps);
-            using var saved = hdrImage.Compose(overlay);
+            var steps = new[] { Greenshot.Base.ImageSharpDrawing.ImageSharpStep.Of(cutAway), Greenshot.Base.ImageSharpDrawing.ImageSharpStep.Of(area, draw) };
+            using var saved = hdrImage.Compose(steps);
 
             using var drawn = ImageEdits.Draw("test", steps).Apply(hdrImage);
             for (int y = 0; y < 30; y++)
