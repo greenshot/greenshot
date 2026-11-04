@@ -44,16 +44,22 @@ namespace Greenshot.Base.Interfaces
         Image Image { get; set; }
 
         /// <summary>
-        /// The HDR image of the capture on an HDR display (see HdrImage), null without one. Owned by the capture: set disposes the previous one,
-        /// the surface takes it over together with the image (see NullImage).
+        /// The HDR image of the capture on an HDR display (see HdrImage), null without one or while its HDR parts aren't joined yet (see HdrParts).
+        /// Owned by the capture: set disposes the previous one, the surface takes it over together with the image (see NullImage).
         /// </summary>
         HdrImage HdrImage { get; set; }
 
         /// <summary>
-        /// The HDR images of the HDR displays of a screen capture which aren't joined into HdrImage yet (e.g. of the frozen screen while the
-        /// region is selected), null without them: Crop joins only the area, reading HdrImage joins all of it. Owned by the capture.
+        /// The HDR images of the HDR displays of a capture which aren't joined into HdrImage yet (e.g. of the frozen screen while the region is
+        /// selected), null without them: Crop joins only the area, JoinHdrParts all of it. Owned by the capture.
         /// </summary>
         HdrParts HdrParts { get; set; }
+
+        /// <summary>
+        /// Join the HDR parts (see HdrParts) of all of the capture into HdrImage, e.g. when the capture goes into the editor as it is: without
+        /// parts nothing is done
+        /// </summary>
+        void JoinHdrParts();
 
         /// <summary>
         /// Null the image and the HDR image without disposing them: the surface took them over

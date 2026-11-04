@@ -70,9 +70,10 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <inheritdoc />
-        public Task<(Bitmap Image, HdrImage HdrImage)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
+        public async Task<(Bitmap Image, HdrParts HdrParts)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
-            return WindowsGraphicsCaptureInterop.CaptureWindowWithHdrAsync(window.Handle, cancellationToken);
+            var (image, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureWindowWithHdrAsync(window.Handle, cancellationToken).ConfigureAwait(false);
+            return (image, HdrParts.Of(hdrImage));
         }
     }
 }

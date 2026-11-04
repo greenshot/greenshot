@@ -106,17 +106,24 @@ with straight alpha. It is one image of the captured area, like the SDR image: w
 the SDR displays are put in from the SDR image at the SDR white level (`HdrImage.Combine`), so they look as they did on the screen.
 
 This join waits until the area is known. A capture of the screen first keeps only the HDR images of its HDR displays (`HdrParts`,
-`ICapture.HdrParts`), e.g. the frozen screen while the region is selected. Cropping the capture to the selection (`Capture.Crop`)
-joins only that area, and a capture used as it is (the whole screen) is joined when its `HdrImage` is first read. An area with no
-HDR content (e.g. only on an SDR display, or only normal windows) gets no `HdrImage`.
+`ICapture.HdrParts`), e.g. the frozen screen while the region is selected; a window capture keeps its HDR image as one part.
+The join is explicit: cropping the capture to the selection (`Capture.Crop`) joins only that area, and a capture used as it is
+(the whole screen, a window) is joined when the editor takes it (`ICapture.JoinHdrParts`). Reading `HdrImage` never joins, and
+`payload.hdr` asks the parts without joining them. Each part is copied once, straight into the joined image; one part which
+covers all of it is shared, not copied. Whether there is HDR content is measured on the parts, only where they are in the area,
+against the SDR white of the joined image (that of the first display), and the joined image keeps that answer. For all of the
+capture it is measured once: `payload.hdr` and the join give the same answer. An area with no HDR content (e.g. only on an SDR display, or only normal windows) gets no
+`HdrImage`, also when HDR was asked for (`IsRequested`): no HDR content, no HDR image. The same goes for a crop, e.g. of an
+opened JPEG XR file.
 
 **Memory:** the HDR image of the captured area takes 8 bytes per pixel (twice the SDR image), also for the parts of SDR displays in
 it. While the region is selected on the frozen screen, only the HDR displays are held, at 8 bytes per pixel. A capture without HDR
 content costs nothing extra. For example, a region of 1920x1080 takes about 16 MB more; the whole screen of three 4K displays takes
 about 200 MB more, also when only one of them is HDR.
 
-The `HdrImage` belongs to its SDR image (`BelongTo`). Copies of a capture or a surface share the pixels, each with its own
-`HdrImage`.
+The `HdrImage` (or the `HdrParts`) belongs to its SDR image (`BelongTo`, set once where the capture is made, in
+`ScreenCaptureResult`). Copies of a capture or a surface share the pixels, each with its own `HdrImage`; a copy of a capture which
+isn't joined yet shares the parts.
 
 `HdrState` tells what can be done with it. Recipes see it as `payload.hdr`, the editor shows it with the badge:
 

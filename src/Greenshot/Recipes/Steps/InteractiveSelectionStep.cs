@@ -247,12 +247,8 @@ namespace Greenshot.Recipes.Steps
                 context.Abort($"Capturing the selection {screenArea} failed.");
                 return false;
             }
-            // Only the selection is captured: its HDR parts are joined when the HDR image is first read
+            // Only the selection is captured: its HDR parts are joined when all of it is used (JoinHdrParts)
             capture.HdrParts = result.HdrParts;
-            if (result.HdrImage != null)
-            {
-                capture.HdrImage = result.HdrImage;
-            }
             if (context.CaptureHdrRequested)
             {
                 HdrParts.MarkRequested(capture);

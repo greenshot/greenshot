@@ -179,6 +179,7 @@ namespace Greenshot.Tests.Recipes
             public Image Image { get; set; }
             public HdrImage HdrImage { get; set; }
             public HdrParts HdrParts { get; set; }
+            public void JoinHdrParts() { }
             public void NullImage() => Image = null;
             public NativeRect ScreenBounds { get; set; }
             public CapturedCursor Cursor { get; set; }

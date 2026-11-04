@@ -110,7 +110,7 @@ namespace Greenshot.Base.Core
 
         public void NullImage()
         {
-            // The surface took the image and the HDR image (it reads HdrImage, which joins the parts); parts which nobody took are released
+            // The surface took the image and the HDR image (after JoinHdrParts); parts which nobody took are released
             _hdrParts?.Dispose();
             _hdrParts = null;
             _image = null;
@@ -122,11 +122,7 @@ namespace Greenshot.Base.Core
         /// <inheritdoc />
         public HdrImage HdrImage
         {
-            get
-            {
-                JoinHdrParts();
-                return _hdrImage;
-            }
+            get => _hdrImage;
             set
             {
                 HdrParts = null;
@@ -159,10 +155,8 @@ namespace Greenshot.Base.Core
             }
         }
 
-        /// <summary>
-        /// The parts which aren't joined yet into the HDR image of all of the capture, e.g. a capture of the whole screen which isn't cropped
-        /// </summary>
-        private void JoinHdrParts()
+        /// <inheritdoc />
+        public void JoinHdrParts()
         {
             if (_hdrParts == null)
             {
@@ -324,9 +318,9 @@ namespace Greenshot.Base.Core
             else
             {
                 // The HDR image shows the same area as the image, when it belonged to the image; without HDR content in the area (e.g. only the part
-                // of an SDR display) it isn't kept, unless HDR was asked for (e.g. an opened JPEG XR file): Save as still suggests JPEG XR then
+                // of an SDR display) it isn't kept, also when HDR was asked for: no HDR content, no HDR image
                 var cropped = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
-                if (cropped != null && !cropped.IsRequested && !cropped.HasHdrContent)
+                if (cropped != null && !cropped.HasHdrContent)
                 {
                     cropped.Dispose();
                     cropped = null;
@@ -371,6 +365,12 @@ namespace Greenshot.Base.Core
             {
                 clone.HdrImage = HdrImage.Share();
                 clone.HdrImage.BelongTo(clone.Image);
+            }
+            // Parts which aren't joined yet stay so in the copy too (shared, not copied)
+            if (HdrParts != null && HdrParts.BelongsTo(Image))
+            {
+                clone.HdrParts = HdrParts.Share();
+                clone.HdrParts.BelongTo(clone.Image);
             }
 
             if (Cursor != null)

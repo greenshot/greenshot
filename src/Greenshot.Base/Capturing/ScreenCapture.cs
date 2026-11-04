@@ -98,7 +98,7 @@ namespace Greenshot.Base.Capturing
             }
             return CaptureWithHdrAsync(_backends,
                 backend => backend is IHdrScreenCaptureBackend hdrBackend
-                    ? WithPartsAsync(hdrBackend.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken))
+                    ? hdrBackend.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken)
                     : WithoutHdrAsync(backend.CaptureRectangleAsync(captureBounds, cancellationToken)),
                 () => captureBounds.Location, $"area {captureBounds}", cancellationToken);
         }
@@ -140,24 +140,12 @@ namespace Greenshot.Base.Capturing
             }
             return CaptureWithHdrAsync(_backends,
                 backend => backend is IHdrScreenCaptureBackend hdrBackend
-                    ? WithImageAsync(hdrBackend.CaptureWindowWithHdrAsync(window, cancellationToken))
+                    ? hdrBackend.CaptureWindowWithHdrAsync(window, cancellationToken)
                     : WithoutHdrAsync(backend.CaptureWindowAsync(window, cancellationToken)),
                 () => window.GetInfo(forceUpdate: true).Bounds.Location, $"window {window.Handle} ('{window.GetCaption()}')", cancellationToken);
         }
 
-        private static async Task<(Bitmap Image, HdrImage HdrImage, HdrParts HdrParts)> WithoutHdrAsync(Task<Bitmap> capture) => (await capture.ConfigureAwait(false), null, null);
-
-        private static async Task<(Bitmap Image, HdrImage HdrImage, HdrParts HdrParts)> WithImageAsync(Task<(Bitmap Image, HdrImage HdrImage)> capture)
-        {
-            var (image, hdrImage) = await capture.ConfigureAwait(false);
-            return (image, hdrImage, null);
-        }
-
-        private static async Task<(Bitmap Image, HdrImage HdrImage, HdrParts HdrParts)> WithPartsAsync(Task<(Bitmap Image, HdrParts HdrParts)> capture)
-        {
-            var (image, hdrParts) = await capture.ConfigureAwait(false);
-            return (image, null, hdrParts);
-        }
+        private static async Task<(Bitmap Image, HdrParts HdrParts)> WithoutHdrAsync(Task<Bitmap> capture) => (await capture.ConfigureAwait(false), null);
 
         /// <summary>
         /// Try the backends in order, the first which delivers pixels wins
@@ -168,7 +156,7 @@ namespace Greenshot.Base.Capturing
         /// <summary>
         /// Try the backends in order, the first which delivers pixels wins (with HDR image, when it delivers them)
         /// </summary>
-        internal static async Task<ScreenCaptureResult> CaptureWithHdrAsync(IReadOnlyList<IScreenCaptureBackend> backends, Func<IScreenCaptureBackend, Task<(Bitmap Image, HdrImage HdrImage, HdrParts HdrParts)>> capture, Func<NativePoint> location, string description, CancellationToken cancellationToken)
+        internal static async Task<ScreenCaptureResult> CaptureWithHdrAsync(IReadOnlyList<IScreenCaptureBackend> backends, Func<IScreenCaptureBackend, Task<(Bitmap Image, HdrParts HdrParts)>> capture, Func<NativePoint> location, string description, CancellationToken cancellationToken)
         {
             Exception lastException = null;
             foreach (var backend in backends)
@@ -182,13 +170,12 @@ namespace Greenshot.Base.Capturing
                 try
                 {
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    var (bitmap, hdrImage, hdrParts) = await capture(backend).ConfigureAwait(false);
+                    var (bitmap, hdrParts) = await capture(backend).ConfigureAwait(false);
                     if (bitmap != null)
                     {
-                        Log.Debug($"{backend.Name} captured the {description} in {stopwatch.ElapsedMilliseconds} ms{(hdrImage != null || hdrParts != null ? ", with HDR image" : string.Empty)}.");
-                        return new ScreenCaptureResult(bitmap, location(), backend, hdrImage, hdrParts);
+                        Log.Debug($"{backend.Name} captured the {description} in {stopwatch.ElapsedMilliseconds} ms{(hdrParts != null ? ", with HDR image" : string.Empty)}.");
+                        return new ScreenCaptureResult(bitmap, location(), backend, hdrParts);
                     }
-                    hdrImage?.Dispose();
                     hdrParts?.Dispose();
                     Log.Debug($"{backend.Name} returned nothing for the {description}, trying the next backend.");
                 }
@@ -218,28 +205,21 @@ namespace Greenshot.Base.Capturing
     /// </summary>
     public sealed class ScreenCaptureResult
     {
-        public ScreenCaptureResult(Bitmap image, NativePoint location, IScreenCaptureBackend backend, HdrImage hdrImage = null, HdrParts hdrParts = null)
+        public ScreenCaptureResult(Bitmap image, NativePoint location, IScreenCaptureBackend backend, HdrParts hdrParts = null)
         {
             Image = image ?? throw new ArgumentNullException(nameof(image));
             Location = location;
             Backend = backend ?? throw new ArgumentNullException(nameof(backend));
-            HdrImage = hdrImage;
             HdrParts = hdrParts;
-            // The HDR image shows this image, see HdrImage.BelongsTo
-            hdrImage?.BelongTo(image);
+            // The HDR parts show this image, see HdrParts.BelongsTo: set here only
             hdrParts?.BelongTo(image);
         }
 
         /// <summary>
-        /// The HDR images of the HDR displays in the area, not joined yet (a capture of an area of the screen): the receiver owns them
-        /// (ICapture.HdrParts), which join them once the area is known
+        /// The HDR images of the HDR displays in the area (of a window: its HDR image), not joined yet, when it was asked for and the area was on
+        /// an HDR display: the receiver owns them (ICapture.HdrParts), which join them once the area is known
         /// </summary>
         public HdrParts HdrParts { get; }
-
-        /// <summary>
-        /// The HDR image of the same area as the image, when it was asked for and the area was on an HDR display. The receiver owns it (e.g. ICapture.HdrImage)
-        /// </summary>
-        public HdrImage HdrImage { get; }
 
         /// <summary>
         /// The pixels, the receiver owns them

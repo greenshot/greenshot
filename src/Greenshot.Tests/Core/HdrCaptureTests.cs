@@ -92,18 +92,18 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void ScreenCaptureResult_LinksTheHdrImageToItsImage()
+    public void ScreenCaptureResult_LinksTheHdrPartsToItsImage()
     {
-        var pixels = CreatePixels(2, 2, (x, y) => Rgba(1, 1, 1));
+        using var parts = HdrParts.Of(CreatePixels(2, 2, (x, y) => Rgba(1, 1, 1)));
         using var image = new Bitmap(2, 2);
         using var otherImage = new Bitmap(2, 2);
 
-        _ = new ScreenCaptureResult(image, new NativePoint(0, 0), new GraphicsCaptureBackend(), pixels);
+        _ = new ScreenCaptureResult(image, new NativePoint(0, 0), new GraphicsCaptureBackend(), parts);
 
-        Assert.True(pixels.BelongsTo(image));
-        // An effect or the editor replaces the image: the HDR image no longer show it
-        Assert.False(pixels.BelongsTo(otherImage));
-        Assert.False(pixels.BelongsTo(null));
+        Assert.True(parts.BelongsTo(image));
+        // An effect or the editor replaces the image: the HDR parts no longer show it
+        Assert.False(parts.BelongsTo(otherImage));
+        Assert.False(parts.BelongsTo(null));
     }
 
     [Fact]
@@ -254,10 +254,21 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void FrozenScreen_ReadWithoutACrop_IsJoined_TheSdrMonitorAtTheSdrWhiteLevel_TheHdrMonitorKeepsItsHighlights()
+    public void FrozenScreen_ReadWithoutACrop_IsNotJoined()
     {
         using var capture = CreateFrozenScreen();
 
+        // Reading has no side effect: the parts stay until the area is known (Crop) or all of it is used (JoinHdrParts)
+        Assert.Null(capture.HdrImage);
+        Assert.NotNull(capture.HdrParts);
+    }
+
+    [Fact]
+    public void FrozenScreen_JoinHdrParts_TheSdrMonitorAtTheSdrWhiteLevel_TheHdrMonitorKeepsItsHighlights()
+    {
+        using var capture = CreateFrozenScreen();
+
+        capture.JoinHdrParts();
         var hdrImage = capture.HdrImage;
 
         // One image of all of it: the SDR monitor from the 8-bit image, the HDR monitor keeps its highlights (not the black of the 8-bit image)
@@ -319,20 +330,18 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void Crop_OfARequestedHdrImage_WithoutHdrContentInTheArea_KeepsIt()
+    public void Crop_OfARequestedHdrImage_WithoutHdrContentInTheArea_DropsIt()
     {
-        // E.g. an opened JPEG XR file: HDR was asked for, Save as suggests JPEG XR also for a crop without highlights
+        // E.g. an opened JPEG XR file, cropped to a part without highlights: no HDR content, no HDR image
         using var capture = new Capture { Image = new Bitmap(4, 2) };
-        var pixels = CreatePixels(4, 2, (x, y) => Rgba(1f, 1f, 1f));
+        var pixels = CreatePixels(4, 2, (x, y) => x == 0 ? Rgba(5f, 5f, 5f) : Rgba(1f, 1f, 1f));
         pixels.IsRequested = true;
         pixels.BelongTo(capture.Image);
         capture.HdrImage = pixels;
 
         Assert.True(capture.Crop(new NativeRect(1, 0, 2, 2)));
 
-        Assert.NotNull(capture.HdrImage);
-        Assert.True(capture.HdrImage.IsRequested);
-        Assert.False(capture.HdrImage.HasHdrContent);
+        Assert.Null(capture.HdrImage);
     }
 
     [Fact]
@@ -356,6 +365,7 @@ public class HdrCaptureTests
     public void Crop_OfAJoinedImage_WithoutHdrContentInTheArea_DropsIt()
     {
         using var capture = CreateFrozenScreen();
+        capture.JoinHdrParts();
         Assert.NotNull(capture.HdrImage);
 
         Assert.True(capture.Crop(new NativeRect(2, 0, 2, 1)));
@@ -374,6 +384,180 @@ public class HdrCaptureTests
         using var joined = parts.Join(result, new NativeRect(0, 0, 2, 1));
 
         Assert.Same(hdr.Pixels, joined.Pixels);
+    }
+
+    [Fact]
+    public void FrozenScreen_Clone_SharesTheParts_WithoutJoining()
+    {
+        using var capture = CreateFrozenScreen();
+
+        using var clone = capture.Clone();
+
+        Assert.Null(capture.HdrImage);
+        Assert.Null(clone.HdrImage);
+        Assert.NotSame(capture.HdrParts, clone.HdrParts);
+        Assert.True(clone.HdrParts.BelongsTo(clone.Image));
+        // Each joins its own: the parts of the clone stay when the original is gone
+        capture.Dispose();
+        Assert.True(clone.Crop(new NativeRect(1, 0, 2, 1)));
+        Assert.Equal(5f, Get(clone.HdrImage, 0, 0)[0], 2);
+    }
+
+    [Theory]
+    [InlineData(true, HdrOutput.StateAvailable)]
+    [InlineData(false, HdrOutput.StateNone)]
+    public void FrozenScreen_PayloadHdr_AsksTheParts_WithoutJoining(bool withHighlights, string expected)
+    {
+        using var capture = CreateFrozenScreen(withHighlights);
+
+        Assert.Equal(expected, HdrOutput.StateOf(new CapturePayload(capture)));
+        Assert.Null(capture.HdrImage);
+        Assert.NotNull(capture.HdrParts);
+    }
+
+    [Fact]
+    public void Join_MeasuresOnlyTheSelectedPartOfAnHdrDisplay()
+    {
+        // A highlight only in the left pixel of the HDR display
+        using var hdr = CreatePixels(2, 1, (x, y) => x == 0 ? Rgba(5f, 5f, 5f) : Rgba(1f, 1f, 1f));
+        var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
+        using var parts = WindowsGraphicsCaptureInterop.CreateHdrParts(requests);
+        using var area = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+        Assert.Null(parts.Join(area, new NativeRect(1, 0, 1, 1)));
+        using var joined = parts.Join(area, new NativeRect(0, 0, 1, 1));
+        Assert.Equal(5f, Get(joined, 0, 0)[0], 2);
+        Assert.True(joined.HasHdrContent);
+        Assert.True(joined.BelongsTo(area));
+    }
+
+    [Fact]
+    public void Join_OfRequestedParts_WithoutHdrContent_HasNoHdrImage()
+    {
+        // E.g. a normal window captured with HDR asked for: no HDR content, no HDR image
+        using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        var pixels = CreatePixels(2, 1, (x, y) => Rgba(1f, 1f, 1f));
+        pixels.IsRequested = true;
+        using var parts = HdrParts.Of(pixels);
+
+        Assert.Null(parts.Join(image, new NativeRect(0, 0, 2, 1)));
+    }
+
+    [Fact]
+    public void Join_OfRequestedParts_WithHdrContent_IsRequested()
+    {
+        using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        var pixels = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        pixels.IsRequested = true;
+        using var parts = HdrParts.Of(pixels);
+
+        using var joined = parts.Join(image, new NativeRect(0, 0, 2, 1));
+
+        Assert.True(joined.IsRequested);
+        Assert.True(joined.HasHdrContent);
+        Assert.True(joined.BelongsTo(image));
+    }
+
+    [Fact]
+    public void WindowCapture_AsParts_JoinSharesThePixels()
+    {
+        var pixels = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        using var capture = new Capture(new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)) { HdrParts = HdrParts.Of(pixels) };
+        capture.HdrParts.BelongTo(capture.Image);
+        var shared = pixels.Pixels;
+
+        capture.JoinHdrParts();
+
+        // The parts are released, their pixels live on in the joined image
+        Assert.Null(capture.HdrParts);
+        Assert.Same(shared, capture.HdrImage.Pixels);
+        Assert.True(capture.HdrImage.BelongsTo(capture.Image));
+    }
+
+    [Fact]
+    public void Surface_JoinsThePartsOfAnUncroppedCapture()
+    {
+        var capture = CreateFrozenScreen();
+
+        var surface = WinFormsContextGuard.CreateWithoutContext(() => new Greenshot.Editor.Drawing.Surface(capture));
+        try
+        {
+            // All of it, the SDR monitor at the SDR white level
+            Assert.Null(capture.HdrParts);
+            Assert.Equal(4, surface.HdrImage.Width);
+            Assert.Equal(5f, Get(surface.HdrImage, 0, 0)[0], 2);
+            Assert.Equal(SdrWhite, Get(surface.HdrImage, 2, 0)[0], 2);
+            Assert.True(surface.HdrImage.BelongsTo(surface.Image));
+        }
+        finally
+        {
+            capture.Dispose();
+            surface.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Join_OfDisplaysWithDifferentSdrWhite_MeasuresAgainstTheWhiteOfTheJoinedImage()
+    {
+        // The first display at 240 nits SDR white (3.0, the white of the joined image), the second at 80 nits (1.0): 200 nits (2.5) are
+        // brighter than the white of the second display, but not than the white of the joined image
+        using var first = CreatePixels(1, 1, (x, y) => Rgba(SdrWhite, SdrWhite, SdrWhite));
+        using var second = new HdrImage(1, 1, 80, 400);
+        Set(second, 0, 0, Rgba(2.5f, 2.5f, 2.5f));
+        using var parts = new HdrParts(new[] { (first.Share(), new NativePoint(0, 0)), (second.Share(), new NativePoint(1, 0)) });
+        using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+        Assert.Null(parts.Join(image, new NativeRect(0, 0, 2, 1)));
+
+        // A highlight above the white of the joined image is HDR content, and the joined image measures alike (new parts: they measure once)
+        Set(second, 0, 0, Rgba(5f, 5f, 5f));
+        using var brighter = new HdrParts(new[] { (first.Share(), new NativePoint(0, 0)), (second.Share(), new NativePoint(1, 0)) });
+        using var joined = brighter.Join(image, new NativeRect(0, 0, 2, 1));
+        Assert.True(joined.HasHdrContent);
+        Assert.Equal(SdrWhiteNits, joined.SdrWhiteLevelInNits);
+    }
+
+    [Theory]
+    [InlineData(2.5f, HdrOutput.StateNone)]
+    [InlineData(5f, HdrOutput.StateAvailable)]
+    public void PayloadHdr_AndTheJoin_Agree_ForDisplaysWithDifferentSdrWhite(float secondDisplay, string expected)
+    {
+        // The first display at 240 nits SDR white (3.0), the second at 80 nits (1.0): 2.5 is brighter than its own white only
+        var first = CreatePixels(1, 1, (x, y) => Rgba(SdrWhite, SdrWhite, SdrWhite));
+        var second = new HdrImage(1, 1, 80, 400);
+        Set(second, 0, 0, Rgba(secondDisplay, secondDisplay, secondDisplay));
+        using var capture = new Capture(new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+        {
+            HdrParts = new HdrParts(new[] { (first, new NativePoint(0, 0)), (second, new NativePoint(1, 0)) })
+        };
+        capture.HdrParts.BelongTo(capture.Image);
+
+        Assert.Equal(expected, HdrOutput.StateOf(new CapturePayload(capture)));
+        capture.JoinHdrParts();
+
+        Assert.Equal(expected == HdrOutput.StateAvailable, capture.HdrImage != null);
+    }
+
+    [Fact]
+    public void Join_OfAllOfTheCapture_UsesTheMeasuredAnswer_OfASmallerAreaMeasures()
+    {
+        using var hdr = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        var requests = new[] { new WindowsGraphicsCaptureInterop.CaptureRequest(null, null, "hdr") { HdrImage = hdr, TargetLocation = Point.Empty, TargetSourceRect = new Rectangle(0, 0, 2, 1) } };
+        using var parts = WindowsGraphicsCaptureInterop.CreateHdrParts(requests);
+        Assert.True(parts.HasHdrContent);
+        // The highlights are gone after it was measured (only to see which join measures again: the pixels are never changed)
+        foreach (var x in new[] { 0, 1 })
+        {
+            Set(hdr, x, 0, Rgba(1f, 1f, 1f));
+        }
+        using var all = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using var one = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+        // All of the capture: the answer of HasHdrContent, no second scan
+        using var joined = parts.Join(all, new NativeRect(0, 0, 2, 1));
+        Assert.NotNull(joined);
+        // A smaller area measures its part
+        Assert.Null(parts.Join(one, new NativeRect(1, 0, 1, 1)));
     }
 
     [Fact]
