@@ -63,9 +63,8 @@ A fixed blur radius or pixel size that hides small text leaves large text readab
   `PixelSizeTextHeightPercent`).
 - **An obfuscation you draw:** when you draw it, the obfuscation gets the same percentage of the height of the OCR lines it covers
   (the median, a line counts when at least half its height is inside). OCR isn't started for this: the lines are there when the
-  Redact Text window, a recipe OCR step or the text capture found them. Without OCR lines, the height of the drawn area is used,
-  so a box over one line of text fits that line and a taller box gets a stronger effect.
-  Afterwards the toolbar changes the value as before.
+  Redact Text window, a recipe OCR step or the text capture found them. Without OCR lines under it, the obfuscation keeps the
+  last used value of the toolbar, as before. Afterwards the toolbar changes the value as before.
 - **Recipes:** the `TextEffect` step takes `BlurRadiusTextHeightPercent` and `PixelSizeTextHeightPercent` (same defaults).
 
 Why these values: from about half the text height on, blurred or pixelated text can't be read by eye; at a quarter (for example

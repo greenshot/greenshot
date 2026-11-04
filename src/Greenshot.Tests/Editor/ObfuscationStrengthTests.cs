@@ -134,16 +134,19 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void DrawnObfuscation_WithoutOcrLines_FitsItsOwnHeight()
+        public void DrawnObfuscation_WithoutCoveredOcrLines_KeepsTheLastUsedValue()
         {
             using var surface = new Surface(new Bitmap(400, 300));
+            // Enter draws 160x80 at 120,110, this line is outside
+            surface.CaptureDetails.Features.Add(Line(0, 250, 400, 20));
             surface.DrawingMode = DrawingModes.Obfuscate;
+            var undrawn = new ObfuscateContainer(surface);
+            int lastUsed = Strength(undrawn);
 
             Assert.True(surface.ProcessCanvasKey(Keys.Enter));
 
             var obfuscate = Assert.Single(surface.Elements.OfType<ObfuscateContainer>());
-            Assert.Equal(80, obfuscate.Height);
-            Assert.Equal(Expected(obfuscate, 80), Strength(obfuscate));
+            Assert.Equal(lastUsed, Strength(obfuscate));
         }
     }
 }

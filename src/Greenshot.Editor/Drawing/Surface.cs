@@ -2774,8 +2774,8 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// A new obfuscation gets the strength for the text it covers: the OCR lines the capture already has, otherwise its own height.
-        /// OCR isn't started for this.
+        /// A new obfuscation over OCR lines the capture already has gets the strength for that text.
+        /// Without OCR lines it keeps the last used value of the toolbar, OCR isn't started for this.
         /// </summary>
         private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
         {
@@ -2789,9 +2789,13 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            int textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, bounds) ?? bounds.Height;
+            int? textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, bounds);
+            if (!textHeight.HasValue)
+            {
+                return;
+            }
             var editorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
-            ObfuscationStrength.FitToText(obfuscateContainer, textHeight,
+            ObfuscationStrength.FitToText(obfuscateContainer, textHeight.Value,
                 editorConfig?.BlurRadiusTextHeightPercent ?? ObfuscationStrength.DefaultBlurRadiusPercent,
                 editorConfig?.PixelSizeTextHeightPercent ?? ObfuscationStrength.DefaultPixelSizePercent);
 
