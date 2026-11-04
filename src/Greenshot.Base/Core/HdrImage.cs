@@ -29,6 +29,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Effects;
+using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -469,7 +470,11 @@ namespace Greenshot.Base.Core
                     // The elements in their order: a filter works on what is drawn before it
                     foreach (var step in overlay.Steps)
                     {
-                        if (step.Layer != null)
+                        if (step.Draw != null)
+                        {
+                            composed.DrawOver(new NativeRect(step.Location, step.Size), step.Draw);
+                        }
+                        else if (step.Layer != null)
                         {
                             composed.BlendSdrOver(step.Layer, step.Location);
                         }
@@ -938,6 +943,33 @@ namespace Greenshot.Base.Core
             {
                 source.UnlockBits(bitmapData);
             }
+        }
+
+        /// <summary>
+        /// Draw an element with ImageSharp on the area of this complete HDR image while it is made: on float pixels (ImageSharp mixes HalfVector4
+        /// wrongly, see FloatPixels), its colors at the SDR white level
+        /// </summary>
+        private void DrawOver(NativeRect area, Action<Image, ImageValues> draw)
+        {
+            if (area.Width <= 0 || area.Height <= 0 || area.X < 0 || area.Y < 0 || area.Right > Width || area.Bottom > Height)
+            {
+                return;
+            }
+            var rectangle = new Rectangle(area.X, area.Y, area.Width, area.Height);
+            using var canvas = FloatPixels.Of(Pixels, rectangle);
+            draw(canvas, ImageValues.Linear(SdrWhiteLevelInNits / 80f));
+            Pixels.ProcessPixelRows(canvas, (target, drawn) =>
+            {
+                for (int y = 0; y < drawn.Height; y++)
+                {
+                    var targetRow = target.GetRowSpan(area.Y + y).Slice(area.X, area.Width);
+                    var drawnRow = drawn.GetRowSpan(y);
+                    for (int x = 0; x < targetRow.Length; x++)
+                    {
+                        targetRow[x].FromVector4(drawnRow[x].ToVector4());
+                    }
+                }
+            });
         }
 
         /// <summary>

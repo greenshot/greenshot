@@ -665,15 +665,24 @@ namespace Greenshot.Editor.Drawing
             var changedAreas = new List<NativeRect>();
             var invertedGroupsDone = new HashSet<string>();
 
-            // First the plan: the filters, and between them the elements which are drawn into the same layer
-            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn)>();
+            // First the plan: the filters, the elements drawn with ImageSharp on the HDR pixels (see ElementDrawing), and between them the other
+            // elements which are drawn into the same layer
+            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn, HdrOverlayStep Step)>();
             List<DrawableContainer> drawn = null;
             void AddDrawn(DrawableContainer element)
             {
+                var area = element.DrawingBounds.Intersect(bounds);
+                var draw = area.Width > 0 && area.Height > 0 ? ElementDrawing.Of(element, area.Location) : null;
+                if (draw != null)
+                {
+                    drawn = null;
+                    plan.Add((null, null, HdrOverlayStep.Of(area, draw)));
+                    return;
+                }
                 if (drawn == null)
                 {
                     drawn = new List<DrawableContainer>();
-                    plan.Add((null, drawn));
+                    plan.Add((null, drawn, null));
                 }
                 drawn.Add(element);
             }
@@ -693,7 +702,7 @@ namespace Greenshot.Editor.Drawing
                     }
                     // The filters work on what is drawn so far, the next elements go into a new layer
                     drawn = null;
-                    plan.Add((elementFilters, null));
+                    plan.Add((elementFilters, null, null));
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
                     {
@@ -712,8 +721,13 @@ namespace Greenshot.Editor.Drawing
             Bitmap rendered = null;
             try
             {
-                foreach (var (filters, elements) in plan)
+                foreach (var (filters, elements, step) in plan)
                 {
+                    if (step != null)
+                    {
+                        steps.Add(step);
+                        continue;
+                    }
                     if (filters != null)
                     {
                         steps.AddRange(filters.Select(HdrOverlayStep.Of));
