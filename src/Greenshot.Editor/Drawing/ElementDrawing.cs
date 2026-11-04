@@ -45,7 +45,8 @@ namespace Greenshot.Editor.Drawing
     {
         /// <summary>
         /// How the element is drawn with ImageSharp on an image whose top left corner is at the origin; null when it has no such drawing (it is drawn
-        /// with GDI+ then). Only the editor's own element types: a subclass (e.g. a barcode) may draw differently.
+        /// with GDI+ then). Only the editor's own element types: a subclass (e.g. a barcode) may draw differently. Everything is taken from the element
+        /// now: the drawing runs later on another thread (see HdrExport), while the element may change.
         /// </summary>
         public static Action<Image, ImageValues> Of(DrawableContainer element, NativePoint origin)
         {
@@ -67,18 +68,19 @@ namespace Greenshot.Editor.Drawing
                 case SpeechbubbleContainer bubble when element.GetType() == typeof(SpeechbubbleContainer):
                     var target = bubble.TargetAdorner?.Location ?? new NativePoint(rect.Left - 20, rect.Bottom + 25);
                     var tail = new Point(target.X - origin.X, target.Y - origin.Y);
+                    var bubbleText = TextOf(bubble, bounds, lineThickness, lineColor, shadow);
                     return (image, values) =>
                     {
                         SpeechBubbles.Bubble(image, values, bounds, tail, lineThickness, lineColor, fillColor, shadow);
-                        DrawText(image, values, bubble, bounds, lineThickness, lineColor, shadow);
+                        bubbleText(image, values);
                     };
                 case TextContainer text when element.GetType() == typeof(TextContainer):
                     // The shadow of the text only without a background
-                    bool textShadow = shadow && fillColor.A == 0;
+                    var drawText = TextOf(text, bounds, lineThickness, lineColor, shadow && fillColor.A == 0);
                     return (image, values) =>
                     {
                         Shapes.Rectangle(image, values, bounds, lineThickness, lineColor, fillColor, shadow);
-                        DrawText(image, values, text, bounds, lineThickness, lineColor, textShadow);
+                        drawText(image, values);
                     };
                 case RectangleContainer when element.GetType() == typeof(RectangleContainer):
                     return (image, values) => Shapes.Rectangle(image, values, bounds, lineThickness, lineColor, fillColor, shadow);
@@ -111,7 +113,9 @@ namespace Greenshot.Editor.Drawing
                     }
                     string number = label.NumberText;
                     float fontSize = label.NumberFontSize(number);
-                    return (image, values) => Texts.StepLabel(image, values, bounds, number, FontFamily.GenericSansSerif.Name, fontSize, label.DrawAsRectangle,
+                    string labelFont = FontFamily.GenericSansSerif.Name;
+                    bool asRectangle = label.DrawAsRectangle;
+                    return (image, values) => Texts.StepLabel(image, values, bounds, number, labelFont, fontSize, asRectangle,
                         lineThickness, lineColor, fillColor, shadow);
                 case ImageContainer picture when element.GetType() == typeof(ImageContainer):
                     return PictureOf(picture.Image, bounds, nearestNeighbor: false, shadow);
@@ -180,15 +184,21 @@ namespace Greenshot.Editor.Drawing
             return (image, values) => CutDrawing.Cut(image, values, cuts, index, edges, fill, lineThickness, lineColor, shadowSettings);
         }
 
-        private static void DrawText(Image image, ImageValues values, TextContainer element, Rectangle bounds, int lineThickness, Rgba32 color, bool shadow)
+        /// <summary>
+        /// The text of the element, taken now: it is drawn later, on another thread, while the element may change
+        /// </summary>
+        private static Action<Image, ImageValues> TextOf(TextContainer element, Rectangle bounds, int lineThickness, Rgba32 color, bool shadow)
         {
             var font = element.Font;
-            if (string.IsNullOrEmpty(element.Text) || font == null)
+            string text = element.Text;
+            if (string.IsNullOrEmpty(text) || font == null)
             {
-                return;
+                return (_, _) => { };
             }
-            Texts.Draw(image, values, bounds, element.Text, new TextFont(font.FontFamily.Name, font.Size, font.Bold, font.Italic), color,
-                Placement(element.StringFormat?.Alignment), Placement(element.StringFormat?.LineAlignment), lineThickness, shadow);
+            var textFont = new TextFont(font.FontFamily.Name, font.Size, font.Bold, font.Italic);
+            var horizontal = Placement(element.StringFormat?.Alignment);
+            var vertical = Placement(element.StringFormat?.LineAlignment);
+            return (image, values) => Texts.Draw(image, values, bounds, text, textFont, color, horizontal, vertical, lineThickness, shadow);
         }
 
         private static TextPlacement Placement(StringAlignment? alignment) => alignment switch
