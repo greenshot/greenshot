@@ -6,6 +6,9 @@ ChangesAssociations=yes
 ; command line arguments registered via RegisterApplicationRestart (i.e. --restore).
 CloseApplications=yes
 RestartApplications=yes
+; While the setup runs, a Greenshot in any session (also of another user) can see it (InstalledUpdate.cs):
+; it doesn't restart into a version that is only half copied. Global\ because the setup often runs in another session (SYSTEM, a service).
+SetupMutex=GreenshotSetup,Global\GreenshotSetup
 AppId=Greenshot
 AppName={#AppDisplayName}
 AppPublisher={#ExeName}

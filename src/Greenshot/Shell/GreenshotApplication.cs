@@ -64,6 +64,9 @@ namespace Greenshot.Shell
                 // for the tray icon (also for the .zip, which leaves nothing behind)
                 AppUserModelId.SetForCurrentProcess(AppUserModelId.Greenshot);
 
+                // Before the mutex and greenshot.ini: a Greenshot which restarts into this (installed) version is still exiting
+                InstalledUpdate.Initialize();
+
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
                 _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
@@ -217,6 +220,7 @@ namespace Greenshot.Shell
                 Dispatcher.PushFrame(MessageLoop);
                 GC.KeepAlive(shell);
                 Log.Debug("The message loop ended.");
+                InstalledUpdate.StartNewVersion();
             }
             catch (Exception ex)
             {
