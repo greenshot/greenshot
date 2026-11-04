@@ -313,6 +313,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### ⚙️ Configuration & Settings
 
+**When the file already exists**
+- greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
+
 **Switching plugins and destinations on or off**
 - Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini
 - Administrators can block plugins and destinations, or allow only some and block everything else, with greenshot-fixed.ini, and decide if users may switch off more; the settings show the lines to copy

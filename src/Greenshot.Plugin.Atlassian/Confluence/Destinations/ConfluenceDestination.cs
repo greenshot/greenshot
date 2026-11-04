@@ -289,7 +289,7 @@ public sealed class ConfluenceAttachmentExistsRequest : IDialogViewModel<Conflue
     {
         PageTitle = pageTitle;
         Filename = filename;
-        OtherName = AttachmentNames.Next(filename);
+        OtherName = NumberedFileNames.Next(filename);
     }
 
     public string PageTitle { get; }

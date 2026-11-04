@@ -1832,19 +1832,24 @@ namespace Greenshot.Plugin.RecipeEditor
         string ImageFormat { get; }
 
         /// <summary>
-        /// Allow Overwrite
+        /// If the File Exists
         /// </summary>
-        string AllowOverwrite { get; }
+        string IfFileExists { get; }
 
         /// <summary>
-        /// Enabled (Overwrite existing)
+        /// Overwrite it
         /// </summary>
-        string OverwriteEnabled { get; }
+        string IfFileExistsOverwrite { get; }
 
         /// <summary>
-        /// Disabled (Auto-number files)
+        /// Ask where to save (unattended: add a number)
         /// </summary>
-        string OverwriteDisabled { get; }
+        string IfFileExistsAsk { get; }
+
+        /// <summary>
+        /// Add a number: name (2)
+        /// </summary>
+        string IfFileExistsAddNumber { get; }
 
         /// <summary>
         /// Quality Prompt

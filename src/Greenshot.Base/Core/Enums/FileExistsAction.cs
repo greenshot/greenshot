@@ -19,29 +19,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
-
-namespace Greenshot.Plugin.Atlassian;
-
-/// <summary>
-/// File names of attachments
-/// </summary>
-public static class AttachmentNames
+namespace Greenshot.Base.Core.Enums
 {
-    private static readonly Regex Numbered = new Regex(@"^(.*) \((\d{1,6})\)$", RegexOptions.CultureInvariant);
-
     /// <summary>
-    /// The next numbered name: "name (2).png" for "name.png", "name (3).png" for "name (2).png"
+    /// What happens when the file to save already exists
     /// </summary>
-    public static string Next(string filename)
+    public enum FileExistsAction
     {
-        string extension = Path.GetExtension(filename);
-        string name = filename.Substring(0, filename.Length - extension.Length);
-        var numbered = Numbered.Match(name);
-        return numbered.Success
-            ? $"{numbered.Groups[1].Value} ({int.Parse(numbered.Groups[2].Value, CultureInfo.InvariantCulture) + 1}){extension}"
-            : $"{name} (2){extension}";
+        /// <summary>
+        /// The file is overwritten
+        /// </summary>
+        Overwrite,
+        /// <summary>
+        /// The save dialog asks for another file; when nobody can answer (unattended) the name gets a number, like AddNumber
+        /// </summary>
+        Ask,
+        /// <summary>
+        /// The name gets the first free number: "name (2).png", "name (3).png", ...
+        /// </summary>
+        AddNumber
     }
 }

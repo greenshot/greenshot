@@ -128,9 +128,13 @@ namespace Greenshot.Base.Core
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
 
-        [Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.")]
+        [Description("Replaced by OutputFileIfExists: False is changed there once to Ask, then this is True again.")]
         [DefaultValue(true)]
         bool OutputFileAllowOverwrite { get; set; }
+
+        [Description("What happens if the file to save already exists: Overwrite, Ask (the save dialog; unattended the name gets a number) or AddNumber (\"name (2).png\").")]
+        [DefaultValue("Overwrite")]
+        FileExistsAction OutputFileIfExists { get; set; }
 
         [Description("Filename pattern for screenshot.")]
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
