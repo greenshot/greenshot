@@ -261,7 +261,8 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var dc in this)
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
+                // The cheap checks first, the drawing bounds are calculated
+                if (dc.HasFilters && dc.Status == EditStatus.IDLE && dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
                     return true;
                 }
@@ -364,7 +365,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>A comma-separated string of inverted filter type names, or null if no inverted filters exist.</returns>
         private static string GetInvertedFilterGroupKey(DrawableContainer dc)
         {
-            if (dc == null || !dc.HasFilters)
+            if (dc == null || !dc.HasInvertedFilter)
             {
                 return null;
             }
@@ -402,7 +403,7 @@ namespace Greenshot.Editor.Drawing
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
-                if (dc.Parent == null || !dc.HasFilters)
+                if (dc.Parent == null || !dc.HasInvertedFilter)
                 {
                     continue;
                 }
