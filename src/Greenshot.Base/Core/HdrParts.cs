@@ -36,6 +36,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class HdrParts : IDisposable
     {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(HdrParts));
         private readonly List<(HdrImage Part, NativePoint Location)> _parts;
         private WeakReference<System.Drawing.Image> _belongsTo;
 
@@ -92,9 +93,15 @@ namespace Greenshot.Base.Core
                         inArea.Add((cropped, new NativePoint(overlap.X - area.X, overlap.Y - area.Y)));
                     }
                 }
+                if (inArea.Count == 0)
+                {
+                    Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: not on an HDR display, no HDR image.");
+                    return null;
+                }
                 // E.g. only a normal window on an HDR display: nothing an 8-bit image can't show, no HDR image
                 if (!inArea.Any(part => part.Item1.HasHdrContent))
                 {
+                    Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: no HDR content (nothing brighter than SDR white or outside sRGB), no HDR image.");
                     return null;
                 }
                 var joined = HdrImage.Combine(sdrImage, inArea);
@@ -102,6 +109,7 @@ namespace Greenshot.Base.Core
                 {
                     joined.IsRequested |= IsRequested;
                     joined.BelongTo(sdrImage);
+                    Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: joined {joined.Width}x{joined.Height} with HDR content of {inArea.Count} HDR display(s).");
                 }
                 return joined;
             }
