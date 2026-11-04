@@ -23,10 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -147,6 +149,104 @@ namespace Greenshot.Tests.Editor
 
             var obfuscate = Assert.Single(surface.Elements.OfType<ObfuscateContainer>());
             Assert.Equal(lastUsed, Strength(obfuscate));
+        }
+
+        /// <summary>
+        /// OCR which finds the lines it is given, at once or when the test lets it finish
+        /// </summary>
+        private sealed class FakeOcrProvider : IOcrProvider
+        {
+            private readonly List<IOcrLineFeature> _lines;
+            private readonly bool _finishAtOnce;
+            private TaskCompletionSource<List<IOcrLineFeature>> _running;
+
+            public FakeOcrProvider(bool finishAtOnce, params IOcrLineFeature[] lines)
+            {
+                _lines = lines.ToList();
+                _finishAtOnce = finishAtOnce;
+            }
+
+            public int Calls { get; private set; }
+
+            public void Finish() => _running.SetResult(_lines);
+
+            public Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null) => DoOcrAsync((ISurface)null, languageTag);
+
+            public Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null)
+            {
+                Calls++;
+                if (_finishAtOnce)
+                {
+                    return Task.FromResult(_lines);
+                }
+                _running = new TaskCompletionSource<List<IOcrLineFeature>>();
+                return _running.Task;
+            }
+
+            public IList<OcrLanguage> GetAvailableLanguages() => new List<OcrLanguage>();
+        }
+
+        private static ObfuscateContainer Draw(Surface surface)
+        {
+            surface.DrawingMode = DrawingModes.Obfuscate;
+            // Enter draws 160x80 at 120,110 (see SurfaceKeyboardTests)
+            Assert.True(surface.ProcessCanvasKey(Keys.Enter));
+            var obfuscate = surface.Elements.OfType<ObfuscateContainer>().Last();
+            surface.DeselectAllElements();
+            return obfuscate;
+        }
+
+        [Fact]
+        public void DrawnObfuscation_WithoutOcrYet_RunsOcrOnce_AndFitsTheText()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            var ocr = new FakeOcrProvider(true, Line(100, 130, 200, 20));
+            surface.ObfuscationOcrProvider = ocr;
+
+            var first = Draw(surface);
+            Assert.Equal(Expected(first, 20), Strength(first));
+            Assert.Single(surface.CaptureDetails.Features.OfType<IOcrLineFeature>());
+
+            // The second one uses the lines the first one found
+            var second = Draw(surface);
+            Assert.Equal(Expected(second, 20), Strength(second));
+            Assert.Equal(1, ocr.Calls);
+        }
+
+        [Fact]
+        public void DrawnObfuscation_OcrFindsNoText_KeepsTheLastUsedValue_AndDoesNotRunOcrAgain()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            var ocr = new FakeOcrProvider(true);
+            surface.ObfuscationOcrProvider = ocr;
+            int lastUsed = Strength(new ObfuscateContainer(surface));
+
+            var first = Draw(surface);
+            Draw(surface);
+
+            Assert.Equal(lastUsed, Strength(first));
+            Assert.Equal(1, ocr.Calls);
+        }
+
+        [Fact]
+        public void DrawnObfuscation_FitsTheTextWhenOcrIsDone_UnlessTheUserChangedItMeanwhile()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            var ocr = new FakeOcrProvider(false, Line(100, 130, 200, 20));
+            surface.ObfuscationOcrProvider = ocr;
+            int lastUsed = Strength(new ObfuscateContainer(surface));
+
+            var untouched = Draw(surface);
+            var changed = Draw(surface);
+            var fieldType = changed.HasField(FieldType.BLUR_RADIUS) ? FieldType.BLUR_RADIUS : FieldType.PIXEL_SIZE;
+            changed.SetFieldValue(fieldType, lastUsed + 7);
+            Assert.Equal(lastUsed, Strength(untouched));
+
+            ocr.Finish();
+
+            Assert.Equal(Expected(untouched, 20), Strength(untouched));
+            Assert.Equal(lastUsed + 7, Strength(changed));
+            Assert.Equal(1, ocr.Calls);
         }
     }
 }

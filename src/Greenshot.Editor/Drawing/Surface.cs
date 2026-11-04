@@ -42,6 +42,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Adorners;
@@ -2773,23 +2774,141 @@ namespace Greenshot.Editor.Drawing
             _drawingElement = null;
         }
 
+        // The OCR started for drawn obfuscations, once per image
+        private Task<List<IOcrLineFeature>> _obfuscationOcrTask;
+        private Image _obfuscationOcrImage;
+
         /// <summary>
-        /// A new obfuscation over OCR lines the capture already has gets the strength for that text.
-        /// Without OCR lines it keeps the last used value of the toolbar, OCR isn't started for this.
+        /// The OCR provider for drawn obfuscations, tests set their own; null uses the registered one
+        /// </summary>
+        internal IOcrProvider ObfuscationOcrProvider { get; set; }
+
+        /// <summary>
+        /// A new obfuscation over OCR lines gets the strength for that text.
+        /// When the capture has no OCR lines yet, OCR runs once in the background and the obfuscation is fitted when it is done.
+        /// Without OCR lines under it, it keeps the last used value of the toolbar.
         /// </summary>
         private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
         {
-            var bounds = obfuscateContainer.Bounds;
-            List<IOcrLineFeature> ocrLines = null;
-            if (CaptureDetails?.Features != null)
+            var ocrLines = OcrLinesOfCapture();
+            if (ocrLines.Count > 0 || !StartObfuscationOcr())
             {
-                lock (CaptureDetails.Features)
-                {
-                    ocrLines = CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
-                }
+                FitObfuscationToText(obfuscateContainer, ocrLines);
+                return;
             }
 
-            int? textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, bounds);
+            _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer);
+        }
+
+        private List<IOcrLineFeature> OcrLinesOfCapture()
+        {
+            if (CaptureDetails?.Features == null)
+            {
+                return new List<IOcrLineFeature>();
+            }
+            lock (CaptureDetails.Features)
+            {
+                return CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+        }
+
+        /// <summary>
+        /// Start OCR of the image for drawn obfuscations, unless that already happened for this image
+        /// </summary>
+        /// <returns>true when OCR runs or ran for this image and its result can be awaited</returns>
+        private bool StartObfuscationOcr()
+        {
+            var image = Image;
+            if (image == null || CaptureDetails?.Features == null)
+            {
+                return false;
+            }
+            if (_obfuscationOcrTask != null && ReferenceEquals(_obfuscationOcrImage, image))
+            {
+                // Done before for this image: when it found nothing there is nothing to wait for
+                return !_obfuscationOcrTask.IsCompleted;
+            }
+
+            var ocrProvider = ObfuscationOcrProvider ?? SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+            if (ocrProvider == null)
+            {
+                return false;
+            }
+
+            _obfuscationOcrImage = image;
+            _obfuscationOcrTask = RunObfuscationOcrAsync(ocrProvider);
+            return true;
+        }
+
+        private async Task<List<IOcrLineFeature>> RunObfuscationOcrAsync(IOcrProvider ocrProvider)
+        {
+            var captureDetails = CaptureDetails;
+            var image = Image;
+            try
+            {
+                // The capture processing might be finding the text already
+                var processingTask = captureDetails.ProcessingTask;
+                if (processingTask != null && !processingTask.IsCompleted)
+                {
+                    await processingTask;
+                }
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Background processing of the capture failed", ex);
+            }
+
+            var ocrLines = OcrLinesOfCapture();
+            if (ocrLines.Count > 0)
+            {
+                return ocrLines;
+            }
+
+            var detectedLines = await ocrProvider.DoOcrAsync(this);
+            // When the image changed meanwhile, the lines are no longer where the text is
+            if (detectedLines == null || detectedLines.Count == 0 || !ReferenceEquals(image, Image))
+            {
+                return ocrLines;
+            }
+            lock (captureDetails.Features)
+            {
+                // Something else might have added OCR lines meanwhile
+                if (!captureDetails.Features.OfType<IOcrLineFeature>().Any())
+                {
+                    captureDetails.Features.AddRange(detectedLines);
+                }
+            }
+            return OcrLinesOfCapture();
+        }
+
+        private async Task FitObfuscationToTextAfterOcrAsync(ObfuscateContainer obfuscateContainer)
+        {
+            // What the obfuscation has now, when this changed meanwhile the user chose another value
+            var effect = obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            int? strength = ObfuscationStrength.Strength(obfuscateContainer);
+            try
+            {
+                var ocrLines = await _obfuscationOcrTask;
+                if (!_elements.Contains(obfuscateContainer)
+                    || !Equals(effect, obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE))
+                    || strength != ObfuscationStrength.Strength(obfuscateContainer))
+                {
+                    return;
+                }
+                FitObfuscationToText(obfuscateContainer, ocrLines);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("OCR for the strength of an obfuscation failed, it keeps its value", ex);
+            }
+        }
+
+        /// <summary>
+        /// Fit the obfuscation to the OCR lines it covers, without covered lines it keeps its value
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer, List<IOcrLineFeature> ocrLines)
+        {
+            int? textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, obfuscateContainer.Bounds);
             if (!textHeight.HasValue)
             {
                 return;
@@ -2801,6 +2920,11 @@ namespace Greenshot.Editor.Drawing
 
             // The toolbar shows the new values
             FieldAggregator.UnbindElement(obfuscateContainer);
+            if (selectedElements.Contains(obfuscateContainer))
+            {
+                FieldAggregator.BindElement(obfuscateContainer);
+            }
+            obfuscateContainer.Invalidate();
         }
 
         /// <summary>

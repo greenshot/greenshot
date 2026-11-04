@@ -120,5 +120,23 @@ namespace Greenshot.Editor.Drawing
                 container.SetFieldValue(FieldType.PIXEL_SIZE, PixelSize(textHeight, pixelSizePercent));
             }
         }
+
+        /// <summary>
+        /// The blur radius or pixel size of the container's current effect
+        /// </summary>
+        /// <param name="container">The obfuscation</param>
+        /// <returns>The value, null when the effect has neither</returns>
+        public static int? Strength(ObfuscateContainer container)
+        {
+            if (container.HasField(FieldType.BLUR_RADIUS))
+            {
+                return Convert.ToInt32(container.GetField(FieldType.BLUR_RADIUS).Value);
+            }
+            if (container.HasField(FieldType.PIXEL_SIZE))
+            {
+                return Convert.ToInt32(container.GetField(FieldType.PIXEL_SIZE).Value);
+            }
+            return null;
+        }
     }
 }
