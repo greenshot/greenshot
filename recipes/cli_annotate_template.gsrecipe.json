@@ -91,7 +91,7 @@
       "parameters": {
         "SaveDirectory": "${dirname}",
         "FilenamePattern": "${title}-with_annotation",
-        "AllowOverwrite": true
+        "IfFileExists": "Overwrite"
       }
     },
     {

@@ -70,7 +70,7 @@
         "SaveDirectory": "${dirname}",
         "FilenamePattern": "${title}",
         "Format": "${Format}",
-        "AllowOverwrite": true
+        "IfFileExists": "Overwrite"
       }
     },
     {
