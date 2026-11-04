@@ -21,7 +21,19 @@ In this document:
   clipboard use it;
 - the **HDR image** keeps the decimal values of the HDR screen, highlights included. Only an HDR file (JPEG XR) can hold it;
 - **tone mapping** turns HDR values into the SDR image: it picks which brightness becomes white and fits the brighter values below
-  it, so the image looks right on any screen.
+  it, so the image can be shown on any screen.
+
+Tone mapping is a compromise, it can't make HDR fit into SDR without losing something:
+
+- **Highlights lose their brightness.** In the SDR image nothing is brighter than white, so a highlight is at most as bright as a
+  white page. Highlights close to each other in brightness are squeezed together and lose detail.
+- **Either the highlights or the normal content suffers.** If the white of the page stays white, the highlights are compressed into
+  the little room above the page's brightness. If the brightest highlight becomes white instead, everything else gets darker: a white
+  page turns light gray. Greenshot chooses by how much of the capture is brighter than SDR white (see below).
+- **Some colors are lost.** HDR can hold colors outside the sRGB range (more saturated reds and greens). The SDR image can't, they
+  are moved to the nearest sRGB color.
+- **It can't be undone.** The SDR image doesn't hold what was lost, so it can't be turned back into HDR. That is why the capture
+  keeps the HDR image next to it when an HDR file may be wanted.
 
 ## The idea in short
 
@@ -76,7 +88,9 @@ The SDR image is what every destination, the editor and the clipboard get, so it
 
 - `HdrContent` decides which brightness becomes white. Without HDR content SDR white stays white, so normal windows keep their
   exact colors. When much of the capture is brighter (an HDR video or game) the display's peak becomes white, as the Xbox Game Bar
-  does. In between it blends by the share of pixels brighter than SDR white.
+  does: the highlights keep their detail, but SDR content in the same capture (a window next to the video) looks darker than on the
+  screen. In between it blends by the share of pixels brighter than SDR white. With only a few highlights SDR white stays white and
+  the highlights are clipped or compressed.
 - `HdrToneMapper` does it on the GPU with the Direct2D effects Microsoft uses in its HDR samples (HDR tone map, then white level
   adjustment), into an SDR texture (8 bits per color, sRGB).
 - `HdrImageToneMapping` tone maps an HDR image which isn't on the screen, e.g. an opened JPEG XR file. Without a Direct3D device it
