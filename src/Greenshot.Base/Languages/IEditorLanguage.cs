@@ -112,11 +112,6 @@ namespace Greenshot.Base.Languages
         string AutocropNotPossible { get; }
 
         /// <summary>
-        /// HDR
-        /// </summary>
-        string HdrBadge { get; }
-
-        /// <summary>
         /// This capture has HDR content: Save as JPEG XR keeps its highlights, with what you drew on top
         /// </summary>
         string HdrBadgeTooltip { get; }
@@ -125,16 +120,6 @@ namespace Greenshot.Base.Languages
         /// This capture had HDR content, but its image was changed (e.g. by an effect): it is saved without HDR
         /// </summary>
         string HdrBadgeLostTooltip { get; }
-
-        /// <summary>
-        /// OCR
-        /// </summary>
-        string OcrBadge { get; }
-
-        /// <summary>
-        /// Text recognition is running...
-        /// </summary>
-        string OcrBadgeRunningTooltip { get; }
 
         /// <summary>
         /// The text of this capture is recognized: ...

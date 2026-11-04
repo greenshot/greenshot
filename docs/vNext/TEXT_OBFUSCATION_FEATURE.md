@@ -69,8 +69,8 @@ A fixed blur radius or pixel size that hides small text leaves large text readab
   runs at most once per image, also when it found nothing or failed. Without an OCR provider, when OCR fails, or without OCR lines
   under it, the obfuscation keeps the last used value of the toolbar, as before. Afterwards the toolbar changes the value as before.
 - **The OCR badge:** next to the size (and the HDR badge) in the editor's status bar, *OCR* shows whether the text of the capture is
-  known: *OCR …* while OCR runs, highlighted when there is text, grey when no text was found, grey and struck through when OCR
-  failed (the tooltip says why). Without OCR lines and before any OCR the badge isn't shown.
+  known: highlighted when there is text, grey when no text was found, grey and struck through when OCR
+  failed (the tooltip says why). Without OCR lines, before any OCR and while it runs, the badge isn't shown.
 - **Recipes:** the `TextEffect` step takes `BlurRadiusTextHeightPercent` and `PixelSizeTextHeightPercent` (same defaults).
 
 Why these values: from about half the text height on, blurred or pixelated text can't be read by eye; at a quarter (for example

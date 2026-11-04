@@ -94,6 +94,9 @@ namespace Greenshot.Editor.Forms
 
         // The surface of the selected tab
         private Surface _surface;
+        // The badges are markers, the same in every language; their tooltips are translated
+        private const string HdrBadge = "HDR";
+        private const string OcrBadge = "OCR";
         private ToolStripStatusLabel _hdrLabel;
         private ToolStripStatusLabel _ocrLabel;
         private Font _hdrActiveFont;
@@ -1532,13 +1535,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
             bool canWriteHdr = HdrExport.CanWriteHdr(_surface);
-            _hdrLabel.Text = Texts.Editor.HdrBadge;
+            _hdrLabel.Text = HdrBadge;
             // Enabled also when it's lost: a disabled item shows no tooltip which says why
             _hdrLabel.Font = canWriteHdr ? _hdrActiveFont : _hdrLostFont;
             _hdrLabel.BackColor = canWriteHdr ? Color.FromArgb(255, 196, 0) : Color.Empty;
             _hdrLabel.ForeColor = canWriteHdr ? Color.Black : SystemColors.GrayText;
             _hdrLabel.ToolTipText = canWriteHdr ? Texts.Editor.HdrBadgeTooltip : Texts.Editor.HdrBadgeLostTooltip;
-            _hdrLabel.AccessibleName = Texts.Editor.HdrBadge + ": " + _hdrLabel.ToolTipText;
+            _hdrLabel.AccessibleName = HdrBadge + ": " + _hdrLabel.ToolTipText;
         }
 
         private void SurfaceImageChanged(object sender, EventArgs e)
@@ -1582,26 +1585,26 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             {
                 return;
             }
+            // OCR is quick: while it runs the badge isn't shown yet
             var state = _surface?.TextRecognitionState ?? TextRecognitionState.None;
-            _ocrLabel.Visible = state != TextRecognitionState.None;
-            if (state == TextRecognitionState.None)
+            _ocrLabel.Visible = state != TextRecognitionState.None && state != TextRecognitionState.Running;
+            if (!_ocrLabel.Visible)
             {
                 return;
             }
             bool found = state == TextRecognitionState.Found;
-            _ocrLabel.Text = state == TextRecognitionState.Running ? Texts.Editor.OcrBadge + " …" : Texts.Editor.OcrBadge;
+            _ocrLabel.Text = OcrBadge;
             // Found: dark text on light blue, like a badge; failed: grey and struck through, so it doesn't depend on the color alone
             _ocrLabel.Font = state == TextRecognitionState.Failed ? _hdrLostFont : _hdrActiveFont;
             _ocrLabel.BackColor = found ? Color.FromArgb(150, 205, 255) : Color.Empty;
             _ocrLabel.ForeColor = found ? Color.Black : SystemColors.GrayText;
             _ocrLabel.ToolTipText = state switch
             {
-                TextRecognitionState.Running => Texts.Editor.OcrBadgeRunningTooltip,
                 TextRecognitionState.Found => Texts.Editor.OcrBadgeFoundTooltip,
                 TextRecognitionState.NoText => Texts.Editor.OcrBadgeNoTextTooltip,
                 _ => string.Format(Texts.Editor.OcrBadgeFailedTooltip, _surface.TextRecognitionError)
             };
-            _ocrLabel.AccessibleName = Texts.Editor.OcrBadge + ": " + _ocrLabel.ToolTipText;
+            _ocrLabel.AccessibleName = OcrBadge + ": " + _ocrLabel.ToolTipText;
         }
 
         /// <summary>
