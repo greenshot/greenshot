@@ -21,6 +21,7 @@
 
 using System.Numerics;
 using Greenshot.Base.Effects;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Base.ImageSharpDrawing
@@ -28,7 +29,8 @@ namespace Greenshot.Base.ImageSharpDrawing
     /// <summary>
     /// The values of the colors of an image the drawing goes into: 8-bit sRGB colors (as the editor has them) become the values of its pixels.
     /// For an 8-bit image the sRGB values themselves (mixed like GDI+ does), for an HDR image linear light with SDR white at the given value
-    /// (scRGB: 1.0 = 80 nits), mixed in linear light.
+    /// (scRGB: 1.0 = 80 nits), mixed in linear light. Draw HDR into an Image&lt;RgbaVector&gt;: ImageSharp keeps values above 1 there, and mixes
+    /// HalfVector4 pixels wrongly.
     /// </summary>
     public sealed class ImageValues
     {
@@ -58,6 +60,15 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// The value of an 8-bit sRGB color with its alpha (straight alpha), e.g. a color of an element of the editor
         /// </summary>
         public Vector4 Of(Rgba32 color) => Of(new Vector4(color.R, color.G, color.B, color.A) / 255f);
+
+        /// <summary>
+        /// The 8-bit sRGB color as an ImageSharp color in the image's values
+        /// </summary>
+        public Color ColorOf(Rgba32 color)
+        {
+            var value = Of(color);
+            return Color.FromPixel(new RgbaVector(value.X, value.Y, value.Z, value.W));
+        }
 
         /// <summary>
         /// The value of an sRGB color from 0 to 1 with its alpha (straight alpha)

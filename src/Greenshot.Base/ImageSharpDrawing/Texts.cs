@@ -20,13 +20,13 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.ImageSharpDrawing
 {
@@ -66,25 +66,21 @@ namespace Greenshot.Base.ImageSharpDrawing
     }
 
     /// <summary>
-    /// The text of the editor (TextContainer.DrawText, used by the text box, the speech bubble and the step label) drawn with ImageSharp into an image of
-    /// any pixel type. The layout follows Graphics.DrawString with the editor's StringFormat: lines wrap at spaces in the width of the box (a word too
-    /// long for it at its characters), 1/6 em of room left and right, only whole lines are shown, and when the text doesn't fit the last shown line ends
-    /// with an ellipsis after a whole word (StringTrimming.EllipsisWord). The glyphs come from SixLabors.Fonts, their shapes and the line height from the
-    /// font file, so they can be a little different from GDI+.
+    /// The text of the editor (TextContainer.DrawText, used by the text box, the speech bubble and the step label) drawn with ImageSharp: wrapped
+    /// in the box, aligned in it and cut off at its edges. Glyphs, line height and wrapping come from SixLabors.Fonts, so they can be a little
+    /// different from the editor's.
     /// </summary>
     public static class Texts
     {
-        private const string Ellipsis = "…";
-
         // Fonts which stand in for a missing family, those of Windows first
         private static readonly string[] Fallbacks = { "Microsoft Sans Serif", "Segoe UI", "Arial", "DejaVu Sans", "Liberation Sans" };
 
         /// <summary>
         /// Like TextContainer.DrawText: the shadow (the text five times, from 0 to 4 pixels away), then the text in the box, inside the line of the box
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
+        /// <param name="image">The image</param>
         /// <param name="values">The values of the image's pixels</param>
-        /// <param name="box">The box of the text, normalized, in the editor's coordinates (GDI+ PixelOffsetMode.None)</param>
+        /// <param name="box">The box of the text, normalized, in the editor's coordinates</param>
         /// <param name="text">The text, lines separated by line breaks</param>
         /// <param name="font">The font</param>
         /// <param name="color">The color of the text (the editor uses the line color)</param>
@@ -104,31 +100,32 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return;
             }
-            int textOffset = lineThickness > 0 ? (int)Math.Ceiling(lineThickness / 2d) : 0;
             if (lineThickness > 0)
             {
-                box.Inflate(-textOffset, -textOffset);
+                int inset = (int)Math.Ceiling(lineThickness / 2d);
+                box.Inflate(-inset, -inset);
             }
             if (box.Width <= 0 || box.Height <= 0)
             {
                 return;
             }
-            var lines = Layout(text, resolved, box, horizontal, vertical);
-            if (shadow)
+            image.Mutate(context =>
             {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
+                if (shadow)
                 {
-                    var moved = new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height);
-                    Painting.Fill(image, Glyphs(lines, resolved, offset), new Vector4(0, 0, 0, alpha), clip: Clip(moved));
+                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    {
+                        DrawIn(context, new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height), text, resolved, Painting.Black(alpha), horizontal, vertical);
+                    }
                 }
-            }
-            Painting.Fill(image, Glyphs(lines, resolved, 0), values.Of(color), clip: Clip(box));
+                DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical);
+            });
         }
 
         /// <summary>
         /// Like StepLabelContainer.Draw: the circle (or rectangle) with its shadow, then the number in the middle, bold, in the line color
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
+        /// <param name="image">The image</param>
         /// <param name="values">The values of the image's pixels</param>
         /// <param name="rect">The label, normalized, in the editor's coordinates</param>
         /// <param name="number">The number of the label</param>
@@ -158,130 +155,42 @@ namespace Greenshot.Base.ImageSharpDrawing
         }
 
         /// <summary>
-        /// The lines of the text in the box: the text of each and where its top left corner is, in the editor's coordinates
+        /// The text wrapped in the box and placed in it, cut off at the box
         /// </summary>
-        internal static IReadOnlyList<(string Text, PointF Origin)> Layout(string text, Font font, Rectangle box, TextPlacement horizontal, TextPlacement vertical)
+        private static void DrawIn(IImageProcessingContext context, Rectangle box, string text, Font font, Color color, TextPlacement horizontal,
+            TextPlacement vertical)
         {
-            float size = font.Size;
-            // DrawString leaves 1/6 em at both sides of the lines
-            float padding = size / 6;
-            float width = box.Width - 2 * padding;
-            float lineHeight = LineHeight(font);
-            var wrapped = Wrap(text, font, width);
-            // Only whole lines, at least the first
-            int fits = Math.Max(1, (int)Math.Floor(box.Height / lineHeight));
-            if (wrapped.Count > fits)
+            // The editor (Graphics.DrawString) leaves 1/6 em at both sides of the lines
+            float padding = font.Size / 6;
+            float left = box.Left + padding, right = box.Right - padding;
+            float top = box.Top, bottom = box.Bottom;
+            var options = new RichTextOptions(font)
             {
-                var shown = wrapped.Take(fits).ToList();
-                shown[fits - 1] = WithEllipsis(shown[fits - 1], font, width);
-                wrapped = shown;
-            }
-            float blockHeight = wrapped.Count * lineHeight;
-            float top = vertical switch
-            {
-                TextPlacement.Near => box.Top,
-                TextPlacement.Far => box.Bottom - blockHeight,
-                _ => box.Top + (box.Height - blockHeight) / 2
+                WrappingLength = right - left,
+                Origin = new PointF(
+                    horizontal switch { TextPlacement.Near => left, TextPlacement.Far => right, _ => (left + right) / 2 },
+                    vertical switch { TextPlacement.Near => top, TextPlacement.Far => bottom, _ => (top + bottom) / 2 }),
+                HorizontalAlignment = horizontal switch
+                {
+                    TextPlacement.Near => HorizontalAlignment.Left,
+                    TextPlacement.Far => HorizontalAlignment.Right,
+                    _ => HorizontalAlignment.Center
+                },
+                TextAlignment = horizontal switch
+                {
+                    TextPlacement.Near => TextAlignment.Start,
+                    TextPlacement.Far => TextAlignment.End,
+                    _ => TextAlignment.Center
+                },
+                VerticalAlignment = vertical switch
+                {
+                    TextPlacement.Near => VerticalAlignment.Top,
+                    TextPlacement.Far => VerticalAlignment.Bottom,
+                    _ => VerticalAlignment.Center
+                }
             };
-            var lines = new List<(string, PointF)>();
-            for (int i = 0; i < wrapped.Count; i++)
-            {
-                float lineWidth = Width(wrapped[i], font);
-                float left = horizontal switch
-                {
-                    TextPlacement.Near => box.Left + padding,
-                    TextPlacement.Far => box.Right - padding - lineWidth,
-                    _ => box.Left + (box.Width - lineWidth) / 2
-                };
-                lines.Add((wrapped[i], new PointF(left, top + i * lineHeight)));
-            }
-            return lines;
-        }
-
-        /// <summary>
-        /// The text in lines: at the line breaks, and where the next word doesn't fit in the width
-        /// </summary>
-        internal static List<string> Wrap(string text, Font font, float width)
-        {
-            var lines = new List<string>();
-            foreach (var paragraph in text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
-            {
-                var line = string.Empty;
-                foreach (var word in paragraph.Split(' '))
-                {
-                    var candidate = line.Length == 0 ? word : line + " " + word;
-                    if (line.Length == 0 || Width(candidate, font) <= width)
-                    {
-                        line = candidate;
-                    }
-                    else
-                    {
-                        lines.Add(line);
-                        line = word;
-                    }
-                    // A word too long for a line is broken at its characters
-                    while (line.Length > 1 && Width(line, font) > width)
-                    {
-                        int fitting = line.Length - 1;
-                        while (fitting > 1 && Width(line.Substring(0, fitting), font) > width)
-                        {
-                            fitting--;
-                        }
-                        lines.Add(line.Substring(0, fitting));
-                        line = line.Substring(fitting);
-                    }
-                }
-                lines.Add(line);
-            }
-            return lines;
-        }
-
-        /// <summary>
-        /// The line with an ellipsis at its end, whole words dropped until it fits
-        /// </summary>
-        private static string WithEllipsis(string line, Font font, float width)
-        {
-            var words = line.Split(' ').ToList();
-            while (words.Count > 1 && Width(string.Join(" ", words) + Ellipsis, font) > width)
-            {
-                words.RemoveAt(words.Count - 1);
-            }
-            return string.Join(" ", words) + Ellipsis;
-        }
-
-        /// <summary>
-        /// The glyphs of the lines as shapes in ImageSharp's coordinates, moved by the offset
-        /// </summary>
-        private static IReadOnlyList<IPath> Glyphs(IReadOnlyList<(string Text, PointF Origin)> lines, Font font, int offset)
-        {
-            var glyphs = new List<IPath>();
-            foreach (var (line, origin) in lines)
-            {
-                if (line.Length == 0)
-                {
-                    continue;
-                }
-                var options = new TextOptions(font)
-                {
-                    Origin = new PointF(origin.X + offset + Painting.GdiPixelCenter, origin.Y + offset + Painting.GdiPixelCenter)
-                };
-                glyphs.AddRange(TextBuilder.GenerateGlyphs(line, options));
-            }
-            return glyphs;
-        }
-
-        // DrawString clips the text to its box
-        private static Rectangle Clip(Rectangle box) => new Rectangle(box.X, box.Y, box.Width + 1, box.Height + 1);
-
-        private static float Width(string text, Font font) => text.Length == 0 ? 0 : TextMeasurer.MeasureAdvance(text, new TextOptions(font)).Width;
-
-        /// <summary>
-        /// The distance of the lines: ascent, descent and line gap of the font
-        /// </summary>
-        internal static float LineHeight(Font font)
-        {
-            var metrics = font.FontMetrics;
-            return font.Size * metrics.HorizontalMetrics.LineHeight / metrics.UnitsPerEm;
+            var clip = new RectangularPolygon(box.X, box.Y, box.Width, box.Height);
+            context.Clip(clip, inside => inside.DrawText(options, text, color));
         }
 
         /// <summary>

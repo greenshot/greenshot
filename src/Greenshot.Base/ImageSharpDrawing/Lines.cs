@@ -25,7 +25,9 @@ using System.Linq;
 using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.ImageSharpDrawing
 {
@@ -68,15 +70,18 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return;
             }
-            if (shadow)
+            var line = Painting.OnPixelCenters(LineShape(start, end, lineThickness, heads));
+            image.Mutate(context =>
             {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
+                if (shadow)
                 {
-                    var move = new Vector2(offset, offset);
-                    Painting.Fill(image, LineShape((Vector2)start + move, (Vector2)end + move, lineThickness, heads), new Vector4(0, 0, 0, alpha));
+                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    {
+                        context.Fill(Painting.Black(alpha), line.Translate(offset, offset));
+                    }
                 }
-            }
-            Painting.Fill(image, LineShape(start, end, lineThickness, heads), values.Of(lineColor));
+                context.Fill(values.ColorOf(lineColor), line);
+            });
         }
 
         /// <summary>
@@ -107,21 +112,23 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 throw new ArgumentException("Bezier points are a start point and three points per curve", nameof(points));
             }
-            Painting.Stroke(image, new Path(segment), lineThickness, values.Of(lineColor), JointStyle.Round, EndCapStyle.Round);
+            // Filled as an outline: ImageSharp's pens move lines half a pixel to whole coordinates, the editor's freehand points already are on pixel
+            // centres (PixelOffsetMode.HighQuality)
+            var outline = new Path(segment).GenerateOutline(lineThickness, JointStyle.Round, EndCapStyle.Round);
+            image.Mutate(context => context.Fill(values.ColorOf(lineColor), outline));
         }
 
         /// <summary>
-        /// The line and its heads, in ImageSharp's coordinates
+        /// The line and its heads as shapes to fill
         /// </summary>
-        private static IReadOnlyList<IPath> LineShape(Vector2 start, Vector2 end, float width, ArrowHeads heads)
+        private static IPathCollection LineShape(Vector2 start, Vector2 end, float width, ArrowHeads heads)
         {
-            var from = start + new Vector2(Painting.GdiPixelCenter);
-            var to = end + new Vector2(Painting.GdiPixelCenter);
+            Vector2 from = start, to = end;
             float length = Vector2.Distance(from, to);
             if (length <= 0)
             {
                 // GDI+ draws nothing for a line without length
-                return Array.Empty<IPath>();
+                return new PathCollection();
             }
             var direction = (to - from) / length;
             var parts = new List<IPath>();
@@ -140,7 +147,7 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 parts.Add(new Path(new LinearLineSegment(lineStart, lineEnd)).GenerateOutline(width));
             }
-            return parts;
+            return new PathCollection(parts);
         }
 
         /// <summary>

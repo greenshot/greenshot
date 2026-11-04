@@ -19,79 +19,53 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Numerics;
+using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.ImageSharpDrawing
 {
     /// <summary>
-    /// The rectangle and the ellipse of the editor (RectangleContainer.DrawRectangle, EllipseContainer.DrawEllipse, the border of FilterContainer)
-    /// drawn with ImageSharp into an image of any pixel type. Coordinates are those of the editor (whole pixels, GDI+ PixelOffsetMode.None), colors
-    /// 8-bit sRGB like the editor's, put into the image by its <see cref="ImageValues"/>.
+    /// The rectangle and the ellipse of the editor (RectangleContainer, EllipseContainer, the border of FilterContainer) drawn with ImageSharp.
+    /// Coordinates are those of the editor (whole pixels), colors 8-bit sRGB like the editor's, put into the image by its <see cref="ImageValues"/>.
     /// </summary>
     public static class Shapes
     {
         /// <summary>
-        /// Like RectangleContainer.DrawRectangle: the shadow (the outline five times), the fill, then the line (not anti-aliased, like the editor)
+        /// Like RectangleContainer: the shadow, the fill, then the line. The editor draws the line without anti-aliasing, here it is anti-aliased like
+        /// all lines: lines of even width get a soft edge instead of the editor's hard one.
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
+        /// <param name="image">The image</param>
         /// <param name="values">The values of the image's pixels</param>
         /// <param name="rect">The rectangle, normalized (positive width and height)</param>
         /// <param name="lineThickness">The width of the line, 0 for none</param>
         /// <param name="lineColor">The color of the line</param>
         /// <param name="fillColor">The color of the inside, transparent for none</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Rectangle(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow)
-        {
-            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
-            if (shadow && (lineVisible || fillColor.A > 0))
-            {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
-                {
-                    Painting.Stroke(image, Box(rect, offset), Painting.PenWidth(lineThickness), new Vector4(0, 0, 0, alpha));
-                }
-            }
-            Painting.Fill(image, Box(rect, 0), values.Of(fillColor));
-            if (lineVisible)
-            {
-                Painting.Stroke(image, Box(rect, 0), lineThickness, values.Of(lineColor), antialias: false);
-            }
-        }
+        public static void Rectangle(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow) =>
+            Draw(image, values, Box(rect), lineThickness, lineColor, fillColor, shadow);
 
         /// <summary>
-        /// Like EllipseContainer.DrawEllipse: the shadow (the outline five times), the fill, then the line, all anti-aliased
+        /// Like EllipseContainer: the shadow, the fill, then the line
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
+        /// <param name="image">The image</param>
         /// <param name="values">The values of the image's pixels</param>
         /// <param name="rect">The rectangle around the ellipse, normalized</param>
         /// <param name="lineThickness">The width of the line, 0 for none</param>
         /// <param name="lineColor">The color of the line</param>
         /// <param name="fillColor">The color of the inside, transparent for none</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Ellipse(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow)
-        {
-            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
-            if (shadow && (lineVisible || fillColor.A > 0))
-            {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
-                {
-                    Painting.Stroke(image, Oval(rect, offset), Painting.PenWidth(lineThickness), new Vector4(0, 0, 0, alpha));
-                }
-            }
-            Painting.Fill(image, Oval(rect, 0), values.Of(fillColor));
-            if (lineVisible)
-            {
-                Painting.Stroke(image, Oval(rect, 0), lineThickness, values.Of(lineColor));
-            }
-        }
+        public static void Ellipse(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow) =>
+            Draw(image, values, Oval(rect), lineThickness, lineColor, fillColor, shadow);
 
         /// <summary>
-        /// Like FilterContainer.Draw, the border of a highlight or obfuscation: the shadow in gray (100, 100, 100) from 1 to 5 pixels away, then the
-        /// line, both not anti-aliased. Nothing without a visible line.
+        /// Like FilterContainer, the border of a highlight or obfuscation: the shadow in gray from 1 to 5 pixels away, then the line (anti-aliased, see
+        /// <see cref="Rectangle"/>). Nothing without a visible line.
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
+        /// <param name="image">The image</param>
         /// <param name="values">The values of the image's pixels</param>
         /// <param name="rect">The rectangle, normalized</param>
         /// <param name="lineThickness">The width of the line</param>
@@ -103,24 +77,55 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return;
             }
-            if (shadow)
+            var box = Box(rect);
+            image.Mutate(context =>
             {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
+                if (shadow)
                 {
-                    var gray = values.Of(new Rgba32(100, 100, 100, (byte)System.Math.Round(alpha * 255)));
-                    Painting.Stroke(image, Box(rect, offset + 1), lineThickness, gray, antialias: false);
+                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    {
+                        var gray = values.ColorOf(new Rgba32(100, 100, 100, (byte)Math.Round(alpha * 255)));
+                        context.Draw(Painting.Pen(gray, lineThickness), box.Translate(offset + 1, offset + 1));
+                    }
                 }
-            }
-            Painting.Stroke(image, Box(rect, 0), lineThickness, values.Of(lineColor), antialias: false);
+                context.Draw(Painting.Pen(values.ColorOf(lineColor), lineThickness), box);
+            });
         }
 
         /// <summary>
-        /// The rectangle in ImageSharp's pixel coordinates, moved by the offset to the right and down
+        /// The shadow (the outline five times), the fill, then the line
         /// </summary>
-        internal static IPath Box(Rectangle rect, int offset) =>
-            new RectangularPolygon(rect.X + offset + Painting.GdiPixelCenter, rect.Y + offset + Painting.GdiPixelCenter, rect.Width, rect.Height);
+        internal static void Draw(Image image, ImageValues values, IPath shape, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow,
+            int shadowOffset = 0)
+        {
+            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
+            image.Mutate(context =>
+            {
+                if (shadow && (lineVisible || fillColor.A > 0))
+                {
+                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    {
+                        context.Draw(Painting.Pen(Painting.Black(alpha), Painting.PenWidth(lineThickness)), shape.Translate(offset + shadowOffset, offset + shadowOffset));
+                    }
+                }
+                if (fillColor.A > 0)
+                {
+                    context.Fill(values.ColorOf(fillColor), Painting.OnPixelCenters(shape));
+                }
+                if (lineVisible)
+                {
+                    context.Draw(Painting.Pen(values.ColorOf(lineColor), lineThickness), shape);
+                }
+            });
+        }
 
-        private static IPath Oval(Rectangle rect, int offset) =>
-            new EllipsePolygon(rect.X + offset + Painting.GdiPixelCenter + rect.Width / 2f, rect.Y + offset + Painting.GdiPixelCenter + rect.Height / 2f, rect.Width, rect.Height);
+        /// <summary>
+        /// The rectangle
+        /// </summary>
+        internal static IPath Box(Rectangle rect) =>
+            new RectangularPolygon(rect.X, rect.Y, rect.Width, rect.Height);
+
+        private static IPath Oval(Rectangle rect) =>
+            new EllipsePolygon(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f, rect.Width, rect.Height);
     }
 }

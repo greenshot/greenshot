@@ -19,29 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
-using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Base.ImageSharpDrawing
 {
     /// <summary>
-    /// Filling shapes into an image of any pixel type: the color is put over the pixels by the coverage of the shape (straight alpha), in the
-    /// values of the image (see <see cref="ImageValues"/>). The base of the drawing routines of the editor's elements.
+    /// What the drawing routines of the editor's elements share: the editor's coordinates, its shadow, and ImageSharp pens.
     /// </summary>
     public static class Painting
     {
         /// <summary>
-        /// GDI+ with PixelOffsetMode.None (the default, most elements of the editor) has the centre of a pixel at its whole coordinates, ImageSharp at
-        /// a half: a point of the editor is this much further right and down in ImageSharp. With PixelOffsetMode.Half/HighQuality both are the same.
+        /// The shape moved half a pixel right and down, for filling: the editor (GDI+ PixelOffsetMode.None) has pixel centres at whole coordinates.
+        /// ImageSharp's pens draw like that by themselves, its fills have pixel edges at whole coordinates.
         /// </summary>
-        public const float GdiPixelCenter = 0.5f;
+        public static IPath OnPixelCenters(IPath shape) => shape.Translate(0.5f, 0.5f);
 
-        // More than the vertical step of ImageSharp's anti-aliasing (16 rows per pixel), less than half a pixel
-        private const float TopLeftRule = 0.1f;
+        /// <inheritdoc cref="OnPixelCenters(IPath)"/>
+        public static IPathCollection OnPixelCenters(IPathCollection shapes) => shapes.Translate(0.5f, 0.5f);
 
         /// <summary>
         /// The shadow of the editor's elements (DrawableContainer.DrawShadow): five steps, each one pixel further right and down, from 100 to 20 of 255
@@ -56,135 +54,19 @@ namespace Greenshot.Base.ImageSharpDrawing
         }
 
         /// <summary>
+        /// Black with the alpha, the color of the shadow
+        /// </summary>
+        public static Color Black(float alpha) => Color.FromPixel(new RgbaVector(0, 0, 0, alpha));
+
+        /// <summary>
         /// The width of a pen in GDI+: a pen of width 0 draws one pixel wide
         /// </summary>
         public static float PenWidth(float width) => width > 0 ? width : 1;
 
         /// <summary>
-        /// Put the color over what the shape covers
+        /// A solid pen, by default with pointed corners and flat ends like a GDI+ pen
         /// </summary>
-        /// <param name="image">The image, any pixel type</param>
-        /// <param name="shape">The shape in the pixel coordinates of ImageSharp</param>
-        /// <param name="color">The color in the values of the image, straight alpha</param>
-        /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
-        /// <param name="clip">Only in this area, e.g. the box of a text</param>
-        public static void Fill(Image image, IPath shape, Vector4 color, bool antialias = true, Rectangle? clip = null) =>
-            Fill(image, shape == null ? Array.Empty<IPath>() : new[] { shape }, color, antialias, clip);
-
-        /// <summary>
-        /// Put the color over what the shapes cover together, once also where they overlap (like one GDI+ call draws a line with its arrow heads, or
-        /// the glyphs of a text). Each shape is filled by the non-zero rule, so their figures may turn either way.
-        /// </summary>
-        /// <param name="image">The image, any pixel type</param>
-        /// <param name="shapes">The shapes in the pixel coordinates of ImageSharp</param>
-        /// <param name="color">The color in the values of the image, straight alpha</param>
-        /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
-        /// <param name="clip">Only in this area, e.g. the box of a text</param>
-        public static void Fill(Image image, IReadOnlyList<IPath> shapes, Vector4 color, bool antialias = true, Rectangle? clip = null)
-        {
-            if (image == null || shapes == null || shapes.Count == 0 || !(color.W > 0))
-            {
-                return;
-            }
-            var area = Rectangle.Empty;
-            foreach (var shape in shapes)
-            {
-                var bounds = shape.Bounds;
-                var shapeArea = Rectangle.FromLTRB((int)Math.Floor(bounds.Left), (int)Math.Floor(bounds.Top), (int)Math.Ceiling(bounds.Right), (int)Math.Ceiling(bounds.Bottom));
-                area = area.IsEmpty ? shapeArea : Rectangle.Union(area, shapeArea);
-            }
-            area = Rectangle.Intersect(area, new Rectangle(0, 0, image.Width, image.Height));
-            if (clip is Rectangle only)
-            {
-                area = Rectangle.Intersect(area, only);
-            }
-            if (area.Width <= 0 || area.Height <= 0)
-            {
-                return;
-            }
-            float[] coverage = null;
-            foreach (var shape in shapes)
-            {
-                var shapeCoverage = CoverageOf(shape, area, antialias);
-                if (coverage == null)
-                {
-                    coverage = shapeCoverage;
-                    continue;
-                }
-                for (int i = 0; i < coverage.Length; i++)
-                {
-                    coverage[i] = Math.Max(coverage[i], shapeCoverage[i]);
-                }
-            }
-            float alpha = Math.Min(color.W, 1f);
-            image.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-            {
-                int offset = (start.Y - area.Y) * area.Width + start.X - area.X;
-                for (int x = 0; x < row.Length; x++)
-                {
-                    float covered = coverage[offset + x] * alpha;
-                    if (covered > 0f)
-                    {
-                        row[x] = Over(new Vector4(color.X, color.Y, color.Z, covered), row[x]);
-                    }
-                }
-            }, area));
-        }
-
-        /// <summary>
-        /// The coverage of the shape in the area (non-zero rule)
-        /// </summary>
-        private static float[] CoverageOf(IPath shape, Rectangle area, bool antialias)
-        {
-            if (antialias)
-            {
-                return Coverage.Of(shape.Translate(-area.X, -area.Y), area.Width, area.Height, IntersectionRule.NonZero);
-            }
-            // Without anti-aliasing a pixel is inside when more than half of it is covered. A pixel cut exactly in half by an edge needs a rule, else
-            // a line of width 2 drawn at the editor's coordinates covers three pixels: like GDI+ it is inside on the left and top edge only, by
-            // moving the shape a little up and left
-            var coverage = Coverage.Of(shape.Translate(-area.X - TopLeftRule, -area.Y - TopLeftRule), area.Width, area.Height, IntersectionRule.NonZero);
-            for (int i = 0; i < coverage.Length; i++)
-            {
-                coverage[i] = coverage[i] > 0.5f ? 1f : 0f;
-            }
-            return coverage;
-        }
-
-        /// <summary>
-        /// Draw the line along the path with the pen, like Graphics.DrawPath
-        /// </summary>
-        /// <param name="image">The image, any pixel type</param>
-        /// <param name="path">The path in the pixel coordinates of ImageSharp, closed figures are drawn closed</param>
-        /// <param name="width">The width of the pen (see <see cref="PenWidth"/>)</param>
-        /// <param name="color">The color in the values of the image, straight alpha</param>
-        /// <param name="join">How the line goes around corners, GDI+ pens have miter joins</param>
-        /// <param name="cap">How open lines end, GDI+ pens have flat ends</param>
-        /// <param name="antialias">False: whole pixels, like GDI+ with SmoothingMode.HighSpeed</param>
-        public static void Stroke(Image image, IPath path, float width, Vector4 color, JointStyle join = JointStyle.Miter, EndCapStyle cap = EndCapStyle.Butt,
-            bool antialias = true)
-        {
-            if (path == null || !(width > 0) || !(color.W > 0))
-            {
-                return;
-            }
-            Fill(image, path.GenerateOutline(width, join, cap), color, antialias);
-        }
-
-        /// <summary>
-        /// The pixel over the one under it, straight alpha
-        /// </summary>
-        public static Vector4 Over(Vector4 top, Vector4 bottom)
-        {
-            float topAlpha = Math.Max(Math.Min(top.W, 1f), 0f);
-            float bottomAlpha = Math.Max(Math.Min(bottom.W, 1f), 0f) * (1f - topAlpha);
-            float alpha = topAlpha + bottomAlpha;
-            if (alpha <= 0f)
-            {
-                return Vector4.Zero;
-            }
-            var color = (new Vector3(top.X, top.Y, top.Z) * topAlpha + new Vector3(bottom.X, bottom.Y, bottom.Z) * bottomAlpha) / alpha;
-            return new Vector4(color, alpha);
-        }
+        public static Pen Pen(Color color, float width, JointStyle join = JointStyle.Miter, EndCapStyle cap = EndCapStyle.Butt) =>
+            new SolidPen(new PenOptions(color, width) { JointStyle = join, EndCapStyle = cap });
     }
 }

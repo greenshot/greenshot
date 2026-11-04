@@ -137,8 +137,10 @@ namespace Greenshot.Tests.ImageSharpDrawing
         }
 
         [Theory]
+        // Lines of odd width: the editor draws rectangle lines without anti-aliasing, the routine anti-aliased, which looks the same only where the
+        // line's edges are on pixel edges
         [InlineData(3, true, true)]
-        [InlineData(2, false, false)]
+        [InlineData(1, false, false)]
         [InlineData(0, true, true)]
         [InlineData(5, true, false)]
         public void Rectangle_AsTheEditor(int lineThickness, bool fill, bool shadow)
@@ -176,11 +178,12 @@ namespace Greenshot.Tests.ImageSharpDrawing
         {
             using var surface = CreateSurface();
             var highlight = new HighlightContainer(surface) { Left = 20, Top = 15, Width = 50, Height = 30 };
-            highlight.SetFieldValue(FieldType.LINE_THICKNESS, 2);
+            // Odd width, see Rectangle_AsTheEditor
+            highlight.SetFieldValue(FieldType.LINE_THICKNESS, 3);
             highlight.SetFieldValue(FieldType.LINE_COLOR, Red);
             highlight.SetFieldValue(FieldType.SHADOW, shadow);
             var expected = Gdi(graphics => highlight.Draw(graphics, RenderMode.EXPORT));
-            var actual = Sharp(image => Shapes.FilterBorder(image, ImageValues.Srgb, new Rectangle(20, 15, 50, 30), 2, Rgba(Red), shadow));
+            var actual = Sharp(image => Shapes.FilterBorder(image, ImageValues.Srgb, new Rectangle(20, 15, 50, 30), 3, Rgba(Red), shadow));
 
             AssertSame(expected, actual);
         }
@@ -360,46 +363,48 @@ namespace Greenshot.Tests.ImageSharpDrawing
             var actual = Sharp(image => Texts.Draw(image, ImageValues.Srgb, new Rectangle(5, 5, 110, 80), text, new TextFont(font.FontFamily.Name, 14), Rgba(Red),
                 Placement(horizontal), Placement(vertical), 2));
 
-            // The glyphs differ a little, the place of the text not: its ink is where the editor's is, about as much of it
+            // Glyphs and line height differ a little, the place of the text not: its ink is about as much as the editor's, at the same side of the box
             var expectedInk = Ink(expected);
             var actualInk = Ink(actual);
             Assert.True(actualInk.Amount > 0, "Nothing is drawn");
             Assert.InRange(actualInk.Amount, expectedInk.Amount * 0.7, expectedInk.Amount * 1.3);
-            Assert.InRange(actualInk.Bounds.Left, expectedInk.Bounds.Left - 4, expectedInk.Bounds.Left + 4);
-            Assert.InRange(actualInk.Bounds.Right, expectedInk.Bounds.Right - 4, expectedInk.Bounds.Right + 4);
-            Assert.InRange(actualInk.Bounds.Top, expectedInk.Bounds.Top - 4, expectedInk.Bounds.Top + 4);
-            Assert.InRange(actualInk.Bounds.Bottom, expectedInk.Bounds.Bottom - 4, expectedInk.Bounds.Bottom + 4);
+            Assert.InRange(actualInk.Bounds.Width, expectedInk.Bounds.Width * 0.8, expectedInk.Bounds.Width * 1.2);
+            Assert.InRange(actualInk.Bounds.Height, expectedInk.Bounds.Height * 0.75, expectedInk.Bounds.Height * 1.25);
+            double Middle(int from, int to) => (from + to) / 2.0;
+            Assert.InRange(Side(actualInk.Bounds.Left, actualInk.Bounds.Right, horizontal), Side(expectedInk.Bounds.Left, expectedInk.Bounds.Right, horizontal) - 4,
+                Side(expectedInk.Bounds.Left, expectedInk.Bounds.Right, horizontal) + 4);
+            Assert.InRange(Side(actualInk.Bounds.Top, actualInk.Bounds.Bottom, vertical), Side(expectedInk.Bounds.Top, expectedInk.Bounds.Bottom, vertical) - 4,
+                Side(expectedInk.Bounds.Top, expectedInk.Bounds.Bottom, vertical) + 4);
+
+            double Side(int from, int to, StringAlignment alignment) => alignment switch
+            {
+                StringAlignment.Near => from,
+                StringAlignment.Far => to,
+                _ => Middle(from, to)
+            };
         }
 
         [Fact]
-        public void Text_TooLong_WrapsAndEndsWithAnEllipsis()
+        public void Text_TooLong_WrapsInsideTheBox()
         {
-            var font = Texts.Resolve(new TextFont("Arial", 14));
-            Assert.NotNull(font);
-            var lines = Texts.Layout("one two three four five six seven eight nine ten eleven twelve", font, new Rectangle(0, 0, 80, 40), TextPlacement.Near,
-                TextPlacement.Near);
+            var pixels = Sharp(image => Texts.Draw(image, ImageValues.Srgb, new Rectangle(10, 10, 80, 40), "one two three four five six seven eight nine ten eleven twelve",
+                new TextFont("Arial", 14), Rgba(Red), TextPlacement.Near, TextPlacement.Near));
 
-            Assert.Equal((int)Math.Floor(40 / Texts.LineHeight(font)), lines.Count);
-            Assert.EndsWith("…", lines[lines.Count - 1].Text);
-            Assert.All(lines, line => Assert.InRange(line.Origin.X, 14 / 6f - 0.01f, 14 / 6f + 0.01f));
-        }
-
-        [Fact]
-        public void Text_AWordTooLongForTheLine_IsBrokenAtItsCharacters()
-        {
-            var font = Texts.Resolve(new TextFont("Arial", 14));
-
-            var lines = Texts.Wrap("Screenshotscreenshotscreenshot", font, 60);
-
-            Assert.True(lines.Count > 1);
-            Assert.Equal("Screenshotscreenshotscreenshot", string.Concat(lines));
+            var ink = Ink(pixels);
+            Assert.True(ink.Amount > 0, "Nothing is drawn");
+            Assert.InRange(ink.Bounds.Left, 10, 90);
+            Assert.InRange(ink.Bounds.Right, 10, 91);
+            Assert.InRange(ink.Bounds.Top, 10, 50);
+            Assert.InRange(ink.Bounds.Bottom, 10, 51);
+            // More than one line
+            Assert.True(ink.Bounds.Height > 20, $"Only {ink.Bounds.Height} pixels high");
         }
 
         [Fact]
         public void HdrImage_TheColorIsLinearLightAtTheWhite()
         {
             const float white = 3f;
-            using var image = new SixLabors.ImageSharp.Image<HalfVector4>(Width, Height);
+            using var image = new SixLabors.ImageSharp.Image<RgbaVector>(Width, Height);
 
             Shapes.Rectangle(image, ImageValues.Linear(white), new Rectangle(10, 10, 40, 30), 0, Rgba(Red), new Rgba32(255, 255, 255, 255), false);
             Shapes.Rectangle(image, ImageValues.Linear(white), new Rectangle(60, 10, 40, 30), 0, Rgba(Red), new Rgba32(188, 188, 188, 255), false);

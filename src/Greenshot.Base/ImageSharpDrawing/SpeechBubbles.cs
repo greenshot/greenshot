@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
@@ -36,9 +35,6 @@ namespace Greenshot.Base.ImageSharpDrawing
     /// </summary>
     public static class SpeechBubbles
     {
-        // Points per quarter circle of a round corner
-        private const int ArcPoints = 16;
-
         /// <summary>
         /// Like SpeechbubbleContainer.Draw without the text: the shadow (the outline of box and tail, 1 to 5 pixels away), the inside, then the line
         /// around box and tail
@@ -55,56 +51,37 @@ namespace Greenshot.Base.ImageSharpDrawing
         {
             // The editor draws the line of the tail outside of the box and the line of the box outside of the tail: the line around both together
             var bubble = BoxShape(rect, lineThickness).Clip(new ShapeOptions { ClippingOperation = ClippingOperation.Union }, TailShape(rect, target));
-            bool lineVisible = lineThickness > 0 && lineColor.A > 0;
-            if (shadow && (lineVisible || fillColor.A > 0))
-            {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
-                {
-                    Painting.Stroke(image, bubble.Translate(offset + 1, offset + 1), Painting.PenWidth(lineThickness), new Vector4(0, 0, 0, alpha));
-                }
-            }
-            Painting.Fill(image, bubble, values.Of(fillColor));
-            if (lineVisible)
-            {
-                Painting.Stroke(image, bubble, lineThickness, values.Of(lineColor));
-            }
+            // The editor's bubble shadow starts one pixel further than that of the other elements
+            Shapes.Draw(image, values, bubble, lineThickness, lineColor, fillColor, shadow, shadowOffset: 1);
         }
 
         /// <summary>
         /// The box with round corners, like SpeechbubbleContainer.CreateBubble: the corners are quarter circles of a diameter up to 30 which leaves
-        /// room for the line, in ImageSharp's coordinates
+        /// room for the line
         /// </summary>
         internal static IPath BoxShape(Rectangle rect, int lineThickness)
         {
             int smallerSideLength = Math.Min(rect.Width, rect.Height);
-            int cornerRadius = Math.Min(30, smallerSideLength / 2 - lineThickness);
-            float left = rect.X + Painting.GdiPixelCenter, top = rect.Y + Painting.GdiPixelCenter;
-            if (cornerRadius <= 0)
+            // The diameter of the round corners
+            int cornerSize = Math.Min(30, smallerSideLength / 2 - lineThickness);
+            float left = rect.X, top = rect.Y;
+            if (cornerSize <= 0)
             {
                 return new RectangularPolygon(left, top, rect.Width, rect.Height);
             }
-            // GDI+ AddArc with a box of cornerRadius: a circle of that diameter; angles clockwise from the x axis (y goes down)
-            var points = new List<PointF>();
-            void Arc(float boxLeft, float boxTop, float startAngle)
-            {
-                float radius = cornerRadius / 2f;
-                var center = new Vector2(boxLeft + radius, boxTop + radius);
-                for (int i = 0; i <= ArcPoints; i++)
-                {
-                    double angle = (startAngle + 90.0 * i / ArcPoints) * Math.PI / 180;
-                    points.Add(center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius);
-                }
-            }
-            Arc(left, top, 180);
-            Arc(left + rect.Width - cornerRadius, top, 270);
-            Arc(left + rect.Width - cornerRadius, top + rect.Height - cornerRadius, 0);
-            Arc(left, top + rect.Height - cornerRadius, 90);
-            return new Polygon(new LinearLineSegment(points.ToArray()));
+            // Quarter circles, clockwise from the top left corner
+            var radius = new SizeF(cornerSize / 2f, cornerSize / 2f);
+            float right = left + rect.Width - radius.Width, bottom = top + rect.Height - radius.Height;
+            return new Polygon(
+                new ArcLineSegment(new PointF(left + radius.Width, top + radius.Height), radius, 0, 180, 90),
+                new ArcLineSegment(new PointF(right, top + radius.Height), radius, 0, 270, 90),
+                new ArcLineSegment(new PointF(right, bottom), radius, 0, 0, 90),
+                new ArcLineSegment(new PointF(left + radius.Width, bottom), radius, 0, 90, 90));
         }
 
         /// <summary>
         /// The tail, like SpeechbubbleContainer.CreateTail: a triangle from the middle of the box (its base across, as wide as a tenth of width and
-        /// height together, at most half of either) to the target, with the editor's whole-number rounding, in ImageSharp's coordinates
+        /// height together, at most half of either) to the target, with the editor's whole-number rounding
         /// </summary>
         internal static IPath TailShape(Rectangle rect, Point target)
         {
@@ -116,7 +93,7 @@ namespace Greenshot.Base.ImageSharpDrawing
             tailWidth = Math.Min(Math.Abs(rect.Height) / 2, tailWidth);
             int tailAngle = 90 + (int)(Math.Atan2(target.Y - centerY, target.X - centerX) * 180 / Math.PI);
             var turn = Matrix3x2.CreateRotation((float)(tailAngle * Math.PI / 180))
-                       * Matrix3x2.CreateTranslation(centerX + Painting.GdiPixelCenter, centerY + Painting.GdiPixelCenter);
+                       * Matrix3x2.CreateTranslation(centerX, centerY);
             return new Polygon(new LinearLineSegment(new PointF(-tailWidth, 0), new PointF(tailWidth, 0), new PointF(0, -tailLength))).Transform(turn);
         }
     }

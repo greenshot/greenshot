@@ -49,58 +49,39 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 return;
             }
-            using var scaled = picture.Width == place.Width && picture.Height == place.Height
-                ? picture.Clone()
-                : picture.Clone(context => context.Resize(new ResizeOptions
-                {
-                    Size = new Size(place.Width, place.Height),
-                    Mode = ResizeMode.Stretch,
-                    Sampler = nearestNeighbor ? KnownResamplers.NearestNeighbor : KnownResamplers.Bicubic
-                }));
-            var pixels = new Vector4[place.Width * place.Height];
-            scaled.ProcessPixelRows(accessor =>
+            // Scaled in sRGB like the editor, then turned into the image's values
+            using var scaled = picture.Clone(context => context.Resize(new ResizeOptions
             {
-                for (int y = 0; y < accessor.Height; y++)
-                {
-                    var row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < row.Length; x++)
-                    {
-                        pixels[y * place.Width + x] = values.Of(row[x]);
-                    }
-                }
-            });
-            if (shadow)
+                Size = new Size(place.Width, place.Height),
+                Mode = ResizeMode.Stretch,
+                Sampler = nearestNeighbor ? KnownResamplers.NearestNeighbor : KnownResamplers.Bicubic
+            })).CloneAs<RgbaVector>();
+            scaled.Mutate(context => context.ProcessPixelRowsAsVector4(row =>
             {
-                foreach (var (offset, alpha) in Painting.ShadowSteps())
-                {
-                    Put(image, pixels, new Rectangle(place.X + offset + 1, place.Y + offset + 1, place.Width, place.Height), pixel => new Vector4(0, 0, 0, pixel.W * alpha));
-                }
-            }
-            Put(image, pixels, place, pixel => pixel);
-        }
-
-        /// <summary>
-        /// The pixels (the values of the image, straight alpha) over the image at the place
-        /// </summary>
-        private static void Put(Image image, Vector4[] pixels, Rectangle place, Func<Vector4, Vector4> shown)
-        {
-            var area = Rectangle.Intersect(place, new Rectangle(0, 0, image.Width, image.Height));
-            if (area.Width <= 0 || area.Height <= 0)
-            {
-                return;
-            }
-            image.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-            {
-                int offset = (start.Y - place.Y) * place.Width + start.X - place.X;
                 for (int x = 0; x < row.Length; x++)
                 {
-                    var pixel = shown(pixels[offset + x]);
-                    if (pixel.W > 0f)
+                    row[x] = values.Of(row[x]);
+                }
+            }));
+            image.Mutate(context =>
+            {
+                if (shadow)
+                {
+                    // The shape of the picture in black
+                    using var silhouette = scaled.Clone(black => black.ProcessPixelRowsAsVector4(row =>
                     {
-                        row[x] = Painting.Over(pixel, row[x]);
+                        for (int x = 0; x < row.Length; x++)
+                        {
+                            row[x] = new Vector4(0, 0, 0, row[x].W);
+                        }
+                    }));
+                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    {
+                        context.DrawImage(silhouette, new Point(place.X + offset + 1, place.Y + offset + 1), alpha);
                     }
                 }
-            }, area));
+                context.DrawImage(scaled, place.Location, 1f);
+            });
         }
     }
 }

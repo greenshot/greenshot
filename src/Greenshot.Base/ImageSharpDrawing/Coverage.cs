@@ -40,8 +40,7 @@ namespace Greenshot.Base.ImageSharpDrawing
         /// <param name="width">The width of the image</param>
         /// <param name="height">The height of the image</param>
         /// <param name="rule">Which parts of overlapping figures are inside, EvenOdd like FillMode.Alternate of GDI+</param>
-        /// <param name="antialias">False: each pixel is inside (1) or outside (0), like GDI+ with SmoothingMode.HighSpeed</param>
-        public static float[] Of(IPath shape, int width, int height, IntersectionRule rule = IntersectionRule.EvenOdd, bool antialias = true)
+        public static float[] Of(IPath shape, int width, int height, IntersectionRule rule = IntersectionRule.EvenOdd)
         {
             var coverage = new float[width * height];
             if (width <= 0 || height <= 0)
@@ -52,7 +51,7 @@ namespace Greenshot.Base.ImageSharpDrawing
             using var mask = new Image<RgbaVector>(width, height);
             var options = new DrawingOptions
             {
-                GraphicsOptions = new GraphicsOptions { Antialias = antialias },
+                GraphicsOptions = new GraphicsOptions { Antialias = true },
                 ShapeOptions = new ShapeOptions { IntersectionRule = rule }
             };
             mask.Mutate(context => context.Fill(options, Color.White, shape));

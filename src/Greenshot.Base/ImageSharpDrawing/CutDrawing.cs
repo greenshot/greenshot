@@ -94,14 +94,14 @@ namespace Greenshot.Base.ImageSharpDrawing
                         var color = background;
                         if (shadowAlpha != null)
                         {
-                            color = Painting.Over(new Vector4(0, 0, 0, shadowAlpha[y * size.Width + x]), color);
+                            color = Over(new Vector4(0, 0, 0, shadowAlpha[y * size.Width + x]), color);
                         }
                         int sourceX = x - imageOffset.X;
                         if (!sourceRow.IsEmpty && sourceX >= 0 && sourceX < source.Width)
                         {
                             var pixel = sourceRow[sourceX].ToVector4();
                             pixel.W *= coverage[sourceY * source.Width + sourceX];
-                            color = Painting.Over(pixel, color);
+                            color = Over(pixel, color);
                         }
                         TPixel value = default;
                         value.FromVector4(color);
@@ -156,6 +156,22 @@ namespace Greenshot.Base.ImageSharpDrawing
                 }
             });
             return shadowAlpha;
+        }
+
+        /// <summary>
+        /// The pixel over the one under it, straight alpha
+        /// </summary>
+        private static Vector4 Over(Vector4 top, Vector4 bottom)
+        {
+            float topAlpha = Math.Max(Math.Min(top.W, 1f), 0f);
+            float bottomAlpha = Math.Max(Math.Min(bottom.W, 1f), 0f) * (1f - topAlpha);
+            float alpha = topAlpha + bottomAlpha;
+            if (alpha <= 0f)
+            {
+                return Vector4.Zero;
+            }
+            var color = (new Vector3(top.X, top.Y, top.Z) * topAlpha + new Vector3(bottom.X, bottom.Y, bottom.Z) * bottomAlpha) / alpha;
+            return new Vector4(color, alpha);
         }
     }
 }
