@@ -330,20 +330,18 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void Crop_OfARequestedHdrImage_WithoutHdrContentInTheArea_KeepsIt()
+    public void Crop_OfARequestedHdrImage_WithoutHdrContentInTheArea_DropsIt()
     {
-        // E.g. an opened JPEG XR file: HDR was asked for, Save as suggests JPEG XR also for a crop without highlights
+        // E.g. an opened JPEG XR file, cropped to a part without highlights: no HDR content, no HDR image
         using var capture = new Capture { Image = new Bitmap(4, 2) };
-        var pixels = CreatePixels(4, 2, (x, y) => Rgba(1f, 1f, 1f));
+        var pixels = CreatePixels(4, 2, (x, y) => x == 0 ? Rgba(5f, 5f, 5f) : Rgba(1f, 1f, 1f));
         pixels.IsRequested = true;
         pixels.BelongTo(capture.Image);
         capture.HdrImage = pixels;
 
         Assert.True(capture.Crop(new NativeRect(1, 0, 2, 2)));
 
-        Assert.NotNull(capture.HdrImage);
-        Assert.True(capture.HdrImage.IsRequested);
-        Assert.False(capture.HdrImage.HasHdrContent);
+        Assert.Null(capture.HdrImage);
     }
 
     [Fact]
@@ -434,19 +432,29 @@ public class HdrCaptureTests
     }
 
     [Fact]
-    public void Join_OfRequestedParts_WithoutHdrContent_KeepsIt()
+    public void Join_OfRequestedParts_WithoutHdrContent_HasNoHdrImage()
     {
-        // E.g. a window captured with HDR asked for: kept like a requested HDR image at a crop
+        // E.g. a normal window captured with HDR asked for: no HDR content, no HDR image
         using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         var pixels = CreatePixels(2, 1, (x, y) => Rgba(1f, 1f, 1f));
         pixels.IsRequested = true;
         using var parts = HdrParts.Of(pixels);
 
+        Assert.Null(parts.Join(image, new NativeRect(0, 0, 2, 1)));
+    }
+
+    [Fact]
+    public void Join_OfRequestedParts_WithHdrContent_IsRequested()
+    {
+        using var image = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        var pixels = CreatePixels(2, 1, (x, y) => Rgba(5f, 5f, 5f));
+        pixels.IsRequested = true;
+        using var parts = HdrParts.Of(pixels);
+
         using var joined = parts.Join(image, new NativeRect(0, 0, 2, 1));
 
-        Assert.NotNull(joined);
         Assert.True(joined.IsRequested);
-        Assert.False(joined.HasHdrContent);
+        Assert.True(joined.HasHdrContent);
         Assert.True(joined.BelongsTo(image));
     }
 

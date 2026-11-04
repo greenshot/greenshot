@@ -60,7 +60,7 @@ namespace Greenshot.Base.Hdr
         public IReadOnlyList<NativeRect> Areas => _parts.Select(part => new NativeRect(part.Location, new NativeSize(part.Part.Width, part.Part.Height))).ToList();
 
         /// <summary>
-        /// HDR was asked for explicitly (see HdrImage.IsRequested): the joined HDR image gets it, and it is joined also without HDR content
+        /// HDR was asked for explicitly (see HdrImage.IsRequested): the joined HDR image gets it (only with HDR content: without, there is none)
         /// </summary>
         public bool IsRequested { get; set; }
 
@@ -91,7 +91,7 @@ namespace Greenshot.Base.Hdr
         /// </summary>
         /// <param name="sdrImage">The 8-bit image of the area</param>
         /// <param name="area">The area in the coordinates of the capture</param>
-        /// <returns>The HDR image, null when no HDR display is in the area, or nothing of it has HDR content and HDR wasn't asked for (no memory is spent then)</returns>
+        /// <returns>The HDR image, null when no HDR display is in the area, or nothing of it has HDR content, also when HDR was asked for (no memory is spent then)</returns>
         public HdrImage Join(Bitmap sdrImage, NativeRect area)
         {
             if (sdrImage == null) throw new ArgumentNullException(nameof(sdrImage));
@@ -115,8 +115,8 @@ namespace Greenshot.Base.Hdr
                 Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: not on an HDR display, no HDR image.");
                 return null;
             }
-            // E.g. only a normal window on an HDR display: nothing an 8-bit image can't show, no HDR image, unless HDR was asked for
-            if (!hasHdrContent && !IsRequested)
+            // E.g. only a normal window on an HDR display: nothing an 8-bit image can't show, no HDR image (also when HDR was asked for)
+            if (!hasHdrContent)
             {
                 Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: no HDR content (nothing brighter than SDR white or outside sRGB), no HDR image.");
                 return null;
@@ -125,9 +125,9 @@ namespace Greenshot.Base.Hdr
             if (joined != null)
             {
                 joined.IsRequested |= IsRequested;
-                joined.KnowHasHdrContent(hasHdrContent);
+                joined.KnowHasHdrContent(true);
                 joined.BelongTo(sdrImage);
-                Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: joined {joined.Width}x{joined.Height} {(hasHdrContent ? "with HDR content" : "without HDR content (HDR was asked for)")} of {inArea.Count} HDR display(s).");
+                Log.Info($"Selection {area.Width}x{area.Height} at {area.X},{area.Y}: joined {joined.Width}x{joined.Height} with HDR content of {inArea.Count} HDR display(s).");
             }
             return joined;
         }

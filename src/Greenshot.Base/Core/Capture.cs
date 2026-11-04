@@ -318,9 +318,9 @@ namespace Greenshot.Base.Core
             else
             {
                 // The HDR image shows the same area as the image, when it belonged to the image; without HDR content in the area (e.g. only the part
-                // of an SDR display) it isn't kept, unless HDR was asked for (e.g. an opened JPEG XR file): Save as still suggests JPEG XR then
+                // of an SDR display) it isn't kept, also when HDR was asked for: no HDR content, no HDR image
                 var cropped = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
-                if (cropped != null && !cropped.IsRequested && !cropped.HasHdrContent)
+                if (cropped != null && !cropped.HasHdrContent)
                 {
                     cropped.Dispose();
                     cropped = null;

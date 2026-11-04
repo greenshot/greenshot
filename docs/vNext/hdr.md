@@ -112,7 +112,8 @@ The join is explicit: cropping the capture to the selection (`Capture.Crop`) joi
 `payload.hdr` asks the parts without joining them. Each part is copied once, straight into the joined image; one part which
 covers all of it is shared, not copied. Whether there is HDR content is measured on the parts, only where they are in the area,
 and the joined image keeps that answer. An area with no HDR content (e.g. only on an SDR display, or only normal windows) gets no
-`HdrImage`, unless HDR was asked for (`IsRequested`).
+`HdrImage`, also when HDR was asked for (`IsRequested`): no HDR content, no HDR image. The same goes for a crop, e.g. of an
+opened JPEG XR file.
 
 **Memory:** the HDR image of the captured area takes 8 bytes per pixel (twice the SDR image), also for the parts of SDR displays in
 it. While the region is selected on the frozen screen, only the HDR displays are held, at 8 bytes per pixel. A capture without HDR
