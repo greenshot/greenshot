@@ -203,7 +203,7 @@ namespace Greenshot.Tests.Editor
         {
             using var surface = new Surface(new Bitmap(400, 300));
             var ocr = new FakeOcrProvider(true, Line(100, 130, 200, 20));
-            surface.ObfuscationOcrProvider = ocr;
+            surface.OcrProvider = ocr;
 
             var first = Draw(surface);
             Assert.Equal(Expected(first, 20), Strength(first));
@@ -220,7 +220,7 @@ namespace Greenshot.Tests.Editor
         {
             using var surface = new Surface(new Bitmap(400, 300));
             var ocr = new FakeOcrProvider(true);
-            surface.ObfuscationOcrProvider = ocr;
+            surface.OcrProvider = ocr;
             int lastUsed = Strength(new ObfuscateContainer(surface));
 
             var first = Draw(surface);
@@ -235,7 +235,7 @@ namespace Greenshot.Tests.Editor
         {
             using var surface = new Surface(new Bitmap(400, 300));
             var ocr = new FakeOcrProvider(false, Line(100, 130, 200, 20));
-            surface.ObfuscationOcrProvider = ocr;
+            surface.OcrProvider = ocr;
             int lastUsed = Strength(new ObfuscateContainer(surface));
 
             var untouched = Draw(surface);
@@ -252,34 +252,47 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void DrawnObfuscation_OcrFails_KeepsTheValue_TellsOnce_AndDoesNotRunOcrAgain()
+        public void DrawnObfuscation_OcrFails_KeepsTheValue_AndDoesNotRunOcrAgain()
         {
             using var surface = new Surface(new Bitmap(400, 300));
             var ocr = new FakeOcrProvider(false, Line(100, 130, 200, 20));
-            surface.ObfuscationOcrProvider = ocr;
-            var errors = new List<string>();
-            surface.SurfaceMessage += (sender, e) =>
-            {
-                if (e.MessageType == SurfaceMessageTyp.Error)
-                {
-                    errors.Add(e.Message);
-                }
-            };
+            surface.OcrProvider = ocr;
+            int changes = 0;
+            surface.TextRecognitionChanged += (sender, e) => changes++;
             int lastUsed = Strength(new ObfuscateContainer(surface));
+            Assert.Equal(TextRecognitionState.None, surface.TextRecognitionState);
 
             // Both wait for the same OCR
             var first = Draw(surface);
             var second = Draw(surface);
+            Assert.Equal(TextRecognitionState.Running, surface.TextRecognitionState);
             ocr.Fail();
             Assert.Equal(lastUsed, Strength(first));
             Assert.Equal(lastUsed, Strength(second));
-            Assert.Single(errors);
+            Assert.Equal(TextRecognitionState.Failed, surface.TextRecognitionState);
+            Assert.Equal("OCR failed", surface.TextRecognitionError);
+            // Started and failed
+            Assert.Equal(2, changes);
 
             // The next obfuscation doesn't run OCR again
             var third = Draw(surface);
             Assert.Equal(lastUsed, Strength(third));
             Assert.Equal(1, ocr.Calls);
-            Assert.Single(errors);
+        }
+
+        [Fact]
+        public void TextRecognitionState_FollowsTheOcr()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            surface.OcrProvider = new FakeOcrProvider(true);
+            Assert.Equal(TextRecognitionState.None, surface.TextRecognitionState);
+
+            Draw(surface);
+            Assert.Equal(TextRecognitionState.NoText, surface.TextRecognitionState);
+
+            // Lines of the capture, e.g. from a recipe, count as found
+            surface.CaptureDetails.Features.Add(Line(0, 0, 100, 20));
+            Assert.Equal(TextRecognitionState.Found, surface.TextRecognitionState);
         }
     }
 }

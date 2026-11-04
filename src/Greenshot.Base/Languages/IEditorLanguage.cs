@@ -127,6 +127,31 @@ namespace Greenshot.Base.Languages
         string HdrBadgeLostTooltip { get; }
 
         /// <summary>
+        /// OCR
+        /// </summary>
+        string OcrBadge { get; }
+
+        /// <summary>
+        /// Text recognition is running...
+        /// </summary>
+        string OcrBadgeRunningTooltip { get; }
+
+        /// <summary>
+        /// The text of this capture is recognized: ...
+        /// </summary>
+        string OcrBadgeFoundTooltip { get; }
+
+        /// <summary>
+        /// No text was recognized in this capture: ...
+        /// </summary>
+        string OcrBadgeNoTextTooltip { get; }
+
+        /// <summary>
+        /// Text recognition failed ({0}): ...
+        /// </summary>
+        string OcrBadgeFailedTooltip { get; }
+
+        /// <summary>
         /// Fill color (0-9)
         /// </summary>
         string Backcolor { get; }
@@ -560,11 +585,6 @@ namespace Greenshot.Base.Languages
         /// Blur radius (% of text height):
         /// </summary>
         string ObfuscateTextBlurRadiusTextHeight { get; }
-
-        /// <summary>
-        /// Text recognition failed, blur and pixelate keep the toolbar value
-        /// </summary>
-        string ObfuscateOcrFailedKeepsValue { get; }
 
         /// <summary>
         /// Color:

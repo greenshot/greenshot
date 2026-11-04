@@ -2774,16 +2774,41 @@ namespace Greenshot.Editor.Drawing
             _drawingElement = null;
         }
 
-        // The OCR started for drawn obfuscations, once per image
-        private Task<List<IOcrLineFeature>> _obfuscationOcrTask;
-        private Image _obfuscationOcrImage;
-        // The image for which the editor was told that OCR failed
-        private Image _obfuscationOcrFailureShownImage;
+        // The OCR of the image, once per image, for drawn obfuscations and the Redact Text window
+        private Task<List<IOcrLineFeature>> _ocrTask;
+        private Image _ocrImage;
+        private TextRecognitionState _ocrState;
+        private string _ocrError;
 
         /// <summary>
-        /// The OCR provider for drawn obfuscations, tests set their own; null uses the registered one
+        /// The OCR provider, tests set their own; null uses the registered one
         /// </summary>
-        internal IOcrProvider ObfuscationOcrProvider { get; set; }
+        internal IOcrProvider OcrProvider { get; set; }
+
+        /// <summary>
+        /// Whether the text of the image is known: from the capture (recipes, text capture) or from the OCR started here
+        /// </summary>
+        public TextRecognitionState TextRecognitionState
+        {
+            get
+            {
+                if (OcrLinesOfCapture().Count > 0)
+                {
+                    return TextRecognitionState.Found;
+                }
+                return Image != null && ReferenceEquals(_ocrImage, Image) ? _ocrState : TextRecognitionState.None;
+            }
+        }
+
+        /// <summary>
+        /// Why the text recognition failed, when TextRecognitionState is Failed
+        /// </summary>
+        public string TextRecognitionError => TextRecognitionState == TextRecognitionState.Failed ? _ocrError : null;
+
+        /// <summary>
+        /// The text recognition started, ended or failed
+        /// </summary>
+        public event EventHandler TextRecognitionChanged;
 
         /// <summary>
         /// A new obfuscation over OCR lines gets the strength for that text.
@@ -2792,14 +2817,15 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
         {
-            var ocrLines = OcrLinesOfCapture();
-            if (ocrLines.Count > 0 || !StartObfuscationOcr())
+            var recognition = RecognizeTextAsync();
+            if (!recognition.IsCompleted)
             {
-                FitObfuscationToText(obfuscateContainer, ocrLines);
-                return;
+                _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer, recognition);
             }
-
-            _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer);
+            else if (recognition.Status == TaskStatus.RanToCompletion && recognition.Result != null)
+            {
+                FitObfuscationToText(obfuscateContainer, recognition.Result);
+            }
         }
 
         private List<IOcrLineFeature> OcrLinesOfCapture()
@@ -2815,83 +2841,104 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Start OCR of the image for drawn obfuscations, unless that already happened for this image
+        /// The OCR lines of the capture. When it has none, OCR of the image starts, once per image: a later call gets the same result,
+        /// also when it found nothing or failed.
         /// </summary>
-        /// <returns>true when OCR runs or ran for this image and its result can be awaited</returns>
-        private bool StartObfuscationOcr()
+        /// <returns>The lines, empty when there is no text, null when there is no OCR provider; it fails when the OCR failed</returns>
+        internal Task<List<IOcrLineFeature>> RecognizeTextAsync()
         {
+            var ocrLines = OcrLinesOfCapture();
             var image = Image;
-            if (image == null || CaptureDetails?.Features == null)
+            if (ocrLines.Count > 0 || image == null || CaptureDetails?.Features == null)
             {
-                return false;
+                return Task.FromResult(ocrLines);
             }
-            if (_obfuscationOcrTask != null && ReferenceEquals(_obfuscationOcrImage, image))
+            if (_ocrTask != null && ReferenceEquals(_ocrImage, image))
             {
-                // Done before for this image: when it found nothing there is nothing to wait for
-                return !_obfuscationOcrTask.IsCompleted;
+                return _ocrTask;
             }
 
-            var ocrProvider = ObfuscationOcrProvider ?? SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+            var ocrProvider = OcrProvider ?? SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
             if (ocrProvider == null)
             {
-                return false;
+                return Task.FromResult<List<IOcrLineFeature>>(null);
             }
 
-            _obfuscationOcrImage = image;
-            _obfuscationOcrTask = RunObfuscationOcrAsync(ocrProvider);
-            return true;
+            _ocrImage = image;
+            SetTextRecognitionState(image, TextRecognitionState.Running, null);
+            _ocrTask = RunOcrAsync(ocrProvider, image);
+            return _ocrTask;
         }
 
-        private async Task<List<IOcrLineFeature>> RunObfuscationOcrAsync(IOcrProvider ocrProvider)
+        private void SetTextRecognitionState(Image image, TextRecognitionState state, string error)
+        {
+            if (!ReferenceEquals(_ocrImage, image))
+            {
+                return;
+            }
+            _ocrState = state;
+            _ocrError = error;
+            TextRecognitionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task<List<IOcrLineFeature>> RunOcrAsync(IOcrProvider ocrProvider, Image image)
         {
             var captureDetails = CaptureDetails;
-            var image = Image;
             try
             {
-                // The capture processing might be finding the text already
-                var processingTask = captureDetails.ProcessingTask;
-                if (processingTask != null && !processingTask.IsCompleted)
+                try
                 {
-                    await processingTask;
+                    // The capture processing might be finding the text already
+                    var processingTask = captureDetails.ProcessingTask;
+                    if (processingTask != null && !processingTask.IsCompleted)
+                    {
+                        await processingTask;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Background processing of the capture failed", ex);
+                }
+
+                if (OcrLinesOfCapture().Count == 0)
+                {
+                    var detectedLines = await ocrProvider.DoOcrAsync(this);
+                    // When the image changed meanwhile, the lines are no longer where the text is
+                    if (detectedLines != null && detectedLines.Count > 0 && ReferenceEquals(image, Image))
+                    {
+                        lock (captureDetails.Features)
+                        {
+                            // Something else might have added OCR lines meanwhile
+                            if (!captureDetails.Features.OfType<IOcrLineFeature>().Any())
+                            {
+                                captureDetails.Features.AddRange(detectedLines);
+                            }
+                        }
+                    }
+                }
+
+                var ocrLines = OcrLinesOfCapture();
+                SetTextRecognitionState(image, ocrLines.Count > 0 ? TextRecognitionState.Found : TextRecognitionState.NoText, null);
+                return ocrLines;
             }
             catch (Exception ex)
             {
-                LOG.Warn("Background processing of the capture failed", ex);
+                LOG.Warn("Text recognition failed", ex);
+                SetTextRecognitionState(image, TextRecognitionState.Failed, ex.Message);
+                throw;
             }
-
-            var ocrLines = OcrLinesOfCapture();
-            if (ocrLines.Count > 0)
-            {
-                return ocrLines;
-            }
-
-            var detectedLines = await ocrProvider.DoOcrAsync(this);
-            // When the image changed meanwhile, the lines are no longer where the text is
-            if (detectedLines == null || detectedLines.Count == 0 || !ReferenceEquals(image, Image))
-            {
-                return ocrLines;
-            }
-            lock (captureDetails.Features)
-            {
-                // Something else might have added OCR lines meanwhile
-                if (!captureDetails.Features.OfType<IOcrLineFeature>().Any())
-                {
-                    captureDetails.Features.AddRange(detectedLines);
-                }
-            }
-            return OcrLinesOfCapture();
         }
 
-        private async Task FitObfuscationToTextAfterOcrAsync(ObfuscateContainer obfuscateContainer)
+        private async Task FitObfuscationToTextAfterOcrAsync(ObfuscateContainer obfuscateContainer, Task<List<IOcrLineFeature>> recognition)
         {
             // What the obfuscation has now, when this changed meanwhile the user chose another value
             var effect = obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
             int? strength = ObfuscationStrength.Strength(obfuscateContainer);
             try
             {
-                var ocrLines = await _obfuscationOcrTask;
-                if (!_elements.Contains(obfuscateContainer)
+                var ocrLines = await recognition;
+                if (ocrLines == null
+                    || !_elements.Contains(obfuscateContainer)
                     || !Equals(effect, obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE))
                     || strength != ObfuscationStrength.Strength(obfuscateContainer))
                 {
@@ -2901,13 +2948,8 @@ namespace Greenshot.Editor.Drawing
             }
             catch (Exception ex)
             {
-                LOG.Warn("OCR for the strength of an obfuscation failed, it keeps its value", ex);
-                // Once per image, also when several obfuscations waited for this OCR
-                if (!ReferenceEquals(_obfuscationOcrFailureShownImage, Image))
-                {
-                    _obfuscationOcrFailureShownImage = Image;
-                    SendMessageEvent(this, SurfaceMessageTyp.Error, global::Greenshot.Base.Languages.Texts.Editor.ObfuscateOcrFailedKeepsValue);
-                }
+                // Logged by RunOcrAsync, the OCR badge of the editor shows it
+                LOG.Debug("The obfuscation keeps its value, text recognition failed", ex);
             }
         }
 
