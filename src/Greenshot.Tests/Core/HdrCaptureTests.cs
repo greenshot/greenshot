@@ -319,6 +319,40 @@ public class HdrCaptureTests
     }
 
     [Fact]
+    public void Crop_OfARequestedHdrImage_WithoutHdrContentInTheArea_KeepsIt()
+    {
+        // E.g. an opened JPEG XR file: HDR was asked for, Save as suggests JPEG XR also for a crop without highlights
+        using var capture = new Capture { Image = new Bitmap(4, 2) };
+        var pixels = CreatePixels(4, 2, (x, y) => Rgba(1f, 1f, 1f));
+        pixels.IsRequested = true;
+        pixels.BelongTo(capture.Image);
+        capture.HdrImage = pixels;
+
+        Assert.True(capture.Crop(new NativeRect(1, 0, 2, 2)));
+
+        Assert.NotNull(capture.HdrImage);
+        Assert.True(capture.HdrImage.IsRequested);
+        Assert.False(capture.HdrImage.HasHdrContent);
+    }
+
+    [Fact]
+    public void NullImage_DoesNotJoinTheParts_ItReleasesThem()
+    {
+        var capture = CreateFrozenScreen();
+        var image = capture.Image;
+        var parts = capture.HdrParts;
+
+        capture.NullImage();
+
+        Assert.Null(capture.HdrParts);
+        Assert.Null(capture.HdrImage);
+        // Released: no area of the parts is left
+        Assert.Empty(parts.Areas);
+        image.Dispose();
+        capture.Dispose();
+    }
+
+    [Fact]
     public void Crop_OfAJoinedImage_WithoutHdrContentInTheArea_DropsIt()
     {
         using var capture = CreateFrozenScreen();

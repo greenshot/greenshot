@@ -953,6 +953,33 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void Pixelate_WithoutA8BitBitmap_CantBeDoneOnTheHdrPixels_NeverLeftOutSilently()
+        {
+            // Pixelate takes its blocks from the 8-bit bitmap: on another kind of image (a metafile) it can't be done, the state is Lost then,
+            // instead of an HDR file which shows what the element hides
+            using var surface = CreateBrightSurface();
+            var obfuscate = new ObfuscateContainer(surface) { Left = 10, Top = 10, Width = 20, Height = 20 };
+            Assert.Contains(obfuscate.Filters, filter => filter is Greenshot.Editor.Drawing.Filters.PixelizationFilter);
+            using var reference = new Bitmap(1, 1);
+            using var graphics = Graphics.FromImage(reference);
+            var hdc = graphics.GetHdc();
+            System.Drawing.Imaging.Metafile metafile;
+            try
+            {
+                metafile = new System.Drawing.Imaging.Metafile(hdc, System.Drawing.Imaging.EmfType.EmfPlusOnly);
+            }
+            finally
+            {
+                graphics.ReleaseHdc(hdc);
+            }
+            using (metafile)
+            {
+                Assert.False(Greenshot.Editor.Drawing.Filters.ElementImageFilters.Supports(obfuscate, metafile));
+            }
+            Assert.True(Greenshot.Editor.Drawing.Filters.ElementImageFilters.Supports(obfuscate, surface.Image));
+        }
+
+        [Fact]
         public void InvertedPixelate_IsDoneOnTheHdrPixels_AroundTheElement()
         {
             // Stripes of 1 pixel: black and a highlight of 6

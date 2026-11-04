@@ -140,10 +140,23 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 {
                     return null;
                 }
-                using var converted = Greenshot.Base.Core.ImageSharpHelper.ConvertToImageSharp(bitmap);
-                var picture = converted.CloneAs<SixLabors.ImageSharp.PixelFormats.Rgba32>();
+                // The pixels as a managed copy (taken now, the bitmap may change): the picture is only made while it is drawn, and disposed then
+                SixLabors.ImageSharp.PixelFormats.Rgba32[] pixels;
+                int pictureWidth, pictureHeight;
+                using (var converted = Greenshot.Base.Core.ImageSharpHelper.ConvertToImageSharp(bitmap))
+                using (var rgba = converted.CloneAs<SixLabors.ImageSharp.PixelFormats.Rgba32>())
+                {
+                    pictureWidth = rgba.Width;
+                    pictureHeight = rgba.Height;
+                    pixels = new SixLabors.ImageSharp.PixelFormats.Rgba32[pictureWidth * pictureHeight];
+                    rgba.CopyPixelDataTo(pixels);
+                }
                 var bounds = new SixLabors.ImageSharp.Rectangle(Left - origin.X, Top - origin.Y, Width, Height);
-                return (image, values) => Greenshot.Base.ImageSharpDrawing.Pictures.Draw(image, values, picture, bounds, true, false);
+                return (image, values) =>
+                {
+                    using var picture = SixLabors.ImageSharp.Image.LoadPixelData<SixLabors.ImageSharp.PixelFormats.Rgba32>(pixels, pictureWidth, pictureHeight);
+                    Greenshot.Base.ImageSharpDrawing.Pictures.Draw(image, values, picture, bounds, true, false);
+                };
             }
             var place = Is2D && (Width != layout.Width || Height != layout.Height)
                 ? new SixLabors.ImageSharp.Rectangle(Left + (Width - layout.Width) / 2 - origin.X, Top + (Height - layout.Height) / 2 - origin.Y, layout.Width, layout.Height)

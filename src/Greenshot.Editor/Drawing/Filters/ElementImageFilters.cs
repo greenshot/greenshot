@@ -238,10 +238,14 @@ namespace Greenshot.Editor.Drawing.Filters
 
         /// <summary>
         /// True when all filters of the element can be done on the HDR pixels (see <see cref="Create(DrawableContainer, NativeRect, IReadOnlyList{NativeRect}, DrawableContainer, System.Drawing.Bitmap)"/>):
-        /// the filters of the editor; not an inverted magnifier (no preset makes one, only an old .greenshot file) or a filter of another kind
+        /// the filters of the editor; not an inverted magnifier (no preset makes one, only an old .greenshot file) or a filter of another kind.
+        /// Pixelate takes its blocks from the 8-bit image (see Pixelate), so it needs that as a bitmap.
         /// </summary>
-        public static bool Supports(DrawableContainer element) =>
-            element.Filters.All(filter => filter is HighlightFilter or BrightnessFilter or GrayscaleFilter or BlurFilter or PixelizationFilter
+        /// <param name="element">The element with filters</param>
+        /// <param name="sdrImage">The 8-bit image of the surface</param>
+        public static bool Supports(DrawableContainer element, System.Drawing.Image sdrImage) =>
+            element.Filters.All(filter => filter is HighlightFilter or BrightnessFilter or GrayscaleFilter or BlurFilter
+                                          || filter is PixelizationFilter && sdrImage is System.Drawing.Bitmap
                                           || filter is MagnifierFilter { Invert: false });
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);

@@ -110,8 +110,9 @@ namespace Greenshot.Base.Core
 
         public void NullImage()
         {
-            // The surface takes the HDR image: one of all of it
-            JoinHdrParts();
+            // The surface took the image and the HDR image (it reads HdrImage, which joins the parts); parts which nobody took are released
+            _hdrParts?.Dispose();
+            _hdrParts = null;
             _image = null;
             _hdrImage = null;
         }
@@ -323,9 +324,9 @@ namespace Greenshot.Base.Core
             else
             {
                 // The HDR image shows the same area as the image, when it belonged to the image; without HDR content in the area (e.g. only the part
-                // of an SDR display) it isn't kept
+                // of an SDR display) it isn't kept, unless HDR was asked for (e.g. an opened JPEG XR file): Save as still suggests JPEG XR then
                 var cropped = hdrImageBelongs ? _hdrImage.Crop(cropRectangle) : null;
-                if (cropped != null && !cropped.HasHdrContent)
+                if (cropped != null && !cropped.IsRequested && !cropped.HasHdrContent)
                 {
                     cropped.Dispose();
                     cropped = null;

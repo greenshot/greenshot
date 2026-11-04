@@ -98,6 +98,34 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void BarcodeWithoutModel_IsDrawnAsItsBitmap_AgainAndAgain()
+        {
+            // Nothing to lay out (e.g. from an old file): its bitmap as a picture, made for each drawing and released after it
+            using var bmp = new Bitmap(50, 50);
+            using var surface = new Surface(bmp);
+            var black = new Bitmap(10, 10, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(black))
+            {
+                graphics.Clear(Color.Black);
+            }
+            var barcode = new BarcodeContainer(surface) { Image = black };
+            barcode.Left = 0;
+            barcode.Top = 0;
+            barcode.Width = 10;
+            barcode.Height = 10;
+
+            var draw = barcode.CreateHdrDrawing(new Dapplo.Windows.Common.Structs.NativePoint(0, 0));
+
+            Assert.NotNull(draw);
+            for (int i = 0; i < 2; i++)
+            {
+                using var canvas = new SixLabors.ImageSharp.Image<RgbaVector>(10, 10, new RgbaVector(1, 1, 1, 1));
+                draw(canvas, ImageValues.Linear(1f));
+                Assert.Equal(0f, canvas[5, 5].R, 2);
+            }
+        }
+
+        [Fact]
         public void Barcode_IsDrawnOnTheHdrPixels_FromItsLayout()
         {
             var capture = new Capture(new Bitmap(200, 200, System.Drawing.Imaging.PixelFormat.Format32bppArgb));

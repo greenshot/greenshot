@@ -691,11 +691,10 @@ namespace Greenshot.Editor.Drawing
                 }
                 if (ChangesPixels(element))
                 {
-                    var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
-                    if (elementFilters != null)
-                    {
-                        steps.AddRange(elementFilters.Select(ImageSharpStep.Of));
-                    }
+                    // Never without its filters: an obfuscation left out would show what it hides (CanDrawOnHdr makes the state Lost before)
+                    var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone)
+                        ?? throw new InvalidOperationException($"The filters of the element {element.GetType().Name} can't be done on the HDR pixels.");
+                    steps.AddRange(elementFilters.Select(ImageSharpStep.Of));
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
                     {
@@ -715,9 +714,9 @@ namespace Greenshot.Editor.Drawing
         /// True when the element can be drawn on the HDR pixels: its filters (see ElementImageFilters.Supports) and its drawing (see
         /// ElementDrawing.Supports)
         /// </summary>
-        private static bool CanDrawOnHdr(DrawableContainer element)
+        private bool CanDrawOnHdr(DrawableContainer element)
         {
-            if (element.HasFilters && !ElementImageFilters.Supports(element))
+            if (element.HasFilters && !ElementImageFilters.Supports(element, _image))
             {
                 return false;
             }

@@ -53,7 +53,7 @@ namespace Greenshot.Base.ImageSharpDrawing
         public static Image<TPixel> Place<TPixel>(Image<TPixel> source, Size size, Point offset, Vector4 background) where TPixel : unmanaged, IPixel<TPixel>
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            return Compose(source, size, offset, (_, _) => background);
+            return Compose(source, size, offset, (_, row) => row.Fill(background));
         }
 
         /// <summary>
@@ -76,19 +76,15 @@ namespace Greenshot.Base.ImageSharpDrawing
                 var pen = Painting.Pen(Color.FromPixel(new RgbaVector(color.X, color.Y, color.Z, color.W)), borderSize, JointStyle.Round);
                 border.Mutate(context => context.Draw(pen, new RectangularPolygon(half, half, size.Width - borderSize, size.Height - borderSize)));
             }
-            var rows = new Vector4[size.Width * size.Height];
-            border.ProcessPixelRows(accessor =>
+            // Read row by row while the result is made, no copy of all of it
+            return Compose(source, size, new Point(borderSize, borderSize), (y, row) =>
             {
-                for (int y = 0; y < size.Height; y++)
+                var borderRow = border.DangerousGetPixelRowMemory(y).Span;
+                for (int x = 0; x < row.Length; x++)
                 {
-                    var row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < size.Width; x++)
-                    {
-                        rows[y * size.Width + x] = row[x].ToVector4();
-                    }
+                    row[x] = borderRow[x].ToVector4();
                 }
             });
-            return Compose(source, size, new Point(borderSize, borderSize), (x, y) => rows[y * size.Width + x]);
         }
 
         /// <summary>
@@ -130,27 +126,25 @@ namespace Greenshot.Base.ImageSharpDrawing
             {
                 mask.Mutate(context => context.BoxBlur(oddSize / 2).BoxBlur(oddSize / 2));
             }
-            var shadow = new float[size.Width * size.Height];
-            mask.ProcessPixelRows(accessor =>
+            // Read row by row while the result is made, no copy of all of it
+            return Compose(source, size, offset, (y, row) =>
             {
-                for (int y = 0; y < size.Height; y++)
+                var maskRow = mask.DangerousGetPixelRowMemory(y).Span;
+                for (int x = 0; x < row.Length; x++)
                 {
-                    var row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < size.Width; x++)
-                    {
-                        shadow[y * size.Width + x] = row[x].R;
-                    }
+                    row[x] = new Vector4(0, 0, 0, maskRow[x].R);
                 }
             });
-            return Compose(source, size, offset, (x, y) => new Vector4(0, 0, 0, shadow[y * size.Width + x]));
         }
 
         /// <summary>
         /// The image over what is under it, in a result of the size
         /// </summary>
-        private static Image<TPixel> Compose<TPixel>(Image<TPixel> source, Size size, Point offset, Func<int, int, Vector4> under) where TPixel : unmanaged, IPixel<TPixel>
+        /// <param name="underRow">Fills a row (its y, the colors of the row) with what is under the image</param>
+        private static Image<TPixel> Compose<TPixel>(Image<TPixel> source, Size size, Point offset, UnderRow underRow) where TPixel : unmanaged, IPixel<TPixel>
         {
             var result = new Image<TPixel>(source.GetConfiguration(), size.Width, size.Height);
+            var under = new Vector4[size.Width];
             result.ProcessPixelRows(source, (target, sourceRows) =>
             {
                 for (int y = 0; y < size.Height; y++)
@@ -158,9 +152,10 @@ namespace Greenshot.Base.ImageSharpDrawing
                     var targetRow = target.GetRowSpan(y);
                     int sourceY = y - offset.Y;
                     var sourceRow = sourceY >= 0 && sourceY < source.Height ? sourceRows.GetRowSpan(sourceY) : default;
+                    underRow(y, under);
                     for (int x = 0; x < size.Width; x++)
                     {
-                        var color = under(x, y);
+                        var color = under[x];
                         int sourceX = x - offset.X;
                         if (!sourceRow.IsEmpty && sourceX >= 0 && sourceX < source.Width)
                         {
@@ -174,6 +169,11 @@ namespace Greenshot.Base.ImageSharpDrawing
             });
             return result;
         }
+
+        /// <summary>
+        /// Fills the colors under a row of the image
+        /// </summary>
+        private delegate void UnderRow(int y, Span<Vector4> row);
 
         /// <summary>
         /// The pixel over the one under it, straight alpha
