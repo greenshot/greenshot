@@ -50,12 +50,13 @@ namespace Greenshot.Base.ImageSharpDrawing
                 return;
             }
             // Scaled in sRGB like the editor, then turned into the image's values
-            using var scaled = picture.Clone(context => context.Resize(new ResizeOptions
+            using var resized = picture.Clone(context => context.Resize(new ResizeOptions
             {
                 Size = new Size(place.Width, place.Height),
                 Mode = ResizeMode.Stretch,
                 Sampler = nearestNeighbor ? KnownResamplers.NearestNeighbor : KnownResamplers.Bicubic
-            })).CloneAs<RgbaVector>();
+            }));
+            using var scaled = resized.CloneAs<RgbaVector>();
             scaled.Mutate(context => context.ProcessPixelRowsAsVector4(row =>
             {
                 for (int x = 0; x < row.Length; x++)

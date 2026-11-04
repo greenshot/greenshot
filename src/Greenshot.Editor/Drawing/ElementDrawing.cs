@@ -96,10 +96,19 @@ namespace Greenshot.Editor.Drawing
                 case LineContainer when element.GetType() == typeof(LineContainer):
                     return (image, values) => Lines.Line(image, values, start, end, lineThickness, lineColor, ArrowHeads.None, shadow);
                 case FreehandContainer freehand when element.GetType() == typeof(FreehandContainer):
-                    // The path is relative to the element
-                    var points = freehand.FreehandPath?.PathPoints.Select(point => new PointF(point.X + start.X, point.Y + start.Y)).ToArray();
-                    return points == null ? null : (image, values) => Lines.Freehand(image, values, points, lineThickness, lineColor);
+                    // The path is relative to the element; a single click leaves an empty path, which draws nothing
+                    if (freehand.FreehandPath is not { PointCount: > 1 } freehandPath)
+                    {
+                        return (_, _) => { };
+                    }
+                    var points = freehandPath.PathPoints.Select(point => new PointF(point.X + start.X, point.Y + start.Y)).ToArray();
+                    return (image, values) => Lines.Freehand(image, values, points, lineThickness, lineColor);
                 case StepLabelContainer label:
+                    if (rect.Width <= 0 || rect.Height <= 0)
+                    {
+                        // Like the editor: a label without a size draws nothing
+                        return (_, _) => { };
+                    }
                     string number = label.NumberText;
                     float fontSize = label.NumberFontSize(number);
                     return (image, values) => Texts.StepLabel(image, values, bounds, number, FontFamily.GenericSansSerif.Name, fontSize, label.DrawAsRectangle,
