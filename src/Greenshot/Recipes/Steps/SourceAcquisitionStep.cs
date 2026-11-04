@@ -39,6 +39,7 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Sources;
 using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using log4net;
 using Greenshot.Base.Threading;
 #if !GREENSHOT_LIGHT
@@ -64,6 +65,8 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
+    [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen, where the selection shows what is captured.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]
+    [StepParameter(HdrParameter, ContractDataType.Boolean, Description = "Capture with the HDR content of HDR displays (screen, region, window, last region): the capture keeps it, e.g. for the HdrFormat of SaveFile or a JPEG XR file (default: settings). Only HDR displays are kept, the SDR displays are in the normal image.")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
     [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
     [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
@@ -132,6 +135,11 @@ namespace Greenshot.Recipes.Steps
             CaptureSourceType sourceType = Config.GetParameter("SourceType", CaptureSourceType.Region);
             bool alignDpi = Config.GetParameter("AlignDpi", true);
 
+            // The capture knows whether it is taken with the HDR content, whatever uses it later; also for the selection on the live screen
+            var hdr = Config.GetParameter<bool?>(HdrParameter);
+            context.CaptureHdr = hdr ?? CoreConfig.CaptureHdr;
+            context.CaptureHdrRequested = hdr == true;
+
             // 4. Handle pre-supplied region (e.g. command-line or programmatic region capture)
             if (context.Properties.TryGetValue("PreSuppliedRegion", out var regionObj) &&
                 regionObj is NativeRect preRect && !preRect.IsEmpty)
@@ -147,6 +155,10 @@ namespace Greenshot.Recipes.Steps
                     // Offset to bitmap coordinates for cropping
                     NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
                     payload.RawCapture.Crop(screenOffsetRect);
+                    if (context.CaptureHdrRequested && payload.RawCapture.HdrImage != null)
+                    {
+                        payload.RawCapture.HdrImage.IsRequested = true;
+                    }
                 }
                 if (alignDpi && payload != null)
                 {
@@ -172,7 +184,7 @@ namespace Greenshot.Recipes.Steps
             bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName"));
 
-            bool liveSelection = UseLiveSelection(context, sourceType, hasTargetWindowConfig);
+            bool liveSelection = UseLiveSelection(context, sourceType, hasTargetWindowConfig, Config.GetParameter<string>(ScreenModeParameter));
 
             // 5. Instantiate source based on SourceType
             ICaptureSource source = sourceType switch
@@ -250,6 +262,11 @@ namespace Greenshot.Recipes.Steps
                     RedactForAiTool(context, acquired);
                 }
 #endif
+                // The fixed size capture offers the window again, in the window of its program
+                if (sourceType == CaptureSourceType.ActiveWindow || sourceType == CaptureSourceType.Window && hasTargetWindowConfig)
+                {
+                    RememberWindowCapture(context, acquired.RawCapture);
+                }
                 // Align DPI for raw captured pixels (screen, window, active window, region, last region)
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
@@ -259,12 +276,31 @@ namespace Greenshot.Recipes.Steps
                 {
                     ProcessScreenCapture(acquired.RawCapture);
                 }
+                if (context.CaptureHdrRequested && acquired.RawCapture?.HdrImage != null)
+                {
+                    acquired.RawCapture.HdrImage.IsRequested = true;
+                }
                 context.Payload = acquired;
             }
             else if (!context.IsAborted)
             {
                 context.Abort("Acquisition failed or produced no payload.");
             }
+        }
+
+        /// <summary>
+        /// Adds a capture of a window to the recent captures of the fixed size capture, not when it fell back to the screen
+        /// </summary>
+        private static void RememberWindowCapture(CaptureFlowContext context, ICapture capture)
+        {
+            if (capture?.Image == null || !capture.CaptureDetails.MetaData.TryGetValue("source", out var source) || source != "Window")
+            {
+                return;
+            }
+            var bounds = new NativeRect(capture.Location, new NativeSize(capture.Image.Width, capture.Image.Height));
+            // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
+            context.Ui.InvokeAsync(() => FixedSizeCaptureTool.RememberArea(bounds, WindowHelper.GetVisibleWindows()), CancellationToken.None)
+                .FireAndLog("Remember the window capture for the fixed size capture", Log);
         }
 
 #if !GREENSHOT_LIGHT
@@ -321,6 +357,8 @@ namespace Greenshot.Recipes.Steps
             }
             // A new capture of the screen (L in the selection) would show the excluded windows
             payload.RawCapture.CaptureDetails.AddMetaData(LiveScreenCaptureSource.FrozenOnlyKey, "true");
+            // The windows are blacked out in the 8-bit image only: the HDR content would still show them
+            payload.RawCapture.HdrImage = null;
             int redacted = AiToolCapture.RedactExcludedWindows(payload.RawCapture.Image, payload.RawCapture.Location);
             if (redacted > 0)
             {
@@ -436,13 +474,25 @@ namespace Greenshot.Recipes.Steps
         private const int DefaultCaptureDelay = 100;
 
         /// <summary>
-        /// Select on the live screen instead of a frozen capture: when the user turned freezing off, for a region or window selection
-        /// of the user. Text (OCR) needs the capture of the screen, AI tools need it to black out excluded windows.
-        /// A screen reader only says the selection on the frozen screen.
+        /// The parameter which selects on the live or on the frozen screen: Auto (the setting), Live or Frozen
         /// </summary>
-        private static bool UseLiveSelection(CaptureFlowContext context, CaptureSourceType sourceType, bool hasTargetWindowConfig)
+        internal const string ScreenModeParameter = "ScreenMode";
+
+        /// <summary>
+        /// Capture with the HDR content, see CaptureFlowContext.CaptureHdr
+        /// </summary>
+        internal const string HdrParameter = HdrOutput.SourceParameterName;
+
+        /// <summary>
+        /// Select on the live screen instead of a frozen capture: when the user turned freezing off (or the recipe's ScreenMode is Live),
+        /// for a region or window selection of the user. Text (OCR) needs the capture of the screen, AI tools need it to black out excluded windows.
+        /// A screen reader only says the selection on the frozen screen, unless the recipe asks for the live screen.
+        /// </summary>
+        internal static bool UseLiveSelection(CaptureFlowContext context, CaptureSourceType sourceType, bool hasTargetWindowConfig, string screenMode = null)
         {
-            if (CoreConfig.CaptureFreezeScreen || sourceType is not (CaptureSourceType.Region or CaptureSourceType.Window) || hasTargetWindowConfig)
+            bool forceLive = string.Equals(screenMode, "Live", StringComparison.OrdinalIgnoreCase);
+            bool forceFrozen = string.Equals(screenMode, "Frozen", StringComparison.OrdinalIgnoreCase);
+            if (forceFrozen || (CoreConfig.CaptureFreezeScreen && !forceLive) || sourceType is not (CaptureSourceType.Region or CaptureSourceType.Window) || hasTargetWindowConfig)
             {
                 return false;
             }
@@ -462,10 +512,10 @@ namespace Greenshot.Recipes.Steps
                 Log.Info("Selecting on the live screen needs Windows 10 2004 or newer, the screen is frozen.");
                 return false;
             }
-            if (User32Api.IsScreenReaderRunning())
+            if (!forceLive && !CoreConfig.IgnoreScreenReader && User32Api.IsScreenReaderRunning())
             {
                 // The live screen can't take the focus from the application below, so a screen reader can't say the selection: frozen, L switches
-                Log.Info("A screen reader runs, the selection starts on the frozen screen.");
+                Log.Info("The screen reader flag of Windows is on, the selection starts on the frozen screen (IgnoreScreenReader=true ignores the flag).");
                 return false;
             }
             return true;

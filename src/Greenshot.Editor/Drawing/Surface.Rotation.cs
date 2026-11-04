@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Core;
 using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
@@ -67,7 +68,7 @@ namespace Greenshot.Editor.Drawing
             var opts = options ?? ScaleHelper.GetScaleOptions();
             if (line) opts &= ~ScaleOptions.Rational;
             var anchor = Point.Round(owner.ModelToImage(position == Positions.TopLeft ? new PointF(original.Right, original.Bottom) : new PointF(original.X, original.Y)));
-            Point Constrain(Point p) => line ? GetScaleEndpoint(anchor, p, ModifierKeys) : p;
+            Point Constrain(Point p) => line ? GetScaleEndpoint(anchor, p, InputState.ModifierKeys) : p;
             NativeRectFloat Scale(Point p) => ScaleHelper.Scale(original, position, owner.ImageToModel(Constrain(p)), opts);
             Point End(NativeRectFloat b) => Point.Round(owner.ModelToImage(new PointF(
                 position == Positions.TopLeft || position == Positions.MiddleLeft || position == Positions.BottomLeft ? b.X : position == Positions.TopCenter || position == Positions.BottomCenter ? b.X + b.Width / 2 : b.X + b.Width,

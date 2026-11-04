@@ -180,6 +180,11 @@ namespace Greenshot.Capturing.Views
         private bool? _modelessResult;
         private bool _handleCreated;
         private bool _closed;
+        // The key which is being handled by HandleKeyDown, Key.None otherwise
+        private Key _keyInHandling = Key.None;
+        // A key (e.g. Esc) ended the selection: the window closes when that key is released, see Finish
+        private Key _finishKey = Key.None;
+        private bool _finishSelected;
         private bool _lostFocus;
         private static readonly int OwnProcessId = GetOwnProcessId();
         // When TakeFocusBack took the focus back the last time
@@ -520,9 +525,10 @@ namespace Greenshot.Capturing.Views
                 // The text needs a capture of the screen, T freezes it later
                 _activeTool = _regionTool;
             }
-            if (initialTool == null && _activeTool == _regionTool && User32Api.IsScreenReaderRunning())
+            if (initialTool == null && _activeTool == _regionTool && !Conf.IgnoreScreenReader && User32Api.IsScreenReaderRunning())
             {
                 // A region can't be seen, a window is said by its title: start with window capture, Space still switches to the region
+                Log.Info("The screen reader flag of Windows is on, the region capture starts as window capture (IgnoreScreenReader=true ignores the flag).");
                 _activeTool = _windowTool;
             }
             _usedCaptureMode = _activeTool.Mode;
@@ -587,6 +593,12 @@ namespace Greenshot.Capturing.Views
             };
             Deactivated += (sender, args) =>
             {
+                // The release of the key which ended the selection goes elsewhere now, no reason to wait for it
+                if (_finishKey != Key.None)
+                {
+                    FinishOnKeyUp(_finishKey);
+                    return;
+                }
                 _lostFocus = !_closed;
                 // After the focus change is done, see TakeFocusBack
                 Dispatcher.InvokeAsync(TakeFocusBack, DispatcherPriority.Input).Task.FireAndLog("Take the focus back to the capture window", Log);
@@ -651,7 +663,39 @@ namespace Greenshot.Capturing.Views
             return _modelessResult;
         }
 
+        /// <summary>
+        /// End the selection. When a key ended it, the window stays until that key is released: closed on the key press,
+        /// the release goes to the window below, which never saw the press, and some applications act on it
+        /// (e.g. a browser in full screen left it when Esc cancelled the selection).
+        /// </summary>
         private void Finish(bool selected)
+        {
+            if (_keyInHandling != Key.None && !_closed)
+            {
+                _finishKey = _keyInHandling;
+                _finishSelected = selected;
+                return;
+            }
+            FinishNow(selected);
+        }
+
+        /// <summary>
+        /// The key which ended the selection was released, see Finish
+        /// </summary>
+        private void FinishOnKeyUp(Key key)
+        {
+            if (_finishKey == Key.None || key != _finishKey)
+            {
+                return;
+            }
+            _finishKey = Key.None;
+            if (!_closed)
+            {
+                FinishNow(_finishSelected);
+            }
+        }
+
+        private void FinishNow(bool selected)
         {
             if (_prepared)
             {
@@ -1366,11 +1410,13 @@ namespace Greenshot.Capturing.Views
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
-            HandleKeyUp(e.Key);
+            // With Alt the key is reported as Key.System
+            HandleKeyUp(e.Key == Key.System ? e.SystemKey : e.Key);
         }
 
         private void HandleKeyUp(Key key)
         {
+            FinishOnKeyUp(key);
             if (key is Key.LeftShift or Key.RightShift)
             {
                 _fixMode = FixMode.None;
@@ -1390,11 +1436,17 @@ namespace Greenshot.Capturing.Views
         /// <returns>true when the key did something</returns>
         private bool HandleKeyDown(Key key, ModifierKeys modifiers)
         {
+            if (_finishKey != Key.None)
+            {
+                // The selection ended, the window only waits for the release of the key (also the repeats of a held key)
+                return true;
+            }
             var binding = _keys.Find(key, modifiers, _activeTool);
             if (binding == null)
             {
                 return false;
             }
+            _keyInHandling = key;
             try
             {
                 binding.Execute();
@@ -1402,6 +1454,10 @@ namespace Greenshot.Capturing.Views
             catch (Exception ex)
             {
                 Log.Error($"Error handling the capture key {binding.KeyText} of {binding.Owner.GetType().FullName}", ex);
+            }
+            finally
+            {
+                _keyInHandling = Key.None;
             }
             return true;
         }

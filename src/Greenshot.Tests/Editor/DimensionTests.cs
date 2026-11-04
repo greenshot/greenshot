@@ -167,8 +167,8 @@ namespace Greenshot.Tests.Editor
             using var s=new Surface(new Bitmap(400,300));
             var box=Add(s,new RectangleContainer(s){Left=100,Top=100,Width=120,Height=60}); Show(box);
             var before=DimensionLayout.Labels(box); var flags=box.DimensionVisibility;
-            var apply=typeof(Surface).GetMethod("ApplyEffectResult",BindingFlags.Instance|BindingFlags.NonPublic,null,new[]{typeof(Image),typeof(Matrix)},null);
-            using var stretch=new Matrix(2,0,0,1,0,0); apply.Invoke(s,new object[]{new Bitmap(800,300),stretch});
+            var apply=typeof(Surface).GetMethod("ApplyEffectResult",BindingFlags.Instance|BindingFlags.NonPublic,null,new[]{typeof(Image),typeof(Matrix),typeof(Greenshot.Base.Effects.IEffect)},null);
+            using var stretch=new Matrix(2,0,0,1,0,0); apply.Invoke(s,new object[]{new Bitmap(800,300),stretch, null });
             Assert.Equal(240,DimensionLayout.Edges(box)[0].Length,3);
             Assert.Equal(before[0].Height,DimensionLayout.Labels(box)[0].Height); Assert.Equal(flags,box.DimensionVisibility);
             s.Undo(); Assert.Equal(120,DimensionLayout.Edges(box)[0].Length,3); Assert.Equal(flags,box.DimensionVisibility);

@@ -101,6 +101,7 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<AnnotationStep>(config => new AnnotationStep(config));
             AnnotationStep.EnsureBuiltInDrawablesRegistered();
             _stepRegistry.Register<SetVariableStep>(config => new SetVariableStep(config));
+            _stepRegistry.Register<SetMetadataStep>(config => new SetMetadataStep(config));
             _stepRegistry.Register<ConditionalStep>(config => new ConditionalStep(config));
             _stepRegistry.Register<ImmediateFeedbackStep>(config => new ImmediateFeedbackStep(config));
             _stepRegistry.Register<OcrStep>(config => new OcrStep(config));

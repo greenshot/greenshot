@@ -138,7 +138,7 @@ namespace Greenshot.Tests.Serialization
 
             Assert.Equal("Ünïcödé, <html> & \"quotes\"", sink.Description);
             Assert.Equal(FlowConcurrency.ReplacePrevious, sink.Concurrency);
-            Assert.False(sink.IsEnabled);
+            Assert.False(sink.ShowInContextMenu);
             Assert.Equal("1.4", sink.Requires.Single().MinVersion);
 
             // Options: the default values have the type of the option

@@ -36,12 +36,15 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Needs a capture with HDR content (Hdr of Source, or the setting) whose image wasn't changed, otherwise the normal Format is saved (Auto quietly).", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
     [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
     [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
+    [StepParameter("AskForFilename", ContractDataType.Boolean, Description = "Ask for the file with the save dialog instead of saving directly (SaveFile); with HdrFormat the dialog suggests the HDR format")]
     [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
+    [StepParameter("ImportMode", ContractDataType.Enum, DefaultValue = "OpenAsCapture", Description = "OpenAsCapture: the capture becomes the surface (CurrentEditor replaces it, AvailableEditor opens a tab); AddAsImage: the capture is added as image (Editor)", AllowedValues = new[] { "OpenAsCapture", "AddAsImage" })]
     [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
     [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
     [StepParameter("ShowPrintDialog", ContractDataType.Boolean, Description = "Show the print options (Printer)")]
@@ -70,6 +73,8 @@ namespace Greenshot.Recipes.Steps
     [StepOutputVariable("Destination.PromptQuality", ContractDataType.Boolean, "The PromptQuality parameter, for the destinations", Conditional = true, WhenParameter = "PromptQuality")]
     [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
     [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
+    [StepOutputVariable("Destination.HdrFormat", ContractDataType.String, "The HdrFormat parameter, for the file destination", Conditional = true, WhenParameter = HdrOutput.ParameterName)]
+    [StepOutputVariable("Destination.AskForFilename", ContractDataType.Boolean, "The AskForFilename parameter, for the file destination", Conditional = true, WhenParameter = "AskForFilename")]
     [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
@@ -96,7 +101,7 @@ namespace Greenshot.Recipes.Steps
                 yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes files to {saveDirectory}");
             }
 
-            var designations = ResolveDestinationDesignations(null, out _);
+            var designations = GetDestinationDesignations(null, out _);
             if (designations != null)
             {
                 foreach (var des in designations)
@@ -132,7 +137,7 @@ namespace Greenshot.Recipes.Steps
             // Handle custom SaveDirectory & Filename overrides
             ApplyCustomFileSettings(context);
 
-            var designations = ResolveDestinationDesignations(context, out bool fromSettings).ToList();
+            var designations = GetDestinationDesignations(context, out bool usesSettingsDestinations).ToList();
             List<IDestination> destinations = new List<IDestination>();
 
             foreach (var designation in designations)
@@ -143,25 +148,7 @@ namespace Greenshot.Recipes.Steps
 
                 if (string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
                 {
-                    TargetEditor? targetEditor = Config.GetParameter<TargetEditor?>("TargetEditor");
-
-                    if (targetEditor == TargetEditor.CurrentEditor
-                        && context.Properties.TryGetValue("EditorForm", out var editorObject)
-                        && editorObject is IImageEditor editor)
-                    {
-                        dest = new EditorDestination(editor, true);
-                    }
-                    else
-                    {
-                        if (targetEditor == TargetEditor.CurrentEditor)
-                        {
-                            Log.Warn("Property 'EditorForm' contains no valid editor instance. Falling back to another editor.");
-                        }
-
-                        bool? reuseAvailable = targetEditor.HasValue ? targetEditor == TargetEditor.AvailableEditor : (bool?)null;
-                        bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
-                        dest = new EditorDestination(reuseAvailable, matchSize);
-                    }
+                    dest = CreateEditorDestination(context);
                 }
                 else if (string.Equals(designation, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase))
                 {
@@ -213,7 +200,7 @@ namespace Greenshot.Recipes.Steps
             }
 
             // The settings keep destinations which aren't there right now, e.g. of a plugin which isn't loaded: without any other the capture opens in the editor
-            if (destinations.Count == 0 && fromSettings)
+            if (destinations.Count == 0 && usesSettingsDestinations)
             {
                 var editor = new EditorDestination();
                 if (editor.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails))
@@ -238,6 +225,41 @@ namespace Greenshot.Recipes.Steps
             await dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// The editor destination for TargetEditor and ImportMode of this step
+        /// </summary>
+        private IDestination CreateEditorDestination(CaptureFlowContext context)
+        {
+            TargetEditor? targetEditor = Config.GetParameter<TargetEditor?>("TargetEditor");
+            ImportMode importMode = Config.GetParameter<ImportMode?>("ImportMode") ?? ImportMode.OpenAsCapture;
+            context.Properties.TryGetValue("EditorForm", out var editorObject);
+            var currentEditor = editorObject as IImageEditor;
+            bool isCurrent = targetEditor == TargetEditor.CurrentEditor;
+            bool isAvailable = targetEditor == TargetEditor.AvailableEditor;
+
+            if (isCurrent && currentEditor == null)
+            {
+                Log.Warn("Property 'EditorForm' contains no valid editor instance. Falling back to another editor.");
+            }
+
+            // AvailableEditor opens a tab, NewEditor a new editor; without TargetEditor the settings decide
+            bool? reuseAvailable = targetEditor.HasValue ? isAvailable : (bool?)null;
+
+            if (importMode == ImportMode.AddAsImage)
+            {
+                // The current editor, else the shown tab of the last active editor (AvailableEditor, or the setting) or a new editor (NewEditor)
+                return EditorDestination.NewDestinationToAddImageContainer(isCurrent ? currentEditor : null, useOpenEditor: reuseAvailable);
+            }
+
+            if (isCurrent && currentEditor != null)
+            {
+                return EditorDestination.NewDestinationToReplaceSurface(currentEditor);
+            }
+
+            bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
+            return EditorDestination.NewDestinationToOpenSurface(reuseAvailable, matchSize);
+        }
+
         private void ApplyCustomFileSettings(CaptureFlowContext context)
         {
             string customDir = Config.GetParameter<string>("SaveDirectory");
@@ -249,6 +271,14 @@ namespace Greenshot.Recipes.Steps
 
             bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard");
             if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
+
+            bool? askForFilename = Config.GetParameter<bool?>("AskForFilename");
+            if (askForFilename.HasValue) context.Properties["Destination.AskForFilename"] = askForFilename.Value;
+
+            // The file destination decides when it saves: it knows if the capture has an HDR image and was edited
+            string hdrFormat = Config.GetParameter<string>(HdrOutput.ParameterName);
+            // Also None: it overrides an earlier SaveFile of the recipe
+            if (!string.IsNullOrWhiteSpace(hdrFormat)) context.Properties["Destination.HdrFormat"] = hdrFormat;
 
             int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
@@ -324,9 +354,18 @@ namespace Greenshot.Recipes.Steps
             return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
         }
 
-        private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context, out bool fromSettings)
+        /// <summary>
+        /// The designations of the destinations this step exports to, from the first of these which gives any:
+        /// 1. the step type (SaveFile, Clipboard, Editor, Printer, Email, CustomDestination have their own destination),
+        /// 2. the context property OverrideDestinations (set by a trigger or caller),
+        /// 3. the step parameter DestinationDesignations (chosen by the recipe author),
+        /// 4. the destinations of the settings (OutputDestinations).
+        /// </summary>
+        /// <param name="context">CaptureFlowContext, null to skip the context property</param>
+        /// <param name="usesSettingsDestinations">true for 4: the recipe doesn't say where the capture goes, the settings decide</param>
+        private IEnumerable<string> GetDestinationDesignations(CaptureFlowContext context, out bool usesSettingsDestinations)
         {
-            fromSettings = false;
+            usesSettingsDestinations = false;
             // Priority 1: StepType direct mapping
             if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase))
             {
@@ -372,7 +411,7 @@ namespace Greenshot.Recipes.Steps
             }
 
             // Priority 4: Dynamic user configuration evaluation
-            fromSettings = true;
+            usesSettingsDestinations = true;
             return (IEnumerable<string>)CoreConfig?.OutputDestinations ?? Array.Empty<string>();
         }
 

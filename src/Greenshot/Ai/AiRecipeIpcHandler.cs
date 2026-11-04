@@ -186,8 +186,8 @@ namespace Greenshot.Ai
                 automatic_steps = recipeManager.GetAllExtensions().Select(e => new
                 {
                     id = e.Id,
-                    name = RecipeText.Translate(e.Name),
-                    description = RecipeText.Translate(e.Description),
+                    name = e.DisplayName,
+                    description = e.DisplayDescription,
                     slot = e.SlotName,
                     recipes = e.Extends?.Recipes ?? new List<string>(),
                     order = e.Extends?.Order ?? 0,

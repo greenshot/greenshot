@@ -73,6 +73,21 @@ namespace Greenshot.Base.Recipes.Pipeline
         private IUserInteraction _userInteraction;
 
         /// <summary>
+        /// The export source of the capture, for a step which encodes it itself (e.g. an upload):
+        /// private details in the image need the user's OK of this flow, a flow without a window removes them
+        /// </summary>
+        public async Task<IExportSource> GetExportSourceAsync(CancellationToken cancellationToken = default)
+        {
+            if (Payload == null)
+            {
+                return null;
+            }
+            var source = await Payload.GetExportSourceAsync(Ui, cancellationToken).ConfigureAwait(false);
+            Core.Export.DestinationExporter.AskBeforePrivateMetadataLeaves(source, UserInteraction);
+            return source;
+        }
+
+        /// <summary>
         /// The recipe driving this flow.
         /// </summary>
         public CaptureRecipe Recipe { get; }
@@ -103,6 +118,19 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// to select a region on, and nothing was captured, so no capture feedback is given either.
         /// </summary>
         public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
+        /// The Source step captures with the HDR content of HDR displays (its Hdr parameter): the capture keeps it in ICapture.HdrImage,
+        /// for whatever uses it later (e.g. the HdrFormat of SaveFile). Read by the code which takes the capture, also after the selection
+        /// on the live screen.
+        /// </summary>
+        public bool CaptureHdr { get; set; }
+
+        /// <summary>
+        /// The Source step asks for HDR explicitly (Hdr true, not only the setting): the HDR image is marked as requested (HdrImage.IsRequested),
+        /// so Save as suggests JPEG XR
+        /// </summary>
+        public bool CaptureHdrRequested { get; set; }
 
         /// <summary>
         /// Optional callback of the caller, run once when the flow finished and before the payload is disposed

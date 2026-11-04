@@ -621,6 +621,21 @@ namespace Greenshot.Base.Languages
         string CaptureKeyFixedSizeCorner { get; }
 
         /// <summary>
+        /// Help text of the key which starts and stops typing a width and height in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeType { get; }
+
+        /// <summary>
+        /// Help text of Backspace while typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureKeyFixedSizeTyping { get; }
+
+        /// <summary>
+        /// Help text of Tab while typing a size in the fixed size capture: the other box.
+        /// </summary>
+        string CaptureKeyFixedSizeNextBox { get; }
+
+        /// <summary>
         /// Cursor at the top left corner
         /// </summary>
         string CaptureFixedSizesAnchorTopLeft { get; }
@@ -659,6 +674,36 @@ namespace Greenshot.Base.Languages
         /// Hold Alt to place it without snapping
         /// </summary>
         string CaptureFixedSizesNoSnap { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2}
+        /// </summary>
+        string CaptureFixedSizesAt { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} on screen {3}
+        /// </summary>
+        string CaptureFixedSizesAtScreen { get; }
+
+        /// <summary>
+        /// {0} at {1}, {2} in {3}
+        /// </summary>
+        string CaptureFixedSizesAtProgram { get; }
+
+        /// <summary>
+        /// The label of the width box when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeWidth { get; }
+
+        /// <summary>
+        /// The label of the height box when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeHeight { get; }
+
+        /// <summary>
+        /// What the keys do, below the boxes when typing a size in the fixed size capture.
+        /// </summary>
+        string CaptureFixedSizeTypingHint { get; }
 
         /// <summary>
         /// Start or finish the selection
@@ -867,6 +912,46 @@ namespace Greenshot.Base.Languages
         string ExportedToError { get; }
 
         /// <summary>
+        /// Send details with the image?
+        /// </summary>
+        string ExportMetadataQuestionTitle { get; }
+
+        /// <summary>
+        /// The image would carry these details about what you captured: {0} They go wherever the image is sent. Remove them from this image, or keep them?
+        /// </summary>
+        string ExportMetadataQuestion { get; }
+
+        /// <summary>
+        /// Window title: {0}
+        /// </summary>
+        string ExportMetadataWindowTitle { get; }
+
+        /// <summary>
+        /// Web address: {0}
+        /// </summary>
+        string ExportMetadataWebAddress { get; }
+
+        /// <summary>
+        /// Recognized text: {0} words
+        /// </summary>
+        string ExportMetadataText { get; }
+
+        /// <summary>
+        /// Barcode content: {0}
+        /// </summary>
+        string ExportMetadataBarcodes { get; }
+
+        /// <summary>
+        /// Remove details
+        /// </summary>
+        string ExportMetadataRemove { get; }
+
+        /// <summary>
+        /// Keep details
+        /// </summary>
+        string ExportMetadataKeep { get; }
+
+        /// <summary>
         /// Edit
         /// </summary>
         string NotificationButtonEdit { get; }
@@ -890,6 +975,36 @@ namespace Greenshot.Base.Languages
         /// Copy link
         /// </summary>
         string NotificationButtonCopylink { get; }
+
+        /// <summary>
+        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the recipe doesn't capture HDR). It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedNoHdr { get; }
+
+        /// <summary>
+        /// No HDR file was saved: the capture itself was changed (e.g. cropped or an effect), the HDR file wouldn't show that. It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedChanged { get; }
+
+        /// <summary>
+        /// The HDR file couldn't be written. The capture was saved as {0}.
+        /// </summary>
+        string HdrNotSavedFailed { get; }
+
+        /// <summary>
+        /// HDR content lost
+        /// </summary>
+        string HdrLostTitle { get; }
+
+        /// <summary>
+        /// The HDR content of this capture was lost by a change of the image (e.g. an effect): {0} would be an 8-bit JPEG XR without the HDR highlights. Save it anyway?
+        /// </summary>
+        string HdrLostQuestion { get; }
+
+        /// <summary>
+        /// No HDR content (not on an HDR display, or nothing brighter than SDR white or outside sRGB): saved as a normal file.
+        /// </summary>
+        string NotificationNoHdr { get; }
 
         /// <summary>
         /// Greenshot Help
@@ -1162,5 +1277,140 @@ namespace Greenshot.Base.Languages
         /// Sign out
         /// </summary>
         string SigninAccountSignOut { get; }
+
+        /// <summary>
+        /// The viewer only shows the capture, it isn't saved: it is gone when you close the viewer. To keep it, export it (E or the menu with the right mouse button), e.g. save it to a file. H shows all keys.
+        /// </summary>
+        string ViewerUnsavedHint { get; }
+
+        /// <summary>
+        /// Export…
+        /// </summary>
+        string ViewerExport { get; }
+
+        /// <summary>
+        /// Real size (1:1)
+        /// </summary>
+        string ViewerActualSize { get; }
+
+        /// <summary>
+        /// Fit to the window
+        /// </summary>
+        string ViewerFit { get; }
+
+        /// <summary>
+        /// Window to capture size
+        /// </summary>
+        string ViewerWindowToCapture { get; }
+
+        /// <summary>
+        /// Always on top
+        /// </summary>
+        string ViewerAlwaysOnTop { get; }
+
+        /// <summary>
+        /// Title bar
+        /// </summary>
+        string ViewerTitleBar { get; }
+
+        /// <summary>
+        /// Border
+        /// </summary>
+        string ViewerBorder { get; }
+
+        /// <summary>
+        /// Mouse pointer
+        /// </summary>
+        string ViewerMousePointer { get; }
+
+        /// <summary>
+        /// Keys
+        /// </summary>
+        string ViewerHelp { get; }
+
+        /// <summary>
+        /// Close all viewers
+        /// </summary>
+        string ViewerCloseAll { get; }
+
+        /// <summary>
+        /// Overview, click or drag to move the visible part
+        /// </summary>
+        string ViewerOverview { get; }
+
+        /// <summary>
+        /// Keys of the viewer
+        /// </summary>
+        string ViewerHelpTitle { get; }
+
+        /// <summary>
+        /// Show the capture in its real size, one pixel of the capture is one pixel of the screen
+        /// </summary>
+        string ViewerKeyActualSize { get; }
+
+        /// <summary>
+        /// Zoom so all of the capture is visible in the window
+        /// </summary>
+        string ViewerKeyFit { get; }
+
+        /// <summary>
+        /// Zoom in and out, also with the mouse wheel, the window keeps its size
+        /// </summary>
+        string ViewerKeyZoom { get; }
+
+        /// <summary>
+        /// Move the visible part, also by dragging the capture or in the overview
+        /// </summary>
+        string ViewerKeyPan { get; }
+
+        /// <summary>
+        /// Drag the capture with Ctrl to move the window, without Ctrl when all of the capture is visible
+        /// </summary>
+        string ViewerKeyMove { get; }
+
+        /// <summary>
+        /// Size the window to the zoomed capture, as far as the screen allows
+        /// </summary>
+        string ViewerKeyWindowToCapture { get; }
+
+        /// <summary>
+        /// Export the capture: save, copy, open in the editor…
+        /// </summary>
+        string ViewerKeyExport { get; }
+
+        /// <summary>
+        /// Keep the viewer on top of the other windows, or not
+        /// </summary>
+        string ViewerKeyAlwaysOnTop { get; }
+
+        /// <summary>
+        /// Show or hide the title bar
+        /// </summary>
+        string ViewerKeyTitleBar { get; }
+
+        /// <summary>
+        /// Show or hide the border
+        /// </summary>
+        string ViewerKeyBorder { get; }
+
+        /// <summary>
+        /// Show or hide the captured mouse pointer
+        /// </summary>
+        string ViewerKeyMousePointer { get; }
+
+        /// <summary>
+        /// Open the menu, also with the right mouse button
+        /// </summary>
+        string ViewerKeyMenu { get; }
+
+        /// <summary>
+        /// Show or hide these keys
+        /// </summary>
+        string ViewerKeyHelp { get; }
+
+        /// <summary>
+        /// Close the viewer, or these keys when they are shown
+        /// </summary>
+        string ViewerKeyClose { get; }
     }
 }

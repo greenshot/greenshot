@@ -266,14 +266,14 @@ namespace Greenshot.Tests.Editor
             using var surface = new Surface(new Bitmap(100, 100));
             surface.SetMeasurements(MeasurementState.Calibrate(100, 10, MeasurementUnit.Millimetres));
             var apply = typeof(Surface).GetMethod("ApplyEffectResult", BindingFlags.NonPublic | BindingFlags.Instance,
-                null, new[] { typeof(Image), typeof(Matrix) }, null);
+                null, new[] { typeof(Image), typeof(Matrix), typeof(Greenshot.Base.Effects.IEffect) }, null);
             var uniform = new Matrix();
             uniform.Scale(2, 2);
-            apply.Invoke(surface, new object[] { new Bitmap(200, 200), uniform });
+            apply.Invoke(surface, new object[] { new Bitmap(200, 200), uniform , null });
             Assert.Equal(10, surface.Measurements.Convert(200), 8);
             var nonuniform = new Matrix();
             nonuniform.Scale(2, 1);
-            apply.Invoke(surface, new object[] { new Bitmap(400, 200), nonuniform });
+            apply.Invoke(surface, new object[] { new Bitmap(400, 200), nonuniform , null });
             Assert.False(surface.Measurements.IsCalibrated);
             surface.Undo();
             Assert.Equal(10, surface.Measurements.Convert(200), 8);

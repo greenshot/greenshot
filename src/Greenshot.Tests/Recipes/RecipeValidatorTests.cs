@@ -60,6 +60,35 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        public void Validate_RegionSourceWithoutSelection_Warns(bool withSelection, bool aiTool, bool warns)
+        {
+            var recipe = new CaptureRecipe("region_without_selection", "Region")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            recipe.Flow = new RecipeFlowConfig("acquire");
+            if (withSelection)
+            {
+                recipe.Flow.AddTransition("acquire", "select").AddTransition("select", "export");
+            }
+            else
+            {
+                recipe.Nodes.RemoveAll(n => n.Id == "select");
+                recipe.Flow.AddTransition("acquire", "export");
+            }
+            if (aiTool)
+            {
+                recipe.AddTrigger(TriggerConfig.CreateAiTool("region_tool", "Captures a region"));
+            }
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.Equal(warns, result.Warnings.Any(w => w.Contains("InteractiveSelection")));
+        }
+
+        [Theory]
         [InlineData(".png;.jpg", true)]
         [InlineData(".png", true)]
         [InlineData("*.png;*.jpg", false)]

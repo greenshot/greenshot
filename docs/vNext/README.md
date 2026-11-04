@@ -10,7 +10,10 @@ work differently there, and they can still change before the release. The docume
 |---|---|
 | [capture-user-guide.md](capture-user-guide.md) | Taking a screenshot: modes, helpers, keys and settings |
 | [capture-recipes.md](capture-recipes.md) | Recipes: automating what happens with a capture |
+| [viewer.md](viewer.md) | The viewer: a capture in a small window of its own, e.g. on top to compare it |
+| [image-formats.md](image-formats.md) | Which image formats Greenshot opens and saves, and more formats with codecs installed in Windows |
 | [custom-uploader.md](custom-uploader.md) | Uploading to a service of your choice with an uploader file (.sxcu) |
+| [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
@@ -33,5 +36,5 @@ work differently there, and they can still change before the release. The docume
 | [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md) | The native proxy, IPC, command line and the browser extension |
 | [async-threading-roadmap.md](async-threading-roadmap.md) | The threading model and the async rules |
 | [recipe-contracts-cli-query-plan.md](recipe-contracts-cli-query-plan.md) | Plan: recipe contracts, CLI queries and error handling |
-| [recipe.schema.json](recipe.schema.json), [examples](examples) | The JSON schema of recipes and example recipes |
+| [recipe.schema.json](recipe.schema.json), [examples](examples) | The JSON schema of recipes and example recipes; more recipes are in [greenshot/greenshot-recipes](https://github.com/greenshot/greenshot-recipes) |
 | [upstream](upstream/wpf-notifyicon-prompt.md) | Changes Greenshot would like in libraries it uses |

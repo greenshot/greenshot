@@ -20,9 +20,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Greenshot.Recipes;
@@ -48,6 +51,28 @@ namespace Greenshot.Tests.Recipes
             Assert.NotNull(regionRecipe);
             Assert.True(regionRecipe.IsEnabled);
             Assert.True(manager.IsRecipeEnabled(RecipeManager.RecipeIdRegion));
+        }
+
+        [Theory]
+        [InlineData(RecipeManager.RecipeIdRegion, "Text", "copy_text")]
+        [InlineData(RecipeManager.RecipeIdRegion, "Region", "feedback")]
+        [InlineData(RecipeManager.RecipeIdWindow, "Text", "copy_text")]
+        [InlineData(RecipeManager.RecipeIdWindow, "Window", "feedback")]
+        public void BuiltInCaptureRecipes_SendTextSelectionsToTheClipboard(string recipeId, string selectedMode, string expectedNext)
+        {
+            var recipe = new RecipeManager().GetRecipeById(recipeId);
+            Assert.Contains(recipe.Flow.Transitions, t => t.IsPlain && t.From == "select" && t.To == "text_or_image");
+            var copyText = recipe.FindNode("copy_text");
+            Assert.Equal(WellKnownStepTypes.Clipboard, copyText.StepType);
+            Assert.Equal("TextOnly", copyText.GetParameter<string>("ClipboardMode"));
+
+            // The branch the Conditional step takes: the first expression which is true, or "else"
+            using var context = new CaptureFlowContext(recipe);
+            context.Properties["SelectedMode"] = selectedMode;
+            var branch = recipe.FindNode("text_or_image").GetParameter<List<ConditionalBranch>>("Branches")
+                .First(b => b.Expression == "else" || ExpressionEvaluator.Instance.Evaluate(b.Expression, context, false));
+            var next = recipe.Flow.ConditionalTransitions.Single(t => t.From == "text_or_image" && t.Branch == branch.Key).To;
+            Assert.Equal(expectedNext, next);
         }
 
         [Fact]

@@ -112,6 +112,21 @@ namespace Greenshot.Base.Languages
         string AutocropNotPossible { get; }
 
         /// <summary>
+        /// HDR
+        /// </summary>
+        string HdrBadge { get; }
+
+        /// <summary>
+        /// This capture has HDR content: Save as JPEG XR keeps its highlights, with what you drew on top
+        /// </summary>
+        string HdrBadgeTooltip { get; }
+
+        /// <summary>
+        /// This capture had HDR content, but its image was changed (e.g. by an effect): it is saved without HDR
+        /// </summary>
+        string HdrBadgeLostTooltip { get; }
+
+        /// <summary>
         /// Fill color (0-9)
         /// </summary>
         string Backcolor { get; }
@@ -170,6 +185,11 @@ namespace Greenshot.Base.Languages
         /// Choose an emoji
         /// </summary>
         string EmojiPicker { get; }
+
+        /// <summary>
+        /// History
+        /// </summary>
+        string EmojiHistory { get; }
 
         /// <summary>
         /// New image

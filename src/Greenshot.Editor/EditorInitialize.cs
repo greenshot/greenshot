@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using System.Linq;
 using Greenshot.Base.Core;
@@ -32,9 +31,6 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        // Not a static field: RegisterValueConverters is called before the configuration exists
-        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
-
         /// <summary>
         /// Register the value converters the editor configuration needs, this must happen before greenshot.ini is loaded,
         /// otherwise e.g. the last used field values can't be read.
@@ -50,8 +46,8 @@ namespace Greenshot.Editor
             RegisterValueConverters();
 
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
-                    // All generic things, like gif, png, jpg etc.
-                    CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),
+                    // Saves gif, png, jpg etc., loads what WIC can't (tga, pbm, webp without the Store codec)
+                    new ImageSharpFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support
@@ -62,9 +58,19 @@ namespace Greenshot.Editor
                     new IconFileFormatHandler(),
                     // EMF & WMF
                     new MetaFileFormatHandler(),
-                    // JPG XR
-                    new WpfFileFormatHandler()
+                    // JPEG XR and everything else WIC can decode
+                    new WicFileFormatHandler()
                 );
+
+            // Writing and reading HDR files (JPEG XR of an HDR capture), registered once: they are looked up with GetInstance
+            if (SimpleServiceProvider.Current.GetAllInstances<IHdrImageEncoder>().Count == 0)
+            {
+                SimpleServiceProvider.Current.AddService<IHdrImageEncoder>(new WicHdrImageEncoder());
+            }
+            if (SimpleServiceProvider.Current.GetAllInstances<IHdrImageDecoder>().Count == 0)
+            {
+                SimpleServiceProvider.Current.AddService<IHdrImageDecoder>(new WicHdrImageDecoder());
+            }
 
             IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
             foreach (var handler in SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<AbstractFileFormatHandler>())

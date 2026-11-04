@@ -73,7 +73,7 @@ namespace Greenshot.Tests.Editor
             Near(new PointF(corner.X - 15, corner.Y + 23), box.ModelToImage(new PointF(60, 90)));
             Assert.Equal(model, box.ModelBounds); s.Undo(); Near(corner, box.ModelToImage(new PointF(60, 90)));
             s.Redo(); Near(new PointF(corner.X - 15, corner.Y + 23), box.ModelToImage(new PointF(60, 90)));
-            box.SnapToEdge(Direction.LEFT, new Size(220, 220)); Assert.Equal(0, box.Bounds.Left); Assert.Equal(model, box.ModelBounds);
+            box.MakeBoundsChangeUndoable(false); box.SnapToEdge(Direction.LEFT, new Size(220, 220)); Assert.Equal(0, box.Bounds.Left); Assert.Equal(model, box.ModelBounds);
             s.Undo(); Near(new PointF(corner.X - 15, corner.Y + 23), box.ModelToImage(new PointF(60, 90)));
         }
 
@@ -156,12 +156,12 @@ namespace Greenshot.Tests.Editor
             using var s = new Surface(new Bitmap(300, 300)); using var pixels = new Bitmap(20, 10);
             var image = new ImageContainer(s) { Left = 40, Top = 60, Width = 80, Height = 40, Image = pixels }; s.AddElement(image, false); s.SelectElement(image); s.RotateSelectedObjects(27);
             var before = image.ModelToImage(new PointF(40, 60)); var bitmap = image.Image;
-            var apply = typeof(Surface).GetMethod("ApplyEffectResult", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Image), typeof(Matrix) }, null);
+            var apply = typeof(Surface).GetMethod("ApplyEffectResult", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Image), typeof(Matrix), typeof(Greenshot.Base.Effects.IEffect) }, null);
             using var rotation = new Matrix(0, 1, -1, 0, 300, 0);
-            apply.Invoke(s, new object[] { new Bitmap(300, 300), rotation }); Near(new PointF(300 - before.Y, before.X), image.ModelToImage(new PointF(40, 60)));
+            apply.Invoke(s, new object[] { new Bitmap(300, 300), rotation , null }); Near(new PointF(300 - before.Y, before.X), image.ModelToImage(new PointF(40, 60)));
             Assert.Same(bitmap, image.Image); s.Undo(); Near(before, image.ModelToImage(new PointF(40, 60))); Assert.Equal(27, image.ObjectAngle, 5);
             using var resize = new Matrix(2, 0, 0, 1, 0, 0);
-            apply.Invoke(s, new object[] { new Bitmap(600, 300), resize }); Near(new PointF(before.X * 2, before.Y), image.ModelToImage(new PointF(40, 60)));
+            apply.Invoke(s, new object[] { new Bitmap(600, 300), resize , null }); Near(new PointF(before.X * 2, before.Y), image.ModelToImage(new PointF(40, 60)));
             s.Undo(); Near(before, image.ModelToImage(new PointF(40, 60)));
         }
 

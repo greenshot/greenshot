@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Core;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -57,13 +58,13 @@ namespace Greenshot.Editor.Drawing
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(ModifierKeys);
+            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(InputState.ModifierKeys);
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(ModifierKeys);
+            if (DrawingMode == DrawingModes.Scale) UpdateScalePreview(InputState.ModifierKeys);
         }
 
         private void StartScalePreview(MouseEventArgs e)
@@ -92,7 +93,7 @@ namespace Greenshot.Editor.Drawing
             Cursor = Cursors.Cross;
             if (_scalePreview == null) return;
             _scalePointer = e.Location;
-            UpdateScalePreview(ModifierKeys);
+            UpdateScalePreview(InputState.ModifierKeys);
         }
 
         private void UpdateScalePreview(Keys modifiers)

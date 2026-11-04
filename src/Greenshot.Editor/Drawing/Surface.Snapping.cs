@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -36,7 +37,7 @@ namespace Greenshot.Editor.Drawing
         {
             ClearSnapGuide();
             if (!_snapPoints && !_snapThrough) return pointer;
-            var end = ObjectSnapHelper.Snap(pointer, anchor, SnapTargets(new[] { owner }), _snapPoints, through && _snapThrough && (ModifierKeys & Keys.Control) == 0,
+            var end = ObjectSnapHelper.Snap(pointer, anchor, SnapTargets(new[] { owner }), _snapPoints, through && _snapThrough && (InputState.ModifierKeys & Keys.Control) == 0,
                 _zoomFactor, compatible, out _snapTarget, out bool ray, _snappingRadius);
             if (ray) { _snapAnchor = anchor; _snapEnd = end; }
             if (_snapTarget != null) Invalidate();
@@ -131,7 +132,7 @@ namespace Greenshot.Editor.Drawing
             if (line) options = (options ?? ScaleHelper.GetScaleOptions()) & ~ScaleOptions.Rational;
             var anchor = position == Positions.TopLeft ? new Point(original.X + original.Width, original.Y + original.Height) : new Point(original.X, original.Y);
             // Line endpoint Shift uses the same 15-degree constraint as line drawing.
-            Point Constrain(Point p) => line && (ModifierKeys & Keys.Shift) != 0 ? GetScaleEndpoint(anchor, p, ModifierKeys) : p;
+            Point Constrain(Point p) => line && (InputState.ModifierKeys & Keys.Shift) != 0 ? GetScaleEndpoint(anchor, p, InputState.ModifierKeys) : p;
             NativeRectFloat Scale(Point p) => ScaleHelper.Scale(original, position, new NativePointFloat(p.X, p.Y), options);
             Point Handle(NativeRectFloat b) => new Point(
                 (int)(position == Positions.TopLeft || position == Positions.MiddleLeft || position == Positions.BottomLeft ? b.X : position == Positions.TopCenter || position == Positions.BottomCenter ? b.X + b.Width / 2 : b.X + b.Width),

@@ -10,6 +10,7 @@
     "nodes",
     "flow"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string",
@@ -41,10 +42,43 @@
       "type": "string",
       "description": "Optional description of what this recipe accomplishes."
     },
-    "enabled": {
+    "authors": {
+      "type": "array",
+      "description": "Who wrote the recipe; shown when it is approved. Kept in the file so the credit travels with it.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "The name as the author wants to be credited." },
+          "github": { "type": "string", "description": "The GitHub login of the author." }
+        }
+      }
+    },
+    "copyright": {
+      "type": "string",
+      "description": "The copyright notice, e.g. 'Copyright (c) 2026 Jane Doe', which the license may require to stay with every copy."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The license of the file as an SPDX identifier, e.g. 'MIT'."
+    },
+    "translations": {
+      "type": "object",
+      "description": "The texts of the file in other languages, by language ('de' or 'de-DE') and then by path. Greenshot uses the exact language, else the language alone, else the texts of the file.",
+      "propertyNames": { "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$" },
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText|nodes\\..+\\.[A-Za-z][A-Za-z0-9]*(\\..+)?)$" },
+        "additionalProperties": { "type": "string", "minLength": 1 }
+      }
+    },
+    "showInContextMenu": {
       "type": "boolean",
       "default": true,
-      "description": "Whether this recipe is active and available."
+      "description": "A recipe without a ContextMenu trigger gets an entry in Greenshot's system tray menu; false leaves it out."
     },
     "requires": {
       "type": "array",
@@ -137,10 +171,10 @@
         },
         "type": {
           "type": "string",
-          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color" ]
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color", "Hotkey", "DirectoryPath" ]
         },
         "default": {
-          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\"."
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\", a Hotkey like \"Ctrl + Shift + D\" (empty: no hotkey), a DirectoryPath a full path, %VARIABLES% allowed."
         },
         "label": {
           "type": "string",
@@ -251,7 +285,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
@@ -299,6 +333,15 @@
                 "TextOcr"
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
+            },
+            "ScreenMode": {
+              "anyOf": [ { "type": "string", "enum": [ "Auto", "Live", "Frozen" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "Auto",
+              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen: the frozen screen is shown in SDR, the HDR content is there all the same."
+            },
+            "Hdr": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile', a JPEG XR file). Not set: the setting 'Keep the HDR content of HDR displays' (CaptureHdr). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
             },
             "Filename": {
               "type": "string",
@@ -439,6 +482,22 @@
               "type": "object",
               "description": "Used by 'SetVariable' step: the variables to set, name to value (an expression or a literal)."
             },
+            "Fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [ "CaptureTime", "Author", "Source", "Text", "Barcodes" ]
+              },
+              "description": "Used by 'SetMetadata' step: the details written into saved images; without it those of the settings, an empty list none."
+            },
+            "Author": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the author written into saved images, instead of the one of the settings; empty leaves it out."
+            },
+            "Copyright": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the copyright notice written into saved images, instead of the one of the settings; empty leaves it out."
+            },
             "DestinationDesignations": {
               "type": "array",
               "items": {
@@ -490,12 +549,22 @@
             },
             "Format": {
               "type": "string",
-              "enum": [
-                "Mp4_H264",
-                "Mp4_Hevc"
-              ],
-              "default": "Mp4_H264",
-              "description": "Used by 'RecordVideo' step: Video codec container format."
+              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
+            },
+            "HdrFormat": {
+              "anyOf": [ { "type": "string", "enum": [ "None", "Auto", "Jxr" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "None",
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting; something brighter than SDR white or outside sRGB) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved quietly. To tell or ask the user, check ${payload.hdr} (Available, Lost, None) before, e.g. with a UserPrompt step, or use NoHdrNote of the Notification step."
+            },
+            "AskForFilename": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'SaveFile' step: ask for the file with the save dialog instead of saving directly to the configured location. With HdrFormat the dialog suggests the HDR format; picking another format saves the normal file. Without a user to ask (e.g. a command line capture) the file is saved directly."
+            },
+            "NoHdrNote": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'Notification' step: say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat."
             },
             "FrameRate": {
               "type": "integer",
@@ -885,12 +954,16 @@
           "default": true,
           "description": "Whether this trigger is currently active."
         },
+        "when": {
+          "type": "string",
+          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
+        },
         "parameters": {
           "type": "object",
           "properties": {
             "Hotkey": {
               "type": "string",
-              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'). Required for Hotkey triggers."
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Name}' for a hotkey of the general settings (e.g. '${config.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
             },
             "MenuItemText": {
               "type": "string",

@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Core;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -54,7 +55,7 @@ namespace Greenshot.Editor.Drawing
                     AddElement(polygon); SelectElement(polygon); polygon.Selected = true;
                     return true;
                 }
-                var point = PolygonEndpoint(e.Location, _polygonPoints.Count == 0 ? (Point?)null : _polygonPoints.Last(), null, ModifierKeys);
+                var point = PolygonEndpoint(e.Location, _polygonPoints.Count == 0 ? (Point?)null : _polygonPoints.Last(), null, InputState.ModifierKeys);
                 if (_polygonPoints.Count == 0 || point != _polygonPoints.Last()) _polygonPoints.Add(point);
                 _polygonPointer = point; Invalidate(); return true;
             }
@@ -92,11 +93,11 @@ namespace Greenshot.Editor.Drawing
         {
             if (_vertexOwner != null)
             {
-                MovePolygonVertex(e.Location, ModifierKeys);
+                MovePolygonVertex(e.Location, InputState.ModifierKeys);
                 Invalidate(); return true;
             }
             if (DrawingMode != DrawingModes.Polygon) return false;
-            _polygonPointer = PolygonEndpoint(e.Location, _polygonPoints.Count == 0 ? (Point?)null : _polygonPoints.Last(), null, ModifierKeys);
+            _polygonPointer = PolygonEndpoint(e.Location, _polygonPoints.Count == 0 ? (Point?)null : _polygonPoints.Last(), null, InputState.ModifierKeys);
             ApplySnappedPointer(e.Location, _polygonPointer);
             Cursor = Cursors.Cross; Invalidate(); return true;
         }

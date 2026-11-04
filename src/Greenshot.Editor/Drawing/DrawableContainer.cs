@@ -778,33 +778,29 @@ namespace Greenshot.Editor.Drawing
         /// <param name="surface">The surface the container belongs to.</param>
         public void SnapToEdge(Direction direction, Size surfaceSize)
         {
-            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
-
-            this.MakeBoundsChangeUndoable(allowMerge: false);
-            if (HasObjectTransform) MoveBy((int)newBounds.Left - Bounds.Left, (int)newBounds.Top - Bounds.Top);
-            else this.ApplyBounds(newBounds);
-        }
-
-        private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)
-        {
+            var bounds = Bounds;
+            int dx = 0;
+            int dy = 0;
             switch (direction)
             {
                 case Direction.LEFT:
-                    bounds = bounds.ChangeX(0);
+                    dx = -bounds.Left;
                     break;
                 case Direction.RIGHT:
-                    bounds = bounds.Offset(offsetX: surfaceSize.Width - bounds.Right);
+                    dx = surfaceSize.Width - bounds.Right;
                     break;
                 case Direction.TOP:
-                    bounds = bounds.ChangeY(0);
+                    dy = -bounds.Top;
                     break;
                 case Direction.BOTTOM:
-                    bounds = bounds.Offset(offsetY: surfaceSize.Height - bounds.Bottom);
-                    break;
-                default:
+                    dy = surfaceSize.Height - bounds.Bottom;
                     break;
             }
-            return bounds;
+            this.Invalidate();
+            // Offset the raw bounds so negative dimensions keep their direction.
+            if (HasObjectTransform) MoveBy(dx, dy);
+            else this.ApplyBounds(new NativeRectFloat(Left + dx, Top + dy, Width, Height));
+            this.Invalidate();
         }
     }
 }

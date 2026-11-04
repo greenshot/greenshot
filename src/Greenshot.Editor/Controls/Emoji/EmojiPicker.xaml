@@ -92,7 +92,7 @@
         <!-- Tab goes between the categories and the emoji and stays in the picker, Esc closes it -->
         <Border KeyboardNavigation.TabNavigation="Cycle">
             <StackPanel Orientation="Vertical">
-                <TabControl ItemsSource="{Binding EmojiGroups, ElementName=StackPanel_INTERNAL}" Padding="0">
+                <TabControl ItemsSource="{Binding Groups, ElementName=StackPanel_INTERNAL}" Padding="0">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="TabItem">
                             <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>

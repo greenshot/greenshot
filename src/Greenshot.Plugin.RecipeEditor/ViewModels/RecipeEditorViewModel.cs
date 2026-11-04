@@ -183,7 +183,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public int SelectedInspectorTabIndex
         {
             get => _selectedInspectorTabIndex;
-            set => SetField(ref _selectedInspectorTabIndex, value);
+            set
+            {
+                if (SetField(ref _selectedInspectorTabIndex, value))
+                {
+                    // The texts to translate as the recipe has them now
+                    LoadTranslationRows();
+                }
+            }
         }
 
         public StepNodeViewModel SelectedNode
@@ -993,6 +1000,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SelectedNode = null;
 
             LoadOptions(recipe);
+            LoadTranslations(recipe);
             if (recipe == null)
             {
                 Triggers.Clear();
@@ -1017,6 +1025,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 vm.StepErrorTransitionProvider = FindStepErrorTransition;
                 vm.StepErrorTransitionSetter = SetStepErrorTransition;
+                vm.PortRemovedHandler = RemoveConnectionsFrom;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -1153,7 +1162,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 foreach (var tc in recipe.Triggers)
                 {
-                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger));
+                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe));
                 }
             }
         }
@@ -1164,6 +1173,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
                 IsDirty = true;
+                LoadTranslationRows();
             }
         }
 
@@ -1213,7 +1223,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 config.Parameters["ReadOnly"] = true;
             }
 
-            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
+            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe);
             Triggers.Add(item);
             SyncTriggersToRecipe();
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTriggerAdded, type);
@@ -1223,6 +1233,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             if (item != null && Triggers.Contains(item))
             {
+                // The translations of the menu texts are by the trigger's place
+                ActiveRecipe?.RemoveTriggerTranslations(Triggers.IndexOf(item));
                 Triggers.Remove(item);
                 SyncTriggersToRecipe();
                 StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusTriggerRemoved;
@@ -1292,6 +1304,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else
             {
                 StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusConnected, fromPort.Node.DisplayName, toPort.Node.DisplayName);
+            }
+        }
+
+        /// <summary>
+        /// Removes the connections from a removed branch or choice: kept, they would be saved as plain transitions of the step
+        /// </summary>
+        private void RemoveConnectionsFrom(StepPortViewModel port)
+        {
+            foreach (var conn in Connections.Where(c => c.Source == port).ToList())
+            {
+                RemoveConnection(conn);
             }
         }
 
@@ -1414,6 +1437,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             nodeVm.StepErrorTransitionProvider = FindStepErrorTransition;
             nodeVm.StepErrorTransitionSetter = SetStepErrorTransition;
+            nodeVm.PortRemovedHandler = RemoveConnectionsFrom;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -1481,6 +1505,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (string.Equals(errorTransition.FromNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.FromNodeId = newId;
                 if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
+
+            ActiveRecipe?.RenameNodeTranslations(oldId, newId);
 
             SyncRecipeTransitions();
             IsDirty = true;
@@ -1600,6 +1626,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Errors.FirstOrDefault());
             }
+            else if (valResult.Warnings.Count > 0)
+            {
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Warnings[0]);
+            }
             else
             {
                 StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusDagValid;
@@ -1713,11 +1743,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Texts.Get<IRecipeEditorLanguage>().NewRecipeName,
                 Texts.Get<IRecipeEditorLanguage>().NewRecipeDescription)
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"));
 
             recipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "feedback")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "feedback")
                 .AddTransition("feedback", "export");
             // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
             RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
@@ -1901,6 +1933,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            // A translation of a removed node or choice would make the file invalid
+            ActiveRecipe.RemoveUnusedTranslations();
             if (_extension != null)
             {
                 return SaveActiveExtensionTo(filePath);
@@ -2128,7 +2162,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string tLabel = t.TriggerType;
                     if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                     {
-                        string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
+                        string hotkey = t.GetHotkey(recipe);
+                        if (string.IsNullOrEmpty(hotkey)) hotkey = "Shortcut";
                         tLabel = $"⚡ Hotkey: {hotkey}";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
@@ -2363,7 +2398,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.DynamicDestination:
                     dict["Title"] = "Export Capture";
                     dict["ShowPreview"] = true;
-                    dict["AllowRecipeForwarding"] = true;
                     dict["TimeoutSeconds"] = 0;
                     dict["Destinations"] = new List<string>();
                     break;

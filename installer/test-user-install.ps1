@@ -9,7 +9,7 @@ $machineKey = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Greensh
 if ((Test-Path $userKey) -or (Test-Path $machineKey) -or (Test-Path -LiteralPath $installDir)) {
     throw 'Runner already has Greenshot; refusing to change an existing installation.'
 }
-$process = Start-Process -FilePath $installer -ArgumentList '/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /TASKS="" /COMPONENTS="greenshot"' -WindowStyle Hidden -Wait -PassThru
+$process = Start-Process -FilePath $installer -ArgumentList '/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /TASKS="" /TYPE=full' -WindowStyle Hidden -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
 try {
     if (-not (Test-Path $userKey)) { throw 'Per-user uninstall registration is missing' }
@@ -17,7 +17,7 @@ try {
     $registration = Get-ItemProperty $userKey
     $actualDir = $registration.InstallLocation.TrimEnd('\')
     if ($actualDir -ine $installDir) { throw "Unexpected user installation directory: $actualDir" }
-    foreach ($file in @('Greenshot.exe', 'Greenshot.Base.dll', 'Greenshot.Editor.dll', 'greenshot-proxy.exe', 'greenshot-cli.exe')) {
+    foreach ($file in @('Greenshot.exe', 'Greenshot.Base.dll', 'Greenshot.Editor.dll', 'greenshot-proxy.exe', 'greenshot-cli.exe', 'Plugins/Greenshot.Plugin.Stamps/Greenshot.Plugin.Stamps.dll', 'Languages/greenshot.stamps.en-US.ini')) {
         if (-not (Test-Path -LiteralPath (Join-Path $actualDir $file))) { throw "Missing installed file: $file" }
     }
     Push-Location $actualDir

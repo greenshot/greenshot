@@ -113,5 +113,52 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(123, resolved["StaticNum"]);
             Assert.Equal(true, resolved["ConditionMet"]);
         }
+
+        [Theory]
+        [InlineData(true, "Available")]
+        [InlineData(false, "None")]
+        public void Evaluate_PayloadHdr_TellsWhetherTheCaptureHasHdrContent(bool withHdr, string expected)
+        {
+            var capture = new Capture(new Bitmap(4, 2));
+            if (withHdr)
+            {
+                var hdrImage = new HdrImage(4, 2, 240, 400);
+                hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
+                hdrImage.BelongTo(capture.Image);
+                capture.HdrImage = hdrImage;
+            }
+            using var context = new CaptureFlowContext(new CaptureRecipe("hdr_test", "HDR Test"))
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            Assert.Equal(expected, ExpressionEvaluator.Instance.Evaluate("${payload.hdr}", context));
+            Assert.Equal(withHdr, ExpressionEvaluator.Instance.Evaluate<bool>("${payload.hdr == 'Available'}", context));
+        }
+
+        [Fact]
+        public void HdrState_OfAnHdrImageWhichNoLongerBelongsToTheImage_IsLost()
+        {
+            using var image = new Bitmap(4, 2);
+            using var changed = new Bitmap(4, 2);
+            using var hdrImage = new HdrImage(4, 2, 240, 400);
+            hdrImage.Pixels[0, 0] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
+            hdrImage.BelongTo(image);
+
+            Assert.Equal(HdrOutput.StateAvailable, HdrOutput.StateOf(hdrImage, image));
+            Assert.Equal(HdrOutput.StateLost, HdrOutput.StateOf(hdrImage, changed));
+            Assert.Equal(HdrOutput.StateNone, HdrOutput.StateOf(null, image));
+        }
+
+        [Fact]
+        public void Evaluate_ChoiceOfAPromptWhichDidntRun_IsTheDefault()
+        {
+            using var context = new CaptureFlowContext(new CaptureRecipe("choice_test", "Choice Test"));
+            const string hdrFormat = "${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}";
+
+            Assert.Equal("Auto", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+            context.Properties["UserChoice.ask"] = "Png";
+            Assert.Equal("None", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+        }
     }
 }

@@ -91,6 +91,11 @@ namespace Greenshot.Base.Recipes
         public const string SetVariable = "SetVariable";
 
         /// <summary>
+        /// Decides the details (EXIF/XMP) written into the image files of the following steps.
+        /// </summary>
+        public const string SetMetadata = "SetMetadata";
+
+        /// <summary>
         /// Dedicated step saving the capture to a file with customizable directory, pattern, and format.
         /// </summary>
         public const string SaveFile = "SaveFile";

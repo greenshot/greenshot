@@ -127,13 +127,13 @@ namespace Greenshot.Tests.Editor
             int history = Undos(pasted); pasted.SetSelectedRotation(36); Assert.Equal(history, Undos(pasted)); Assert.NotEqual(a.GroupId, ((DrawableContainer)copies[0]).GroupId);
             using var data = new MemoryStream(); s.SaveElementsToStream(data); data.Position = 0;
             using var loaded = new Surface(new Bitmap(300, 300)); loaded.LoadElementsFromStream(data); loaded.TryGetSelectedRotation(out angle); Assert.Equal(36, angle);
-            var apply = typeof(Surface).GetMethod("ApplyEffectResult", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Image), typeof(Matrix) }, null);
-            using var turn = new Matrix(0, 1, -1, 0, 300, 0); apply.Invoke(s, new object[] { new Bitmap(300, 300), turn }); s.TryGetSelectedRotation(out angle); Assert.Equal(126, angle, 5);
+            var apply = typeof(Surface).GetMethod("ApplyEffectResult", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(Image), typeof(Matrix), typeof(Greenshot.Base.Effects.IEffect) }, null);
+            using var turn = new Matrix(0, 1, -1, 0, 300, 0); apply.Invoke(s, new object[] { new Bitmap(300, 300), turn , null }); s.TryGetSelectedRotation(out angle); Assert.Equal(126, angle, 5);
             s.Undo(); s.TryGetSelectedRotation(out angle); Assert.Equal(36, angle, 5);
-            using var stretch = new Matrix(2, 0, 0, 1, 0, 0); apply.Invoke(s, new object[] { new Bitmap(600, 300), stretch }); s.TryGetSelectedRotation(out angle);
+            using var stretch = new Matrix(2, 0, 0, 1, 0, 0); apply.Invoke(s, new object[] { new Bitmap(600, 300), stretch , null }); s.TryGetSelectedRotation(out angle);
             Assert.Equal(Math.Atan2(Math.Sin(Math.PI / 5), 2 * Math.Cos(Math.PI / 5)) * 180 / Math.PI, angle, 5);
             s.Undo(); s.TryGetSelectedRotation(out angle); Assert.Equal(36, angle, 5);
-            using var flip = new Matrix(-1, 0, 0, 1, 300, 0); apply.Invoke(s, new object[] { new Bitmap(300, 300), flip }); s.TryGetSelectedRotation(out angle); Assert.Equal(144, angle, 5);
+            using var flip = new Matrix(-1, 0, 0, 1, 300, 0); apply.Invoke(s, new object[] { new Bitmap(300, 300), flip , null }); s.TryGetSelectedRotation(out angle); Assert.Equal(144, angle, 5);
             s.Undo(); s.TryGetSelectedRotation(out angle); Assert.Equal(36, angle, 5);
         }
 
