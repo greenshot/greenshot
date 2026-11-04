@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Security.Cryptography;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
@@ -46,71 +45,6 @@ namespace Greenshot.Editor.Drawing.Filters
         // Secret key and IV for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
         [NonSerialized] private byte[] _noiseKey;
         [NonSerialized] private byte[] _noiseIv;
-
-        /// <summary>
-        /// Cryptographically secure random numbers (the AES-CBC encrypted zeros), the same key and IV give the same numbers
-        /// </summary>
-        private class CryptoRandomBuffer : IDisposable
-        {
-            private readonly Aes _aes;
-            private readonly ICryptoTransform _encryptor;
-            private readonly byte[] _zeros;
-            private readonly byte[] _buffer;
-            private int _index;
-
-            public CryptoRandomBuffer(byte[] key, byte[] iv, int size)
-            {
-                // Ensure size is a multiple of the AES block size
-                int alignedSize = ((size + 15) / 16) * 16;
-                _buffer = new byte[alignedSize];
-                _zeros = new byte[alignedSize];
-                _aes = Aes.Create();
-                _aes.Padding = PaddingMode.None;
-                _aes.Key = key;
-                _aes.IV = iv;
-                _encryptor = _aes.CreateEncryptor();
-                Refill();
-            }
-
-            private void Refill()
-            {
-                // The encryptor keeps chaining, so every refill gives new numbers
-                _encryptor.TransformBlock(_zeros, 0, _zeros.Length, _buffer, 0);
-                _index = 0;
-            }
-
-            private uint GetNextUInt32()
-            {
-                if (_index + 4 > _buffer.Length)
-                {
-                    Refill();
-                }
-                uint val = BitConverter.ToUInt32(_buffer, _index);
-                _index += 4;
-                return val;
-            }
-
-            public int GetNextInt(int min, int max)
-            {
-                uint range = (uint)(max - min + 1);
-                if (range <= 1) return min;
-
-                uint limit = uint.MaxValue - (uint.MaxValue % range);
-                uint val;
-                do
-                {
-                    val = GetNextUInt32();
-                } while (val >= limit);
-
-                return min + (int)(val % range);
-            }
-
-            public void Dispose()
-            {
-                _encryptor.Dispose();
-                _aes.Dispose();
-            }
-        }
 
         private static byte ClampToByte(int value)
         {
@@ -161,10 +95,7 @@ namespace Greenshot.Editor.Drawing.Filters
             // Create a small 4KB cryptographically secure random buffer
             if (_noiseKey == null)
             {
-                // Aes.Create generates a random key and IV
-                using var aes = Aes.Create();
-                _noiseKey = aes.Key;
-                _noiseIv = aes.IV;
+                (_noiseKey, _noiseIv) = CryptoRandomBuffer.NewKey();
             }
 
             using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);

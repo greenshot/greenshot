@@ -22,11 +22,13 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
@@ -57,18 +59,113 @@ namespace Greenshot.Editor.Drawing.Filters
         protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
             int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
+            Bitmap blurred;
             if (GdiPlusApi.IsBlurPossible(blurRadius))
             {
-                GdiPlusApi.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
+                blurred = new Bitmap(applyRect.Width, applyRect.Height, PixelFormat.Format32bppArgb);
+                using var blurredGraphics = Graphics.FromImage(blurred);
+                blurredGraphics.TranslateTransform(-applyRect.X, -applyRect.Y);
+                GdiPlusApi.DrawWithBlur(blurredGraphics, applyBitmap, applyRect, null, null, blurRadius, false);
             }
             else
             {
                 // Blurring premultiplied pixels keeps the color of transparent pixels out of the visible ones
                 var pixelFormat = Image.IsAlphaPixelFormat(applyBitmap.PixelFormat) ? PixelFormat.Format32bppPArgb : PixelFormat.DontCare;
-                using Bitmap blurred = ImageHelper.CloneArea(applyBitmap, applyRect, pixelFormat);
+                blurred = ImageHelper.CloneArea(applyBitmap, applyRect, pixelFormat);
                 ImageHelper.ApplyBoxBlur(blurred, blurRadius);
+            }
+            using (blurred)
+            {
+                AddNoise(blurred, applyRect, Noise(new NativeRect(0, 0, applyBitmap.Width, applyBitmap.Height)));
                 graphics.DrawImage(blurred, applyRect, new Rectangle(0, 0, blurred.Width, blurred.Height), GraphicsUnit.Pixel);
             }
         }
+
+        /// <summary>
+        /// How many 8-bit levels the noise changes a channel at most, up or down: hardly visible, but the blur can't be undone to read what is
+        /// under it (undoing a blur makes small differences big)
+        /// </summary>
+        internal const int NoiseLevels = 3;
+
+        // Secret key and IV for the noise, generated once per filter and never stored, so every repaint and the export use the same noise
+        [NonSerialized] private byte[] _noiseKey;
+        [NonSerialized] private byte[] _noiseIv;
+        [NonSerialized] private sbyte[] _noise;
+        [NonSerialized] private Size _noiseSize;
+
+        /// <summary>
+        /// The noise over the blur: per pixel of the area the offset of red, green and blue in 8-bit sRGB levels, row by row. The area is the
+        /// element (its noise moves with it), for an inverted blur the image. The same for every repaint, the export and the HDR file
+        /// (see ElementImageFilters), which adds it in the levels of the 8-bit image.
+        /// </summary>
+        /// <param name="imageBounds">The image</param>
+        internal (NativeRect Area, sbyte[] Offsets) Noise(NativeRect imageBounds)
+        {
+            var area = Invert ? imageBounds : parent.Bounds.Normalize();
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                return (area, Array.Empty<sbyte>());
+            }
+            var size = new Size(area.Width, area.Height);
+            var noise = _noise;
+            if (noise == null || _noiseSize != size)
+            {
+                if (_noiseKey == null)
+                {
+                    (_noiseKey, _noiseIv) = CryptoRandomBuffer.NewKey();
+                }
+                noise = new sbyte[size.Width * size.Height * 3];
+                using var random = new CryptoRandomBuffer(_noiseKey, _noiseIv, 4096);
+                for (int i = 0; i < noise.Length; i++)
+                {
+                    noise[i] = (sbyte)random.GetNextInt(-NoiseLevels, NoiseLevels);
+                }
+                _noiseSize = size;
+                _noise = noise;
+            }
+            return (area, noise);
+        }
+
+        /// <summary>
+        /// Add the noise to the blurred pixels, which are at the place of the image (the noise is only where its area is)
+        /// </summary>
+        private static void AddNoise(Bitmap blurred, NativeRect place, (NativeRect Area, sbyte[] Offsets) noise)
+        {
+            var area = noise.Area;
+            var offsets = noise.Offsets;
+            if (offsets.Length == 0)
+            {
+                return;
+            }
+            bool premultiplied = blurred.PixelFormat == PixelFormat.Format32bppPArgb;
+            BitmapPixels.ProcessPixelRows<Bgra32>(blurred, pixels =>
+            {
+                for (int y = 0; y < pixels.Height; y++)
+                {
+                    int noiseY = place.Y + y - area.Y;
+                    if (noiseY < 0 || noiseY >= area.Height)
+                    {
+                        continue;
+                    }
+                    var row = pixels.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        int noiseX = place.X + x - area.X;
+                        if (noiseX < 0 || noiseX >= area.Width || row[x].A == 0)
+                        {
+                            continue;
+                        }
+                        int index = (noiseY * area.Width + noiseX) * 3;
+                        // Premultiplied the channels go up to the alpha, and so does the noise
+                        int max = premultiplied ? row[x].A : 255;
+                        row[x].R = AddLevels(row[x].R, offsets[index], max);
+                        row[x].G = AddLevels(row[x].G, offsets[index + 1], max);
+                        row[x].B = AddLevels(row[x].B, offsets[index + 2], max);
+                    }
+                }
+            });
+        }
+
+        private static byte AddLevels(byte value, int levels, int max) => (byte)Math.Min(Math.Max(value + levels * max / 255, 0), max);
     }
 }
