@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -157,6 +158,35 @@ namespace Greenshot.Editor.Drawing.Adorners
         public Color OutlineColor { get; set; } = Color.White;
         public Color FillColor { get; set; } = Color.Black;
 
+        // Every adorner is painted on each paint of the surface, they share a brush and a pen per color (a handful of colors).
+        // Only used on the UI thread, which paints all editors.
+        private static readonly Dictionary<int, SolidBrush> SharedBrushes = new Dictionary<int, SolidBrush>();
+        private static readonly Dictionary<int, Pen> SharedPens = new Dictionary<int, Pen>();
+
+        private static SolidBrush BrushFor(Color color)
+        {
+            int argb = color.ToArgb();
+            if (!SharedBrushes.TryGetValue(argb, out var brush))
+            {
+                brush = new SolidBrush(color);
+                SharedBrushes.Add(argb, brush);
+            }
+
+            return brush;
+        }
+
+        private static Pen PenFor(Color color)
+        {
+            int argb = color.ToArgb();
+            if (!SharedPens.TryGetValue(argb, out var pen))
+            {
+                pen = new Pen(color);
+                SharedPens.Add(argb, pen);
+            }
+
+            return pen;
+        }
+
         /// <summary>
         /// Draw the adorner
         /// </summary>
@@ -172,11 +202,8 @@ namespace Greenshot.Editor.Drawing.Adorners
             try
             {
                 var bounds = BoundsOnSurface;
-                using var fillBrush = new SolidBrush(FillColor);
-                targetGraphics.FillRectangle(fillBrush, bounds);
-                using var lineBrush = new SolidBrush(OutlineColor);
-                using var pen = new Pen(lineBrush);
-                targetGraphics.DrawRectangle(pen, bounds);
+                targetGraphics.FillRectangle(BrushFor(FillColor), bounds);
+                targetGraphics.DrawRectangle(PenFor(OutlineColor), bounds);
             }
             catch
             {

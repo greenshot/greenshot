@@ -318,6 +318,11 @@ namespace Greenshot.Editor.Forms
             }
 
             propertiesToolStrip.MinimumSize = new Size(150, pixelSize + 10);
+            if (pixelSize != _emojiButtonSize)
+            {
+                AssignEmojiButtonImageAsync(pixelSize).FireAndLog("Render the emoji button image", Log);
+            }
+
             foreach (var tab in Tabs)
             {
                 tab.Surface.AdjustToDpi(dpi);
@@ -561,7 +566,6 @@ namespace Greenshot.Editor.Forms
             timing.Mark("InitializeComponent");
             InitializeLanguage();
             timing.Mark("InitializeLanguage");
-            AssignEmojiButtonImageAsync().FireAndLog("Render the emoji button image", Log);
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
             Load += (s, eventArgs) =>
             {
@@ -684,16 +688,22 @@ namespace Greenshot.Editor.Forms
         /// ImageSharp, parsing the Twemoji font). It's rendered in the background once and shared by all editors,
         /// the button gets it when it's available.
         /// </summary>
-        private async Task AssignEmojiButtonImageAsync()
+        private async Task AssignEmojiButtonImageAsync(int pixelSize)
         {
-            var image = await EmojiRenderer.GetSharedBitmapAsync(EmojiRenderer.EmojiButtonEmoji, EmojiRenderer.EmojiButtonSize).ConfigureAwait(true);
-            if (image == null || IsDisposed || Disposing)
+            _emojiButtonSize = pixelSize;
+            var image = await EmojiRenderer.GetSharedBitmapAsync(EmojiRenderer.EmojiButtonEmoji, pixelSize).ConfigureAwait(true);
+            // Another size can be wanted in the meantime (the editor moved to another display)
+            if (image == null || IsDisposed || Disposing || _emojiButtonSize != pixelSize)
             {
                 return;
             }
 
+            // Rendered in the size of the icons, the tool strip mustn't scale it
+            btnEmoji.ImageScaling = ToolStripItemImageScaling.None;
             btnEmoji.Image = image;
         }
+
+        private int _emojiButtonSize;
 
         /// <summary>
         /// Measures the phases of the editor startup, for the log
