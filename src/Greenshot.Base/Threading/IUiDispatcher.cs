@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Greenshot.Base.Threading
 {
     /// <summary>
-    /// The only way background code talks to the UI thread. See docs/async-threading-roadmap.md, section 4.1.
+    /// The only way background code talks to the UI thread. See docs/vNext/async-threading-roadmap.md, section 4.1.
     /// </summary>
     /// <remarks>
     /// Semantics, identical for every implementation:

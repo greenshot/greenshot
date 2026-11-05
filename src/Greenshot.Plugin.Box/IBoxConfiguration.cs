@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,7 +24,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.Box;
 
@@ -32,10 +31,6 @@ namespace Greenshot.Plugin.Box;
 [Description("Greenshot Box Plugin configuration")]
 public interface IBoxConfiguration : IIniSection, IAfterLoad
 {
-    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
-    [DefaultValue(false)]
-    bool QuicklinkEnabled { get; set; }
-
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
     string UploadFormat { get; set; }

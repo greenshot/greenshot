@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -207,7 +207,7 @@ namespace Greenshot.Tests.Threading
 
             public void BringToFront() => BroughtToFront++;
 
-            public Task<SelectionResult> SelectAsync(Base.Interfaces.ICapture fullscreenCapture, System.Collections.Generic.IReadOnlyList<Base.Core.WindowDetails> visibleWindows, Base.Interfaces.CaptureMode initialMode, CancellationToken cancellationToken = default)
+            public Task<SelectionResult> SelectAsync(Base.Interfaces.ICapture fullscreenCapture, System.Collections.Generic.IReadOnlyList<Dapplo.Windows.Desktop.IInteropWindow> visibleWindows, Base.Interfaces.CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default)
             {
                 return Task.FromResult<SelectionResult>(null);
             }

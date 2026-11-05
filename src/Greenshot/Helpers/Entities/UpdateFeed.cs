@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,20 +20,19 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Helpers.Entities
 {
-    [JsonObject]
     public class UpdateFeed
     {
-        [JsonProperty("release")] public string CurrentReleaseVersion { get; set; }
+        [JsonPropertyName("release")] public string CurrentReleaseVersion { get; set; }
 
-        [JsonProperty("beta")] public string CurrentBetaVersion { get; set; }
+        [JsonPropertyName("beta")] public string CurrentBetaVersion { get; set; }
 
         /// <summary>
         /// Optional download page per edition (e.g. "light"), for the editions that don't use the default downloads page
         /// </summary>
-        [JsonProperty("downloads")] public Dictionary<string, string> Downloads { get; set; }
+        [JsonPropertyName("downloads")] public Dictionary<string, string> Downloads { get; set; }
     }
 }

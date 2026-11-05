@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,7 +22,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Pipeline;
@@ -48,15 +50,15 @@ namespace Greenshot.Base.Recipes.Sources
             }
 
             ICapture capture = new Capture();
-            capture = await WindowCapture.CaptureRectangleAsync(capture, lastRegion, cancellationToken).ConfigureAwait(false);
+            capture = await WindowCapture.CaptureRectangleAsync(capture, lastRegion, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
 
             // Attempt to resolve window title from visible window at center of last region
             NativePoint centerPoint = new NativePoint(lastRegion.X + lastRegion.Width / 2, lastRegion.Y + lastRegion.Height / 2);
-            foreach (WindowDetails window in WindowDetails.GetVisibleWindows())
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
-                if (window.Contains(centerPoint))
+                if (window.GetInfo().Bounds.Contains(centerPoint))
                 {
-                    capture.CaptureDetails.Title = window.Text;
+                    capture.CaptureDetails.Title = window.GetCaption();
                     context.Properties["SelectedWindow"] = window;
                     break;
                 }

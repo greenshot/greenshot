@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -26,9 +26,10 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Languages;
 using Greenshot.Editor.Controls.Emoji;
-using Greenshot.Editor.Helpers;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -42,8 +43,6 @@ namespace Greenshot.Editor.Drawing.Emoji
         [NonSerialized] private static EmojiContainer _currentContainer;
         [NonSerialized] private static ElementHost _emojiPickerHost;
         [NonSerialized] private static EmojiPicker _emojiPicker;
-
-        [NonSerialized] private bool _justCreated = true;
 
         private string _emoji;
 
@@ -64,13 +63,12 @@ namespace Greenshot.Editor.Drawing.Emoji
             Emoji = emoji ?? EditorConfig.RecentEmoji;
             Width = size ?? DefaultSize.Width;
             Height = size ?? DefaultSize.Height;
-            if (emoji != null)
-            {
-                _justCreated = false;
-            }
             Init();
         }
 
+        /// <summary>
+        /// A double click opens the picker, a single click only selects the emoji.
+        /// </summary>
         public override void OnDoubleClick()
         {
             ShowEmojiPicker();
@@ -95,6 +93,11 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPickerHost.Top = displayRectangle.Top;
 
             _emojiPicker.Selection = Emoji;
+
+            // The keys go to the picker while it is open, like to the text box of a text element.
+            // The focus has to be in the host first, otherwise the picker can't take it from the canvas.
+            InternalParent.KeysLocked = true;
+            _emojiPickerHost.Focus();
             _emojiPicker.ShowPopup(true);
         }
 
@@ -113,6 +116,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPicker.Picked += (_, args) =>
             {
                 EditorConfig.RecentEmoji = args.Emoji;
+                EmojiPicker.AddToHistory(args.Emoji);
                 _currentContainer.Emoji = args.Emoji;
                 _currentContainer.Invalidate();
             };
@@ -121,7 +125,9 @@ namespace Greenshot.Editor.Drawing.Emoji
             {
                 Dock = DockStyle.None,
                 Child = _emojiPicker,
-                Name = "EmojiPickerHost"
+                Name = "EmojiPickerHost",
+                // The host is only there for the popup, Tab on the canvas must not go into it
+                TabStop = false
             };
 
             // Don't keep a closed editor alive through the static fields
@@ -137,6 +143,24 @@ namespace Greenshot.Editor.Drawing.Emoji
                 _emojiPicker = null;
                 _currentContainer = null;
             };
+
+            // Give the keys and the focus back to the canvas, unless the user went somewhere else (e.g. clicked into a tool bar)
+            _emojiPicker.Closed += (_, _) =>
+            {
+                if (pickerHost.Parent is not Surface surface)
+                {
+                    return;
+                }
+
+                surface.KeysLocked = false;
+                if (pickerHost.ContainsFocus)
+                {
+                    surface.SelectFromKeyboard();
+                }
+            };
+
+            // F6 or a click moves the focus away: close the picker, otherwise it stays open and the canvas keys stay locked
+            pickerHost.Leave += (_, _) => _emojiPicker?.ShowPopup(false);
 
             _parent.Controls.Add(_emojiPickerHost);
         }
@@ -169,7 +193,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             return true;
         }
 
-        /// <summary> Handle the state of the Emoji Picker </summary>
+        /// <summary> Close the Emoji Picker when the emoji gets deselected </summary>
         /// <param name="sender">object</param>
         /// <param name="e">PropertyChangedEventArgs</param>
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -183,12 +207,19 @@ namespace Greenshot.Editor.Drawing.Emoji
             {
                 HideEmojiPicker();
             }
-            else if (Status == EditStatus.IDLE && _justCreated)
+        }
+
+        public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
+        {
+            // The surface asks every element, only the selected emoji adds its item
+            if (!Selected)
             {
-                // Show picker just after creation
-                ShowEmojiPicker();
-                _justCreated = false;
+                return;
             }
+
+            var changeItem = new ToolStripMenuItem(Texts.Editor.EmojiPicker);
+            changeItem.Click += (_, _) => ShowEmojiPicker();
+            menu.Items.Add(changeItem);
         }
 
         protected override Image ComputeBitmap()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
@@ -17,7 +18,6 @@ using Greenshot.Plugin.RecipeEditor.Layout;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -29,7 +29,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private CaptureRecipe _activeRecipe;
         private StepNodeViewModel _selectedNode;
         private StepConnectionViewModel _selectedConnection;
-        private string _statusMessage = "Ready";
+        private string _statusMessage = Texts.Get<IRecipeEditorLanguage>().StatusReady;
         private bool _isDirty;
         private string _rawJsonText;
         private bool _isJsonViewVisible;
@@ -112,15 +112,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public string ActiveRecipeStatusText => (_activeRecipe?.IsEnabled ?? false) ? "Active" : "Deactivated";
+        public string ActiveRecipeStatusText => (_activeRecipe?.IsEnabled ?? false) ? Texts.Get<IRecipeEditorLanguage>().RecipeActive : Texts.Get<IRecipeEditorLanguage>().RecipeDeactivated;
 
         public bool CanUnloadActiveRecipe => _activeRecipe != null && (!_activeRecipe.IsBuiltIn || _activeRecipe.IsOverridden);
 
-        public string UnloadActiveRecipeText => (_activeRecipe?.IsOverridden ?? false) ? "Reset Default" : "Unload";
+        public string UnloadActiveRecipeText => (_activeRecipe?.IsOverridden ?? false) ? Texts.Get<IRecipeEditorLanguage>().BtnResetDefault : Texts.Get<IRecipeEditorLanguage>().BtnUnload;
 
         public string UnloadActiveRecipeToolTip => (_activeRecipe?.IsOverridden ?? false)
-            ? "Revert overridden recipe to default built-in definition"
-            : "Unload custom recipe from Greenshot";
+            ? Texts.Get<IRecipeEditorLanguage>().TooltipResetActiveRecipe
+            : Texts.Get<IRecipeEditorLanguage>().TooltipUnloadActiveRecipe;
 
         public string RecipeId
         {
@@ -138,7 +138,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string RecipeTitle
         {
-            get => _activeRecipe?.Name ?? "Untitled Recipe";
+            get => _activeRecipe?.Name ?? Texts.Get<IRecipeEditorLanguage>().UntitledRecipe;
             set
             {
                 if (_activeRecipe != null && _activeRecipe.Name != value)
@@ -183,7 +183,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public int SelectedInspectorTabIndex
         {
             get => _selectedInspectorTabIndex;
-            set => SetField(ref _selectedInspectorTabIndex, value);
+            set
+            {
+                if (SetField(ref _selectedInspectorTabIndex, value))
+                {
+                    // The texts to translate as the recipe has them now
+                    LoadTranslationRows();
+                }
+            }
         }
 
         public StepNodeViewModel SelectedNode
@@ -195,7 +202,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     AddCurrentFormatOption(value?.OutputFileFormat);
                     AddCurrentFormatOption(value?.ExternalCommandFormat);
-                    AddCurrentFormatOption(value?.ImgurFormat);
                     AddCurrentFormatOption(value?.JiraFormat);
                     AddCurrentFormatOption(value?.ConfluenceFormat);
                     foreach (var n in Nodes) n.IsSelected = (n == value);
@@ -317,15 +323,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.ReviewApproval(_activeRecipe.Id);
             if (result != null && !result.IsValid)
             {
-                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleRecipePermissions, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             RefreshAvailableRecipes();
             UpdateApprovalNotice(force: true);
         }
 
-        public string WindowTitle => _activeRecipe == null ? "Greenshot - Recipe Visual Editor" : $"{(IsDirty ? "* " : "")}{_activeRecipe.Name} - Greenshot Recipe Visual Editor";
+        public string WindowTitle => _activeRecipe == null ? Texts.Get<IRecipeEditorLanguage>().WindowTitle : (IsDirty ? "* " : "") + string.Format(Texts.Get<IRecipeEditorLanguage>().WindowTitleRecipe, _activeRecipe.Name);
 
-        public string TitleRecipeText => _activeRecipe == null ? "" : $"  ·  {_activeRecipe.Name}{(IsDirty ? "  (unsaved changes)" : "")}";
+        public string TitleRecipeText => _activeRecipe == null ? "" : $"  ·  {_activeRecipe.Name}" + (IsDirty ? "  " + Texts.Get<IRecipeEditorLanguage>().TitleUnsavedSuffix : "");
 
         /// <summary>
         /// The registered recipe selected in the recipe list; selecting another one asks what to do with unsaved changes
@@ -553,7 +559,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             _undoHistory.RemoveAt(_undoHistory.Count - 1);
             _redoHistory.Push(CreateMemento(_currentMemento.Content));
             Restore(target);
-            StatusMessage = "Undone";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusUndone;
         }
 
         public void Redo()
@@ -564,7 +570,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var target = _redoHistory.Pop();
             _undoHistory.Add(CreateMemento(_currentMemento.Content));
             Restore(target);
-            StatusMessage = "Redone";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusRedone;
         }
 
         /// <summary>
@@ -651,7 +657,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private string DescribeSaveDecision()
         {
             var reasons = _recipeManager.GetSaveDecisionReasons(_activeRecipe, _activeRecipe.FilePath);
-            return reasons.Count == 0 ? null : "Saving asks for your approval: " + string.Join(" ", reasons.Select(r => r.TrimEnd('.') + "."));
+            return reasons.Count == 0 ? null : Texts.Get<IRecipeEditorLanguage>().ApprovalSaveReasons + " " + string.Join(" ", reasons.Select(r => r.TrimEnd('.') + "."));
         }
 
         private string DescribePendingApproval()
@@ -667,8 +673,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (details != null && !details.IsApprovalCurrent)
                 {
                     return details.ApprovedHash == null
-                        ? "This recipe file isn't approved yet. Greenshot asks for your approval before it runs."
-                        : "This recipe file changed outside Greenshot. Greenshot asks for your approval before it runs.";
+                        ? Texts.Get<IRecipeEditorLanguage>().ApprovalNotApproved
+                        : Texts.Get<IRecipeEditorLanguage>().ApprovalChanged;
                 }
             }
             int switchedOff = registered.Triggers?.Count(t => t != null && t.Enabled && !t.IsApproved) ?? 0;
@@ -682,8 +688,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     .ToList() ?? new List<string>();
                 string which = names.Count > 0 ? ": " + string.Join(", ", names) : "";
                 return switchedOff == 1
-                    ? $"1 trigger was left off when this recipe was approved{which}. Review the approval to switch it on."
-                    : $"{switchedOff} triggers were left off when this recipe was approved{which}. Review the approval to switch them on.";
+                    ? string.Format(Texts.Get<IRecipeEditorLanguage>().ApprovalTriggerOffOne, which)
+                    : string.Format(Texts.Get<IRecipeEditorLanguage>().ApprovalTriggersOffMany, switchedOff, which);
             }
             return null;
         }
@@ -698,8 +704,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 return true;
             }
-            int answer = ThemedMessageBox.ShowChoice(null, "Unsaved Changes", $"\"{_activeRecipe.Name}\" has unsaved changes. Do you want to save them?",
-                MessageBoxImage.Warning, new[] { "Save", "Don't Save", "Cancel" }, defaultIndex: 0, cancelIndex: 2);
+            int answer = ThemedMessageBox.ShowChoice(null, Texts.Get<IRecipeEditorLanguage>().TitleUnsavedChanges, string.Format(Texts.Get<IRecipeEditorLanguage>().ConfirmUnsavedChanges, _activeRecipe.Name),
+                MessageBoxImage.Warning, new[] { Texts.Editor.Save, Texts.Get<IRecipeEditorLanguage>().BtnDontSave, Texts.Core.Cancel }, defaultIndex: 0, cancelIndex: 2);
             switch (answer)
             {
                 case 0:
@@ -776,6 +782,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             _recipeManager = recipeManager ?? SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
             InitializeOutputFormatOptions();
 
+            // A step's "On error" shows its error transition: keep it current when the list of error transitions changes
+            ErrorTransitions.CollectionChanged += (sender, args) =>
+            {
+                foreach (var item in args.NewItems?.OfType<ErrorTransitionItemViewModel>() ?? Enumerable.Empty<ErrorTransitionItemViewModel>())
+                {
+                    item.PropertyChanged += (itemSender, itemArgs) => RefreshErrorRouting();
+                }
+                RefreshErrorRouting();
+            };
+
             NewRecipeCommand = new RelayCommand(NewRecipe);
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
@@ -796,8 +812,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (!string.IsNullOrWhiteSpace(RecipeId))
                 {
                     StatusMessage = ClipboardHelper.TrySetClipboardData(RecipeId, out var copyError)
-                        ? $"Copied Recipe ID '{RecipeId}' to clipboard"
-                        : $"Failed to copy to clipboard: {copyError}";
+                        ? string.Format(Texts.Get<IRecipeEditorLanguage>().StatusCopiedRecipeId, RecipeId)
+                        : string.Format(Texts.Get<IRecipeEditorLanguage>().StatusCopyFailed, copyError);
                 }
             });
             SetStartNodeCommand = new RelayCommand(p => SetStartNode(p as StepNodeViewModel ?? SelectedNode));
@@ -831,7 +847,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     PendingConnection.Source = port;
                     PendingConnection.IsVisible = true;
-                    StatusMessage = $"Connecting from {(port.IsInput ? "Input" : "Output")} pin of '{port.Node?.DisplayName}'... Drop onto {(port.IsInput ? "an Output" : "an Input")} pin.";
+                    StatusMessage = string.Format(port.IsInput ? Texts.Get<IRecipeEditorLanguage>().StatusConnectingFromInput : Texts.Get<IRecipeEditorLanguage>().StatusConnectingFromOutput, port.Node?.DisplayName);
                 }
             });
 
@@ -844,11 +860,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     if (targetPort == null)
                     {
-                        StatusMessage = "Connection cancelled (dropped on canvas empty space).";
+                        StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusConnectionCancelled;
                     }
                     else if (sourcePort == targetPort)
                     {
-                        StatusMessage = "Cannot connect a pin to itself.";
+                        StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusConnectPinItself;
                     }
                     else
                     {
@@ -870,8 +886,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OutputFormatOptions.Add(new FileFormatOption
             {
                 Id = string.Empty,
-                DisplayName = "(From Configuration)",
-                DisplayNameWithPreferredExtension = "(From Configuration)"
+                DisplayName = Texts.Get<IRecipeEditorLanguage>().OutputFormatFromConfiguration,
+                DisplayNameWithPreferredExtension = Texts.Get<IRecipeEditorLanguage>().OutputFormatFromConfiguration
             });
 
             var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
@@ -984,6 +1000,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SelectedNode = null;
 
             LoadOptions(recipe);
+            LoadTranslations(recipe);
             if (recipe == null)
             {
                 Triggers.Clear();
@@ -1006,6 +1023,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 vm.SlotExtensionsProvider = GetSlotExtensions;
                 vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
+                vm.StepErrorTransitionProvider = FindStepErrorTransition;
+                vm.StepErrorTransitionSetter = SetStepErrorTransition;
+                vm.PortRemovedHandler = RemoveConnectionsFrom;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -1025,27 +1045,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             // If no explicit start nodes were defined, infer start nodes from graph topology
             if (!hasExplicitStarts && Nodes.Count > 0)
             {
-                var targetNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (recipe.Flow?.Transitions != null)
-                {
-                    foreach (var kvp in recipe.Flow.Transitions)
-                    {
-                        if (kvp.Value != null)
-                        {
-                            foreach (var toId in kvp.Value)
-                            {
-                                if (!string.IsNullOrWhiteSpace(toId)) targetNodeIds.Add(toId);
-                            }
-                        }
-                    }
-                }
-                if (recipe.Flow?.ConditionalTransitions != null)
-                {
-                    foreach (var ct in recipe.Flow.ConditionalTransitions)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ct?.To)) targetNodeIds.Add(ct.To);
-                    }
-                }
+                var targetNodeIds = new HashSet<string>(
+                    (recipe.Flow?.GetUnifiedTransitions() ?? new Dictionary<string, List<string>>()).Values.SelectMany(targets => targets),
+                    StringComparer.OrdinalIgnoreCase);
 
                 bool foundRoot = false;
                 foreach (var node in Nodes)
@@ -1068,34 +1070,23 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
 
             // Map Standard Connections
-            if (recipe.Flow?.Transitions != null)
+            foreach (var transition in (recipe.Flow?.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain))
             {
-                foreach (var kvp in recipe.Flow.Transitions)
+                if (transition.From != null && transition.To != null && nodeMap.TryGetValue(transition.From, out var sourceNode) && nodeMap.TryGetValue(transition.To, out var targetNode))
                 {
-                    string fromId = kvp.Key;
-                    if (nodeMap.TryGetValue(fromId, out var sourceNode))
-                    {
-                        var targetList = kvp.Value ?? new List<string>();
-                        foreach (var toId in targetList)
-                        {
-                            if (nodeMap.TryGetValue(toId, out var targetNode))
-                            {
-                                var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
-                                Connections.Add(conn);
-                                sourceNode.OutputPort.IsConnected = true;
-                                targetNode.InputPort.IsConnected = true;
-                            }
-                        }
-                    }
+                    var conn = new StepConnectionViewModel(sourceNode.OutputPort, targetNode.InputPort, RemoveConnection);
+                    Connections.Add(conn);
+                    sourceNode.OutputPort.IsConnected = true;
+                    targetNode.InputPort.IsConnected = true;
                 }
             }
 
             // Map Conditional Transitions (Branch-specific connections)
-            if (recipe.Flow?.ConditionalTransitions != null)
+            if (recipe.Flow != null)
             {
                 foreach (var ct in recipe.Flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
                     if (nodeMap.TryGetValue(ct.From, out var sourceNode) && nodeMap.TryGetValue(ct.To, out var targetNode))
                     {
                         var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
@@ -1111,7 +1102,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             // Map Error Transitions
             ErrorTransitions.Clear();
-            if (recipe.Flow?.ErrorTransitions != null)
+            if (recipe.Flow != null)
             {
                 foreach (var et in recipe.Flow.ErrorTransitions)
                 {
@@ -1133,7 +1124,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             ValidateGraphCycles();
             IsDirty = false;
-            StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeLoaded, recipe.Name, recipe.Nodes.Count, Triggers.Count);
         }
 
         private void OnNodeStartToggled(StepNodeViewModel node)
@@ -1142,7 +1133,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
                 IsDirty = true;
-                StatusMessage = node.IsStartNode ? $"Added '{node.DisplayName}' to Start Steps" : $"Removed '{node.DisplayName}' from Start Steps";
+                StatusMessage = node.IsStartNode ? string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStartStepAdded, node.DisplayName) : string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStartStepRemoved, node.DisplayName);
             }
         }
 
@@ -1155,7 +1146,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             }
             IsDirty = true;
-            StatusMessage = $"'{node.DisplayName}' marked as Start Step";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStartStepMarked, node.DisplayName);
         }
 
         public void ToggleStartNode(StepNodeViewModel node)
@@ -1171,7 +1162,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 foreach (var tc in recipe.Triggers)
                 {
-                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger));
+                    Triggers.Add(new TriggerItemViewModel(tc, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe));
                 }
             }
         }
@@ -1182,25 +1173,26 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
                 IsDirty = true;
+                LoadTranslationRows();
             }
         }
 
         public void AddTrigger(string type = "Hotkey")
         {
             if (string.IsNullOrEmpty(type)) type = "Hotkey";
-            var config = new TriggerConfig(type, $"{type} Trigger");
+            var config = new TriggerConfig(type, string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerDefaultName, type));
             if (string.Equals(type, "Hotkey", StringComparison.OrdinalIgnoreCase))
             {
                 config.Parameters["Hotkey"] = "Ctrl + Alt + R";
             }
             else if (string.Equals(type, "ContextMenu", StringComparison.OrdinalIgnoreCase))
             {
-                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Capture with Recipe";
+                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? Texts.Get<IRecipeEditorLanguage>().TriggerDefaultContextMenu;
                 config.Parameters["Group"] = "Recipes";
             }
             else if (string.Equals(type, "Editor", StringComparison.OrdinalIgnoreCase))
             {
-                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Apply Recipe";
+                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? Texts.Get<IRecipeEditorLanguage>().TriggerDefaultEditor;
                 config.Parameters["Group"] = "Recipes";
             }
             else if (string.Equals(type, "Clipboard", StringComparison.OrdinalIgnoreCase))
@@ -1210,7 +1202,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else if (string.Equals(type, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
             {
                 config.Parameters["Command"] = ActiveRecipe?.Id ?? "custom";
-                config.Parameters["Description"] = ActiveRecipe?.Description ?? "Custom commandline recipe";
+                config.Parameters["Description"] = ActiveRecipe?.Description ?? Texts.Get<IRecipeEditorLanguage>().TriggerDefaultCliDescription;
                 config.Parameters["FireAndForget"] = false;
             }
             else if (string.Equals(type, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
@@ -1226,24 +1218,26 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else if (string.Equals(type, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
             {
                 config.Parameters["ToolName"] = new string((ActiveRecipe?.Id ?? "my_tool").Select(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' ? c : '_').Take(64).ToArray());
-                config.Parameters["Title"] = ActiveRecipe?.Name ?? "My tool";
+                config.Parameters["Title"] = ActiveRecipe?.Name ?? Texts.Get<IRecipeEditorLanguage>().TriggerDefaultAiTitle;
                 config.Parameters["Description"] = ActiveRecipe?.Description ?? "";
                 config.Parameters["ReadOnly"] = true;
             }
 
-            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
+            var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger, () => ActiveRecipe);
             Triggers.Add(item);
             SyncTriggersToRecipe();
-            StatusMessage = $"Added {type} trigger";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTriggerAdded, type);
         }
 
         public void RemoveTrigger(TriggerItemViewModel item)
         {
             if (item != null && Triggers.Contains(item))
             {
+                // The translations of the menu texts are by the trigger's place
+                ActiveRecipe?.RemoveTriggerTranslations(Triggers.IndexOf(item));
                 Triggers.Remove(item);
                 SyncTriggersToRecipe();
-                StatusMessage = "Trigger removed";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusTriggerRemoved;
             }
         }
 
@@ -1262,7 +1256,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (source == null || target == null) return;
             if (source.Node == target.Node)
             {
-                StatusMessage = "Cannot connect a step to itself.";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusConnectStepItself;
                 return;
             }
 
@@ -1283,8 +1277,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else
             {
                 StatusMessage = source.IsInput
-                    ? "Cannot connect two Input pins together. Please connect an Output pin to an Input pin."
-                    : "Cannot connect two Output pins together. Please connect an Output pin to an Input pin.";
+                    ? Texts.Get<IRecipeEditorLanguage>().StatusConnectTwoInputs
+                    : Texts.Get<IRecipeEditorLanguage>().StatusConnectTwoOutputs;
                 return;
             }
 
@@ -1292,7 +1286,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             bool exists = Connections.Any(c => c.Source == fromPort && c.TargetNode == toPort.Node);
             if (exists)
             {
-                StatusMessage = $"Connection from '{fromPort.Node.DisplayName}' to '{toPort.Node.DisplayName}' already exists.";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusConnectionExists, fromPort.Node.DisplayName, toPort.Node.DisplayName);
                 return;
             }
 
@@ -1305,11 +1299,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             IsDirty = true;
             if (conn.IsCycle)
             {
-                StatusMessage = $"Warning: Connected '{fromPort.Node.DisplayName}' -> '{toPort.Node.DisplayName}' (Creates a Cycle in the DAG!)";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusConnectedCycle, fromPort.Node.DisplayName, toPort.Node.DisplayName);
             }
             else
             {
-                StatusMessage = $"Connected '{fromPort.Node.DisplayName}' -> '{toPort.Node.DisplayName}'";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusConnected, fromPort.Node.DisplayName, toPort.Node.DisplayName);
+            }
+        }
+
+        /// <summary>
+        /// Removes the connections from a removed branch or choice: kept, they would be saved as plain transitions of the step
+        /// </summary>
+        private void RemoveConnectionsFrom(StepPortViewModel port)
+        {
+            foreach (var conn in Connections.Where(c => c.Source == port).ToList())
+            {
+                RemoveConnection(conn);
             }
         }
 
@@ -1336,7 +1341,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 SyncRecipeTransitions();
                 ValidateGraphCycles();
                 IsDirty = true;
-                StatusMessage = "Connection removed";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusConnectionRemoved;
             }
         }
 
@@ -1368,7 +1373,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + StepSpacing : 100;
             var nodeVm = CreateStepNode(stepType, new Point(350, y), null, null);
             SelectedNode = nodeVm;
-            StatusMessage = $"Added step: {stepType}";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStepAdded, stepType);
         }
 
         /// <summary>
@@ -1382,7 +1387,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var nodeVm = CreateStepNode(stepType, target.Node.Location, source.Node, target.Node);
 
             PutNodeIntoConnection(connection, nodeVm);
-            StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStepInsertedBetween, stepType, source.Node.DisplayName, target.Node.DisplayName);
         }
 
         /// <summary>
@@ -1408,7 +1413,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             Connect(previous.OutputPort, nodeVm.InputPort);
             SelectedNode = nodeVm;
             ScheduleAutoLayout();
-            StatusMessage = $"Inserted {stepType} after '{previous.DisplayName}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusStepInsertedAfter, stepType, previous.DisplayName);
         }
 
         private StepNodeViewModel CreateStepNode(string stepType, Point location, StepNodeViewModel previous, StepNodeViewModel next)
@@ -1430,6 +1435,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
+            nodeVm.StepErrorTransitionProvider = FindStepErrorTransition;
+            nodeVm.StepErrorTransitionSetter = SetStepErrorTransition;
+            nodeVm.PortRemovedHandler = RemoveConnectionsFrom;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -1460,7 +1468,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (node.IsBoundary)
             {
                 node.ResetId(oldId);
-                StatusMessage = "In and Out keep their names.";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusInOutNames;
                 return;
             }
 
@@ -1468,7 +1476,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             bool duplicate = Nodes.Any(n => n != node && string.Equals(n.Id, newId, StringComparison.OrdinalIgnoreCase));
             if (duplicate)
             {
-                StatusMessage = $"Cannot rename to '{newId}': A step with this ID already exists.";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRenameExists, newId);
                 node.ResetId(oldId);
                 return;
             }
@@ -1485,44 +1493,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            // Update Transitions (as key and as targets)
-            if (ActiveRecipe?.Flow?.Transitions != null)
+            // Update the transitions
+            foreach (var transition in ActiveRecipe?.Flow?.Transitions ?? new List<RecipeTransition>())
             {
-                if (ActiveRecipe.Flow.Transitions.TryGetValue(oldId, out var targets))
-                {
-                    ActiveRecipe.Flow.Transitions.Remove(oldId);
-                    ActiveRecipe.Flow.Transitions[newId] = targets;
-                }
-
-                foreach (var kvp in ActiveRecipe.Flow.Transitions)
-                {
-                    var list = kvp.Value;
-                    if (list != null)
-                    {
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            if (string.Equals(list[i], oldId, StringComparison.OrdinalIgnoreCase))
-                            {
-                                list[i] = newId;
-                            }
-                        }
-                    }
-                }
+                if (string.Equals(transition?.From, oldId, StringComparison.OrdinalIgnoreCase)) transition.From = newId;
+                if (string.Equals(transition?.To, oldId, StringComparison.OrdinalIgnoreCase)) transition.To = newId;
+            }
+            // The error transitions are written from their list
+            foreach (var errorTransition in ErrorTransitions)
+            {
+                if (string.Equals(errorTransition.FromNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.FromNodeId = newId;
+                if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
 
-            // Update ConditionalTransitions
-            if (ActiveRecipe?.Flow?.ConditionalTransitions != null)
-            {
-                foreach (var ct in ActiveRecipe.Flow.ConditionalTransitions)
-                {
-                    if (string.Equals(ct.From, oldId, StringComparison.OrdinalIgnoreCase)) ct.From = newId;
-                    if (string.Equals(ct.To, oldId, StringComparison.OrdinalIgnoreCase)) ct.To = newId;
-                }
-            }
+            ActiveRecipe?.RenameNodeTranslations(oldId, newId);
 
             SyncRecipeTransitions();
             IsDirty = true;
-            StatusMessage = $"Renamed step ID from '{oldId}' to '{newId}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRenamedStep, oldId, newId);
         }
 
         public void DeleteNode(StepNodeViewModel nodeToDelete)
@@ -1530,7 +1518,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (nodeToDelete == null) return;
             if (nodeToDelete.IsBoundary)
             {
-                StatusMessage = "In and Out belong to the automatic step, they can't be deleted.";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusInOutDelete;
                 return;
             }
             var connsToRemove = Connections.Where(c => c.SourceNode == nodeToDelete || c.TargetNode == nodeToDelete).ToList();
@@ -1565,7 +1553,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 SelectedNode = Nodes.FirstOrDefault();
             }
             IsDirty = true;
-            StatusMessage = $"Deleted step '{nodeToDelete.DisplayName}' ({nodeToDelete.Id})";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusDeletedStep, nodeToDelete.DisplayName, nodeToDelete.Id);
         }
 
         public void DeleteSelected()
@@ -1585,8 +1573,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void SyncRecipeTransitions()
         {
             if (ActiveRecipe?.Flow == null) return;
-            var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            var conditionalTransitions = new List<RecipeConditionalTransitionConfig>();
+            var flow = new RecipeFlowConfig();
             var extensionStarts = new List<string>();
 
             foreach (var c in Connections)
@@ -1607,23 +1594,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var promptChoice = c.SourceNode.PromptChoices.FirstOrDefault(p => p.Port == c.Source);
                     if (branch != null)
                     {
-                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, branch.Key, c.TargetNode.Id));
+                        flow.AddConditionalTransition(c.SourceNode.Id, branch.Key, c.TargetNode.Id);
                     }
                     else if (promptChoice != null)
                     {
-                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, promptChoice.Key, c.TargetNode.Id));
+                        flow.AddConditionalTransition(c.SourceNode.Id, promptChoice.Key, c.TargetNode.Id);
                     }
                     else
                     {
-                        if (!transitions.TryGetValue(c.SourceNode.Id, out var list))
-                        {
-                            list = new List<string>();
-                            transitions[c.SourceNode.Id] = list;
-                        }
-                        if (!list.Contains(c.TargetNode.Id, StringComparer.OrdinalIgnoreCase))
-                        {
-                            list.Add(c.TargetNode.Id);
-                        }
+                        flow.AddTransition(c.SourceNode.Id, c.TargetNode.Id);
                     }
                 }
             }
@@ -1631,9 +1610,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ActiveRecipe.Flow.StartNodes = _extension != null
                 ? extensionStarts.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
                 : Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
-            ActiveRecipe.Flow.Transitions = transitions;
-            ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
-            ActiveRecipe.Flow.ErrorTransitions = ErrorTransitions.Select(e => e.ToConfig()).ToList();
+            flow.Transitions.AddRange(ErrorTransitions.Select(e => e.ToConfig()));
+            ActiveRecipe.Flow.Transitions = flow.Transitions;
         }
 
         private void ValidateGraphCycles()
@@ -1646,11 +1624,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             if (!valResult.IsValid)
             {
-                StatusMessage = $"Validation Warning: {valResult.Errors.FirstOrDefault()}";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Errors.FirstOrDefault());
+            }
+            else if (valResult.Warnings.Count > 0)
+            {
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationWarning, valResult.Warnings[0]);
             }
             else
             {
-                StatusMessage = "Workflow DAG Valid";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusDagValid;
             }
         }
 
@@ -1667,12 +1649,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             string fallbackTarget = Nodes.FirstOrDefault(n => n.IsDynamicDestination)?.Id 
                                   ?? Nodes.FirstOrDefault(n => string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase))?.Id
                                   ?? Nodes.FirstOrDefault()?.Id;
-            var defaultConfig = new RecipeErrorTransitionConfig("*", fallbackTarget);
+            var defaultConfig = new RecipeTransition("*", fallbackTarget) { OnError = "*" };
             var item = new ErrorTransitionItemViewModel(defaultConfig, DeleteErrorTransition, () => Nodes, () => AvailableRecipes);
             ErrorTransitions.Add(item);
             SyncRecipeTransitions();
             IsDirty = true;
-            StatusMessage = "Added recipe error fallback route";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusErrorRouteAdded;
         }
 
         public void DeleteErrorTransition(ErrorTransitionItemViewModel item)
@@ -1681,7 +1663,48 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ErrorTransitions.Remove(item);
             SyncRecipeTransitions();
             IsDirty = true;
-            StatusMessage = "Removed recipe error fallback route";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusErrorRouteRemoved;
+        }
+
+        private void RefreshErrorRouting()
+        {
+            foreach (var node in Nodes)
+            {
+                node.RefreshErrorRouting();
+            }
+        }
+
+        /// <summary>
+        /// The error transition from a step for any error: what the step's "On error" shows.
+        /// </summary>
+        private ErrorTransitionItemViewModel FindStepErrorTransition(string nodeId) =>
+            ErrorTransitions.FirstOrDefault(e => string.Equals(e.FromNodeId, nodeId, StringComparison.OrdinalIgnoreCase) && e.ErrorType == "*");
+
+        /// <summary>
+        /// The step's "On error": sets its error transition for any error to a step or a recipe, or removes it.
+        /// </summary>
+        private void SetStepErrorTransition(string nodeId, string toNodeId, string recipeId)
+        {
+            if (string.IsNullOrEmpty(nodeId)) return;
+            var existing = FindStepErrorTransition(nodeId);
+            if (string.IsNullOrEmpty(toNodeId) && string.IsNullOrEmpty(recipeId))
+            {
+                if (existing == null) return;
+                ErrorTransitions.Remove(existing);
+            }
+            else if (existing == null)
+            {
+                var config = new RecipeTransition(nodeId, toNodeId) { OnError = "*", Recipe = recipeId };
+                ErrorTransitions.Add(new ErrorTransitionItemViewModel(config, DeleteErrorTransition, () => Nodes, () => AvailableRecipes));
+            }
+            else
+            {
+                existing.TargetType = string.IsNullOrEmpty(recipeId) ? "Step" : "Recipe";
+                existing.ToNodeId = toNodeId;
+                existing.TargetRecipeId = recipeId;
+            }
+            SyncRecipeTransitions();
+            IsDirty = true;
         }
 
         /// <summary>
@@ -1701,7 +1724,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     .Select(e =>
                     {
                         string name = RecipeText.Translate(e.Name ?? e.Id);
-                        return RecipeExtensionSettings.FromStore(e).AllowsRecipe(recipe.Id) ? name : $"{name} (off)";
+                        return RecipeExtensionSettings.FromStore(e).AllowsRecipe(recipe.Id) ? name : string.Format(Texts.Get<IRecipeEditorLanguage>().ExtensionOffSuffix, name);
                     })
                     .ToList();
             }
@@ -1717,14 +1740,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!ConfirmDiscardChanges()) return;
             var recipe = new CaptureRecipe(
                 $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}",
-                "New Custom Workflow",
-                "Custom visual capture recipe")
+                Texts.Get<IRecipeEditorLanguage>().NewRecipeName,
+                Texts.Get<IRecipeEditorLanguage>().NewRecipeDescription)
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"));
 
             recipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "feedback")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "feedback")
                 .AddTransition("feedback", "export");
             // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
             RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
@@ -1735,7 +1760,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             // Never saved: unsaved until it is
             _savedContent = null;
             IsDirty = true;
-            StatusMessage = "Created new recipe.";
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusRecipeCreated;
         }
 
         public void OpenRecipeManager()
@@ -1771,14 +1796,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!CanUnloadActiveRecipe || ActiveRecipe == null) return;
             RefreshUnsavedState();
 
-            string title = ActiveRecipe.IsOverridden ? "Reset Recipe to Default" : "Unload Recipe";
+            string title = ActiveRecipe.IsOverridden ? Texts.Get<IRecipeEditorLanguage>().TitleResetRecipe : Texts.Get<IRecipeEditorLanguage>().TitleUnloadRecipe;
             string msg = ActiveRecipe.IsOverridden
-                ? $"Revert '{ActiveRecipe.Name}' to default built-in definition?"
-                : $"Unload '{ActiveRecipe.Name}' from Greenshot?";
+                ? string.Format(Texts.Get<IRecipeEditorLanguage>().ConfirmResetActiveRecipe, ActiveRecipe.Name)
+                : string.Format(Texts.Get<IRecipeEditorLanguage>().ConfirmUnloadActiveRecipe, ActiveRecipe.Name);
 
             if (IsDirty)
             {
-                msg += "\n\nYour unsaved changes are discarded.";
+                msg += "\n\n" + Texts.Get<IRecipeEditorLanguage>().UnsavedChangesDiscarded;
             }
             if (ThemedMessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
@@ -1806,7 +1831,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 OpenWorkingCopy(null);
             }
 
-            StatusMessage = $"Unloaded recipe '{recipeId}'.";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeUnloaded, recipeId);
         }
 
         public void OpenRecipeDialog()
@@ -1814,7 +1839,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var dlg = new OpenFileDialog
             {
                 Filter = RecipeSerializer.RecipeFileFilter,
-                Title = "Open Greenshot Recipe"
+                Title = Texts.Get<IRecipeEditorLanguage>().TitleOpenRecipe
             };
 
             if (dlg.ShowDialog() == true && ConfirmDiscardChanges())
@@ -1826,15 +1851,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var valResult = _recipeManager.LoadRecipeFromFile(dlg.FileName);
                         if (!valResult.IsValid)
                         {
-                            string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                            string msg = Texts.Get<IRecipeEditorLanguage>().ErrorRecipeFailedValidation + "\n" + string.Join("\n", valResult.Errors);
+                            ThemedMessageBox.Show(msg, Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(dlg.FileName));
                         }
                         else if (_recipeManager.GetAllExtensions().FirstOrDefault(e => string.Equals(e.FilePath, Path.GetFullPath(dlg.FileName), StringComparison.OrdinalIgnoreCase)) is RecipeExtension loadedExtension)
                         {
                             // An automatic step file
                             OpenExtensionCopy(loadedExtension, RecipeSerializer.Serialize(loadedExtension));
-                            StatusMessage = $"Loaded and registered automatic step: {Path.GetFileName(dlg.FileName)}";
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedExtension, Path.GetFileName(dlg.FileName));
                         }
                         else
                         {
@@ -1845,7 +1870,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             {
                                 OpenWorkingCopy(newlyLoaded);
                             }
-                            StatusMessage = $"Loaded and registered: {Path.GetFileName(dlg.FileName)}";
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegisteredFile, Path.GetFileName(dlg.FileName));
                         }
                     }
                     else
@@ -1854,21 +1879,21 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
-                            string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                            ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                            string msg = Texts.Get<IRecipeEditorLanguage>().ErrorRecipeFailedValidation + "\n" + string.Join("\n", valResult.Errors);
+                            ThemedMessageBox.Show(msg, Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(dlg.FileName));
                         }
                         else
                         {
                             recipe.FilePath = dlg.FileName;
                             ActiveRecipe = recipe;
-                            StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedFile, Path.GetFileName(dlg.FileName));
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show(Texts.Recipe.ImportFailed + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleErrorLoadingRecipe, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1892,12 +1917,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             try
             {
                 if (!SaveActiveRecipeTo(ActiveRecipe.FilePath)) return false;
-                StatusMessage = $"Saved recipe to {Path.GetFileName(ActiveRecipe.FilePath)}";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusSavedRecipe, Path.GetFileName(ActiveRecipe.FilePath));
                 return true;
             }
             catch (Exception ex)
             {
-                ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorSaveRecipe + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleErrorSavingRecipe, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
@@ -1908,6 +1933,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            // A translation of a removed node or choice would make the file invalid
+            ActiveRecipe.RemoveUnusedTranslations();
             if (_extension != null)
             {
                 return SaveActiveExtensionTo(filePath);
@@ -1924,8 +1951,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var result = _recipeManager.SaveRecipeToFile(saved, filePath);
             if (!result.IsValid)
             {
-                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
-                StatusMessage = "The recipe was not saved.";
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleRecipeNotSaved, MessageBoxButton.OK, MessageBoxImage.Warning);
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusRecipeNotSaved;
                 return false;
             }
             ActiveRecipe.FilePath = saved.FilePath;
@@ -1955,7 +1982,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 Filter = RecipeSerializer.RecipeFileFilter,
                 FileName = $"{ActiveRecipe.Id}.gsrecipe.json",
-                Title = "Save Greenshot Recipe As..."
+                Title = Texts.Get<IRecipeEditorLanguage>().TitleSaveRecipeAs
             };
 
             if (dlg.ShowDialog() == true)
@@ -1963,12 +1990,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 try
                 {
                     if (!SaveActiveRecipeTo(dlg.FileName)) return false;
-                    StatusMessage = $"Saved recipe to {Path.GetFileName(dlg.FileName)}";
+                    StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusSavedRecipe, Path.GetFileName(dlg.FileName));
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    ThemedMessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorSaveRecipe + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleErrorSavingRecipe, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             return false;
@@ -1979,8 +2006,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (ActiveRecipe == null) return;
             if (_extension != null)
             {
-                ThemedMessageBox.Show("An automatic step runs inside the recipes it changes: save it, switch it on in Settings > Recipes and test run one of those recipes.",
-                    "Test Run", MessageBoxButton.OK, MessageBoxImage.Information);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().TestRunExtensionInfo,
+                    Texts.Get<IRecipeEditorLanguage>().TitleTestRun, MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
             SyncRecipeTransitions();
@@ -1988,11 +2015,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             var valResult = RecipeValidator.Validate(ActiveRecipe);
             if (!valResult.IsValid)
             {
-                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorTestRunValidation + "\n\n" + string.Join("\n", valResult.Errors), Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            StatusMessage = $"Executing test run for '{ActiveRecipe.Name}'...";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTestRunExecuting, ActiveRecipe.Name);
             try
             {
                 var result = await TestRun.RunAsync(ActiveRecipe);
@@ -2002,12 +2029,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     throw new InvalidOperationException(error, result.Error);
                 }
 
-                StatusMessage = $"Test run of '{ActiveRecipe.Name}' ended: {result.State}.";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTestRunEnded, ActiveRecipe.Name, result.State);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Test run error: {ex.Message}";
-                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusTestRunError, ex.Message);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorExecution + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleExecutionError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2070,11 +2097,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 IsJsonViewVisible = false;
                 RefreshUnsavedState();
                 RecordHistory(GetCurrentContent(), force: true);
-                StatusMessage = "Applied recipe JSON changes.";
+                StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusJsonApplied;
             }
             catch (Exception ex)
             {
-                ThemedMessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show(Texts.Get<IRecipeEditorLanguage>().ErrorInvalidJson + "\n" + ex.Message, Texts.Get<IRecipeEditorLanguage>().TitleJsonError, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2100,12 +2127,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (!string.IsNullOrEmpty(MermaidText))
                 {
                     ClipboardHelper.SetClipboardData(MermaidText);
-                    StatusMessage = "Copied Mermaid DSL to clipboard.";
+                    StatusMessage = Texts.Get<IRecipeEditorLanguage>().StatusMermaidCopied;
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Failed to copy to clipboard: {ex.Message}";
+                StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusCopyFailed, ex.Message);
             }
         }
 
@@ -2135,11 +2162,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     string tLabel = t.TriggerType;
                     if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                     {
-                        string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
+                        string hotkey = t.GetHotkey(recipe);
+                        if (string.IsNullOrEmpty(hotkey)) hotkey = "Shortcut";
                         tLabel = $"⚡ Hotkey: {hotkey}";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(t.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                     {
                         string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
                         tLabel = $"🖱️ Menu: {menuText}";
@@ -2232,38 +2259,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             sb.AppendLine();
             sb.AppendLine("    %% Unconditional Transitions");
-            if (recipe.Flow?.Transitions != null)
+            foreach (var transition in (recipe.Flow?.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain))
             {
-                foreach (var kvp in recipe.Flow.Transitions)
-                {
-                    string fromId = kvp.Key;
-                    var targets = kvp.Value;
-                    if (targets != null)
-                    {
-                        foreach (var toId in targets)
-                        {
-                            sb.AppendLine($"    {fromId} --> {toId}");
-                        }
-                    }
-                }
+                sb.AppendLine($"    {transition.From} --> {transition.To}");
             }
 
-            if (recipe.Flow?.ConditionalTransitions != null && recipe.Flow.ConditionalTransitions.Count > 0)
+            if (recipe.Flow != null && recipe.Flow.ConditionalTransitions.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("    %% Conditional Branch Transitions");
                 foreach (var ct in recipe.Flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
 
                     string expr = "";
-                    if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("Branches", out var bObj))
+                    if (nodeMap.TryGetValue(ct.From, out var srcNode))
                     {
-                        if (bObj is JArray arr)
-                        {
-                            var match = arr.FirstOrDefault(t => string.Equals((string)t["key"], ct.Branch, StringComparison.OrdinalIgnoreCase));
-                            if (match != null) expr = (string)match["expression"];
-                        }
+                        var match = srcNode.GetParameter<List<ConditionalBranch>>("Branches")?
+                            .FirstOrDefault(b => string.Equals(b?.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
+                        if (match != null) expr = match.Expression;
                     }
 
                     string edgeLabel = string.IsNullOrEmpty(expr) ? ct.Branch : $"{ct.Branch}: {expr}";
@@ -2272,15 +2286,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            if (recipe.Flow?.ErrorTransitions != null && recipe.Flow.ErrorTransitions.Count > 0)
+            if (recipe.Flow != null && recipe.Flow.ErrorTransitions.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("    %% Error Handling Fallbacks");
                 foreach (var et in recipe.Flow.ErrorTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(et?.From)) continue;
-                    string target = !string.IsNullOrEmpty(et.To) ? et.To : $"Recipe_{et.TargetRecipeId}";
-                    sb.AppendLine($"    {et.From} -. \"Error: {et.ErrorType}\" .-> {target}");
+                    if (string.IsNullOrWhiteSpace(et.From)) continue;
+                    string target = !string.IsNullOrEmpty(et.To) ? et.To : $"Recipe_{et.Recipe}";
+                    sb.AppendLine($"    {et.From} -. \"Error: {et.OnError}\" .-> {target}");
                 }
             }
 
@@ -2322,7 +2336,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.RecordVideo:
                     dict["SourceType"] = "ActiveWindow";
                     dict["UntilWindowCloses"] = true;
-                    dict["OutputFilePath"] = @"%USERPROFILE%\Videos\Greenshot\Recording_{yyyyMMdd_HHmmss}.mp4";
+                    dict["OutputDirectory"] = @"%USERPROFILE%\Videos\Greenshot";
+                    dict["FilenamePattern"] = "Recording_{yyyyMMdd_HHmmss}.mp4";
                     dict["Preset"] = "Balanced";
                     dict["Format"] = "Mp4_H264";
                     dict["FrameRate"] = 30;
@@ -2358,12 +2373,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             ["Text"] = "Captured: ${now:yyyy-MM-dd}",
                             ["HorizontalAnchor"] = "Right",
                             ["VerticalAnchor"] = "Bottom",
-                            ["OffsetX"] = "-15",
-                            ["OffsetY"] = "-10",
+                            ["OffsetX"] = -15,
+                            ["OffsetY"] = -10,
                             ["FillColor"] = "rgba(0,0,0,160)",
                             ["LineColor"] = "#0078D7",
-                            ["Width"] = "220",
-                            ["Height"] = "32"
+                            ["Width"] = 220,
+                            ["Height"] = 32
                         }
                     };
                     break;
@@ -2383,7 +2398,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.DynamicDestination:
                     dict["Title"] = "Export Capture";
                     dict["ShowPreview"] = true;
-                    dict["AllowRecipeForwarding"] = true;
                     dict["TimeoutSeconds"] = 0;
                     dict["Destinations"] = new List<string>();
                     break;
@@ -2391,7 +2405,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["SaveDirectory"] = "";
                     dict["FilenamePattern"] = "greenshot ${capturetime}";
                     dict["Format"] = "png";
-                    dict["AllowOverwrite"] = false;
                     break;
                 case WellKnownStepTypes.Clipboard:
                     dict["ClipboardMode"] = "ImageOnly";
@@ -2408,16 +2421,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ShowPrintDialog"] = true;
                     break;
                 case WellKnownStepTypes.CustomDestination:
-                    dict["CustomDestinationId"] = "Imgur";
+                    dict["CustomDestinationId"] = "Clipboard";
                     break;
                 case WellKnownStepTypes.Notification:
                     dict["ShowNotification"] = true;
                     break;
                 case WellKnownStepTypes.Conditional:
-                    dict["Branches"] = new List<object>
+                    dict["Branches"] = new List<ConditionalBranch>
                     {
-                        new Dictionary<string, string> { { "key", "A" }, { "expression", "${payload.width > 800}" } },
-                        new Dictionary<string, string> { { "key", "B" }, { "expression", "else" } }
+                        new ConditionalBranch("A", "${payload.width > 800}"),
+                        new ConditionalBranch("B", "else")
                     };
                     break;
                 case WellKnownStepTypes.UserPrompt:
@@ -2425,10 +2438,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["Message"] = "Please confirm the next step for this capture:";
                     dict["ShowPreview"] = true;
                     dict["TimeoutSeconds"] = 0;
-                    dict["Choices"] = new List<object>
+                    dict["Choices"] = new List<PromptChoice>
                     {
-                        new Dictionary<string, object> { { "Key", "Yes" }, { "Label", "Yes, Proceed" }, { "Style", "Primary" }, { "IsDefault", true }, { "IsCancel", false } },
-                        new Dictionary<string, object> { { "Key", "No" }, { "Label", "No, Cancel" }, { "Style", "Secondary" }, { "IsDefault", false }, { "IsCancel", true } }
+                        new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true),
+                        new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true)
                     };
                     break;
                 case WellKnownStepTypes.Stdout:
@@ -2438,9 +2451,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["Text"] = "The recipe failed.";
                     dict["ExitCode"] = 1;
                     dict["Abort"] = true;
-                    break;
-                case WellKnownStepTypes.Processors:
-                    dict["ProcessorIds"] = new List<string>();
                     break;
                 case WellKnownStepTypes.Slot:
                     dict["Name"] = RecipeSlots.BeforeExport;
@@ -2453,10 +2463,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["OutputToClipboard"] = false;
                     dict["UriToClipboard"] = false;
                     dict["ReloadAfterExecution"] = false;
-                    break;
-                case "Imgur":
-                    dict["Format"] = "png";
-                    dict["CopyLinkToClipboard"] = true;
                     break;
                 case "Jira":
                     dict["IssueKey"] = "PROJECT-123";
@@ -2471,8 +2477,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case "Office":
                     dict["Application"] = "Word";
                     break;
+                case "Pdf":
+                    dict["PageSize"] = "Image";
+                    dict["PageWidthMm"] = 210.0;
+                    dict["PageHeightMm"] = 297.0;
+                    dict["MarginTopMm"] = 0.0;
+                    dict["MarginBottomMm"] = 0.0;
+                    dict["MarginLeftMm"] = 0.0;
+                    dict["MarginRightMm"] = 0.0;
+                    dict["ScalingMode"] = "OnlyShrinkToFit";
+                    dict["ShowSaveDialog"] = true;
+                    break;
                 case "BarcodeScan":
-                    dict["SetVariable"] = "barcode_text";
+                    dict["OutputVariable"] = "barcode_text";
                     dict["CopyToClipboard"] = true;
                     break;
             }

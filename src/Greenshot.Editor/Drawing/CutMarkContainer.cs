@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,15 +20,14 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -398,6 +397,20 @@ namespace Greenshot.Editor.Drawing
         /// Describes the shape, other elements use it to know when their shadow changes
         /// </summary>
         internal string ShapeKey => $"{GetBand()}|{GetFieldValue(FieldType.CUT_MARK_STYLE)}|{_seed}|{ToothHeight}|{ToothRange}";
+
+        /// <summary>
+        /// The lines along the two edges of the gap, in image coordinates; none when nothing is cut out
+        /// </summary>
+        internal IReadOnlyList<PointF[]> EdgeLines()
+        {
+            var band = GetBand();
+            if (GetFieldValue(FieldType.CUT_MARK_STYLE) is not CutMarkStyle style || style == CutMarkStyle.None || band.Width <= 0 || band.Height <= 0)
+            {
+                return Array.Empty<PointF[]>();
+            }
+            CreateEdges(band, style, out var firstEdge, out var secondEdge);
+            return new[] { firstEdge, secondEdge };
+        }
 
         /// <summary>
         /// The gap in image coordinates, this is cut out of the image

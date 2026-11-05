@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -71,6 +71,9 @@ namespace Greenshot.Shell
 
             _taskbarIcon = new TaskbarIcon
             {
+                // The constructor adds the icon without icon and tooltip, Windows 11 (26200) never shows such an icon.
+                // Removed here, it is added again with both when the shell sets Visible.
+                Visibility = Visibility.Collapsed,
                 Icon = GreenshotResources.GetGreenshotIcon(),
                 // Our own menu on a right click, see OnPreviewTrayContextMenuOpen
                 MenuActivation = PopupActivationMode.RightClick,

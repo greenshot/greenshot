@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,7 +20,6 @@
  */
 
 using System.Windows.Media;
-using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 
 namespace Greenshot.Base.Interfaces.Capture
 {
@@ -35,6 +34,11 @@ namespace Greenshot.Base.Interfaces.Capture
         /// The capture mode which is reported when this tool made the selection
         /// </summary>
         CaptureMode Mode { get; }
+
+        /// <summary>
+        /// The name of the tool, which a recipe uses to start with it (SelectionTool parameter of the interactive selection)
+        /// </summary>
+        string Id { get; }
 
         /// <summary>
         /// True to show the zoomer (when it is enabled), read when the tool becomes active
@@ -94,6 +98,8 @@ namespace Greenshot.Base.Interfaces.Capture
         protected ICaptureToolHost Host { get; private set; }
 
         public abstract CaptureMode Mode { get; }
+
+        public virtual string Id => Mode.ToString();
 
         public virtual bool ShowsZoomer => true;
 

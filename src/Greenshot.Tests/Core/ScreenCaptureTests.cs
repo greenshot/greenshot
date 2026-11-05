@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -25,8 +25,8 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
-using Greenshot.Base.Core;
 using Xunit;
 
 namespace Greenshot.Tests.Core;
@@ -58,7 +58,7 @@ public class ScreenCaptureTests
             return Task.FromResult(_capture());
         }
 
-        public Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public Task<Bitmap> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             Calls++;
             return Task.FromResult(_capture());

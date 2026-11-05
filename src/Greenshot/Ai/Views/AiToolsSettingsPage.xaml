@@ -4,32 +4,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base">
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <!-- A small round "x" to remove an entry -->
-        <Style x:Key="RemoveEntryButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="Transparent" CornerRadius="9" Width="18" Height="18">
-                            <TextBlock Text="✕" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       Foreground="{TemplateBinding Foreground}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <!-- A row of a list: a card with a border -->
         <Style x:Key="EntryRowStyle" TargetType="Border">
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
@@ -39,6 +20,8 @@
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
+
+        </ResourceDictionary>
     </UserControl.Resources>
     <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel>
@@ -51,7 +34,7 @@
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
                     <TextBlock Text="{wpf:Text Settings.AitoolsEnabledDescription}"
-                               TextWrapping="Wrap" Margin="22,4,0,0" FontSize="11"
+                               TextWrapping="Wrap" Margin="22,4,0,0" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding McpServers}" Margin="22,10,0,0">
                         <ItemsControl.ItemTemplate>
@@ -64,7 +47,7 @@
                                     <TextBlock Text="{Binding Symbol}" FontWeight="Bold" VerticalAlignment="Top">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#2EA043"/>
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsOtherVersion}" Value="True">
                                                         <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
@@ -78,14 +61,14 @@
                                     </TextBlock>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                        <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis"
                                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Margin="42,0,0,0" TextWrapping="Wrap" FontSize="11" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                    <TextBlock Margin="42,0,0,0" TextWrapping="Wrap" FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -107,7 +90,7 @@
             <GroupBox Header="{wpf:Text Settings.AitoolsPrograms}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.AitoolsAllowed}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <TextBlock Text="{wpf:Text Settings.AitoolsNone}"
                                Margin="0,0,0,4" FontStyle="Italic"
@@ -126,13 +109,14 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                            <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                            <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                            <TextBlock Text="{Binding SignerText}" FontSize="{wpf:FontSize 11}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1" Style="{StaticResource RemoveEntryButtonStyle}" VerticalAlignment="Center" Margin="8,0,0,0"
                                                 ToolTip="{wpf:Text Settings.AitoolsRemove}"
+                                                AutomationProperties.Name="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveAiToolClient_Click"/>
                                     </Grid>
                                 </Border>
@@ -147,7 +131,7 @@
                       Visibility="{Binding HasDeniedAiToolClients, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.AitoolsDeniedDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding DeniedAiToolClients}">
                         <ItemsControl.ItemTemplate>
@@ -161,9 +145,9 @@
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Path}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
+                                            <TextBlock Text="{Binding Path}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                            <TextBlock Text="{Binding SignerText}" FontSize="11"
+                                            <TextBlock Text="{Binding SignerText}" FontSize="{wpf:FontSize 11}"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
@@ -187,7 +171,7 @@
                         <TextBlock Text="{wpf:Text Settings.AitoolsProposals}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                     </CheckBox>
                     <TextBlock Text="{wpf:Text Settings.AitoolsProposalsDescription}"
-                               TextWrapping="Wrap" Margin="22,2,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="22,2,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsNotifyOnCapture, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}">
@@ -199,7 +183,7 @@
             <GroupBox Header="{wpf:Text Settings.AitoolsExcluded}">
                 <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsExcludedProcesses}">
                     <TextBlock Text="{wpf:Text Settings.AitoolsExcludedDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding AiToolsExcludedProcesses}">
                         <ItemsControl.ItemsPanel>
@@ -209,12 +193,12 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1"
-                                        CornerRadius="12" Padding="10,3,4,3" Margin="0,0,6,6">
+                                <Border Style="{StaticResource PillStyle}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding}" VerticalAlignment="Center" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                         <Button Style="{StaticResource RemoveEntryButtonStyle}" Margin="4,0,0,0"
                                                 ToolTip="{wpf:Text Settings.AitoolsRemove}"
+                                                AutomationProperties.Name="{wpf:Text Settings.AitoolsRemove}"
                                                 Click="RemoveExcludedProcess_Click"/>
                                     </StackPanel>
                                 </Border>
@@ -227,6 +211,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{Binding NewExcludedProcess, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="{wpf:Text Settings.AitoolsExcluded}"
                                  ToolTip="{wpf:Text Settings.AitoolsExcludedAddTooltip}"
                                  KeyDown="NewExcludedProcess_KeyDown"/>
                         <Button Grid.Column="1" Content="{wpf:Text Settings.AitoolsAdd}" Margin="8,0,0,0" Padding="12,3" MinWidth="80"
@@ -239,7 +224,7 @@
             <GroupBox Header="{wpf:Text Settings.Recipeapprovals}">
                 <StackPanel>
                     <TextBlock Text="{wpf:Text Settings.RecipeapprovalsDescription}"
-                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                     <ItemsControl ItemsSource="{Binding ApprovedRecipes}">
                         <ItemsControl.ItemTemplate>
@@ -252,12 +237,13 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="⚠" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                   AutomationProperties.Name="{wpf:Text Core.Warning}"
                                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"
                                                    Visibility="{Binding NeedsAttention, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" TextWrapping="Wrap"
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="{wpf:FontSize 11}" TextWrapping="Wrap"
                                                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">

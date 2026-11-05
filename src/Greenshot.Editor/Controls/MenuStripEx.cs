@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -51,6 +51,12 @@ namespace Greenshot.Editor.Controls
 
             set { _clickThrough = value; }
         }
+
+        /// <summary>
+        /// Move the keyboard into the strip (F6 in the editor), like Tab into a tool bar: the strip takes the focus and its first
+        /// item is selected, the arrow keys move on, Enter uses the item.
+        /// </summary>
+        internal void SelectFirstItem() => Select(true, true);
 
         protected override void WndProc(ref Message m)
         {

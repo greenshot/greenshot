@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,7 +25,9 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using log4net;
 
 namespace Greenshot.Base.Capturing
@@ -75,26 +77,86 @@ namespace Greenshot.Base.Capturing
         }
 
         /// <summary>
-        /// Capture the window, a minimized window is restored first
+        /// Capture the area of the virtual screen, with its HDR image when keepHdr is set and a part of the area is on an HDR display
+        /// (only backends which implement IHdrScreenCaptureBackend deliver it, not joined yet: see ScreenCaptureResult.HdrParts)
         /// </summary>
-        /// <param name="window">WindowDetails</param>
+        /// <param name="captureBounds">Screen coordinates</param>
+        /// <param name="keepHdr">Keep the HDR image</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ScreenCaptureResult, null when there was nothing to capture</returns>
         /// <exception cref="InvalidOperationException">All backends failed</exception>
-        public static Task<ScreenCaptureResult> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken = default)
+        public static Task<ScreenCaptureResult> CaptureRectangleAsync(NativeRect captureBounds, bool keepHdr, CancellationToken cancellationToken = default)
+        {
+            if (!keepHdr)
+            {
+                return CaptureRectangleAsync(captureBounds, cancellationToken);
+            }
+            if (captureBounds.Width <= 0 || captureBounds.Height <= 0)
+            {
+                Log.Warn("Nothing to capture, ignoring!");
+                return Task.FromResult<ScreenCaptureResult>(null);
+            }
+            return CaptureWithHdrAsync(_backends,
+                backend => backend is IHdrScreenCaptureBackend hdrBackend
+                    ? hdrBackend.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken)
+                    : WithoutHdrAsync(backend.CaptureRectangleAsync(captureBounds, cancellationToken)),
+                () => captureBounds.Location, $"area {captureBounds}", cancellationToken);
+        }
+
+        /// <summary>
+        /// Capture the window, a minimized window is restored first
+        /// </summary>
+        /// <param name="window">IInteropWindow</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ScreenCaptureResult, null when there was nothing to capture</returns>
+        /// <exception cref="InvalidOperationException">All backends failed</exception>
+        public static Task<ScreenCaptureResult> CaptureWindowAsync(IInteropWindow window, CancellationToken cancellationToken = default)
         {
             if (window == null)
             {
                 throw new ArgumentNullException(nameof(window));
             }
             // A restored window may have moved: take the location after the capture
-            return CaptureAsync(_backends, backend => backend.CaptureWindowAsync(window, cancellationToken), () => window.Location, $"window {window.Handle} ('{window.Text}')", cancellationToken);
+            return CaptureAsync(_backends, backend => backend.CaptureWindowAsync(window, cancellationToken), () => window.GetInfo(forceUpdate: true).Bounds.Location, $"window {window.Handle} ('{window.GetCaption()}')", cancellationToken);
         }
+
+        /// <summary>
+        /// Capture the window, with its HDR image when keepHdr is set and the window is on an HDR display
+        /// </summary>
+        /// <param name="window">IInteropWindow</param>
+        /// <param name="keepHdr">Keep the HDR image</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ScreenCaptureResult, null when there was nothing to capture</returns>
+        /// <exception cref="InvalidOperationException">All backends failed</exception>
+        public static Task<ScreenCaptureResult> CaptureWindowAsync(IInteropWindow window, bool keepHdr, CancellationToken cancellationToken = default)
+        {
+            if (!keepHdr)
+            {
+                return CaptureWindowAsync(window, cancellationToken);
+            }
+            if (window == null)
+            {
+                throw new ArgumentNullException(nameof(window));
+            }
+            return CaptureWithHdrAsync(_backends,
+                backend => backend is IHdrScreenCaptureBackend hdrBackend
+                    ? hdrBackend.CaptureWindowWithHdrAsync(window, cancellationToken)
+                    : WithoutHdrAsync(backend.CaptureWindowAsync(window, cancellationToken)),
+                () => window.GetInfo(forceUpdate: true).Bounds.Location, $"window {window.Handle} ('{window.GetCaption()}')", cancellationToken);
+        }
+
+        private static async Task<(Bitmap Image, HdrParts HdrParts)> WithoutHdrAsync(Task<Bitmap> capture) => (await capture.ConfigureAwait(false), null);
 
         /// <summary>
         /// Try the backends in order, the first which delivers pixels wins
         /// </summary>
-        internal static async Task<ScreenCaptureResult> CaptureAsync(IReadOnlyList<IScreenCaptureBackend> backends, Func<IScreenCaptureBackend, Task<Bitmap>> capture, Func<NativePoint> location, string description, CancellationToken cancellationToken)
+        internal static Task<ScreenCaptureResult> CaptureAsync(IReadOnlyList<IScreenCaptureBackend> backends, Func<IScreenCaptureBackend, Task<Bitmap>> capture, Func<NativePoint> location, string description, CancellationToken cancellationToken) =>
+            CaptureWithHdrAsync(backends, backend => WithoutHdrAsync(capture(backend)), location, description, cancellationToken);
+
+        /// <summary>
+        /// Try the backends in order, the first which delivers pixels wins (with HDR image, when it delivers them)
+        /// </summary>
+        internal static async Task<ScreenCaptureResult> CaptureWithHdrAsync(IReadOnlyList<IScreenCaptureBackend> backends, Func<IScreenCaptureBackend, Task<(Bitmap Image, HdrParts HdrParts)>> capture, Func<NativePoint> location, string description, CancellationToken cancellationToken)
         {
             Exception lastException = null;
             foreach (var backend in backends)
@@ -108,12 +170,13 @@ namespace Greenshot.Base.Capturing
                 try
                 {
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    var bitmap = await capture(backend).ConfigureAwait(false);
+                    var (bitmap, hdrParts) = await capture(backend).ConfigureAwait(false);
                     if (bitmap != null)
                     {
-                        Log.Debug($"{backend.Name} captured the {description} in {stopwatch.ElapsedMilliseconds} ms.");
-                        return new ScreenCaptureResult(bitmap, location(), backend);
+                        Log.Debug($"{backend.Name} captured the {description} in {stopwatch.ElapsedMilliseconds} ms{(hdrParts != null ? ", with HDR image" : string.Empty)}.");
+                        return new ScreenCaptureResult(bitmap, location(), backend, hdrParts);
                     }
+                    hdrParts?.Dispose();
                     Log.Debug($"{backend.Name} returned nothing for the {description}, trying the next backend.");
                 }
                 catch (OperationCanceledException)
@@ -142,12 +205,21 @@ namespace Greenshot.Base.Capturing
     /// </summary>
     public sealed class ScreenCaptureResult
     {
-        public ScreenCaptureResult(Bitmap image, NativePoint location, IScreenCaptureBackend backend)
+        public ScreenCaptureResult(Bitmap image, NativePoint location, IScreenCaptureBackend backend, HdrParts hdrParts = null)
         {
             Image = image ?? throw new ArgumentNullException(nameof(image));
             Location = location;
             Backend = backend ?? throw new ArgumentNullException(nameof(backend));
+            HdrParts = hdrParts;
+            // The HDR parts show this image, see HdrParts.BelongsTo: set here only
+            hdrParts?.BelongTo(image);
         }
+
+        /// <summary>
+        /// The HDR images of the HDR displays in the area (of a window: its HDR image), not joined yet, when it was asked for and the area was on
+        /// an HDR display: the receiver owns them (ICapture.HdrParts), which join them once the area is known
+        /// </summary>
+        public HdrParts HdrParts { get; }
 
         /// <summary>
         /// The pixels, the receiver owns them

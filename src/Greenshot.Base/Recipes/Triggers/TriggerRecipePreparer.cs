@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,7 +22,6 @@
 using System;
 using System.Linq;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Recipes.Triggers
@@ -70,7 +69,8 @@ namespace Greenshot.Base.Recipes.Triggers
             public bool IsEnabled { get; set; }
             public void Start() { }
             public void Stop() { }
-            public event EventHandler<TriggerEventArgs> Triggered;
+            // A test run is started directly, never by this trigger
+            public event EventHandler<TriggerEventArgs> Triggered { add { } remove { } }
             string ITrigger.TargetRecipeId { get; set; }
             public void Dispose() { }
         }

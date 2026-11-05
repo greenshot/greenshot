@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -44,6 +44,8 @@ namespace Greenshot.Base.Interfaces.Drawing
         IDrawableContainer ClickableElementAt(int x, int y);
         void OnDoubleClick();
         bool HasIntersectingFilters(NativeRect clipRectangle);
+        /// <summary>The clip rectangle, grown by what the filters there read (their element, the pixels around it)</summary>
+        NativeRect FilterReadArea(NativeRect clipRectangle, NativeRect imageBounds);
         bool IntersectsWith(NativeRect clipRectangle);
         void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle);
         void SetForegroundColor(Color color);

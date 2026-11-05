@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -29,10 +29,6 @@ namespace Greenshot.Configuration
     [Description("Greenshot Windows Plugin configuration")]
     public interface IWin10Configuration : IIniSection
     {
-        [Description("Determines if OCR is run automatically on every capture")]
-        [DefaultValue(false)]
-        bool AlwaysRunOCROnCapture { get; set; }
-
         [Description("Default OCR language tag (e.g. en-US, de-DE). Leave empty for user profile languages.")]
         [DefaultValue("")]
         string OcrLanguage { get; set; }

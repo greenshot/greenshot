@@ -6,7 +6,7 @@
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <LangVersion>latest</LangVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -23,6 +23,13 @@
          The output path is inside obj/ so the auto-glob (**/*.cs) does NOT pick it up. -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <!-- Solution properties are supplied by Visual Studio/MSBuild when building the solution, but not
+       when a project is built directly (for example, stand alone PowerShell). Keep post-build paths valid. -->
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    <SolutionName Condition="'$(SolutionName)' == ''">Greenshot</SolutionName>
   </PropertyGroup>
 
   <!--
@@ -83,7 +90,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
   <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
@@ -91,13 +98,13 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
-  <!-- Async & threading guardrails, see docs/async-threading-roadmap.md (section 3 and Phase 0).
+  <!-- Async & threading guardrails, see docs/vNext/async-threading-roadmap.md (section 3 and Phase 0).
        Test and build-task projects are excluded: tests may block on tasks, build tasks run inside MSBuild. -->
   <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -130,9 +137,6 @@
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Imgur13_ClientSecret">
-      <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
-    </Tokens>
   </ItemGroup>
 
   <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
@@ -140,18 +144,26 @@
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
 
-  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
+  <!--
+    Plugins which aren't delivered yet: only Debug builds put them into Plugins, so installer, portable and release leave them out.
+    Used by the copy below and by Greenshot.csproj, which collects the plugins again after its own build.
+  -->
+  <PropertyGroup>
+    <GreenshotUndeliveredPlugins Condition="'$(GreenshotBaseConfiguration)' != 'Debug'">Greenshot.Plugin.CustomUploader</GreenshotUndeliveredPlugins>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.')) And '$([System.String]::Copy(&quot;;$(GreenshotUndeliveredPlugins);&quot;).Contains(&quot;;$(MSBuildProjectName);&quot;))' != 'true'">
     <Exec Command="
     IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Plugins\$(TargetName)&quot;&#xD;&#xA;
         )&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
-    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot;&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)$(TargetName).*&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot; &gt;nul&#xD;&#xA;
+    xcopy /q /y /d &quot;$(TargetDir)*.dll&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)&quot; &gt;nul&#xD;&#xA;
     IF EXIST &quot;$(TargetDir)Languages&quot; (&#xD;&#xA;
         IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /q /y /d &quot;$(TargetDir)Languages\*.ini&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot;&#xD;&#xA;
+        xcopy /q /y /d &quot;$(TargetDir)Languages\*.ini&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages&quot; &gt;nul&#xD;&#xA;
 	  )
     for /f &quot;tokens=*&quot; %%F in ('dir /b /A-D $(SolutionDir)$(SolutionName)\$(OutDir)') do if EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot; (&#xD;&#xA;del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot;&#xD;&#xA;)&#xD;&#xA;
   " />

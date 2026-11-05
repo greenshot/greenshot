@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
@@ -64,12 +63,11 @@ namespace Greenshot.Base.Core
         [Description("Hotkey for opening the clipboard contents into the editor")]
         string ClipboardHotkey { get; set; }
 
-        [Description("Is this the first time launch?")]
-        [DefaultValue(true)]
-        bool IsFirstLaunch { get; set; }
+        [Description("Was the welcome window shown? Greenshot shows it once, at its first start")]
+        bool WelcomeShown { get; set; }
 
         [DataMember(Name = "Destinations")]
-        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
+        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker, DestinationWindow")]
         [DefaultValue("Picker")]
         List<string> OutputDestinations { get; set; }
 
@@ -77,9 +75,18 @@ namespace Greenshot.Base.Core
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }
 
+        [Description("zlib compression level (1-9) for the PNG on the clipboard, it's made on every copy, so a lower level copies faster.")]
+        [DefaultValue(8)]
+        [Range(1, 9, ErrorMessage = "Clipboard PNG compression level must be between 1 and 9.")]
+        int ClipboardPngCompressionLevel { get; set; }
+
         [Description("Should the mouse be captured?")]
         [DefaultValue(true)]
         bool CaptureMousepointer { get; set; }
+
+        [Description("Keep the HDR content of HDR displays with a capture, for JPEG XR files (a Source step without Hdr follows this)")]
+        [DefaultValue(false)]
+        bool CaptureHdr { get; set; }
 
         [Description("Use interactive window selection to capture? (false=Capture active window)")]
         [DefaultValue(false)]
@@ -110,12 +117,24 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ShowTrayNotification { get; set; }
 
+        [Description("Which notifications are shown: All, Warnings (warnings and errors), Errors or None. With ShowTrayNotification=False none are shown.")]
+        [DefaultValue("All")]
+        NotificationLevel NotificationLevel { get; set; }
+
+        [Description("Show a thumbnail of the capture in the notification, only the toasts of Windows can show it.")]
+        [DefaultValue(true)]
+        bool ShowNotificationThumbnail { get; set; }
+
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
 
-        [Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.")]
+        [Description("Replaced by OutputFileIfExists: False is changed there once to Ask, then this is True again.")]
         [DefaultValue(true)]
         bool OutputFileAllowOverwrite { get; set; }
+
+        [Description("What happens if the file to save already exists: Overwrite, Ask (the save dialog; unattended the name gets a number) or AddNumber (\"name (2).png\").")]
+        [DefaultValue("Overwrite")]
+        FileExistsAction OutputFileIfExists { get; set; }
 
         [Description("Filename pattern for screenshot.")]
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
@@ -136,6 +155,15 @@ namespace Greenshot.Base.Core
         [Description("Amount of colors to reduce to, when reducing")]
         [DefaultValue(256)]
         int OutputFileReduceColorsTo { get; set; }
+
+        [Description("zlib compression level (1-9) for PNG files and uploads, 9 gives the smallest files but takes about 3 times as long as 6. PNG files are always lossless.")]
+        [DefaultValue(9)]
+        [Range(1, 9, ErrorMessage = "PNG compression level must be between 1 and 9.")]
+        int OutputFilePngCompressionLevel { get; set; }
+
+        [Description("Write a PNG with 256 colors or fewer with a palette, which is much smaller. Set to false if an application can't read these PNG files.")]
+        [DefaultValue(true)]
+        bool OutputFilePngPalette { get; set; }
 
         [Description("When saving a screenshot, copy the path to the clipboard?")]
         [DefaultValue(true)]
@@ -215,14 +243,42 @@ namespace Greenshot.Base.Core
         [Range(0, 255, ErrorMessage = "AutoCropDifference must be between 0 and 255.")]
         int AutoCropDifference { get; set; }
 
-        [Description("Comma separated list of Plugins which are allowed. If something in the list, than every plugin not in the list will not be loaded!")]
+        [Description("Replaced by AllowedPluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> IncludePlugins { get; set; }
 
-        [Description("Comma separated list of Plugins which are NOT allowed.")]
+        [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
         List<string> ExcludePlugins { get; set; }
 
-        [Description("Comma separated list of destinations which should be disabled.")]
+        [Description("Plugins the user switched off, by name: Box for Greenshot.Plugin.Box.dll. Set in greenshot-fixed.ini (also empty) the user can't switch plugins off.")]
+        List<string> ExcludePluginNames { get; set; }
+
+        [Description("Plugins the administrator blocked, names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> BlockedPluginNames { get; set; }
+
+        [Description("When set only these plugins are loaded, every other one (also unknown ones) is blocked; set empty in greenshot-fixed.ini no plugin is loaded. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        List<string> AllowedPluginNames { get; set; }
+
+        [Description("Destinations the user switched off. Set in greenshot-fixed.ini (also empty) the user can't switch destinations off.")]
         List<string> ExcludeDestinations { get; set; }
+
+        [Description("Destinations the administrator blocked. For greenshot-fixed.ini.")]
+        List<string> BlockedDestinations { get; set; }
+
+        [Description("When set only these destinations are available, every other one (also unknown ones) is blocked. For greenshot-fixed.ini.")]
+        List<string> AllowedDestinations { get; set; }
+
+        [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, allowed to load. The user adds them by answering the question, an administrator can list them in greenshot-fixed.ini.")]
+        List<string> PluginApprovedHashes { get; set; }
+
+        [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, the user chose not to load them.")]
+        List<string> PluginRejectedHashes { get; set; }
+
+        [Description("SHA-256 of plugins whose signature was checked: valid and of the same signer as Greenshot.exe. Greenshot keeps this list itself.")]
+        List<string> PluginVerifiedHashes { get; set; }
+
+        [Description("Ask whether to load a plugin which isn't signed like Greenshot.exe. False in greenshot-fixed.ini: such a plugin only loads when PluginApprovedHashes lists it.")]
+        [DefaultValue(true)]
+        bool AskForUnsignedPlugins { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]
@@ -321,6 +377,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ZoomerEnabled { get; set; }
 
+        [Description("Sets if the screen is frozen while a region or window is selected. When false the screen stays live and only the selection is captured, when it is made (Windows 10 2004 or newer, else the screen is frozen).")]
+        [DefaultValue(true)]
+        bool CaptureFreezeScreen { get; set; }
+
+        [Description("Ignore the screen reader flag of Windows. When false, while the flag is on, the selection starts on the frozen screen and a region capture starts as window capture. Programs can leave the flag on after the screen reader is gone, true then captures as without a screen reader.")]
+        [DefaultValue(false)]
+        bool IgnoreScreenReader { get; set; }
+
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
         bool CaptureHelpVisible { get; set; }
@@ -328,6 +392,14 @@ namespace Greenshot.Base.Core
         [Description("Sets if the info panel (screen, selection, window and mouse position) is shown in the interactive capture, I shows or hides it")]
         [DefaultValue(true)]
         bool CaptureInfoVisible { get; set; }
+
+        [Description("Sets if the preview of the selection (enlarged when small, reduced when large) is shown in the interactive capture, P shows or hides it")]
+        [DefaultValue(true)]
+        bool CaptureSelectionPreviewVisible { get; set; }
+
+        [Description("Sets if the preview of the selection is shown in the place of the zoomer (next to the cursor) instead of in a corner, P switches between a corner, the zoomer's place and off")]
+        [DefaultValue(false)]
+        bool ZoomerShowsPreview { get; set; }
 
         [Description("Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)")]
         [DefaultValue(1)]
@@ -350,14 +422,6 @@ namespace Greenshot.Base.Core
         [DefaultValue("")]
         string MailApiBCC { get; set; }
 
-        [Description("Optional command to execute on a temporary PNG file, the command should overwrite the file and Greenshot will read it back. Note: this command is also executed when uploading PNG's!")]
-        [DefaultValue("")]
-        string OptimizePNGCommand { get; set; }
-
-        [Description("Arguments for the optional command to execute on a PNG, {0} is replaced by the temp-filename from Greenshot. Note: Temp-file is deleted afterwards by Greenshot.")]
-        [DefaultValue("\"{0}\"")]
-        string OptimizePNGCommandArguments { get; set; }
-
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 
@@ -373,8 +437,40 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }
 
+        [Description("Which details are written into exported images, the program name and resolution are always written. Options: CaptureTime (when the screen was captured), Author (ExportMetadataAuthor and ExportMetadataCopyright), and the private ones Source (window title, web address), Text (text OCR found), Barcodes (content of barcodes and QR codes). Private details are written into saved files; before they leave the computer (upload, e-mail, Office) Greenshot asks, a flow without a window removes them. Empty: none of them.")]
+        [DefaultValue("CaptureTime")]
+        List<ExportMetadataField> ExportMetadata { get; set; }
+
+        [Description("The author written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataAuthor { get; set; }
+
+        [Description("The copyright notice written into exported images when ExportMetadata contains Author")]
+        string ExportMetadataCopyright { get; set; }
+
         [Description("The last used region, for reuse in the capture last region")]
         NativeRect LastCapturedRegion { get; set; }
+
+        [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas. Optionally with a place: 1280x720+100+200 is 100, 200 from the top left of the main monitor, 1280x720+100+200@1920+0 of the monitor at 1920, 0, 1280x720+10+40@notepad.exe of the content of a window of notepad.exe")]
+        [DefaultValue("640x480,800x600,1024x768,1280x720,1920x1080")]
+        List<string> FixedCaptureSizes { get; set; }
+
+        [Description("The sizes and places of the last region captures (e.g. 1280x720+100+200@1920+0), the fixed size capture offers them below its own sizes")]
+        List<string> RecentCaptureAreas { get; set; }
+
+        [Description("The size and place of the last fixed size capture (e.g. 1280x720+100+200), the fixed size capture starts with it")]
+        string FixedCaptureArea { get; set; }
+
+        [Description("What the fixed size capture remembers of the last region captures: Size, Screen (also the place on the monitor) or Window (also the place in the window of the program, else on the monitor)")]
+        [DefaultValue("Window")]
+        FixedCaptureRemember FixedCaptureRemembers { get; set; }
+
+        [Description("Picking a size with a place in the fixed size capture moves the mouse so the area is there; false: the place is only shown, the area snaps onto it")]
+        [DefaultValue(true)]
+        bool FixedCaptureMovesCursor { get; set; }
+
+        [Description("Where the cursor holds the area of the fixed size capture: TopLeft, TopRight, BottomRight, BottomLeft or Center, C changes it")]
+        [DefaultValue("TopLeft")]
+        FixedCaptureAnchor FixedCaptureAnchor { get; set; }
 
         [DataMember(Name = "BaseIconSize")]
         [Description("Defines the base size of the icons (e.g. for the buttons in the editor and the menus) at 100%, in steps of 4, default value 16,16. It's scaled to the DPI of the display the menu or window is on")]
@@ -413,8 +509,14 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool AiToolsNotifyOnCapture { get; set; }
 
-        /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
+        /// <summary>Normalizes <see cref="OutputFilePath"/>; sets the default output folder when none is configured. A configured folder which doesn't exist stays.</summary>
         void ValidateAndCorrectOutputFilePath();
+
+        /// <summary>
+        /// The folder for a new screenshot: <see cref="OutputFilePath"/> with its variables filled in, created when it doesn't exist.
+        /// When it can't be used, the default output folder for this save only, <paramref name="problem"/> tells why.
+        /// </summary>
+        string GetOutputDirectory(out string problem);
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();

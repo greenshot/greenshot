@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -19,42 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Threading.Tasks;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Dapplo.Ini;
-using Dapplo.Windows.Common.Structs;
-using Greenshot.Base;
-using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Wpf;
-using Greenshot.Editor.Configuration;
-using Greenshot.Helpers;
-using Greenshot.Base.Threading;
-using Greenshot.Base.Languages;
-using Dapplo.Ini.Internationalization;
 
 namespace Greenshot.Settings.ViewModels
 {
     public class DestinationViewModel : INotifyPropertyChanged
     {
         private bool _isSelected;
+        private bool _isAllowed = true;
         private ImageSource _iconSource;
 
+        /// <summary>
+        /// The registered destination, null for a name which was typed in or is only in the settings
+        /// </summary>
         public IDestination Destination { get; set; }
+
+        /// <summary>
+        /// The name in the settings, e.g. FileNoDialog
+        /// </summary>
+        public string Designation { get; set; }
         public string Description { get; set; }
         public ImageSource IconSource
         {
@@ -82,6 +67,36 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        /// <summary>
+        /// The destination is available, unchecked it is in ExcludeDestinations. Not available it can't be selected.
+        /// </summary>
+        public bool IsAllowed
+        {
+            get => _isAllowed;
+            set
+            {
+                if (_isAllowed != value)
+                {
+                    _isAllowed = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsAllowed)));
+                    if (!value)
+                    {
+                        IsSelected = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// False when the administrator blocked the destination, or doesn't let the user switch destinations off
+        /// </summary>
+        public bool CanChangeAllowed { get; set; } = true;
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// The text a screen reader reads for the row of the destination list
+        /// </summary>
+        public override string ToString() => Description ?? base.ToString();
     }
 }

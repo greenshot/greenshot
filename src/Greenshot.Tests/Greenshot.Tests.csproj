@@ -3,13 +3,21 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <IsPackable>false</IsPackable>
+    <!-- xunit.v3 test projects are programs -->
+    <OutputType>Exe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- The tests don't pass TestContext.Current.CancellationToken to every call that takes a token, a hanging test is stopped by the runner -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <!-- Like Greenshot.exe, which it references (see Greenshot.csproj) -->
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <!-- Without Microsoft Testing Platform: dotnet test (and tools\build-runner) keep using VSTest on the .NET 10 SDK -->
+    <PackageReference Include="xunit.v3.mtp-off" Version="4.0.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -20,17 +28,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Files and messages as other programs (and Greenshot with Json.NET) wrote them -->
+    <None Include="TestData\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Atlassian\Greenshot.Plugin.Atlassian.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.CustomUploader\Greenshot.Plugin.CustomUploader.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.csproj" />
-    <ProjectReference Include="..\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Stamps\Greenshot.Plugin.Stamps.csproj" />
   </ItemGroup>
 </Project>

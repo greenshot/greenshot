@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -22,29 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Dapplo.Ini;
-using Dapplo.Windows.Common.Structs;
 using Greenshot.Ai;
 using Greenshot.Ai.ViewModels;
-using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormat;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Wpf;
-using Greenshot.Editor.Configuration;
-using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Settings.ViewModels

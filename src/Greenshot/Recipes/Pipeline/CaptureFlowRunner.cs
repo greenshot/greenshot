@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -80,6 +80,28 @@ namespace Greenshot.Recipes.Pipeline
             }
 
             return new CaptureFlowRunner(pipeline, SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance);
+        }
+
+        /// <summary>
+        /// Run the recipe with a capture, like a capture it made itself; the flow owns the surface from now on
+        /// </summary>
+        public static CaptureFlowHandle StartWithCapture(CaptureRecipe recipe, ISurface surface)
+        {
+            surface.CaptureDetails ??= new CaptureDetails();
+            var payload = new CapturePayload
+            {
+                Surface = surface,
+                RawCapture = new Capture(surface.GetImageForExport())
+                {
+                    CaptureDetails = surface.CaptureDetails
+                }
+            };
+            return Current.Start(recipe, configure: context =>
+            {
+                context.Payload = payload;
+                // The capture is handed over: the recipe must not capture or select again
+                context.IsPayloadPreSupplied = true;
+            });
         }
 
         public IReadOnlyCollection<CaptureFlowHandle> Running => _running.Values.ToList();
@@ -178,6 +200,11 @@ namespace Greenshot.Recipes.Pipeline
         {
             var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
             if (notifyService == null)
+            {
+                return;
+            }
+            // The notification of the exports showed the failure already (see CapturePipeline)
+            if (result.Context?.Properties.TryGetValue(ExportNotification.FailureShownProperty, out var shown) == true && shown is true)
             {
                 return;
             }

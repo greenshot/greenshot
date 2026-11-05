@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -60,6 +61,39 @@ namespace Greenshot.Base.Core.Export
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (outputSettings == null) throw new ArgumentNullException(nameof(outputSettings));
+            return await SaveEncodedAsync(() => EncodeAsync(source, outputSettings, cancellationToken), fullPath, allowOverwrite, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// The file of the source: JPEG XR of a capture with HDR content is the HDR file (with what is drawn on it), everything else the normal file
+        /// </summary>
+        private static async Task<EncodedImage> EncodeAsync(IExportSource source, SurfaceOutputSettings outputSettings, CancellationToken cancellationToken)
+        {
+            if (string.Equals(outputSettings.Format, FileFormat.WellKnownFileFormats.Jxr, StringComparison.OrdinalIgnoreCase)
+                && await source.UseSurfaceAsync(HdrExport.CanWriteHdr, cancellationToken).ConfigureAwait(false))
+            {
+                var (encoded, _) = await HdrExport.EncodeAsync(source, FileFormat.WellKnownFileFormats.Jxr, outputSettings.IncludePrivateMetadata, cancellationToken).ConfigureAwait(false);
+                if (encoded != null)
+                {
+                    return encoded;
+                }
+                Log.Info("The HDR file couldn't be written, saving the normal JPEG XR file.");
+            }
+            return await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Save an already encoded image (e.g. an HDR file, see IHdrImageEncoder) to the file, the same way as <see cref="SaveAsync"/>
+        /// </summary>
+        /// <exception cref="FileAlreadyExistsException">The file exists and allowOverwrite is false</exception>
+        public static Task<string> SaveEncodedAsync(EncodedImage encoded, string fullPath, bool allowOverwrite, CancellationToken cancellationToken)
+        {
+            if (encoded == null) throw new ArgumentNullException(nameof(encoded));
+            return SaveEncodedAsync(() => Task.FromResult(encoded), fullPath, allowOverwrite, cancellationToken);
+        }
+
+        private static async Task<string> SaveEncodedAsync(Func<Task<EncodedImage>> encode, string fullPath, bool allowOverwrite, CancellationToken cancellationToken)
+        {
             fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
             string directory = Path.GetDirectoryName(fullPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -72,7 +106,7 @@ namespace Greenshot.Base.Core.Export
                 throw new FileAlreadyExistsException(fullPath);
             }
 
-            var encoded = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+            var encoded = await encode().ConfigureAwait(false);
             string tmpPath = Path.Combine(directory ?? Path.GetTempPath(), $".{Path.GetFileName(fullPath)}.{Guid.NewGuid():N}.tmp");
             Log.DebugFormat("Saving {0} bytes to {1}", encoded.Length, fullPath);
             try
@@ -120,7 +154,7 @@ namespace Greenshot.Base.Core.Export
 
         /// <summary>
         /// Save the source to a temporary file named after the configured filename pattern (used e.g. by the e-mail and Office exports),
-        /// the file is removed at exit.
+        /// the file is removed after a while or at exit (see ImageIO.RegisterTmpFile).
         /// </summary>
         public static async Task<string> SaveNamedTmpFileAsync(IExportSource source, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings, CancellationToken cancellationToken)
         {
@@ -136,7 +170,7 @@ namespace Greenshot.Base.Core.Export
             filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
             // Remove multiple "_"
             filename = Regex.Replace(filename, @"_+", "_");
-            string tmpFile = Path.Combine(Path.GetTempPath(), filename);
+            string tmpFile = Path.Combine(ImageIO.GetTmpDirectory(), filename);
             Log.Debug("Creating TMP File: " + tmpFile);
             await SaveAsync(source, tmpFile, true, outputSettings, cancellationToken).ConfigureAwait(false);
             ImageIO.RegisterTmpFile(tmpFile);
@@ -144,7 +178,7 @@ namespace Greenshot.Base.Core.Export
         }
 
         /// <summary>
-        /// Save the source to a temporary file with a random name (e.g. for external commands), the file is removed at exit.
+        /// Save the source to a temporary file with a random name (e.g. for external commands), the file is removed after a while or at exit.
         /// </summary>
         public static async Task<string> SaveToTmpFileAsync(IExportSource source, SurfaceOutputSettings outputSettings, string destinationPath, CancellationToken cancellationToken)
         {

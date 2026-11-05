@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -33,6 +33,7 @@ using Dapplo.Ini;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Native;
 using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Ipc.Cli;
@@ -59,6 +60,10 @@ namespace Greenshot.Shell
         {
             try
             {
+                // Every edition and variant, before a window or the tray icon: otherwise Windows registers an app id of its own
+                // for the tray icon (also for the .zip, which leaves nothing behind)
+                AppUserModelId.SetForCurrentProcess(AppUserModelId.Greenshot);
+
                 // Fix for Bug 2495900, Multi-user Environment
                 // check whether there's an local instance running already
                 _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
@@ -100,6 +105,15 @@ namespace Greenshot.Shell
                 if (options.NoRun)
                 {
                     // Make an exit possible
+                    FreeMutex();
+                    return;
+                }
+
+                // Started by Windows (the Run value, or restarted by Windows) while Greenshot runs already: another start at the logon
+                // (a link in the Startup folder, another Run value, Windows restarting its apps) was first, nobody needs to be told
+                if (isAlreadyRunning && (options.Autostart || options.Restore))
+                {
+                    Log.Info($"Greenshot runs already, this start by Windows ({(options.Autostart ? "--autostart" : "--restore")}) ends.");
                     FreeMutex();
                     return;
                 }
@@ -158,11 +172,12 @@ namespace Greenshot.Shell
                     return;
                 }
 
-                StartJitProfile();
-
                 // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
+
+                // After the configuration is loaded: where it was loaded from tells whether this is the .zip (LeavesNoTraces)
+                StartJitProfile();
 
                 // Apply the command line language before the language is used the first time
                 if (options.Language != null)
@@ -248,15 +263,15 @@ namespace Greenshot.Shell
         /// </summary>
         private static void StartJitProfile()
         {
-            // The portable app (PAF) leaves no files outside its own directory
-            if (GreenshotEnvironment.IsPortable)
+            // The portable app (PAF) and the .zip leave no files outside their own directory
+            if (GreenshotEnvironment.LeavesNoTraces)
             {
                 return;
             }
 
             try
             {
-                var profileRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+                var profileRoot = GreenshotEnvironment.LocalDataDirectory;
                 Directory.CreateDirectory(profileRoot);
                 ProfileOptimization.SetProfileRoot(profileRoot);
                 ProfileOptimization.StartProfile("Startup.profile");

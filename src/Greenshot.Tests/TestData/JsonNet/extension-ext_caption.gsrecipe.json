@@ -1,0 +1,185 @@
+{
+  "kind": "extension",
+  "extends": {
+    "recipes": [
+      "*capture"
+    ],
+    "slot": "BeforeDestination",
+    "order": 100
+  },
+  "version": "1.0",
+  "id": "ext_caption",
+  "name": "Recipe.extension_caption",
+  "description": "Recipe.extension_caption_description",
+  "requires": [],
+  "nodes": [
+    {
+      "id": "position",
+      "stepType": "Conditional",
+      "name": "Caption position",
+      "enabled": true,
+      "parameters": {
+        "branches": [
+          {
+            "key": "Top",
+            "expression": "${option.position == 'Top'}"
+          },
+          {
+            "key": "Bottom",
+            "expression": "else"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bar_top",
+      "stepType": "Effect",
+      "name": "Caption bar",
+      "enabled": true,
+      "parameters": {
+        "effect": "ResizeCanvas",
+        "top": "${option.fontSize * 2}",
+        "backgroundColor": "${option.barColor}"
+      }
+    },
+    {
+      "id": "text_top",
+      "stepType": "Annotation",
+      "name": "Caption text",
+      "enabled": true,
+      "parameters": {
+        "type": "Text",
+        "text": "${option.text}",
+        "fontSize": "${option.fontSize}",
+        "lineColor": "${option.textColor}",
+        "shadow": false,
+        "textAlign": "Center",
+        "left": 0,
+        "width": "${payload.width}",
+        "height": "${option.fontSize * 2}",
+        "verticalAnchor": "Top",
+        "top": 0
+      }
+    },
+    {
+      "id": "bar_bottom",
+      "stepType": "Effect",
+      "name": "Caption bar",
+      "enabled": true,
+      "parameters": {
+        "effect": "ResizeCanvas",
+        "bottom": "${option.fontSize * 2}",
+        "backgroundColor": "${option.barColor}"
+      }
+    },
+    {
+      "id": "text_bottom",
+      "stepType": "Annotation",
+      "name": "Caption text",
+      "enabled": true,
+      "parameters": {
+        "type": "Text",
+        "text": "${option.text}",
+        "fontSize": "${option.fontSize}",
+        "lineColor": "${option.textColor}",
+        "shadow": false,
+        "textAlign": "Center",
+        "left": 0,
+        "width": "${payload.width}",
+        "height": "${option.fontSize * 2}",
+        "verticalAnchor": "Bottom",
+        "bottom": 0
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "position"
+    ],
+    "transitions": {
+      "bar_top": [
+        "text_top"
+      ],
+      "bar_bottom": [
+        "text_bottom"
+      ]
+    },
+    "conditionalTransitions": [
+      {
+        "from": "position",
+        "branch": "Top",
+        "to": "bar_top"
+      },
+      {
+        "from": "position",
+        "branch": "Bottom",
+        "to": "bar_bottom"
+      }
+    ],
+    "errorTransitions": []
+  },
+  "options": [
+    {
+      "key": "enabled",
+      "type": "Boolean",
+      "default": false,
+      "label": "Recipe.extension_caption_enabled",
+      "quickSettings": true
+    },
+    {
+      "key": "text",
+      "type": "String",
+      "default": "${now:yyyy-MM-dd HH:mm:ss}",
+      "label": "Recipe.extension_caption_text",
+      "description": "Recipe.extension_caption_text_description",
+      "enabledWhen": "enabled",
+      "quickSettings": false,
+      "format": "template"
+    },
+    {
+      "key": "position",
+      "type": "Enum",
+      "default": "Bottom",
+      "label": "Recipe.extension_caption_position",
+      "choices": [
+        {
+          "value": "Top",
+          "label": "Recipe.extension_caption_position_top"
+        },
+        {
+          "value": "Bottom",
+          "label": "Recipe.extension_caption_position_bottom"
+        }
+      ],
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    },
+    {
+      "key": "fontSize",
+      "type": "Integer",
+      "default": 12,
+      "label": "Recipe.extension_caption_fontsize",
+      "min": 6.0,
+      "max": 72.0,
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    },
+    {
+      "key": "textColor",
+      "type": "Color",
+      "default": "#000000",
+      "label": "Recipe.extension_caption_textcolor",
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    },
+    {
+      "key": "barColor",
+      "type": "Color",
+      "default": "#FFFFFF",
+      "label": "Recipe.extension_caption_barcolor",
+      "enabledWhen": "enabled",
+      "quickSettings": false
+    }
+  ],
+  "isBuiltIn": true
+}

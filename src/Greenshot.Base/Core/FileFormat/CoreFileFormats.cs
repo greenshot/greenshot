@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -37,7 +37,6 @@ public static class CoreFileFormats
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jpg, ["jpg", "jpeg"], ["jpg", "jpeg"], "jpg", "image/jpeg", null, "JPEG"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Png, ["png"], ["png"], "png", "image/png", null, "Portable Network Graphics"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Tiff, ["tif", "tiff"], ["tif", "tiff"], "tiff", "image/tiff", null, "Tagged Image File Format"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jxr, ["jxr"], ["jxr"], "jxr", "image/vnd.ms-photo", null, "JPEG XR"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Greenshot, ["greenshot"], ["greenshot"], "greenshot", "application/vnd.greenshot", null, "Greenshot Editor"));
         registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Ico, ["ico"], ["ico"], "ico", "image/vnd.microsoft.icon", ["image/x-icon"], "Icon"));
     }

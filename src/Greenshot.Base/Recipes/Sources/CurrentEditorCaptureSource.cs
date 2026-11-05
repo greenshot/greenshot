@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -70,7 +69,8 @@ namespace Greenshot.Base.Recipes.Sources
             return new CapturePayload
             {
                 Surface = copy.Surface,
-                RetainSurfaceForEditor = true,
+                // The destination keeps the surface when it hands it to an editor (ImportMode OpenAsCapture), a copy added as image is disposed
+                RetainSurfaceForEditor = false,
                 RawCapture = new Capture(copy.Image)
                 {
                     CaptureDetails = copy.Surface.CaptureDetails

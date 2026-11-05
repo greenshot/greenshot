@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -28,9 +29,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using log4net.Core;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.SelfService.Views
@@ -50,6 +53,15 @@ namespace Greenshot.SelfService.Views
         private bool _wrapText;
         private long _actualStartOffset;
         private long _totalFileLength;
+        private string _searchText = string.Empty;
+        private readonly DispatcherTimer _searchTimer;
+        private int _searchMatchCount;
+        private int _searchEntryCount;
+        // While the window is open: the entries Greenshot logs, added to the view without reading the file again
+        private LogViewerAppender _liveAppender;
+        private DispatcherTimer _liveTimer;
+        // The live updates change the status several times a second, a screen reader only says the status of the user's actions
+        private bool _isLiveUpdate;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -62,7 +74,8 @@ namespace Greenshot.SelfService.Views
         public string LogText
         {
             get => _logText;
-            set { _logText = value; OnPropertyChanged(); }
+            // Logs of earlier versions can contain control characters or right-to-left overrides (e.g. from a window title): shown as \uXXXX
+            set { _logText = LogSanitizer.EscapeUnsafeCharacters(value); OnPropertyChanged(); }
         }
 
         public string LogInfoText
@@ -74,7 +87,15 @@ namespace Greenshot.SelfService.Views
         public string StatusMessage
         {
             get => _statusMessage;
-            set { _statusMessage = value; OnPropertyChanged(); }
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+                if (!_isLiveUpdate)
+                {
+                    LiveRegion.Announce(StatusMessageText);
+                }
+            }
         }
 
         public string ChunkStatusText
@@ -103,6 +124,52 @@ namespace Greenshot.SelfService.Views
             }
         }
 
+        /// <summary>
+        /// Only the log entries with this text are shown, from the whole log file. Empty shows the end of the log.
+        /// </summary>
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                value ??= string.Empty;
+                if (_searchText == value)
+                {
+                    return;
+                }
+                _searchText = value;
+                OnPropertyChanged();
+                // Search when the typing pauses, not for every key
+                _searchTimer.Stop();
+                _searchTimer.Start();
+            }
+        }
+
+        /// <summary>
+        /// The log levels that can be chosen, from the fewest to the most log entries
+        /// </summary>
+        public IReadOnlyList<string> LogLevels { get; } = new[] { Level.Error.Name, Level.Warn.Name, Level.Info.Name, Level.Debug.Name };
+
+        /// <summary>
+        /// The level of the log, a change applies until Greenshot restarts
+        /// </summary>
+        public string SelectedLogLevel
+        {
+            get => LogHelper.RootLevel?.Name;
+            set
+            {
+                var level = string.IsNullOrEmpty(value) ? null : LogManager.GetRepository().LevelMap[value];
+                if (level == null || level == LogHelper.RootLevel)
+                {
+                    return;
+                }
+                // Written with the old level, so it is in the log also when the new level is less detailed
+                Log.Info($"Log level changed from {LogHelper.RootLevel?.Name} to {level.Name} in the log viewer, until Greenshot restarts");
+                LogHelper.RootLevel = level;
+                OnPropertyChanged();
+            }
+        }
+
         public TextWrapping TextWrappingMode => WrapText ? TextWrapping.Wrap : TextWrapping.NoWrap;
 
         // Theme brushes forwarding
@@ -114,10 +181,44 @@ namespace Greenshot.SelfService.Views
         public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
-        public LogViewerWindow(string logFilePath = null)
+        // The log viewer opened by greenshot://log links: a link reuses it, so a web page can't open window after window
+        private static LogViewerWindow _linkInstance;
+
+        /// <summary>
+        /// Shows the log of this Greenshot for a greenshot://log link, in the window of an earlier link when it is still open
+        /// </summary>
+        /// <param name="search">The search text of the link, null or empty shows the end of the log</param>
+        public static void ShowForLink(string search)
         {
+            if (_linkInstance == null || !_linkInstance.IsLoaded)
+            {
+                _linkInstance = new LogViewerWindow(search: search);
+                _linkInstance.Closed += (_, _) => _linkInstance = null;
+                _linkInstance.Show();
+            }
+            else
+            {
+                _linkInstance.SearchText = search?.Trim() ?? string.Empty;
+                _linkInstance.ApplySearch();
+                if (_linkInstance.WindowState == WindowState.Minimized)
+                {
+                    _linkInstance.WindowState = WindowState.Normal;
+                }
+            }
+            _linkInstance.Activate();
+        }
+
+        /// <param name="logFilePath">The log file, null for the log of this Greenshot</param>
+        /// <param name="search">Show only the log entries with this text, e.g. from a greenshot://log?search= link</param>
+        public LogViewerWindow(string logFilePath = null, string search = null)
+        {
+            _searchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _searchTimer.Tick += (_, _) => ApplySearch();
+            // The search text of a link is shown and matched like the log: unsafe characters escaped
+            _searchText = LogSanitizer.EscapeUnsafeCharacters(search?.Trim()) ?? string.Empty;
+
             InitializeComponent();
 
             try
@@ -141,7 +242,111 @@ namespace Greenshot.SelfService.Views
             KeyDown += OnWindowKeyDown;
         }
 
+        /// <summary>
+        /// Shows the end of the log, or the search result when there is a search text
+        /// </summary>
         public void LoadLog(int initialChunkBytes = DefaultChunkBytes)
+        {
+            if (!string.IsNullOrEmpty(SearchText) && File.Exists(LogFilePath))
+            {
+                ApplySearch();
+                return;
+            }
+            LoadTail(initialChunkBytes);
+        }
+
+        /// <summary>
+        /// Shows the log entries with the search text from the whole log file, or the end of the log without a search text
+        /// </summary>
+        public void ApplySearch()
+        {
+            _searchTimer.Stop();
+            if (string.IsNullOrEmpty(SearchText) || !File.Exists(LogFilePath))
+            {
+                LoadTail(DefaultChunkBytes);
+                return;
+            }
+
+            try
+            {
+                var fi = new FileInfo(LogFilePath);
+                string text;
+                using (var fs = new FileStream(LogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                using (var reader = new StreamReader(fs, Encoding.UTF8))
+                {
+                    text = reader.ReadToEnd();
+                }
+
+                // The entries collected until now are in the file
+                _liveAppender?.TakeEntries();
+                LogText = LogSearch.Filter(text, SearchText, out _searchMatchCount, out _searchEntryCount);
+                _totalFileLength = fi.Length;
+                _actualStartOffset = 0;
+                CanLoadMore = false;
+                ChunkStatusText = string.Empty;
+                UpdateSearchInfo();
+                StatusMessage = string.Format(Texts.SelfService.LogviewerSearchedAt, DateTime.Now.ToString("HH:mm:ss"), fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                LogTextBox?.ScrollToEnd();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error searching log file", ex);
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
+            }
+        }
+
+        private void UpdateSearchInfo()
+        {
+            string matchesTemplate = Texts.SelfService.LogviewerSearchMatches;
+            LogInfoText = string.Format(string.IsNullOrEmpty(matchesTemplate) ? "{0:N0} of {1:N0} log entries contain \"{2}\"" : matchesTemplate, _searchMatchCount, _searchEntryCount, SearchText);
+        }
+
+        /// <summary>
+        /// Adds the entries Greenshot logged since the last time, filtered when there is a search text
+        /// </summary>
+        private void OnLiveTick(object sender, EventArgs e)
+        {
+            string added = _liveAppender?.TakeEntries();
+            if (string.IsNullOrEmpty(added))
+            {
+                return;
+            }
+
+            bool followEnd = LogTextBox == null || LogTextBox.VerticalOffset + LogTextBox.ViewportHeight >= LogTextBox.ExtentHeight - 2;
+            if (string.IsNullOrEmpty(SearchText))
+            {
+                LogText += added;
+                _totalFileLength += Encoding.UTF8.GetByteCount(added);
+                _isLiveUpdate = true;
+                try
+                {
+                    UpdateLogDisplayMetrics(DateTime.Now);
+                }
+                finally
+                {
+                    _isLiveUpdate = false;
+                }
+            }
+            else
+            {
+                string matches = LogSearch.Filter(added, SearchText, out int matchCount, out int entryCount);
+                _searchMatchCount += matchCount;
+                _searchEntryCount += entryCount;
+                UpdateSearchInfo();
+                if (matches.Length == 0)
+                {
+                    return;
+                }
+                LogText += matches;
+            }
+
+            if (followEnd)
+            {
+                LogTextBox?.ScrollToEnd();
+            }
+        }
+
+        private void LoadTail(int initialChunkBytes)
         {
             try
             {
@@ -167,8 +372,8 @@ namespace Greenshot.SelfService.Views
                     _actualStartOffset = 0;
                     CanLoadMore = false;
                     ChunkStatusText = string.Empty;
-                    LogInfoText = "Size: 0 KB | 0 lines";
-                    StatusMessage = $"Empty log file | Last modified: {fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}";
+                    LogInfoText = Texts.SelfService.LogviewerInfoEmpty;
+                    StatusMessage = string.Format(Texts.SelfService.LogviewerStatusEmpty, fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
                     return;
                 }
 
@@ -198,8 +403,10 @@ namespace Greenshot.SelfService.Views
                 _actualStartOffset = readOffset + startByte;
                 CanLoadMore = _actualStartOffset > 0;
 
+                // The entries collected until now are in the file
+                _liveAppender?.TakeEntries();
                 string text = Encoding.UTF8.GetString(buffer, startByte, bytesRead - startByte);
-                LogText = string.IsNullOrWhiteSpace(text) ? "(No log entries in chunk)" : text;
+                LogText = string.IsNullOrWhiteSpace(text) ? Texts.SelfService.LogviewerNoEntries : text;
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
 
@@ -211,8 +418,8 @@ namespace Greenshot.SelfService.Views
                 Log.Error("Error reading log file", ex);
                 string errTemplate = Texts.SelfService.LogviewerStatusError;
                 LogText = string.Format(string.IsNullOrEmpty(errTemplate) ? "Error reading log file:\n{0}" : errTemplate, ex.Message);
-                LogInfoText = "Read error";
-                StatusMessage = $"Error: {ex.Message}";
+                LogInfoText = Texts.SelfService.LogviewerReadError;
+                StatusMessage = string.Format(Texts.SelfService.StatusError, ex.Message);
                 ChunkStatusText = string.Empty;
                 CanLoadMore = false;
             }
@@ -263,12 +470,12 @@ namespace Greenshot.SelfService.Views
                 }
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
-                StatusMessage = $"Loaded earlier chunk at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedEarlier, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error loading earlier log chunk", ex);
-                StatusMessage = $"Error loading earlier chunk: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerErrorEarlier, ex.Message);
             }
         }
 
@@ -298,12 +505,12 @@ namespace Greenshot.SelfService.Views
                 }
 
                 UpdateLogDisplayMetrics(fi.LastWriteTime);
-                StatusMessage = $"Complete log loaded at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedComplete, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 Log.Error("Error loading entire log", ex);
-                StatusMessage = $"Error loading entire log: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.LogviewerErrorComplete, ex.Message);
             }
         }
 
@@ -329,16 +536,16 @@ namespace Greenshot.SelfService.Views
 
             if (_actualStartOffset > 0)
             {
-                LogInfoText = $"Showing ~{lineCount:N0} lines ({loadedSizeText} of {totalSizeText})";
-                ChunkStatusText = $"Showing tail {loadedSizeText} of {totalSizeText} total. Earlier log lines available.";
+                LogInfoText = string.Format(Texts.SelfService.LogviewerInfoPartial, lineCount, loadedSizeText, totalSizeText);
+                ChunkStatusText = string.Format(Texts.SelfService.LogviewerChunkPartial, loadedSizeText, totalSizeText);
             }
             else
             {
-                LogInfoText = $"Complete log: ~{lineCount:N0} lines ({totalSizeText})";
-                ChunkStatusText = $"All {totalSizeText} loaded.";
+                LogInfoText = string.Format(Texts.SelfService.LogviewerInfoComplete, lineCount, totalSizeText);
+                ChunkStatusText = string.Format(Texts.SelfService.LogviewerChunkComplete, totalSizeText);
             }
 
-            StatusMessage = $"Loaded at {DateTime.Now:HH:mm:ss} | Last modified: {lastWriteTime:yyyy-MM-dd HH:mm:ss}";
+            StatusMessage = string.Format(Texts.SelfService.LogviewerLoadedAt, DateTime.Now.ToString("HH:mm:ss"), lastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
         private void OnLoadEarlierLinesClicked(object sender, RoutedEventArgs e)
@@ -369,7 +576,7 @@ namespace Greenshot.SelfService.Views
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 
@@ -390,11 +597,24 @@ namespace Greenshot.SelfService.Views
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             ApplyImmersiveDarkMode();
+
+            // Follow the log of this Greenshot, another log file is shown as it is
+            if (!string.IsNullOrEmpty(LogFilePath) && string.Equals(LogFilePath, GreenshotMain.LogFileLocation, StringComparison.OrdinalIgnoreCase))
+            {
+                _liveAppender = LogViewerAppender.Attach();
+                _liveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                _liveTimer.Tick += OnLiveTick;
+                _liveTimer.Start();
+            }
         }
 
         private void OnWindowClosed(object sender, EventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            _searchTimer.Stop();
+            _liveTimer?.Stop();
+            _liveAppender?.Detach();
+            _liveAppender = null;
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
@@ -409,7 +629,13 @@ namespace Greenshot.SelfService.Views
                     LoadLog();
                     e.Handled = true;
                     break;
-                case Key.T:
+                case Key.F when Keyboard.Modifiers == ModifierKeys.Control:
+                    SearchTextBox.Focus();
+                    SearchTextBox.SelectAll();
+                    e.Handled = true;
+                    break;
+                // Not while typing a search text
+                case Key.T when !Equals(e.OriginalSource, SearchTextBox):
                     WpfThemeHelper.ToggleTheme();
                     e.Handled = true;
                     break;

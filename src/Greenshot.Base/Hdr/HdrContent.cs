@@ -1,0 +1,260 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Greenshot.Base.Native;
+using Greenshot.Base.Native.DirectX;
+
+namespace Greenshot.Base.Hdr;
+/// <summary>
+/// Decides which brightness becomes white in the 8-bit screenshot of an HDR display.
+/// </summary>
+/// <remarks>
+/// Without HDR content (normal windows) SDR white stays white, so the colors are exactly as on the screen.
+/// When much of the capture is brighter than SDR white (an HDR video or game) the whole capture is scaled so the display's
+/// peak becomes white, like the Xbox Game Bar does: highlights keep their detail, SDR white becomes light grey for it.
+/// In between it blends smoothly by the share of pixels brighter than SDR white.
+/// </remarks>
+internal static class HdrContent
+{
+    /// <summary>
+    /// Share of pixels brighter than SDR white up to which SDR white stays white, and from which the display's peak is white
+    /// </summary>
+    private const float FewHighlights = 0.02f;
+    private const float MostlyHighlights = 0.10f;
+
+    /// <summary>
+    /// A pixel within this factor of SDR white is SDR, the margin covers FP16 rounding
+    /// </summary>
+    private const float SdrMargin = 1.01f;
+
+    private static readonly float[] HalfTable = CreateHalfTable();
+
+    /// <summary>
+    /// The brightness in nits which becomes white
+    /// </summary>
+    /// <param name="sdrWhiteLevelInNits">The display's SDR white level.</param>
+    /// <param name="displayPeakInNits">The brightest the display can show, 0 if unknown.</param>
+    /// <param name="peakInNits">The brightest pixel of the capture.</param>
+    /// <param name="highlightShare">Share of pixels brighter than SDR white.</param>
+    internal static float WhiteLevelInNits(float sdrWhiteLevelInNits, float displayPeakInNits, float peakInNits, float highlightShare)
+    {
+        // A display peak below SDR white is not plausible, 10000 nits is the limit of HDR10
+        float peak = displayPeakInNits > sdrWhiteLevelInNits && displayPeakInNits <= 10000 ? Math.Min(peakInNits, displayPeakInNits) : peakInNits;
+        if (peak <= sdrWhiteLevelInNits * SdrMargin)
+        {
+            return sdrWhiteLevelInNits;
+        }
+        float darken = Math.Min(Math.Max((highlightShare - FewHighlights) / (MostlyHighlights - FewHighlights), 0), 1);
+        return sdrWhiteLevelInNits + (peak - sdrWhiteLevelInNits) * darken;
+    }
+
+
+    /// <summary>
+    /// The brightest pixel in nits and the share of pixels brighter than SDR white, of every pixel of the area:
+    /// a single bright pixel (a thin line, a small light) must not be missed, it sets the input range of the tone mapping.
+    /// Only the area is read back from the GPU.
+    /// </summary>
+    /// <param name="hdrTexture">The FP16 texture</param>
+    /// <param name="device">The device, for the staging texture</param>
+    /// <param name="context">The device context, to copy and map</param>
+    /// <param name="sdrWhiteLevelInNits">The display's SDR white level</param>
+    /// <param name="area">The area of the texture which is captured, it is clipped to the texture</param>
+    internal static unsafe (float PeakInNits, float HighlightShare) Measure(ID3D11Texture2D hdrTexture, ID3D11Device device, ID3D11DeviceContext context, float sdrWhiteLevelInNits, Rectangle area)
+    {
+        hdrTexture.GetDesc(out D3D11_TEXTURE2D_DESC desc);
+        var clipped = Rectangle.Intersect(area, new Rectangle(0, 0, desc.Width, desc.Height));
+        if (clipped.Width <= 0 || clipped.Height <= 0)
+        {
+            return (0, 0);
+        }
+        var stagingDesc = new D3D11_TEXTURE2D_DESC
+        {
+            Width = clipped.Width,
+            Height = clipped.Height,
+            MipLevels = 1,
+            ArraySize = 1,
+            Format = desc.Format, // R16G16B16A16_FLOAT
+            SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+            Usage = D3D11_USAGE.D3D11_USAGE_STAGING,
+            BindFlags = 0,
+            CPUAccessFlags = D3D11_CPU_ACCESS_FLAG.D3D11_CPU_ACCESS_READ,
+            MiscFlags = 0
+        };
+        device.CreateTexture2D(ref stagingDesc, IntPtr.Zero, out var stagingTexture);
+        try
+        {
+            var box = new D3D11_BOX((uint)clipped.Left, (uint)clipped.Top, (uint)clipped.Right, (uint)clipped.Bottom);
+            context.CopySubresourceRegion(stagingTexture, 0, 0, 0, 0, hdrTexture, 0, ref box);
+            int hr = context.Map(stagingTexture, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mapped);
+            if (hr != 0) Marshal.ThrowExceptionForHR(hr);
+            try
+            {
+                return Measure(mapped.pData, mapped.RowPitch, clipped.Width, clipped.Height, sdrWhiteLevelInNits, true);
+            }
+            finally
+            {
+                context.Unmap(stagingTexture, 0);
+            }
+        }
+        finally
+        {
+            Marshal.ReleaseComObject(stagingTexture);
+        }
+    }
+
+    /// <summary>
+    /// Like the texture <see cref="Measure(ID3D11Texture2D, ID3D11Device, ID3D11DeviceContext, float, Rectangle)"/>, of an HDR image which was
+    /// read from it already (the capture keeps its HDR image): the GPU doesn't have to deliver the pixels a second time
+    /// </summary>
+    internal static (float PeakInNits, float HighlightShare) Measure(HdrImage hdrImage, float sdrWhiteLevelInNits)
+    {
+        (float, float) result = (0, 0);
+        hdrImage.UsePixelMemory(first => result = Measure(first, hdrImage.Stride, hdrImage.Width, hdrImage.Height, sdrWhiteLevelInNits, false));
+        return result;
+    }
+
+    /// <summary>
+    /// A channel below this is a color outside sRGB (scRGB has the sRGB primaries), the margin covers FP16 rounding
+    /// </summary>
+    private const float OutsideSrgb = -0.01f;
+
+    /// <summary>
+    /// True when a pixel of the part of one HDR display (straight alpha) is something an 8-bit sRGB file can't show: a highlight (a channel brighter
+    /// than SDR white) or a color outside sRGB (a channel below 0, e.g. the saturated colors of an HDR video or a P3 photo). Stops at the first one.
+    /// </summary>
+    internal static bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits) =>
+        HasHdrContent(pixels, sdrWhiteLevelInNits, new Rectangle(0, 0, pixels.Width, pixels.Height));
+
+    /// <summary>
+    /// Like <see cref="HasHdrContent(SixLabors.ImageSharp.Image{SixLabors.ImageSharp.PixelFormats.HalfVector4}, float)"/>, only in an area of the
+    /// pixels, e.g. the part of an HDR display which a selection covers (see HdrParts.Join)
+    /// </summary>
+    /// <param name="area">The area, it is clipped to the pixels</param>
+    internal static unsafe bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits, Rectangle area)
+    {
+        if (!pixels.DangerousTryGetSinglePixelMemory(out Memory<SixLabors.ImageSharp.PixelFormats.HalfVector4> memory))
+        {
+            // Every HdrImage is made with ContiguousConfiguration
+            throw new InvalidOperationException("The pixels of the HDR image are not one block of memory.");
+        }
+        area = Rectangle.Intersect(area, new Rectangle(0, 0, pixels.Width, pixels.Height));
+        if (area.Width <= 0 || area.Height <= 0)
+        {
+            return false;
+        }
+        float sdrWhite = sdrWhiteLevelInNits / 80f * SdrMargin;
+        int width = pixels.Width;
+        int left = area.Left;
+        int areaWidth = area.Width;
+        using var handle = memory.Pin();
+        ushort* first = (ushort*)handle.Pointer;
+        // PARALLEL: rows are independent, the first one found stops the others
+        var result = Parallel.For(area.Top, area.Bottom, (row, state) =>
+        {
+            ushort* src = first + ((long)row * width + left) * 4;
+            for (int x = 0; x < areaWidth; x++, src += 4)
+            {
+                // A transparent pixel shows nothing
+                if (!(HalfTable[src[3]] > 0.0001f))
+                {
+                    continue;
+                }
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    float value = HalfTable[src[channel]];
+                    // NaN fails the comparisons, infinity is no content
+                    if ((value > sdrWhite || value < OutsideSrgb) && !float.IsInfinity(value))
+                    {
+                        state.Stop();
+                        return;
+                    }
+                }
+            }
+        });
+        return !result.IsCompleted;
+    }
+
+    /// <param name="premultiplied">The texture has premultiplied alpha, an HdrImage straight alpha</param>
+    private static unsafe (float PeakInNits, float HighlightShare) Measure(IntPtr data, int rowPitch, int width, int height, float sdrWhiteLevelInNits, bool premultiplied)
+    {
+        // scRGB 1.0 is 80 nits
+        float sdrWhite = sdrWhiteLevelInNits / 80f * SdrMargin;
+        float peak = 0;
+        long brighter = 0;
+        long counted = 0;
+        object resultLock = new object();
+        // PARALLEL: rows are independent, each worker keeps its own result and merges it once
+        Parallel.For(0, height, () => (Peak: 0f, Brighter: 0L, Counted: 0L), (row, _, local) =>
+        {
+            ushort* src = (ushort*)((byte*)data + (long)row * rowPitch);
+            for (int x = 0; x < width; x++, src += 4)
+            {
+                float max = Math.Max(HalfTable[src[0]], Math.Max(HalfTable[src[1]], HalfTable[src[2]]));
+                float a = HalfTable[src[3]];
+                if (premultiplied && a > 0.0001f && a < 1.0f)
+                {
+                    max /= a;
+                }
+                // NaN fails the comparisons
+                if (float.IsInfinity(max) || !(max >= 0))
+                {
+                    continue;
+                }
+                local.Counted++;
+                if (max > local.Peak)
+                {
+                    local.Peak = max;
+                }
+                if (max > sdrWhite)
+                {
+                    local.Brighter++;
+                }
+            }
+            return local;
+        }, local =>
+        {
+            lock (resultLock)
+            {
+                peak = Math.Max(peak, local.Peak);
+                brighter += local.Brighter;
+                counted += local.Counted;
+            }
+        });
+        return (peak * 80f, counted > 0 ? (float)brighter / counted : 0);
+    }
+
+    /// <summary>
+    /// Every half-float as float: a lookup is much faster than converting the bits for a screen full of pixels
+    /// </summary>
+    private static float[] CreateHalfTable()
+    {
+        var table = new float[ushort.MaxValue + 1];
+        for (int i = 0; i <= ushort.MaxValue; i++)
+        {
+            table[i] = HalfHelper.HalfToFloat((ushort)i);
+        }
+        return table;
+    }
+}

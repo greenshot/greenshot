@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -26,8 +26,7 @@ using Greenshot.Base.Core;
 using Greenshot.Editor.Forms;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Dropbox;
-using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Jira;
+using Greenshot.Plugin.Atlassian;
 using Greenshot.Shell;
 using Xunit;
 
@@ -45,8 +44,7 @@ namespace Greenshot.Tests.Core
             new object[] { typeof(GreenshotResources) },
             new object[] { typeof(BoxPlugin) },
             new object[] { typeof(DropboxPlugin) },
-            new object[] { typeof(ImgurPlugin) },
-            new object[] { typeof(JiraPlugin) },
+            new object[] { typeof(AtlassianPlugin) },
         };
 
         [Theory]

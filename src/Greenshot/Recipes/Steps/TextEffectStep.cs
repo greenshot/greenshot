@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -31,7 +31,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -48,13 +47,13 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.TextEffect, "Text Effect", "Finds text via OCR and applies an effect (pixelize, blur, highlight, redact, magnify) to the matches.", "Effects")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
-    [StepParameter("Patterns", ContractDataType.Object, Required = true, Description = "Regular expressions to find")]
+    [StepParameter("Patterns", ContractDataType.Object, ValueType = typeof(List<string>), Required = true, Description = "Regular expressions to find")]
     [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Pixelize", Description = "Effect to apply", AllowedValues = new[] { "Pixelize", "Blur", "Highlight", "Redact", "Magnify" })]
     [StepParameter("Scope", ContractDataType.Enum, DefaultValue = "Auto", Description = "Apply to the matching words or whole lines")]
     [StepParameter("MatchCase", ContractDataType.Boolean, DefaultValue = false, Description = "Match case")]
     [StepParameter("FillColor", ContractDataType.String, Description = "Color (Highlight: #FFFF00, Redact: #000000)")]
-    [StepParameter("BlurRadius", ContractDataType.Integer, DefaultValue = 10, Description = "Blur radius (Blur)")]
-    [StepParameter("PixelSize", ContractDataType.Integer, DefaultValue = 5, Description = "Pixel size (Pixelize)")]
+    [StepParameter("BlurRadiusTextHeightPercent", ContractDataType.Integer, DefaultValue = ObfuscationStrength.DefaultBlurRadiusPercent, Description = "Blur radius as % of the text line height (Blur)")]
+    [StepParameter("PixelSizeTextHeightPercent", ContractDataType.Integer, DefaultValue = ObfuscationStrength.DefaultPixelSizePercent, Description = "Pixel size as % of the text line height (Pixelize)")]
     [StepParameter("MagnificationFactor", ContractDataType.Integer, DefaultValue = 2, Description = "Magnification (Magnify)")]
     [StepParameter("Padding", ContractDataType.Integer, Description = "Padding around the matches")]
     [StepParameter("PaddingHorizontal", ContractDataType.Integer, Description = "Horizontal padding")]
@@ -199,9 +198,9 @@ namespace Greenshot.Recipes.Steps
             string effectType = Config.GetParameter("Effect", "Pixelize");
             var containers = new DrawableContainerList();
 
-            foreach (var bounds in matchedBounds)
+            foreach (var (bounds, textHeight) in matchedBounds)
             {
-                var container = CreateContainer(surface, effectType, bounds, Config);
+                var container = CreateContainer(surface, effectType, bounds, textHeight, Config);
                 if (container != null)
                 {
                     containers.Add(container);
@@ -240,7 +239,8 @@ namespace Greenshot.Recipes.Steps
             return patterns;
         }
 
-        private static List<NativeRect> FindMatchedBounds(
+        /// <returns>The matched areas, each with the height of the text line it is in</returns>
+        private static List<(NativeRect Bounds, int TextHeight)> FindMatchedBounds(
             IEnumerable<IOcrLineFeature> ocrLines,
             List<Regex> regexes,
             string scope,
@@ -249,7 +249,7 @@ namespace Greenshot.Recipes.Steps
             int offH,
             int offV)
         {
-            var results = new List<NativeRect>();
+            var results = new List<(NativeRect Bounds, int TextHeight)>();
 
             if (string.Equals(scope, "Line", StringComparison.OrdinalIgnoreCase))
             {
@@ -258,7 +258,7 @@ namespace Greenshot.Recipes.Steps
                     if (string.IsNullOrEmpty(line?.Text)) continue;
                     if (regexes.Any(r => r.IsMatch(line.Text)))
                     {
-                        results.Add(ApplyPadding(line.Bounds, padH, padV, offH, offV));
+                        results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Bounds.Height));
                     }
                 }
                 return results;
@@ -274,7 +274,7 @@ namespace Greenshot.Recipes.Steps
                         if (string.IsNullOrEmpty(word?.Text)) continue;
                         if (regexes.Any(r => r.IsMatch(word.Text)))
                         {
-                            results.Add(ApplyPadding(word.Bounds, padH, padV, offH, offV));
+                            results.Add((ApplyPadding(word.Bounds, padH, padV, offH, offV), line.Bounds.Height));
                         }
                     }
                 }
@@ -326,11 +326,11 @@ namespace Greenshot.Recipes.Steps
                             int right = overlapping.Max(w => w.Bounds.Right);
                             int bottom = overlapping.Max(w => w.Bounds.Bottom);
                             var union = new NativeRect(left, top, right - left, bottom - top);
-                            results.Add(ApplyPadding(union, padH, padV, offH, offV));
+                            results.Add((ApplyPadding(union, padH, padV, offH, offV), line.Bounds.Height));
                         }
                         else
                         {
-                            results.Add(ApplyPadding(line.Bounds, padH, padV, offH, offV));
+                            results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Bounds.Height));
                         }
                     }
                 }
@@ -355,6 +355,7 @@ namespace Greenshot.Recipes.Steps
             ISurface surface,
             string effectType,
             NativeRect bounds,
+            int textHeight,
             RecipeNodeConfig config)
         {
             DrawableContainer container = null;
@@ -363,8 +364,7 @@ namespace Greenshot.Recipes.Steps
             {
                 var obf = new ObfuscateContainer(surface);
                 obf.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
-                int blurRadius = config.GetParameter("BlurRadius", 10);
-                obf.SetFieldValue(FieldType.BLUR_RADIUS, blurRadius);
+                ObfuscationStrength.FitToText(obf, textHeight, config.GetParameter("BlurRadiusTextHeightPercent", ObfuscationStrength.DefaultBlurRadiusPercent), ObfuscationStrength.DefaultPixelSizePercent);
                 container = obf;
             }
             else if (string.Equals(effectType, "Highlight", StringComparison.OrdinalIgnoreCase))
@@ -397,8 +397,7 @@ namespace Greenshot.Recipes.Steps
             {
                 var obf = new ObfuscateContainer(surface);
                 obf.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.PIXELIZE);
-                int pixelSize = config.GetParameter("PixelSize", 5);
-                obf.SetFieldValue(FieldType.PIXEL_SIZE, pixelSize);
+                ObfuscationStrength.FitToText(obf, textHeight, ObfuscationStrength.DefaultBlurRadiusPercent, config.GetParameter("PixelSizeTextHeightPercent", ObfuscationStrength.DefaultPixelSizePercent));
                 container = obf;
             }
 

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -38,10 +38,6 @@ namespace Greenshot.Base.Recipes
         [DefaultValue(true)]
         bool Enabled { get; set; }
 
-        [Description("Whether to show a quicklink in the tray context menu for configuring or opening this plugin.")]
-        [DefaultValue(false)]
-        bool QuicklinkEnabled { get; set; }
-
         [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
         [DefaultValue(null)]
         string RecipeFiles { get; set; }
@@ -49,5 +45,9 @@ namespace Greenshot.Base.Recipes
         [Description("Semicolon-separated list of deactivated/disabled recipe IDs.")]
         [DefaultValue(null)]
         string DisabledRecipeIds { get; set; }
+
+        [Description("Whether recipes can be installed from the Greenshot recipe catalog (greenshot:install-recipe links). An administrator switches it off in greenshot-fixed.ini.")]
+        [DefaultValue(true)]
+        bool AllowCatalogInstall { get; set; }
     }
 }

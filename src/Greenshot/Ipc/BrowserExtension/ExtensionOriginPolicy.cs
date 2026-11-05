@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -22,8 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Greenshot.Base.Serialization;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Ipc.BrowserExtension
 {
@@ -114,13 +116,13 @@ namespace Greenshot.Ipc.BrowserExtension
                 {
                     return result;
                 }
-                if (JObject.Parse(File.ReadAllText(manifestPath))[propertyName] is JArray entries)
+                if ((GreenshotJson.Parse(File.ReadAllText(manifestPath)) as JsonObject)?[propertyName] is JsonArray entries)
                 {
                     foreach (var entry in entries)
                     {
-                        if (entry.Type == JTokenType.String)
+                        if (entry?.GetValueKind() == JsonValueKind.String)
                         {
-                            result.Add((string)entry);
+                            result.Add(entry.GetValue<string>());
                         }
                     }
                 }

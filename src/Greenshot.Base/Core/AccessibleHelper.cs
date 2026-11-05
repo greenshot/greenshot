@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -29,7 +29,7 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// See: https://social.msdn.microsoft.com/Forums/en-US/ieextensiondevelopment/thread/03a8c835-e9e4-405b-8345-6c3d36bc8941
     /// This should really be cleaned up, there is little OO behind this class!
-    /// Maybe move the basic Accessible functions to WindowDetails!?
+    /// Maybe move the basic Accessible functions to Dapplo.Windows!?
     /// </summary>
     public class Accessible
     {

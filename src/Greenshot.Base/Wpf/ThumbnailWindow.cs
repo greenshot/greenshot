@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,11 +25,11 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
-using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Wpf
 {
@@ -94,10 +94,10 @@ namespace Greenshot.Base.Wpf
         /// <summary>
         /// Show the thumbnail of the window above (or under) the bounds of a menu
         /// </summary>
-        /// <param name="window">WindowDetails</param>
+        /// <param name="window">IInteropWindow</param>
         /// <param name="alignTo">The screen bounds (in pixels) to align to, null to keep the location</param>
         /// <param name="insertAfter">The window the thumbnail is placed on top of, IntPtr.Zero for none</param>
-        public void ShowThumbnail(WindowDetails window, NativeRect? alignTo, IntPtr insertAfter)
+        public void ShowThumbnail(IInteropWindow window, NativeRect? alignTo, IntPtr insertAfter)
         {
             UnregisterThumbnail();
 

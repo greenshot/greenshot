@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private readonly Func<IEnumerable<CaptureRecipe>> _recipesProvider;
 
         public ErrorTransitionItemViewModel(
-            RecipeErrorTransitionConfig config,
+            RecipeTransition config,
             Action<ErrorTransitionItemViewModel> onDelete,
             Func<IEnumerable<StepNodeViewModel>> nodesProvider,
             Func<IEnumerable<CaptureRecipe>> recipesProvider)
@@ -50,9 +50,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             _recipesProvider = recipesProvider;
 
             _fromNodeId = string.IsNullOrEmpty(config?.From) ? "*" : config.From;
-            _errorType = string.IsNullOrEmpty(config?.ErrorType) ? "*" : config.ErrorType;
+            _errorType = string.IsNullOrEmpty(config?.OnError) ? "*" : config.OnError;
             _toNodeId = config?.To;
-            _targetRecipeId = config?.TargetRecipeId;
+            _targetRecipeId = config?.Recipe;
             _targetType = !string.IsNullOrEmpty(_targetRecipeId) ? "Recipe" : "Step";
 
             DeleteCommand = new RelayCommand(() => _onDelete?.Invoke(this));
@@ -103,13 +103,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public IEnumerable<StepNodeViewModel> AvailableNodes => _nodesProvider?.Invoke() ?? Enumerable.Empty<StepNodeViewModel>();
         public IEnumerable<CaptureRecipe> AvailableRecipes => _recipesProvider?.Invoke() ?? Enumerable.Empty<CaptureRecipe>();
 
-        public RecipeErrorTransitionConfig ToConfig()
+        public RecipeTransition ToConfig()
         {
-            return new RecipeErrorTransitionConfig(
-                _fromNodeId,
-                IsTargetStep ? _toNodeId : null,
-                IsTargetRecipe ? _targetRecipeId : null,
-                _errorType);
+            return new RecipeTransition
+            {
+                From = _fromNodeId,
+                To = IsTargetStep ? _toNodeId : null,
+                Recipe = IsTargetRecipe ? _targetRecipeId : null,
+                OnError = string.IsNullOrEmpty(_errorType) ? "*" : _errorType
+            };
         }
     }
 }

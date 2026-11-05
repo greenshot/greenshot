@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -23,7 +23,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
@@ -33,7 +32,7 @@ namespace Greenshot.Base.Controls
 {
     /// <summary>
     /// The save dialog for images: the file types Greenshot can write, the configured format preselected,
-    /// and the file name and folder suggested by the filename pattern. Wraps the Windows save dialog (Microsoft.Win32).
+    /// and the file name and folder suggested by the filename pattern, or the suggested file (e.g. of a recipe step). Wraps the Windows save dialog (Microsoft.Win32).
     /// </summary>
     public sealed class SaveImageFileDialog
     {
@@ -43,10 +42,17 @@ namespace Greenshot.Base.Controls
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;
         private readonly ICaptureDetails _captureDetails;
+        private readonly bool _hdrAvailable;
+        private readonly string _suggestedPath;
 
-        public SaveImageFileDialog(ICaptureDetails captureDetails)
+        /// <param name="captureDetails">The details of the capture, for the file name</param>
+        /// <param name="hdrAvailable">The capture can be saved as HDR file: JPEG XR is labeled "(HDR)"</param>
+        /// <param name="suggestedPath">The file to suggest (folder, name and format) instead of the one of the settings, null for the settings</param>
+        public SaveImageFileDialog(ICaptureDetails captureDetails, bool hdrAvailable = false, string suggestedPath = null)
         {
             _captureDetails = captureDetails;
+            _hdrAvailable = hdrAvailable;
+            _suggestedPath = suggestedPath;
             Init();
         }
 
@@ -78,7 +84,46 @@ namespace Greenshot.Base.Controls
             _saveFileDialog.OverwritePrompt = true;
             _saveFileDialog.CheckPathExists = false;
             _saveFileDialog.AddExtension = true;
-            ApplySuggestedValues();
+            if (string.IsNullOrWhiteSpace(_suggestedPath))
+            {
+                ApplySuggestedValues();
+            }
+            else
+            {
+                ApplySuggestedPath();
+            }
+        }
+
+        /// <summary>
+        /// The folder, name and format of the suggested file
+        /// </summary>
+        private void ApplySuggestedPath()
+        {
+            string directory, fileName, extension;
+            try
+            {
+                directory = Path.GetDirectoryName(_suggestedPath);
+                fileName = Path.GetFileNameWithoutExtension(_suggestedPath);
+                extension = Path.GetExtension(_suggestedPath);
+            }
+            catch (ArgumentException)
+            {
+                // .NET Framework: characters a path can't have
+                LOG.WarnFormat("The suggested file {0} isn't a valid path, suggesting the file of the settings.", _suggestedPath);
+                ApplySuggestedValues();
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+            {
+                _saveFileDialog.InitialDirectory = directory;
+            }
+
+            FileName = fileName;
+            if (!string.IsNullOrEmpty(extension))
+            {
+                Extension = extension;
+            }
         }
 
         private void ApplyFilterOptions()
@@ -133,7 +178,8 @@ namespace Greenshot.Base.Controls
                     FormatId = format.Id,
                     Extensions = format.SaveableExtensions.ToArray(),
                     PreferredExtension = format.PreferredExtension,
-                    Label = format.GetDisplayName()
+                    // JPEG XR of a capture with HDR content is the HDR file
+                    Label = _hdrAvailable && WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Jxr, format.Id) ? format.GetDisplayName() + " (HDR)" : format.GetDisplayName()
                 };
             }
         }

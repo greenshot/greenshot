@@ -1,0 +1,1090 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "title": "CaptureRecipe",
+  "description": "Formal written contract and schema for Greenshot DAG-based capture recipes and recipe extensions (\"kind\": \"extension\").",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "nodes",
+    "flow"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional URI referencing this schema for editor autocompletion and validation."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [ "recipe", "extension" ],
+      "default": "recipe",
+      "description": "A recipe (with triggers) or an extension: a small flow Greenshot puts into a slot of other recipes (with extends, no triggers)."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+(\\.[0-9]+)*$",
+      "default": "2.0",
+      "description": "Recipe format version. Greenshot reads 2.x; recipes of an earlier beta (1.x) are not read."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier of the recipe. Matching a built-in ID (e.g. 'recipe_region') overrides that built-in recipe."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable display name for the recipe."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of what this recipe accomplishes."
+    },
+    "authors": {
+      "type": "array",
+      "description": "Who wrote the recipe; shown when it is approved. Kept in the file so the credit travels with it.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "The name as the author wants to be credited." },
+          "github": { "type": "string", "description": "The GitHub login of the author." }
+        }
+      }
+    },
+    "copyright": {
+      "type": "string",
+      "description": "The copyright notice, e.g. 'Copyright (c) 2026 Jane Doe', which the license may require to stay with every copy."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The license of the file as an SPDX identifier, e.g. 'MIT'."
+    },
+    "translations": {
+      "type": "object",
+      "description": "The texts of the file in other languages, by language ('de' or 'de-DE') and then by path. Greenshot uses the exact language, else the language alone, else the texts of the file.",
+      "propertyNames": { "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$" },
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText|nodes\\..+\\.[A-Za-z][A-Za-z0-9]*(\\..+)?)$" },
+        "additionalProperties": { "type": "string", "minLength": 1 }
+      }
+    },
+    "showInContextMenu": {
+      "type": "boolean",
+      "default": true,
+      "description": "A recipe without a ContextMenu trigger gets an entry in Greenshot's system tray menu; false leaves it out."
+    },
+    "requires": {
+      "type": "array",
+      "description": "Optional list of extension or plugin dependencies required to execute this recipe.",
+      "items": {
+        "$ref": "#/definitions/RecipeRequirement"
+      }
+    },
+    "triggers": {
+      "type": "array",
+      "description": "Optional modular triggers attached to this recipe (e.g. Hotkey, ContextMenu for Greenshot's system tray menu, Clipboard).",
+      "items": {
+        "$ref": "#/definitions/TriggerConfig"
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Flow-local modular execution nodes configured with unique IDs and step parameters.",
+      "items": {
+        "$ref": "#/definitions/RecipeNodeConfig"
+      },
+      "minItems": 1
+    },
+    "flow": {
+      "$ref": "#/definitions/RecipeFlowConfig",
+      "description": "DAG workflow definition configuring entry points, transitions, conditional branches, and join merges."
+    },
+    "options": {
+      "type": "array",
+      "description": "Values the user sets once in Settings > Recipes (switches also in the quick settings), read by nodes with ${option.key}. The values are stored in greenshot.ini, not in the recipe file.",
+      "items": {
+        "$ref": "#/definitions/RecipeOption"
+      }
+    },
+    "extends": {
+      "type": "object",
+      "description": "Extensions only: which recipes it extends, at which slot and in which order.",
+      "required": [ "recipes", "slot" ],
+      "properties": {
+        "recipes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Recipe ids, \"*\" (every recipe with the slot) or \"*capture\" (recipes with a Source step and a destination). AI tool recipes are only extended when named by id."
+        },
+        "slot": {
+          "type": "string",
+          "enum": [ "AfterCapture", "BeforeExport", "AfterExport", "BeforeDestination" ],
+          "description": "Where the extension goes: a Slot node of the recipe with this name. BeforeDestination runs in the export steps, once per destination on its own copy of the capture."
+        },
+        "order": {
+          "type": "integer",
+          "default": 0,
+          "description": "Several extensions on one slot run by order, then by id."
+        }
+      }
+    },
+    "when": {
+      "type": "string",
+      "pattern": "\\$\\{",
+      "description": "Extensions only: an expression evaluated at the slot, e.g. \"${payload.width > 800}\"; when false the extension is skipped for that run."
+    },
+    "concurrency": {
+      "type": "string",
+      "enum": [
+        "Parallel",
+        "Exclusive",
+        "ReplacePrevious"
+      ],
+      "default": "Parallel",
+      "description": "What happens when the recipe is started while a flow of it is still running: run both (Parallel), ignore the new start (Exclusive) or cancel the running flow (ReplacePrevious)."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "extension" } }, "required": [ "kind" ] },
+      "then": { "required": [ "extends" ], "not": { "required": [ "triggers" ] } }
+    }
+  ],
+  "definitions": {
+    "RecipeOption": {
+      "type": "object",
+      "description": "An option of the recipe, shown in Settings > Recipes.",
+      "required": [ "key", "type" ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Unique in the recipe, used as ${option.key}."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color", "Hotkey", "DirectoryPath" ]
+        },
+        "default": {
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\", a Hotkey like \"Ctrl + Shift + D\" (empty: no hotkey), a DirectoryPath a full path, %VARIABLES% allowed."
+        },
+        "label": {
+          "type": "string",
+          "description": "The text in the settings, the key when empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "Shown as tooltip."
+        },
+        "min": {
+          "type": "number",
+          "description": "Smallest value (Integer, Decimal)."
+        },
+        "max": {
+          "type": "number",
+          "description": "Largest value (Integer, Decimal)."
+        },
+        "choices": {
+          "type": "array",
+          "description": "The values of an Enum option.",
+          "items": {
+            "type": "object",
+            "required": [ "value" ],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string", "description": "The text in the settings, the value when empty." }
+            }
+          }
+        },
+        "enabledWhen": {
+          "type": "string",
+          "description": "The key of a Boolean option: this option can only be changed while that one is on."
+        },
+        "quickSettings": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also show the option in the quick settings of the tray menu (Boolean and Enum only)."
+        },
+        "format": {
+          "type": "string",
+          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format, or template: ${...} in the value is evaluated where the option is used (e.g. a caption \"${now:yyyy-MM-dd}\")."
+        }
+      }
+    },
+    "RecipeFlowConfig": {
+      "type": "object",
+      "required": [
+        "startNodes"
+      ],
+      "properties": {
+        "startNodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Starting node IDs for workflow entry points."
+        },
+        "transitions": {
+          "type": "array",
+          "description": "Every connection between nodes: plain (from, to), a branch of a Conditional node (from, branch, to) or an error route (from, onError, to or recipe).",
+          "items": {
+            "$ref": "#/definitions/RecipeTransition"
+          }
+        }
+      }
+    },
+    "RecipeTransition": {
+      "type": "object",
+      "required": [
+        "from"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source node ID. For an error route also \"*\": any node."
+        },
+        "to": {
+          "type": "string",
+          "description": "Target node ID."
+        },
+        "branch": {
+          "type": "string",
+          "description": "Branch key on a Conditional node (e.g. 'A', 'B', 'true', 'false')."
+        },
+        "onError": {
+          "type": "string",
+          "description": "Makes this an error route: the error type it handles, \"*\" for every error."
+        },
+        "recipe": {
+          "type": "string",
+          "description": "Error routes only: a recipe ID to run instead of a node ('to')."
+        }
+      },
+      "additionalProperties": false
+    },
+    "RecipeNodeConfig": {
+      "type": "object",
+      "required": [
+        "id",
+        "stepType"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique flow-local identifier for this node (referenced by flow transitions)."
+        },
+        "stepType": {
+          "type": "string",
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional label for this node (defaults to stepType if omitted)."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this node runs. A node which doesn't run passes the flow on to its next nodes."
+        },
+        "when": {
+          "type": "string",
+          "pattern": "\\$\\{",
+          "description": "An expression such as \"${option.border}\": the node runs only when it is true, otherwise it passes the flow on to its next nodes."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Node-specific configuration parameters and expressions.",
+          "properties": {
+            "Name": {
+              "type": "string",
+              "enum": [ "AfterCapture", "BeforeExport", "AfterExport", "BeforeDestination" ],
+              "description": "Used by 'Slot' step: the name of the slot, where extensions add their steps."
+            },
+            "Accept": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Used by 'Slot' step: the ids of the extensions the slot takes. Left out: all extensions; an empty list: none."
+            },
+            "Edges": {
+              "type": "array",
+              "items": { "type": "string", "enum": [ "Top", "Right", "Bottom", "Left" ] },
+              "description": "Used by 'Effect' step (TornEdge): the torn edges. Left out: all four."
+            },
+            "SourceType": {
+              "type": "string",
+              "enum": [
+                "Region",
+                "Window",
+                "ActiveWindow",
+                "FullScreen",
+                "LastRegion",
+                "Clipboard",
+                "File",
+                "TextOcr"
+              ],
+              "description": "Used by 'Source' step: The kind of raw pixels to capture."
+            },
+            "ScreenMode": {
+              "anyOf": [ { "type": "string", "enum": [ "Auto", "Live", "Frozen" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "Auto",
+              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen: the frozen screen is shown in SDR, the HDR content is there all the same."
+            },
+            "Hdr": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile', a JPEG XR file). Not set: the setting 'Keep the HDR content of HDR displays' (CaptureHdr). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
+            },
+            "Filename": {
+              "type": "string",
+              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
+            },
+            "Text": {
+              "type": "string",
+              "description": "Used by 'Stdout' step: String template or expression (e.g. '${Barcode.Text}') to emit to stdout."
+            },
+            "WindowTitlePattern": {
+              "type": "string",
+              "description": "Used by 'Source' and 'RecordVideo' steps (Window): regular expression (.NET syntax) the window title must contain a match for. For a literal title escape characters such as ( ) . [ ] with a backslash, e.g. 'Report \\(draft\\)'. Anchor with ^ and $ for the whole title."
+            },
+            "ProcessName": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
+            },
+            "WindowHandle": {
+              "type": [ "string", "integer" ],
+              "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${Window}')."
+            },
+            "MatchCase": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether WindowTitlePattern and ProcessName match case-sensitively."
+            },
+            "CaptureMouseCursor": {
+              "type": "boolean",
+              "description": "Used by 'Source' step: Explicitly pre-defines mouse capture. If omitted, dynamically evaluates CoreConfig.CaptureMousepointer."
+            },
+            "DelayMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'Source' step: Pre-capture delay in milliseconds."
+            },
+            "SelectionMode": {
+              "type": "string",
+              "enum": [
+                "Region",
+                "Window",
+                "Text"
+              ],
+              "description": "Used by 'InteractiveSelection' step: The UI selection overlay mode."
+            },
+            "AllowWindowSnapping": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'InteractiveSelection' step: Whether to snap selection rect to windows under the cursor."
+            },
+            "Width": {
+              "description": "Used by 'Effect' step: border width (Border) or new width (Resize, instead of Percentage).",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Height": {
+              "description": "Used by 'Effect' step (Resize): new height, instead of Percentage.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Color": {
+              "type": "string",
+              "description": "Used by 'Effect' step (Border): the border color (e.g. '#FF0000', 'Blue', 'rgba(255,0,0,128)')."
+            },
+            "BackgroundColor": {
+              "type": "string",
+              "description": "Used by 'Effect' step (ResizeCanvas, RemoveTransparency): the color of the added canvas or of the removed transparency."
+            },
+            "Percentage": {
+              "description": "Used by 'Effect' step (Resize): the new size in percent. Use either Percentage or Width/Height, not both.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string" }
+              ]
+            },
+            "Left": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added on the left.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Top": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added at the top.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Right": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added on the right.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Bottom": {
+              "description": "Used by 'Effect' step (ResizeCanvas): pixels added at the bottom.",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Effect": {
+              "type": "string",
+              "enum": [
+                "Border",
+                "DropShadow",
+                "TornEdge",
+                "Invert",
+                "Grayscale",
+                "Monochrome",
+                "Adjust",
+                "Rotate",
+                "Resize",
+                "ResizeCanvas",
+                "ReduceColors",
+                "RemoveTransparency",
+                "Pixelize",
+                "Blur",
+                "Highlight",
+                "Redact",
+                "Magnify"
+              ],
+              "description": "Used by 'Effect' step: The effect type to apply."
+            },
+            "Annotations": {
+              "type": "array",
+              "description": "Used by 'Annotation' step: List of annotation elements to place on the capture surface.",
+              "items": {
+                "$ref": "#/definitions/AnnotationElementConfig"
+              }
+            },
+            "Variables": {
+              "type": "object",
+              "description": "Used by 'SetVariable' step: the variables to set, name to value (an expression or a literal)."
+            },
+            "Fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [ "CaptureTime", "Author", "Source", "Text", "Barcodes" ]
+              },
+              "description": "Used by 'SetMetadata' step: the details written into saved images; without it those of the settings, an empty list none."
+            },
+            "Author": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the author written into saved images, instead of the one of the settings; empty leaves it out."
+            },
+            "Copyright": {
+              "type": "string",
+              "description": "Used by 'SetMetadata' step: the copyright notice written into saved images, instead of the one of the settings; empty leaves it out."
+            },
+            "DestinationDesignations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Used by 'Destinations' step: Explicit list of destination designations (e.g. ['Clipboard', 'FileNoDialog', 'Editor'])."
+            },
+            "PlaySound": {
+              "type": "boolean",
+              "description": "Used by 'ImmediateFeedback' step: Explicitly pre-defines shutter sound."
+            },
+            "Branches": {
+              "type": "array",
+              "description": "Used by 'Conditional' step: List of decision branches evaluating expressions.",
+              "items": {
+                "$ref": "#/definitions/ConditionBranchConfig"
+              }
+            },
+            "UntilWindowCloses": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Automatically stops recording when target window is closed."
+            },
+            "DurationSeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "description": "Used by 'RecordVideo' step: Maximum recording duration in seconds (0 = unlimited / until stopped or window closed)."
+            },
+            "OutputDirectory": {
+              "type": "string",
+              "description": "Used by 'RecordVideo' step: the directory for the video, supports %VAR% expansion. Without it the video goes to the Videos folder."
+            },
+            "FilenamePattern": {
+              "type": "string",
+              "description": "Used by 'RecordVideo' step: the file name in OutputDirectory, {yyyyMMdd_HHmmss} is the start time (default 'Greenshot_{yyyyMMdd_HHmmss}.mp4')."
+            },
+            "Preset": {
+              "type": "string",
+              "enum": [
+                "SmallSize",
+                "Balanced",
+                "HighQuality",
+                "HighFrameRateGaming",
+                "Custom"
+              ],
+              "default": "Balanced",
+              "description": "Used by 'RecordVideo' step: Pre-configured quality and framerate preset."
+            },
+            "Format": {
+              "type": "string",
+              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
+            },
+            "HdrFormat": {
+              "anyOf": [ { "type": "string", "enum": [ "None", "Auto", "Jxr" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "None",
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting; something brighter than SDR white or outside sRGB) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved quietly. To tell or ask the user, check ${payload.hdr} (Available, Lost, None) before, e.g. with a UserPrompt step, or use NoHdrNote of the Notification step."
+            },
+            "IfFileExists": {
+              "anyOf": [ { "type": "string", "enum": [ "Overwrite", "Ask", "AddNumber" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'SaveFile' and 'Destinations' steps: what happens when the file exists. Overwrite; Ask: the save dialog suggests the next free name (without a user to ask, e.g. a command line capture, the name gets a number); AddNumber: the first free 'name (2).png', 'name (3).png', ... Without it the setting OutputFileIfExists decides."
+            },
+            "AskForFilename": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'SaveFile' step: ask for the file with the save dialog instead of saving directly to the configured location. With HdrFormat the dialog suggests the HDR format; picking another format saves the normal file. Without a user to ask (e.g. a command line capture) the file is saved directly."
+            },
+            "NoHdrNote": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'Notification' step: say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat."
+            },
+            "FrameRate": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 240,
+              "default": 30,
+              "description": "Used by 'RecordVideo' step: Target recording frames per second (e.g. 15, 30, 60, 144)."
+            },
+            "Bitrate": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Target video bitrate in bits per second (e.g. 2500000)."
+            },
+            "TargetWidth": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Downscaled/upscaled video width in pixels."
+            },
+            "TargetHeight": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Downscaled/upscaled video height in pixels."
+            },
+            "ScaleFactor": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 2.0,
+              "description": "Used by 'RecordVideo' step: Uniform scaling factor applied to frames (e.g. 0.5, 0.75)."
+            },
+            "ColorMode": {
+              "type": "string",
+              "enum": [
+                "FullColor",
+                "Grayscale"
+              ],
+              "default": "FullColor",
+              "description": "Used by 'RecordVideo' step: Color mode for recorded frames."
+            },
+            "ShowCaptureBorder": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'RecordVideo' step: Displays OS yellow capture border during recording (Windows 11+)."
+            },
+            "WindowResizeBehavior": {
+              "type": "string",
+              "enum": [
+                "LetterboxFixedCanvas",
+                "CropToCanvas",
+                "ScaleContent"
+              ],
+              "default": "LetterboxFixedCanvas",
+              "description": "Used by 'RecordVideo' step: How canvas handles target window size changes."
+            },
+            "AudioSource": {
+              "type": "string",
+              "enum": [
+                "None",
+                "Microphone",
+                "SystemAudioLoopback"
+              ],
+              "default": "None",
+              "description": "Used by 'RecordVideo' step: Audio source recorded alongside video track."
+            },
+            "PreventSleepWhileRecording": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Prevents system idle sleep while recording."
+            },
+            "AutoPauseOnSessionLock": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Pauses recording automatically when workstation is locked."
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "ConditionBranchConfig": {
+      "type": "object",
+      "required": [
+        "Key",
+        "Expression"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "Key": {
+          "type": "string",
+          "description": "Unique branch key / pin identifier (e.g. 'A', 'B', 'true', 'false')."
+        },
+        "Expression": {
+          "type": "string",
+          "description": "Dynamic expression (${...}) or 'else' evaluated at runtime."
+        }
+      }
+    },
+    "AnnotationElementConfig": {
+      "type": "object",
+      "required": [
+        "Type"
+      ],
+      "properties": {
+        "Type": {
+          "type": "string",
+          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
+        },
+        "HorizontalAnchor": {
+          "type": "string",
+          "enum": [
+            "Left",
+            "Center",
+            "Right"
+          ],
+          "description": "Horizontal alignment anchor relative to the capture payload surface."
+        },
+        "VerticalAnchor": {
+          "type": "string",
+          "enum": [
+            "Top",
+            "Center",
+            "Bottom"
+          ],
+          "description": "Vertical alignment anchor relative to the capture payload surface."
+        },
+        "Left": {
+          "description": "Distance from the left edge, or expression (e.g. 20, '${payload.width - 200}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Top": {
+          "description": "Distance from the top edge, or expression (e.g. 15, '${payload.height - 50}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Right": {
+          "description": "Distance from the right edge, or expression.",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Bottom": {
+          "description": "Distance from the bottom edge, or expression.",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Width": {
+          "description": "Width or expression (e.g. 250, '${payload.width / 2}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Height": {
+          "description": "Height or expression (e.g. 60, '${payload.height * 0.1}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "OffsetX": {
+          "description": "Horizontal offset applied to anchor/coordinate (e.g. -20).",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "OffsetY": {
+          "description": "Vertical offset applied to anchor/coordinate (e.g. -15).",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "Text": {
+          "type": "string",
+          "description": "Text content for Text, Speechbubble, or StepLabel (supports string interpolation like 'User: ${user.username} on ${machine.computername} at ${now:yyyy-MM-dd}')."
+        },
+        "LineColor": {
+          "type": "string",
+          "description": "Stroke/border/text color."
+        },
+        "FillColor": {
+          "type": "string",
+          "description": "Fill/background color."
+        },
+        "LineThickness": {
+          "type": "integer",
+          "description": "Line thickness in pixels."
+        },
+        "FontSize": {
+          "type": "number",
+          "description": "Font size in points."
+        },
+        "FontFamily": {
+          "type": "string",
+          "description": "Font family name."
+        },
+        "Bold": {
+          "type": "boolean",
+          "description": "Font bold weight."
+        },
+        "Italic": {
+          "type": "boolean",
+          "description": "Italic font style."
+        },
+        "TextAlign": {
+          "type": "string",
+          "enum": [
+            "Left",
+            "Center",
+            "Right"
+          ],
+          "description": "Horizontal alignment of the text inside the element."
+        },
+        "Shadow": {
+          "type": "boolean",
+          "description": "Whether to render a drop shadow for the element."
+        },
+        "FilePath": {
+          "type": "string",
+          "description": "File path for Image (bitmap or SVG), Icon or Cursor annotations; instead of ImageData."
+        },
+        "ImageData": {
+          "type": "string",
+          "description": "The file contents (PNG, JPEG, SVG, cursor, ...) Base64 encoded, for Image or Cursor annotations; instead of FilePath."
+        },
+        "CursorName": {
+          "type": "string",
+          "enum": [
+            "AppStarting",
+            "Arrow",
+            "Cross",
+            "Hand",
+            "Help",
+            "IBeam",
+            "No",
+            "SizeAll",
+            "SizeNESW",
+            "SizeNS",
+            "SizeNWSE",
+            "SizeWE",
+            "UpArrow",
+            "Wait"
+          ],
+          "description": "Standard Windows cursor preset name for Cursor annotations."
+        },
+        "HotspotX": {
+          "type": "integer",
+          "description": "Horizontal hotspot coordinate offset in pixels for Cursor annotations."
+        },
+        "HotspotY": {
+          "type": "integer",
+          "description": "Vertical hotspot coordinate offset in pixels for Cursor annotations."
+        },
+        "LockAspectRatio": {
+          "type": "boolean",
+          "description": "Whether to preserve the width-to-height aspect ratio when resizing or configuring the annotation."
+        },
+        "ArrowHeads": {
+          "type": "string",
+          "enum": [
+            "END_POINT",
+            "START_POINT",
+            "BOTH",
+            "NONE"
+          ],
+          "description": "Arrowheads rendering placement for Arrow annotations."
+        },
+        "Number": {
+          "type": "integer",
+          "description": "Counter sequence number for StepLabel annotations."
+        },
+        "BlurRadius": {
+          "type": "integer",
+          "description": "Blur kernel radius in pixels for Blur annotations."
+        },
+        "PixelSize": {
+          "type": "integer",
+          "description": "Pixel block size in pixels for Pixelize annotations."
+        },
+        "MagnificationFactor": {
+          "type": "integer",
+          "description": "Magnification zoom multiplier (e.g. 2 for 2x zoom) for Magnify annotations."
+        },
+        "ForeColor": {
+          "type": "string",
+          "description": "Foreground or module color for QRCode or Barcode annotations."
+        },
+        "BackColor": {
+          "type": "string",
+          "description": "Background quiet-zone color for QRCode or Barcode annotations."
+        },
+        "RoundedDots": {
+          "type": "boolean",
+          "description": "Whether QRCode data modules are drawn as rounded dots instead of square blocks."
+        },
+        "Emoji": {
+          "type": "string",
+          "description": "Emoji character for Emoji annotations (e.g. '⚠️', '🔥', '✅')."
+        },
+        "Points": {
+          "type": "string",
+          "description": "Coordinates list for Freehand annotation (e.g. '10,10;20,30;50,80')."
+        },
+        "TailDirection": {
+          "type": "string",
+          "enum": [
+            "BottomLeft",
+            "BottomRight",
+            "BottomCenter",
+            "TopLeft",
+            "TopRight",
+            "TopCenter",
+            "Left",
+            "Right"
+          ],
+          "description": "Direction/placement preset of the tail for Speechbubble annotations."
+        },
+        "TailOffsetX": {
+          "type": "integer",
+          "description": "Horizontal pixel offset for Speechbubble tail."
+        },
+        "TailOffsetY": {
+          "type": "integer",
+          "description": "Vertical pixel offset for Speechbubble tail."
+        },
+        "TailX": {
+          "type": "integer",
+          "description": "Absolute X coordinate of the Speechbubble tail target."
+        },
+        "TailY": {
+          "type": "integer",
+          "description": "Absolute Y coordinate of the Speechbubble tail target."
+        },
+        "Size": {
+          "type": "integer",
+          "description": "Square size dimension (e.g. for icon, emoji, or square element)."
+        },
+        "Margin": {
+          "type": "integer",
+          "description": "Distance from the edge of the capture when anchored, in pixels."
+        },
+        "QuietZone": {
+          "type": "integer",
+          "description": "QRCode and Barcode: the empty border around the code, in modules."
+        }
+      },
+      "additionalProperties": true
+    },
+    "RecipeRequirement": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier of the required extension or plugin (e.g. 'Greenshot.Plugin.Zxing')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable display name of the required extension."
+        },
+        "minVersion": {
+          "type": "string",
+          "description": "Optional minimum version required for the extension (e.g. '1.3.0')."
+        },
+        "url": {
+          "type": "string",
+          "description": "Optional download or documentation URL where the extension can be obtained."
+        }
+      },
+      "additionalProperties": false
+    },
+    "TriggerConfig": {
+      "type": "object",
+      "required": [
+        "triggerType"
+      ],
+      "properties": {
+        "triggerType": {
+          "type": "string",
+          "enum": [
+            "Hotkey",
+            "ContextMenu",
+            "Editor",
+            "Clipboard",
+            "Manual",
+            "Schedule",
+            "Commandline",
+            "OpenFile",
+            "Extension",
+            "AiTool"
+          ],
+          "description": "The trigger mechanism type."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable label for this trigger."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this trigger is currently active."
+        },
+        "when": {
+          "type": "string",
+          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
+        },
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "Hotkey": {
+              "type": "string",
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Name}' for a hotkey of the general settings (e.g. '${config.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
+            },
+            "MenuItemText": {
+              "type": "string",
+              "description": "Custom label displayed in the Greenshot system tray context menu (ContextMenu trigger) or the image editor menu (Editor trigger)."
+            },
+            "Group": {
+              "type": "string",
+              "default": "Recipes",
+              "description": "Submenu group in the Greenshot system tray context menu (ContextMenu trigger) or image editor menu (Editor trigger). The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically."
+            },
+            "Order": {
+              "type": "integer",
+              "default": 0,
+              "description": "Sort order within the menu group; recipe name breaks ties."
+            },
+            "OnImageCopied": {
+              "type": "boolean",
+              "default": true,
+              "description": "For clipboard trigger: whether to trigger automatically when an image is copied to clipboard."
+            },
+            "Command": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Command name / verb invoked from CLI (e.g. 'qr', 'convert', 'ocr')."
+            },
+            "Description": {
+              "type": "string",
+              "description": "Human-readable description displayed in CLI recipe listings."
+            },
+            "FireAndForget": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the trigger runs asynchronously without blocking the caller."
+            },
+            "AllowBrowserInvocation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by Commandline trigger: allows this recipe to be started from a browser, via a greenshot:// URL or the browser extension. Off by default because any web page can open a greenshot:// URL."
+            },
+            "Stdout": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."
+            },
+            "ToolName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+              "description": "Used by AiTool trigger: the tool name AI tools use (greenshot-mcp)."
+            },
+            "Title": {
+              "type": "string",
+              "description": "Used by AiTool trigger: the name of the tool shown to people."
+            },
+            "ReadOnly": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by AiTool trigger: hint that the tool doesn't change anything (e.g. only captures)."
+            },
+            "Destructive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by AiTool trigger: hint that the tool can overwrite or delete something."
+            },
+            "MaxImageSize": {
+              "type": "integer",
+              "default": 1568,
+              "description": "Used by AiTool trigger: the image returned to the AI tool is scaled so its longest side is at most this many pixels, 0 keeps the original size."
+            },
+            "Arguments": {
+              "type": "array",
+              "description": "Explicit list of named arguments accepted from the command line (Commandline trigger) or the AI tool (AiTool trigger), their target context variables, requirement, and default values.",
+              "items": {
+                "$ref": "#/definitions/CommandlineArgument"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "CommandlineArgument": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "CLI argument name passed by user (e.g. 'file', 'format', 'lang')."
+        },
+        "variable": {
+          "type": "string",
+          "description": "Target flow context variable (e.g. 'Filename', 'Format'). Defaults to name if omitted."
+        },
+        "description": {
+          "type": "string",
+          "description": "Explanation of this argument displayed in CLI listings."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this argument is mandatory. Execution fails if not provided and no default exists."
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Default value applied when the argument is omitted by the user."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "String", "Integer", "Decimal", "Boolean", "FilePath", "DirectoryPath", "Enum", "Object", "Window", "Region" ],
+          "default": "String",
+          "description": "Type of the value. FilePath/DirectoryPath values are sanitized and resolved against the caller's working directory; Integer, Decimal and Boolean values are parsed; Enum values must be one of allowedValues. Window (AiTool triggers only): a window id from list_windows, resolved to the window. Region: 'x,y,width,height' in screen coordinates. Only declared arguments are accepted by a recipe."
+        },
+        "allowedValues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted values (required for type Enum, optional restriction for String)."
+        }
+      }
+    }
+  }
+}

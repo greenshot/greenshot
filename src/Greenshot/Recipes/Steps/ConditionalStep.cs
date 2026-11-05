@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
@@ -34,7 +35,7 @@ namespace Greenshot.Recipes.Steps
     /// engine when choosing the branch, so they are not evaluated as parameters (IEvaluatesOwnParameters).
     /// </summary>
     [StepInfo(WellKnownStepTypes.Conditional, "Conditional", "Continues with the conditional transitions of the first branch whose expression is true.", "Logic")]
-    [StepParameter("Branches", ContractDataType.Object, Required = true, SupportsExpressions = false,
+    [StepParameter("Branches", ContractDataType.Object, ValueType = typeof(List<ConditionalBranch>), Required = true, SupportsExpressions = false,
         Description = "List of { Key, Expression }; the first branch whose expression is true is taken, an Expression of else/default always matches")]
     public class ConditionalStep : ICaptureStep, IEvaluatesOwnParameters
     {

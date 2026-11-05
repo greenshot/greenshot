@@ -1,0 +1,98 @@
+{
+  "version": "2.0",
+  "id": "recipe_region_blue_border",
+  "name": "Region with Blue Border",
+  "description": "Interactive region capture that adds a 2px blue border and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "Region with Border Menu Item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "Region with Blue Border",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "Ctrl + Shift + B"
+      }
+    }
+  ],
+  "requires": [],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "enabled": true,
+      "parameters": {
+        "SelectionMode": "Region"
+      }
+    },
+    {
+      "id": "border",
+      "stepType": "Effect",
+      "name": "Add Blue Border",
+      "enabled": true,
+      "parameters": {
+        "Effect": "Border",
+        "Width": 2,
+        "Color": "#0000FF"
+      }
+    },
+    {
+      "id": "feedback",
+      "stepType": "ImmediateFeedback",
+      "name": "Camera Feedback",
+      "enabled": true,
+      "parameters": {
+        "PlaySound": true
+      }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "name": "Open Editor",
+      "enabled": true,
+      "parameters": {
+        "DestinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "border"
+      },
+      {
+        "from": "border",
+        "to": "feedback"
+      },
+      {
+        "from": "feedback",
+        "to": "destination"
+      }
+    ]
+  },
+  "showInContextMenu": true
+}

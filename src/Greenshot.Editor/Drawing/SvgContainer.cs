@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -27,8 +27,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Svg;
-
-using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -50,6 +48,11 @@ namespace Greenshot.Editor.Drawing
             Init();
             Size = new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
         }
+
+        /// <summary>
+        /// The SVG file contents
+        /// </summary>
+        public byte[] SvgContent => _svgContent?.ToArray();
 
         protected override void Init()
         {

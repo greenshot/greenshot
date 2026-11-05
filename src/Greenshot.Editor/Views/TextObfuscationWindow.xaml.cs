@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -51,7 +50,8 @@ namespace Greenshot.Editor.Views
 
         private readonly ISurface _surface;
         private readonly IEnumerable<IOcrLineFeature> _ocrLines;
-        private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
+        // The matched areas, with the height of the text line they are in
+        private readonly List<(NativeRect Bounds, int TextHeight)> _matches = new List<(NativeRect Bounds, int TextHeight)>();
         private readonly List<FilterContainer> _previewContainers = new List<FilterContainer>();
         private readonly DispatcherTimer _debounceTimer;
         private DrawingColor _highlightColor = DrawingColor.Yellow;
@@ -122,6 +122,8 @@ namespace Greenshot.Editor.Views
             VerticalPaddingSlider.Value = EditorConfig.TextObfuscationPaddingVertical;
             HorizontalOffsetSlider.Value = EditorConfig.TextObfuscationOffsetHorizontal;
             VerticalOffsetSlider.Value = EditorConfig.TextObfuscationOffsetVertical;
+            BlurRadiusSlider.Value = EditorConfig.BlurRadiusTextHeightPercent;
+            PixelSizeSlider.Value = EditorConfig.PixelSizeTextHeightPercent;
 
             if (!string.IsNullOrEmpty(EditorConfig.TextObfuscationEffect))
             {
@@ -149,6 +151,8 @@ namespace Greenshot.Editor.Views
             EditorConfig.TextObfuscationPaddingVertical = (int)VerticalPaddingSlider.Value;
             EditorConfig.TextObfuscationOffsetHorizontal = (int)HorizontalOffsetSlider.Value;
             EditorConfig.TextObfuscationOffsetVertical = (int)VerticalOffsetSlider.Value;
+            EditorConfig.BlurRadiusTextHeightPercent = (int)BlurRadiusSlider.Value;
+            EditorConfig.PixelSizeTextHeightPercent = (int)PixelSizeSlider.Value;
 
             if (EffectComboBox.SelectedItem is EffectItem item)
             {
@@ -240,7 +244,7 @@ namespace Greenshot.Editor.Views
         private void UpdatePreview()
         {
             ClearPreview();
-            _matchedBounds.Clear();
+            _matches.Clear();
 
             if (_surface == null || _ocrLines == null)
             {
@@ -259,7 +263,7 @@ namespace Greenshot.Editor.Views
 
             if (useRegex && !IsValidRegex(searchText))
             {
-                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": Invalid regex";
+                MatchCountTextBlock.Text = Texts.Editor.ObfuscateTextError + ": " + Texts.Editor.ObfuscateTextInvalidRegex;
                 return;
             }
 
@@ -275,7 +279,7 @@ namespace Greenshot.Editor.Views
                 }
 
                 ShowPreview();
-                MatchCountTextBlock.Text = string.Format(Texts.Editor.ObfuscateTextMatches, _matchedBounds.Count.ToString());
+                MatchCountTextBlock.Text = string.Format(Texts.Editor.ObfuscateTextMatches, _matches.Count.ToString());
             }
             catch (Exception ex)
             {
@@ -305,7 +309,7 @@ namespace Greenshot.Editor.Views
                 {
                     if (IsMatch(word.Text, searchText, useRegex))
                     {
-                        _matchedBounds.Add(ApplyPadding(word.Bounds));
+                        _matches.Add((ApplyPadding(word.Bounds), line.Bounds.Height));
                     }
                 }
             }
@@ -317,7 +321,7 @@ namespace Greenshot.Editor.Views
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matchedBounds.Add(ApplyPadding(line.Bounds));
+                    _matches.Add((ApplyPadding(line.Bounds), line.Bounds.Height));
                 }
             }
         }
@@ -371,9 +375,9 @@ namespace Greenshot.Editor.Views
                 return;
             }
 
-            foreach (var bounds in _matchedBounds)
+            foreach (var (bounds, textHeight) in _matches)
             {
-                FilterContainer container = CreateFilterContainer(item.Effect, bounds);
+                FilterContainer container = CreateFilterContainer(item.Effect, bounds, textHeight);
                 if (container != null)
                 {
                     _surface.AddElement(container, false);
@@ -399,7 +403,7 @@ namespace Greenshot.Editor.Views
             _surface.Invalidate();
         }
 
-        private FilterContainer CreateFilterContainer(PreparedFilter effect, NativeRect bounds)
+        private FilterContainer CreateFilterContainer(PreparedFilter effect, NativeRect bounds, int textHeight)
         {
             FilterContainer container = null;
 
@@ -407,16 +411,10 @@ namespace Greenshot.Editor.Views
             {
                 case PreparedFilter.PIXELIZE:
                 case PreparedFilter.BLUR:
-                    container = new ObfuscateContainer(_surface);
-                    container.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, effect);
-                    if (effect == PreparedFilter.PIXELIZE)
-                    {
-                        container.SetFieldValue(FieldType.PIXEL_SIZE, (int)PixelSizeSlider.Value);
-                    }
-                    else
-                    {
-                        container.SetFieldValue(FieldType.BLUR_RADIUS, (int)BlurRadiusSlider.Value);
-                    }
+                    var obfuscateContainer = new ObfuscateContainer(_surface);
+                    obfuscateContainer.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, effect);
+                    ObfuscationStrength.FitToText(obfuscateContainer, textHeight, (int)BlurRadiusSlider.Value, (int)PixelSizeSlider.Value);
+                    container = obfuscateContainer;
                     break;
 
                 case PreparedFilter.TEXT_HIGHTLIGHT:
@@ -488,9 +486,9 @@ namespace Greenshot.Editor.Views
 
             var containers = new DrawableContainerList();
 
-            foreach (var bounds in _matchedBounds)
+            foreach (var (bounds, textHeight) in _matches)
             {
-                FilterContainer container = CreateFilterContainer(item.Effect, bounds);
+                FilterContainer container = CreateFilterContainer(item.Effect, bounds, textHeight);
                 if (container != null)
                 {
                     containers.Add(container);

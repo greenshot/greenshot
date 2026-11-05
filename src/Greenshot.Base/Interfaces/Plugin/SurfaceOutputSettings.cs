@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -21,7 +21,6 @@
 
 using System.Collections.Generic;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
@@ -40,6 +39,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             Format = CoreConfig.OutputFileFormat;
             JPGQuality = CoreConfig.OutputFileJpegQuality;
             ReduceColors = CoreConfig.OutputFileReduceColors;
+            PngCompressionLevel = CoreConfig.OutputFilePngCompressionLevel;
         }
 
         public SurfaceOutputSettings(string format) : this()
@@ -74,9 +74,26 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public string Format { get; set; }
 
+        /// <summary>
+        /// An optional discriminator for encoded-image cache entries when output depends on settings not otherwise represented here.
+        /// Use the same key for equivalent output settings and different keys when they can produce different encoded data.
+        /// </summary>
+        public string EncodingCacheKey { get; set; }
+
         public int JPGQuality { get; set; }
 
+        /// <summary>
+        /// True to write the private details of ExportMetadata (window title, web address, text, barcodes) into the image:
+        /// set for files saved on this computer, and for a destination when the user chose to keep them
+        /// </summary>
+        public bool IncludePrivateMetadata { get; set; }
+
         public bool SaveBackgroundOnly { get; set; }
+
+        /// <summary>
+        /// zlib compression level (1-9) for PNG
+        /// </summary>
+        public int PngCompressionLevel { get; set; }
 
         public List<IEffect> Effects { get; } = new List<IEffect>();
 

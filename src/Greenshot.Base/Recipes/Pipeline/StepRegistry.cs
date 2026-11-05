@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,11 +22,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json.Serialization.Metadata;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Greenshot.Base.Core;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using log4net;
 
@@ -43,7 +43,16 @@ namespace Greenshot.Base.Recipes.Pipeline
         {
             public StepContract Contract;
             public Func<RecipeNodeConfig, ICaptureStep> Factory;
+            // The provider which registered the step type, null when it wasn't registered by a provider
+            public IRecipeStepProvider Provider;
         }
+
+        // The providers which registered their step types: the discovery only registers new ones
+        private readonly ConcurrentDictionary<IRecipeStepProvider, bool> _registeredProviders = new ConcurrentDictionary<IRecipeStepProvider, bool>();
+
+        // The provider which is registering its step types on this thread
+        [ThreadStatic]
+        private static IRecipeStepProvider _registeringProvider;
 
         private readonly ConcurrentDictionary<string, Registration> _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
 
@@ -57,10 +66,20 @@ namespace Greenshot.Base.Recipes.Pipeline
             if (contract == null) throw new ArgumentNullException(nameof(contract));
             if (string.IsNullOrWhiteSpace(contract.StepType)) throw new ArgumentException("The contract has no step type.", nameof(contract));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
+            foreach (var parameter in contract.Parameters.Where(p => p.ValueType != null))
+            {
+                if (!RecipeParameterTypes.IsKnown(parameter.ValueType))
+                {
+                    throw new InvalidOperationException($"Step type '{contract.StepType}': the type {parameter.ValueType} of the parameter '{parameter.Name}' is in no registered JSON context, " +
+                                                        $"add it with [JsonSerializable] to the context given to {nameof(RegisterJsonTypes)}.");
+                }
+            }
 
-            _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory };
+            _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory, Provider = _registeringProvider };
             Log.DebugFormat("Registered step type '{0}'", contract.StepType);
         }
+
+        public void RegisterJsonTypes(IJsonTypeInfoResolver resolver) => RecipeParameterTypes.AddJsonTypes(resolver);
 
         private Registration Find(string stepType, bool discover)
         {
@@ -89,6 +108,16 @@ namespace Greenshot.Base.Recipes.Pipeline
 
         public bool IsRegistered(string stepType) => Find(stepType, true) != null;
 
+        /// <summary>
+        /// Determines whether a step exports the capture. Core step types are identified centrally;
+        /// plugin-provided export steps are identified by their registered Export category.
+        /// </summary>
+        public bool IsDestinationStep(string stepType)
+        {
+            if (WellKnownStepTypes.IsDestination(stepType)) return true;
+            return string.Equals(GetContract(stepType)?.Category, "Export", StringComparison.OrdinalIgnoreCase);
+        }
+
         public IReadOnlyCollection<string> RegisteredStepTypes
         {
             get
@@ -106,7 +135,14 @@ namespace Greenshot.Base.Recipes.Pipeline
                 Log.DebugFormat("Recipe feature/editor is not enabled; skipping step registration for provider '{0}'", provider.GetType().Name);
                 return;
             }
+            if (!_registeredProviders.TryAdd(provider, true))
+            {
+                // Already registered: a lookup of an unknown step type doesn't run every provider again
+                return;
+            }
 
+            var previousProvider = _registeringProvider;
+            _registeringProvider = provider;
             try
             {
                 provider.RegisterSteps(this);
@@ -114,6 +150,26 @@ namespace Greenshot.Base.Recipes.Pipeline
             catch (Exception ex)
             {
                 Log.Error($"Error registering steps from provider {provider.GetType().Name}", ex);
+            }
+            finally
+            {
+                _registeringProvider = previousProvider;
+            }
+        }
+
+        /// <summary>
+        /// Removes the step types registered by the provider, recipes using them then show and handle them as unknown.
+        /// The provider has to be removed from the services first, otherwise the discovery registers it again.
+        /// </summary>
+        public void UnregisterProvider(IRecipeStepProvider provider)
+        {
+            if (provider == null) return;
+            _registeredProviders.TryRemove(provider, out _);
+            foreach (var registration in _registrations.Where(registration => ReferenceEquals(registration.Value.Provider, provider)).ToList())
+            {
+                // Only removes the step type when it wasn't registered again in the meantime
+                ((ICollection<KeyValuePair<string, Registration>>)_registrations).Remove(registration);
+                Log.DebugFormat("Removed step type '{0}'", registration.Key);
             }
         }
 

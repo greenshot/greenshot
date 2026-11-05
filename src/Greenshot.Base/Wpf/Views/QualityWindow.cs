@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,9 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
@@ -47,6 +47,11 @@ namespace Greenshot.Base.Wpf.Views
             _settings = settings;
             string title = Texts.Core.QualitydialogTitle;
             ThemedControls.ApplyDialogLook(this, title);
+            // The slider below is made in code, so it gets the slider style from here
+            Resources.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
+            });
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Topmost = true;
             Width = 380;

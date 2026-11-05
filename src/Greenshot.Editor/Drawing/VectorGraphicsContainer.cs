@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -118,13 +118,7 @@ namespace Greenshot.Editor.Drawing
         /// <inheritdoc cref="IDrawableContainer"/>
         public override void Draw(Graphics graphics, RenderMode rm)
         {
-            if (_cachedImage != null && _cachedImage.Size != Bounds.Size)
-            {
-                ResetCachedBitmap();
-            }
-
-            _cachedImage ??= ComputeBitmap();
-            if (_cachedImage == null)
+            if (RenderedImage == null)
             {
                 return;
             }
@@ -135,6 +129,22 @@ namespace Greenshot.Editor.Drawing
 
 
             graphics.DrawImage(_cachedImage, Bounds);
+        }
+
+        /// <summary>
+        /// The bitmap of the element at its size, as drawn; null when there is none
+        /// </summary>
+        internal Image RenderedImage
+        {
+            get
+            {
+                if (_cachedImage != null && _cachedImage.Size != Bounds.Size)
+                {
+                    ResetCachedBitmap();
+                }
+                _cachedImage ??= ComputeBitmap();
+                return _cachedImage;
+            }
         }
 
         /// <summary>

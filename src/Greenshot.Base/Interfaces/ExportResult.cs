@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -64,7 +64,19 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// The same result for another target (e.g. the destination picked in the picker).
         /// </summary>
-        public ExportResult WithTarget(string target) => new ExportResult(Status, FilePath, Uri, Error, target, ClearsModified, KeepsCapture, Exception);
+        public ExportResult WithTarget(string target) => new ExportResult(Status, FilePath, Uri, Error, target, ClearsModified, KeepsCapture, Exception) { ExportedBy = ExportedBy };
+
+        /// <summary>
+        /// The same result, exported by another destination than the one it is returned for (e.g. the one picked in the picker)
+        /// </summary>
+        public ExportResult WithExportedBy(IDestination destination) =>
+            new ExportResult(Status, FilePath, Uri, Error, Target, ClearsModified, KeepsCapture, Exception) { ExportedBy = destination };
+
+        /// <summary>
+        /// The destination which really exported the capture when it isn't the one the result is returned for (e.g. the picker
+        /// returns the result of the picked destination), null otherwise. Its message (and the icon of a notification) is about it.
+        /// </summary>
+        public IDestination ExportedBy { get; private set; }
 
         /// <summary>
         /// The exception which made the export fail, if any (for the log and the error report).

@@ -1,13 +1,11 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Base.Wpf.Views;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 
 namespace Greenshot.Plugin.RecipeEditor.Views
@@ -178,6 +176,15 @@ namespace Greenshot.Plugin.RecipeEditor.Views
                 {
                     displayControl.HotkeyString = newHotkey;
                 });
+            }
+        }
+
+        // Options can be added or changed while the trigger is shown
+        private void HotkeyOptions_DropDownOpened(object sender, EventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is TriggerItemViewModel trigger)
+            {
+                trigger.RefreshHotkeyOptions();
             }
         }
 

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -171,18 +171,19 @@ namespace Greenshot.Recipes
                 .Set(side, barHeight)
                 .Set("BackgroundColor", "${option.barColor}");
 
-            RecipeNodeConfig Text(string id, string anchor) => new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, "Caption text")
-                .Set("Type", "Text")
-                .Set("Text", "${option.text}")
-                .Set("FontSize", "${option.fontSize}")
-                .Set("LineColor", "${option.textColor}")
-                .Set("Shadow", false)
-                .Set("TextAlign", "Center")
-                .Set("Left", 0)
-                .Set("Width", "${payload.width}")
-                .Set("Height", barHeight)
-                .Set("VerticalAnchor", anchor)
-                .Set(anchor, 0);
+            RecipeNodeConfig Text(string id, string anchor) => RecipeStepConfig.CreateAnnotation(id, "Text", new Dictionary<string, object>
+            {
+                ["Text"] = "${option.text}",
+                ["FontSize"] = "${option.fontSize}",
+                ["LineColor"] = "${option.textColor}",
+                ["Shadow"] = false,
+                ["TextAlign"] = "Center",
+                ["Left"] = 0,
+                ["Width"] = "${payload.width}",
+                ["Height"] = barHeight,
+                ["VerticalAnchor"] = anchor,
+                [anchor] = 0
+            }).WithName("Caption text");
 
             var extension = CreateExtension(CaptionId, "Recipe.extension_caption", "Recipe.extension_caption_description", CaptionOrder)
                 .AddOption(Switch("Recipe.extension_caption_enabled"))

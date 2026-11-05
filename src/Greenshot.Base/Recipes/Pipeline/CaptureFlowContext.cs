@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Interfaces;
@@ -74,6 +73,21 @@ namespace Greenshot.Base.Recipes.Pipeline
         private IUserInteraction _userInteraction;
 
         /// <summary>
+        /// The export source of the capture, for a step which encodes it itself (e.g. an upload):
+        /// private details in the image need the user's OK of this flow, a flow without a window removes them
+        /// </summary>
+        public async Task<IExportSource> GetExportSourceAsync(CancellationToken cancellationToken = default)
+        {
+            if (Payload == null)
+            {
+                return null;
+            }
+            var source = await Payload.GetExportSourceAsync(Ui, cancellationToken).ConfigureAwait(false);
+            Core.Export.DestinationExporter.AskBeforePrivateMetadataLeaves(source, UserInteraction);
+            return source;
+        }
+
+        /// <summary>
         /// The recipe driving this flow.
         /// </summary>
         public CaptureRecipe Recipe { get; }
@@ -104,6 +118,19 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// to select a region on, and nothing was captured, so no capture feedback is given either.
         /// </summary>
         public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
+        /// The Source step captures with the HDR content of HDR displays (its Hdr parameter): the capture keeps it in ICapture.HdrImage,
+        /// for whatever uses it later (e.g. the HdrFormat of SaveFile). Read by the code which takes the capture, also after the selection
+        /// on the live screen.
+        /// </summary>
+        public bool CaptureHdr { get; set; }
+
+        /// <summary>
+        /// The Source step asks for HDR explicitly (Hdr true, not only the setting): the HDR image is marked as requested (HdrImage.IsRequested),
+        /// so Save as suggests JPEG XR
+        /// </summary>
+        public bool CaptureHdrRequested { get; set; }
 
         /// <summary>
         /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
@@ -156,6 +183,8 @@ namespace Greenshot.Base.Recipes.Pipeline
             Recipe = recipe ?? throw new ArgumentNullException(nameof(recipe));
             Trigger = trigger;
             CancellationToken = cancellationToken;
+            // From the start: the contexts of the nodes and branches copy the properties, so they all add to this one log
+            Properties[ExportLog.PropertyName] = new ExportLog();
         }
 
         /// <summary>

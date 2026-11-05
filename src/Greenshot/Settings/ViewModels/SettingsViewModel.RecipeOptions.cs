@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,15 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Wpf;
 using Greenshot.Recipes;
-using Greenshot.Base.Languages;
 
 namespace Greenshot.Settings.ViewModels
 {
@@ -48,6 +42,16 @@ namespace Greenshot.Settings.ViewModels
         public ObservableCollection<RecipeChangeViewModel> RecipeChanges { get; } = new ObservableCollection<RecipeChangeViewModel>();
 
         public bool HasRecipeOptions => RecipeOptionGroups.Count > 0;
+
+        /// <summary>
+        /// "Get More Recipes" opens the recipe catalog (beta)
+        /// </summary>
+        public bool CanGetMoreRecipes => Greenshot.Recipes.Catalog.RecipeCatalogInstaller.CanGetMoreRecipes(CoreConfiguration);
+
+        /// <summary>
+        /// The Recipes tab: options to set, or the catalog to get recipes from
+        /// </summary>
+        public bool HasRecipesTab => HasRecipeOptions || CanGetMoreRecipes;
 
         public bool HasRecipeChanges => RecipeChanges.Count > 0;
 
@@ -68,7 +72,8 @@ namespace Greenshot.Settings.ViewModels
                     group.Changed += (sender, args) => UpdateRecipeChanges();
                     RecipeOptionGroups.Add(group);
                 }
-                foreach (var recipe in _recipesForOptions.Where(r => r.HasOptions))
+                // Hotkey options are on the General tab
+                foreach (var recipe in _recipesForOptions.Where(r => r.HasOptions && r.Options.Any(o => o != null && o.Type != Greenshot.Base.Recipes.Contracts.ContractDataType.Hotkey)))
                 {
                     RecipeOptionGroups.Add(new RecipeOptionGroupViewModel(recipe, null));
                 }
@@ -79,6 +84,7 @@ namespace Greenshot.Settings.ViewModels
             }
             UpdateRecipeChanges();
             OnPropertyChanged(nameof(HasRecipeOptions));
+            OnPropertyChanged(nameof(HasRecipesTab));
         }
 
         /// <summary>
@@ -93,12 +99,12 @@ namespace Greenshot.Settings.ViewModels
             // One line per combination of extensions, with the recipes they change
             RecipeChanges.Clear();
             var combinations = _recipesForOptions
-                .Select(recipe => (Recipe: recipe, Extensions: string.Join(", ", RecipeComposer.FindApplicableExtensions(recipe, extensions, SettingsOf).Select(e => RecipeText.Translate(e.Name ?? e.Id)))))
+                .Select(recipe => (Recipe: recipe, Extensions: string.Join(", ", RecipeComposer.FindApplicableExtensions(recipe, extensions, SettingsOf).Select(e => e.DisplayName))))
                 .Where(c => c.Extensions.Length > 0)
                 .GroupBy(c => c.Extensions);
             foreach (var combination in combinations)
             {
-                RecipeChanges.Add(new RecipeChangeViewModel(combination.Key, string.Join(", ", combination.Select(c => c.Recipe.Name ?? c.Recipe.Id))));
+                RecipeChanges.Add(new RecipeChangeViewModel(combination.Key, string.Join(", ", combination.Select(c => c.Recipe.DisplayName))));
             }
             OnPropertyChanged(nameof(HasRecipeChanges));
             OnPropertyChanged(nameof(HasNoRecipeChanges));

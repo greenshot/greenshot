@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,14 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
+
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Destinations
@@ -45,9 +44,7 @@ namespace Greenshot.Destinations
         /// </summary>
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var destinations = DestinationHelper.GetAllDestinations()
-                .Where(destination => !Designation.Equals(destination.Designation) && destination.IsAvailableFor(request.Metadata))
-                .ToList();
+            var destinations = DestinationHelper.GetChoices(request.Metadata);
 
             while (true)
             {
@@ -61,7 +58,7 @@ namespace Greenshot.Destinations
                 if (result.IsSucceeded)
                 {
                     // The caller applies the result (messages, surface state) for the picked destination
-                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName);
+                    return result.WithTarget(result.Target ?? picked.Descriptor.DisplayName).WithExportedBy(result.ExportedBy ?? picked);
                 }
 
                 // Export cancelled or failed: show the problem, and the picker again

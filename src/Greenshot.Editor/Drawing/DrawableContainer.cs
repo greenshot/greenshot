@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -324,19 +324,13 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                foreach (IFilter filter in Filters)
+                if (HasInvertedFilter && _parent?.Image != null)
                 {
-                    if (filter.Invert)
-                    {
-                        return new NativeRect(Point.Empty, _parent.Image.Size);
-                    }
+                    return new NativeRect(Point.Empty, _parent.Image.Size);
                 }
 
-                // Take a base safety margin
+                // Take a base safety margin, the adorners are drawn in screen pixels: the surface adds their size when invalidating
                 int lineThickness = 5;
-
-                // add adorner size
-                lineThickness += Adorners.Max(adorner => Math.Max(adorner.Bounds.Width, adorner.Bounds.Height));
 
                 if (HasField(FieldType.LINE_THICKNESS))
                 {
@@ -408,7 +402,43 @@ namespace Greenshot.Editor.Drawing
             Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
         }
 
-        public bool HasFilters => Filters.Count > 0;
+        /// <summary>
+        /// True if one of the children is a filter, without creating the list of filters (called for every element on every paint)
+        /// </summary>
+        public bool HasFilters
+        {
+            get
+            {
+                foreach (IFieldHolder child in Children)
+                {
+                    if (child is IFilter)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// True if one of the filters is inverted, it covers the image outside the element
+        /// </summary>
+        public bool HasInvertedFilter
+        {
+            get
+            {
+                foreach (IFieldHolder child in Children)
+                {
+                    if (child is IFilter { Invert: true })
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
@@ -744,32 +774,28 @@ namespace Greenshot.Editor.Drawing
         /// <param name="surface">The surface the container belongs to.</param>
         public void SnapToEdge(Direction direction, Size surfaceSize)
         {
-            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
-
-            this.MakeBoundsChangeUndoable(allowMerge: false);
-            this.ApplyBounds(newBounds);
-        }
-
-        private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)
-        {
+            var bounds = Bounds;
+            int dx = 0;
+            int dy = 0;
             switch (direction)
             {
                 case Direction.LEFT:
-                    bounds = bounds.ChangeX(0);
+                    dx = -bounds.Left;
                     break;
                 case Direction.RIGHT:
-                    bounds = bounds.Offset(offsetX: surfaceSize.Width - bounds.Right);
+                    dx = surfaceSize.Width - bounds.Right;
                     break;
                 case Direction.TOP:
-                    bounds = bounds.ChangeY(0);
+                    dy = -bounds.Top;
                     break;
                 case Direction.BOTTOM:
-                    bounds = bounds.Offset(offsetY: surfaceSize.Height - bounds.Bottom);
-                    break;
-                default:
+                    dy = surfaceSize.Height - bounds.Bottom;
                     break;
             }
-            return bounds;
+            this.Invalidate();
+            // Offset the raw bounds so negative dimensions keep their direction.
+            this.ApplyBounds(new NativeRectFloat(Left + dx, Top + dy, Width, Height));
+            this.Invalidate();
         }
     }
 }

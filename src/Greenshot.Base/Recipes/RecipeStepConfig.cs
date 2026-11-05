@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -75,12 +75,9 @@ namespace Greenshot.Base.Recipes
         private static void InsertBefore(CaptureRecipe recipe, RecipeNodeConfig node, string targetId)
         {
             var flow = recipe.Flow;
-            foreach (var targets in flow.Transitions.Values)
+            foreach (var transition in flow.Transitions.Where(t => t.IsPlain && string.Equals(t.To, targetId, StringComparison.OrdinalIgnoreCase)))
             {
-                for (int i = 0; i < targets.Count; i++)
-                {
-                    if (string.Equals(targets[i], targetId, StringComparison.OrdinalIgnoreCase)) targets[i] = node.Id;
-                }
+                transition.To = node.Id;
             }
             for (int i = 0; i < flow.StartNodes.Count; i++)
             {
@@ -93,8 +90,9 @@ namespace Greenshot.Base.Recipes
         private static void InsertAfter(CaptureRecipe recipe, RecipeNodeConfig node, string sourceId)
         {
             var flow = recipe.Flow;
-            flow.Transitions.TryGetValue(sourceId, out var next);
-            flow.Transitions[sourceId] = new List<string> { node.Id };
+            var next = flow.GetTargets(sourceId);
+            flow.Transitions.RemoveAll(t => t.IsPlain && string.Equals(t.From, sourceId, StringComparison.OrdinalIgnoreCase));
+            flow.AddTransition(sourceId, node.Id);
             if (next != null && next.Count > 0)
             {
                 flow.AddTransitions(node.Id, next);
@@ -125,11 +123,11 @@ namespace Greenshot.Base.Recipes
             string id = "save_file",
             string saveDirectory = null,
             string filenamePattern = null,
-            bool? allowOverwrite = null,
+            FileExistsAction? ifFileExists = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
         {
-            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, allowOverwrite, jpegQuality, reduceColors);
+            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, ifFileExists, jpegQuality, reduceColors);
             return node;
         }
 
@@ -164,26 +162,27 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> parameters = null)
+        /// <summary>
+        /// An Annotation node with one annotation of the type, with its properties (see <see cref="AnnotationProperties"/>)
+        /// </summary>
+        public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> properties = null)
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}");
-            node.Set("Type", annotationType);
-            if (parameters != null)
+            var annotation = new Dictionary<string, object> { ["Type"] = annotationType };
+            if (properties != null)
             {
-                foreach (var kvp in parameters)
+                foreach (var kvp in properties)
                 {
-                    node.Set(kvp.Key, kvp.Value);
+                    annotation[kvp.Key] = kvp.Value;
                 }
             }
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}")
+                .Set("Annotations", new List<Dictionary<string, object>> { annotation });
         }
 
-        public static RecipeNodeConfig CreateSetVariable(string id = "set_var", string variable = null, object value = null)
+        public static RecipeNodeConfig CreateSetVariable(string id, string variable, object value)
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.SetVariable, "Set Variable");
-            if (variable != null) node.Set("Variable", variable);
-            if (value != null) node.Set("Value", value);
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.SetVariable, "Set Variable")
+                .Set("Variables", new Dictionary<string, object> { [variable] = value });
         }
 
         public static RecipeNodeConfig CreateFeedback(string id = "feedback", bool? playSound = null)
@@ -193,18 +192,9 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
+        public static RecipeNodeConfig CreateOcr(string id = "ocr")
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Processors, "Run Processors");
-            if (processorIds != null)
-            {
-                node.Set("ProcessorIds", new List<string>(processorIds));
-            }
-            if (timing.HasValue)
-            {
-                node.Set("Timing", timing.Value.ToString());
-            }
-            return node;
+            return new RecipeNodeConfig(id, WellKnownStepTypes.Ocr, "OCR");
         }
 
         public static RecipeNodeConfig CreateSaveFile(
@@ -212,7 +202,7 @@ namespace Greenshot.Base.Recipes
             string saveDirectory = null,
             string filenamePattern = null,
             string format = null,
-            bool? allowOverwrite = null,
+            FileExistsAction? ifFileExists = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
         {
@@ -220,7 +210,7 @@ namespace Greenshot.Base.Recipes
             if (!string.IsNullOrEmpty(saveDirectory)) node.Set("SaveDirectory", saveDirectory);
             if (!string.IsNullOrEmpty(filenamePattern)) node.Set("FilenamePattern", filenamePattern);
             if (!string.IsNullOrEmpty(format)) node.Set("Format", format);
-            if (allowOverwrite.HasValue) node.Set("AllowOverwrite", allowOverwrite.Value);
+            if (ifFileExists.HasValue) node.Set("IfFileExists", ifFileExists.Value.ToString());
             if (jpegQuality.HasValue) node.Set("JpegQuality", jpegQuality.Value);
             if (reduceColors.HasValue) node.Set("ReduceColors", reduceColors.Value);
             return node;
@@ -293,23 +283,9 @@ namespace Greenshot.Base.Recipes
         public static RecipeNodeConfig CreateConditional(string id = "conditional", IEnumerable<KeyValuePair<string, string>> branches = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Conditional, "Decision Branch");
-            var branchList = new List<Dictionary<string, string>>();
-            if (branches != null)
-            {
-                foreach (var b in branches)
-                {
-                    branchList.Add(new Dictionary<string, string>
-                    {
-                        ["Key"] = b.Key,
-                        ["Expression"] = b.Value
-                    });
-                }
-            }
-            else
-            {
-                branchList.Add(new Dictionary<string, string> { ["Key"] = "A", ["Expression"] = "${payload.width > 800}" });
-                branchList.Add(new Dictionary<string, string> { ["Key"] = "B", ["Expression"] = "else" });
-            }
+            var branchList = branches != null
+                ? branches.Select(b => new ConditionalBranch(b.Key, b.Value)).ToList()
+                : new List<ConditionalBranch> { new ConditionalBranch("A", "${payload.width > 800}"), new ConditionalBranch("B", "else") };
             node.Set("Branches", branchList);
             return node;
         }
@@ -319,27 +295,18 @@ namespace Greenshot.Base.Recipes
             string title = "User Decision",
             string message = "Please choose how to proceed with this capture:",
             bool showPreview = true,
-            IEnumerable<Dictionary<string, object>> choices = null,
-            int timeoutSeconds = 0,
-            string defaultChoice = null)
+            IEnumerable<PromptChoice> choices = null,
+            int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.UserPrompt, title ?? "User Decision");
             node.Set("Title", title ?? "User Decision");
             node.Set("Message", message ?? "Please choose how to proceed with this capture:");
             node.Set("ShowPreview", showPreview);
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
-            if (!string.IsNullOrEmpty(defaultChoice)) node.Set("DefaultChoice", defaultChoice);
 
-            var choiceList = new List<Dictionary<string, object>>();
-            if (choices != null)
-            {
-                choiceList.AddRange(choices);
-            }
-            else
-            {
-                choiceList.Add(new Dictionary<string, object> { ["Key"] = "Yes", ["Label"] = "Yes, Proceed", ["Style"] = "Primary", ["IsDefault"] = true });
-                choiceList.Add(new Dictionary<string, object> { ["Key"] = "No", ["Label"] = "No, Cancel", ["Style"] = "Secondary", ["IsCancel"] = true });
-            }
+            var choiceList = choices != null
+                ? choices.ToList()
+                : new List<PromptChoice> { new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true), new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true) };
             node.Set("Choices", choiceList);
             return node;
         }
@@ -348,14 +315,12 @@ namespace Greenshot.Base.Recipes
             string id = "dynamic_export",
             string title = "Export Capture",
             bool showPreview = true,
-            bool allowRecipeForwarding = true,
             IEnumerable<string> destinations = null,
             int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.DynamicDestination, title ?? "Export Capture");
             node.Set("Title", title ?? "Export Capture");
             node.Set("ShowPreview", showPreview);
-            node.Set("AllowRecipeForwarding", allowRecipeForwarding);
             if (destinations != null) node.Set("Destinations", destinations.ToList());
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             return node;

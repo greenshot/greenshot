@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -19,9 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Greenshot.Plugin.Zxing.Drawing;
 
 namespace Greenshot.Plugin.Zxing;
@@ -35,14 +37,14 @@ public class ZxingEditorPlugin : IEditorPlugin
         _config = config;
     }
 
-    public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, ISurface surface)
+    public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, Func<ISurface> currentSurface)
     {
-        var menuItem = new ToolStripMenuItem("Insert QR / Barcode...", null, (s, e) =>
+        var menuItem = new ToolStripMenuItem(Texts.Get<IZxingLanguage>().EditorMenu, null, (s, e) =>
         {
             var window = new Views.ZxingEditorWindow();
             if (window.ShowDialog(editorForm) == true && window.GeneratedBitmap != null)
             {
-                var container = surface.AddImageContainer(window.GeneratedBitmap, 50, 50);
+                var container = currentSurface().AddImageContainer(window.GeneratedBitmap, 50, 50);
                 var model = new ZxingModel();
                 window.PopulateModel(model);
                 container.Tag = model;

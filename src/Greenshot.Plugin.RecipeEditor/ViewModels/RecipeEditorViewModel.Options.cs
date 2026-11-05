@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Wpf;
@@ -67,12 +68,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 key = $"option{i}";
             }
-            var option = new RecipeOption { Key = key, Type = ContractDataType.Boolean, DefaultValue = false, Label = "New option" };
+            var option = new RecipeOption { Key = key, Type = ContractDataType.Boolean, DefaultValue = false, Label = Texts.Get<IRecipeEditorLanguage>().NewOptionLabel };
             ActiveRecipe.Options.Add(option);
             RecipeOptions.Add(new RecipeOptionItemViewModel(option, RemoveOption));
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
-            StatusMessage = $"Added option '{key}': the steps read it with ${{option.{key}}}";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionAdded, key, "${option." + key + "}");
         }
 
         private void RemoveOption(RecipeOptionItemViewModel item)
@@ -85,8 +87,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
             RecipeOptions.Remove(item);
             OnPropertyChanged(nameof(HasRecipeOptions));
+            LoadTranslationRows();
             IsDirty = true;
-            StatusMessage = $"Removed option '{item.Key}'";
+            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusOptionRemoved, item.Key);
         }
     }
 
@@ -127,6 +130,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (!Enum.TryParse<ContractDataType>(value, out var type) || type == Option.Type) return;
                 Option.Type = type;
+                // What only an other type uses doesn't stay in the file
+                if (!IsNumber)
+                {
+                    Option.Min = null;
+                    Option.Max = null;
+                }
+                if (!IsEnum)
+                {
+                    Option.Choices = null;
+                }
+                if (!CanBeTemplate)
+                {
+                    Option.Format = null;
+                }
+                if (!CanBeQuickSetting)
+                {
+                    Option.QuickSettings = false;
+                }
                 // The default fits the new type, or it is the type's neutral value
                 if (!Option.TryConvert(Option.DefaultValue, out _))
                 {
@@ -136,8 +157,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DefaultText));
                 OnPropertyChanged(nameof(IsNumber));
+                OnPropertyChanged(nameof(MinText));
+                OnPropertyChanged(nameof(MaxText));
                 OnPropertyChanged(nameof(IsEnum));
+                OnPropertyChanged(nameof(ChoicesText));
                 OnPropertyChanged(nameof(CanBeQuickSetting));
+                OnPropertyChanged(nameof(QuickSettings));
+                OnPropertyChanged(nameof(CanBeTemplate));
+                OnPropertyChanged(nameof(IsTemplate));
             }
         }
 
@@ -148,17 +175,23 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool CanBeQuickSetting => RecipeOption.QuickSettingsTypes.Contains(Option.Type);
 
         /// <summary>
+        /// Only a String option can be a template
+        /// </summary>
+        public bool CanBeTemplate => Option.Type == ContractDataType.String;
+
+        /// <summary>
         /// How a step uses it
         /// </summary>
         public string UsageText => $"${{option.{Option.Key}}}";
 
         public string DefaultText
         {
-            get => Convert.ToString(Option.DefaultValue is Newtonsoft.Json.Linq.JValue j ? j.Value : Option.DefaultValue, CultureInfo.InvariantCulture);
+            get => Convert.ToString(Option.DefaultValue, CultureInfo.InvariantCulture);
             set
             {
-                // Stored as the type when it fits, as text otherwise (the check reports it)
-                Option.DefaultValue = Option.TryConvert(value, out var converted) ? converted : value;
+                // Stored as the type when it fits, as text otherwise (the check reports it).
+                // A folder keeps its ${user.*} values, the file is used on other PCs.
+                Option.DefaultValue = Option.Type != ContractDataType.DirectoryPath && Option.TryConvert(value, out var converted) ? converted : value;
                 OnPropertyChanged();
             }
         }

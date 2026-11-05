@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,7 +26,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using log4net;
 using Greenshot.Base.Threading;
@@ -175,9 +174,15 @@ namespace Greenshot.Base.Controls
             base.OnHandleCreated(e);
             if (!DesignMode)
             {
-                WindowFrameTheme.Attach(Handle);
+                WindowFrameTheme.Attach(Handle, IsDarkTitleBar);
             }
         }
+
+        /// <summary>
+        /// A form with its own theme setting (the editor) decides here if its title bar is dark, null follows Greenshot's theme.
+        /// When the answer changes, the form calls <see cref="WindowFrameTheme.Update"/>.
+        /// </summary>
+        protected virtual Func<bool> IsDarkTitleBar => null;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -194,7 +199,7 @@ namespace Greenshot.Base.Controls
             base.OnShown(e);
             if (ToFront)
             {
-                WindowDetails.ToForeground(Handle);
+                WindowHelper.ToForeground(Handle);
             }
         }
 

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,28 +24,26 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Wpf;
+using Greenshot.Capturing.Tools;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Dapplo.Ini.Internationalization;
+using Greenshot.Viewer;
 
 namespace Greenshot.Settings.ViewModels
 {
@@ -65,8 +63,9 @@ namespace Greenshot.Settings.ViewModels
         {
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+            ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
-            _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
+            _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;
@@ -76,7 +75,9 @@ namespace Greenshot.Settings.ViewModels
             
             // Initialize image formats
             InitializeImageFormats();
-            
+
+            InitializeFixedCaptureSizes();
+
             // Initialize window capture modes
             
             // Initialize destinations
@@ -84,6 +85,7 @@ namespace Greenshot.Settings.ViewModels
             
             // The options of the recipes (Greenshot Light: those of the built-in recipes)
             InitializeRecipeOptions();
+            InitializeHotkeys();
 
 #if !GREENSHOT_LIGHT
             // Plugins and AI tools: Greenshot Light has neither
@@ -96,6 +98,7 @@ namespace Greenshot.Settings.ViewModels
 
             // Initialize clipboard formats
             InitializeClipboardFormats();
+            InitializeExportMetadata();
 
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {
@@ -114,6 +117,8 @@ namespace Greenshot.Settings.ViewModels
         public ICoreConfiguration CoreConfiguration { get; }
 
         public IEditorConfiguration EditorConfiguration { get; }
+
+        public IViewerConfiguration ViewerConfiguration { get; }
         
         public bool PrintColor
         {
@@ -259,6 +264,90 @@ namespace Greenshot.Settings.ViewModels
 
         public List<ImageFormatViewModel> ImageFormats { get; private set; }
 
+        /// <summary>
+        /// The largest width or height of a new image in the editor
+        /// </summary>
+        public const int MaximumNewImageSize = 10000;
+
+        /// <summary>
+        /// The width of a new image in the editor (the "+" after the tabs, or the editor without a capture)
+        /// </summary>
+        public int NewImageWidth
+        {
+            get => EditorConfiguration.DefaultEditorSize.Width;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageWidth)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(value, NewImageHeight);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The height of a new image in the editor
+        /// </summary>
+        public int NewImageHeight
+        {
+            get => EditorConfiguration.DefaultEditorSize.Height;
+            set
+            {
+                if (value > 0 && value <= MaximumNewImageSize && value != NewImageHeight)
+                {
+                    EditorConfiguration.DefaultEditorSize = new NativeSize(NewImageWidth, value);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The color of a new image in the editor
+        /// </summary>
+        public System.Drawing.Color NewImageColor
+        {
+            get => EditorConfiguration.NewImageColor;
+            set
+            {
+                if (value == NewImageColor || EditorConfiguration.IsConstant(nameof(IEditorConfiguration.NewImageColor)))
+                {
+                    return;
+                }
+
+                EditorConfiguration.NewImageColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NewImageBrush));
+            }
+        }
+
+        public Brush NewImageBrush => new SolidColorBrush(Color.FromArgb(NewImageColor.A, NewImageColor.R, NewImageColor.G, NewImageColor.B));
+
+        /// <summary>
+        /// The chosen color of the viewer border, choosing one means the border doesn't follow the light or dark mode
+        /// </summary>
+        public System.Drawing.Color ViewerBorderColor
+        {
+            get => ViewerConfiguration.BorderColor;
+            set
+            {
+                if (ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColor)))
+                {
+                    return;
+                }
+
+                ViewerConfiguration.BorderColor = value;
+                if (!ViewerConfiguration.IsConstant(nameof(IViewerConfiguration.BorderColorFollowsTheme)))
+                {
+                    ViewerConfiguration.BorderColorFollowsTheme = false;
+                }
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ViewerBorderBrush));
+            }
+        }
+
+        public Brush ViewerBorderBrush => new SolidColorBrush(Color.FromArgb(ViewerBorderColor.A, ViewerBorderColor.R, ViewerBorderColor.G, ViewerBorderColor.B));
+
         public int IconSize
         {
             get => _iconSize;
@@ -331,7 +420,7 @@ namespace Greenshot.Settings.ViewModels
         {
             Destinations = new ObservableCollection<DestinationViewModel>();
             
-            var allDestinations = DestinationHelper.GetAllDestinations().ToList();
+            var allDestinations = GetListedDestinations();
             foreach (IDestination destination in allDestinations)
             {
                 // Skip picker - it's handled separately
@@ -354,11 +443,26 @@ namespace Greenshot.Settings.ViewModels
                 var destItem = new DestinationViewModel
                 {
                     Destination = destination,
+                    Designation = destination.Designation,
                     Description = description,
+                    // Before IsSelected: switching it off unselects, an output destination which is off stays in the settings
+                    IsAllowed = ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, destination.Designation),
+                    CanChangeAllowed = !AreDestinationExclusionsFixed && !ConfigurationRestrictions.IsDestinationBlockedByAdministrator(CoreConfiguration, destination.Designation),
                     IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
                 };
                 
                 Destinations.Add(destItem);
+            }
+
+            // Names in the settings which aren't registered, e.g. of a plugin which isn't installed
+            foreach (var designation in ConfigurationRestrictions.Names(CoreConfiguration.ExcludeDestinations)
+                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedDestinations))
+                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.AllowedDestinations))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .Where(designation => designation != nameof(WellKnownDestinations.Picker))
+                         .ToList())
+            {
+                AddUnregisteredDestination(designation);
             }
 
             // Resolve the destination icons asynchronously, the window opens right away
@@ -374,7 +478,10 @@ namespace Greenshot.Settings.ViewModels
             {
                 try
                 {
-                    destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination?.Descriptor?.IconKey).ConfigureAwait(true);
+                    if (destItem.Destination != null)
+                    {
+                        destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination.Descriptor?.IconKey).ConfigureAwait(true);
+                    }
                 }
                 catch (Exception)
                 {

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -109,6 +109,11 @@ namespace Greenshot.Editor.Drawing.Filters
         /// How many pixels around the repainted area the filter reads, e.g. the blur radius
         /// </summary>
         protected virtual int ClipMargin => 0;
+
+        /// <summary>
+        /// How many pixels around the repainted area the filter reads, for the surface to repaint them first
+        /// </summary>
+        internal int ReadMargin => ClipMargin;
 
         /// <summary>
         /// Executes the given render action within a clipped region for the specified rectangles.

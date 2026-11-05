@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,19 +20,18 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -41,9 +40,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes.Steps
 {
@@ -51,10 +48,10 @@ namespace Greenshot.Recipes.Steps
     /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
     /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Center/Bottom) positioning.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Adds annotations (shapes, text, arrows, icons, blur, stamps) to the capture. The properties of an annotation depend on its type.", "Annotations", AcceptsUndeclaredParameters = true)]
+    [StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Adds annotations (shapes, text, arrows, icons, blur, stamps) to the capture. The properties of an annotation depend on its type.", "Annotations")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
-    [StepParameter("Annotations", ContractDataType.Object, Description = "List of annotations; without it the node's own parameters describe one annotation")]
-    [StepParameter("Type", ContractDataType.String, DefaultValue = "Rectangle", Description = "Type of the annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, ...)")]
+    [StepParameter("Annotations", ContractDataType.Object, ValueType = typeof(List<Dictionary<string, object>>), Required = true, SupportsExpressions = false,
+        Description = "List of annotations: each has a Type (Text, Rectangle, Arrow, ...) and the properties of that type (see AnnotationProperties)")]
     public class AnnotationStep : ICaptureStep, IEvaluatesOwnParameters
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
@@ -99,30 +96,7 @@ namespace Greenshot.Recipes.Steps
                 ["h"] = surfaceHeight
             };
 
-            // Support either a single annotation defined in parameters, or a list under "Annotations"
-            var annotationConfigs = new List<Dictionary<string, object>>();
-
-            if (NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj != null)
-            {
-                if (annotationsObj is IEnumerable enumerable && !(annotationsObj is string))
-                {
-                    foreach (var item in enumerable)
-                    {
-                        if (item is Dictionary<string, object> d)
-                        {
-                            annotationConfigs.Add(d);
-                        }
-                        else if (item is JObject jObj)
-                        {
-                            annotationConfigs.Add(jObj.ToObject<Dictionary<string, object>>());
-                        }
-                    }
-                }
-            }
-            else
-            {
-                annotationConfigs.Add(NodeConfig.Parameters ?? new Dictionary<string, object>());
-            }
+            var annotationConfigs = NodeConfig.GetParameter<List<Dictionary<string, object>>>("Annotations") ?? new List<Dictionary<string, object>>();
 
             var elementsToAdd = new DrawableContainerList();
 
@@ -195,7 +169,6 @@ namespace Greenshot.Recipes.Steps
             registry.RegisterDrawableFactory("Icon", (s, p, c) => CreateIcon(s, p), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Cursor", (s, p, c) => CreateCursor(s, p), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Emoji", (s, p, c) => CreateEmoji(s, p), ScaleOptions.Rational);
-            registry.RegisterDrawableFactory("Svg", (s, p, c) => CreateSvg(s, p), ScaleOptions.Rational);
             registry.RegisterDrawableFactory("Blur", (s, p, c) => CreateObfuscate(s, p, "blur"), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Pixelize", (s, p, c) => CreateObfuscate(s, p, "pixelize"), ScaleOptions.Default);
             registry.RegisterDrawableFactory("Highlight", (s, p, c) => CreateHighlight(s, p, "highlight"), ScaleOptions.Default);
@@ -433,35 +406,60 @@ namespace Greenshot.Recipes.Steps
             return stepLabel;
         }
 
-        private static ImageContainer CreateImage(ISurface surface, Dictionary<string, object> p)
+        /// <summary>
+        /// An image from FilePath or ImageData (Base64, the bytes of the file): a bitmap, or an SVG which stays a vector
+        /// </summary>
+        private static IDrawableContainer CreateImage(ISurface surface, Dictionary<string, object> p)
         {
-            var imgContainer = new ImageContainer(surface);
             string base64 = GetString(p, "ImageData");
-            if (!string.IsNullOrWhiteSpace(base64))
+            string filePath = GetString(p, "FilePath");
+            byte[] bytes = null;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(base64))
+                {
+                    bytes = Convert.FromBase64String(base64);
+                }
+                else if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+                {
+                    bytes = File.ReadAllBytes(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Failed to read the image of an annotation: " + ex.Message);
+            }
+
+            if (bytes != null && IsSvg(bytes))
+            {
+                return new SvgContainer(new MemoryStream(bytes), surface);
+            }
+
+            var imgContainer = new ImageContainer(surface);
+            if (bytes != null)
             {
                 try
                 {
-                    byte[] bytes = Convert.FromBase64String(base64);
                     using var ms = new MemoryStream(bytes);
-                    imgContainer.Image = Image.FromStream(ms);
+                    using var image = Image.FromStream(ms);
+                    imgContainer.Image = image;
                 }
                 catch (Exception ex)
                 {
-                    Log.Warn("Failed to load embedded Base64 image: " + ex.Message);
+                    Log.Warn("Failed to load the image of an annotation: " + ex.Message);
                 }
             }
-
-            if (imgContainer.Image == null)
-            {
-                string filePath = GetString(p, "FilePath");
-                if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
-                {
-                    imgContainer.Load(filePath);
-                }
-            }
-
             imgContainer.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
             return imgContainer;
+        }
+
+        /// <summary>
+        /// SVG is text with an svg element near the start (after an optional XML declaration and comments)
+        /// </summary>
+        private static bool IsSvg(byte[] bytes)
+        {
+            string start = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 4096));
+            return start.IndexOf("<svg", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static IconContainer CreateIcon(ISurface surface, Dictionary<string, object> p)
@@ -491,10 +489,10 @@ namespace Greenshot.Recipes.Steps
                     using var bmp = new Bitmap(ms);
                     int hsX = GetInt(p, "HotspotX", 0);
                     int hsY = GetInt(p, "HotspotY", 0);
+                    // An image is a cursor with alpha: no mask
                     cursorContainer.Cursor = new CapturedCursor
                     {
                         ColorLayer = new Bitmap(bmp),
-                        MaskLayer = new Bitmap(bmp.Width, bmp.Height),
                         Size = new NativeSize(bmp.Width, bmp.Height),
                         HotSpot = new NativePoint(hsX, hsY)
                     };
@@ -509,20 +507,7 @@ namespace Greenshot.Recipes.Steps
                 var winFormsCursor = ResolveWindowsCursor(cursorName);
                 if (winFormsCursor != null)
                 {
-                    int w = winFormsCursor.Size.Width > 0 ? winFormsCursor.Size.Width : 32;
-                    int h = winFormsCursor.Size.Height > 0 ? winFormsCursor.Size.Height : 32;
-                    var colorLayer = new Bitmap(w, h);
-                    using (var g = Graphics.FromImage(colorLayer))
-                    {
-                        winFormsCursor.Draw(g, new Rectangle(0, 0, w, h));
-                    }
-                    cursorContainer.Cursor = new CapturedCursor
-                    {
-                        ColorLayer = colorLayer,
-                        MaskLayer = new Bitmap(w, h),
-                        Size = new NativeSize(w, h),
-                        HotSpot = new NativePoint(winFormsCursor.HotSpot.X, winFormsCursor.HotSpot.Y)
-                    };
+                    cursorContainer.Cursor = ToCapturedCursor(winFormsCursor);
                 }
             }
             else if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
@@ -530,20 +515,7 @@ namespace Greenshot.Recipes.Steps
                 try
                 {
                     using var cur = new System.Windows.Forms.Cursor(filePath);
-                    int w = cur.Size.Width > 0 ? cur.Size.Width : 32;
-                    int h = cur.Size.Height > 0 ? cur.Size.Height : 32;
-                    var colorLayer = new Bitmap(w, h);
-                    using (var g = Graphics.FromImage(colorLayer))
-                    {
-                        cur.Draw(g, new Rectangle(0, 0, w, h));
-                    }
-                    cursorContainer.Cursor = new CapturedCursor
-                    {
-                        ColorLayer = colorLayer,
-                        MaskLayer = new Bitmap(w, h),
-                        Size = new NativeSize(w, h),
-                        HotSpot = new NativePoint(cur.HotSpot.X, cur.HotSpot.Y)
-                    };
+                    cursorContainer.Cursor = ToCapturedCursor(cur);
                 }
                 catch (Exception ex)
                 {
@@ -553,22 +525,50 @@ namespace Greenshot.Recipes.Steps
             else
             {
                 // Default to standard Arrow cursor if none specified
-                var arrow = System.Windows.Forms.Cursors.Arrow;
-                var colorLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height);
-                using (var g = Graphics.FromImage(colorLayer))
-                {
-                    arrow.Draw(g, new Rectangle(0, 0, arrow.Size.Width, arrow.Size.Height));
-                }
-                cursorContainer.Cursor = new CapturedCursor
-                {
-                    ColorLayer = colorLayer,
-                    MaskLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height),
-                    Size = new NativeSize(arrow.Size.Width, arrow.Size.Height),
-                    HotSpot = new NativePoint(arrow.HotSpot.X, arrow.HotSpot.Y)
-                };
+                cursorContainer.Cursor = ToCapturedCursor(System.Windows.Forms.Cursors.Arrow);
             }
 
             return cursorContainer;
+        }
+
+        /// <summary>
+        /// The layers of a cursor like CursorHelper takes them from a captured one: a cursor with alpha is a picture without a mask, any other
+        /// cursor gets the AND mask and the XOR image Windows draws it with (e.g. an I-beam which inverts what is under it)
+        /// </summary>
+        private static CapturedCursor ToCapturedCursor(System.Windows.Forms.Cursor cursor)
+        {
+            int w = cursor.Size.Width > 0 ? cursor.Size.Width : 32;
+            int h = cursor.Size.Height > 0 ? cursor.Size.Height : 32;
+            var capturedCursor = new CapturedCursor
+            {
+                Size = new NativeSize(w, h),
+                HotSpot = new NativePoint(cursor.HotSpot.X, cursor.HotSpot.Y)
+            };
+            var picture = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_NORMAL, PixelFormat.Format32bppArgb);
+            if (HasAlpha(picture))
+            {
+                capturedCursor.ColorLayer = picture;
+                return capturedCursor;
+            }
+            picture.Dispose();
+            capturedCursor.ColorLayer = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_IMAGE, PixelFormat.Format24bppRgb);
+            capturedCursor.MaskLayer = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_MASK, PixelFormat.Format24bppRgb);
+            return capturedCursor;
+        }
+
+        private static bool HasAlpha(Bitmap bitmap)
+        {
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    if (bitmap.GetPixel(x, y).A != 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static System.Windows.Forms.Cursor ResolveWindowsCursor(string name)
@@ -600,38 +600,6 @@ namespace Greenshot.Recipes.Steps
                 string emoji = GetString(p, "Emoji") ?? "👍";
                 int size = GetInt(p, "Size", 64);
                 return new EmojiContainer(s, emoji, size);
-            }
-            return null;
-        }
-
-        private static SvgContainer CreateSvg(ISurface surface, Dictionary<string, object> p)
-        {
-            string base64 = GetString(p, "ImageData");
-            if (!string.IsNullOrWhiteSpace(base64))
-            {
-                try
-                {
-                    byte[] bytes = Convert.FromBase64String(base64);
-                    var stream = new MemoryStream(bytes);
-                    return new SvgContainer(stream, surface);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Failed to load embedded Base64 SVG: " + ex.Message);
-                }
-            }
-
-            string filePath = GetString(p, "FilePath");
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
-            {
-                using var stream = File.OpenRead(filePath);
-                return new SvgContainer(stream, surface);
-            }
-            string svgXml = GetString(p, "Content");
-            if (!string.IsNullOrWhiteSpace(svgXml))
-            {
-                using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgXml));
-                return new SvgContainer(stream, surface);
             }
             return null;
         }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,27 +24,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Contracts = Greenshot.Base.Recipes.Contracts;
-
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Recipes.Pipeline;
-using log4net;
 
 namespace Greenshot.Recipes.Steps
 {
     /// <summary>
-    /// Pipeline step that enables or dispatches completion notifications (e.g. tray balloon / toast).
+    /// Pipeline step that shows the completion notification (toast or tray balloon) for the exports before it.
     /// Dynamically evaluates whether notifications are enabled based on CoreConfig if not pre-defined.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Enables or disables the notification shown when the flow completes.", "Feedback")]
+    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Shows the notification for the exports before it.", "Feedback")]
     [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
+    [StepParameter(NoHdrNoteParameter, ContractDataType.Boolean, DefaultValue = false, Description = "Say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat")]
     [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
     [StepOutputVariable("EnableCompletionNotification", ContractDataType.Boolean, "Whether the completion notification is shown")]
     public class NotificationStep : ICaptureStep
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationStep));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public string Name { get; }
@@ -56,22 +54,31 @@ namespace Greenshot.Recipes.Steps
             Name = config.Name ?? "NotificationStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             bool showNotification = ResolveShowNotification(context);
             context.Properties["EnableCompletionNotification"] = showNotification;
 
-            if (showNotification && context.Payload != null)
+            if (!showNotification)
             {
-                var surface = context.Payload.EnsureSurface();
-                if (surface != null)
-                {
-                    surface.SurfaceMessage -= DestinationDispatcher.SurfaceMessageReceived;
-                    surface.SurfaceMessage += DestinationDispatcher.SurfaceMessageReceived;
-                }
+                // The exports before this step are done with, a later Notification step doesn't show them
+                context.GetExportLog().TakeUnnotified();
+                return;
             }
+            // The exports since the previous Notification step (of all destination and plugin steps, also of parallel branches),
+            // one notification shows them
+            await ExportNotification.ShowAsync(context, null, cancellationToken, GetNote(context)).ConfigureAwait(false);
+        }
 
-            return Task.CompletedTask;
+        public const string NoHdrNoteParameter = "NoHdrNote";
+
+        /// <summary>
+        /// The line about the capture after the exports, null for none
+        /// </summary>
+        internal string GetNote(CaptureFlowContext context)
+        {
+            bool noHdrNote = Config.GetParameter(NoHdrNoteParameter, false);
+            return noHdrNote && HdrOutput.StateOf(context.Payload) == HdrOutput.StateNone ? Texts.Core.NotificationNoHdr : null;
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)

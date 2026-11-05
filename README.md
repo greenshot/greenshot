@@ -37,6 +37,11 @@ About this repository
 ---------------------
 This is the ongoing development branch for future Greenshot releases. 
 
+Documentation
+-------------
+
+The [documentation](docs/README.md) in `docs/` describes Greenshot 1.3, the current release. What is new in Greenshot 1.4, which is developed here, is described in [docs/vNext](docs/vNext/README.md).
+
 Releases
 --------
 
@@ -52,18 +57,23 @@ IDE System Requirements:
 ------------------------
 
 * Windows OS environment
-* Greenshot is build using (as of this writing) .net Framework 4.8.0 This means any version between .net Framework 4.8.0-4.8.1 will suffice. 
-* Visual Studio 2022 or newer (works fine with 2026)
-* .NET SDK 9.0.311 also for building (supported by VS 2022)
+* Visual Studio 2026 (the native projects use the v145 C++ toolset), with the **Desktop development with C++** workload, MSVC v145 x64/x86 build tools, and a Windows 10 SDK
+* .NET SDK 10.0.100 or newer (Greenshot.Mcp targets .NET 10)
+* .NET Framework 4.8 Developer Pack / targeting pack
 
 Build Instructions:
 -------------------
 
-* Open Visual Studio 2022 or 2026
+* Open Visual Studio 2026
 * Clone GitHub Repository using Visual Studio, using the link in the green code button above. Alternatively, you can download the repository to your machine and open the solution file located in /src/Greenshot.sln.
 * Choose Build->Build Solution in Visual Studio to build binaries.
 * Verify all components are built successfully.
 * You are ready to start contributing to Greenshot.
+
+Command-line build:
+-------------------
+
+Use Visual Studio's MSBuild with `msbuild src\Greenshot.sln /p:Configuration=Debug /t:Build /v:minimal` to build the release version. Use MSBuild rather than `dotnet build`.
 
 Solution configurations:
 ------------------------
@@ -76,6 +86,17 @@ Solution configurations:
 | Release Light | The same, optimized | `src\Greenshot\bin\Release-Light` |
 
 Debug never makes checksums, an SBOM or installers; only Release does.
+
+Running tests:
+--------------
+
+The xUnit test project is `src\Greenshot.Tests\Greenshot.Tests.csproj`. Build the solution with Visual Studio MSBuild first, then run the tests:
+
+```powershell
+dotnet test src\Greenshot.Tests\Greenshot.Tests.csproj --configuration Debug
+```
+
+Tests that need clipboard or desktop interaction require an active, unlocked Windows session; interactive-desktop tests are skipped when the session is locked or inactive.
 
 Greenshot Light is the basics only: no plugins, no AI tools (greenshot-mcp) and no browser extension. That code is not in its Greenshot.exe at all: it is left out with `#if !GREENSHOT_LIGHT` and `<Compile Remove>` in Greenshot.csproj, and the build fails when one of those types is still in the exe. Pick "Debug Light" in the solution configuration dropdown to run it with F5. On the command line, `dotnet build src\Greenshot\Greenshot.csproj -c DebugLight` (or `/p:GreenshotEdition=Light`) does the same.
 
@@ -98,7 +119,7 @@ Known vulnerability warnings:
 This is for Greenshot 1.4.x, Greenshot 1.3 doesn't use ImageSharp!
 Some NuGet audit warnings are suppressed with `NuGetAuditSuppress` in `src\Directory.Build.props`, because they don't apply to Greenshot or are worked around. The reasons are listed here. Remove the suppression when the package is updated.
 
-**SixLabors.ImageSharp 2.1.13.** These advisories are fixed only in 4.1.2, which no longer supports .NET Framework, and there is no 2.1.x fix. Greenshot only loads and saves files with ImageSharp when "beta tester" is on (`ImageSharpFileFormatHandler`); otherwise System.Drawing is used.
+**SixLabors.ImageSharp 2.1.13.** These advisories are fixed only in 4.1.2, which no longer supports .NET Framework, and there is no 2.1.x fix. Greenshot saves PNG, WebP, TGA and PBM files with ImageSharp (`ImageSharpFileFormatHandler`, PNG is written by `PngOptimizer`); JPEG, BMP, GIF and TIFF are saved with the Windows Imaging Component (`WicFileFormatHandler`), ImageSharp saves them only when WIC fails. Images are loaded with the Windows Imaging Component (`WicFileFormatHandler`); ImageSharp loads only what WIC can't on that PC: TGA, PBM, and WebP when the Store codec isn't installed, or an image WIC fails to read (never TIFF).
 
 | Advisory | Severity | What it is | Why Greenshot is not affected |
 |---|---|---|---|

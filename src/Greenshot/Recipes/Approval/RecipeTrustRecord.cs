@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -36,6 +36,11 @@ namespace Greenshot.Recipes.Approval
         /// </summary>
         public const string AiOriginPrefix = "ai:";
 
+        /// <summary>
+        /// Origin of a recipe installed from the recipe catalog, followed by its id, "@" and its version
+        /// </summary>
+        public const string CatalogOriginPrefix = "catalog:";
+
         public string FilePath { get; set; }
         public string Sha256Hash { get; set; }
         public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;
@@ -48,7 +53,8 @@ namespace Greenshot.Recipes.Approval
         public string RecipeVersion { get; set; }
 
         /// <summary>
-        /// Who made the file: null for files the user imported or saved, "ai:" and the AI tool's name for a recipe an AI tool proposed
+        /// Who made the file: null for files the user imported or saved, "ai:" and the AI tool's name for a recipe an AI tool proposed,
+        /// "catalog:id@version" for a recipe installed from the recipe catalog
         /// </summary>
         public string Origin { get; set; }
 

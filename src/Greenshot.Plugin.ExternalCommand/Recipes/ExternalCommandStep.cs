@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -30,7 +30,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -61,16 +60,16 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]
     [StepParameter("UriToClipboard", ContractDataType.Boolean, Description = "Copy a URI found in the command's output to the clipboard")]
     [StepParameter("ReloadAfterExecution", ContractDataType.Boolean, DefaultValue = false, Description = "Reload the image from the file after the command changed it")]
-    [StepParameter("SetOutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
-    [StepParameter("SetExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
+    [StepParameter("OutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
+    [StepParameter("ExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
     [StepInputVariable("Destination.Filename", ContractDataType.FilePath, Description = "File saved by an earlier destination step, handed to the command instead of a new file")]
     [StepOutputVariable("ExternalCommand.TargetFile", ContractDataType.FilePath, "The file handed to the command")]
     [StepOutputVariable("ExternalCommand.ExitCode", ContractDataType.Integer, "Exit code of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Output", ContractDataType.String, "Standard output of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Error", ContractDataType.String, "Standard error of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Uri", ContractDataType.String, "First URI found in the output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetOutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
+    [StepOutputVariable("{Parameter:OutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
+    [StepOutputVariable("{Parameter:ExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
     public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
@@ -146,8 +145,8 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             bool reloadAfterExecution = NodeConfig.GetParameter<bool?>("ReloadAfterExecution") ?? false;
             string workingDirectory = NodeConfig.GetParameter<string>("WorkingDirectory");
             string verb = NodeConfig.GetParameter<string>("Verb");
-            string setOutputVariable = NodeConfig.GetParameter<string>("SetOutputVariable");
-            string setExitCodeVariable = NodeConfig.GetParameter<string>("SetExitCodeVariable");
+            string setOutputVariable = NodeConfig.GetParameter<string>("OutputVariable");
+            string setExitCodeVariable = NodeConfig.GetParameter<string>("ExitCodeVariable");
 
             // Look up configured command if commandName is given or commandLine is not explicitly set
             var extConfig = Config;
@@ -205,7 +204,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
 
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
-                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
                 fullPath = await ExportFiles.SaveNamedTmpFileAsync(source, captureDetails, outputSettings, cancellationToken).ConfigureAwait(false);
             }
 
@@ -285,6 +284,15 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
                     context.LogStep($"Copied extracted URL '{matchedUri}' to clipboard.");
                 }
             }
+
+            // The same result as the external command destination, before a reload replaces the capture: the Notification step shows it
+            var exportSource = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
+            var result = exitCode == 0
+                ? ExportResult.Succeeded(fullPath, Uri.TryCreate(matchedUri, UriKind.Absolute, out var uri) ? uri : null, clearsModified: false)
+                : ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
+            var destination = new ExternalCommandDestination(commandName ?? Path.GetFileNameWithoutExtension(resolvedCommandLine));
+            await ExportResultHandler.ApplyAsync(destination, result, exportSource, cancellationToken).ConfigureAwait(false);
+            context.RecordExport(destination, result, captureDetails, exportSource);
 
             // 5. Reload modified image if requested (e.g. for in-place optimizers like OptiPNG)
             if (reloadAfterExecution && File.Exists(fullPath))

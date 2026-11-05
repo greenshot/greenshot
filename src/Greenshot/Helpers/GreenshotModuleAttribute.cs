@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -31,7 +31,7 @@ namespace Greenshot.Helpers
     /// Registers an optional part of Greenshot (the browser extension, AI tools). The attribute lives in the folder of the part,
     /// so leaving the folder out of the build (Greenshot Light) also leaves out its registration.
     /// The module type implements one or more of the extension interfaces, e.g. <see cref="Greenshot.Ipc.IIpcCommandExtension"/>
-    /// or <see cref="Greenshot.Recipes.IBuiltInRecipeProvider"/>, and needs a public parameterless constructor.
+    /// or <see cref="Greenshot.Base.Recipes.IBuiltInRecipeProvider"/>, and needs a public parameterless constructor.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     internal sealed class GreenshotModuleAttribute : Attribute

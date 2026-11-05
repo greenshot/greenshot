@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Editor.FileFormatHandlers;
 using Xunit;
 
 namespace Greenshot.Tests.Core
@@ -118,6 +118,32 @@ namespace Greenshot.Tests.Core
             Assert.Equal("WebP image (.webp)", format.GetDisplayNameWithPreferredExtension());
             Assert.Equal("WebP image (.webp)", format.GetDisplayNameWithSaveableExtensions());
             Assert.Equal("WebP image (.webp, .webpx)", format.GetDisplayNameWithLoadableExtensions());
+        }
+
+        [Fact]
+        public void Handlers_RegisterTheirFormatsAfterTheCoreFormats()
+        {
+            var registry = new FileFormatRegistry();
+            CoreFileFormats.RegisterCoreFileFormats(registry);
+            var wicHandler = new WicFileFormatHandler();
+            // Twice, like a second EditorInitialize.Initialize: the WIC decoders of this PC must not collide with the core formats or with themselves
+            for (int i = 0; i < 2; i++)
+            {
+                new MetaFileFormatHandler().RegisterFileFormats(registry);
+                wicHandler.RegisterFileFormats(registry);
+            }
+
+            Assert.True(registry.TryGet(WellKnownFileFormats.Jxr, out var jxr));
+            Assert.Equal(new[] { "jxr", "hdp", "wdp", "wmp" }, jxr.LoadableExtensions);
+            Assert.Equal(new[] { "jxr" }, jxr.SaveableExtensions);
+            foreach (var loadOnly in new[] { "dds", "emf", "wmf" })
+            {
+                Assert.True(registry.TryGet(loadOnly, out var format));
+                Assert.True(format.CanOpen);
+                Assert.False(format.CanSave);
+            }
+            Assert.Equal(WellKnownFileFormats.Png, registry.GetByExtension("png").Id);
+            Assert.Equal(WellKnownFileFormats.Tiff, registry.GetByExtension("tif").Id);
         }
 
         private static FileFormatDefinition CreateFormat(string id, string[] extensions, string preferredExtension, string mimeType, string[] mimeAliases)

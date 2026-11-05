@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -36,9 +36,18 @@ namespace Greenshot.Base.Interfaces.Capture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureKeyBinding));
         private readonly Func<string> _description;
+        private readonly Func<ICaptureTool, bool> _activeWhen;
 
         public CaptureKeyBinding(object owner, ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute)
+            : this(owner, tool, key, modifiers, description, execute, null)
         {
+        }
+
+        /// <param name="activeWhen">For a key which isn't bound to a tool: the tools it works with, e.g. only those which select pixels, null for all</param>
+        public CaptureKeyBinding(object owner, ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute,
+            Func<ICaptureTool, bool> activeWhen)
+        {
+            _activeWhen = activeWhen;
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _description = description ?? throw new ArgumentNullException(nameof(description));
             Execute = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -106,7 +115,7 @@ namespace Greenshot.Base.Interfaces.Capture
         /// <summary>
         /// True when the key is active while the given tool is
         /// </summary>
-        public bool IsActiveFor(ICaptureTool activeTool) => Tool == null || Tool == activeTool;
+        public bool IsActiveFor(ICaptureTool activeTool) => Tool == null ? _activeWhen?.Invoke(activeTool) ?? true : Tool == activeTool;
 
         public override string ToString() => $"{KeyText} ({Owner.GetType().Name})";
 

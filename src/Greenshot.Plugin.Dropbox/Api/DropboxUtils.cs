@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,15 +23,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
 using Dapplo.Ini;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Serialization;
 using Greenshot.Base.Threading;
-using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.Dropbox.Api;
 
@@ -42,6 +44,9 @@ public static class DropboxUtils
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
     private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
+
+    // For the Dropbox-API-Arg header: everything but ASCII is escaped, also 0x7F as Dropbox asks
+    private static readonly JsonSerializerOptions HeaderJson = new JsonSerializerOptions { Encoder = JavaScriptEncoder.Default };
 
     /// <summary>
     /// Upload the encoded capture
@@ -72,13 +77,7 @@ public static class DropboxUtils
                 { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\') }
             };
 
-            var serializerSettings = new JsonSerializerSettings
-            {
-                StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
-            };
-
-            var encodedArgs = JsonConvert.SerializeObject(arguments, serializerSettings);
-            encodedArgs = encodedArgs.Replace("\x7F", "\\u007f");
+            var encodedArgs = JsonSerializer.Serialize(arguments, HeaderJson);
             var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Post, "https://content.dropboxapi.com/2/files/upload", oauth2Settings, userInteraction, cancellationToken).ConfigureAwait(false);
             if (request == null)
             {
@@ -86,12 +85,11 @@ public static class DropboxUtils
             }
 
             request.Headers.Add("Dropbox-API-Arg", encodedArgs);
-            var content = NetworkHelper.CreateContent(image, progress);
+            var content = HttpContents.Upload(image, progress);
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             request.Content = content;
-            var responseString = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            Log.DebugFormat("Upload response: {0}", responseString);
-            var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
+            var responseString = (await HttpService.Current.SendAsync(request, cancellationToken).ConfigureAwait(false)).EnsureSuccess().Content;
+            var response = JsonSerializer.Deserialize<Dictionary<string, object>>(responseString, GreenshotJson.Options);
             return response.ContainsKey("id");
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

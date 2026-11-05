@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -19,31 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
-using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
-using Greenshot.Configuration;
-using Greenshot.Editor.Destinations;
-using Greenshot.Base.Threading;
-using Greenshot.Base.Languages;
 
 namespace Greenshot.Recipes.ViewModels
 {
@@ -78,7 +59,9 @@ namespace Greenshot.Recipes.ViewModels
         }
         public string BadgeText { get; set; }
         public Visibility BadgeVisibility => !string.IsNullOrEmpty(BadgeText) ? Visibility.Visible : Visibility.Collapsed;
-        public SolidColorBrush BadgeBackgroundBrush { get; set; } = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69));
+        // The danger role with its paired text color: readable in every theme, system colors in high contrast
+        public SolidColorBrush BadgeBackgroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerBrush;
+        public SolidColorBrush BadgeForegroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerForegroundBrush;
 
         public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
         public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;

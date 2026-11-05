@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -35,9 +35,6 @@ namespace Greenshot.Base.Recipes.Contracts
 
         /// <summary>The class implementing the step, when the contract was built from its attributes.</summary>
         public Type ImplementationType { get; set; }
-
-        /// <summary>The step reads more parameters than declared (e.g. annotation properties): undeclared parameters are not reported.</summary>
-        public bool AcceptsUndeclaredParameters { get; set; }
 
         /// <summary>The parameter with this name, null when not declared.</summary>
         public ParameterContract FindParameter(string name)

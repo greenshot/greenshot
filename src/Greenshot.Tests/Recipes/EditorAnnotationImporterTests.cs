@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,17 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.FileFormatHandlers;
-using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.RecipeEditor.Helpers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Greenshot.Plugin.Zxing.Drawing;
@@ -271,7 +265,7 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("https://greenshot.org", dict["Text"]);
             Assert.Equal("#00008B", dict["ForeColor"]);
             Assert.Equal("#FFFFE0", dict["BackColor"]);
-            Assert.Equal(2, dict["Margin"]);
+            Assert.Equal(2, dict["QuietZone"]);
             Assert.True((bool)dict["RoundedDots"]);
         }
 

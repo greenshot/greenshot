@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -29,6 +29,7 @@ namespace Greenshot.Editor.Configuration
         public EditorConfigurationImpl()
         {
             RecentColors = new List<Color>();
+            RecentEmojis = new List<string>();
         }
 
         partial void OnRecentColorsGet(ref List<Color> value)
@@ -36,6 +37,14 @@ namespace Greenshot.Editor.Configuration
             if (value == null)
             {
                 _recentColors = value = new List<Color>();
+            }
+        }
+
+        partial void OnRecentEmojisGet(ref List<string> value)
+        {
+            if (value == null)
+            {
+                _recentEmojis = value = new List<string>();
             }
         }
 
@@ -58,6 +67,7 @@ namespace Greenshot.Editor.Configuration
         public void OnAfterLoad()
         {
             RecentColors ??= new List<Color>();
+            RecentEmojis ??= new List<string>();
         }
     }
 }

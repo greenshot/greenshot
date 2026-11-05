@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,23 +22,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Desktop;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Contracts = Greenshot.Base.Recipes.Contracts;
 
+using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Capturing;
+using Greenshot.Capturing.Tools;
 using log4net;
 using Greenshot.Base.Threading;
 
@@ -47,31 +48,44 @@ namespace Greenshot.Recipes.Steps
     /// <summary>
     /// Pipeline step presenting interactive selection overlay (region, window snapping, or OCR text).
     /// </summary>
-    [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
+    [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen, or a region or window on the live screen when freezing is turned off in the settings. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
+    [StepParameter("SelectionTool", ContractDataType.String, Description = "Id of the capture tool to start with, e.g. one of a plugin; when it is not there, the tool of the SelectionMode")]
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
+    [StepOutputVariable("SelectedMode", ContractDataType.String, "The mode the selection was made in: Region, Window or Text (the user can switch, e.g. T for text)")]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private readonly IInteractiveCaptureSelector _selector;
+        private readonly Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> _captureArea;
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
 
-        public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null)
+        public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null) : this(config, selector, null)
+        {
+        }
+
+        /// <param name="config">RecipeNodeConfig</param>
+        /// <param name="selector">IInteractiveCaptureSelector, default the capture window</param>
+        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture (with the HDR content when the Source step asks for it, CaptureFlowContext.CaptureHdr)</param>
+        internal InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector, Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> captureArea)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "InteractiveSelectionStep";
             _selector = selector ?? new InteractiveCaptureSelector();
+            _captureArea = captureArea;
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
+            // Without a selection (handed in, pre-supplied region) the mode of the step
+            context.Properties["SelectedMode"] = Config.GetParameter("SelectionMode", CaptureMode.Region).ToString();
             var payload = context.Payload;
             if (payload?.RawCapture == null)
             {
@@ -92,7 +106,7 @@ namespace Greenshot.Recipes.Steps
             {
                 if (Config.GetParameter("SelectionMode", CaptureMode.Region) == CaptureMode.Text)
                 {
-                    await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
+                    await OcrStep.ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
                 }
                 return;
             }
@@ -100,10 +114,10 @@ namespace Greenshot.Recipes.Steps
             context.State = CaptureFlowState.Selecting;
 
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);
-            List<WindowDetails> snapWindows = new List<WindowDetails>();
+            List<IInteropWindow> snapWindows = new List<IInteropWindow>();
 
             // Started by the acquire step next to the capture, see GetSnapWindowsAsync
-            Task<List<WindowDetails>> snapWindowsTask = null;
+            Task<List<IInteropWindow>> snapWindowsTask = null;
             bool started = _selector is ICaptureWindowPreparer preparer && preparer.TryTakeSnapWindows(out snapWindowsTask);
             if (allowSnapping)
             {
@@ -128,7 +142,9 @@ namespace Greenshot.Recipes.Steps
 
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
-            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, cancellationToken).ConfigureAwait(false);
+            string initialTool = Config.GetParameter<string>("SelectionTool");
+
+            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, initialTool, cancellationToken).ConfigureAwait(false);
 
             if (selection == null)
             {
@@ -136,28 +152,127 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
+            context.Properties["SelectedMode"] = selection.FinalMode.ToString();
             if (selection.SelectedWindow != null)
             {
-                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.Text;
+                payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
                 context.Properties["SelectedWindow"] = selection.SelectedWindow;
             }
+            // The selection gives the capture the title of the window
+            TitleFix.Apply(payload.RawCapture.CaptureDetails);
 
+            // Selected on the live screen: nothing was captured yet
+            bool live = payload.RawCapture.Image == null;
             if (selection.SelectedRegion.Width > 0 && selection.SelectedRegion.Height > 0)
             {
-                payload.RawCapture.Crop(selection.SelectedRegion);
-
                 // Offset back to screen coordinates
                 NativeRect screenOffsetRect = selection.SelectedRegion.Offset(
                     payload.RawCapture.ScreenBounds.Location.X,
                     payload.RawCapture.ScreenBounds.Location.Y);
+
+                if (!live)
+                {
+                    payload.RawCapture.Crop(selection.SelectedRegion);
+                }
+                else if (selection.Tool is ISelectionCaptureTool)
+                {
+                    // The tool takes the image, the capture is placed like a cropped one
+                    payload.RawCapture.Location = selection.SelectedRegion.Location;
+                    payload.RawCapture.MoveMouseLocation(-selection.SelectedRegion.X, -selection.SelectedRegion.Y);
+                }
+                else if (!await CaptureLiveAsync(context, selection.SelectedRegion, cancellationToken).ConfigureAwait(false))
+                {
+                    return;
+                }
+
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+                // The fixed size capture offers a captured window again (the region and fixed size tools remember their own)
+                if (selection.FinalMode == CaptureMode.Window)
+                {
+                    var selectedWindow = selection.SelectedWindow;
+                    context.Ui.InvokeAsync(() => FixedSizeCaptureTool.RememberArea(screenOffsetRect, selectedWindow == null ? null : new[] { selectedWindow }), CancellationToken.None)
+                        .FireAndLog("Remember the window capture for the fixed size capture", Log);
+                }
+
+                // A tool which takes its own image of the selection, e.g. of a plugin
+                if (selection.Tool is ISelectionCaptureTool selectionCaptureTool)
+                {
+                    context.State = CaptureFlowState.Acquiring;
+                    var image = await selectionCaptureTool.CaptureSelectionAsync(selection, screenOffsetRect, context.Ui, cancellationToken).ConfigureAwait(false);
+                    if (image == null)
+                    {
+                        context.Abort($"User cancelled the capture of tool {selectionCaptureTool.Id}.");
+                        return;
+                    }
+                    // The cursor was somewhere on the screen, not in the new image
+                    payload.RawCapture.CursorVisible = false;
+                    payload.RawCapture.Image = image;
+                }
+            }
+            else if (live)
+            {
+                // Nothing selected (e.g. a window outside of the screen): the whole screen, as from a frozen capture
+                if (!await CaptureLiveAsync(context, NativeRect.Empty, cancellationToken).ConfigureAwait(false))
+                {
+                    return;
+                }
             }
 
             if (selection.FinalMode == CaptureMode.Text)
             {
-                await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
+                await OcrStep.ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <summary>
+        /// Capture the selection of the live screen, the capture looks like a cropped capture of the whole screen
+        /// </summary>
+        /// <param name="context">CaptureFlowContext</param>
+        /// <param name="area">The selection in coordinates of the capture, empty for the whole screen</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>false when nothing could be captured, the flow is aborted</returns>
+        private async Task<bool> CaptureLiveAsync(CaptureFlowContext context, NativeRect area, CancellationToken cancellationToken)
+        {
+            context.State = CaptureFlowState.Acquiring;
+            var capture = context.Payload.RawCapture;
+            var screenBounds = capture.ScreenBounds;
+            var screenArea = area.IsEmpty ? screenBounds : area.Offset(screenBounds.X, screenBounds.Y);
+            var result = _captureArea != null
+                ? await _captureArea(screenArea, cancellationToken).ConfigureAwait(false)
+                // With the HDR content when the Source step asks for it (Hdr)
+                : await ScreenCapture.CaptureRectangleAsync(screenArea, context.CaptureHdr, cancellationToken).ConfigureAwait(false);
+            if (result == null)
+            {
+                context.Abort($"Capturing the selection {screenArea} failed.");
+                return false;
+            }
+            // Only the selection is captured: its HDR parts are joined when all of it is used (JoinHdrParts)
+            capture.HdrParts = result.HdrParts;
+            if (context.CaptureHdrRequested)
+            {
+                HdrParts.MarkRequested(capture);
+            }
+            if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
+            {
+                // Set by the acquire step for the screen
+                bitmap.SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
+            }
+            capture.Image = result.Image;
+            if (area.IsEmpty)
+            {
+                capture.Location = result.Location;
+            }
+            else
+            {
+                // Like Crop
+                capture.Location = area.Location;
+                capture.MoveMouseLocation(-area.X, -area.Y);
+            }
+            capture.CaptureDetails.AddMetaData(ScreenCapture.CaptureMethodKey, result.Backend.Name);
+            // Switched from the frozen screen (L): what the processors found on that image doesn't belong to this one
+            await ImageFeatures.RemoveWhenProcessedAsync(capture.CaptureDetails).ConfigureAwait(false);
+            return true;
         }
 
         /// <summary>
@@ -165,7 +280,7 @@ namespace Greenshot.Recipes.Steps
         /// the selection takes it from there. They are the windows of the moment of the capture as before.
         /// </summary>
         /// <param name="cancellationToken">CancellationToken</param>
-        internal static Task<List<WindowDetails>> GetSnapWindowsAsync(CancellationToken cancellationToken)
+        internal static Task<List<IInteropWindow>> GetSnapWindowsAsync(CancellationToken cancellationToken)
         {
 #pragma warning disable RS0030 // R10: the Win32 window enumeration runs next to the capture
             var task = Task.Run(() => EnumerateSnapWindows(cancellationToken), cancellationToken);
@@ -175,14 +290,14 @@ namespace Greenshot.Recipes.Steps
             return task;
         }
 
-        private static List<WindowDetails> EnumerateSnapWindows(CancellationToken cancellationToken)
+        private static List<IInteropWindow> EnumerateSnapWindows(CancellationToken cancellationToken)
         {
-            var snapWindows = new List<WindowDetails>();
-            foreach (var window in WindowDetails.GetVisibleWindows())
+            var snapWindows = new List<IInteropWindow>();
+            foreach (var window in WindowHelper.GetVisibleWindows())
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                window.FreezeDetails();
-                window.GetChildren(1);
+                // Dapplo.Windows caches the values, so the windows describe the screen of the capture, also the child windows
+                window.GetChildren(allLevels: true);
                 snapWindows.Add(window);
             }
             return snapWindows;
@@ -198,104 +313,6 @@ namespace Greenshot.Recipes.Steps
                 return true;
             }
             return string.Equals(source, "Screen", StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Puts the OCR text of the (selected part of the) capture into Payload.ExtractedText.
-        /// Where the text goes (clipboard, stdout, ...) is up to the following steps.
-        /// </summary>
-        private static async Task ExtractOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
-        {
-            var rawCapture = context.Payload?.RawCapture;
-            var captureDetails = rawCapture?.CaptureDetails;
-            if (captureDetails == null) return;
-
-            if (captureDetails.ProcessingTask != null)
-            {
-                try
-                {
-                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Error waiting for background OCR processing in InteractiveSelectionStep", ex);
-                }
-            }
-
-            List<IOcrLineFeature> ocrLines;
-            lock (captureDetails.Features)
-            {
-                ocrLines = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
-            }
-
-            if (!ocrLines.Any())
-            {
-                // OCR is optional (e.g. no Windows OCR language installed): without it there is simply no text
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-                if (ocrProvider != null && rawCapture.Image != null)
-                {
-                    try
-                    {
-                        var lines = await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false);
-                        if (lines != null && lines.Any())
-                        {
-                            lock (captureDetails.Features)
-                            {
-                                captureDetails.Features.AddRange(lines);
-                            }
-                            ocrLines = lines;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Failed to run OCR in InteractiveSelectionStep", ex);
-                    }
-                }
-            }
-
-            if (ocrLines == null || !ocrLines.Any()) return;
-
-            var bounds = rawCapture.Image != null
-                ? new NativeRect(0, 0, rawCapture.Image.Width, rawCapture.Image.Height)
-                : NativeRect.Empty;
-
-            var textResult = new StringBuilder();
-
-            foreach (var line in ocrLines)
-            {
-                if (!bounds.IsEmpty && (line.Bounds.IsEmpty || !line.Bounds.IntersectsWith(bounds))) continue;
-
-                if (line.Words != null && line.Words.Count > 0)
-                {
-                    bool lineHasWords = false;
-                    for (var i = 0; i < line.Words.Count; i++)
-                    {
-                        var word = line.Words[i];
-                        if (!bounds.IsEmpty && !word.Bounds.IntersectsWith(bounds)) continue;
-                        if (lineHasWords && word.Text.Length > 0)
-                        {
-                            textResult.Append(' ');
-                        }
-                        textResult.Append(word.Text);
-                        lineHasWords = true;
-                    }
-                    if (lineHasWords)
-                    {
-                        textResult.AppendLine();
-                    }
-                }
-                else if (!string.IsNullOrEmpty(line.Text))
-                {
-                    textResult.AppendLine(line.Text);
-                }
-            }
-
-            string extracted = textResult.ToString().TrimEnd();
-            context.Payload.ExtractedText = extracted;
         }
     }
 }

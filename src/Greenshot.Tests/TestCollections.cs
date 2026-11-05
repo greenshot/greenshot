@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Wpf;
 using Xunit;
 
 namespace Greenshot.Tests
@@ -38,6 +37,14 @@ namespace Greenshot.Tests
 
         /// <summary>Tests that change the real Windows clipboard: they run alone, never in parallel with other tests.</summary>
         public const string Clipboard = "Clipboard";
+
+        /// <summary>Tests that replace the held keys or mouse buttons of <c>InputState</c>: they run alone, the editor tests read it.</summary>
+        public const string InputState = "InputState";
+    }
+
+    [CollectionDefinition(TestCollections.InputState, DisableParallelization = true)]
+    public class InputStateCollection
+    {
     }
 
     [CollectionDefinition(TestCollections.Clipboard, DisableParallelization = true)]

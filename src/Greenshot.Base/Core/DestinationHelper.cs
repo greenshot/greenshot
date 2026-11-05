@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
 using log4net;
@@ -80,6 +79,20 @@ namespace Greenshot.Base.Core
                 .OrderBy(d => d, DestinationComparer.Instance)
                 .ToList();
         }
+
+        /// <summary>
+        /// Does the destination let the user choose the destination, like the destination picker (menu) and the destination window?
+        /// It is never one of the choices itself.
+        /// </summary>
+        public static bool IsChooser(string designation) =>
+            string.Equals(designation, nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(designation, nameof(WellKnownDestinations.DestinationWindow), StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The destinations the user can choose from for the capture: the available ones, without the choosers
+        /// </summary>
+        public static List<IDestination> GetChoices(ICaptureDetails captureDetails) =>
+            GetAllDestinations().Where(destination => !IsChooser(destination.Designation) && destination.IsAvailableFor(captureDetails)).ToList();
 
         /// <summary>
         /// Get a destination by a designation

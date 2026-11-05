@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -63,6 +63,8 @@ namespace Greenshot.Base.Wpf
         private volatile UiTheme _appliedTheme = UiTheme.System;
         private ICoreConfiguration _coreConfiguration;
         private WindowsAccent _accent;
+        private WindowsTextScale _textScale;
+        private double _textScaleFactor = 1;
 
         public static ThemeManager Instance => LazyInstance.Value;
 
@@ -80,6 +82,17 @@ namespace Greenshot.Base.Wpf
             {
                 // No WinRT (e.g. tests on an unusual system): the default accent is used
                 Log.Debug("The Windows accent color isn't available", ex);
+            }
+
+            try
+            {
+                _textScale = new WindowsTextScale();
+                _textScaleFactor = _textScale.Factor;
+                _textScale.Changed += OnTextScaleChanged;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("The Windows text size isn't available", ex);
             }
 
             // Not the title bars yet: they ask this (still unfinished) instance for the theme
@@ -150,6 +163,11 @@ namespace Greenshot.Base.Wpf
         /// True when Windows uses a high contrast theme, the colors are those the user chose for it
         /// </summary>
         public bool IsHighContrast => CurrentPalette.IsHighContrast;
+
+        /// <summary>
+        /// The "Text size" of Windows, 1.0 to 2.25: the text of Greenshot's windows grows with it, see <see cref="FontSizeExtension"/>
+        /// </summary>
+        public double TextScale => _textScaleFactor;
 
         /// <summary>
         /// True when Greenshot's windows use the title bar of Windows: when following the Windows theme, and always with high contrast.
@@ -346,6 +364,29 @@ namespace Greenshot.Base.Wpf
             }
         }
 
+        /// <summary>
+        /// The palette for a theme choice of a window with its own setting (the editor): Light, Dark or System (the app mode of
+        /// Windows, not Greenshot's theme). A high contrast theme of Windows always wins. Reads the registry for System: cache it.
+        /// </summary>
+        /// <param name="theme">UiTheme</param>
+        /// <returns>ThemePalette</returns>
+        public ThemePalette GetPalette(UiTheme theme)
+        {
+            var current = CurrentPalette;
+            if (System.Windows.Forms.SystemInformation.HighContrast)
+            {
+                return current.IsHighContrast ? current : ThemePalette.CreateHighContrast();
+            }
+
+            bool isDark = theme switch
+            {
+                UiTheme.Light => false,
+                UiTheme.Dark => true,
+                _ => !ReadPersonalizeFlag("AppsUseLightTheme")
+            };
+            return current.IsDark == isDark && !current.IsHighContrast ? current : CreatePalette(isDark);
+        }
+
         private ThemePalette CreatePalette(bool isDark)
         {
             var accent = _accent?.GetAccent(isDark) ?? (isDark ? ThemePalette.DefaultDarkAccent : ThemePalette.DefaultLightAccent);
@@ -381,6 +422,16 @@ namespace Greenshot.Base.Wpf
             }
         }
 
+        private void OnTextScaleChanged()
+        {
+            // Raised on a WinRT thread
+            UiDispatcher.Current.InvokeAsync(() =>
+            {
+                _textScaleFactor = _textScale.Factor;
+                OnPropertyChanged(nameof(TextScale));
+            }).FireAndLog("Follow the Windows text size");
+        }
+
         private void OnSystemThemeChanged()
         {
             // Raised on a system events or WinRT thread
@@ -397,13 +448,21 @@ namespace Greenshot.Base.Wpf
             var dict = new ResourceDictionary();
             dict.MergedDictionaries.Add(new ResourceDictionary
             {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml", UriKind.Relative)
+            });
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
                 Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml", UriKind.Relative)
             });
             dict.MergedDictionaries.Add(new ResourceDictionary
             {
                 Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml", UriKind.Relative)
             });
-            
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
+            });
+
             dict["ThemeBackgroundBrush"] = BackgroundBrush;
             dict["ThemeForegroundBrush"] = ForegroundBrush;
             dict["ThemeMutedBrush"] = MutedBrush;

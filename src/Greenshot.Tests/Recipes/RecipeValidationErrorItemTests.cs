@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,6 +26,12 @@ namespace Greenshot.Tests.Recipes
 {
     public class RecipeValidationErrorItemTests
     {
+        // The hints come from the language packs, the tests check the English texts
+        public RecipeValidationErrorItemTests()
+        {
+            TestEnvironment.EnsureInitialized();
+        }
+
         [Fact]
         public void Create_UnknownStepTypePluginError_ReturnsPluginHint()
         {
@@ -59,7 +65,7 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void Create_JsonSyntaxError_ReturnsJsonHint()
         {
-            string errorMessage = "JsonReaderException: Unexpected character encountered while parsing value: { at line 12, position 4.";
+            string errorMessage = "JsonException: '}' is an invalid start of a value. Path: $.nodes | LineNumber: 11 | BytePositionInLine: 4.";
             var item = RecipeValidationErrorViewModel.Create(errorMessage);
 
             Assert.True(item.HasHint);

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -27,12 +27,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Icons;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
-using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
@@ -80,6 +79,11 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
         public byte[] RawData { get; set; }
         public string FileExtension { get; set; } = ".png";
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// What screen readers announce for the element in the import list (instead of the class name)
+        /// </summary>
+        public override string ToString() => string.IsNullOrEmpty(Description) ? Type : $"{Type}: {Description}";
     }
 
     /// <summary>
@@ -137,53 +141,61 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
             if (type == "Text")
             {
                 string txt = dict.TryGetValue("Text", out var val) ? val?.ToString() : "";
-                item.Description = $"Text: \"{(txt.Length > 25 ? txt.Substring(0, 22) + "..." : txt)}\"";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationText, txt.Length > 25 ? txt.Substring(0, 22) + "..." : txt);
             }
             else if (type == "Speechbubble")
             {
                 string txt = dict.TryGetValue("Text", out var val) ? val?.ToString() : "";
-                item.Description = $"Bubble: \"{(txt.Length > 25 ? txt.Substring(0, 22) + "..." : txt)}\"";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationBubble, txt.Length > 25 ? txt.Substring(0, 22) + "..." : txt);
             }
             else if (type == "StepLabel")
             {
                 string num = dict.TryGetValue("Number", out var val) ? val?.ToString() : "1";
-                item.Description = $"Step Counter #{num}";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationStepCounter, num);
             }
             else if (type == "Emoji")
             {
                 string emo = dict.TryGetValue("Emoji", out var val) ? val?.ToString() : "🛡️";
-                item.Description = $"Emoji {emo}";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationEmoji, emo);
             }
             else if (type == "Arrow" || type == "Line")
             {
-                item.Description = $"{type} (Thickness: {dict.GetValueOrDefault("LineThickness", 2)})";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationThickness, type, dict.GetValueOrDefault("LineThickness", 2));
             }
             else if (type == "Blur")
             {
-                item.Description = $"Blur (Radius: {dict.GetValueOrDefault("BlurRadius", 10)})";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationBlur, dict.GetValueOrDefault("BlurRadius", 10));
             }
             else if (type == "Pixelize")
             {
-                item.Description = $"Pixelize (Block: {dict.GetValueOrDefault("PixelSize", 5)})";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationPixelize, dict.GetValueOrDefault("PixelSize", 5));
             }
             else if (type == "Highlight")
             {
-                item.Description = $"Highlight Area";
+                item.Description = Texts.Get<IRecipeEditorLanguage>().AnnotationHighlight;
             }
             else if (type == "Magnify")
             {
-                item.Description = $"Magnifier ({dict.GetValueOrDefault("MagnificationFactor", 2)}x)";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationMagnifier, dict.GetValueOrDefault("MagnificationFactor", 2));
             }
             else if (type == "QRCode" || type == "Barcode")
             {
                 string txt = dict.TryGetValue("Text", out var val) ? val?.ToString() : "";
                 item.Description = $"{type}: {(txt.Length > 20 ? txt.Substring(0, 18) + "..." : txt)}";
             }
+            else if (type == "Image" && container is SvgContainer svgContainer)
+            {
+                // An SVG stays a vector: its file contents
+                item.CanSaveAsFile = true;
+                item.FileExtension = ".svg";
+                item.Description = Texts.Get<IRecipeEditorLanguage>().AnnotationSvg;
+                item.RawData = svgContainer.SvgContent;
+            }
             else if (type == "Image")
             {
                 item.CanSaveAsFile = true;
                 item.FileExtension = ".png";
-                item.Description = $"Bitmap Image ({dims})";
+                item.Description = string.Format(Texts.Get<IRecipeEditorLanguage>().AnnotationBitmap, dims);
 
                 if (container is ImageContainer imgContainer && imgContainer.Image != null)
                 {
@@ -196,22 +208,11 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                     catch { }
                 }
             }
-            else if (type == "Svg")
-            {
-                item.CanSaveAsFile = true;
-                item.FileExtension = ".svg";
-                item.Description = "Scalable Vector Graphics (SVG)";
-
-                if (dict.TryGetValue("Content", out var contentObj) && contentObj is string svgXml && !string.IsNullOrEmpty(svgXml))
-                {
-                    item.RawData = Encoding.UTF8.GetBytes(svgXml);
-                }
-            }
             else if (type == "Cursor")
             {
                 item.CanSaveAsFile = true;
                 item.FileExtension = ".png";
-                item.Description = "Mouse Cursor (Bitmap)";
+                item.Description = Texts.Get<IRecipeEditorLanguage>().AnnotationCursor;
 
                 if (container is CursorContainer curContainer && curContainer.Cursor != null)
                 {
@@ -517,18 +518,10 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                     }
                 }
             }
-            else if (container is SvgContainer svg)
+            else if (container is SvgContainer)
             {
-                dict["Type"] = "Svg";
-                try
-                {
-                    var field = typeof(SvgContainer).GetField("_svgContent", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (field?.GetValue(svg) is MemoryStream ms)
-                    {
-                        dict["Content"] = Encoding.UTF8.GetString(ms.ToArray());
-                    }
-                }
-                catch { }
+                // The SVG itself is added as ImageData or FilePath when it is imported
+                dict["Type"] = "Image";
             }
             else if (container.GetType().Name.IndexOf("Barcode", StringComparison.OrdinalIgnoreCase) >= 0)
             {
@@ -625,7 +618,7 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                 var marginProp = modelType.GetProperty("Margin");
                 if (marginProp?.GetValue(model) is int margin)
                 {
-                    dict["Margin"] = margin;
+                    dict["QuietZone"] = margin;
                 }
 
                 var roundedDotsProp = modelType.GetProperty("RoundedDots");

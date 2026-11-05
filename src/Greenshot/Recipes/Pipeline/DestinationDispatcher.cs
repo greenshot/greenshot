@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,23 +21,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
-using Greenshot.Editor.Destinations;
 using log4net;
 
 namespace Greenshot.Recipes.Pipeline
@@ -75,16 +72,14 @@ namespace Greenshot.Recipes.Pipeline
                 return;
             }
 
-            // Register completion notification events if enabled
-            bool showNotify = context.Properties.TryGetValue("EnableCompletionNotification", out var notifObj) && notifObj is bool en
-                ? en
-                : CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon;
-            if (showNotify)
-            {
-                surface.SurfaceMessage -= SurfaceMessageReceived;
-                surface.SurfaceMessage += SurfaceMessageReceived;
-            }
+            // Every export is added to the export log of the flow (see ExportAsync), the Notification step after it shows them
+            await ExportAllAsync(context, destinationList, captureDetails, cancellationToken).ConfigureAwait(false);
+        }
 
+        private static async Task ExportAllAsync(CaptureFlowContext context, List<IDestination> destinationList, ICaptureDetails captureDetails,
+            CancellationToken cancellationToken)
+        {
+            var payload = context.Payload;
             var userInteraction = context.UserInteraction;
             var source = await payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
 
@@ -97,7 +92,7 @@ namespace Greenshot.Recipes.Pipeline
             {
                 // The picked destination must be known before the extensions run, so the picker is shown here
                 context.LogStep("Dispatching to Picker destination, with extensions per destination.");
-                await PickAndExportAsync(context, source, captureDetails, userInteraction, showNotify, cancellationToken).ConfigureAwait(false);
+                await PickAndExportAsync(context, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
                 return;
             }
             if (picker != null)
@@ -150,15 +145,23 @@ namespace Greenshot.Recipes.Pipeline
                     // The flow can override the options of the file export
                     destinationToUse = new FileDestination(new FileDestinationOptions
                     {
-                        AllowOverwrite = context.Properties.TryGetValue("Destination.AllowOverwrite", out var aoVal) && aoVal is bool ao ? ao : (bool?)null,
+                        IfFileExists = context.Properties.TryGetValue("Destination.IfFileExists", out var ifeVal) && ifeVal is FileExistsAction ife ? ife : (FileExistsAction?)null,
+                        FilePath = context.Properties.TryGetValue("Destination.Filename", out var fileVal) ? fileVal as string : null,
                         CopyPathToClipboard = context.Properties.TryGetValue("Destination.CopyPathToClipboard", out var cpVal) && cpVal is bool cp ? cp : (bool?)null,
-                        OutputSettings = sharedFileOutputSettings
+                        OutputSettings = sharedFileOutputSettings,
+                        HdrFormat = context.Properties.TryGetValue("Destination.HdrFormat", out var hdrVal) ? hdrVal as string : null,
+                        AskForFilename = context.Properties.TryGetValue("Destination.AskForFilename", out var askVal) && askVal is bool ask && ask
                     });
                 }
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, showNotify, false, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, false, cancellationToken).ConfigureAwait(false);
+                if (destinationToUse is FileDestination && result.Status == ExportStatus.Succeeded && result.FilePath != null && context.Properties.ContainsKey("Destination.Filename"))
+                {
+                    // The file which was saved: a number may have been added, or another file picked in the save dialog
+                    context.Properties["Destination.Filename"] = result.FilePath;
+                }
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
@@ -179,12 +182,10 @@ namespace Greenshot.Recipes.Pipeline
         /// Shows the destination picker until an export succeeds or the user closes it; the extensions run for the picked destination
         /// </summary>
         private static async Task PickAndExportAsync(CaptureFlowContext context, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            bool showNotify, CancellationToken cancellationToken)
+            CancellationToken cancellationToken)
         {
             var copies = new Dictionary<string, PreparedCopy>();
-            var choices = DestinationHelper.GetAllDestinations()
-                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
-                .ToList();
+            var choices = DestinationHelper.GetChoices(captureDetails);
             while (true)
             {
                 var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);
@@ -194,7 +195,7 @@ namespace Greenshot.Recipes.Pipeline
                     return;
                 }
 
-                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, showNotify, true, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, true, cancellationToken).ConfigureAwait(false);
                 if (result.IsSucceeded)
                 {
                     return;
@@ -247,7 +248,7 @@ namespace Greenshot.Recipes.Pipeline
         /// extensions share one copy (<paramref name="copies"/>), so the extensions run once per combination.
         /// </summary>
         private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
-            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool showNotify, bool manuallyInitiated, CancellationToken cancellationToken)
+            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool manuallyInitiated, CancellationToken cancellationToken)
         {
             var applicable = ChainsFor(context, designation);
             if (applicable.Count == 0)
@@ -262,12 +263,8 @@ namespace Greenshot.Recipes.Pipeline
                 var copyContext = await RunChainsOnCopyAsync(context, applicable, $"destination '{designation}'", cancellationToken).ConfigureAwait(false);
                 if (copyContext != null)
                 {
+                    // The copy is disposed with the flow
                     var copySurface = copyContext.Payload?.EnsureSurface();
-                    if (showNotify && copySurface != null)
-                    {
-                        copySurface.SurfaceMessage -= SurfaceMessageReceived;
-                        copySurface.SurfaceMessage += SurfaceMessageReceived;
-                    }
                     prepared = new PreparedCopy
                     {
                         Context = copyContext,
@@ -296,58 +293,10 @@ namespace Greenshot.Recipes.Pipeline
             }
 
             await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+            // The context of a copy with extensions (RunChainsOnCopyAsync) shares the export log of the flow
+            context.RecordExport(destination, result, captureDetails, source);
             Log.InfoFormat("Destination '{0}' export completed: {1}", destination.Designation, result);
             return result;
-        }
-
-        /// <summary>
-        /// Turns surface messages into notifications, raised on the UI thread (see ExportResultHandler).
-        /// </summary>
-        public static void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
-        {
-            if (string.IsNullOrEmpty(eventArgs?.Message)) return;
-
-            Notification notification;
-            switch (eventArgs.MessageType)
-            {
-                case SurfaceMessageTyp.Error:
-                    notification = new Notification(NotificationKind.Error, eventArgs.Message, TimeSpan.FromHours(1), () =>
-                    {
-                        if (eventArgs.Surface != null)
-                        {
-                            DestinationHelper.StartExport(EditorDestination.DESIGNATION, eventArgs.Surface, false);
-                        }
-                    });
-                    break;
-                case SurfaceMessageTyp.Info:
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => Log.Info("Clicked!"));
-                    break;
-                case SurfaceMessageTyp.FileSaved:
-                case SurfaceMessageTyp.UploadedUri:
-                    notification = new Notification(NotificationKind.Info, eventArgs.Message, TimeSpan.FromHours(1), () => OpenCaptureOnClick(eventArgs));
-                    break;
-                default:
-                    return;
-            }
-
-            UserInteraction.Current.NotifyAsync(notification).FireAndLog("Export notification", Log);
-        }
-
-        private static void OpenCaptureOnClick(SurfaceMessageEventArgs eventArgs)
-        {
-            ISurface surface = eventArgs.Surface;
-            if (surface != null)
-            {
-                switch (eventArgs.MessageType)
-                {
-                    case SurfaceMessageTyp.FileSaved:
-                        ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
-                        break;
-                    case SurfaceMessageTyp.UploadedUri:
-                        Process.Start(surface.UploadUrl);
-                        break;
-                }
-            }
         }
     }
 }

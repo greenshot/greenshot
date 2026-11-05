@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using Greenshot.Editor;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
@@ -56,11 +57,13 @@ namespace Greenshot.Tests
                 }
                 CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
-                CapturePayload.DefaultSurfaceFactory = capture => new Surface(capture) { Modified = true };
+                // Like CapturePipeline: a Surface created on a pool thread must not install the WinForms SynchronizationContext there,
+                // an await in the test would continue on a message loop which never runs (xunit.v3 runs the tests without a context)
+                CapturePayload.DefaultSurfaceFactory = capture => WinFormsContextGuard.CreateWithoutContext<ISurface>(() => new Surface(capture) { Modified = true });
 
                 if (SimpleServiceProvider.Current.GetInstance<Func<ISurface>>(isOptional: true) == null)
                 {
-                    SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => new Surface());
+                    SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => WinFormsContextGuard.CreateWithoutContext<ISurface>(() => new Surface()));
                 }
 
                 EditorInitialize.Initialize();
@@ -69,12 +72,16 @@ namespace Greenshot.Tests
                 Texts.SetLanguage("en-US");
                 // The plugins register their texts when they start, the tests need them without starting the plugins
                 Texts.Register<Greenshot.Plugin.Box.IBoxLanguage>(new Greenshot.Plugin.Box.BoxLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Confluence.ConfluenceLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Atlassian.Confluence.IConfluenceLanguage>(new Greenshot.Plugin.Atlassian.Confluence.ConfluenceLanguageImpl());
+                Texts.Register<Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage>(new Greenshot.Plugin.CustomUploader.CustomUploaderLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Dropbox.IDropboxLanguage>(new Greenshot.Plugin.Dropbox.DropboxLanguageImpl());
                 Texts.Register<Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage>(new Greenshot.Plugin.ExternalCommand.ExternalCommandLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Imgur.IImgurLanguage>(new Greenshot.Plugin.Imgur.ImgurLanguageImpl());
-                Texts.Register<Greenshot.Plugin.Jira.IJiraLanguage>(new Greenshot.Plugin.Jira.JiraLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Atlassian.Jira.IJiraLanguage>(new Greenshot.Plugin.Atlassian.Jira.JiraLanguageImpl());
                 Texts.Register<Greenshot.Plugin.Office.IOfficeLanguage>(new Greenshot.Plugin.Office.OfficeLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Pdf.IPdfLanguage>(new Greenshot.Plugin.Pdf.PdfLanguageImpl());
+                Texts.Register<Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage>(new Greenshot.Plugin.RecipeEditor.RecipeEditorLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Stamps.IStampsLanguage>(new Greenshot.Plugin.Stamps.StampsLanguageImpl());
+                Texts.Register<Greenshot.Plugin.Zxing.IZxingLanguage>(new Greenshot.Plugin.Zxing.ZxingLanguageImpl());
 
                 _initialized = true;
             }
