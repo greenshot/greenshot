@@ -214,6 +214,12 @@ The settings window shows the view (a `UserControl`, e.g. `JiraConfigurationView
 - WinForms images, icons and sounds are embedded files loaded with `EmbeddedResources`, never put into a .resx with the designer
   (see "Adding images" in the README).
 - Icons are drawn by the Greenshot team, don't replace or redraw them in a UI change.
+- Icons on WinForms tool strips and menus are bound, not assigned: `IconBinder.Bind(item, IconSource.FromResource(type, name))`
+  (or `IconSource.FromKey` for destination icon keys, `IconSource.FromImage` for an image you made, e.g. a window icon). The size is
+  `IconSizing.PixelSize`: the icon size setting (16 at 100%) times the DPI of the display, so 24 pixels at 150%.
+  `IconBinder.ApplyForDpi(toolStrip, dpi, name)` sizes a tool strip and its drop downs; call it when the window is created and on a DPI change.
+  The 16 pixel artwork is scaled sharp (nearest neighbour to the next whole multiple, then a smooth reduction), each item gets its own
+  copy and the binder disposes it with the item. Don't set `item.Image` for an icon, the tool strip would scale it blurry.
 
 ## Threads
 

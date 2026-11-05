@@ -25,6 +25,7 @@ using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
@@ -49,9 +50,18 @@ namespace Greenshot.Editor.Controls
             var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
             menuItem.DropDownClosed -= OnDropDownClosed;
             menuItem.DropDownClosed += OnDropDownClosed;
+            // Clear doesn't dispose the items, their icons are disposed with them
+            var oldItems = new ToolStripItem[menuItem.DropDownItems.Count];
+            menuItem.DropDownItems.CopyTo(oldItems, 0);
             menuItem.DropDownItems.Clear();
+            foreach (var oldItem in oldItems)
+            {
+                oldItem.Dispose();
+            }
             // check if thumbnailPreview is enabled and DWM is enabled
             bool thumbnailPreview = coreConfig.ThumnailPreview;
+            // The size the binder gives the drop down when it opens, see IconBinder
+            int iconPixelSize = menuItem.Owner?.ImageScalingSize.Height ?? IconSizing.PixelSize(IconSizing.DefaultDpi);
 
             foreach (var window in WindowHelper.GetTopLevelWindows())
             {
@@ -73,8 +83,8 @@ namespace Greenshot.Editor.Controls
                 ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
                 captureWindowItem.Click += onClick;
-                // Dispose the icon when the menu item is disposed to prevent memory leaks
-                captureWindowItem.AssignAutoDisposingImage(window.GetDisplayIcon(), needsClone: false);
+                // In the size of the menu, the binder disposes the icon with the item
+                IconBinder.Bind(captureWindowItem, IconSource.FromImage(window.GetDisplayIcon(iconPixelSize > 16)));
                 // Only show preview when enabled
                 if (thumbnailPreview)
                 {
