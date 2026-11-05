@@ -71,7 +71,8 @@ The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.
 - **The editor (WinForms)** has its own setting on the Editor tab of the settings, `Editor.EditorTheme` (Light by default, Dark,
   Same as Windows), so it can stay light in a dark Greenshot. `EditorTheme.Current` has its colors (system colors in light and high
   contrast, the dark palette in dark) and `EditorTheme.Changed` is raised when they change. Editor controls take their colors from there,
-  never from `SystemColors` directly. The capture and its elements are never themed. The title bar still follows Greenshot's theme.
+  never from `SystemColors` directly. The capture and its elements are never themed. The title bar follows the editor setting too: a `GreenshotForm` with its own
+  theme overrides `IsDarkTitleBar` and calls `WindowFrameTheme.Update(handle)` when it changes.
 - **Message boxes:** use `ThemedMessageBox.Show` (or `ShowChoice` with own button texts) instead of `MessageBox.Show`, so the message box has the theme too.
 
 ## Reuse the shared styles

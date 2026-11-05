@@ -53,6 +53,7 @@ using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Destinations;
@@ -400,8 +401,18 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             statusLabel.ForeColor = theme.Foreground;
+            if (IsHandleCreated)
+            {
+                WindowFrameTheme.Update(Handle);
+            }
+
             Invalidate(true);
         }
+
+        /// <summary>
+        /// The title bar follows the editor theme setting, not Greenshot's theme
+        /// </summary>
+        protected override Func<bool> IsDarkTitleBar => () => EditorTheme.Current.IsDark;
 
         /// <summary>
         /// The images of the controls, embedded as plain files (see EmbeddedResources). They are assigned here and not in the
