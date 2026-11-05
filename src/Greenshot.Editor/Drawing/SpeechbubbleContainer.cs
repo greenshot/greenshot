@@ -133,6 +133,9 @@ namespace Greenshot.Editor.Drawing
             return returnValue;
         }
 
+        [NonSerialized] private (int Left, int Top, int Width, int Height, int LineThickness, bool Shadow, NativePoint Target)? _drawingBoundsKey;
+        [NonSerialized] private NativeRect _drawingBounds;
+
         /// <summary>
         /// The DrawingBound should be so close as possible to the shape, so we don't invalidate to much.
         /// </summary>
@@ -143,19 +146,27 @@ namespace Greenshot.Editor.Drawing
                 if (Status == EditStatus.UNDRAWN) return NativeRect.Empty;
 
                 int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-                Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
                 bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-                using Pen pen = new Pen(lineColor, lineThickness);
+                var key = (Left, Top, Width, Height, lineThickness, shadow, TargetAdorner.Location);
+                // The paint asks several times per element, the tail is only measured when its inputs change
+                if (_drawingBoundsKey == key)
+                {
+                    return _drawingBounds;
+                }
+
+                using Pen pen = new Pen(Color.White, lineThickness);
                 int inflateValue = lineThickness + 2 + (shadow ? 6 : 0);
                 using GraphicsPath tailPath = CreateTail();
-         
+
                 var bubbleBounds = new NativeRect(Left, Top, Width, Height).Normalize();
                 using var matrix = new Matrix();
 
                 var tailBounds = Rectangle.Round(tailPath.GetBounds(matrix, pen));
 
                 var drawingBoundsWithoutSafety = bubbleBounds.Union(tailBounds);
-                return drawingBoundsWithoutSafety.Inflate(inflateValue, inflateValue);
+                _drawingBounds = drawingBoundsWithoutSafety.Inflate(inflateValue, inflateValue);
+                _drawingBoundsKey = key;
+                return _drawingBounds;
 
             }
         }

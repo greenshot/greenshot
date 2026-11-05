@@ -3221,6 +3221,12 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
+                // No filter left and no zoom over 100%: the buffer isn't needed anymore (e.g. 66 MB for 7680x2160)
+                if (_buffer != null && !AnyElementHasFilters())
+                {
+                    ReleasePaintBuffer();
+                }
+
                 DrawBackground(targetGraphics, targetClipRectangle);
                 if (_zoomFactor == Fraction.Identity)
                 {
@@ -3372,8 +3378,49 @@ namespace Greenshot.Editor.Drawing
             {
                 _parentWithResize.Resize += OnParentResize;
             }
+            else
+            {
+                // A hidden tab isn't painted, its paint buffer (a copy of the whole image) is made again when it's shown
+                ReleasePaintBuffer();
+            }
 
             base.OnParentChanged(e);
+        }
+
+        /// <summary>
+        /// True while the paint keeps its buffer (a copy of the whole image), for the tests
+        /// </summary>
+        internal bool HasPaintBuffer => _buffer != null;
+
+        /// <summary>
+        /// Free the paint buffer, a copy of the whole image. The paint makes it again when filters or a zoom over 100% need it.
+        /// </summary>
+        private void ReleasePaintBuffer()
+        {
+            if (_buffer == null)
+            {
+                return;
+            }
+
+            _buffer.Dispose();
+            _buffer = null;
+            LOG.Debug("Released the paint buffer");
+        }
+
+        /// <summary>
+        /// True when an element has a filter, the paint buffer is still needed then
+        /// </summary>
+        private bool AnyElementHasFilters()
+        {
+            foreach (var element in _elements)
+            {
+                if (element.HasFilters)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void OnParentResize(object sender, EventArgs e) => InvalidateFocusFrame();
