@@ -2202,6 +2202,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string AutoDismissTimeout { get; }
 
         /// <summary>
+        /// Window position
+        /// </summary>
+        string WindowPosition { get; }
+
+        /// <summary>
+        /// Middle of the screen
+        /// </summary>
+        string WindowPositionCenter { get; }
+
+        /// <summary>
+        /// At the mouse pointer
+        /// </summary>
+        string WindowPositionMouse { get; }
+
+        /// <summary>
         /// Specific Destinations Filter (Optional, comma-separated)
         /// </summary>
         string DestinationsFilter { get; }

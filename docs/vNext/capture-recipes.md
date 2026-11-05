@@ -94,8 +94,13 @@ Triggers and recipes are decoupled. Any trigger can run any recipe, and a single
 `Editor` triggers add items to the image editor's **Recipes** menu. 
 The destination window (destination "Ask for destination every time, in a window", Export in the viewer and the
 `DynamicDestination` step) lists the same
-recipes under "Change the capture with a recipe": the recipe changes the capture shown there, like in the editor, before a
-destination is chosen.
+recipes in a list between the preview and the search box (only when there are some): the recipe changes the capture shown
+there, like in the editor, before a destination is chosen.
+The window opens centered on the mouse pointer, or in the middle of the screen: *Settings > Destination* has the option for all
+three ways to open it (`DestinationWindowAtMouse` in greenshot.ini, on by default), and the `DynamicDestination` step has the parameter
+`WindowPosition` (`Default` follows the setting, `Center` or `Mouse` for this step).
+The preview of the capture follows *Settings > Destination* too (`DestinationWindowShowPreview`); the step parameter
+`ShowPreview` (`true` or `false`) overrides it, and without the parameter the setting decides.
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
 The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
 For example:

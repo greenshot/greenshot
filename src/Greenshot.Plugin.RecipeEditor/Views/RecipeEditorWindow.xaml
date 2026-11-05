@@ -2804,16 +2804,26 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                      Padding="6,4" Margin="0,0,0,6"/>
 
-                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                                                <StackPanel>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.ShowThumbnail}" IsChecked="{Binding SelectedNode.DynamicDestinationShowPreview, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                </StackPanel>
-                                            </Border>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowThumbnail}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowThumbnail}" SelectedValue="{Binding SelectedNode.DynamicDestinationShowPreviewMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.AutoDismissTimeout}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.AutoDismissTimeout}" Text="{Binding SelectedNode.DynamicDestinationTimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                      Padding="6,4" Margin="0,0,0,6"/>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.WindowPosition}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.WindowPosition}" SelectedValue="{Binding SelectedNode.DynamicDestinationWindowPosition, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag="Default"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.WindowPositionCenter}" Tag="Center"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.WindowPositionMouse}" Tag="Mouse"/>
+                                            </ComboBox>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.DestinationsFilter}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.DestinationsFilter}" Text="{Binding SelectedNode.DynamicDestinationSpecificDestinations, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

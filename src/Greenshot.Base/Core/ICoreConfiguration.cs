@@ -71,6 +71,14 @@ namespace Greenshot.Base.Core
         [DefaultValue("Picker")]
         List<string> OutputDestinations { get; set; }
 
+        [Description("Show the destination window (the one which asks for the destination, in a window) at the mouse pointer instead of the middle of the screen. A step of a recipe with a window position of its own overrides this.")]
+        [DefaultValue(true)]
+        bool DestinationWindowAtMouse { get; set; }
+
+        [Description("Show a preview of the capture in the destination window. A step of a recipe with its own choice overrides this.")]
+        [DefaultValue(true)]
+        bool DestinationWindowShowPreview { get; set; }
+
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }

@@ -3100,13 +3100,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public bool DynamicDestinationShowPreview
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false"
+        /// </summary>
+        public string DynamicDestinationShowPreviewMode
         {
-            get => GetParamBool("ShowPreview", true);
+            get => GetTriStateParam("ShowPreview");
             set
             {
-                SetParam("ShowPreview", value);
-                OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+                SetTriStateParam("ShowPreview", value);
+                OnPropertyChanged(nameof(DynamicDestinationShowPreviewMode));
                 OnPropertyChanged(nameof(Summary));
             }
         }
@@ -3115,6 +3118,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetParam("TimeoutSeconds", "0");
             set { SetNumberParam("TimeoutSeconds", value); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        /// <summary>
+        /// Where the window opens: Default (the setting), Center (the middle of the screen) or Mouse (at the mouse pointer)
+        /// </summary>
+        public string DynamicDestinationWindowPosition
+        {
+            get => GetParam("WindowPosition", "Default");
+            set { SetParam("WindowPosition", value); OnPropertyChanged(nameof(DynamicDestinationWindowPosition)); }
         }
 
         public string DynamicDestinationSpecificDestinations
@@ -4158,8 +4170,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(VideoRegionHeight));
             OnPropertyChanged(nameof(VideoMonitorIndex));
             OnPropertyChanged(nameof(DynamicDestinationTitle));
-            OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+            OnPropertyChanged(nameof(DynamicDestinationShowPreviewMode));
             OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
+            OnPropertyChanged(nameof(DynamicDestinationWindowPosition));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));
             OnPropertyChanged(nameof(OnErrorNodeId));
