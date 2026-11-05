@@ -455,12 +455,7 @@ namespace Greenshot.Settings.ViewModels
             }
 
             // Names in the settings which aren't registered, e.g. of a plugin which isn't installed
-            foreach (var designation in ConfigurationRestrictions.Names(CoreConfiguration.ExcludeDestinations)
-                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedDestinations))
-                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.AllowedDestinations))
-                         .Distinct(StringComparer.OrdinalIgnoreCase)
-                         .Where(designation => designation != nameof(WellKnownDestinations.Picker))
-                         .ToList())
+            foreach (var designation in UnlistedDestinationNames(CoreConfiguration, Destinations.Select(item => item.Designation)))
             {
                 AddUnregisteredDestination(designation);
             }
