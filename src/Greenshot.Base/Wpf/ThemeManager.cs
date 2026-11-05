@@ -364,6 +364,29 @@ namespace Greenshot.Base.Wpf
             }
         }
 
+        /// <summary>
+        /// The palette for a theme choice of a window with its own setting (the editor): Light, Dark or System (the app mode of
+        /// Windows, not Greenshot's theme). A high contrast theme of Windows always wins. Reads the registry for System: cache it.
+        /// </summary>
+        /// <param name="theme">UiTheme</param>
+        /// <returns>ThemePalette</returns>
+        public ThemePalette GetPalette(UiTheme theme)
+        {
+            var current = CurrentPalette;
+            if (System.Windows.Forms.SystemInformation.HighContrast)
+            {
+                return current.IsHighContrast ? current : ThemePalette.CreateHighContrast();
+            }
+
+            bool isDark = theme switch
+            {
+                UiTheme.Light => false,
+                UiTheme.Dark => true,
+                _ => !ReadPersonalizeFlag("AppsUseLightTheme")
+            };
+            return current.IsDark == isDark && !current.IsHighContrast ? current : CreatePalette(isDark);
+        }
+
         private ThemePalette CreatePalette(bool isDark)
         {
             var accent = _accent?.GetAccent(isDark) ?? (isDark ? ThemePalette.DefaultDarkAccent : ThemePalette.DefaultLightAccent);
