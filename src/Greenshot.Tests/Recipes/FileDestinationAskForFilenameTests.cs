@@ -277,7 +277,7 @@ namespace Greenshot.Tests.Recipes
                 Assert.False(HdrExport.CanWriteHdr(surface));
                 var ui = new SaveDialogUserInteraction(path) { ConfirmAnswer = answer };
 
-                var result = await ExportAsync(surface, ui, null, manuallyInitiated);
+                var result = await ExportAsync(surface, ui, (string) null, manuallyInitiated);
 
                 // An 8-bit JPEG XR: the user who saves it is asked first, a flow saves it (the recipe can check payload.hdr); never a notification
                 Assert.Equal(manuallyInitiated ? 1 : 0, ui.Questions.Count);
@@ -428,7 +428,7 @@ namespace Greenshot.Tests.Recipes
                 var ui = new SaveDialogUserInteraction(path);
 
                 // Like the editor's Save as: no HdrFormat, the user picks JPEG XR
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // Away from the rectangle and its shadow: the HDR highlights
@@ -451,7 +451,7 @@ namespace Greenshot.Tests.Recipes
                 await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.BorderEffect { Width = 2, Color = Color.Black }));
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Notifications);
@@ -644,7 +644,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(true);
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // HDR content only by the setting: the configured format, JPEG XR only marked as HDR
@@ -670,7 +670,7 @@ namespace Greenshot.Tests.Recipes
                 surface.HdrImage.IsRequested = true;
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
@@ -704,7 +704,7 @@ namespace Greenshot.Tests.Recipes
                 surface.CaptureDetails.Filename = path;
                 var ui = new SaveDialogUserInteraction(null, false);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Dialogs);

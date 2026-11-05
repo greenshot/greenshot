@@ -852,6 +852,8 @@ namespace Greenshot.Editor.Drawing
                 _zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
                 _inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
                 UpdateSize();
+                // A size change repaints, the same size (a small image) does not
+                Invalidate();
             }
         }
 
@@ -974,6 +976,9 @@ namespace Greenshot.Editor.Drawing
             {
                 element.AdjustToDpi(dpi);
             }
+
+            // The adorners changed their size
+            Invalidate();
 
             // The framework's automatic DPI-driven control scaling resizes this control along with
             // every other control on the form, which is wrong here: the canvas size must always be
@@ -2525,15 +2530,15 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Check if an adorner was "hit", and change the cursor if so
         /// </summary>
-        /// <param name="mouseEventArgs">MouseEventArgs</param>
+        /// <param name="surfacePoint">The mouse location in surface coordinates, the adorners have the same size at every zoom</param>
         /// <returns>IAdorner</returns>
-        private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
+        private IAdorner FindActiveAdorner(NativePoint surfacePoint)
         {
             foreach (IDrawableContainer drawableContainer in selectedElements)
             {
                 foreach (IAdorner adorner in drawableContainer.Adorners)
                 {
-                    if (!adorner.IsActive && !adorner.HitTest(mouseEventArgs.Location)) continue;
+                    if (!adorner.IsActive && !adorner.HitTest(surfacePoint)) continue;
                     
                     if (adorner.Cursor != null)
                     {
@@ -2560,6 +2565,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // check contextmenu, before the adorners: a right click must never start resizing/moving an adorner
@@ -2583,7 +2589,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseDown(sender, e);
@@ -2624,10 +2630,11 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseUp(sender, e);
@@ -2977,10 +2984,11 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseMove(sender, e);
@@ -3025,7 +3033,9 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 _mouseStart = currentMouse;
+                // Repaint where they are now: all selected elements moved, not only the dragged one
                 _mouseDownElement.Invalidate();
+                selectedElements.Invalidate();
                 _modified = true;
             }
             else if (_drawingElement != null)
@@ -3098,8 +3108,21 @@ namespace Greenshot.Editor.Drawing
             return rc.Inflate(inflateAmount, inflateAmount);
         }
 
+        /// <summary>
+        /// The margin around an element for its adorners at 96 DPI, in screen pixels: half the adorner, its outline and a safety pixel
+        /// </summary>
+        private const int AdornerMarginAt96Dpi = AbstractAdorner.DefaultSizeAt96Dpi / 2 + 3;
+
+        /// <summary>
+        /// Repaint the area of an element, in image coordinates. The adorners around it are drawn in screen pixels, whatever the zoom,
+        /// so their margin is added after zooming (in image coordinates they would leave traces at a zoom below 100%).
+        /// </summary>
+        /// <param name="rc">NativeRect in image coordinates</param>
         public void InvalidateElements(NativeRect rc)
-            => Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
+        {
+            int adornerMargin = AdornerMarginAt96Dpi * CurrentDpi / 96;
+            Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1).Inflate(adornerMargin, adornerMargin));
+        }
 
         /// <summary>
         /// This is the event handler for the Paint Event, try to draw as little as possible!
@@ -3166,7 +3189,12 @@ namespace Greenshot.Editor.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     //graphics.CompositingQuality = CompositingQuality.HighQuality;
                     //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    DrawBackground(graphics, bufferRectangle);
+                    // The image covers the buffer area, only a transparent image needs the background behind it
+                    if (Image.IsAlphaPixelFormat(Image.PixelFormat))
+                    {
+                        DrawBackground(graphics, bufferRectangle);
+                    }
+
                     graphics.DrawImage(Image, bufferRectangle, bufferRectangle, GraphicsUnit.Pixel);
                     graphics.SetClip(bufferRectangle);
                     _elements.Draw(graphics, _buffer, RenderMode.EDIT, bufferRectangle);
@@ -3358,7 +3386,12 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
             targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
 
-            targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+            // The filter reads pixels outside the repainted part: without mirroring at the edge it blends in transparent pixels,
+            // which shows as faint lines between repainted parts when zoomed out
+            using var edgeMirrorAttributes = new ImageAttributes();
+            edgeMirrorAttributes.SetWrapMode(WrapMode.TileFlipXY);
+            targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle.X, imageClipRectangle.Y, imageClipRectangle.Width, imageClipRectangle.Height,
+                GraphicsUnit.Pixel, edgeMirrorAttributes);
 
             targetGraphics.Restore(state);
         }
@@ -3369,7 +3402,9 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.SmoothingMode = SmoothingMode.None;
             targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
-            targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+            // With None, GDI+ centers every image pixel on its zoomed position, which shifts the zoomed image by half an image pixel
+            // up and left: the pixel under the mouse is then not the one the mouse coordinates point to
+            targetGraphics.PixelOffsetMode = PixelOffsetMode.Half;
 
             targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
 
@@ -3385,7 +3420,9 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                targetGraphics.Clear(BackColor);
+                // Only the clip rectangle: Graphics.Clear fills everything outside a clip, a whole image sized buffer on every paint
+                using var backgroundBrush = new SolidBrush(BackColor);
+                targetGraphics.FillRectangle(backgroundBrush, clipRectangle);
             }
         }
 
@@ -3412,6 +3449,8 @@ namespace Greenshot.Editor.Drawing
             }
 
             element.Parent = this;
+            // Elements which were loaded, pasted or created without the surface have adorners for 96 DPI
+            element.AdjustToDpi(CurrentDpi);
             if (element.Status == EditStatus.UNDRAWN)
             {
                 element.Status = EditStatus.IDLE;

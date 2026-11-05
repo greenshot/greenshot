@@ -34,7 +34,12 @@ namespace Greenshot.Editor.Drawing.Adorners
     {
         public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-        private static readonly NativeSize DefaultSize = new(6, 6);
+        /// <summary>
+        /// The size of an adorner at 96 DPI, in screen pixels
+        /// </summary>
+        internal const int DefaultSizeAt96Dpi = 6;
+
+        private static readonly NativeSize DefaultSize = new(DefaultSizeAt96Dpi, DefaultSizeAt96Dpi);
 
         protected NativeSize Size
         {
@@ -59,13 +64,19 @@ namespace Greenshot.Editor.Drawing.Adorners
         public IDrawableContainer Owner { get; set; }
 
         /// <summary>
-        /// Test if the point is inside the adorner
+        /// Test if the point is inside the adorner, as it is drawn: in screen pixels, the same size at every zoom
         /// </summary>
-        /// <param name="point">NativePoint</param>
+        /// <param name="point">NativePoint in surface coordinates</param>
         /// <returns>bool</returns>
         public virtual bool HitTest(NativePoint point)
         {
-            NativeRect hitBounds = Bounds.Inflate(3, 3);
+            if (Owner?.Parent == null)
+            {
+                return false;
+            }
+
+            // A margin of half the adorner around it, so it is easy to grab
+            NativeRect hitBounds = BoundsOnSurface.Inflate(Size.Width / 2, Size.Height / 2);
             return hitBounds.Contains(point);
         }
 
