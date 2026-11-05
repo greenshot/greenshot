@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -80,21 +79,25 @@ namespace Greenshot.Base.ImageSharpDrawing
         }
 
         /// <summary>
-        /// The tail, like SpeechbubbleContainer.CreateTail: a triangle from the middle of the box (its base across, as wide as a tenth of width and
-        /// height together, at most half of either) to the target, with the editor's whole-number rounding
+        /// The tail, like SpeechbubbleContainer.CreateTail: a triangle from the middle of the box (its base across the direction, as wide as a tenth
+        /// of width and height together, at most half of either) with its tip exactly on the target
         /// </summary>
         internal static IPath TailShape(Rectangle rect, Point target)
         {
-            int centerX = rect.Left + rect.Width / 2;
-            int centerY = rect.Top + rect.Height / 2;
-            int tailLength = (int)Math.Sqrt(Math.Pow(target.X - centerX, 2) + Math.Pow(target.Y - centerY, 2));
-            int tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
+            float centerX = rect.Left + rect.Width / 2f;
+            float centerY = rect.Top + rect.Height / 2f;
+            float tailWidth = (Math.Abs(rect.Width) + Math.Abs(rect.Height)) / 20;
             tailWidth = Math.Min(Math.Abs(rect.Width) / 2, tailWidth);
             tailWidth = Math.Min(Math.Abs(rect.Height) / 2, tailWidth);
-            int tailAngle = 90 + (int)(Math.Atan2(target.Y - centerY, target.X - centerX) * 180 / Math.PI);
-            var turn = Matrix3x2.CreateRotation((float)(tailAngle * Math.PI / 180))
-                       * Matrix3x2.CreateTranslation(centerX, centerY);
-            return new Polygon(new LinearLineSegment(new PointF(-tailWidth, 0), new PointF(tailWidth, 0), new PointF(0, -tailLength))).Transform(turn);
+            float dx = target.X - centerX;
+            float dy = target.Y - centerY;
+            double length = Math.Sqrt(dx * dx + dy * dy);
+            float normalX = length > 0 ? (float)(-dy / length) : 1;
+            float normalY = length > 0 ? (float)(dx / length) : 0;
+            return new Polygon(new LinearLineSegment(
+                new PointF(centerX + normalX * tailWidth, centerY + normalY * tailWidth),
+                new PointF(centerX - normalX * tailWidth, centerY - normalY * tailWidth),
+                new PointF(target.X, target.Y)));
         }
     }
 }

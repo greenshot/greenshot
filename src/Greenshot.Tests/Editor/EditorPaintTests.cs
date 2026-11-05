@@ -137,5 +137,32 @@ namespace Greenshot.Tests.Editor
             Assert.True(after.Right > before.Right);
             Assert.True(after.Bottom > before.Bottom);
         }
+
+        [Theory]
+        [InlineData(400, 390)]
+        [InlineData(395, 20)]
+        [InlineData(5, 387)]
+        public void SpeechBubbleTail_EndsExactlyOnTheTarget(int targetX, int targetY)
+        {
+            using var surface = new Surface(new Bitmap(400, 400));
+            var bubble = new SpeechbubbleContainer(surface)
+            {
+                Left = 20,
+                Top = 30,
+                Width = 81,
+                Height = 41
+            };
+            surface.AddElement(bubble, false, false);
+
+            // Moving the bubble a pixel at a time must not move the tip away from the target (it jumped with whole degrees)
+            for (int left = 20; left < 40; left++)
+            {
+                bubble.Left = left;
+                bubble.SetTailLocation(new NativePoint(targetX, targetY));
+                using var tail = bubble.CreateTail();
+                var points = tail.PathPoints;
+                Assert.Contains(points, point => System.Math.Abs(point.X - targetX) < 0.01 && System.Math.Abs(point.Y - targetY) < 0.01);
+            }
+        }
     }
 }
