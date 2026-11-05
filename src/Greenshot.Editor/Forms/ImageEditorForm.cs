@@ -53,6 +53,7 @@ using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Destinations;
@@ -356,6 +357,54 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
+        /// The colors of the window from the Greenshot theme (see <see cref="EditorTheme"/>): light and high contrast keep the system
+        /// colors, dark uses the dark palette. The capture and the elements are not changed.
+        /// </summary>
+        private void ApplyTheme()
+        {
+            var theme = EditorTheme.Current;
+            BackColor = theme.Background;
+            ForeColor = theme.Foreground;
+            foreach (Control control in new Control[]
+                     {
+                         topToolStripContainer.TopToolStripPanel, topToolStripContainer.LeftToolStripPanel, topToolStripContainer.BottomToolStripPanel,
+                         topToolStripContainer.ContentPanel, tableLayoutPanel1, toolsToolStrip, menuStrip1, destinationsToolStrip, propertiesToolStrip,
+                         statusStrip1, tabStrip
+                     })
+            {
+                control.BackColor = theme.Background;
+                control.ForeColor = theme.Foreground;
+            }
+
+            panel1.BackColor = theme.CanvasSurround;
+            // The combo boxes and number fields in the property bar
+            foreach (ToolStripItem item in propertiesToolStrip.Items)
+            {
+                if (item is ToolStripControlHost { Control: { } hosted })
+                {
+                    hosted.BackColor = theme.Window;
+                    hosted.ForeColor = theme.WindowText;
+                }
+            }
+
+            foreach (var toolStrip in new[] { toolsToolStrip, destinationsToolStrip, propertiesToolStrip })
+            {
+                toolStrip.OverflowButton.DropDown.BackColor = theme.MenuBackground;
+            }
+
+            foreach (ToolStrip toolStrip in new ToolStrip[] { menuStrip1, statusStrip1, fileSavedStatusContextMenu, zoomMenuStrip, _tabContextMenu })
+            {
+                if (toolStrip != null)
+                {
+                    EditorTheme.ApplyRenderer(toolStrip);
+                }
+            }
+
+            statusLabel.ForeColor = theme.Foreground;
+            Invalidate(true);
+        }
+
+        /// <summary>
         /// The images of the controls, embedded as plain files (see EmbeddedResources). They are assigned here and not in the
         /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
         /// Never set an Image in the designer, add the file to Resources and a line here.
@@ -463,10 +512,29 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
+            PropertyChangedEventHandler themeChangedHandler = (s, e) =>
+            {
+                if (e.PropertyName != nameof(ThemeManager.CurrentPalette) || IsDisposed || Disposing || !IsHandleCreated)
+                {
+                    return;
+                }
+
+                // The theme manager raises it on the UI dispatcher, BeginInvoke also covers another thread
+                BeginInvoke(new MethodInvoker(() =>
+                {
+                    if (!IsDisposed && !Disposing)
+                    {
+                        ApplyTheme();
+                    }
+                }));
+            };
+            ThemeManager.Instance.PropertyChanged += themeChangedHandler;
+            FormClosed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeChangedHandler;
             CreateHdrLabel();
             CreateOcrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
+            ApplyTheme();
             timing.Mark("InitializeComponent");
             InitializeLanguage();
             timing.Mark("InitializeLanguage");
@@ -1248,7 +1316,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="e"></param>
         private void PropertiesToolStrip_Paint(object sender, PaintEventArgs e)
         {
-            using Pen cbBorderPen = new Pen(SystemColors.ActiveBorder);
+            using Pen cbBorderPen = new Pen(EditorTheme.Current.IsDark ? EditorTheme.Current.Border : SystemColors.ActiveBorder);
             // Loop over all items in the propertiesToolStrip
             foreach (ToolStripItem item in propertiesToolStrip.Items)
             {
@@ -1541,7 +1609,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // Enabled also when it's lost: a disabled item shows no tooltip which says why
             _hdrLabel.Font = canWriteHdr ? _hdrActiveFont : _hdrLostFont;
             _hdrLabel.BackColor = canWriteHdr ? Color.FromArgb(255, 196, 0) : Color.Empty;
-            _hdrLabel.ForeColor = canWriteHdr ? Color.Black : SystemColors.GrayText;
+            _hdrLabel.ForeColor = canWriteHdr ? Color.Black : EditorTheme.Current.Muted;
             _hdrLabel.ToolTipText = canWriteHdr ? Texts.Editor.HdrBadgeTooltip : Texts.Editor.HdrBadgeLostTooltip;
             _hdrLabel.AccessibleName = HdrBadge + ": " + _hdrLabel.ToolTipText;
         }
@@ -1592,7 +1660,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // Found: dark text on light blue, like a badge; failed: grey and struck through, so it doesn't depend on the color alone
             _ocrLabel.Font = state == TextRecognitionState.Failed ? _hdrLostFont : _hdrActiveFont;
             _ocrLabel.BackColor = found ? Color.FromArgb(150, 205, 255) : Color.Empty;
-            _ocrLabel.ForeColor = found ? Color.Black : SystemColors.GrayText;
+            _ocrLabel.ForeColor = found ? Color.Black : EditorTheme.Current.Muted;
             _ocrLabel.ToolTipText = state switch
             {
                 TextRecognitionState.Found => Texts.Editor.OcrBadgeFoundTooltip,
@@ -2548,7 +2616,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 : isError ? System.Windows.Forms.Automation.AutomationLiveSetting.Assertive
                 : System.Windows.Forms.Automation.AutomationLiveSetting.Polite;
             statusLabel.Text = text;
-            statusLabel.ForeColor = isError ? Color.DarkRed : SystemColors.ControlText;
+            statusLabel.ForeColor = isError ? EditorTheme.Current.Error : EditorTheme.Current.Foreground;
             statusStrip1.ContextMenuStrip = contextMenu;
         }
 

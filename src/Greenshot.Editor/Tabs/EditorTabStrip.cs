@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Forms;
 
 namespace Greenshot.Editor.Tabs
@@ -63,7 +64,7 @@ namespace Greenshot.Editor.Tabs
             // Focused with F6 or a screen reader, a click doesn't take the focus from the canvas
             SetStyle(ControlStyles.Selectable, true);
             TabStop = false;
-            BackColor = SystemColors.Control;
+            BackColor = EditorTheme.Current.Background;
             // Docked at the top, the layout takes the height from GetPreferredSize
             AutoSize = true;
         }
@@ -446,8 +447,9 @@ namespace Greenshot.Editor.Tabs
             var graphics = e.Graphics;
             bool dropping = _dropIndex >= 0;
             // A tab can be dropped here: the strip takes a tint of the highlight color
-            graphics.Clear(dropping ? Blend(BackColor, SystemColors.Highlight, 0.25) : BackColor);
-            using var borderPen = new Pen(SystemColors.ControlDark);
+            var theme = EditorTheme.Current;
+            graphics.Clear(dropping ? Blend(BackColor, theme.Highlight, 0.25) : BackColor);
+            using var borderPen = new Pen(theme.Border);
             // The line between the tabs and the canvas, the selected tab is open to the canvas
             graphics.DrawLine(borderPen, 0, Height - 1, Width, Height - 1);
 
@@ -455,7 +457,7 @@ namespace Greenshot.Editor.Tabs
             {
                 if (_tabs[index] == _draggedTab)
                 {
-                    PaintGap(graphics, GetTabBounds(index), SystemColors.ControlDark);
+                    PaintGap(graphics, GetTabBounds(index), theme.Border);
                     continue;
                 }
 
@@ -465,8 +467,8 @@ namespace Greenshot.Editor.Tabs
             PaintNewTab(graphics);
             if (dropping)
             {
-                PaintGap(graphics, GetSlotBounds(_dropIndex), SystemColors.Highlight);
-                using var dropPen = new Pen(SystemColors.Highlight, Scale(2));
+                PaintGap(graphics, GetSlotBounds(_dropIndex), theme.Highlight);
+                using var dropPen = new Pen(theme.Highlight, Scale(2));
                 graphics.DrawRectangle(dropPen, Scale(1), Scale(1), Width - Scale(2), Height - Scale(2));
             }
         }
@@ -493,9 +495,15 @@ namespace Greenshot.Editor.Tabs
         /// </summary>
         internal void PaintTabImage(Graphics graphics, Rectangle bounds, EditorTab tab)
         {
-            graphics.FillRectangle(SystemBrushes.Window, bounds);
-            graphics.DrawRectangle(SystemPens.ControlDark, bounds.Left, bounds.Top, bounds.Width - 1, bounds.Height - 1);
-            PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, bounds.Width - Scale(6), bounds.Height), tab, SystemColors.WindowText);
+            var theme = EditorTheme.Current;
+            using (var windowBrush = new SolidBrush(theme.Window))
+            using (var borderPen = new Pen(theme.Border))
+            {
+                graphics.FillRectangle(windowBrush, bounds);
+                graphics.DrawRectangle(borderPen, bounds.Left, bounds.Top, bounds.Width - 1, bounds.Height - 1);
+            }
+
+            PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, bounds.Width - Scale(6), bounds.Height), tab, theme.WindowText);
         }
 
         private void PaintTitle(Graphics graphics, Rectangle bounds, EditorTab tab, Color color)
@@ -507,12 +515,14 @@ namespace Greenshot.Editor.Tabs
 
         private void PaintTab(Graphics graphics, Pen borderPen, int index)
         {
+            var theme = EditorTheme.Current;
             var tab = _tabs[index];
             var bounds = GetTabBounds(index);
             bool selected = tab == _selectedTab;
             if (selected)
             {
-                graphics.FillRectangle(SystemBrushes.Window, bounds.Left, bounds.Top, bounds.Width, bounds.Height);
+                using var windowBrush = new SolidBrush(theme.Window);
+                graphics.FillRectangle(windowBrush, bounds.Left, bounds.Top, bounds.Width, bounds.Height);
                 graphics.DrawLines(borderPen, new[]
                 {
                     new Point(bounds.Left, bounds.Bottom), new Point(bounds.Left, bounds.Top),
@@ -523,7 +533,8 @@ namespace Greenshot.Editor.Tabs
             {
                 if (index == _hotIndex)
                 {
-                    graphics.FillRectangle(SystemBrushes.ControlLightLight, bounds.Left, bounds.Top, bounds.Width, bounds.Height - 1);
+                    using var hotBrush = new SolidBrush(theme.HotTab);
+                    graphics.FillRectangle(hotBrush, bounds.Left, bounds.Top, bounds.Width, bounds.Height - 1);
                 }
 
                 // A separator, but not next to the selected tab
@@ -538,12 +549,12 @@ namespace Greenshot.Editor.Tabs
             bool showsClose = ShowsClose(index);
             int textRight = showsClose ? GetCloseBounds(index).Left - Scale(2) : bounds.Right - Scale(6);
             PaintTitle(graphics, new Rectangle(bounds.Left, bounds.Top, textRight - bounds.Left, bounds.Height), tab,
-                selected ? SystemColors.WindowText : SystemColors.ControlText);
+                selected ? theme.WindowText : theme.Foreground);
             if (selected && Focused)
             {
                 // Only the keyboard focuses the strip, so the frame is always shown
                 var focusBounds = new Rectangle(bounds.Left + Scale(3), bounds.Top + Scale(3), Math.Max(0, textRight - bounds.Left - Scale(3)), Math.Max(0, bounds.Height - Scale(6)));
-                ControlPaint.DrawFocusRectangle(graphics, focusBounds, SystemColors.WindowText, SystemColors.Window);
+                ControlPaint.DrawFocusRectangle(graphics, focusBounds, theme.WindowText, theme.Window);
             }
 
             if (showsClose)
@@ -554,30 +565,34 @@ namespace Greenshot.Editor.Tabs
 
         private void PaintNewTab(Graphics graphics)
         {
+            var theme = EditorTheme.Current;
             var bounds = NewTabBounds;
             if (_hotNewTab)
             {
-                graphics.FillRectangle(SystemBrushes.ControlLightLight, bounds);
+                using var hotBrush = new SolidBrush(theme.HotTab);
+                graphics.FillRectangle(hotBrush, bounds);
             }
 
             int inset = bounds.Width / 4;
             int middleX = bounds.Left + bounds.Width / 2;
             int middleY = bounds.Top + bounds.Height / 2;
-            using var plusPen = new Pen(SystemColors.ControlText, Math.Max(1, Scale(1)));
+            using var plusPen = new Pen(theme.Foreground, Math.Max(1, Scale(1)));
             graphics.DrawLine(plusPen, bounds.Left + inset, middleY, bounds.Right - inset - 1, middleY);
             graphics.DrawLine(plusPen, middleX, bounds.Top + inset, middleX, bounds.Bottom - inset - 1);
         }
 
         private void PaintClose(Graphics graphics, int index)
         {
+            var theme = EditorTheme.Current;
             var closeBounds = GetCloseBounds(index);
             if (index == _hotIndex && _hotClose)
             {
-                graphics.FillRectangle(SystemBrushes.ControlDark, closeBounds);
+                using var hotBrush = new SolidBrush(theme.HotClose);
+                graphics.FillRectangle(hotBrush, closeBounds);
             }
 
             int inset = Scale(4);
-            using var crossPen = new Pen(_tabs[index] == _selectedTab ? SystemColors.WindowText : SystemColors.ControlText, Math.Max(1, Scale(1)));
+            using var crossPen = new Pen(_tabs[index] == _selectedTab ? theme.WindowText : theme.Foreground, Math.Max(1, Scale(1)));
             graphics.DrawLine(crossPen, closeBounds.Left + inset, closeBounds.Top + inset, closeBounds.Right - inset - 1, closeBounds.Bottom - inset - 1);
             graphics.DrawLine(crossPen, closeBounds.Left + inset, closeBounds.Bottom - inset - 1, closeBounds.Right - inset - 1, closeBounds.Top + inset);
         }
