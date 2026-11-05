@@ -25,7 +25,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
@@ -70,7 +69,7 @@ namespace Greenshot.Recipes.Steps
         {
             string title = Config.GetParameter<string>("Title") ?? "Export Capture";
             // Without a choice in the step the setting of Greenshot decides
-            bool showPreview = Config.GetParameter<bool?>("ShowPreview") ?? IniConfigRegistry.GetSection<ICoreConfiguration>().DestinationWindowShowPreview;
+            bool? showPreview = Config.GetParameter<bool?>("ShowPreview");
             int timeoutSeconds = Config.GetParameter<int?>("TimeoutSeconds") ?? 0;
             // Mouse or Center; without one (or Default) the setting decides
             string windowPosition = Config.GetParameter<string>("WindowPosition");

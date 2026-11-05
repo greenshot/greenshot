@@ -1071,15 +1071,16 @@ namespace Greenshot.Recipes.Views
         /// <param name="cancellationToken">Closes the window</param>
         /// <param name="title">The title, null for the default</param>
         /// <param name="timeoutSeconds">Closes the window after this many seconds, 0 for never</param>
-        /// <param name="showPreview">Show the capture</param>
+        /// <param name="showPreview">True: show the capture, false: don't, null: as set in the settings</param>
         /// <param name="atMouse">True: the window opens at the mouse pointer, false: in the middle of the screen (of the owner), null: as set in the settings</param>
         /// <returns>The chosen destination, or null when the window was closed</returns>
         public static IDestination Choose(Window owner, EditableCapture capture, IEnumerable<IDestination> destinations, string errorMessage,
-            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool showPreview = true, bool? atMouse = null)
+            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool? showPreview = null, bool? atMouse = null)
         {
+            var configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             var window = new DynamicDestinationWindow(title, destinations, errorMessage, timeoutSeconds);
-            window.UseCapture(capture, showPreview);
-            window.PlaceAtMouse = atMouse ?? IniConfigRegistry.GetSection<ICoreConfiguration>().DestinationWindowAtMouse;
+            window.UseCapture(capture, showPreview ?? configuration.DestinationWindowShowPreview);
+            window.PlaceAtMouse = atMouse ?? configuration.DestinationWindowAtMouse;
             if (owner != null)
             {
                 window.Owner = owner;
