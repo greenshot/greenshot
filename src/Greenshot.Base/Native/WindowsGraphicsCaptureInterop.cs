@@ -1241,9 +1241,7 @@ namespace Greenshot.Base.Native
                     return (null, null);
                 }
 
-                var hdrParts = keepHdr ? CreateHdrParts(requests) : null;
-                hdrParts?.BelongTo(resultBitmap);
-                return (resultBitmap, hdrParts);
+                return (resultBitmap, keepHdr ? CreateHdrParts(requests) : null);
             }
             catch
             {

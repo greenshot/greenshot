@@ -42,6 +42,8 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Emoji;
@@ -1059,7 +1061,8 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            // The HDR image comes along with the image, the surface owns both now
+            // The HDR image comes along with the image, the surface owns both now: of all of the capture when it wasn't cropped
+            capture.JoinHdrParts();
             _hdrImage = capture.HdrImage;
 
             // Make sure the image is NOT disposed, we took the reference directly into ourselves
@@ -2759,11 +2762,212 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.Height = 25;
                 }
 
+                if (_drawingElement is ObfuscateContainer obfuscateContainer)
+                {
+                    FitObfuscationToText(obfuscateContainer);
+                }
+
                 SelectElement(_drawingElement);
                 _drawingElement.Selected = true;
             }
 
             _drawingElement = null;
+        }
+
+        // The OCR of the image, once per image, for drawn obfuscations and the Redact Text window
+        private Task<List<IOcrLineFeature>> _ocrTask;
+        private Image _ocrImage;
+        private TextRecognitionState _ocrState;
+        private string _ocrError;
+
+        /// <summary>
+        /// The OCR provider, tests set their own; null uses the registered one
+        /// </summary>
+        internal IOcrProvider OcrProvider { get; set; }
+
+        /// <summary>
+        /// Whether the text of the image is known: from the capture (recipes, text capture) or from the OCR started here
+        /// </summary>
+        public TextRecognitionState TextRecognitionState
+        {
+            get
+            {
+                if (OcrLinesOfCapture().Count > 0)
+                {
+                    return TextRecognitionState.Found;
+                }
+                return Image != null && ReferenceEquals(_ocrImage, Image) ? _ocrState : TextRecognitionState.None;
+            }
+        }
+
+        /// <summary>
+        /// Why the text recognition failed, when TextRecognitionState is Failed
+        /// </summary>
+        public string TextRecognitionError => TextRecognitionState == TextRecognitionState.Failed ? _ocrError : null;
+
+        /// <summary>
+        /// The text recognition started, ended or failed
+        /// </summary>
+        public event EventHandler TextRecognitionChanged;
+
+        /// <summary>
+        /// A new obfuscation over OCR lines gets the strength for that text.
+        /// When the capture has no OCR lines yet, OCR runs once in the background and the obfuscation is fitted when it is done.
+        /// Without OCR lines under it, it keeps the last used value of the toolbar.
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
+        {
+            // With known lines the task is done and the obfuscation is fitted right away
+            _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer, RecognizeTextAsync());
+        }
+
+        private List<IOcrLineFeature> OcrLinesOfCapture()
+        {
+            if (CaptureDetails?.Features == null)
+            {
+                return new List<IOcrLineFeature>();
+            }
+            lock (CaptureDetails.Features)
+            {
+                return CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+        }
+
+        /// <summary>
+        /// The OCR lines of the capture. When it has none, OCR of the image starts, once per image: a later call gets the same result,
+        /// also when it found nothing or failed.
+        /// </summary>
+        /// <returns>The lines, empty when there is no text, null when there is no OCR provider; it fails when the OCR failed</returns>
+        internal Task<List<IOcrLineFeature>> RecognizeTextAsync()
+        {
+            var ocrLines = OcrLinesOfCapture();
+            var image = Image;
+            if (ocrLines.Count > 0 || image == null || CaptureDetails?.Features == null)
+            {
+                return Task.FromResult(ocrLines);
+            }
+            if (_ocrTask != null && ReferenceEquals(_ocrImage, image))
+            {
+                return _ocrTask;
+            }
+
+            var ocrProvider = OcrProvider ?? SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+            if (ocrProvider == null)
+            {
+                return Task.FromResult<List<IOcrLineFeature>>(null);
+            }
+
+            _ocrImage = image;
+            SetTextRecognitionState(image, TextRecognitionState.Running, null);
+            _ocrTask = RunOcrAsync(ocrProvider, image);
+            return _ocrTask;
+        }
+
+        private void SetTextRecognitionState(Image image, TextRecognitionState state, string error)
+        {
+            if (!ReferenceEquals(_ocrImage, image))
+            {
+                return;
+            }
+            _ocrState = state;
+            _ocrError = error;
+            TextRecognitionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task<List<IOcrLineFeature>> RunOcrAsync(IOcrProvider ocrProvider, Image image)
+        {
+            var captureDetails = CaptureDetails;
+            try
+            {
+                try
+                {
+                    // The capture processing might be finding the text already
+                    var processingTask = captureDetails.ProcessingTask;
+                    if (processingTask != null && !processingTask.IsCompleted)
+                    {
+                        await processingTask;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Background processing of the capture failed", ex);
+                }
+
+                if (OcrLinesOfCapture().Count == 0)
+                {
+                    var detectedLines = await ocrProvider.DoOcrAsync(this);
+                    // When the image changed meanwhile, the lines are no longer where the text is
+                    if (detectedLines != null && detectedLines.Count > 0 && ReferenceEquals(image, Image))
+                    {
+                        lock (captureDetails.Features)
+                        {
+                            // Something else might have added OCR lines meanwhile
+                            if (!captureDetails.Features.OfType<IOcrLineFeature>().Any())
+                            {
+                                captureDetails.Features.AddRange(detectedLines);
+                            }
+                        }
+                    }
+                }
+
+                var ocrLines = OcrLinesOfCapture();
+                SetTextRecognitionState(image, ocrLines.Count > 0 ? TextRecognitionState.Found : TextRecognitionState.NoText, null);
+                return ocrLines;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Text recognition failed", ex);
+                SetTextRecognitionState(image, TextRecognitionState.Failed, ex.Message);
+                throw;
+            }
+        }
+
+        private async Task FitObfuscationToTextAfterOcrAsync(ObfuscateContainer obfuscateContainer, Task<List<IOcrLineFeature>> recognition)
+        {
+            // What the obfuscation has now, when this changed meanwhile the user chose another value
+            var effect = obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            int? strength = ObfuscationStrength.Strength(obfuscateContainer);
+            try
+            {
+                var ocrLines = await recognition;
+                if (ocrLines == null
+                    || !_elements.Contains(obfuscateContainer)
+                    || !Equals(effect, obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE))
+                    || strength != ObfuscationStrength.Strength(obfuscateContainer))
+                {
+                    return;
+                }
+                FitObfuscationToText(obfuscateContainer, ocrLines);
+            }
+            catch (Exception ex)
+            {
+                // Logged by RunOcrAsync, the OCR badge of the editor shows it
+                LOG.Debug("The obfuscation keeps its value, text recognition failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Fit the obfuscation to the OCR lines it covers, without covered lines it keeps its value
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer, List<IOcrLineFeature> ocrLines)
+        {
+            int? textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, obfuscateContainer.Bounds);
+            if (!textHeight.HasValue)
+            {
+                return;
+            }
+            var editorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+            ObfuscationStrength.FitToText(obfuscateContainer, textHeight.Value,
+                editorConfig?.BlurRadiusTextHeightPercent ?? ObfuscationStrength.DefaultBlurRadiusPercent,
+                editorConfig?.PixelSizeTextHeightPercent ?? ObfuscationStrength.DefaultPixelSizePercent);
+
+            // The toolbar shows the new values
+            FieldAggregator.UnbindElement(obfuscateContainer);
+            if (selectedElements.Contains(obfuscateContainer))
+            {
+                FieldAggregator.BindElement(obfuscateContainer);
+            }
+            obfuscateContainer.Invalidate();
         }
 
         /// <summary>
@@ -2952,7 +3156,9 @@ namespace Greenshot.Editor.Drawing
                     LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
                 }
 
-                // Elements might need the bitmap, so we copy the part we need
+                // Elements might need the bitmap, so we copy the part we need. The filters read more than the clip rectangle (their
+                // element, the pixels around it), that is repainted too, so they don't read the result of an earlier paint.
+                var bufferRectangle = _elements.FilterReadArea(imageClipRectangle, new NativeRect(0, 0, Image.Width, Image.Height));
                 using (Graphics graphics = Graphics.FromImage(_buffer))
                 {
                     // do not set the following, the containers need to decide this themselves!
@@ -2960,10 +3166,10 @@ namespace Greenshot.Editor.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     //graphics.CompositingQuality = CompositingQuality.HighQuality;
                     //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    DrawBackground(graphics, imageClipRectangle);
-                    graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-                    graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
-                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
+                    DrawBackground(graphics, bufferRectangle);
+                    graphics.DrawImage(Image, bufferRectangle, bufferRectangle, GraphicsUnit.Pixel);
+                    graphics.SetClip(bufferRectangle);
+                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, bufferRectangle);
                 }
 
                 if (_zoomFactor == Fraction.Identity)

@@ -144,22 +144,37 @@ internal static class HdrContent
     /// True when a pixel of the part of one HDR display (straight alpha) is something an 8-bit sRGB file can't show: a highlight (a channel brighter
     /// than SDR white) or a color outside sRGB (a channel below 0, e.g. the saturated colors of an HDR video or a P3 photo). Stops at the first one.
     /// </summary>
-    internal static unsafe bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits)
+    internal static bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits) =>
+        HasHdrContent(pixels, sdrWhiteLevelInNits, new Rectangle(0, 0, pixels.Width, pixels.Height));
+
+    /// <summary>
+    /// Like <see cref="HasHdrContent(SixLabors.ImageSharp.Image{SixLabors.ImageSharp.PixelFormats.HalfVector4}, float)"/>, only in an area of the
+    /// pixels, e.g. the part of an HDR display which a selection covers (see HdrParts.Join)
+    /// </summary>
+    /// <param name="area">The area, it is clipped to the pixels</param>
+    internal static unsafe bool HasHdrContent(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.HalfVector4> pixels, float sdrWhiteLevelInNits, Rectangle area)
     {
         if (!pixels.DangerousTryGetSinglePixelMemory(out Memory<SixLabors.ImageSharp.PixelFormats.HalfVector4> memory))
         {
             // Every HdrImage is made with ContiguousConfiguration
             throw new InvalidOperationException("The pixels of the HDR image are not one block of memory.");
         }
+        area = Rectangle.Intersect(area, new Rectangle(0, 0, pixels.Width, pixels.Height));
+        if (area.Width <= 0 || area.Height <= 0)
+        {
+            return false;
+        }
         float sdrWhite = sdrWhiteLevelInNits / 80f * SdrMargin;
         int width = pixels.Width;
+        int left = area.Left;
+        int areaWidth = area.Width;
         using var handle = memory.Pin();
         ushort* first = (ushort*)handle.Pointer;
         // PARALLEL: rows are independent, the first one found stops the others
-        var result = Parallel.For(0, pixels.Height, (row, state) =>
+        var result = Parallel.For(area.Top, area.Bottom, (row, state) =>
         {
-            ushort* src = first + (long)row * width * 4;
-            for (int x = 0; x < width; x++, src += 4)
+            ushort* src = first + ((long)row * width + left) * 4;
+            for (int x = 0; x < areaWidth; x++, src += 4)
             {
                 // A transparent pixel shows nothing
                 if (!(HalfTable[src[3]] > 0.0001f))

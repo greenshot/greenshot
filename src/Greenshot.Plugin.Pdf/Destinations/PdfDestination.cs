@@ -24,6 +24,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -92,10 +93,16 @@ public sealed class PdfDestination : DestinationBase
 
         string pdfPath = Path.ChangeExtension(selectedPath, ".pdf");
         var outputSettings = new PdfSurfaceOutputSettings(_configuration);
+        // The user picked the file: overwrite. Otherwise the setting; this destination has no dialog for a file which exists, Ask gets a number too
+        bool overwrite = _showSaveDialog || CoreConfiguration.OutputFileIfExists == FileExistsAction.Overwrite;
+        if (!overwrite)
+        {
+            pdfPath = NumberedFileNames.FirstFree(pdfPath);
+        }
 
         try
         {
-            string savedPath = await ExportFiles.SaveAsync(request.Source, pdfPath, _showSaveDialog || CoreConfiguration.OutputFileAllowOverwrite, outputSettings, cancellationToken).ConfigureAwait(false);
+            string savedPath = await ExportFiles.SaveAsync(request.Source, pdfPath, overwrite, outputSettings, cancellationToken).ConfigureAwait(false);
             if (request.Metadata != null)
             {
                 request.Metadata.Filename = savedPath;

@@ -187,7 +187,7 @@ namespace Greenshot.Base.Hdr
 
         /// <summary>
         /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file), not only by the setting: Save as suggests JPEG XR.
-        /// Copied to the HDR images made of it (crop, rotation, copies).
+        /// Copied to the HDR images made of it (crop, rotation, copies). It keeps no HDR image without HDR content (see HasHdrContent).
         /// </summary>
         public bool IsRequested { get; set; }
 
@@ -242,6 +242,11 @@ namespace Greenshot.Base.Hdr
 
         // 0: not measured yet, 1: with HDR content, 2: without
         private int _hasHdrContent;
+
+        /// <summary>
+        /// Whether it has HDR content, known already (e.g. from the parts it is joined of, see HdrParts.Join): it isn't measured again
+        /// </summary>
+        internal void KnowHasHdrContent(bool hasHdrContent) => Volatile.Write(ref _hasHdrContent, hasHdrContent ? 1 : 2);
 
         /// <summary>
         /// Something an 8-bit sRGB file can't show: a highlight (brighter than SDR white) or a color outside sRGB. Without it (e.g. a normal window

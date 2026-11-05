@@ -308,6 +308,13 @@ namespace Greenshot.Base.Core
                 MarkAsDirty();
             }
 
+            // OutputFileAllowOverwrite (bool) is replaced by OutputFileIfExists: False meant the save dialog
+            if (!OutputFileAllowOverwrite)
+            {
+                OutputFileIfExists = FileExistsAction.Ask;
+                OutputFileAllowOverwrite = true;
+            }
+
             // Prevent both settings at once, bug #3435056
             if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
             {

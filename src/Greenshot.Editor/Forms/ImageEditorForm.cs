@@ -94,7 +94,11 @@ namespace Greenshot.Editor.Forms
 
         // The surface of the selected tab
         private Surface _surface;
+        // The badges are markers, the same in every language; their tooltips are translated
+        private const string HdrBadge = "HDR";
+        private const string OcrBadge = "OCR";
         private ToolStripStatusLabel _hdrLabel;
+        private ToolStripStatusLabel _ocrLabel;
         private Font _hdrActiveFont;
         private Font _hdrLostFont;
         private List<BidirectionalBinding> _fieldBindings = new();
@@ -460,6 +464,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             InitializeComponent();
             ApplyImages();
             CreateHdrLabel();
+            CreateOcrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
             timing.Mark("InitializeComponent");
@@ -1058,6 +1063,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             dimensionsLabel.Text = _surface.Image.Width + "x" + _surface.Image.Height;
             UpdateZoomControls(_surface.ZoomFactor);
             UpdateHdrLabel();
+            UpdateOcrLabel();
             AlignCanvasPositionAfterResize();
             panel1.AutoScrollPosition = tab.ScrollPosition;
 
@@ -1115,6 +1121,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             _surface.LineThicknessChanged += LineThicknessChanged;
             _surface.ShadowChanged += ShadowChanged;
             _surface.ImageChanged += SurfaceImageChanged;
+            _surface.TextRecognitionChanged += SurfaceTextRecognitionChanged;
             _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
             BindFieldControls();
         }
@@ -1130,6 +1137,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             _surface.LineThicknessChanged -= LineThicknessChanged;
             _surface.ShadowChanged -= ShadowChanged;
             _surface.ImageChanged -= SurfaceImageChanged;
+            _surface.TextRecognitionChanged -= SurfaceTextRecognitionChanged;
             _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
             foreach (var binding in _fieldBindings)
             {
@@ -1506,6 +1514,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 Visible = false
             };
             statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(dimensionsLabel) + 1, _hdrLabel);
+            // A StatusStrip shows no tooltips by default, the badges explain themselves in theirs
+            statusStrip1.ShowItemToolTips = true;
             Disposed += (sender, args) =>
             {
                 _hdrActiveFont.Dispose();
@@ -1527,16 +1537,70 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
             bool canWriteHdr = HdrExport.CanWriteHdr(_surface);
-            _hdrLabel.Text = Texts.Editor.HdrBadge;
+            _hdrLabel.Text = HdrBadge;
             // Enabled also when it's lost: a disabled item shows no tooltip which says why
             _hdrLabel.Font = canWriteHdr ? _hdrActiveFont : _hdrLostFont;
             _hdrLabel.BackColor = canWriteHdr ? Color.FromArgb(255, 196, 0) : Color.Empty;
             _hdrLabel.ForeColor = canWriteHdr ? Color.Black : SystemColors.GrayText;
             _hdrLabel.ToolTipText = canWriteHdr ? Texts.Editor.HdrBadgeTooltip : Texts.Editor.HdrBadgeLostTooltip;
-            _hdrLabel.AccessibleName = Texts.Editor.HdrBadge + ": " + _hdrLabel.ToolTipText;
+            _hdrLabel.AccessibleName = HdrBadge + ": " + _hdrLabel.ToolTipText;
         }
 
-        private void SurfaceImageChanged(object sender, EventArgs e) => UpdateHdrLabel();
+        private void SurfaceImageChanged(object sender, EventArgs e)
+        {
+            UpdateHdrLabel();
+            UpdateOcrLabel();
+        }
+
+        /// <summary>
+        /// Shows whether the text of the capture is known (OCR), which blur and pixelate fit their strength to, next to the HDR badge
+        /// </summary>
+        private void CreateOcrLabel()
+        {
+            // The same look as the HDR badge
+            _ocrLabel = new ToolStripStatusLabel
+            {
+                Name = "ocrLabel",
+                BorderSides = ToolStripStatusLabelBorderSides.All,
+                BorderStyle = Border3DStyle.Sunken,
+                DisplayStyle = ToolStripItemDisplayStyle.Text,
+                Font = _hdrActiveFont,
+                Padding = new Padding(4, 0, 4, 0),
+                Visible = false
+            };
+            statusStrip1.Items.Insert(statusStrip1.Items.IndexOf(_hdrLabel) + 1, _ocrLabel);
+        }
+
+        // The surface runs the OCR from the UI thread and raises this there
+        private void SurfaceTextRecognitionChanged(object sender, EventArgs e) => UpdateOcrLabel();
+
+        private void UpdateOcrLabel()
+        {
+            if (_ocrLabel == null)
+            {
+                return;
+            }
+            // OCR is quick: while it runs the badge isn't shown yet
+            var state = _surface?.TextRecognitionState ?? TextRecognitionState.None;
+            _ocrLabel.Visible = state != TextRecognitionState.None && state != TextRecognitionState.Running;
+            if (!_ocrLabel.Visible)
+            {
+                return;
+            }
+            bool found = state == TextRecognitionState.Found;
+            _ocrLabel.Text = OcrBadge;
+            // Found: dark text on light blue, like a badge; failed: grey and struck through, so it doesn't depend on the color alone
+            _ocrLabel.Font = state == TextRecognitionState.Failed ? _hdrLostFont : _hdrActiveFont;
+            _ocrLabel.BackColor = found ? Color.FromArgb(150, 205, 255) : Color.Empty;
+            _ocrLabel.ForeColor = found ? Color.Black : SystemColors.GrayText;
+            _ocrLabel.ToolTipText = state switch
+            {
+                TextRecognitionState.Found => Texts.Editor.OcrBadgeFoundTooltip,
+                TextRecognitionState.NoText => Texts.Editor.OcrBadgeNoTextTooltip,
+                _ => string.Format(Texts.Editor.OcrBadgeFailedTooltip, _surface.TextRecognitionError)
+            };
+            _ocrLabel.AccessibleName = OcrBadge + ": " + _ocrLabel.ToolTipText;
+        }
 
         /// <summary>
         /// This is called when the size of the surface chances, used for resizing and displaying the size information
@@ -3048,61 +3112,27 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
 
-            if (_surface.CaptureDetails.ProcessingTask != null && !_surface.CaptureDetails.ProcessingTask.IsCompleted)
-            {
-                Cursor = Cursors.WaitCursor;
-                try
-                {
-                    await _surface.CaptureDetails.ProcessingTask;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error waiting for background OCR processing in editor", ex);
-                }
-                finally
-                {
-                    Cursor = Cursors.Default;
-                }
-            }
-
+            // The same OCR as for drawn obfuscations, once per image
             List<IOcrLineFeature> ocrLines;
-            lock (_surface.CaptureDetails.Features)
+            Cursor = Cursors.WaitCursor;
+            try
             {
-                ocrLines = _surface.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                ocrLines = await _surface.RecognizeTextAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(Texts.Editor.ObfuscateTextOcrFailed + ": " + ex.Message, Texts.Editor.ObfuscateTextTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
             }
 
-            if (!ocrLines.Any())
+            if (ocrLines == null)
             {
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                if (ocrProvider == null)
-                {
-                    MessageBox.Show(Texts.Editor.ObfuscateTextNoOcrProvider, Texts.Editor.ObfuscateTextTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                Cursor = Cursors.WaitCursor;
-                try
-                {
-                    var detectedLines = await ocrProvider.DoOcrAsync(_surface);
-                    if (detectedLines != null && detectedLines.Any())
-                    {
-                        lock (_surface.CaptureDetails.Features)
-                        {
-                            _surface.CaptureDetails.Features.AddRange(detectedLines);
-                        }
-                        ocrLines = detectedLines;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error performing OCR", ex);
-                    MessageBox.Show(Texts.Editor.ObfuscateTextOcrFailed + ": " + ex.Message, Texts.Editor.ObfuscateTextTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                finally
-                {
-                    Cursor = Cursors.Default;
-                }
+                MessageBox.Show(Texts.Editor.ObfuscateTextNoOcrProvider, Texts.Editor.ObfuscateTextTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
             if (!ocrLines.Any())

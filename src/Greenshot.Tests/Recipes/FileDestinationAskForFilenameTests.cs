@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
@@ -129,7 +130,7 @@ namespace Greenshot.Tests.Recipes
             return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
         }
 
-        private static async Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat, bool manuallyInitiated = false)
+        private static Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat, bool manuallyInitiated = false)
         {
             var options = new FileDestinationOptions
             {
@@ -137,6 +138,11 @@ namespace Greenshot.Tests.Recipes
                 HdrFormat = hdrFormat,
                 CopyPathToClipboard = false
             };
+            return ExportWithOptionsAsync(surface, ui, options, manuallyInitiated);
+        }
+
+        private static async Task<ExportResult> ExportWithOptionsAsync(Surface surface, IUserInteraction ui, FileDestinationOptions options, bool manuallyInitiated = false)
+        {
             // Without a SynchronizationContext, like a flow: nothing may wait for the UI thread of the test
             return await Task.Run(async () =>
             {
@@ -707,6 +713,116 @@ namespace Greenshot.Tests.Recipes
             finally
             {
                 File.Delete(path);
+            }
+        }
+
+        /// <summary>
+        /// A folder of its own with a file "capture.png" which exists
+        /// </summary>
+        private static (string Directory, string Existing) CreateFolderWithFile()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), $"exists_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(directory);
+            string existing = Path.Combine(directory, "capture.png");
+            File.WriteAllBytes(existing, new byte[] { 1, 2, 3 });
+            return (directory, existing);
+        }
+
+        [Fact]
+        public async Task AskForFilename_TheDialogSuggestsTheFileOfTheStep()
+        {
+            using var surface = CreateSurface(false);
+            var ui = new SaveDialogUserInteraction(null);
+            string stepFile = Path.Combine(Path.GetTempPath(), "step folder", "step name.jpg");
+
+            await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { AskForFilename = true, FilePath = stepFile, CopyPathToClipboard = false });
+
+            Assert.Equal(stepFile, Assert.Single(ui.Dialogs).SuggestedPath);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task FileExists_AddNumber_SavesTheFirstFreeName(bool interactive)
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, interactive);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.AddNumber, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Dialogs);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), result.FilePath);
+                Assert.Equal(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Ask_TheDialogSuggestsTheNextFreeName()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Declined, result.Status);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), Assert.Single(ui.Dialogs).SuggestedPath);
+                Assert.Equal(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Ask_Unattended_AddsANumberInsteadOfFailing()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, false);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), result.FilePath);
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Overwrite_ReplacesIt()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, false);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Overwrite, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Equal(existing, result.FilePath);
+                Assert.NotEqual(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
             }
         }
     }

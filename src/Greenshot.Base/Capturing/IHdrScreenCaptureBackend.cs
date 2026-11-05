@@ -48,7 +48,7 @@ namespace Greenshot.Base.Capturing
         /// </summary>
         /// <param name="window">IInteropWindow</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image (null when the window isn't on an HDR display)</returns>
-        Task<(Bitmap Image, HdrImage HdrImage)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
+        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image as HDR parts (see HdrParts.Of; null when the window isn't on an HDR display)</returns>
+        Task<(Bitmap Image, HdrParts HdrParts)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
     }
 }
