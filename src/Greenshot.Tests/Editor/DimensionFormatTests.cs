@@ -228,9 +228,10 @@ namespace Greenshot.Tests.Editor
                 using var bitmap = new Bitmap(panel.Width, panel.Height); panel.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size));
                 bitmap.Save(Path.Combine(Path.GetTempPath(), "GreenshotPlus-v080-measurement-panel.png"), ImageFormat.Png);
                 using var rendered = surface.GetImageForExport(); rendered.Save(Path.Combine(Path.GetTempPath(), "GreenshotPlus-v080-rotated-dimension.png"), ImageFormat.Png);
-                var body = Field<FlowLayoutPanel>(panel, "_body");
-                foreach (FlowLayoutPanel section in body.Controls)
+                var sections = Field<TableLayoutPanel>(panel, "_sections");
+                foreach (TableLayoutPanel section in sections.Controls)
                 {
+                    if (!section.Visible) continue;
                     var header = Assert.IsType<Button>(section.Controls[0]); var content = section.Controls[1];
                     int height = section.Height; Assert.True(content.Visible);
                     header.PerformClick(); Application.DoEvents(); Assert.False(content.Visible); Assert.True(section.Height < height);

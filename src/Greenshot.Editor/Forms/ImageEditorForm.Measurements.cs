@@ -37,6 +37,7 @@ namespace Greenshot.Editor.Forms
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             tableLayoutPanel1.Controls.Add(_measurementPanel, 1, 0);
+            tableLayoutPanel1.SizeChanged += (s, e) => _measurementPanel.ConstrainPanelWidth();
             _measurementPanel.CalibrateRequested += (s, e) => BeginCalibration();
             _measurementPanel.ClearRequested += (s, e) => _surface?.SetMeasurements(MeasurementState.Pixels);
             _measurementPanel.GeometryEdited += (s, e) => UpdateUndoRedoSurfaceDependencies();

@@ -1,7 +1,10 @@
 <# Builds the full Windows installer using the existing Greenshot Inno Setup includes.
    Requires Visual Studio C++ build tools, .NET 10 SDK and the .NET Framework 4.8 targeting pack.
    v143 supports the hosted VS 2022 runner; use v145 for upstream's VS 2026 build environment. #>
-param([string]$PlatformToolset = 'v145')
+param(
+    [string]$PlatformToolset = 'v145',
+    [ValidatePattern('^$|^\d+\.\d+\.\d+$')][string]$ReleaseVersion = ''
+)
 $ErrorActionPreference = 'Stop'
 $repository = Split-Path $PSScriptRoot -Parent
 Push-Location $repository
@@ -32,7 +35,9 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Installer file inventory validation failed' }
     & ./src/Greenshot-Installer/scripts/generate-checksums.ps1 -OutputDir $output
 
-    $env:BuildVersionSimple = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $output 'Greenshot.exe')).FileVersion
+    $env:BuildVersionSimple = if ($ReleaseVersion) { $ReleaseVersion } else {
+        [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $output 'Greenshot.exe')).FileVersion
+    }
     $env:BuildVersionEnhanced = "$env:BuildVersionSimple-plus-$(git rev-parse --short HEAD)"
     $compiler = Join-Path $env:USERPROFILE '.nuget/packages/tools.innosetup/7.1.0/tools/ISCC.exe'
     if (-not (Test-Path -LiteralPath $compiler)) { throw "Inno Setup compiler missing: $compiler" }

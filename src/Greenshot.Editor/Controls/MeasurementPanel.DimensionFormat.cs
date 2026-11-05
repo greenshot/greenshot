@@ -16,6 +16,8 @@ namespace Greenshot.Editor.Controls
         private readonly Button _dimensionBackground = new Button { Text = "Background colour…", Width = 214, AccessibleName = "Dimension background colour" };
         private readonly CheckBox _inheritDimensionBackground = new CheckBox { Text = "Use document background", AutoSize = true };
         private readonly Label _backgroundScope = new Label { AutoSize = true };
+        private readonly Label _edgePrecisionLabel = new Label { Text = "Selected edge", AutoSize = true };
+        private Control _edgePrecisionRow;
         private int SelectedDimensionEdge => _dimensionEdges.CurrentRow?.Tag is int index ? index : -1;
         private bool HasSelectedDimension => _selected != null && SelectedDimensionEdge >= 0;
         private Color CurrentDimensionBackground => (HasSelectedDimension ? _selected.GetDimensionBackground(SelectedDimensionEdge) : null)
@@ -30,15 +32,22 @@ namespace Greenshot.Editor.Controls
         {
             _documentFormat.Items.AddRange(new object[] { "Automatic", "Decimal places", "Significant figures" });
             _edgeFormat.Items.AddRange(new object[] { "Use document default", "Automatic", "Decimal places", "Significant figures" });
-            FlowLayoutPanel Row(Control first, Control second)
+            TableLayoutPanel Row(Control first, Control second)
             {
-                var row = new FlowLayoutPanel { Width = 214, Height = 28, Margin = Padding.Empty, WrapContents = false };
-                first.Margin = new Padding(0, 0, 4, 0); second.Margin = Padding.Empty;
-                row.Controls.AddRange(new[] { first, second }); return row;
+                var row = new TableLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    ColumnCount = 2, RowCount = 1, Margin = Padding.Empty };
+                row.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+                row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64 * DeviceDpi / 96f));
+                first.Dock = second.Dock = DockStyle.Fill;
+                first.Margin = new Padding(0, 0, 6, 0); second.Margin = Padding.Empty;
+                row.Controls.Add(first, 0, 0); row.Controls.Add(second, 1, 0); return row;
             }
+            _edgePrecisionRow = Row(_edgeFormat, _edgeDigits);
+            _applyDimensionFormat.Text = "Apply to all edges";
             AddCategory("Dimension precision",
-                new Label { Text = "Document precision / digits", AutoSize = true }, Row(_documentFormat, _documentDigits), _applyDimensionFormat,
-                new Label { Text = "Selected edge precision / digits", AutoSize = true }, Row(_edgeFormat, _edgeDigits));
+                new Label { Text = "Document default", AutoSize = true }, Row(_documentFormat, _documentDigits), _applyDimensionFormat,
+                _edgePrecisionLabel, _edgePrecisionRow);
             AddCategory("Dimension background", _backgroundScope, _inheritDimensionBackground, _dimensionTransparent, _dimensionBackground);
             _inheritDimensionBackground.CheckedChanged += (s, e) =>
             {
@@ -107,9 +116,10 @@ namespace Greenshot.Editor.Controls
                 var style = _dimensionDocument?.DimensionStyle ?? DimensionStyle.Default;
                 ShowFormat(_documentFormat, _documentDigits, style.Format, false, _dimensionDocument != null);
                 ShowFormat(_edgeFormat, _edgeDigits, _selected?.GetDimensionFormat(SelectedDimensionEdge), true, _selected != null && SelectedDimensionEdge >= 0);
+                _edgePrecisionLabel.Visible = _edgePrecisionRow.Visible = HasSelectedDimension;
                 _applyDimensionFormat.Enabled = _dimensionDocument != null;
                 _dimensionTransparent.Enabled = _dimensionBackground.Enabled = _dimensionDocument != null;
-                _backgroundScope.Text = HasSelectedDimension ? "Selected edge background" : "Document default background";
+                _backgroundScope.Text = HasSelectedDimension ? "Selected edge" : "Document default";
                 _inheritDimensionBackground.Visible = HasSelectedDimension;
                 _inheritDimensionBackground.Checked = HasSelectedDimension && !_selected.GetDimensionBackground(SelectedDimensionEdge).HasValue;
                 var background = CurrentDimensionBackground;

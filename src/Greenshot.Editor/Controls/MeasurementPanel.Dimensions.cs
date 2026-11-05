@@ -10,6 +10,7 @@ namespace Greenshot.Editor.Controls
     internal sealed partial class MeasurementPanel
     {
         private Surface _dimensionDocument;
+        private Control _edgesCategory;
         private bool _dimensionsUpdating, _dimensionCommit;
         private readonly DataGridView _dimensionEdges = new DataGridView
         {
@@ -27,6 +28,11 @@ namespace Greenshot.Editor.Controls
             _dimensionEdges.Columns.Add(new DataGridViewCheckBoxColumn { HeaderText="Show", FillWeight=38, SortMode=DataGridViewColumnSortMode.NotSortable });
             _dimensionEdges.Columns.Add(new DataGridViewTextBoxColumn { HeaderText="Edge", ReadOnly=true, FillWeight=52, SortMode=DataGridViewColumnSortMode.NotSortable });
             _dimensionEdges.Columns.Add(new DataGridViewTextBoxColumn { HeaderText="Length", ReadOnly=true, FillWeight=100, SortMode=DataGridViewColumnSortMode.NotSortable });
+            ConfigureGrid(_dimensionEdges);
+            _dimensionEdges.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            _dimensionEdges.Columns[0].MinimumWidth = 50;
+            _dimensionEdges.Columns[1].MinimumWidth = 60;
+            _dimensionEdges.Columns[2].MinimumWidth = 75;
             _dimensionEdges.CurrentCellDirtyStateChanged += (s,e) =>
             { if (!_dimensionsUpdating && _dimensionEdges.IsCurrentCellDirty) _dimensionEdges.CommitEdit(DataGridViewDataErrorContexts.Commit); };
             _dimensionEdges.CellValueChanged += (s,e) =>
@@ -56,9 +62,10 @@ namespace Greenshot.Editor.Controls
                 _dimensionDocument.SetDimensionStyle(new DimensionStyle(current.Family,current.Size,current.FontStyle,dialog.Color,current.Format,current.BackgroundColor));
                 RefreshDimensionLabels(_dimensionDocument); GeometryEdited?.Invoke(this,EventArgs.Empty);
             };
-            AddCategory("Edge dimensions", _dimensionEdges);
+            _edgesCategory = AddCategory("Edge dimensions", _dimensionEdges);
             InitializeDimensionFormatControls();
-            AddCategory("Dimension font", _dimensionStyleLabel, _dimensionFont, _dimensionColor, _dimensionWarning);
+            _dimensionFont.Text = "Font…"; _dimensionColor.Text = "Colour…";
+            AddCategory("Shared dimension font", _dimensionStyleLabel, ButtonRow(_dimensionFont, _dimensionColor), _dimensionWarning);
         }
 
         internal void RefreshDimensionLabels(Surface document)
@@ -68,23 +75,27 @@ namespace Greenshot.Editor.Controls
             try
             {
                 int selectedEdge = SelectedDimensionEdge;
+                var rowHeights = _dimensionEdges.Rows.Cast<DataGridViewRow>().Where(row => row.Tag is int)
+                    .ToDictionary(row => (int)row.Tag, row => row.Height);
                 _dimensionEdges.Rows.Clear();
                 var edges=DimensionLayout.Edges(_selected);
                 foreach(var edge in edges)
                 {
                     string length=DimensionLayout.FormatLength(edge.Length,document?.Measurements ?? MeasurementState.Pixels,_selected.GetDimensionFormat(edge.Index) ?? document?.DimensionStyle.Format);
                     if(edge.Length==0)length+=" (zero; hidden)";
-                    int row=_dimensionEdges.Rows.Add(_selected.IsDimensionVisible(edge.Index),edge.Name,length);
+                    int row=_dimensionEdges.Rows.Add(_selected.IsDimensionVisible(edge.Index),(edge.Index + 1).ToString(),length);
                     _dimensionEdges.Rows[row].Tag=edge.Index;
+                    if (rowHeights.TryGetValue(edge.Index, out int height)) _dimensionEdges.Rows[row].Height = height;
                     _dimensionEdges.Rows[row].Cells[2].ToolTipText=length;
                 }
                 if (selectedEdge >= 0 && selectedEdge < _dimensionEdges.Rows.Count) _dimensionEdges.CurrentCell = _dimensionEdges.Rows[selectedEdge].Cells[1];
                 RefreshDimensionFormatControls();
                 _dimensionEdges.Visible=edges.Length>0;
-                _dimensionEdges.Height=Math.Min(190,_dimensionEdges.ColumnHeadersHeight+edges.Length*_dimensionEdges.RowTemplate.Height+3);
+                _edgesCategory.Visible=edges.Length>0;
+                UpdateGridHeights();
                 _dimensionFont.Enabled=_dimensionColor.Enabled=document!=null;
                 var style=document?.DimensionStyle ?? DimensionStyle.Default;
-                _dimensionStyleLabel.Text="All dimension text: "+style.Family+", "+style.Size.ToString("0.##")+" pt";
+                _dimensionStyleLabel.Text=style.Family+", "+style.Size.ToString("0.##")+" pt";
                 _dimensionColor.ForeColor=style.Color;
                 _dimensionWarning.Text=string.Empty;
                 if(document?.Image!=null)
@@ -94,8 +105,13 @@ namespace Greenshot.Editor.Controls
                         _dimensionWarning.Text="Labels clip at the image boundary. Add canvas room manually.";
                     else if(labels.Any(l=>l.Crowded))_dimensionWarning.Text="Crowded edges: some dimension labels may overlap.";
                 }
+                _dimensionWarning.Visible = _dimensionWarning.Text.Length > 0;
             }
-            finally { _dimensionsUpdating=false; }
+            finally
+            {
+                _dimensionsUpdating=false;
+                if (_resetScroll) { _body.AutoScrollPosition = Point.Empty; _resetScroll = false; }
+            }
         }
     }
 }

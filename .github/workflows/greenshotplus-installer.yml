@@ -2,6 +2,12 @@ name: GreenShotPlus installer
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Installer display version (for example 0.8.666); blank uses the application version'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -19,10 +25,14 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
       - name: Build full application and installer
         shell: pwsh
-        run: ./installer/build-greenshotplus.ps1 -PlatformToolset v143
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: ./installer/build-greenshotplus.ps1 -PlatformToolset v143 -ReleaseVersion $env:RELEASE_VERSION
       - name: Check current-user installation and uninstall
         shell: pwsh
-        run: ./installer/test-user-install.ps1 -InstallerPath ./installer/GreenShotPlus-Setup.exe
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: ./installer/test-user-install.ps1 -InstallerPath ./installer/GreenShotPlus-Setup.exe -ExpectedVersion $env:RELEASE_VERSION
       - uses: actions/upload-artifact@v4
         with:
           name: GreenShotPlus-Windows-Installer

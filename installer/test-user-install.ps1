@@ -1,5 +1,8 @@
 <# Run only on a disposable Windows build runner: exercises the real per-user installer and uninstaller. #>
-param([Parameter(Mandatory = $true)][string]$InstallerPath)
+param(
+    [Parameter(Mandatory = $true)][string]$InstallerPath,
+    [string]$ExpectedVersion = ''
+)
 $ErrorActionPreference = 'Stop'
 if ($env:GITHUB_ACTIONS -ne 'true') { throw 'Use a disposable GitHub Actions runner for installation tests.' }
 $installer = (Resolve-Path -LiteralPath $InstallerPath).Path
@@ -15,6 +18,9 @@ try {
     if (-not (Test-Path $userKey)) { throw 'Per-user uninstall registration is missing' }
     if (Test-Path $machineKey) { throw 'Installer unexpectedly registered a machine-wide installation' }
     $registration = Get-ItemProperty $userKey
+    if ($ExpectedVersion -and $registration.DisplayVersion -ne $ExpectedVersion) {
+        throw "Unexpected installed version: $($registration.DisplayVersion); expected $ExpectedVersion"
+    }
     $actualDir = $registration.InstallLocation.TrimEnd('\')
     if ($actualDir -ine $installDir) { throw "Unexpected user installation directory: $actualDir" }
     foreach ($file in @('Greenshot.exe', 'Greenshot.Base.dll', 'Greenshot.Editor.dll', 'greenshot-proxy.exe', 'greenshot-cli.exe', 'Plugins/Greenshot.Plugin.Stamps/Greenshot.Plugin.Stamps.dll', 'Languages/greenshot.stamps.en-US.ini')) {
