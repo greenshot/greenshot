@@ -531,6 +531,12 @@ namespace Greenshot.Editor.Drawing
         public virtual bool IsConfirmable => false;
 
         /// <summary>
+        /// True while the element takes another click after the mouse button is released, e.g. the next corner of a polyline.
+        /// The surface passes it the clicks and the mouse moves until it is complete, or a double click, right click or Enter finishes it.
+        /// </summary>
+        public virtual bool AcceptsMoreClicks => false;
+
+        /// <summary>
         /// Make a following bounds change on this DrawableContainer undoable!
         /// </summary>
         /// <param name="allowMerge">true means allow the moves to be merged</param>

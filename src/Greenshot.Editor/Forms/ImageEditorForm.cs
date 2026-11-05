@@ -366,6 +366,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             btnRect.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnRect.Image");
             btnEllipse.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnEllipse.Image");
             btnLine.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnLine.Image");
+            btnPolyline.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPolyline.Image");
             btnArrow.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnArrow.Image");
             btnFreehand.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnFreehand.Image");
             btnText.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnText.Image");
@@ -387,6 +388,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             addRectangleToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addRectangleToolStripMenuItem.Image");
             addEllipseToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addEllipseToolStripMenuItem.Image");
             drawLineToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawLineToolStripMenuItem.Image");
+            drawPolylineToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPolyline.Image");
             drawArrowToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawArrowToolStripMenuItem.Image");
             drawFreehandToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawFreehandToolStripMenuItem.Image");
             addTextBoxToolStripMenuItem.Image = EmbeddedResources.GetImage(typeof(ImageEditorForm), "addTextBoxToolStripMenuItem.Image");
@@ -1220,7 +1222,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnPolyline, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1667,6 +1669,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 case DrawingModes.Line:
                     SetButtonChecked(btnLine);
                     break;
+                case DrawingModes.Polyline:
+                    SetButtonChecked(btnPolyline);
+                    break;
                 case DrawingModes.Arrow:
                     SetButtonChecked(btnArrow);
                     break;
@@ -1789,6 +1794,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private void BtnLineClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.Line;
+            RefreshFieldControls();
+        }
+
+        private void BtnPolylineClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Polyline;
             RefreshFieldControls();
         }
 
@@ -2045,6 +2056,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         break;
                     case Keys.L:
                         BtnLineClick(sender, e);
+                        break;
+                    case Keys.P:
+                        BtnPolylineClick(sender, e);
                         break;
                     case Keys.F:
                         BtnFreehandClick(sender, e);
@@ -3676,6 +3690,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnRect.Text = Texts.Editor.Drawrectangle;
             this.btnEllipse.Text = Texts.Editor.Drawellipse;
             this.btnLine.Text = Texts.Editor.Drawline;
+            this.btnPolyline.Text = Texts.Editor.Drawpolyline;
             this.btnArrow.Text = Texts.Editor.Drawarrow;
             this.btnFreehand.Text = Texts.Editor.Drawfreehand;
             this.btnText.Text = Texts.Editor.Drawtextbox;
@@ -3708,6 +3723,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.addRectangleToolStripMenuItem.Text = Texts.Editor.Drawrectangle;
             this.addEllipseToolStripMenuItem.Text = Texts.Editor.Drawellipse;
             this.drawLineToolStripMenuItem.Text = Texts.Editor.Drawline;
+            this.drawPolylineToolStripMenuItem.Text = Texts.Editor.Drawpolyline;
             this.drawArrowToolStripMenuItem.Text = Texts.Editor.Drawarrow;
             this.drawFreehandToolStripMenuItem.Text = Texts.Editor.Drawfreehand;
             this.addTextBoxToolStripMenuItem.Text = Texts.Editor.Drawtextbox;
