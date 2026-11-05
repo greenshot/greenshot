@@ -3378,18 +3378,6 @@ namespace Greenshot.Editor.Drawing
 
         private void OnParentResize(object sender, EventArgs e) => InvalidateFocusFrame();
 
-        /// <summary>
-        /// Mirror the image at the edges of the drawn part, used for scaled drawing
-        /// </summary>
-        private static readonly ImageAttributes EdgeMirrorAttributes = CreateEdgeMirrorAttributes();
-
-        private static ImageAttributes CreateEdgeMirrorAttributes()
-        {
-            var imageAttributes = new ImageAttributes();
-            imageAttributes.SetWrapMode(WrapMode.TileFlipXY);
-            return imageAttributes;
-        }
-
         private void DrawSmoothImage(Graphics targetGraphics, Image image, NativeRect imageClipRectangle)
         {
             var state = targetGraphics.Save();
@@ -3400,8 +3388,10 @@ namespace Greenshot.Editor.Drawing
 
             // The filter reads pixels outside the repainted part: without mirroring at the edge it blends in transparent pixels,
             // which shows as faint lines between repainted parts when zoomed out
+            using var edgeMirrorAttributes = new ImageAttributes();
+            edgeMirrorAttributes.SetWrapMode(WrapMode.TileFlipXY);
             targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle.X, imageClipRectangle.Y, imageClipRectangle.Width, imageClipRectangle.Height,
-                GraphicsUnit.Pixel, EdgeMirrorAttributes);
+                GraphicsUnit.Pixel, edgeMirrorAttributes);
 
             targetGraphics.Restore(state);
         }
