@@ -53,7 +53,6 @@ using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Destinations;
@@ -357,8 +356,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         }
 
         /// <summary>
-        /// The colors of the window from the Greenshot theme (see <see cref="EditorTheme"/>): light and high contrast keep the system
-        /// colors, dark uses the dark palette. The capture and the elements are not changed.
+        /// The colors of the window from the editor theme setting (see <see cref="EditorTheme"/>): light and high contrast keep the
+        /// system colors, dark uses the dark palette. The capture and the elements are not changed.
         /// </summary>
         private void ApplyTheme()
         {
@@ -512,14 +511,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             //
             InitializeComponent();
             ApplyImages();
-            PropertyChangedEventHandler themeChangedHandler = (s, e) =>
+            EventHandler themeChangedHandler = (s, e) =>
             {
-                if (e.PropertyName != nameof(ThemeManager.CurrentPalette) || IsDisposed || Disposing || !IsHandleCreated)
+                if (IsDisposed || Disposing || !IsHandleCreated)
                 {
                     return;
                 }
 
-                // The theme manager raises it on the UI dispatcher, BeginInvoke also covers another thread
+                // Raised on the UI thread, BeginInvoke also covers another thread
                 BeginInvoke(new MethodInvoker(() =>
                 {
                     if (!IsDisposed && !Disposing)
@@ -528,8 +527,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     }
                 }));
             };
-            ThemeManager.Instance.PropertyChanged += themeChangedHandler;
-            FormClosed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeChangedHandler;
+            EditorTheme.Changed += themeChangedHandler;
+            FormClosed += (s, e) => EditorTheme.Changed -= themeChangedHandler;
             CreateHdrLabel();
             CreateOcrLabel();
             // Before the texts are applied

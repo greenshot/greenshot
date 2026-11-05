@@ -19,15 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Editor.Configuration;
 using WpfBrush = System.Windows.Media.SolidColorBrush;
 
 namespace Greenshot.Editor.Controls
 {
     /// <summary>
-    /// The colors of the editor window (toolbars, menus, tab strip, the area around the canvas), from the Greenshot theme.
+    /// The colors of the editor window (toolbars, menus, tab strip, the area around the canvas), from the editor's own theme setting.
     /// Light and high contrast use the Windows system colors, as the editor always did; dark uses the dark palette of the WPF windows.
     /// The image and the elements on it are never themed.
     /// </summary>
@@ -37,26 +41,80 @@ namespace Greenshot.Editor.Controls
         {
         }
 
+        private static readonly IEditorConfiguration EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+        private static EditorTheme _current;
+        private static bool _listening;
+
         /// <summary>
-        /// The colors for the current theme, created again when the theme changes
+        /// Raised on the UI thread when the colors of the editor changed: the editor setting, Greenshot's theme or the Windows mode
+        /// </summary>
+        public static event EventHandler Changed;
+
+        /// <summary>
+        /// The colors for the editor theme setting (Editor.EditorTheme, default light), cached: it's read on every paint
         /// </summary>
         public static EditorTheme Current
         {
             get
             {
-                var palette = ThemeManager.Instance.CurrentPalette;
-                if (_current == null || !ReferenceEquals(_currentPalette, palette))
+                if (_current == null)
                 {
-                    _currentPalette = palette;
-                    _current = palette.IsDark && !palette.IsHighContrast ? FromPalette(palette) : System;
+                    StartListening();
+                    _current = Create();
                 }
 
                 return _current;
             }
         }
 
-        private static ThemePalette _currentPalette;
-        private static EditorTheme _current;
+        private static EditorTheme Create()
+        {
+            var palette = ThemeManager.Instance.GetPalette(EditorConfiguration.EditorTheme);
+            return palette.IsDark && !palette.IsHighContrast ? FromPalette(palette) : System;
+        }
+
+        private static void StartListening()
+        {
+            if (_listening)
+            {
+                return;
+            }
+
+            _listening = true;
+            // Theme is raised on every refresh (also a Windows mode change with Greenshot on light), CurrentPalette when its colors change
+            ThemeManager.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName is nameof(ThemeManager.Theme) or nameof(ThemeManager.CurrentPalette))
+                {
+                    Refresh();
+                }
+            };
+            if (EditorConfiguration is INotifyPropertyChanged notifyingConfiguration)
+            {
+                notifyingConfiguration.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(IEditorConfiguration.EditorTheme))
+                    {
+                        Refresh();
+                    }
+                };
+            }
+        }
+
+        /// <summary>
+        /// Create the colors again, Changed is raised when they differ
+        /// </summary>
+        public static void Refresh()
+        {
+            var updated = Create();
+            if (_current != null && _current.IsDark == updated.IsDark && _current.Background == updated.Background && _current.Highlight == updated.Highlight)
+            {
+                return;
+            }
+
+            _current = updated;
+            Changed?.Invoke(null, EventArgs.Empty);
+        }
 
         /// <summary>
         /// True when the editor uses the dark colors

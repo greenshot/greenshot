@@ -19,16 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Drawing;
+using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Wpf;
+using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 using Xunit;
 
 namespace Greenshot.Tests.Editor
 {
     /// <summary>
-    /// The editor window takes its colors from the Greenshot theme: light keeps the system colors, dark the dark palette
+    /// The editor window takes its colors from its own theme setting: light (default) keeps the system colors, dark the dark palette
     /// </summary>
     [Collection(TestCollections.WpfThemeState)]
     public class EditorThemeTests
@@ -39,39 +42,51 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void EditorTheme_FollowsTheGreenshotTheme()
+        public void EditorTheme_FollowsTheEditorSetting_DefaultLight()
         {
-            var themeManager = ThemeManager.Instance;
-            var previousTheme = themeManager.Theme;
+            var editorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+            var previousTheme = editorConfiguration.EditorTheme;
             try
             {
-                themeManager.Theme = UiTheme.Light;
-                themeManager.Refresh();
-                if (themeManager.IsHighContrast)
+                if (SystemInformation.HighContrast)
                 {
                     // High contrast always uses the system colors
+                    editorConfiguration.EditorTheme = UiTheme.Dark;
+                    EditorTheme.Refresh();
                     Assert.False(EditorTheme.Current.IsDark);
                     return;
                 }
 
+                editorConfiguration.EditorTheme = UiTheme.Light;
+                EditorTheme.Refresh();
                 var light = EditorTheme.Current;
                 Assert.False(light.IsDark);
                 Assert.Equal(SystemColors.Control, light.Background);
                 Assert.Equal(SystemColors.ControlText, light.Foreground);
 
-                themeManager.Theme = UiTheme.Dark;
-                themeManager.Refresh();
+                bool changed = false;
+                EventHandler handler = (s, e) => changed = true;
+                EditorTheme.Changed += handler;
+                try
+                {
+                    editorConfiguration.EditorTheme = UiTheme.Dark;
+                    EditorTheme.Refresh();
+                }
+                finally
+                {
+                    EditorTheme.Changed -= handler;
+                }
+
+                Assert.True(changed);
                 var dark = EditorTheme.Current;
                 Assert.True(dark.IsDark);
-                var background = themeManager.CurrentPalette.BackgroundBrush.Color;
-                Assert.Equal(Color.FromArgb(background.A, background.R, background.G, background.B), dark.Background);
                 // Text must be readable on the background
                 Assert.True(dark.Foreground.GetBrightness() - dark.Background.GetBrightness() > 0.5f);
             }
             finally
             {
-                themeManager.Theme = previousTheme;
-                themeManager.Refresh();
+                editorConfiguration.EditorTheme = previousTheme;
+                EditorTheme.Refresh();
             }
         }
     }
