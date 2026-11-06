@@ -67,5 +67,47 @@ namespace Greenshot.Tests.Editor
             thread.SetApartmentState(ApartmentState.STA); thread.Start(); thread.Join();
             if (error != null) throw error;
         }
+        [Fact]
+        public void ExistingShortcutsAndMouseColoursKeepUndoAndProjectColours()
+        {
+            Exception error = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    using var surface = new Greenshot.Editor.Drawing.Surface(new Bitmap(300, 200));
+                    var rectangle = new Greenshot.Editor.Drawing.RectangleContainer(surface) { Left = 30, Top = 30, Width = 100, Height = 100 };
+                    rectangle.SetFieldValue(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR, Color.Black);
+                    rectangle.SetFieldValue(Greenshot.Editor.Drawing.Fields.FieldType.FILL_COLOR, Color.White);
+                    surface.AddElement(rectangle, false);
+                    using var editor = new ImageEditorForm(surface, true, false);
+                    surface.SelectElement(rectangle);
+                    Assert.True(surface.ProcessCmdKey(Keys.Control | Keys.D1));
+                    Assert.Equal(Color.Red.ToArgb(), rectangle.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.FILL_COLOR).ToArgb());
+                    Assert.True(surface.ProcessCmdKey(Keys.Control | Keys.Shift | Keys.D3));
+                    Assert.Equal(Color.Blue.ToArgb(), rectangle.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR).ToArgb());
+
+                    var palette = typeof(ImageEditorForm).GetField("_quickColors", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(editor);
+                    var items = (System.Collections.Generic.IEnumerable<ToolStripItem>)palette.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(palette);
+                    items.OfType<ToolStripButton>().First(button => button.Tag is Color c && c.ToArgb() == Color.Black.ToArgb()).PerformClick();
+                    Assert.Equal(Color.Black.ToArgb(), rectangle.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR).ToArgb());
+                    surface.Undo();
+                    Assert.Equal(Color.Blue.ToArgb(), rectangle.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR).ToArgb());
+                    surface.Redo();
+                    Assert.Equal(Color.Black.ToArgb(), rectangle.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR).ToArgb());
+
+                    using var stream = new System.IO.MemoryStream();
+                    surface.SaveElementsToStream(stream); stream.Position = 0;
+                    using var loaded = new Greenshot.Editor.Drawing.Surface(new Bitmap(300, 200));
+                    loaded.LoadElementsFromStream(stream);
+                    var restored = Assert.IsType<Greenshot.Editor.Drawing.RectangleContainer>(Assert.Single(loaded.Elements));
+                    Assert.Equal(Color.Black.ToArgb(), restored.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.LINE_COLOR).ToArgb());
+                    Assert.Equal(Color.Red.ToArgb(), restored.GetFieldValueAsColor(Greenshot.Editor.Drawing.Fields.FieldType.FILL_COLOR).ToArgb());
+                }
+                catch (Exception e) { error = e; }
+            });
+            thread.SetApartmentState(ApartmentState.STA); thread.Start(); thread.Join();
+            if (error != null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
+        }
     }
 }
