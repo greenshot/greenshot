@@ -29,6 +29,8 @@ namespace Greenshot.Base.Expressions
     /// <summary>What a help entry is</summary>
     public enum ExpressionHelpGroup
     {
+        /// <summary>How to write a value, a format, a fallback, ...</summary>
+        Syntax,
         /// <summary>An option of the recipe: ${option.key}</summary>
         RecipeOption,
         /// <summary>A variable of the recipe: a trigger value, a step output, SetVariable: ${var.name}</summary>
@@ -67,7 +69,18 @@ namespace Greenshot.Base.Expressions
     {
         public static IReadOnlyList<ExpressionHelpEntry> For(TemplatePurpose purpose)
         {
-            var entries = new List<ExpressionHelpEntry>();
+            var entries = new List<ExpressionHelpEntry>
+            {
+                new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "${name}", "A value, e.g. ${payload.title}"),
+                new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "${name:format}", "A value with a .NET format, e.g. ${payload.time:yyyy-MM-dd}"),
+                new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "${name ?? 'text'}", "A fallback when the value is missing or empty"),
+                new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "${(a > b ? 'x' : 'y')}", "A choice, in parentheses"),
+                new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "$${", "A ${ as it is")
+            };
+            if (purpose == TemplatePurpose.FileName)
+            {
+                entries.Add(new ExpressionHelpEntry(ExpressionHelpGroup.Syntax, "\\", "A sub folder, e.g. ${payload.time:yyyy-MM}\\${payload.title}"));
+            }
             var resolver = VariableResolver.Instance;
             foreach (var variable in resolver.Describe(purpose)
                          .Where(v => !v.Name.StartsWith("option.", StringComparison.OrdinalIgnoreCase) && !v.Name.StartsWith("var.", StringComparison.OrdinalIgnoreCase))

@@ -4746,13 +4746,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// </summary>
         string TipExpressionHelp { get; }
 
-        /// <summary>
-        /// Everything a ${...} in this recipe can use: its options, its variables, the values of Greenshot and the functions. Enter or a double click copies the selected line.
-        /// </summary>
-        string ExpressionHelpIntro { get; }
-
-
-
 
 
 

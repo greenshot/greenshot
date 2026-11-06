@@ -1474,6 +1474,16 @@ namespace Greenshot.Base.Languages
         string ExpressionHelpFound { get; }
 
         /// <summary>
+        /// How to write
+        /// </summary>
+        string ExpressionHelpGroupSyntax { get; }
+
+        /// <summary>
+        /// Enter or a double click copies the selected line.
+        /// </summary>
+        string ExpressionHelpHint { get; }
+
+        /// <summary>
         /// Options of this recipe
         /// </summary>
         string ExpressionHelpGroupOptions { get; }

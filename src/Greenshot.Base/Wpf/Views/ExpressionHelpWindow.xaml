@@ -31,8 +31,7 @@
 
             <wpf:ThemedTitleBar Grid.Row="0"/>
 
-            <TextBlock x:Name="IntroTextBlock" Grid.Row="1" Margin="16,10,16,8" TextWrapping="Wrap"
-                       FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+            <!-- Row 1 stays empty: the groups say what the list is, the status line how to copy -->
 
             <Grid Grid.Row="2" Margin="16,0,16,8">
                 <Grid.ColumnDefinitions>

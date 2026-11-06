@@ -547,11 +547,6 @@ namespace Greenshot.Base.Languages
         string Language { get; }
 
         /// <summary>
-        /// The introduction of the help for templates: the syntax; the list of values and functions follows it.
-        /// </summary>
-        string MessageTemplateHelp { get; }
-
-        /// <summary>
         /// Network and updates
         /// </summary>
         string Network { get; }

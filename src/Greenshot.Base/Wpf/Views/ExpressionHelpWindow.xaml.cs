@@ -62,11 +62,10 @@ namespace Greenshot.Base.Wpf.Views
         /// </summary>
         /// <param name="entries">What to list</param>
         /// <param name="owner">The window it belongs to</param>
-        /// <param name="introduction">The text above the list: what the values are for here, null for none</param>
-        public static void ShowFor(IEnumerable<ExpressionHelpEntry> entries, Window owner, string introduction = null)
+        public static void ShowFor(IEnumerable<ExpressionHelpEntry> entries, Window owner)
         {
             _open?.Close();
-            var window = new ExpressionHelpWindow(entries, introduction) { Owner = owner };
+            var window = new ExpressionHelpWindow(entries) { Owner = owner };
             window.Closed += (_, _) =>
             {
                 if (ReferenceEquals(_open, window))
@@ -78,12 +77,11 @@ namespace Greenshot.Base.Wpf.Views
             window.Show();
         }
 
-        public ExpressionHelpWindow(IEnumerable<ExpressionHelpEntry> entries, string introduction = null)
+        public ExpressionHelpWindow(IEnumerable<ExpressionHelpEntry> entries)
         {
             InitializeComponent();
-            IntroTextBlock.Text = introduction?.Trim() ?? string.Empty;
-            IntroTextBlock.Visibility = string.IsNullOrEmpty(IntroTextBlock.Text) ? Visibility.Collapsed : Visibility.Visible;
             var language = Texts.Get<ICoreLanguage>();
+            StatusTextBlock.Text = language.ExpressionHelpHint;
             var items = (entries ?? Enumerable.Empty<ExpressionHelpEntry>()).Select(e => new Item(e, GroupName(e.Group, language))).ToList();
             _view = new ListCollectionView(items);
             _view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Item.GroupName)));
@@ -96,6 +94,8 @@ namespace Greenshot.Base.Wpf.Views
         {
             switch (group)
             {
+                case ExpressionHelpGroup.Syntax:
+                    return language.ExpressionHelpGroupSyntax;
                 case ExpressionHelpGroup.RecipeOption:
                     return language.ExpressionHelpGroupOptions;
                 case ExpressionHelpGroup.RecipeVariable:

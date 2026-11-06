@@ -256,7 +256,7 @@ namespace Greenshot.Settings.Views
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(Base.Expressions.ExpressionHelp.For(Base.Expressions.TemplatePurpose.FileName), this, Texts.Settings.MessageTemplateHelp);
+            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(Base.Expressions.ExpressionHelp.For(Base.Expressions.TemplatePurpose.FileName), this);
         }
 
         // The buttons change the size in steps of 4 pixels, the configuration keeps the value on a step

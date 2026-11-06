@@ -63,12 +63,12 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void For_NoRecipe_ListsValuesAndFunctionsOnly()
+        public void For_NoRecipe_ListsSyntaxValuesAndFunctionsOnly()
         {
             var entries = RecipeExpressionHelp.For(null);
 
             Assert.NotEmpty(entries);
-            Assert.All(entries, e => Assert.True(e.Group == ExpressionHelpGroup.Value || e.Group == ExpressionHelpGroup.Function));
+            Assert.All(entries, e => Assert.True(e.Group == ExpressionHelpGroup.Syntax || e.Group == ExpressionHelpGroup.Value || e.Group == ExpressionHelpGroup.Function));
         }
     }
 }
