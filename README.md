@@ -58,7 +58,7 @@ IDE System Requirements:
 
 * Windows OS environment
 * Visual Studio 2026 (the native projects use the v145 C++ toolset), with the **Desktop development with C++** workload, MSVC v145 x64/x86 build tools, and a Windows 10 SDK
-* .NET SDK 10.0.100 or newer (Greenshot.Mcp targets .NET 10)
+* .NET SDK 10.0.114 or newer (Greenshot.Mcp targets .NET 10; older SDKs carry an ILCompiler with the Brotli vulnerability GHSA-p3jp-9v83-76w9)
 * .NET Framework 4.8 Developer Pack / targeting pack
 
 Build Instructions:
