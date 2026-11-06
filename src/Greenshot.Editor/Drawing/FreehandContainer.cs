@@ -49,6 +49,11 @@ namespace Greenshot.Editor.Drawing
         private Rectangle myBounds = NativeRect.Empty;
         private Point lastMouse = NativePoint.Empty;
         private List<Point> capturePoints = new List<Point>();
+
+        /// <summary>
+        /// The smoothed line, relative to Left and Top
+        /// </summary>
+        internal GraphicsPath FreehandPath => freehandPath;
         private bool isRecalculated;
 
         /// <summary>

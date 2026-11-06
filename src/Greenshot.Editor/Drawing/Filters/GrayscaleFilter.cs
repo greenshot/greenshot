@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Filters
@@ -33,26 +34,19 @@ namespace Greenshot.Editor.Drawing.Filters
     [Serializable()]
     public class GrayscaleFilter : AbstractFilter
     {
-        private static readonly ColorMatrix GrayscaleMatrix = new ColorMatrix(new[]
-        {
-            new[] { .3f, .3f, .3f, 0, 0 },
-            new[] { .59f, .59f, .59f, 0, 0 },
-            new[] { .11f, .11f, .11f, 0, 0 },
-            new float[] { 0, 0, 0, 1, 0 },
-            new float[] { 0, 0, 0, 0, 1 }
-        });
-
         public GrayscaleFilter(DrawableContainer parent) : base(parent)
         {
         }
 
         protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
-            using (ImageAttributes ia = new ImageAttributes())
-            {
-                ia.SetColorMatrix(GrayscaleMatrix);
-                graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
-            }
+            // The luminance of BT.709 in linear light, like the grayscale effect and the HDR image
+            using Bitmap gray = ImageHelper.CloneArea(applyBitmap, applyRect, PixelFormat.Format32bppArgb);
+            ImageHelper.ApplyGrayscale(gray);
+            // Mirrored at the edges: when the editor zooms, GDI+ would mix the border pixels with transparency
+            using var attributes = new ImageAttributes();
+            attributes.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
+            graphics.DrawImage(gray, applyRect, 0, 0, gray.Width, gray.Height, GraphicsUnit.Pixel, attributes);
         }
     }
 }

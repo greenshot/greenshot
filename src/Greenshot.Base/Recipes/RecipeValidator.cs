@@ -160,6 +160,7 @@ namespace Greenshot.Base.Recipes
                 ValidateNode(node, i, nodeIds, result);
             }
             WarnAboutRegionWithoutSelection(recipe, result);
+            WarnAboutHdrFileWithoutHdrCapture(recipe, result);
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
@@ -181,6 +182,19 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Version, id, name and requirements, the same for recipes and extensions
         /// </summary>
+        /// <summary>
+        /// A SaveFile step with HdrFormat needs the HDR content of the capture, which only a Source step with Hdr takes:
+        /// without it the normal file is always saved. A recipe forwarded a capture (no Source step of its own) isn't warned.
+        /// </summary>
+        private static void WarnAboutHdrFileWithoutHdrCapture(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            bool hasSource = recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
+            if (hasSource && HdrOutput.SavesHdrFile(recipe) && !HdrOutput.CapturesHdr(recipe))
+            {
+                result.AddWarning("A SaveFile step saves an HDR file (HdrFormat), but the Source step doesn't capture with the HDR content (Hdr is false): the normal file is always saved.");
+            }
+        }
+
         /// <summary>
         /// A Region source only captures the screen, the user selects the region in the InteractiveSelection step after it.
         /// Without that step the whole screen goes on, which is easy to miss when writing a recipe. AI tools give the region themselves.
@@ -670,9 +684,16 @@ namespace Greenshot.Base.Recipes
                 ValidateAnnotationNode(node, result);
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) &&
-                node.GetParameter<List<PromptChoice>>("Choices") is { } choices && choices.Count(c => c?.IsDefault == true) > 1)
+                node.GetParameter<List<PromptChoice>>("Choices") is { } choices)
             {
-                result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
+                if (choices.Count(c => c?.IsDefault == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
+                }
+                if (choices.Count(c => c?.IsCancel == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsCancel'.");
+                }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
             {
@@ -873,10 +894,11 @@ namespace Greenshot.Base.Recipes
                 }
                 foreach (var text in language.Value)
                 {
-                    if (!paths.Contains(text.Key))
+                    if (!paths.Contains(text.Key) && !definition.IsTextOfUnknownStep(text.Key))
                     {
                         result.AddError($"Translations '{language.Key}': '{text.Key}' is not a text of this file, use \"name\", \"description\", " +
-                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\" or \"triggers.{index}.menuItemText\".");
+                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\", \"triggers.{index}.menuItemText\", " +
+                                        "\"nodes.{nodeId}.{parameter}\" (e.g. the Title of a UserPrompt) or \"nodes.{nodeId}.Choices.{key}\".");
                     }
                     else if (string.IsNullOrWhiteSpace(text.Value))
                     {
@@ -943,9 +965,16 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
                 }
+                if (option.Type != ContractDataType.String && string.Equals(option.Format, RecipeOption.FormatTemplate, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddWarning($"Option '{option.Key}': the 'template' format is only used for String options.");
+                }
                 if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
                 {
-                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                    string hint = option.Type == ContractDataType.DirectoryPath
+                        ? @" A folder is a full path, which may use ${user.*} and ${machine.*} values like ${user.pictures}\Greenshot."
+                        : string.Empty;
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.{hint}");
                 }
                 if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
                 {

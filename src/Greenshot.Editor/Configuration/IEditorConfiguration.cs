@@ -29,7 +29,9 @@ using Dapplo.Ini.Interfaces;
 using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
+using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Configuration
 {
@@ -69,6 +71,10 @@ namespace Greenshot.Editor.Configuration
         [Description("Position of normal window")]
         [DefaultValue("100,100,400,400")]
         NativeRect WindowNormalPosition { get; set; }
+
+        [Description("The colors of the editor window: Light, Dark or System (follow the Windows app mode). The capture is never changed. A high contrast theme of Windows always wins.")]
+        [DefaultValue("Light")]
+        UiTheme EditorTheme { get; set; }
 
         [Description("Show the captures of an editor window as tabs, when false every capture gets its own window")]
         [DefaultValue(true)]
@@ -136,6 +142,14 @@ namespace Greenshot.Editor.Configuration
         [Description("Vertical offset in pixels for matched rectangles")]
         [DefaultValue(0)]
         int TextObfuscationOffsetVertical { get; set; }
+
+        [Description("Blur radius of text redaction and of a new obfuscation, as percentage of the height of the text it covers")]
+        [DefaultValue(ObfuscationStrength.DefaultBlurRadiusPercent)]
+        int BlurRadiusTextHeightPercent { get; set; }
+
+        [Description("Pixel size of text redaction and of a new obfuscation, as percentage of the height of the text it covers")]
+        [DefaultValue(ObfuscationStrength.DefaultPixelSizePercent)]
+        int PixelSizeTextHeightPercent { get; set; }
 
         [DefaultValue("🙂")]
         [Description("Last used emoji")]

@@ -92,6 +92,10 @@ Triggers and recipes are decoupled. Any trigger can run any recipe, and a single
 
 `ContextMenu` triggers add items to the **Recipes** menu in the context menu opened from Greenshot's system tray icon; 
 `Editor` triggers add items to the image editor's **Recipes** menu. 
+The destination window (destination "Ask for destination every time, in a window", Export in the viewer and the
+`DynamicDestination` step) lists the same
+recipes under "Change the capture with a recipe": the recipe changes the capture shown there, like in the editor, before a
+destination is chosen.
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
 The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
 For example:
@@ -288,11 +292,15 @@ other languages, in the file itself, so they travel with it:
   `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
   the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
   only the texts it has.
+- The texts a step shows are named by their node: `nodes.{nodeId}.Title` and `nodes.{nodeId}.Message` of a
+  `UserPrompt`, `nodes.{nodeId}.Choices.{key}` for the label of one of its choices, and `nodes.{nodeId}.Title` of a
+  `DynamicDestination`. A translation may hold expressions (`${...}`) like the text of the file.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
 - The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
   then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
-  there moves the translations of the menu texts of the triggers after it.
+  there moves the translations of the menu texts of the triggers after it. Renaming a node keeps the translations of
+  its texts; the translations of a removed node or choice are removed when the recipe is saved.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---
@@ -301,7 +309,10 @@ other languages, in the file itself, so they travel with it:
 
 The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
-itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
+`Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
+selection: a `Conditional` step *Text or image* sends `${SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
+everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
@@ -322,7 +333,7 @@ Greenshot expression evaluation separates system information into distinct scope
 | `machine.*` | Windows Machine Environment | System-wide / machine-scoped environment variables (from `EnvironmentVariableTarget.Machine`) | `${machine.computername}`, `${machine.os}`, `${machine.programfiles}` |
 | `config.*` | Greenshot INI Configuration | Live configuration settings from `greenshot.ini` | `${config.language}`, `${config.capturemousepointer}` |
 | `context.*` | Pipeline Flow Context | Variables stored in `context.Properties` or set by preceding steps | `${context.watermark_text}`, `${context.WindowTitle}` |
-| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}` |
+| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture; `payload.hdr` is `Available` (can be saved as an HDR file), `Lost` (monochrome or reduce colors changed the image) or `None` (no HDR content: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. to ask with a `UserPrompt` step how to save, or `NoHdrNote` of the `Notification` step to say so | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}`, `${payload.hdr == 'Available'}` |
 | `now:format` | Date / Time | Current timestamp formatted with .NET DateTime format strings | `${now:yyyy-MM-dd HH:mm:ss}` |
 
 ### Mathematical & Logical Expressions
@@ -682,7 +693,11 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
   of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
-- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+- **DirectoryPath**: a folder, a full local or network path. It may use `${user.*}` and `${machine.*}` values, e.g.
+  `"${user.pictures}\\Greenshot"`: `${user.pictures}`, `${user.documents}` and `${user.desktop}` find these folders also
+  when they were moved (e.g. to OneDrive), any other name is an environment variable (`${user.OneDrive}`). Other `${...}`
+  values and `%VARIABLES%` can't be used, so neither a capture nor a typed text chooses a folder; the `template` format
+  is only for `String` options. Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
   `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
   folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step

@@ -366,6 +366,7 @@ namespace Greenshot.Shell
                 new PrinterDestination(),
                 new EmailDestination(),
                 new PickerDestination(),
+                new DestinationWindowDestination(),
                 new Win10ShareDestination(),
                 new Win10OcrDestination(),
                 new ViewerDestination()

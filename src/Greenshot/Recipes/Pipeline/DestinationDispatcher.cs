@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -144,15 +145,23 @@ namespace Greenshot.Recipes.Pipeline
                     // The flow can override the options of the file export
                     destinationToUse = new FileDestination(new FileDestinationOptions
                     {
-                        AllowOverwrite = context.Properties.TryGetValue("Destination.AllowOverwrite", out var aoVal) && aoVal is bool ao ? ao : (bool?)null,
+                        IfFileExists = context.Properties.TryGetValue("Destination.IfFileExists", out var ifeVal) && ifeVal is FileExistsAction ife ? ife : (FileExistsAction?)null,
+                        FilePath = context.Properties.TryGetValue("Destination.Filename", out var fileVal) ? fileVal as string : null,
                         CopyPathToClipboard = context.Properties.TryGetValue("Destination.CopyPathToClipboard", out var cpVal) && cpVal is bool cp ? cp : (bool?)null,
-                        OutputSettings = sharedFileOutputSettings
+                        OutputSettings = sharedFileOutputSettings,
+                        HdrFormat = context.Properties.TryGetValue("Destination.HdrFormat", out var hdrVal) ? hdrVal as string : null,
+                        AskForFilename = context.Properties.TryGetValue("Destination.AskForFilename", out var askVal) && askVal is bool ask && ask
                     });
                 }
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
                 var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, false, cancellationToken).ConfigureAwait(false);
+                if (destinationToUse is FileDestination && result.Status == ExportStatus.Succeeded && result.FilePath != null && context.Properties.ContainsKey("Destination.Filename"))
+                {
+                    // The file which was saved: a number may have been added, or another file picked in the save dialog
+                    context.Properties["Destination.Filename"] = result.FilePath;
+                }
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
@@ -176,9 +185,7 @@ namespace Greenshot.Recipes.Pipeline
             CancellationToken cancellationToken)
         {
             var copies = new Dictionary<string, PreparedCopy>();
-            var choices = DestinationHelper.GetAllDestinations()
-                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
-                .ToList();
+            var choices = DestinationHelper.GetChoices(captureDetails);
             while (true)
             {
                 var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);

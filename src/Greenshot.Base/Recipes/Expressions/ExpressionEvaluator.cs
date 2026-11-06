@@ -565,6 +565,43 @@ namespace Greenshot.Base.Recipes.Expressions
             return null;
         }
 
+        /// <summary>
+        /// Replaces the ${user.*} and ${machine.*} values of a folder, e.g. "${user.pictures}\Greenshot".
+        /// Nothing of a capture or a typed text may choose a folder, so any other ${...} fails.
+        /// </summary>
+        /// <returns>false when the text uses another ${...} or a value which doesn't exist</returns>
+        public static bool TryExpandFolder(string text, out string folder)
+        {
+            bool valid = true;
+            folder = TokenRegex.Replace(text ?? string.Empty, match =>
+            {
+                string token = match.Groups[1].Value.Trim();
+                object value = null;
+                if (token.StartsWith("user.", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = ResolveUserEnvironment(token.Substring(5));
+                }
+                else if (token.StartsWith("machine.", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = ResolveMachineEnvironment(token.Substring(8));
+                }
+
+                string resolved = value as string;
+                if (string.IsNullOrEmpty(resolved))
+                {
+                    valid = false;
+                    return string.Empty;
+                }
+                return resolved;
+            });
+            if (!valid || folder.IndexOf("${", StringComparison.Ordinal) >= 0)
+            {
+                folder = null;
+                return false;
+            }
+            return true;
+        }
+
         private static object ResolveUserEnvironment(string key)
         {
             if (string.IsNullOrWhiteSpace(key)) return null;
@@ -707,6 +744,9 @@ namespace Greenshot.Base.Recipes.Expressions
                     return payload.RawCapture?.CaptureDetails?.Title ?? string.Empty;
                 case "filename":
                     return payload.RawCapture?.CaptureDetails?.Filename ?? string.Empty;
+                case "hdr":
+                    // Available, Lost or None, see HdrOutput.StateOf
+                    return HdrOutput.StateOf(payload);
             }
 
             if (payload.Metadata != null && payload.Metadata.TryGetValue(key, out var metaVal))

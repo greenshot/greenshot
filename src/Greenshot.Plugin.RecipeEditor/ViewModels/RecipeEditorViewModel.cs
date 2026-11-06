@@ -1025,6 +1025,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 vm.StepErrorTransitionProvider = FindStepErrorTransition;
                 vm.StepErrorTransitionSetter = SetStepErrorTransition;
+                vm.PortRemovedHandler = RemoveConnectionsFrom;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -1306,6 +1307,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Removes the connections from a removed branch or choice: kept, they would be saved as plain transitions of the step
+        /// </summary>
+        private void RemoveConnectionsFrom(StepPortViewModel port)
+        {
+            foreach (var conn in Connections.Where(c => c.Source == port).ToList())
+            {
+                RemoveConnection(conn);
+            }
+        }
+
         public void RemoveConnection(StepConnectionViewModel conn)
         {
             if (conn != null && Connections.Contains(conn))
@@ -1425,6 +1437,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             nodeVm.StepErrorTransitionProvider = FindStepErrorTransition;
             nodeVm.StepErrorTransitionSetter = SetStepErrorTransition;
+            nodeVm.PortRemovedHandler = RemoveConnectionsFrom;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -1492,6 +1505,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (string.Equals(errorTransition.FromNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.FromNodeId = newId;
                 if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
+
+            ActiveRecipe?.RenameNodeTranslations(oldId, newId);
 
             SyncRecipeTransitions();
             IsDirty = true;
@@ -1918,6 +1933,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            // A translation of a removed node or choice would make the file invalid
+            ActiveRecipe.RemoveUnusedTranslations();
             if (_extension != null)
             {
                 return SaveActiveExtensionTo(filePath);
@@ -2381,7 +2398,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.DynamicDestination:
                     dict["Title"] = "Export Capture";
                     dict["ShowPreview"] = true;
-                    dict["AllowRecipeForwarding"] = true;
                     dict["TimeoutSeconds"] = 0;
                     dict["Destinations"] = new List<string>();
                     break;
@@ -2389,7 +2405,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["SaveDirectory"] = "";
                     dict["FilenamePattern"] = "greenshot ${capturetime}";
                     dict["Format"] = "png";
-                    dict["AllowOverwrite"] = false;
                     break;
                 case WellKnownStepTypes.Clipboard:
                     dict["ClipboardMode"] = "ImageOnly";

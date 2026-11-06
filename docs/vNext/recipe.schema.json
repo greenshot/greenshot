@@ -71,7 +71,7 @@
       "additionalProperties": {
         "type": "object",
         "minProperties": 1,
-        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText)$" },
+        "propertyNames": { "pattern": "^(name|description|options\\.[A-Za-z][A-Za-z0-9_]*\\.(label|description|choices\\..+)|triggers\\.[0-9]+\\.menuItemText|nodes\\..+\\.[A-Za-z][A-Za-z0-9]*(\\..+)?)$" },
         "additionalProperties": { "type": "string", "minLength": 1 }
       }
     },
@@ -334,6 +334,15 @@
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
             },
+            "ScreenMode": {
+              "anyOf": [ { "type": "string", "enum": [ "Auto", "Live", "Frozen" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "Auto",
+              "description": "Used by 'Source' step (SourceType Region or Window with an InteractiveSelection): select on the live or on the frozen screen. Auto follows the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen: the frozen screen is shown in SDR, the HDR content is there all the same."
+            },
+            "Hdr": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'Source' step (screen sources: Region, Window, ActiveWindow, FullScreen, LastRegion): capture with the HDR content of HDR displays, for steps which use it (e.g. HdrFormat of 'SaveFile', a JPEG XR file). Not set: the setting 'Keep the HDR content of HDR displays' (CaptureHdr). Only the HDR displays are kept, the SDR displays are in the normal image; on a frozen screen the whole screen is kept until the selection crops it."
+            },
             "Filename": {
               "type": "string",
               "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
@@ -541,6 +550,25 @@
             "Format": {
               "type": "string",
               "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
+            },
+            "HdrFormat": {
+              "anyOf": [ { "type": "string", "enum": [ "None", "Auto", "Jxr" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": "None",
+              "description": "Used by 'SaveFile' step: save an HDR file of a capture on an HDR display, lossless, with its highlights. Auto and Jxr: JPEG XR (built into Windows). Needs a capture with HDR content (Hdr of the Source step, or the setting; something brighter than SDR white or outside sRGB) whose image wasn't changed (what is drawn on it goes into the HDR file); otherwise the normal Format is saved quietly. To tell or ask the user, check ${payload.hdr} (Available, Lost, None) before, e.g. with a UserPrompt step, or use NoHdrNote of the Notification step."
+            },
+            "IfFileExists": {
+              "anyOf": [ { "type": "string", "enum": [ "Overwrite", "Ask", "AddNumber" ] }, { "type": "string", "pattern": "\\$\\{" } ],
+              "description": "Used by 'SaveFile' and 'Destinations' steps: what happens when the file exists. Overwrite; Ask: the save dialog suggests the next free name (without a user to ask, e.g. a command line capture, the name gets a number); AddNumber: the first free 'name (2).png', 'name (3).png', ... Without it the setting OutputFileIfExists decides."
+            },
+            "AskForFilename": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'SaveFile' step: ask for the file with the save dialog instead of saving directly to the configured location. With HdrFormat the dialog suggests the HDR format; picking another format saves the normal file. Without a user to ask (e.g. a command line capture) the file is saved directly."
+            },
+            "NoHdrNote": {
+              "anyOf": [ { "type": "boolean" }, { "type": "string", "pattern": "\\$\\{" } ],
+              "default": false,
+              "description": "Used by 'Notification' step: say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat."
             },
             "FrameRate": {
               "type": "integer",

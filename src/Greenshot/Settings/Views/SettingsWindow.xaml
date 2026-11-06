@@ -213,6 +213,9 @@
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
+                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureHdr}"/>
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
@@ -655,6 +658,19 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Editor}">
                             <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=EditorThemeComboBox}"/>
+                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding Themes}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Theme"
+                                              SelectedValue="{Binding EditorConfiguration.EditorTheme, Mode=TwoWay}"
+                                              IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=EditorTheme}"/>
+                                </Grid>
                                 <CheckBox Content="{wpf:Text Editor.MatchCaptureSize}"
                                           IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=MatchSizeToCapture}"/>

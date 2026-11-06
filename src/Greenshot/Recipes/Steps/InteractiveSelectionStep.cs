@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -54,6 +55,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
+    [StepOutputVariable("SelectedMode", ContractDataType.String, "The mode the selection was made in: Region, Window or Text (the user can switch, e.g. T for text)")]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
@@ -71,17 +73,19 @@ namespace Greenshot.Recipes.Steps
 
         /// <param name="config">RecipeNodeConfig</param>
         /// <param name="selector">IInteractiveCaptureSelector, default the capture window</param>
-        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture</param>
+        /// <param name="captureArea">Captures an area of the screen for a selection on the live screen, default ScreenCapture (with the HDR content when the Source step asks for it, CaptureFlowContext.CaptureHdr)</param>
         internal InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector, Func<NativeRect, CancellationToken, Task<ScreenCaptureResult>> captureArea)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "InteractiveSelectionStep";
             _selector = selector ?? new InteractiveCaptureSelector();
-            _captureArea = captureArea ?? ScreenCapture.CaptureRectangleAsync;
+            _captureArea = captureArea;
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
+            // Without a selection (handed in, pre-supplied region) the mode of the step
+            context.Properties["SelectedMode"] = Config.GetParameter("SelectionMode", CaptureMode.Region).ToString();
             var payload = context.Payload;
             if (payload?.RawCapture == null)
             {
@@ -148,6 +152,7 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
+            context.Properties["SelectedMode"] = selection.FinalMode.ToString();
             if (selection.SelectedWindow != null)
             {
                 payload.RawCapture.CaptureDetails.Title = selection.SelectedWindow.GetCaption();
@@ -233,11 +238,20 @@ namespace Greenshot.Recipes.Steps
             var capture = context.Payload.RawCapture;
             var screenBounds = capture.ScreenBounds;
             var screenArea = area.IsEmpty ? screenBounds : area.Offset(screenBounds.X, screenBounds.Y);
-            var result = await _captureArea(screenArea, cancellationToken).ConfigureAwait(false);
+            var result = _captureArea != null
+                ? await _captureArea(screenArea, cancellationToken).ConfigureAwait(false)
+                // With the HDR content when the Source step asks for it (Hdr)
+                : await ScreenCapture.CaptureRectangleAsync(screenArea, context.CaptureHdr, cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 context.Abort($"Capturing the selection {screenArea} failed.");
                 return false;
+            }
+            // Only the selection is captured: its HDR parts are joined when all of it is used (JoinHdrParts)
+            capture.HdrParts = result.HdrParts;
+            if (context.CaptureHdrRequested)
+            {
+                HdrParts.MarkRequested(capture);
             }
             if (capture.CaptureDetails.DpiX > 0 && capture.CaptureDetails.DpiY > 0 && result.Image is System.Drawing.Bitmap bitmap)
             {

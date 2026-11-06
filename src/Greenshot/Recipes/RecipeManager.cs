@@ -262,12 +262,16 @@ namespace Greenshot.Recipes
                 "Interactively select a region on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Region))
+                .AddNode(CreateTextOrImage())
+                .AddNode(RecipeStepConfig.CreateClipboard("copy_text", "TextOnly"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             regionRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
-                .AddTransition("select", "feedback")
+                .AddTransition("select", "text_or_image")
+                .AddConditionalTransition("text_or_image", "Text", "copy_text")
+                .AddConditionalTransition("text_or_image", "Image", "feedback")
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
@@ -282,12 +286,16 @@ namespace Greenshot.Recipes
                 "Interactively select a window on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Window))
+                .AddNode(CreateTextOrImage())
+                .AddNode(RecipeStepConfig.CreateClipboard("copy_text", "TextOnly"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             windowRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
-                .AddTransition("select", "feedback")
+                .AddTransition("select", "text_or_image")
+                .AddConditionalTransition("text_or_image", "Text", "copy_text")
+                .AddConditionalTransition("text_or_image", "Image", "feedback")
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(windowRecipe, "export", "export");
@@ -398,6 +406,21 @@ namespace Greenshot.Recipes
                     RegisterBuiltIn(recipe, disabled);
                 }
             }
+        }
+
+        /// <summary>
+        /// After the selection of the region and window captures: text selected in the text mode (T) goes to the clipboard as text,
+        /// everything else to the destinations
+        /// </summary>
+        private static RecipeNodeConfig CreateTextOrImage()
+        {
+            var node = RecipeStepConfig.CreateConditional("text_or_image", new[]
+            {
+                new KeyValuePair<string, string>("Text", "${SelectedMode == 'Text'}"),
+                new KeyValuePair<string, string>("Image", "else")
+            });
+            node.Name = "Text or image";
+            return node;
         }
 
         private HashSet<string> GetDisabledRecipeIds()

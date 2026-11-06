@@ -22,11 +22,13 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
+using Dapplo.Windows.Icons.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -487,10 +489,10 @@ namespace Greenshot.Recipes.Steps
                     using var bmp = new Bitmap(ms);
                     int hsX = GetInt(p, "HotspotX", 0);
                     int hsY = GetInt(p, "HotspotY", 0);
+                    // An image is a cursor with alpha: no mask
                     cursorContainer.Cursor = new CapturedCursor
                     {
                         ColorLayer = new Bitmap(bmp),
-                        MaskLayer = new Bitmap(bmp.Width, bmp.Height),
                         Size = new NativeSize(bmp.Width, bmp.Height),
                         HotSpot = new NativePoint(hsX, hsY)
                     };
@@ -505,20 +507,7 @@ namespace Greenshot.Recipes.Steps
                 var winFormsCursor = ResolveWindowsCursor(cursorName);
                 if (winFormsCursor != null)
                 {
-                    int w = winFormsCursor.Size.Width > 0 ? winFormsCursor.Size.Width : 32;
-                    int h = winFormsCursor.Size.Height > 0 ? winFormsCursor.Size.Height : 32;
-                    var colorLayer = new Bitmap(w, h);
-                    using (var g = Graphics.FromImage(colorLayer))
-                    {
-                        winFormsCursor.Draw(g, new Rectangle(0, 0, w, h));
-                    }
-                    cursorContainer.Cursor = new CapturedCursor
-                    {
-                        ColorLayer = colorLayer,
-                        MaskLayer = new Bitmap(w, h),
-                        Size = new NativeSize(w, h),
-                        HotSpot = new NativePoint(winFormsCursor.HotSpot.X, winFormsCursor.HotSpot.Y)
-                    };
+                    cursorContainer.Cursor = ToCapturedCursor(winFormsCursor);
                 }
             }
             else if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
@@ -526,20 +515,7 @@ namespace Greenshot.Recipes.Steps
                 try
                 {
                     using var cur = new System.Windows.Forms.Cursor(filePath);
-                    int w = cur.Size.Width > 0 ? cur.Size.Width : 32;
-                    int h = cur.Size.Height > 0 ? cur.Size.Height : 32;
-                    var colorLayer = new Bitmap(w, h);
-                    using (var g = Graphics.FromImage(colorLayer))
-                    {
-                        cur.Draw(g, new Rectangle(0, 0, w, h));
-                    }
-                    cursorContainer.Cursor = new CapturedCursor
-                    {
-                        ColorLayer = colorLayer,
-                        MaskLayer = new Bitmap(w, h),
-                        Size = new NativeSize(w, h),
-                        HotSpot = new NativePoint(cur.HotSpot.X, cur.HotSpot.Y)
-                    };
+                    cursorContainer.Cursor = ToCapturedCursor(cur);
                 }
                 catch (Exception ex)
                 {
@@ -549,22 +525,50 @@ namespace Greenshot.Recipes.Steps
             else
             {
                 // Default to standard Arrow cursor if none specified
-                var arrow = System.Windows.Forms.Cursors.Arrow;
-                var colorLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height);
-                using (var g = Graphics.FromImage(colorLayer))
-                {
-                    arrow.Draw(g, new Rectangle(0, 0, arrow.Size.Width, arrow.Size.Height));
-                }
-                cursorContainer.Cursor = new CapturedCursor
-                {
-                    ColorLayer = colorLayer,
-                    MaskLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height),
-                    Size = new NativeSize(arrow.Size.Width, arrow.Size.Height),
-                    HotSpot = new NativePoint(arrow.HotSpot.X, arrow.HotSpot.Y)
-                };
+                cursorContainer.Cursor = ToCapturedCursor(System.Windows.Forms.Cursors.Arrow);
             }
 
             return cursorContainer;
+        }
+
+        /// <summary>
+        /// The layers of a cursor like CursorHelper takes them from a captured one: a cursor with alpha is a picture without a mask, any other
+        /// cursor gets the AND mask and the XOR image Windows draws it with (e.g. an I-beam which inverts what is under it)
+        /// </summary>
+        private static CapturedCursor ToCapturedCursor(System.Windows.Forms.Cursor cursor)
+        {
+            int w = cursor.Size.Width > 0 ? cursor.Size.Width : 32;
+            int h = cursor.Size.Height > 0 ? cursor.Size.Height : 32;
+            var capturedCursor = new CapturedCursor
+            {
+                Size = new NativeSize(w, h),
+                HotSpot = new NativePoint(cursor.HotSpot.X, cursor.HotSpot.Y)
+            };
+            var picture = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_NORMAL, PixelFormat.Format32bppArgb);
+            if (HasAlpha(picture))
+            {
+                capturedCursor.ColorLayer = picture;
+                return capturedCursor;
+            }
+            picture.Dispose();
+            capturedCursor.ColorLayer = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_IMAGE, PixelFormat.Format24bppRgb);
+            capturedCursor.MaskLayer = CursorHelper.BitmapFromHIcon(cursor.Handle, w, h, DrawIconExFlags.DI_MASK, PixelFormat.Format24bppRgb);
+            return capturedCursor;
+        }
+
+        private static bool HasAlpha(Bitmap bitmap)
+        {
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    if (bitmap.GetPixel(x, y).A != 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static System.Windows.Forms.Cursor ResolveWindowsCursor(string name)

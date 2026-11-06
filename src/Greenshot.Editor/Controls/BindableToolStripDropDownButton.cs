@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Editor.Controls
 {
@@ -49,11 +50,22 @@ namespace Greenshot.Editor.Controls
             if (Tag == null || !Tag.Equals(clickedItem.Tag))
             {
                 Tag = clickedItem.Tag;
-                Image = clickedItem.Image;
+                ShowImageOf(clickedItem);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
             }
 
             base.OnDropDownItemClicked(e);
+        }
+
+        /// <summary>
+        /// Show the icon of the item: its own copy when the item is bound (the copy of the item is replaced when the size changes)
+        /// </summary>
+        private void ShowImageOf(ToolStripItem item)
+        {
+            if (!IconBinder.BindLike(this, item))
+            {
+                Image = item.Image;
+            }
         }
 
         private void AdoptFromTag(object tag)
@@ -62,7 +74,7 @@ namespace Greenshot.Editor.Controls
             {
                 if (item.Tag != null && item.Tag.Equals(tag))
                 {
-                    Image = item.Image;
+                    ShowImageOf(item);
                     break;
                 }
             }

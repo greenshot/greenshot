@@ -482,6 +482,26 @@ namespace Greenshot.Plugin.RecipeEditor
         string DisplayName { get; }
 
         /// <summary>
+        /// Run this step
+        /// </summary>
+        string StepEnabled { get; }
+
+        /// <summary>
+        /// When off, the recipe skips this step and goes on with the next ones
+        /// </summary>
+        string TipStepEnabled { get; }
+
+        /// <summary>
+        /// Only when
+        /// </summary>
+        string StepWhen { get; }
+
+        /// <summary>
+        /// Runs the step only when this expression is true, e.g. ${option.add_border}. Empty: always
+        /// </summary>
+        string TipStepWhen { get; }
+
+        /// <summary>
         /// STEP PARAMETERS
         /// </summary>
         string HeaderStepParameters { get; }
@@ -1812,19 +1832,24 @@ namespace Greenshot.Plugin.RecipeEditor
         string ImageFormat { get; }
 
         /// <summary>
-        /// Allow Overwrite
+        /// If the File Exists
         /// </summary>
-        string AllowOverwrite { get; }
+        string IfFileExists { get; }
 
         /// <summary>
-        /// Enabled (Overwrite existing)
+        /// Overwrite it
         /// </summary>
-        string OverwriteEnabled { get; }
+        string IfFileExistsOverwrite { get; }
 
         /// <summary>
-        /// Disabled (Auto-number files)
+        /// Ask where to save (unattended: add a number)
         /// </summary>
-        string OverwriteDisabled { get; }
+        string IfFileExistsAsk { get; }
+
+        /// <summary>
+        /// Add a number: name (2)
+        /// </summary>
+        string IfFileExistsAddNumber { get; }
 
         /// <summary>
         /// Quality Prompt
@@ -1850,6 +1875,66 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Enabled (Copy filepath)
         /// </summary>
         string CopyPathEnabled { get; }
+
+        /// <summary>
+        /// Ask Where to Save
+        /// </summary>
+        string AskForFilename { get; }
+
+        /// <summary>
+        /// No, save to the output folder
+        /// </summary>
+        string AskForFilenameNo { get; }
+
+        /// <summary>
+        /// Yes, with the save dialog
+        /// </summary>
+        string AskForFilenameYes { get; }
+
+        /// <summary>
+        /// HDR File
+        /// </summary>
+        string HdrFile { get; }
+
+        /// <summary>
+        /// JPEG XR (lossless, with the highlights)
+        /// </summary>
+        string HdrFileJxr { get; }
+
+        /// <summary>
+        /// Saves an HDR file when the Source step captures HDR (Hdr) and nothing was drawn on the capture, otherwise the normal file
+        /// </summary>
+        string TipHdrFile { get; }
+
+        /// <summary>
+        /// Select on
+        /// </summary>
+        string ScreenMode { get; }
+
+        /// <summary>
+        /// Live screen
+        /// </summary>
+        string ScreenModeLive { get; }
+
+        /// <summary>
+        /// Frozen screen
+        /// </summary>
+        string ScreenModeFrozen { get; }
+
+        /// <summary>
+        /// HDR Content
+        /// </summary>
+        string CaptureHdr { get; }
+
+        /// <summary>
+        /// Keep (of HDR displays)
+        /// </summary>
+        string CaptureHdrEnabled { get; }
+
+        /// <summary>
+        /// Captures the HDR content of HDR displays as well, for steps which use it (e.g. the HDR file of Save to File). Clearer on the live screen.
+        /// </summary>
+        string TipCaptureHdr { get; }
 
         /// <summary>
         /// JPEG Quality (1-100 or empty=Config)
@@ -2115,11 +2200,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Show capture thumbnail preview
         /// </summary>
         string ShowThumbnail { get; }
-
-        /// <summary>
-        /// Allow forwarding capture to other recipes
-        /// </summary>
-        string AllowForwarding { get; }
 
         /// <summary>
         /// Auto-Dismiss Timeout (Seconds, 0 = Disabled)
@@ -3426,6 +3506,11 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Use a fixed hotkey
         /// </summary>
         string TriggerHotkeyUseFixed { get; }
+
+        /// <summary>
+        /// Use the hotkey of an option
+        /// </summary>
+        string TriggerHotkeyUseOption { get; }
 
         /// <summary>
         /// Context Menu: {0}

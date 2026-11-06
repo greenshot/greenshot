@@ -434,6 +434,19 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// The lines along the torn sides, in image coordinates; none when nothing is torn
+        /// </summary>
+        internal IReadOnlyList<PointF[]> EdgeLines()
+        {
+            if (!HasEdges(out var innerSize))
+            {
+                return Array.Empty<PointF[]>();
+            }
+            CreateOutline(innerSize, out var tornSides);
+            return tornSides;
+        }
+
+        /// <summary>
         /// The shadow of the torn edge effect, cast by what is left of the image into the torn off parts
         /// </summary>
         private void DrawShadow(Graphics graphics)
@@ -483,6 +496,35 @@ namespace Greenshot.Editor.Drawing
             int reach = ToothHeight + 4;
             return (_edges[0] && y < _margins[0] + reach) || (_edges[1] && x >= bounds.Width - _margins[1] - reach) ||
                    (_edges[2] && y >= bounds.Height - _margins[2] - reach) || (_edges[3] && x < _margins[3] + reach);
+        }
+
+        /// <summary>
+        /// The bands of the torn edges, with their margins and the shadow of the teeth: what the edges change of the image (e.g. for an HDR file,
+        /// where the rest of the image keeps its HDR content)
+        /// </summary>
+        internal IEnumerable<NativeRect> EdgeAreas()
+        {
+            var bounds = ImageBounds;
+            int shadow = GetFieldValueAsBool(FieldType.SHADOW) ? _shadowSize + Math.Max(Math.Abs(_shadowOffsetX), Math.Abs(_shadowOffsetY)) : 0;
+            int reach = ToothHeight + shadow + 2;
+            if (_edges[0])
+            {
+                yield return new NativeRect(bounds.X, bounds.Y, bounds.Width, Math.Min(bounds.Height, _margins[0] + reach));
+            }
+            if (_edges[1])
+            {
+                int width = Math.Min(bounds.Width, _margins[1] + reach);
+                yield return new NativeRect(bounds.Right - width, bounds.Y, width, bounds.Height);
+            }
+            if (_edges[2])
+            {
+                int height = Math.Min(bounds.Height, _margins[2] + reach);
+                yield return new NativeRect(bounds.X, bounds.Bottom - height, bounds.Width, height);
+            }
+            if (_edges[3])
+            {
+                yield return new NativeRect(bounds.X, bounds.Y, Math.Min(bounds.Width, _margins[3] + reach), bounds.Height);
+            }
         }
 
         public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)

@@ -72,10 +72,23 @@ namespace Greenshot.Base.Interfaces
     public sealed class EncodedImage
     {
         private readonly byte[] _bytes;
+        private readonly int _length;
 
-        public EncodedImage(byte[] bytes, string format)
+        public EncodedImage(byte[] bytes, string format) : this(bytes, bytes?.Length ?? 0, format)
         {
-            _bytes = bytes ?? throw new ArgumentNullException(nameof(bytes));
+        }
+
+        /// <summary>
+        /// The first bytes of a buffer, e.g. of a MemoryStream (GetBuffer): no copy of the encoded image
+        /// </summary>
+        /// <param name="buffer">The buffer, not changed afterwards</param>
+        /// <param name="length">The bytes of the image at the start of the buffer</param>
+        /// <param name="format">The id of the file format</param>
+        public EncodedImage(byte[] buffer, int length, string format)
+        {
+            _bytes = buffer ?? throw new ArgumentNullException(nameof(buffer));
+            if (length < 0 || length > buffer.Length) throw new ArgumentOutOfRangeException(nameof(length));
+            _length = length;
             Format = format ?? throw new ArgumentNullException(nameof(format));
         }
 
@@ -97,18 +110,18 @@ namespace Greenshot.Base.Interfaces
         /// </summary>
         public string FileExtension => "." + (Definition?.PreferredExtension ?? Format);
 
-        public ReadOnlyMemory<byte> Bytes => _bytes;
+        public ReadOnlyMemory<byte> Bytes => new ReadOnlyMemory<byte>(_bytes, 0, _length);
 
-        public int Length => _bytes.Length;
+        public int Length => _length;
 
         /// <summary>
         /// A new read-only stream over the bytes.
         /// </summary>
-        public Stream OpenRead() => new MemoryStream(_bytes, false);
+        public Stream OpenRead() => new MemoryStream(_bytes, 0, _length, false);
 
         /// <summary>
         /// Copy of the bytes, for APIs which need an array.
         /// </summary>
-        public byte[] ToArray() => (byte[])_bytes.Clone();
+        public byte[] ToArray() => Bytes.ToArray();
     }
 }

@@ -123,11 +123,11 @@ namespace Greenshot.Base.Recipes
             string id = "save_file",
             string saveDirectory = null,
             string filenamePattern = null,
-            bool? allowOverwrite = null,
+            FileExistsAction? ifFileExists = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
         {
-            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, allowOverwrite, jpegQuality, reduceColors);
+            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, ifFileExists, jpegQuality, reduceColors);
             return node;
         }
 
@@ -202,7 +202,7 @@ namespace Greenshot.Base.Recipes
             string saveDirectory = null,
             string filenamePattern = null,
             string format = null,
-            bool? allowOverwrite = null,
+            FileExistsAction? ifFileExists = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
         {
@@ -210,7 +210,7 @@ namespace Greenshot.Base.Recipes
             if (!string.IsNullOrEmpty(saveDirectory)) node.Set("SaveDirectory", saveDirectory);
             if (!string.IsNullOrEmpty(filenamePattern)) node.Set("FilenamePattern", filenamePattern);
             if (!string.IsNullOrEmpty(format)) node.Set("Format", format);
-            if (allowOverwrite.HasValue) node.Set("AllowOverwrite", allowOverwrite.Value);
+            if (ifFileExists.HasValue) node.Set("IfFileExists", ifFileExists.Value.ToString());
             if (jpegQuality.HasValue) node.Set("JpegQuality", jpegQuality.Value);
             if (reduceColors.HasValue) node.Set("ReduceColors", reduceColors.Value);
             return node;
@@ -315,14 +315,12 @@ namespace Greenshot.Base.Recipes
             string id = "dynamic_export",
             string title = "Export Capture",
             bool showPreview = true,
-            bool allowRecipeForwarding = true,
             IEnumerable<string> destinations = null,
             int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.DynamicDestination, title ?? "Export Capture");
             node.Set("Title", title ?? "Export Capture");
             node.Set("ShowPreview", showPreview);
-            node.Set("AllowRecipeForwarding", allowRecipeForwarding);
             if (destinations != null) node.Set("Destinations", destinations.ToList());
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             return node;

@@ -46,6 +46,8 @@ public sealed class ExportImageMetadata
     private static readonly XNamespace Xmp = "http://ns.adobe.com/xap/1.0/";
     private static readonly XNamespace Dc = "http://purl.org/dc/elements/1.1/";
     private static readonly XNamespace GreenshotNs = "https://getgreenshot.org/ns/xmp/1.0/";
+    private const string SdrWhiteLevelName = "HdrSdrWhiteLevel";
+    private const string DisplayPeakName = "HdrDisplayPeak";
 
     /// <summary>
     /// The details which say something about the content or where it came from: they need the user's OK to leave this computer
@@ -93,9 +95,20 @@ public sealed class ExportImageMetadata
     public IList<string> Barcodes { get; } = new List<string>();
 
     /// <summary>
+    /// Of an HDR file: the SDR white level of the HDR display it was captured on, so it is tone mapped the same way when it is opened again
+    /// (scRGB has no white of its own: 1.0 is 80 nits). Null for an 8-bit file.
+    /// </summary>
+    public float? HdrSdrWhiteLevelInNits { get; set; }
+
+    /// <summary>
+    /// Of an HDR file: the brightest the display could show, null when unknown
+    /// </summary>
+    public float? HdrDisplayPeakInNits { get; set; }
+
+    /// <summary>
     /// True when there is more than the program name to write
     /// </summary>
-    public bool HasDetails => CaptureTime.HasValue || !string.IsNullOrEmpty(Author) || !string.IsNullOrEmpty(Copyright) || HasPrivateDetails;
+    public bool HasDetails => CaptureTime.HasValue || !string.IsNullOrEmpty(Author) || !string.IsNullOrEmpty(Copyright) || HdrSdrWhiteLevelInNits.HasValue || HasPrivateDetails;
 
     /// <summary>
     /// True when there is a private detail to write
@@ -335,6 +348,14 @@ public sealed class ExportImageMetadata
         {
             description.Add(new XElement(Dc + "source", SourceUrl));
         }
+        if (HdrSdrWhiteLevelInNits.HasValue)
+        {
+            description.Add(new XElement(GreenshotNs + SdrWhiteLevelName, HdrSdrWhiteLevelInNits.Value.ToString("0.###", CultureInfo.InvariantCulture)));
+        }
+        if (HdrDisplayPeakInNits > 0)
+        {
+            description.Add(new XElement(GreenshotNs + DisplayPeakName, HdrDisplayPeakInNits.Value.ToString("0.###", CultureInfo.InvariantCulture)));
+        }
         if (Barcodes.Count > 0)
         {
             description.Add(new XElement(GreenshotNs + "Barcodes", new XElement(Rdf + "Bag", Barcodes.Select(barcode => new XElement(Rdf + "li", barcode)))));
@@ -347,6 +368,41 @@ public sealed class ExportImageMetadata
                         + xmpMeta.ToString(SaveOptions.DisableFormatting)
                         + "<?xpacket end=\"w\"?>";
         return new UTF8Encoding(false).GetBytes(packet);
+    }
+
+    /// <summary>
+    /// The HDR levels Greenshot wrote into an XMP packet (see <see cref="HdrSdrWhiteLevelInNits"/>), null when it has none
+    /// </summary>
+    /// <param name="xmpPacket">The XMP packet of a file</param>
+    public static (float? SdrWhiteLevelInNits, float? DisplayPeakInNits) ReadHdrLevels(byte[] xmpPacket)
+    {
+        if (xmpPacket == null || xmpPacket.Length == 0)
+        {
+            return (null, null);
+        }
+        try
+        {
+            string text = Encoding.UTF8.GetString(xmpPacket).TrimStart((char)0xFEFF);
+            int start = text.IndexOf("<x:xmpmeta", StringComparison.Ordinal);
+            int end = text.LastIndexOf("</x:xmpmeta>", StringComparison.Ordinal);
+            if (start < 0 || end < start)
+            {
+                return (null, null);
+            }
+            var xmpMeta = XElement.Parse(text.Substring(start, end - start + "</x:xmpmeta>".Length));
+            // As element (how Greenshot writes it) or as attribute of the description (how other programs may rewrite it)
+            float? Read(string name)
+            {
+                string text = xmpMeta.Descendants(GreenshotNs + name).FirstOrDefault()?.Value
+                              ?? xmpMeta.Descendants().Select(element => element.Attribute(GreenshotNs + name)?.Value).FirstOrDefault(attribute => attribute != null);
+                return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && value > 0 ? value : null;
+            }
+            return (Read(SdrWhiteLevelName), Read(DisplayPeakName));
+        }
+        catch (System.Xml.XmlException)
+        {
+            return (null, null);
+        }
     }
 
     private static XElement LanguageAlternative(XName name, string value) =>

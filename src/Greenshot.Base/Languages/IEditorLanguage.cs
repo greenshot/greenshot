@@ -112,6 +112,31 @@ namespace Greenshot.Base.Languages
         string AutocropNotPossible { get; }
 
         /// <summary>
+        /// This capture has HDR content: Save as JPEG XR keeps its highlights, with what you drew on top
+        /// </summary>
+        string HdrBadgeTooltip { get; }
+
+        /// <summary>
+        /// This capture had HDR content, but its image was changed (e.g. by an effect): it is saved without HDR
+        /// </summary>
+        string HdrBadgeLostTooltip { get; }
+
+        /// <summary>
+        /// The text of this capture is recognized: ...
+        /// </summary>
+        string OcrBadgeFoundTooltip { get; }
+
+        /// <summary>
+        /// No text was recognized in this capture: ...
+        /// </summary>
+        string OcrBadgeNoTextTooltip { get; }
+
+        /// <summary>
+        /// Text recognition failed ({0}): ...
+        /// </summary>
+        string OcrBadgeFailedTooltip { get; }
+
+        /// <summary>
         /// Fill color (0-9)
         /// </summary>
         string Backcolor { get; }
@@ -537,14 +562,14 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextEffect { get; }
 
         /// <summary>
-        /// Pixel size:
+        /// Pixel size (% of text height):
         /// </summary>
-        string ObfuscateTextPixelSize { get; }
+        string ObfuscateTextPixelSizeTextHeight { get; }
 
         /// <summary>
-        /// Blur radius:
+        /// Blur radius (% of text height):
         /// </summary>
-        string ObfuscateTextBlurRadius { get; }
+        string ObfuscateTextBlurRadiusTextHeight { get; }
 
         /// <summary>
         /// Color:
@@ -685,11 +710,6 @@ namespace Greenshot.Base.Languages
         /// Pixel size
         /// </summary>
         string PixelSize { get; }
-
-        /// <summary>
-        /// Preview quality
-        /// </summary>
-        string PreviewQuality { get; }
 
         /// <summary>
         /// Print

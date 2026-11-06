@@ -1,0 +1,91 @@
+{
+  "version": "2.0",
+  "id": "recipe_hdr_window_to_file",
+  "name": "HDR Window to File",
+  "description": "Capture the active window on an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (a window on an SDR display, nothing brighter than SDR white) a PNG is saved, the notification says so.",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "HDR Window Menu Item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "HDR Window to File",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "Ctrl + Alt + PrintScreen"
+      }
+    }
+  ],
+  "requires": [],
+  "options": [
+    {
+      "key": "askForFilename",
+      "type": "Boolean",
+      "default": false,
+      "label": "Ask where to save the HDR file",
+      "description": "Opens the save dialog with JPEG XR chosen, instead of saving to the output folder",
+      "quickSettings": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "ActiveWindow",
+        "Hdr": true
+      }
+    },
+    {
+      "id": "save",
+      "stepType": "SaveFile",
+      "name": "Save as HDR File",
+      "enabled": true,
+      "parameters": {
+        "HdrFormat": "Auto",
+        "Format": "png",
+        "AskForFilename": "${option.askForFilename}"
+      }
+    },
+    {
+      "id": "notify",
+      "stepType": "Notification",
+      "name": "Completion Notification",
+      "enabled": true,
+      "parameters": {
+        "NoHdrNote": true
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "save"
+      },
+      {
+        "from": "save",
+        "to": "notify"
+      }
+    ]
+  },
+  "translations": {
+    "de-DE": {
+      "name": "HDR-Fenster als Datei",
+      "description": "Das aktive Fenster auf einem HDR-Display aufnehmen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (ein Fenster auf einem SDR-Display, nichts heller als SDR-Weiß) wird ein PNG gespeichert, die Benachrichtigung sagt es.",
+      "options.askForFilename.label": "Fragen, wo die HDR-Datei gespeichert wird",
+      "options.askForFilename.description": "Öffnet den Speichern-Dialog mit JPEG XR, statt im Ausgabeordner zu speichern",
+      "triggers.0.menuItemText": "HDR-Fenster als Datei"
+    }
+  },
+  "showInContextMenu": true
+}

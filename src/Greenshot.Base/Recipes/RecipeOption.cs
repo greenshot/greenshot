@@ -28,6 +28,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Recipes.Expressions;
 
 namespace Greenshot.Base.Recipes
 {
@@ -185,7 +186,7 @@ namespace Greenshot.Base.Recipes
         /// Converts a value (from the recipe, greenshot.ini or the settings) to the option type:
         /// bool, int, double or string. Numbers are limited to Min and Max.
         /// A Hotkey is written the way Greenshot writes hotkeys ("Ctrl + Shift + D"), empty or "None" for no hotkey.
-        /// A DirectoryPath is a full local or network path with %VARIABLES% replaced, empty when not set.
+        /// A DirectoryPath is a full local or network path with its ${user.*} and ${machine.*} values replaced, empty when not set.
         /// </summary>
         /// <returns>false when the value doesn't fit the type, a color or one of the choices</returns>
         public bool TryConvert(object raw, out object value)
@@ -284,8 +285,8 @@ namespace Greenshot.Base.Recipes
                 return true;
             }
 
-            string path = Environment.ExpandEnvironmentVariables(text);
-            if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0 || path.IndexOf('%') >= 0)
+            // ${user.pictures} finds the Pictures folder also when it was moved, e.g. to OneDrive
+            if (!ExpressionEvaluator.TryExpandFolder(text, out string path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 return false;
             }

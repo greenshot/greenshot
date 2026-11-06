@@ -67,7 +67,7 @@ namespace Greenshot.Base.Core
         bool WelcomeShown { get; set; }
 
         [DataMember(Name = "Destinations")]
-        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker")]
+        [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker, DestinationWindow")]
         [DefaultValue("Picker")]
         List<string> OutputDestinations { get; set; }
 
@@ -83,6 +83,10 @@ namespace Greenshot.Base.Core
         [Description("Should the mouse be captured?")]
         [DefaultValue(true)]
         bool CaptureMousepointer { get; set; }
+
+        [Description("Keep the HDR content of HDR displays with a capture, for JPEG XR files (a Source step without Hdr follows this)")]
+        [DefaultValue(false)]
+        bool CaptureHdr { get; set; }
 
         [Description("Use interactive window selection to capture? (false=Capture active window)")]
         [DefaultValue(false)]
@@ -124,9 +128,13 @@ namespace Greenshot.Base.Core
         [Description("Output file path.")]
         string OutputFilePath { get; set; }
 
-        [Description("If the target file already exists True will make Greenshot always overwrite and False will display a 'Save-As' dialog.")]
+        [Description("Replaced by OutputFileIfExists: False is changed there once to Ask, then this is True again.")]
         [DefaultValue(true)]
         bool OutputFileAllowOverwrite { get; set; }
+
+        [Description("What happens if the file to save already exists: Overwrite, Ask (the save dialog; unattended the name gets a number) or AddNumber (\"name (2).png\").")]
+        [DefaultValue("Overwrite")]
+        FileExistsAction OutputFileIfExists { get; set; }
 
         [Description("Filename pattern for screenshot.")]
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
@@ -465,7 +473,7 @@ namespace Greenshot.Base.Core
         FixedCaptureAnchor FixedCaptureAnchor { get; set; }
 
         [DataMember(Name = "BaseIconSize")]
-        [Description("Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI")]
+        [Description("Defines the base size of the icons (e.g. for the buttons in the editor and the menus) at 100%, in steps of 4, default value 16,16. It's scaled to the DPI of the display the menu or window is on")]
         [DefaultValue("16,16")]
         NativeSize IconSize { get; set; }
 

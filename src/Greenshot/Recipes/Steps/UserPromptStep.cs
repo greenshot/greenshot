@@ -42,9 +42,10 @@ namespace Greenshot.Recipes.Steps
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
     [StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Asks the user to choose; conditional transitions of this node follow the chosen key.", "Interaction")]
-    [StepParameter("Choices", ContractDataType.Object, ValueType = typeof(List<PromptChoice>), Required = true, Description = "The choices (key and text); the one with IsDefault is the answer to Enter and when the prompt times out")]
-    [StepParameter("Title", ContractDataType.String, Description = "Title of the prompt")]
-    [StepParameter("Message", ContractDataType.String, Description = "Message of the prompt")]
+    [StepParameter("Choices", ContractDataType.Object, ValueType = typeof(List<PromptChoice>), Required = true, Translatable = true,
+        Description = "The choices (key and text); the one with IsDefault is the answer to Enter and when the prompt times out, the one with IsCancel to Escape and closing the prompt")]
+    [StepParameter("Title", ContractDataType.String, Translatable = true, Description = "Title of the prompt")]
+    [StepParameter("Message", ContractDataType.String, Translatable = true, Description = "Message of the prompt")]
     [StepParameter("ShowPreview", ContractDataType.Boolean, DefaultValue = true, Description = "Show a preview of the capture")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, DefaultValue = 0, Description = "Close the prompt after this many seconds (0: never)")]
     [StepOutputVariable("UserChoice.{NodeId}", ContractDataType.String, "The key of the chosen choice")]

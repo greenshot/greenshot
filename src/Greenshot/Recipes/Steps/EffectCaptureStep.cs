@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Effects;
@@ -42,8 +41,8 @@ namespace Greenshot.Recipes.Steps
     [StepInfo(WellKnownStepTypes.Effect, "Image Effect", "Applies an image effect (border, drop shadow, torn edge, grayscale, resize, ...) to the capture.", "Effects")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Border", Description = "The effect", AllowedValues = new[] { "Border", "DropShadow", "TornEdge", "Invert", "Grayscale", "Monochrome", "Adjust", "Rotate", "Resize", "ResizeCanvas", "ReduceColors", "RemoveTransparency" })]
-    [StepParameter("Width", ContractDataType.Integer, Description = "Border width (Border), new width (Resize, instead of Percentage)")]
-    [StepParameter("Height", ContractDataType.Integer, Description = "New height (Resize, instead of Percentage)")]
+    [StepParameter("Width", ContractDataType.Integer, Description = "Border width (Border), new width (Resize, instead of Percentage; 0 or absent: from the height when the aspect ratio is kept, else unchanged)")]
+    [StepParameter("Height", ContractDataType.Integer, Description = "New height (Resize, instead of Percentage; 0 or absent: from the width when the aspect ratio is kept, else unchanged)")]
     [StepParameter("Color", ContractDataType.String, Description = "Border color (Border)")]
     [StepParameter("Darkness", ContractDataType.Decimal, Description = "Shadow darkness (DropShadow, TornEdge)")]
     [StepParameter("ShadowSize", ContractDataType.Integer, Description = "Shadow size (DropShadow, TornEdge)")]
@@ -60,7 +59,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("Gamma", ContractDataType.Decimal, Description = "Gamma (Adjust)")]
     [StepParameter("Angle", ContractDataType.Integer, DefaultValue = 90, Description = "Angle (Rotate)")]
     [StepParameter("Percentage", ContractDataType.Decimal, Description = "Size in percent (Resize, instead of Width and Height)")]
-    [StepParameter("MaintainAspectRatio", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the aspect ratio (Resize)")]
+    [StepParameter("MaintainAspectRatio", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the aspect ratio (Resize); with Width and Height both set the image fits into them")]
     [StepParameter("Left", ContractDataType.Integer, Description = "Pixels added on the left (ResizeCanvas)")]
     [StepParameter("Right", ContractDataType.Integer, Description = "Pixels added on the right (ResizeCanvas)")]
     [StepParameter("Top", ContractDataType.Integer, Description = "Pixels added at the top (ResizeCanvas)")]
@@ -104,15 +103,10 @@ namespace Greenshot.Recipes.Steps
 
             try
             {
-                using (var matrix = new Matrix())
+                // Like the editor: the elements move with the image, the HDR image of an HDR capture gets the same edit
+                if (surface.ApplyEffect(effect))
                 {
-                    var newImage = effect.Apply(surface.Image, matrix);
-                    if (newImage != null)
-                    {
-                        surface.Image = newImage;
-                        surface.Elements?.Transform(matrix);
-                        surface.Modified = true;
-                    }
+                    surface.Modified = true;
                 }
             }
             catch (Exception ex)

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -28,6 +28,7 @@ using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -176,6 +177,9 @@ namespace Greenshot.Tests.Recipes
 
             public ICaptureDetails CaptureDetails { get; set; } = new CaptureDetails();
             public Image Image { get; set; }
+            public HdrImage HdrImage { get; set; }
+            public HdrParts HdrParts { get; set; }
+            public void JoinHdrParts() { }
             public void NullImage() => Image = null;
             public NativeRect ScreenBounds { get; set; }
             public CapturedCursor Cursor { get; set; }

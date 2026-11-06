@@ -50,7 +50,7 @@ namespace Greenshot.Base.Recipes.Sources
             }
 
             ICapture capture = new Capture();
-            capture = await WindowCapture.CaptureRectangleAsync(capture, lastRegion, cancellationToken).ConfigureAwait(false);
+            capture = await WindowCapture.CaptureRectangleAsync(capture, lastRegion, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
 
             // Attempt to resolve window title from visible window at center of last region
             NativePoint centerPoint = new NativePoint(lastRegion.X + lastRegion.Width / 2, lastRegion.Y + lastRegion.Height / 2);

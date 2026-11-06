@@ -92,6 +92,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public ICommand RemoveCommand { get; }
 
+        /// <summary>
+        /// Takes the values of the branch with the same key from the settings of the node, keeping this view model and its pin
+        /// </summary>
+        internal void Apply(ConditionalBranch branch)
+        {
+            if (!string.Equals(_expression, branch.Expression, StringComparison.Ordinal))
+            {
+                _expression = branch.Expression ?? "${true}";
+                OnPropertyChanged(nameof(Expression));
+            }
+        }
+
         public ConditionBranchViewModel(string key, string expression, StepNodeViewModel node, Action onChanged = null, Action<ConditionBranchViewModel> onRemove = null)
         {
             _key = key ?? "A";
@@ -175,6 +187,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// The answer to Escape and closing the prompt: one choice at most
+        /// </summary>
         public bool IsCancel
         {
             get => _isCancel;
@@ -182,6 +197,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (SetField(ref _isCancel, value))
                 {
+                    if (value && _node != null)
+                    {
+                        foreach (var other in _node.PromptChoices.Where(c => c != this))
+                        {
+                            other.IsCancel = false;
+                        }
+                    }
                     _onChanged?.Invoke();
                 }
             }
@@ -204,6 +226,35 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         public PromptChoice ToPromptChoice() => new PromptChoice(Key, Label, Style, IsDefault, IsCancel);
+
+        /// <summary>
+        /// Takes the values of the choice with the same key from the settings of the node, keeping this view model and its pin
+        /// </summary>
+        internal void Apply(PromptChoice choice)
+        {
+            string label = choice.Label ?? choice.Key;
+            string style = choice.Style ?? "Primary";
+            if (!string.Equals(_label, label, StringComparison.Ordinal))
+            {
+                _label = label;
+                OnPropertyChanged(nameof(Label));
+            }
+            if (!string.Equals(_style, style, StringComparison.Ordinal))
+            {
+                _style = style;
+                OnPropertyChanged(nameof(Style));
+            }
+            if (_isDefault != choice.IsDefault)
+            {
+                _isDefault = choice.IsDefault;
+                OnPropertyChanged(nameof(IsDefault));
+            }
+            if (_isCancel != choice.IsCancel)
+            {
+                _isCancel = choice.IsCancel;
+                OnPropertyChanged(nameof(IsCancel));
+            }
+        }
     }
 
     public class VariableItemViewModel : ViewModelBase
@@ -1397,6 +1448,35 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public string DisplayName => string.IsNullOrWhiteSpace(Name) ? StepType : Name;
 
         /// <summary>
+        /// Off: the recipe skips the step and goes on with the next ones
+        /// </summary>
+        public bool StepEnabled
+        {
+            get => Config.Enabled;
+            set
+            {
+                if (Config.Enabled == value) return;
+                Config.Enabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The expression deciding at run time whether the step runs, empty for always
+        /// </summary>
+        public string StepWhen
+        {
+            get => Config.When;
+            set
+            {
+                string when = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+                if (when == Config.When) return;
+                Config.When = when;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// The title of the step, which screen readers announce for the step in lists (instead of the class name)
         /// </summary>
         public override string ToString() => DisplayName;
@@ -1617,16 +1697,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             Input.Add(InputPort);
             Output.Add(OutputPort);
 
-            AddConditionBranchCommand = new RelayCommand(() =>
-            {
-                char nextChar = (char)('A' + ConditionBranches.Count);
-                string nextKey = nextChar <= 'Z' ? nextChar.ToString() : $"C{ConditionBranches.Count + 1}";
-                AddConditionBranch(nextKey, "${true}");
-            });
+            AddConditionBranchCommand = new RelayCommand(() => AddConditionBranch(null, "${true}"));
 
             AddPromptChoiceCommand = new RelayCommand(() =>
             {
-                string nextKey = $"Choice{PromptChoices.Count + 1}";
+                string nextKey = FreeKey(PromptChoices.Select(p => p.Key), number => $"Choice{number}");
                 string nextLabel = string.Format(Texts.Get<IRecipeEditorLanguage>().PromptChoiceDefaultLabel, PromptChoices.Count + 1);
                 AddPromptChoice(nextKey, nextLabel, "Primary", false, false);
             });
@@ -2248,14 +2323,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public int DelayMs
+        public string DelayMs
         {
-            get
-            {
-                if (int.TryParse(GetParam("DelayMs", "0"), out int d)) return d;
-                return 0;
-            }
-            set => SetParam("DelayMs", value);
+            get => GetParam("DelayMs", "0");
+            set { SetNumberParam("DelayMs", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // --- 2. InteractiveSelection Step ---
@@ -2271,10 +2342,42 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => GetParam("Effect", "DropShadow");
             set
             {
+                if (string.Equals(value, EffectType, StringComparison.Ordinal)) return;
+                // The values of the effect before don't belong to this one (Border's Color fails on a canvas)
+                if (Config.Parameters != null && value != null && EffectParameters.TryGetValue(value, out var keep))
+                {
+                    var unused = EffectParameters.Values.SelectMany(keys => keys).Distinct()
+                        .Where(key => !keep.Contains(key, StringComparer.OrdinalIgnoreCase)).ToList();
+                    // Width is the border width for Border and the new width for Resize
+                    if (keep.Contains("Width") && EffectParameters.TryGetValue(EffectType, out var before) && before.Contains("Width")) unused.Add("Width");
+                    foreach (var key in Config.Parameters.Keys.Where(key => unused.Contains(key, StringComparer.OrdinalIgnoreCase)).ToList())
+                    {
+                        Config.Parameters.Remove(key);
+                    }
+                }
                 SetParam("Effect", value);
                 NotifyEffectProperties();
             }
         }
+
+        /// <summary>
+        /// The parameters each effect uses, see the Effect step contract
+        /// </summary>
+        private static readonly Dictionary<string, string[]> EffectParameters = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Border"] = new[] { "Width", "Color" },
+            ["DropShadow"] = new[] { "Darkness", "ShadowSize", "ShadowOffsetX", "ShadowOffsetY" },
+            ["TornEdge"] = new[] { "ToothHeight", "HorizontalToothRange", "VerticalToothRange", "GenerateShadow", "Edges", "ShadowSize", "Darkness" },
+            ["Invert"] = Array.Empty<string>(),
+            ["Grayscale"] = Array.Empty<string>(),
+            ["Monochrome"] = new[] { "Threshold" },
+            ["Adjust"] = new[] { "Brightness", "Contrast", "Gamma" },
+            ["Rotate"] = new[] { "Angle" },
+            ["Resize"] = new[] { "Width", "Height", "Percentage", "MaintainAspectRatio" },
+            ["ResizeCanvas"] = new[] { "Left", "Right", "Top", "Bottom", "BackgroundColor" },
+            ["ReduceColors"] = new[] { "Colors" },
+            ["RemoveTransparency"] = new[] { "BackgroundColor" },
+        };
 
         public bool IsBorderEffect => string.Equals(EffectType, "Border", StringComparison.OrdinalIgnoreCase);
         public bool IsDropShadowEffect => string.Equals(EffectType, "DropShadow", StringComparison.OrdinalIgnoreCase);
@@ -2335,60 +2438,60 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         // Border Effect Parameters
-        public int EffectBorderWidth
+        public string EffectBorderWidth
         {
-            get => int.TryParse(GetParam("Width", "2"), out int w) ? w : 2;
-            set { SetParam("Width", value); OnPropertyChanged(nameof(EffectBorderWidth)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Width", "2");
+            set { SetNumberParam("Width", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string EffectBorderColor
         {
-            get => GetParam("Color", "#0000FF");
+            get => GetParam("Color", "#000000");
             set { SetParam("Color", value); OnPropertyChanged(nameof(EffectBorderColor)); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Drop Shadow Parameters
-        public int ShadowSize
+        public string ShadowSize
         {
-            get => int.TryParse(GetParam("ShadowSize", "10"), out int s) ? s : 10;
-            set { SetParam("ShadowSize", value); OnPropertyChanged(nameof(ShadowSize)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("ShadowSize", "7");
+            set { SetNumberParam("ShadowSize", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public double ShadowDarkness
+        public string ShadowDarkness
         {
-            get => double.TryParse(GetParam("Darkness", "0.6"), NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.6;
-            set { SetParam("Darkness", value); OnPropertyChanged(nameof(ShadowDarkness)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Darkness", "0.6");
+            set { SetNumberParam("Darkness", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int ShadowOffsetX
+        public string ShadowOffsetX
         {
-            get => int.TryParse(GetParam("ShadowOffsetX", "0"), out int s) ? s : 0;
-            set { SetParam("ShadowOffsetX", value); OnPropertyChanged(nameof(ShadowOffsetX)); }
+            get => GetParam("ShadowOffsetX", "-1");
+            set { SetNumberParam("ShadowOffsetX", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int ShadowOffsetY
+        public string ShadowOffsetY
         {
-            get => int.TryParse(GetParam("ShadowOffsetY", "0"), out int s) ? s : 0;
-            set { SetParam("ShadowOffsetY", value); OnPropertyChanged(nameof(ShadowOffsetY)); }
+            get => GetParam("ShadowOffsetY", "-1");
+            set { SetNumberParam("ShadowOffsetY", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Torn Edge Parameters
-        public int ToothHeight
+        public string ToothHeight
         {
-            get => int.TryParse(GetParam("ToothHeight", "12"), out int t) ? t : 12;
-            set { SetParam("ToothHeight", value); OnPropertyChanged(nameof(ToothHeight)); }
+            get => GetParam("ToothHeight", "12");
+            set { SetNumberParam("ToothHeight", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int HorizontalToothRange
+        public string HorizontalToothRange
         {
-            get => int.TryParse(GetParam("HorizontalToothRange", "20"), out int h) ? h : 20;
-            set { SetParam("HorizontalToothRange", value); OnPropertyChanged(nameof(HorizontalToothRange)); }
+            get => GetParam("HorizontalToothRange", "20");
+            set { SetNumberParam("HorizontalToothRange", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VerticalToothRange
+        public string VerticalToothRange
         {
-            get => int.TryParse(GetParam("VerticalToothRange", "20"), out int v) ? v : 20;
-            set { SetParam("VerticalToothRange", value); OnPropertyChanged(nameof(VerticalToothRange)); }
+            get => GetParam("VerticalToothRange", "20");
+            set { SetNumberParam("VerticalToothRange", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public bool TornEdgeShadow
@@ -2426,36 +2529,36 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             .ToList();
 
         // Monochrome Parameters
-        public byte MonochromeThreshold
+        public string MonochromeThreshold
         {
-            get => byte.TryParse(GetParam("Threshold", "128"), out byte t) ? t : (byte)128;
-            set { SetParam("Threshold", (int)value); OnPropertyChanged(nameof(MonochromeThreshold)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Threshold", "128");
+            set { SetNumberParam("Threshold", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Adjust Parameters
-        public float AdjustBrightness
+        public string AdjustBrightness
         {
-            get => float.TryParse(GetParam("Brightness", "1.0"), NumberStyles.Any, CultureInfo.InvariantCulture, out float f) ? f : 1.0f;
-            set { SetParam("Brightness", value.ToString("0.0#", CultureInfo.InvariantCulture)); OnPropertyChanged(nameof(AdjustBrightness)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Brightness", "1.0");
+            set { SetNumberParam("Brightness", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public float AdjustContrast
+        public string AdjustContrast
         {
-            get => float.TryParse(GetParam("Contrast", "1.0"), NumberStyles.Any, CultureInfo.InvariantCulture, out float f) ? f : 1.0f;
-            set { SetParam("Contrast", value.ToString("0.0#", CultureInfo.InvariantCulture)); OnPropertyChanged(nameof(AdjustContrast)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Contrast", "1.0");
+            set { SetNumberParam("Contrast", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public float AdjustGamma
+        public string AdjustGamma
         {
-            get => float.TryParse(GetParam("Gamma", "1.0"), NumberStyles.Any, CultureInfo.InvariantCulture, out float f) ? f : 1.0f;
-            set { SetParam("Gamma", value.ToString("0.0#", CultureInfo.InvariantCulture)); OnPropertyChanged(nameof(AdjustGamma)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Gamma", "1.0");
+            set { SetNumberParam("Gamma", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Rotate Parameters
-        public int RotateAngle
+        public string RotateAngle
         {
-            get => int.TryParse(GetParam("Angle", "90"), out int a) ? a : 90;
-            set { SetParam("Angle", value); OnPropertyChanged(nameof(RotateAngle)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Angle", "90");
+            set { SetNumberParam("Angle", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Resize Parameters
@@ -2520,48 +2623,48 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         // Resize Canvas Parameters
-        public int CanvasLeft
+        public string CanvasLeft
         {
-            get => int.TryParse(GetParam("Left", "0"), out int m) ? m : 0;
-            set { SetParam("Left", value); OnPropertyChanged(nameof(CanvasLeft)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Left", "0");
+            set { SetNumberParam("Left", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int CanvasTop
+        public string CanvasTop
         {
-            get => int.TryParse(GetParam("Top", "0"), out int m) ? m : 0;
-            set { SetParam("Top", value); OnPropertyChanged(nameof(CanvasTop)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Top", "0");
+            set { SetNumberParam("Top", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int CanvasRight
+        public string CanvasRight
         {
-            get => int.TryParse(GetParam("Right", "0"), out int m) ? m : 0;
-            set { SetParam("Right", value); OnPropertyChanged(nameof(CanvasRight)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Right", "0");
+            set { SetNumberParam("Right", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int CanvasBottom
+        public string CanvasBottom
         {
-            get => int.TryParse(GetParam("Bottom", "0"), out int m) ? m : 0;
-            set { SetParam("Bottom", value); OnPropertyChanged(nameof(CanvasBottom)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Bottom", "0");
+            set { SetNumberParam("Bottom", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string CanvasBackgroundColor
         {
-            get => GetParam("BackgroundColor", "#FFFFFF");
-            set { SetParam("BackgroundColor", value); OnPropertyChanged(nameof(CanvasBackgroundColor)); }
+            get => GetParam("BackgroundColor", "");
+            set { SetParamOrRemoveIfEmpty("BackgroundColor", value); OnPropertyChanged(nameof(CanvasBackgroundColor)); }
         }
 
         // Reduce Colors Parameters
-        public int ReduceColorsCount
+        public string ReduceColorsCount
         {
-            get => int.TryParse(GetParam("Colors", "256"), out int c) ? c : 256;
-            set { SetParam("Colors", value); OnPropertyChanged(nameof(ReduceColorsCount)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Colors", "256");
+            set { SetNumberParam("Colors", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // Remove Transparency Parameters
         public string TransparencyBackgroundColor
         {
             get => GetParam("BackgroundColor", "#FFFFFF");
-            set { SetParam("BackgroundColor", value); OnPropertyChanged(nameof(TransparencyBackgroundColor)); }
+            set { SetParamOrRemoveIfEmpty("BackgroundColor", value); OnPropertyChanged(nameof(TransparencyBackgroundColor)); }
         }
 
         // --- 5. TextEffect / ObfuscateText Step ---
@@ -2601,8 +2704,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             if (string.IsNullOrEmpty(key))
             {
-                char nextChar = (char)('A' + ConditionBranches.Count);
-                key = nextChar <= 'Z' ? nextChar.ToString() : $"C{ConditionBranches.Count + 1}";
+                key = FreeKey(ConditionBranches.Select(b => b.Key), number => number <= 26 ? ((char)('A' + number - 1)).ToString() : $"C{number}");
             }
             if (string.IsNullOrEmpty(expression))
             {
@@ -2616,6 +2718,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(Summary));
         }
 
+        /// <summary>
+        /// The first key which no branch or choice has yet: after removing B of A, B, C the next one is B again, not a second C
+        /// </summary>
+        private static string FreeKey(IEnumerable<string> keys, Func<int, string> keyFor)
+        {
+            var taken = new HashSet<string>(keys.Where(k => k != null), StringComparer.OrdinalIgnoreCase);
+            int number = 1;
+            while (taken.Contains(keyFor(number))) number++;
+            return keyFor(number);
+        }
+
+        /// <summary>
+        /// Called when a branch or choice is removed, the editor removes the connections from its pin
+        /// </summary>
+        public Action<StepPortViewModel> PortRemovedHandler { get; set; }
+
         public void RemoveConditionBranch(ConditionBranchViewModel branch)
         {
             if (branch == null) return;
@@ -2623,32 +2741,69 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             ConditionBranches.Remove(branch);
             Output.Remove(branch.Port);
+            PortRemovedHandler?.Invoke(branch.Port);
             SyncConditionBranchesToConfig();
             OnPropertyChanged(nameof(Summary));
         }
 
         private void LoadConditionBranches()
         {
-            ConditionBranches.Clear();
-            Output.Remove(OutputPort);
-
-            foreach (var branch in Config.GetParameter<List<ConditionalBranch>>("Branches") ?? new List<ConditionalBranch>())
+            var configured = (Config.GetParameter<List<ConditionalBranch>>("Branches") ?? new List<ConditionalBranch>())
+                .Where(b => !string.IsNullOrEmpty(b?.Key) || !string.IsNullOrEmpty(b?.Expression))
+                .ToList();
+            bool useDefaults = configured.Count == 0;
+            if (useDefaults)
             {
-                if (string.IsNullOrEmpty(branch?.Key) && string.IsNullOrEmpty(branch?.Expression)) continue;
-                var b = new ConditionBranchViewModel(branch.Key ?? "A", branch.Expression ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                ConditionBranches.Add(b);
-                Output.Add(b.Port);
+                configured.Add(new ConditionalBranch("A", "${payload.width > 800}"));
+                configured.Add(new ConditionalBranch("B", "else"));
             }
 
-            if (ConditionBranches.Count == 0)
+            var previous = ConditionBranches.ToList();
+            var branches = new List<ConditionBranchViewModel>();
+            foreach (var branch in configured)
             {
-                var b1 = new ConditionBranchViewModel("A", "${payload.width > 800}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                var b2 = new ConditionBranchViewModel("B", "else", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
-                ConditionBranches.Add(b1);
-                ConditionBranches.Add(b2);
-                Output.Add(b1.Port);
-                Output.Add(b2.Port);
+                string key = branch.Key ?? "A";
+                var existing = previous.FirstOrDefault(b => string.Equals(b.Key, key, StringComparison.Ordinal));
+                if (existing != null)
+                {
+                    previous.Remove(existing);
+                    existing.Apply(branch);
+                    branches.Add(existing);
+                }
+                else
+                {
+                    branches.Add(new ConditionBranchViewModel(key, branch.Expression ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch));
+                }
+            }
+            SetPinItems(ConditionBranches, branches, previous, b => b.Port);
+
+            if (useDefaults)
+            {
                 SyncConditionBranchesToConfig();
+            }
+        }
+
+        /// <summary>
+        /// Shows the branches or choices of the node, each with its output pin. A branch or choice which is still there keeps its
+        /// view model and pin, so the connections from it stay when the node reloads its settings (e.g. after its title changed).
+        /// The connections from the pins of the removed ones are removed.
+        /// </summary>
+        private void SetPinItems<T>(ObservableCollection<T> items, List<T> newItems, List<T> removed, Func<T, StepPortViewModel> port)
+        {
+            if (!items.SequenceEqual(newItems))
+            {
+                foreach (var old in items) Output.Remove(port(old));
+                items.Clear();
+                foreach (var item in newItems)
+                {
+                    items.Add(item);
+                    Output.Add(port(item));
+                }
+            }
+            Output.Remove(OutputPort);
+            foreach (var item in removed)
+            {
+                PortRemovedHandler?.Invoke(port(item));
             }
         }
 
@@ -2686,31 +2841,43 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             PromptChoices.Remove(choice);
             Output.Remove(choice.Port);
+            PortRemovedHandler?.Invoke(choice.Port);
             SyncPromptChoicesToConfig();
             OnPropertyChanged(nameof(Summary));
         }
 
         private void LoadPromptChoices()
         {
-            PromptChoices.Clear();
-            Output.Remove(OutputPort);
-
-            foreach (var choice in Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
+            var configured = (Config.GetParameter<List<PromptChoice>>("Choices") ?? new List<PromptChoice>())
+                .Where(c => !string.IsNullOrEmpty(c?.Key))
+                .ToList();
+            bool useDefaults = configured.Count == 0;
+            if (useDefaults)
             {
-                if (string.IsNullOrEmpty(choice?.Key)) continue;
-                var c = new PromptChoiceViewModel(choice.Key, choice.Label ?? choice.Key, choice.Style ?? "Primary", choice.IsDefault, choice.IsCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                PromptChoices.Add(c);
-                Output.Add(c.Port);
+                configured.Add(new PromptChoice("Yes", "Yes, Proceed", "Primary", isDefault: true));
+                configured.Add(new PromptChoice("No", "No, Cancel", "Secondary", isCancel: true));
             }
 
-            if (PromptChoices.Count == 0)
+            var previous = PromptChoices.ToList();
+            var choices = new List<PromptChoiceViewModel>();
+            foreach (var choice in configured)
             {
-                var c1 = new PromptChoiceViewModel("Yes", "Yes, Proceed", "Primary", true, false, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                var c2 = new PromptChoiceViewModel("No", "No, Cancel", "Secondary", false, true, this, SyncPromptChoicesToConfig, RemovePromptChoice);
-                PromptChoices.Add(c1);
-                PromptChoices.Add(c2);
-                Output.Add(c1.Port);
-                Output.Add(c2.Port);
+                var existing = previous.FirstOrDefault(c => string.Equals(c.Key, choice.Key, StringComparison.Ordinal));
+                if (existing != null)
+                {
+                    previous.Remove(existing);
+                    existing.Apply(choice);
+                    choices.Add(existing);
+                }
+                else
+                {
+                    choices.Add(new PromptChoiceViewModel(choice.Key, choice.Label ?? choice.Key, choice.Style ?? "Primary", choice.IsDefault, choice.IsCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice));
+                }
+            }
+            SetPinItems(PromptChoices, choices, previous, c => c.Port);
+
+            if (useDefaults)
+            {
                 SyncPromptChoicesToConfig();
             }
         }
@@ -2735,10 +2902,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Text", value); OnPropertyChanged(nameof(OutputText)); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int StderrExitCode
+        public string StderrExitCode
         {
-            get => int.TryParse(GetParam("ExitCode", "1"), out int code) ? code : 1;
-            set { SetParam("ExitCode", value); OnPropertyChanged(nameof(StderrExitCode)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("ExitCode", "1");
+            set { SetNumberParam("ExitCode", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public bool StderrAbort
@@ -2944,29 +3111,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public bool DynamicDestinationAllowRecipeForwarding
+        public string DynamicDestinationTimeoutSeconds
         {
-            get => GetParamBool("AllowRecipeForwarding", true);
-            set
-            {
-                SetParam("AllowRecipeForwarding", value);
-                OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
-            }
-        }
-
-        public int DynamicDestinationTimeoutSeconds
-        {
-            get
-            {
-                var val = GetParam("TimeoutSeconds", "0");
-                return int.TryParse(val, out int t) ? t : 0;
-            }
-            set
-            {
-                SetParam("TimeoutSeconds", value);
-                OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
-                OnPropertyChanged(nameof(Summary));
-            }
+            get => GetParam("TimeoutSeconds", "0");
+            set { SetNumberParam("TimeoutSeconds", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string DynamicDestinationSpecificDestinations
@@ -3110,10 +3258,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("ShowPreview", value); OnPropertyChanged(nameof(UserPromptShowPreview)); }
         }
 
-        public int UserPromptTimeoutSeconds
+        public string UserPromptTimeoutSeconds
         {
-            get => int.TryParse(GetParam("TimeoutSeconds", "0"), out int t) ? t : 0;
-            set { SetParam("TimeoutSeconds", value); OnPropertyChanged(nameof(UserPromptTimeoutSeconds)); }
+            get => GetParam("TimeoutSeconds", "0");
+            set { SetNumberParam("TimeoutSeconds", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // --- Configuration Fallback Properties across Steps ---
@@ -3127,6 +3275,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetTriStateParam("AlignDpi");
             set { SetTriStateParam("AlignDpi", value); OnPropertyChanged(nameof(AlignDpiMode)); }
+        }
+
+        public string SourceScreenMode
+        {
+            get => GetParam("ScreenMode", "");
+            set { SetParamOrRemoveIfEmpty("ScreenMode", value); OnPropertyChanged(nameof(SourceScreenMode)); }
+        }
+
+        public string SourceHdr
+        {
+            get => GetTriStateParam("Hdr");
+            set { SetTriStateParam("Hdr", value); OnPropertyChanged(nameof(SourceHdr)); }
         }
 
         public string AllowWindowSnappingMode
@@ -3147,16 +3307,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("PromptQuality", value); OnPropertyChanged(nameof(OutputFilePromptQuality)); }
         }
 
-        public string OutputFileAllowOverwrite
+        public string OutputFileIfExists
         {
-            get => GetTriStateParam("AllowOverwrite");
-            set { SetTriStateParam("AllowOverwrite", value); OnPropertyChanged(nameof(OutputFileAllowOverwrite)); }
+            get => GetParam("IfFileExists", "");
+            set { SetParamOrRemoveIfEmpty("IfFileExists", value); OnPropertyChanged(nameof(OutputFileIfExists)); }
         }
 
         public string OutputFileCopyPath
         {
             get => GetTriStateParam("CopyPathToClipboard");
             set { SetTriStateParam("CopyPathToClipboard", value); OnPropertyChanged(nameof(OutputFileCopyPath)); }
+        }
+
+        public string OutputFileHdrFormat
+        {
+            get => GetParam("HdrFormat", "");
+            set { SetParamOrRemoveIfEmpty("HdrFormat", value); OnPropertyChanged(nameof(OutputFileHdrFormat)); }
+        }
+
+        public string OutputFileAskForFilename
+        {
+            get => GetTriStateParam("AskForFilename");
+            set { SetTriStateParam("AskForFilename", value); OnPropertyChanged(nameof(OutputFileAskForFilename)); }
         }
 
         public string OutputFileJpegQuality
@@ -3327,10 +3499,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Format", value); OnPropertyChanged(nameof(JiraFormat)); }
         }
 
-        public int JiraJpegQuality
+        public string JiraJpegQuality
         {
-            get => int.TryParse(GetParam("JpegQuality", "80"), out int q) ? q : 80;
-            set { SetParam("JpegQuality", value); OnPropertyChanged(nameof(JiraJpegQuality)); }
+            get => GetParam("JpegQuality", "80");
+            set { SetNumberParam("JpegQuality", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // --- 16. Confluence Step ---
@@ -3346,10 +3518,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Format", value); OnPropertyChanged(nameof(ConfluenceFormat)); }
         }
 
-        public int ConfluenceJpegQuality
+        public string ConfluenceJpegQuality
         {
-            get => int.TryParse(GetParam("JpegQuality", "80"), out int q) ? q : 80;
-            set { SetParam("JpegQuality", value); OnPropertyChanged(nameof(ConfluenceJpegQuality)); }
+            get => GetParam("JpegQuality", "80");
+            set { SetNumberParam("JpegQuality", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         // --- 17. Office Step ---
@@ -3543,10 +3715,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("UntilWindowCloses", value); OnPropertyChanged(nameof(VideoUntilWindowCloses)); }
         }
 
-        public int VideoDurationSeconds
+        public string VideoDurationSeconds
         {
-            get => int.TryParse(GetParam("DurationSeconds", "0"), out int d) ? d : 0;
-            set { SetParam("DurationSeconds", value); OnPropertyChanged(nameof(VideoDurationSeconds)); }
+            get => GetParam("DurationSeconds", "0");
+            set { SetNumberParam("DurationSeconds", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string VideoOutputDirectory
@@ -3573,28 +3745,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Format", value); OnPropertyChanged(nameof(VideoFormat)); }
         }
 
-        public int VideoFrameRate
+        public string VideoFrameRate
         {
-            get => int.TryParse(GetParam("FrameRate", "30"), out int fps) ? fps : 30;
-            set { SetParam("FrameRate", value); OnPropertyChanged(nameof(VideoFrameRate)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("FrameRate", "30");
+            set { SetNumberParam("FrameRate", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoBitrate
+        public string VideoBitrate
         {
-            get => int.TryParse(GetParam("Bitrate", "2500000"), out int b) ? b : 2500000;
-            set { SetParam("Bitrate", value); OnPropertyChanged(nameof(VideoBitrate)); }
+            get => GetParam("Bitrate", "2500000");
+            set { SetNumberParam("Bitrate", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoTargetWidth
+        public string VideoTargetWidth
         {
-            get => int.TryParse(GetParam("TargetWidth", "0"), out int w) ? w : 0;
-            set { SetParam("TargetWidth", value); OnPropertyChanged(nameof(VideoTargetWidth)); }
+            get => GetParam("TargetWidth", "0");
+            set { SetNumberParam("TargetWidth", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoTargetHeight
+        public string VideoTargetHeight
         {
-            get => int.TryParse(GetParam("TargetHeight", "0"), out int h) ? h : 0;
-            set { SetParam("TargetHeight", value); OnPropertyChanged(nameof(VideoTargetHeight)); }
+            get => GetParam("TargetHeight", "0");
+            set { SetNumberParam("TargetHeight", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string VideoScaleFactor
@@ -3649,34 +3821,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("AutoPauseOnSessionLock", value); OnPropertyChanged(nameof(VideoAutoPauseOnLock)); }
         }
 
-        public int VideoRegionX
+        public string VideoRegionX
         {
-            get => int.TryParse(GetParam("RegionX", "0"), out int x) ? x : 0;
-            set { SetParam("RegionX", value); OnPropertyChanged(nameof(VideoRegionX)); }
+            get => GetParam("RegionX", "0");
+            set { SetNumberParam("RegionX", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoRegionY
+        public string VideoRegionY
         {
-            get => int.TryParse(GetParam("RegionY", "0"), out int y) ? y : 0;
-            set { SetParam("RegionY", value); OnPropertyChanged(nameof(VideoRegionY)); }
+            get => GetParam("RegionY", "0");
+            set { SetNumberParam("RegionY", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoRegionWidth
+        public string VideoRegionWidth
         {
-            get => int.TryParse(GetParam("RegionWidth", "800"), out int w) ? w : 800;
-            set { SetParam("RegionWidth", value); OnPropertyChanged(nameof(VideoRegionWidth)); }
+            get => GetParam("RegionWidth", "800");
+            set { SetNumberParam("RegionWidth", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoRegionHeight
+        public string VideoRegionHeight
         {
-            get => int.TryParse(GetParam("RegionHeight", "600"), out int h) ? h : 600;
-            set { SetParam("RegionHeight", value); OnPropertyChanged(nameof(VideoRegionHeight)); }
+            get => GetParam("RegionHeight", "600");
+            set { SetNumberParam("RegionHeight", value); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public int VideoMonitorIndex
+        public string VideoMonitorIndex
         {
-            get => int.TryParse(GetParam("MonitorIndex", "-1"), out int m) ? m : -1;
-            set { SetParam("MonitorIndex", value); OnPropertyChanged(nameof(VideoMonitorIndex)); }
+            get => GetParam("MonitorIndex", "-1");
+            set { SetNumberParam("MonitorIndex", value); OnPropertyChanged(nameof(Summary)); }
         }
 
         private bool HasDestination(string dest)
@@ -3732,7 +3904,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryMode, SelectionMode);
                     case WellKnownStepTypes.Effect:
                         if (IsBorderEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryBorder, EffectBorderWidth, EffectBorderColor);
-                        if (IsDropShadowEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShadow, ShadowSize, ShadowDarkness.ToString("0.#"));
+                        if (IsDropShadowEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShadow, ShadowSize, ShadowDarkness);
                         if (IsTornEdgeEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryTornEdge, TornEdges);
                         if (IsRotateEffect) return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryRotate, RotateAngle);
                         if (IsResizeEffect) return ResizePercentage != "0" && !string.IsNullOrEmpty(ResizePercentage) ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizePercent, ResizePercentage) : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryResizeSize, ResizeWidth, ResizeHeight);
@@ -3780,7 +3952,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return dests.Count > 0 ? string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryTo, string.Join(", ", dests)) : Texts.Get<IRecipeEditorLanguage>().SummaryExportTargets;
                     case WellKnownStepTypes.DynamicDestination:
                         string dDests = !string.IsNullOrWhiteSpace(DynamicDestinationSpecificDestinations) ? DynamicDestinationSpecificDestinations : Texts.Get<IRecipeEditorLanguage>().SummaryAllActive;
-                        string dTime = DynamicDestinationTimeoutSeconds > 0 ? $"{DynamicDestinationTimeoutSeconds}s" : Texts.Get<IRecipeEditorLanguage>().TriggerManual;
+                        string dTime = !IsUnset(DynamicDestinationTimeoutSeconds) ? $"{DynamicDestinationTimeoutSeconds}s" : Texts.Get<IRecipeEditorLanguage>().TriggerManual;
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryDynamicDestination, dDests, dTime);
                     case WellKnownStepTypes.Notification:
                         return NotificationShow ? Texts.Get<IRecipeEditorLanguage>().SummaryNotificationShown : Texts.Get<IRecipeEditorLanguage>().SummaryNotificationHidden;
@@ -3873,11 +4045,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(SoundFilePath));
             OnPropertyChanged(nameof(ScreenCaptureMode));
             OnPropertyChanged(nameof(AlignDpiMode));
+            OnPropertyChanged(nameof(SourceScreenMode));
+            OnPropertyChanged(nameof(SourceHdr));
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));
             OnPropertyChanged(nameof(OutputFilePromptQuality));
-            OnPropertyChanged(nameof(OutputFileAllowOverwrite));
+            OnPropertyChanged(nameof(OutputFileIfExists));
             OnPropertyChanged(nameof(OutputFileCopyPath));
+            OnPropertyChanged(nameof(OutputFileHdrFormat));
+            OnPropertyChanged(nameof(OutputFileAskForFilename));
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
             OnPropertyChanged(nameof(EditorTargetEditor));
@@ -3983,7 +4159,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(VideoMonitorIndex));
             OnPropertyChanged(nameof(DynamicDestinationTitle));
             OnPropertyChanged(nameof(DynamicDestinationShowPreview));
-            OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
             OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));
@@ -4001,7 +4176,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     if (string.Equals(kvp.Key, key, StringComparison.OrdinalIgnoreCase) && kvp.Value != null)
                     {
-                        return kvp.Value.ToString();
+                        // 0.6 stays 0.6 in a German Windows too: the field writes it back as it shows it
+                        return Convert.ToString(kvp.Value, CultureInfo.InvariantCulture);
                     }
                 }
             }
@@ -4057,6 +4233,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 SetParam(key, value == "true");
             }
             NotifyConfigUpdated();
+        }
+
+        /// <summary>
+        /// The text of a number field: a number in the type the step declares, an expression as text, empty removes it (the field then
+        /// shows the default). It doesn't notify the field, which would put the default in while the value is typed again.
+        /// </summary>
+        private void SetNumberParam(string key, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Config.Parameters?.Remove(key);
+                return;
+            }
+            if (Config.Parameters == null)
+            {
+                Config.Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+            var declared = StepRegistry.Instance.GetContract(Config.StepType)?.FindParameter(key);
+            Config.Parameters[key] = declared != null ? RecipeParameterTypes.FromText(value.Trim(), declared.DataType) : value.Trim();
         }
 
         public void SetParamOrRemoveIfEmpty(string key, string value)

@@ -62,6 +62,16 @@ namespace Greenshot.Editor
                     new WicFileFormatHandler()
                 );
 
+            // Writing and reading HDR files (JPEG XR of an HDR capture), registered once: they are looked up with GetInstance
+            if (SimpleServiceProvider.Current.GetAllInstances<IHdrImageEncoder>().Count == 0)
+            {
+                SimpleServiceProvider.Current.AddService<IHdrImageEncoder>(new WicHdrImageEncoder());
+            }
+            if (SimpleServiceProvider.Current.GetAllInstances<IHdrImageDecoder>().Count == 0)
+            {
+                SimpleServiceProvider.Current.AddService<IHdrImageDecoder>(new WicHdrImageDecoder());
+            }
+
             IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
             foreach (var handler in SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<AbstractFileFormatHandler>())
             {

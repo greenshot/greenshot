@@ -39,24 +39,41 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Viewer** (#937, #1624)
 - A new destination shows the capture in a small window of its own, e.g. kept on top to compare it with the screen
 - Real size (1:1), zoom and pan with an overview, only the capture or a thin title bar, an optional border, keys for everything (H shows them)
-- Export from the viewer with the destination window of the recipes, or forward the capture to a recipe
+- Export from the viewer with the destination window of the recipes
 - Settings on the new Viewer tab
 - By @Lakritzator and @daxliniere
+
+**Ask for destination in a window**
+- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture and a search
+- The editor recipes can change the capture in that window before it goes to a destination, also when exporting from the viewer
 
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
 - Contributed by @jairbubbles
 
+**Stamps** (Beta)
+- Collect small images (PNG, SVG and more) in categories, with names and tags, search them and insert them into the editor with Ctrl+Shift+K
+- Add stamps by dropping images from a web page
+- An SVG stamp stays sharp when it is resized
+- Copy or drag a stamp into other programs
+
 **Text Redaction with OCR** (Beta) (#947)
 - Automatically detect and redact text in screenshots using OCR technology
 - Useful for privacy protection and sensitive information removal
 - Beta feature by @Lakritzator
 
+**Stronger blur and pixelate**
+- A new blur or pixelate area over text gets a strength that fits that text, so large text is hidden as well as small text. When the text wasn't recognized yet, OCR runs once in the background
+- An OCR badge in the editor's status bar shows whether the text of the capture is recognized
+
 **Remove Transparency Feature** (#945)
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
+
+**Grayscale**
+- Grayscale keeps the brightness of colors
 
 #### ⚙️ Command Line Interface
 
@@ -106,6 +123,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
 - HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
 - Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
+- HDR captures: on an HDR display Greenshot can save the bright highlights as a JPEG XR file, also after editing. Switch it on in Settings > Capture.
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
@@ -298,6 +316,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @Copilot
 
 #### ⚙️ Configuration & Settings
+
+**When the file already exists**
+- greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 
 **Switching plugins and destinations on or off**
 - Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini

@@ -179,6 +179,15 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             }
         }
 
+        // Options can be added or changed while the trigger is shown
+        private void HotkeyOptions_DropDownOpened(object sender, EventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is TriggerItemViewModel trigger)
+            {
+                trigger.RefreshHotkeyOptions();
+            }
+        }
+
         private void ApplyImmersiveDarkMode()
         {
             // The title bar in the colors of the theme, it follows theme changes from now on

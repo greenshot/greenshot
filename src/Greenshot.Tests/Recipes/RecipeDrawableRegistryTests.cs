@@ -659,6 +659,60 @@ namespace Greenshot.Tests.Recipes
             Assert.NotNull(ccCross.Cursor);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("Arrow")]
+        [InlineData("IBeam")]
+        [InlineData("Hand")]
+        public void Registry_CursorDrawable_LeavesWhatIsAroundTheCursor(string cursorName)
+        {
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+            var parameters = new Dictionary<string, object>();
+            if (cursorName != null)
+            {
+                parameters["CursorName"] = cursorName;
+            }
+            var container = (CursorContainer)RecipeDrawableRegistry.Instance.CreateDrawable("Cursor", surface, parameters, null);
+
+            AssertCornersStayWhite(container.Cursor);
+        }
+
+        [Fact]
+        public void Registry_CursorDrawable_FromImageData_KeepsTheTransparency()
+        {
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+            using var cursorImage = new Bitmap(16, 16, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(cursorImage))
+            {
+                g.FillRectangle(Brushes.Red, 6, 6, 4, 4);
+            }
+            using var ms = new MemoryStream();
+            cursorImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            var parameters = new Dictionary<string, object> { ["ImageData"] = Convert.ToBase64String(ms.ToArray()) };
+            var container = (CursorContainer)RecipeDrawableRegistry.Instance.CreateDrawable("Cursor", surface, parameters, null);
+
+            Assert.Null(container.Cursor.MaskLayer);
+            AssertCornersStayWhite(container.Cursor);
+        }
+
+        /// <summary>
+        /// The corners of a cursor are transparent: drawn on white they stay white (an empty mask made them black)
+        /// </summary>
+        private static void AssertCornersStayWhite(Dapplo.Windows.Icons.CapturedCursor cursor)
+        {
+            Assert.NotNull(cursor);
+            using var target = new Bitmap(cursor.Size.Width, cursor.Size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(target))
+            {
+                g.Clear(Color.White);
+            }
+            Dapplo.Windows.Icons.CursorHelper.DrawCursorOnBitmap(target, cursor, new Dapplo.Windows.Common.Structs.NativePoint(0, 0));
+            Assert.Equal(Color.White.ToArgb(), target.GetPixel(target.Width - 1, target.Height - 1).ToArgb());
+            Assert.Equal(Color.White.ToArgb(), target.GetPixel(target.Width - 1, 0).ToArgb());
+        }
+
         [Fact]
         public void Registry_ImageDrawable_SupportsBase64EmbeddedData()
         {

@@ -28,6 +28,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Greenshot.Recipes.Steps;
 using Xunit;
 
@@ -70,7 +71,11 @@ namespace Greenshot.Tests.Recipes
         [InlineData(@"Screenshots", false)]
         [InlineData(@"\Screenshots", false)]
         [InlineData(@"C:Screenshots", false)]
-        [InlineData(@"%GREENSHOT_NO_SUCH_VARIABLE%\Screenshots", false)]
+        [InlineData(@"${user.pictures}\Screenshots", true)]
+        [InlineData(@"${user.GREENSHOT_NO_SUCH_VARIABLE}\Screenshots", false)]
+        [InlineData(@"${payload.title}\Screenshots", false)]
+        [InlineData(@"${now}\Screenshots", false)]
+        [InlineData(@"%TEMP%\Screenshots", false)]
         [InlineData("C:\\Screen|shots", false)]
         public void DirectoryOption_TakesOnlyFullPaths(string text, bool valid)
         {
@@ -81,8 +86,8 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void DirectoryOption_ReplacesVariables()
         {
-            var option = new RecipeOption { Key = "folder", Type = ContractDataType.DirectoryPath, DefaultValue = @"%TEMP%\Greenshot" };
-            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%TEMP%\Greenshot"), option.GetDefaultValue());
+            var option = new RecipeOption { Key = "folder", Type = ContractDataType.DirectoryPath, DefaultValue = @"${user.pictures}\Greenshot" };
+            Assert.Equal(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\Greenshot", option.GetDefaultValue());
         }
 
         [Fact]
@@ -155,6 +160,42 @@ namespace Greenshot.Tests.Recipes
             recipe.FindOption("folder").Type = ContractDataType.String;
             result = RecipeValidator.Validate(recipe);
             Assert.Contains(result.Errors, e => e.Contains("'folder'") && e.Contains("text option"));
+        }
+
+        [Fact]
+        public void Validator_TakesAFolderWithUserValues_AndExplainsOtherValues()
+        {
+            var recipe = CreateRecipe("option_type_folder_expression");
+            var folder = recipe.FindOption("folder");
+            folder.DefaultValue = "${user.pictures}";
+            folder.Format = RecipeOption.FormatTemplate;
+
+            var result = RecipeValidator.Validate(recipe);
+
+            Assert.DoesNotContain(result.Errors, e => e.Contains("'folder'"));
+            Assert.Contains(result.Warnings, w => w.Contains("'folder'") && w.Contains("'template' format"));
+
+            folder.DefaultValue = @"%USERPROFILE%\Pictures";
+            result = RecipeValidator.Validate(recipe);
+            Assert.Contains(result.Errors, e => e.Contains("'folder'") && e.Contains("${user.pictures}"));
+        }
+
+        [Fact]
+        public void Editor_DropsWhatTheNewTypeDoesNotUse()
+        {
+            var option = new RecipeOption { Key = "path", Type = ContractDataType.Integer, DefaultValue = 12, Min = 12, Max = 22 };
+            var item = new RecipeOptionItemViewModel(option, null);
+
+            item.Type = nameof(ContractDataType.String);
+            Assert.Null(option.Min);
+            Assert.Null(option.Max);
+            Assert.True(item.CanBeTemplate);
+            item.IsTemplate = true;
+
+            item.Type = nameof(ContractDataType.DirectoryPath);
+            Assert.False(item.CanBeTemplate);
+            Assert.False(item.IsTemplate);
+            Assert.Null(option.Format);
         }
 
         private static CaptureRecipe CreateRecipe(string id)

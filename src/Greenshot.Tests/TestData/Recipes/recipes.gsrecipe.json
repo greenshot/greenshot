@@ -249,8 +249,7 @@
         "enabled": true,
         "parameters": {
           "Title": "Export Capture",
-          "ShowPreview": true,
-          "AllowRecipeForwarding": true
+          "ShowPreview": true
         }
       },
       {
@@ -800,7 +799,7 @@
         "parameters": {
           "SaveDirectory": "${dirname}",
           "FilenamePattern": "${title}-with_annotation",
-          "AllowOverwrite": true
+          "IfFileExists": "Overwrite"
         }
       },
       {
@@ -899,7 +898,7 @@
           "SaveDirectory": "${dirname}",
           "FilenamePattern": "${title}",
           "Format": "${Format}",
-          "AllowOverwrite": true
+          "IfFileExists": "Overwrite"
         }
       },
       {
@@ -2147,8 +2146,7 @@
         "enabled": true,
         "parameters": {
           "Title": "Export Capture",
-          "ShowPreview": true,
-          "AllowRecipeForwarding": true
+          "ShowPreview": true
         }
       }
     ],
