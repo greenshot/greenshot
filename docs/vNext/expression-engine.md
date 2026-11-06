@@ -142,7 +142,7 @@ No bare names any more (decided): every value is in a namespace, so a new name n
 |---|---|---|
 | `time.*` | `now` (evaluation time, local), `utc` (evaluation time, UTC); the payload's time is `payload.time` | trusted |
 | `payload.*` | what is being worked on, a capture, an opened file or the clipboard (one namespace): `width`, `height` (current size), `time` (when taken, or the file's time; one value for every output), `source`, `hdr`, `title`, `process`, `file` (full path of an opened file), `ocr.text`, `video.file`, later `url` (browser extension) | per value: `width`, `height`, `time`, `source`, `hdr` trusted; `title`, `process`, `file`, `ocr.text`, `url` **untrusted** |
-| `counter.global`, `counter.folder`, `counter.name`, `counter.session` | see section 5 | trusted |
+| `counter.global`, `counter.folder`, `counter.name`, `counter.scope(key)`, `counter.session` | see section 5 | trusted |
 | `output.*` | the result of the export running now: `file` (full path of the file written), `folder`, `name` (file name with extension), later `url` (link after an upload). Today this is `{0}` of the external command, `ExternalCommand.TargetFile`, `Destination.Filename` and the Jira `{capture}` placeholder | trusted: Greenshot made the name safe; as a command argument it is quoted as one argument |
 | `user.*` | fixed list, resolved per OS: `name`, `domain`, `profile`, `desktop`, `documents`, `pictures`, `videos`, `appdata`, `localappdata`, `temp` (`pictures` = the shell folder on Windows, also when moved, XDG on Linux, `~/Pictures` on macOS) | trusted |
 | `machine.*` | fixed list: `name`, `os`, `osversion`, `programfiles`, `commonappdata`, ... | trusted |
@@ -240,6 +240,7 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
 | `${counter.global}` | global, replaces `${NUM}` | new setting `FileCounter` (Core), value taken from `OutputFileIncrementingNumber` once |
 | `${counter.folder}` | the folder the file goes to: next free number there | not stored: the highest number in that folder's files made from the same template, plus one |
 | `${counter.name}` | the file name: next free number among files whose name is the same apart from the number | not stored: like `counter.folder`, but the other values are matched as they are |
+| `${counter.scope(key)}` | any key, an expression: `'bugs'`, `session.key ?? 'none'`, `'shots-' + user.name` | one stored count per key value, in a counters file next to greenshot.ini |
 | `${counter.session}` | the active work session | in the session (when sessions exist) |
 
 - One render gives one value for a counter, even when the template uses it twice.
@@ -261,10 +262,19 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
   - A folder per day with its own count: `${payload.time:yyyy-MM-dd}\Shot ${counter.folder:000}.png`; the folder part is
     rendered first, the counter then reads that (new, empty) folder and starts at 001.
   - Both need a folder to read: where only a name is made (uploads to Jira, Box, Confluence, ...) the validator rejects
-    them; `counter.global` is the counter there. A number is reused after its file was deleted or moved; if that must
-    never happen, a stored per-folder counter can be added later under its own name.
+    them; `counter.global` or `counter.scope(...)` is the counter there. A number is reused after its file was deleted
+    or moved; use `counter.scope(...)` when that must never happen.
+  - The counter needs fixed text (or the start or end of the name) on at least one side, e.g. ` `, `-`, `_`:
+    `${payload.title} ${counter.folder:000} Bug.png` works (the match is pinned to the text after the number, digits in
+    the title don't count), `${payload.title}${counter.folder:000}${payload.process}.png` is a validation error; use
+    `counter.scope(...)` there.
+- `counter.scope(key)`: the stored variant for everything the files can't answer.
+  - The key is evaluated like any expression and may contain untrusted values (title, session): it is only a lookup
+    name, never a path.
+  - It goes up only after a successful write or upload, like `counter.global`; numbers are never reused.
+  - Stored per PC: two users saving to one shared folder each have their own count (use `counter.folder` there).
+  - Keys unused for 90 days are removed, so per-day keys don't pile up.
 - Default width comes from the format: `${counter.global:000000}` is today's `${NUM}` (6 digits).
-- Named counters (`${counter.named('bugs')}`) only if someone asks.
 
 ---
 
@@ -377,6 +387,7 @@ Sessions and profiles only get their namespace now; they fill it when they are b
 1. ~~Format syntax~~ decided: format suffix `${x:fmt}` (may be quoted), a choice `? :` needs parentheses, standard
    formats (`D`, `T`, ...) preferred for texts meant for people. Compared with `if()`, pipes and a `format()` function.
 2. ~~Environment variables~~ decided: `env.X` generic, `user.env.X` / `machine.env.X` on Windows, no fallback in `user.*`.
-3. `counter.folder` from the folder's files, no state (recommended) vs. a stored counter per folder.
+3. ~~Folder counter~~ decided: `counter.folder` and `counter.name` from the folder's files, `counter.scope(key)` stored
+   per key, `counter.global` stored.
 4. Global counter increases only after a successful write (recommended) vs. on every name, as in 1.3.
 5. One PR vs. engine first, UI second.
