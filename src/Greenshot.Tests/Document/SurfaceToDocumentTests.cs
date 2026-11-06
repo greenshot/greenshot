@@ -125,6 +125,8 @@ namespace Greenshot.Tests.Document
             Add(surface, new ObfuscateContainer(surface), 0, 0, 20, 20);
             var blur = Add(surface, new ObfuscateContainer(surface), 0, 0, 20, 20);
             blur.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.BLUR);
+            // Not the default (which changed from 3 to 6), so the test shows the value is taken from the container
+            blur.SetFieldValue(FieldType.BLUR_RADIUS, 4);
             Add(surface, new HighlightContainer(surface), 0, 0, 20, 20);
             var magnify = Add(surface, new HighlightContainer(surface), 0, 0, 20, 20);
             magnify.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.MAGNIFICATION);
@@ -133,7 +135,7 @@ namespace Greenshot.Tests.Document
 
             Assert.Equal(new ObfuscateElement(elements[0].Id, new RectD(0, 0, 20, 20), ObfuscateMode.Pixelate, 5) { Style = elements[0].Style }, elements[0]);
             Assert.Equal(ObfuscateMode.Blur, Assert.IsType<ObfuscateElement>(elements[1]).Mode);
-            Assert.Equal(3, ((ObfuscateElement)elements[1]).Size);
+            Assert.Equal(4, ((ObfuscateElement)elements[1]).Size);
             var textHighlight = Assert.IsType<HighlightElement>(elements[2]);
             Assert.Equal(HighlightMode.Text, textHighlight.Mode);
             Assert.Equal(Rgba.FromArgb(Color.Yellow.ToArgb()), textHighlight.Color);
