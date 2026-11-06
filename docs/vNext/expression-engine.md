@@ -247,8 +247,10 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
   really wrote the file (the File destination reports success), not when a name is proposed.
 - `counter.folder` needs no state, works on a shared network folder for several people, and fills the gap when
   files are deleted. The template is turned into a match pattern (literal parts escaped, `${counter.folder}` = the
-  number, other values = anything); the file is created with `FileMode.CreateNew`, and when that fails because
-  someone took the number, the next number is tried.
+  number, other values = anything). Listing the folder, picking the number and creating the file run while holding a
+  short lock file in that folder (opened with `FileShare.None`, deleted afterwards): `FileMode.CreateNew` alone only
+  catches the same name, not `004 - Paint` and `004 - Chrome` saved at the same moment. This works for several users on
+  a network share too.
   - Other values match anything, so there is one sequence per folder whatever the title: with
     `${payload.title} ${counter.folder:000}.png` and `Notepad 001.png`, `Chrome 002.png` the next is `Paint 003.png`.
   - Only numbers with exactly the format's width (`000` = 3 digits) and files with an image extension Greenshot writes
