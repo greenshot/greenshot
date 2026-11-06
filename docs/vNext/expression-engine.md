@@ -142,7 +142,7 @@ No bare names any more (decided): every value is in a namespace, so a new name n
 |---|---|---|
 | `time.*` | `now` (evaluation time, local), `utc` (evaluation time, UTC); the payload's time is `payload.time` | trusted |
 | `payload.*` | what is being worked on, a capture, an opened file or the clipboard (one namespace): `width`, `height` (current size), `time` (when taken, or the file's time; one value for every output), `source`, `hdr`, `title`, `process`, `file` (full path of an opened file), `ocr.text`, `video.file`, later `url` (browser extension) | per value: `width`, `height`, `time`, `source`, `hdr` trusted; `title`, `process`, `file`, `ocr.text`, `url` **untrusted** |
-| `counter.global`, `counter.folder`, `counter.session` | see section 5 | trusted |
+| `counter.global`, `counter.folder`, `counter.name`, `counter.session` | see section 5 | trusted |
 | `output.*` | the result of the export running now: `file` (full path of the file written), `folder`, `name` (file name with extension), later `url` (link after an upload). Today this is `{0}` of the external command, `ExternalCommand.TargetFile`, `Destination.Filename` and the Jira `{capture}` placeholder | trusted: Greenshot made the name safe; as a command argument it is quoted as one argument |
 | `user.*` | fixed list, resolved per OS: `name`, `domain`, `profile`, `desktop`, `documents`, `pictures`, `videos`, `appdata`, `localappdata`, `temp` (`pictures` = the shell folder on Windows, also when moved, XDG on Linux, `~/Pictures` on macOS) | trusted |
 | `machine.*` | fixed list: `name`, `os`, `osversion`, `programfiles`, `commonappdata`, ... | trusted |
@@ -239,6 +239,7 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
 |---|---|---|
 | `${counter.global}` | global, replaces `${NUM}` | new setting `FileCounter` (Core), value taken from `OutputFileIncrementingNumber` once |
 | `${counter.folder}` | the folder the file goes to: next free number there | not stored: the highest number in that folder's files made from the same template, plus one |
+| `${counter.name}` | the file name: next free number among files whose name is the same apart from the number | not stored: like `counter.folder`, but the other values are matched as they are |
 | `${counter.session}` | the active work session | in the session (when sessions exist) |
 
 - One render gives one value for a counter, even when the template uses it twice.
@@ -252,7 +253,9 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
     `${payload.title} ${counter.folder:000}.png` and `Notepad 001.png`, `Chrome 002.png` the next is `Paint 003.png`.
   - Only numbers with exactly the format's width (`000` = 3 digits) and files with an image extension Greenshot writes
     count, so an unrelated `Report 2024.png` is unlikely to match.
-  - A count per title puts the title into the folder part: `${payload.title}\Shot ${counter.folder:000}.png`.
+  - `counter.name` matches the other values as they are, so each name has its own sequence: with
+    `${payload.title} ${counter.name:000}.png` the files are `Notepad 001`, `Notepad 002`, `Chrome 001`. With a date in
+    the name it is a counter per day: `${payload.time:yyyy-MM-dd} ${counter.name:000}`.
 - Default width comes from the format: `${counter.global:000000}` is today's `${NUM}` (6 digits).
 - Named counters (`${counter.named('bugs')}`) only if someone asks.
 
