@@ -159,6 +159,38 @@ namespace Greenshot.Tests.Editor
             Assert.Equal("Test.Other", host.ActivePanel.Id);
         }
 
+        [Fact]
+        public void PanelReplacedForAChoice_ComesBack_WhenTheChoiceIsDone()
+        {
+            using var surface = new Surface(new Bitmap(200, 100));
+            var (_, host, _) = CreateHost(surface);
+            host.Show("Test.Other", activate: false);
+
+            surface.DrawingMode = DrawingModes.Emoji;
+            host.UpdateAutomatic();
+            Assert.Equal(SelectionPanel.PanelId, host.ActivePanel.Id);
+
+            surface.DrawingMode = DrawingModes.None;
+            host.UpdateAutomatic();
+            Assert.True(host.IsOpen);
+            Assert.Equal("Test.Other", host.ActivePanel.Id);
+        }
+
+        [Fact]
+        public void AreaOpenedForAChoice_StaysOnSelection_WhenTheChoiceIsDone()
+        {
+            using var surface = new Surface(new Bitmap(200, 100));
+            var (_, host, _) = CreateHost(surface);
+
+            surface.DrawingMode = DrawingModes.Emoji;
+            host.UpdateAutomatic();
+            surface.DrawingMode = DrawingModes.None;
+            host.UpdateAutomatic();
+
+            Assert.True(host.IsOpen);
+            Assert.Equal(SelectionPanel.PanelId, host.ActivePanel.Id);
+        }
+
         [Theory]
         [InlineData("Ctrl+Shift+K", Keys.Control | Keys.Shift | Keys.K)]
         [InlineData("Ctrl + Alt + F9", Keys.Control | Keys.Alt | Keys.F9)]

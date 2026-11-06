@@ -69,7 +69,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | It opens by itself only when a tool needs a choice before it can be used (`ShowsPanel = true`): the emoji tool and selected emojis, later stamps. It doesn't take the keyboard from the capture. | Built |
 | It never closes by itself, so it doesn't jump while the user clicks around. Closed by the user, it opens again the next time a choice is needed (such a section starts to apply again). | Built |
 | Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | *Properties* built for every element, double-click built for emojis |
-| Once open, it stays open and follows the selection and the tool, until the user closes it. When a choice is needed while another panel is shown (e.g. the emoji tool while Stamps is shown), it switches to Selection; the list switches back, and it stays there until the next choice. | Built |
+| Once open, it stays open and follows the selection and the tool, until the user closes it. When a choice is needed while another panel is shown (e.g. the emoji tool while Stamps is shown), it switches to Selection, and back to that panel once the choice is done (e.g. the emoji is placed and the selection is gone). Choosing a panel or closing the area in between keeps what the user chose. | Built |
 | A selection of several elements never opens it by itself, except when all of them are emojis. | Built |
 
 **What the Selection panel shows**
