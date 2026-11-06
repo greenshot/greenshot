@@ -9,7 +9,7 @@
              x:Name="Root">
     <Grid>
         <ToggleButton x:Name="OpenButton" Background="Transparent" BorderThickness="0" Padding="2"
-                      AutomationProperties.Name="{Binding (AutomationProperties.Name), ElementName=Root}">
+                      AutomationProperties.Name="{Binding (AutomationProperties.Name), ElementName=Root, TargetNullValue=''}">
             <emoji:EmojiControl Height="24" Emoji="{Binding Selection, ElementName=Root}"/>
         </ToggleButton>
         <Popup x:Name="PickerPopup" IsOpen="{Binding IsChecked, ElementName=OpenButton, Mode=TwoWay}" StaysOpen="False"
