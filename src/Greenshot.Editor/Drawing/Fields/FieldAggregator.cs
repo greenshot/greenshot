@@ -176,6 +176,11 @@ namespace Greenshot.Editor.Drawing.Fields
         }
 
         /// <summary>
+        /// The fields of the bound elements were changed from outside, e.g. Apply style: show their values
+        /// </summary>
+        internal void UpdateFromElements() => UpdateFromBoundElements();
+
+        /// <summary>
         /// Updates this instance using the respective fields from the bound elements.
         /// Fields that do not apply to every bound element are set to null, or 0 respectively.
         /// All other fields will be set to the field value of the least bound element.

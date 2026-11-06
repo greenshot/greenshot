@@ -23,13 +23,14 @@ Plugins can add panels of their own, or sections to the Selection panel.
 
 ### The Selection panel
 
-The Selection panel shows the sections which fit what is selected: *Size and position* on top, then the sections of the
-kind of element, e.g. *Emoji*. A click on the heading of a section closes or opens it; this is remembered.
+The Selection panel shows the sections which fit what is selected: *Size and position* on top, *Style and size* below it,
+then the sections of the kind of element, e.g. *Emoji*. A click on the heading of a section closes or opens it; this is remembered.
 With nothing selected and no tool which needs it, the panel says so.
 
 | Section | What it does |
 |---|---|
 | Size and position | For one selected element: left, top, width and height in pixels of the capture. Type a number and press Enter or leave the field. When the element keeps its aspect ratio (e.g. an emoji or an image), changing the width also changes the height and the other way round. Ctrl+Z undoes it. |
+| Style and size | For every selection: *Copy style* and *Copy size* take them from one selected element, *Apply style* and *Apply size* give them to all selected elements, in one step for Ctrl+Z. The same commands are in the context menu of the elements; Ctrl+Shift+C copies the style, Ctrl+Shift+V applies it. See the rules below. |
 | Emoji | Takes the rest of the height of the panel. Picks the emoji: for the emoji tool the next one to place, for selected emojis the emoji of all of them, in one step for Ctrl+Z. *Search* finds emojis by their English name, by group (e.g. "animal") or by the emoji itself; every word must fit. Enter places the first one found, Down goes to the emojis. The tabs show the groups, the first one the emojis used last. An emoji with skin tones shows them in a small list after the click. |
 
 ### Settings
@@ -77,7 +78,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | Rule | Status |
 |---|---|
 | Sections go by property, not by kind of element: a section shows when every selected element has its properties. Rectangle and arrow: Line, no Fill (an arrow has none). Rectangle and ellipse: Line and Fill. Text and rectangle: no Text. The same rule as the properties tool bar today (`FieldAggregator`, the fields all bound elements have). | Built for Emoji, planned for the others |
-| Order: Size and position on top, then the sections of the elements, then the rest (`EditorSectionOrder`). One section may fill the height which is left (`FillsHeight`), e.g. the emoji. | Built |
+| Order: Size and position on top, Style and size below it, then the sections of the elements, then the rest (`EditorSectionOrder`). One section may fill the height which is left (`FillsHeight`), e.g. the emoji. | Built |
 | A value which differs between the selected elements is shown empty (not the value of one of them). A change sets it on all selected elements, as one undo step. | Planned |
 | Size and position: one element shows X, Y, width and height. Several elements show X and Y of the box around them, a change moves them together; width and height are only for one element (scaling a group would also have to decide about line thickness and text). | Built for one element, planned for several |
 | Nothing in common (e.g. an emoji and an arrow): only Size and position, so the group can still be moved. | Planned |
@@ -95,13 +96,17 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | Image | Size and position |
 | Emoji | Size and position, Emoji (built) |
 
-**Copy and apply style or size** (planned, own PR)
+**Copy and apply style or size** (built)
 
-- *Copy style* keeps the style fields of the selected element (line, fill, shadow, font, arrow heads...); *Apply style* sets them on
-  all selected elements, each only the fields it has, as one undo step.
-- *Copy size* and *Apply size* do the same for width and height; every element keeps its top left corner.
+- *Copy style* keeps all settings of the selected element (line, fill, shadow, font, alignment, arrow heads, the strength of
+  blur or pixelate...), not what kind of element it is. *Apply style* sets them on all selected elements, each only the
+  settings it has (a line gets no fill), as one undo step.
+- *Copy size* keeps width and height. *Apply size* gives them to all selected elements as one undo step: every element keeps
+  its top left corner, a line or arrow its direction; an element which keeps its aspect ratio (an emoji, an image) takes
+  the width and its own ratio.
 - What was copied is kept for all editor windows until Greenshot ends, not in greenshot.ini.
-- In the panel (style at the top, size in Size and position) and in the context menu; keys if free (e.g. Ctrl+Shift+C / Ctrl+Shift+V).
+- *Style and size* section of the panel, context menu, Ctrl+Shift+C (copy style) and Ctrl+Shift+V (apply style). Copy needs
+  exactly one selected element. The core is `ElementStyleClipboard` (no UI), undo with `ChangeFieldsMemento`.
 
 ### The contract
 
@@ -122,7 +127,7 @@ public interface IEditorSection
 {
     string Id { get; }                               // stored for the collapsed state, e.g. "Greenshot.Emoji"
     string Title { get; }                            // translated heading
-    int Order { get; }                               // EditorSectionOrder.SizeAndPosition / Element / Other
+    int Order { get; }                               // EditorSectionOrder.SizeAndPosition / StyleAndSize / Element / Other
     bool AppliesTo(IEditorPanelContext context);     // for the current selection and drawing mode
     bool ShowsPanel { get; }                         // true: shows the Selection panel by itself
     bool FillsHeight { get; }                        // true: gets the height the other sections leave
@@ -202,7 +207,7 @@ drop down button (`EmojiPickerButton`), e.g. in the recipe editor. The English n
 
 ### Later
 
-Planned with the same contract: a button to make a panel a window of its own, a barcode
+Planned with the same contract: a barcode
 section for the Zxing plugin, the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
 capture at the bottom of the area. Then the other WinForms parts of the editor API (`IEditorPlugin` with its menu items
 and form) go away.
