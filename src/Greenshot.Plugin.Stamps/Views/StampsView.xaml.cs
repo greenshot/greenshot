@@ -29,16 +29,9 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Dapplo.Windows.Clipboard;
-using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.Desktop;
-using Dapplo.Windows.DesktopWindowsManager;
-using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
@@ -51,11 +44,11 @@ namespace Greenshot.Plugin.Stamps.Views;
 
 /// <summary>
 /// The stamps: search, a preview of each, name and tags of the selected one, and what can be done with it.
-/// Shown for an editor window it is owned by it, so it stays above it, and it is placed at its right edge.
+/// Shown in the panel area of the editor, one per editor window.
 /// </summary>
-public partial class StampsWindow : Window
+public partial class StampsView : UserControl
 {
-    private static readonly ILog Log = LogManager.GetLogger(typeof(StampsWindow));
+    private static readonly ILog Log = LogManager.GetLogger(typeof(StampsView));
     private Point _dragStart;
     private bool _dragging;
     private bool _canDrop;
@@ -63,30 +56,52 @@ public partial class StampsWindow : Window
     private bool _tagPopupForFilter;
     private IDisposable _clipboardSubscription;
 
-    internal StampsWindow(StampsViewModel viewModel)
+    public StampsView()
     {
         InitializeComponent();
-        DataContext = viewModel;
-        // The keyboard goes to the search, typing filters at once
-        Loaded += (s, e) => SearchBox.Focus();
         DragEnter += OnDragEnter;
         DragOver += OnDragOver;
         Drop += OnDrop;
         PreviewKeyDown += OnPreviewKeyDown;
-        SubscribeToClipboardChanges();
-        Closed += (s, e) =>
+        // The clipboard is only watched while the stamps are shown, the panel of an editor window can be hidden
+        Loaded += (s, e) =>
+        {
+            SubscribeToClipboardChanges();
+            ViewModel?.RefreshIfChanged();
+        };
+        Unloaded += (s, e) =>
         {
             _clipboardSubscription?.Dispose();
             _clipboardSubscription = null;
         };
+        // The library is shared with the stamps of other editor windows: show what changed there
+        IsVisibleChanged += (s, e) =>
+        {
+            if (IsVisible)
+            {
+                ViewModel?.RefreshIfChanged();
+            }
+        };
+        MouseEnter += (s, e) => ViewModel?.RefreshIfChanged();
+        GotKeyboardFocus += (s, e) => ViewModel?.RefreshIfChanged();
     }
 
     /// <summary>
-    /// Paste is only possible while the clipboard has an image which isn't a stamp of this window. The first update is the current state,
+    /// Esc without a list of tags open: the keyboard goes back to the capture
+    /// </summary>
+    public event EventHandler CloseRequested;
+
+    /// <summary>
+    /// Paste is only possible while the clipboard has an image which isn't a stamp of this panel. The first update is the current state,
     /// the others come after a change (throttled, the copying program may still be busy); checked on the UI thread.
     /// </summary>
     private void SubscribeToClipboardChanges()
     {
+        if (_clipboardSubscription != null)
+        {
+            return;
+        }
+
         try
         {
             _clipboardSubscription = ClipboardNative.OnUpdate
@@ -105,88 +120,6 @@ public partial class StampsWindow : Window
 
     private static IStampsLanguage StampsTexts => Texts.Get<IStampsLanguage>();
 
-    private IntPtr Handle => new WindowInteropHelper(this).EnsureHandle();
-
-    /// <summary>
-    /// Make the editor window the owner: this window stays above it. IntPtr.Zero for none.
-    /// </summary>
-    internal void SetOwner(IntPtr ownerHandle)
-    {
-        var helper = new WindowInteropHelper(this);
-        if (helper.Owner != ownerHandle)
-        {
-            helper.Owner = ownerHandle;
-        }
-    }
-
-    /// <summary>
-    /// Place the window at the right edge of the editor window, as high as it: outside when there is room on its screen, else over it
-    /// </summary>
-    internal void PlaceNextTo(IntPtr editorHandle)
-    {
-        // The visible frame, without the invisible borders for resizing
-        if (!DwmApi.GetExtendedFrameBounds(editorHandle, out NativeRect editor) || editor.Width <= 0)
-        {
-            editor = InteropWindowFactory.CreateFor(editorHandle).GetInfo().Bounds;
-        }
-
-        var display = DisplayInfo.AllDisplayInfos.FirstOrDefault(d => d.Bounds.Contains(editor.Location)) ?? DisplayInfo.AllDisplayInfos.FirstOrDefault();
-        var own = InteropWindowFactory.CreateFor(Handle).GetInfo().Bounds;
-        if (display == null || editor.Width <= 0 || own.Width <= 0)
-        {
-            return;
-        }
-
-        var workArea = display.WorkingArea;
-        int width = own.Width;
-        int height = Math.Min(Math.Max(editor.Height, own.Height / 2), workArea.Height);
-        int x = editor.Right + width <= workArea.Right ? editor.Right : Math.Max(workArea.Left, editor.Right - width);
-        int y = Math.Max(workArea.Top, Math.Min(editor.Top, workArea.Bottom - height));
-        User32Api.SetWindowPos(Handle, IntPtr.Zero, x, y, width, height, WindowPos.SWP_NOZORDER | WindowPos.SWP_NOACTIVATE);
-    }
-
-    /// <summary>
-    /// Bring the window to the front with the keyboard in the search
-    /// </summary>
-    internal void ShowAndFocus()
-    {
-        if (!IsVisible)
-        {
-            Show();
-        }
-
-        ShowIfHiddenWithOwner(true);
-        if (WindowState == WindowState.Minimized)
-        {
-            WindowState = WindowState.Normal;
-        }
-
-        Activate();
-        SearchBox.Focus();
-        SearchBox.SelectAll();
-    }
-
-    /// <summary>
-    /// Windows hides an owned window while its owner is minimized and shows it again when that owner is restored, not when it
-    /// gets another owner: WPF still sees it as visible, so it stays hidden. Show it again, unless the new owner is minimized itself.
-    /// </summary>
-    /// <param name="activate">false keeps the active window as it is</param>
-    internal void ShowIfHiddenWithOwner(bool activate)
-    {
-        var helper = new WindowInteropHelper(this);
-        if (helper.Handle == IntPtr.Zero || User32Api.IsWindowVisible(helper.Handle))
-        {
-            return;
-        }
-
-        if (helper.Owner != IntPtr.Zero && User32Api.IsIconic(helper.Owner))
-        {
-            return;
-        }
-
-        User32Api.ShowWindow(helper.Handle, activate ? ShowWindowCommands.Show : ShowWindowCommands.ShowNoActivation);
-    }
-
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
         bool control = Keyboard.Modifiers == ModifierKeys.Control;
@@ -200,7 +133,7 @@ public partial class StampsWindow : Window
                 }
                 else
                 {
-                    Close();
+                    CloseRequested?.Invoke(this, EventArgs.Empty);
                 }
 
                 e.Handled = true;
@@ -483,7 +416,7 @@ public partial class StampsWindow : Window
     }
 
     /// <summary>
-    /// Files, folders and images of a web page can be dropped, the stamps of this window itself not
+    /// Files, folders and images of a web page can be dropped, the stamps of this panel itself not
     /// </summary>
     private void OnDragEnter(object sender, DragEventArgs e)
     {
@@ -704,7 +637,7 @@ public partial class StampsWindow : Window
             Multiselect = true,
             Filter = $"{StampsTexts.ImageFiles} ({patterns})|{patterns}"
         };
-        if (dialog.ShowDialog(this) == true && ViewModel.AddFiles(dialog.FileNames, ViewModel.CurrentCategory) > 0)
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true && ViewModel.AddFiles(dialog.FileNames, ViewModel.CurrentCategory) > 0)
         {
             FocusSelectedStamp();
         }
@@ -732,7 +665,7 @@ public partial class StampsWindow : Window
             return;
         }
 
-        if (ThemedMessageBox.Show(this, string.Format(StampsTexts.DeleteQuestion, stamp.Name), StampsTexts.Title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(StampsTexts.DeleteQuestion, stamp.Name), StampsTexts.Title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
         {
             return;
         }

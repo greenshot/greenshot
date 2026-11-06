@@ -184,6 +184,14 @@ namespace Greenshot.Recipes
                     Risk = "Runs for files opened with Greenshot, for example with \"Open with\" in Explorer."
                 };
             }
+            if (Is(type, TriggerConfig.TypeNotification))
+            {
+                return new RecipeTriggerDescription
+                {
+                    Label = "When a Greenshot notification is clicked",
+                    Risk = "Gets the capture of a clicked Greenshot notification, instead of the default recipe."
+                };
+            }
             if (Is(type, TriggerConfig.TypeExtension))
             {
                 string browser = trigger.GetParameter<string>("Browser");
@@ -437,6 +445,15 @@ namespace Greenshot.Recipes
             if (Is(type, WellKnownStepTypes.DynamicDestination))
             {
                 return "Lets you choose where the result goes";
+            }
+            if (Is(type, WellKnownStepTypes.ShowInExplorer))
+            {
+                string path = node.GetParameter<string>("Path");
+                return string.IsNullOrWhiteSpace(path) ? "Shows the last capture in the Explorer" : $"Shows {path} in the Explorer";
+            }
+            if (Is(type, WellKnownStepTypes.OpenWindow))
+            {
+                return $"Opens {node.GetParameter<string>("Window")}";
             }
 
             var contract = registry.GetContract(type);

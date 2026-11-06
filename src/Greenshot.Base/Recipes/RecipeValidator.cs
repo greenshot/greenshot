@@ -98,7 +98,9 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.UserPrompt,
             WellKnownStepTypes.Stdout,
             WellKnownStepTypes.Stderr,
-            WellKnownStepTypes.Slot
+            WellKnownStepTypes.Slot,
+            WellKnownStepTypes.ShowInExplorer,
+            WellKnownStepTypes.OpenWindow
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -112,7 +114,8 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeCommandline,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeOpenFile,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeExtension,
-            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeNotification
         };
 
         /// <summary>

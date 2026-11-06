@@ -97,6 +97,8 @@ The destination window (destination "Ask for destination every time, in a window
 recipes under "Change the capture with a recipe": the recipe changes the capture shown there, like in the editor, before a
 destination is chosen.
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
+A `ContextMenu` trigger with the group `Main` puts its item in the tray menu itself, next to the captures, see
+[Built-in recipes and the tray menu](#built-in-recipes-and-the-tray-menu).
 The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
 For example:
 
@@ -127,6 +129,91 @@ The window hotkey uses it to start either the window capture or the active windo
 Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
 general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
 button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
+### Built-in recipes and the tray menu
+
+The entries of the tray menu which capture or open something are built-in recipes, so you can give them a hotkey,
+switch them off or change them in the recipe editor like any other recipe. The recipes without a capture also make the
+targets of a click on the tray icon (see below). Their ids stay the same, a recipe file can replace any of them.
+
+| Recipe (id) | What it does | Tray menu | Hotkey |
+|---|---|---|---|
+| Capture region (`recipe_region`) | The capture screen in the region mode | Yes | `${config.RegionHotkey}` |
+| Capture last region (`recipe_lastregion`) | The area of the last capture again (the item is off while there is none) | Yes | `${config.LastregionHotkey}` |
+| Capture window (`recipe_window`) | The capture screen in the window mode | Yes | `${config.WindowHotkey}` when *interactive window capture* is on |
+| Capture full screen (`recipe_fullscreen`) | All displays; in the menu with more than one display a sub menu: all, or one of them | Yes | `${config.FullscreenHotkey}` |
+| Capture active window (`recipe_active_window`) | The active window right away; in the menu "Capture window from list", a sub menu of the open windows | Yes | `${config.WindowHotkey}` when *interactive window capture* is off |
+| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
+| Open file (`recipe_file`) | Asks for an image file and opens it, also used for files opened with Greenshot | Yes | |
+| OCR text to clipboard (`recipe_ocr`) | Select a region, its text goes to the clipboard | | |
+| Open last capture location (`recipe_open_capture_folder`) | `ShowInExplorer`: shows the last capture in the Explorer, or the folder of the screenshots | Yes | |
+| Open last capture in the editor (`recipe_last_capture_in_editor`) | Opens the file of the last capture in the editor | | |
+| Show the tray menu (`recipe_tray_menu`) | `OpenWindow` `TrayMenu`: the tray menu at the mouse | | |
+| Open the settings (`recipe_open_settings`) | `OpenWindow` `Settings` | | |
+| Open an empty image in the editor (`recipe_empty_editor`) | `OpenWindow` `EmptyEditor` | | |
+| Handle the capture of a notification (`recipe_notification`) | A click on a Greenshot notification hands it the capture, it shows the destination window | | |
+
+The browser extension and the AI tools add their own built-in recipes; they get their capture from the browser or the AI
+tool, so they are never in the tray menu or the click list. A `Notification` trigger makes a recipe of your own handle a
+clicked Greenshot notification instead of `recipe_notification` (the first recipe which is on and has one).
+
+**The `Main` group.** A `ContextMenu` trigger with `"Group": "Main"` puts its item in the tray menu itself instead of the
+Recipes menu. Its `Order` places it: the built-in recipes use 10 to 40 for the captures, 110 for the window list, 210
+and 220 for the clipboard and Open file and 310 for Open last capture location; the Recipes menu itself is at 200. A
+separator goes between items whose order is in another hundred, so an order of 50 adds an item to the captures and 400
+a block of its own. Two more parameters only work there:
+
+- `Icon`: the image of the item, the name of an image of Greenshot's resources (e.g. `contextmenu_capturearea.Image`).
+- `Expand`: the item gets a sub menu. `Displays` (only with more than one display) lists "all" and each display, the
+  chosen display is given to the recipe as `PreSuppliedRegion`. `Windows` lists the open windows, the chosen one is
+  given as `TargetWindow`.
+
+```json
+"triggers": [
+  { "triggerType": "ContextMenu", "parameters": { "MenuItemText": "Capture region to Jira", "Group": "Main", "Order": 15 } }
+]
+```
+
+A recipe file which replaces a built-in recipe keeps its own triggers: a file written before these entries were
+recipes has no `Main` trigger, so the entry is missing from the tray menu until you add one (or use "Reset Default" in the
+recipe manager).
+
+**Steps without a capture.** Two steps don't use an image. A recipe which only has steps like these gets no source and
+no destination added when a trigger starts it:
+
+- `ShowInExplorer` shows a file (selected in its folder) or a folder in the Windows Explorer. `Path` (supports `${...}`)
+  is the file or folder; when the file is gone its folder is shown. Without `Path` it shows the last capture, or the folder
+  of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
+- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `About`, `Help` or `EmptyEditor`.
+
+A `Source` with `SourceType` `File` and no `Filename` asks for the file when the recipe was started by hand (tray menu,
+hotkey, a click on the tray icon); started unattended it fails as before.
+
+### A click on the tray icon
+
+Settings > General > *Tray icon* chooses the recipe a click and a double-click on the Greenshot icon next to the clock
+start. A right-click always opens the tray menu. The defaults are "Show the tray menu" for a click and "Open last capture
+location" for a double-click. "Do nothing" leaves a click without action; with nothing on a double-click, a click starts
+its recipe right away instead of waiting whether a second click follows.
+
+**What is in the list.** Every recipe which can run without being given anything:
+
+- it is switched on,
+- its triggers are not only ones which hand something to the recipe: `Editor` (an image in the editor), `OpenFile` (a
+  file), `Extension` (a capture of the browser), `Notification` (the capture of a clicked Greenshot notification),
+  `Commandline` and `AiTool` (arguments). A recipe with one of these and
+  also a hotkey or a menu entry, or with no triggers at all, is in the list,
+- none of its steps needs a variable which no step before it sets (only a caller could give it).
+
+A recipe made only for a click needs no trigger at all. The list shows the text of the recipe's tray menu entry where it
+has one (translated for the built-in recipes), else its name, sorted by that. When the chosen recipe is deleted,
+switched off or no longer fits, the list shows it as "(not available)", so the setting stays visible; a deleted or
+switched-off recipe doesn't run, the log says why.
+
+In `greenshot.ini` the choice is `TrayClickRecipe` and `TrayDoubleClickRecipe` in `[Core]`, the id of the recipe (empty
+for nothing); `greenshot-fixed.ini` can fix them. They replace `LeftClickAction` and `DoubleClickAction`, which were
+only in the ini file: their value is moved once to the recipe which does the same (e.g. `OPEN_LAST_IN_EXPLORER` becomes
+`recipe_open_capture_folder`, `CAPTURE_REGION` becomes `recipe_region`).
 
 ---
 

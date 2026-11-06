@@ -112,11 +112,6 @@ namespace Greenshot.Base.Languages
         string AutocropNotPossible { get; }
 
         /// <summary>
-        /// HDR
-        /// </summary>
-        string HdrBadge { get; }
-
-        /// <summary>
         /// This capture has HDR content: Save as JPEG XR keeps its highlights, with what you drew on top
         /// </summary>
         string HdrBadgeTooltip { get; }
@@ -125,6 +120,21 @@ namespace Greenshot.Base.Languages
         /// This capture had HDR content, but its image was changed (e.g. by an effect): it is saved without HDR
         /// </summary>
         string HdrBadgeLostTooltip { get; }
+
+        /// <summary>
+        /// The text of this capture is recognized: ...
+        /// </summary>
+        string OcrBadgeFoundTooltip { get; }
+
+        /// <summary>
+        /// No text was recognized in this capture: ...
+        /// </summary>
+        string OcrBadgeNoTextTooltip { get; }
+
+        /// <summary>
+        /// Text recognition failed ({0}): ...
+        /// </summary>
+        string OcrBadgeFailedTooltip { get; }
 
         /// <summary>
         /// Fill color (0-9)
@@ -187,9 +197,79 @@ namespace Greenshot.Base.Languages
         string EmojiPicker { get; }
 
         /// <summary>
+        /// Edit text
+        /// </summary>
+        string EditText { get; }
+
+        /// <summary>
         /// History
         /// </summary>
         string EmojiHistory { get; }
+
+        /// <summary>
+        /// Panels
+        /// </summary>
+        string PanelArea { get; }
+
+        /// <summary>
+        /// Close the panel
+        /// </summary>
+        string PanelClose { get; }
+
+        /// <summary>
+        /// Properties
+        /// </summary>
+        string PanelProperties { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string PanelSelection { get; }
+
+        /// <summary>
+        /// Select an element to see its properties
+        /// </summary>
+        string PanelSelectionEmpty { get; }
+
+        /// <summary>
+        /// Size and position
+        /// </summary>
+        string SectionSizeAndPosition { get; }
+
+        /// <summary>
+        /// Emoji
+        /// </summary>
+        string SectionEmoji { get; }
+
+        /// <summary>
+        /// X (left)
+        /// </summary>
+        string ElementLeft { get; }
+
+        /// <summary>
+        /// Y (top)
+        /// </summary>
+        string ElementTop { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string ElementWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string ElementHeight { get; }
+
+        /// <summary>
+        /// Search emoji
+        /// </summary>
+        string EmojiSearch { get; }
+
+        /// <summary>
+        /// No emoji found
+        /// </summary>
+        string EmojiSearchNoResults { get; }
 
         /// <summary>
         /// New image
@@ -552,14 +632,14 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextEffect { get; }
 
         /// <summary>
-        /// Pixel size:
+        /// Pixel size (% of text height):
         /// </summary>
-        string ObfuscateTextPixelSize { get; }
+        string ObfuscateTextPixelSizeTextHeight { get; }
 
         /// <summary>
-        /// Blur radius:
+        /// Blur radius (% of text height):
         /// </summary>
-        string ObfuscateTextBlurRadius { get; }
+        string ObfuscateTextBlurRadiusTextHeight { get; }
 
         /// <summary>
         /// Color:

@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Expressions;
@@ -50,9 +51,14 @@ namespace Greenshot.Destinations
     public sealed class FileDestinationOptions
     {
         /// <summary>
-        /// Overwrite an existing file; default: true for the capture's own file, the setting for a generated name.
+        /// What happens when the file exists; default: Overwrite for the capture's own file, the setting for a new name and for FilePath.
         /// </summary>
-        public bool? AllowOverwrite { get; set; }
+        public FileExistsAction? IfFileExists { get; set; }
+
+        /// <summary>
+        /// The file the flow chose (folder, name and format of the step): saved to, and suggested by the save dialog.
+        /// </summary>
+        public string FilePath { get; set; }
 
         /// <summary>
         /// Copy the path of the file to the clipboard; default: the setting.
@@ -113,16 +119,23 @@ namespace Greenshot.Destinations
 
             var captureDetails = request.Metadata;
             var outputSettings = _options?.OutputSettings ?? new SurfaceOutputSettings();
-            bool overwrite;
+            FileExistsAction ifExists;
             string fullPath;
             // A name made from the template: its counters go up once the file is written
             RenderedFileName generated = null;
-            if (captureDetails?.Filename != null)
+            if (_options?.FilePath != null)
+            {
+                // The file of the flow is a new name: the settings decide, unless the flow does
+                fullPath = _options.FilePath;
+                ifExists = _options.IfFileExists ?? CoreConfig.OutputFileIfExists;
+                outputSettings.Format = ImageIO.FormatForFilename(fullPath);
+            }
+            else if (captureDetails?.Filename != null)
             {
                 // As we save a pre-selected file, allow to overwrite.
                 Log.InfoFormat("Using previous filename");
                 fullPath = captureDetails.Filename;
-                overwrite = _options?.AllowOverwrite ?? true;
+                ifExists = _options?.IfFileExists ?? FileExistsAction.Overwrite;
                 outputSettings.Format = ImageIO.FormatForFilename(fullPath);
             }
             else
@@ -130,7 +143,7 @@ namespace Greenshot.Destinations
                 generated = await CreateNewFilenameAsync(captureDetails, request.Ui, cancellationToken).ConfigureAwait(false);
                 fullPath = generated?.FullPath;
                 // As we generate a file, the configuration tells us if we allow to overwrite
-                overwrite = _options?.AllowOverwrite ?? CoreConfig.OutputFileAllowOverwrite;
+                ifExists = _options?.IfFileExists ?? CoreConfig.OutputFileIfExists;
             }
 
             if (fullPath == null)
@@ -139,9 +152,17 @@ namespace Greenshot.Destinations
                 return ExportResult.Declined;
             }
 
+            if (ifExists == FileExistsAction.Ask && !request.Ui.IsInteractive)
+            {
+                // Nobody can answer the save dialog: a free name instead of failing
+                Log.Info("The file may exist and nobody can be asked, a number is added to the name when it does.");
+                ifExists = FileExistsAction.AddNumber;
+            }
+            bool overwrite = ifExists == FileExistsAction.Overwrite;
+
             if (HdrOutput.IsHdrFormat(_options?.HdrFormat))
             {
-                var hdrResult = await TrySaveHdrAsync(request, fullPath, overwrite, cancellationToken).ConfigureAwait(false);
+                var hdrResult = await TrySaveHdrAsync(request, fullPath, ifExists, cancellationToken).ConfigureAwait(false);
                 if (hdrResult != null)
                 {
                     generated?.Commit();
@@ -166,6 +187,10 @@ namespace Greenshot.Destinations
             }
 
             bool copyPath = _options?.CopyPathToClipboard ?? CoreConfig.OutputFileCopyPathToClipboard;
+            if (ifExists == FileExistsAction.AddNumber)
+            {
+                fullPath = NumberedFileNames.FirstFree(fullPath);
+            }
             try
             {
                 // A file on this computer gets every detail of ExportMetadata, also the private ones
@@ -175,14 +200,14 @@ namespace Greenshot.Destinations
             }
             catch (FileAlreadyExistsException ex)
             {
-                // Our generated filename exists, display 'save-as'
+                // The file exists (Ask, or a numbered name was taken meanwhile): display 'save-as' with the next free name
                 Log.InfoFormat("Not overwriting: {0}", ex.Message);
                 if (!request.Ui.IsInteractive)
                 {
                     return ExportResult.Failed(ex.Message, ex);
                 }
 
-                fullPath = await SaveWithDialogAsync(request, copyPath, cancellationToken).ConfigureAwait(false);
+                fullPath = await SaveWithDialogAsync(request, copyPath, cancellationToken, NumberedFileNames.FirstFree(fullPath), _options?.OutputSettings).ConfigureAwait(false);
                 return fullPath == null ? ExportResult.Declined : Saved(captureDetails, fullPath);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -198,7 +223,7 @@ namespace Greenshot.Destinations
 
                 // Show the problem, then present a save-as dialog
                 await request.Ui.ConfirmAsync(Texts.Core.Error, Texts.Core.ErrorSave, true, cancellationToken).ConfigureAwait(false);
-                fullPath = await SaveWithDialogAsync(request, copyPath, cancellationToken).ConfigureAwait(false);
+                fullPath = await SaveWithDialogAsync(request, copyPath, cancellationToken, _options?.FilePath, _options?.OutputSettings).ConfigureAwait(false);
                 return fullPath == null ? ExportResult.Declined : Saved(captureDetails, fullPath);
             }
 
@@ -215,7 +240,7 @@ namespace Greenshot.Destinations
         /// Null when the normal file is to be saved: no HDR content (not on an HDR display, the Source step doesn't capture HDR), the capture's image was changed, or the encoder failed.
         /// Only a failure of the encoder is notified; that there is no HDR content is logged, a recipe which wants to ask checks payload.hdr before.
         /// </summary>
-        private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, bool overwrite, CancellationToken cancellationToken)
+        private async Task<ExportResult> TrySaveHdrAsync(ExportRequest request, string fullPath, FileExistsAction ifExists, CancellationToken cancellationToken)
         {
             string normalFormat = Path.GetExtension(fullPath)?.TrimStart('.').ToUpperInvariant();
             var (formatId, reasonText) = await GetHdrToSaveAsync(request, cancellationToken).ConfigureAwait(false);
@@ -226,7 +251,12 @@ namespace Greenshot.Destinations
                 return null;
             }
 
-            var (hdrPath, failure) = await WriteHdrFileAsync(request, formatId, Path.ChangeExtension(fullPath, "." + formatId), overwrite, cancellationToken).ConfigureAwait(false);
+            string hdrFile = Path.ChangeExtension(fullPath, "." + formatId);
+            if (ifExists == FileExistsAction.AddNumber)
+            {
+                hdrFile = NumberedFileNames.FirstFree(hdrFile);
+            }
+            var (hdrPath, failure) = await WriteHdrFileAsync(request, formatId, hdrFile, ifExists == FileExistsAction.Overwrite, cancellationToken).ConfigureAwait(false);
             if (hdrPath == null)
             {
                 if (failure != null)
@@ -261,7 +291,7 @@ namespace Greenshot.Destinations
             var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
                 (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.IsHdrRequested), cancellationToken).ConfigureAwait(false);
             string suggestedFormat = hdrFormatId ?? (hdrRequested ? WellKnownFileFormats.Jxr : null);
-            string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, format: suggestedFormat, hdrAvailable: hdrFormatId != null || hdrAvailable), cancellationToken).ConfigureAwait(false);
+            string fileName = await request.Ui.PickSaveFileAsync(new SaveFileRequest(captureDetails, _options?.FilePath, suggestedFormat, hdrFormatId != null || hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileName == null)
             {
                 return ExportResult.Declined;
@@ -287,7 +317,7 @@ namespace Greenshot.Destinations
             {
                 return ExportResult.Declined;
             }
-            string savedPath = await SaveToPickedFileAsync(request, fileName, copyPath, cancellationToken).ConfigureAwait(false);
+            string savedPath = await SaveToPickedFileAsync(request, fileName, copyPath, _options?.OutputSettings, cancellationToken).ConfigureAwait(false);
             if (savedPath == null)
             {
                 return ExportResult.Declined;
@@ -413,14 +443,20 @@ namespace Greenshot.Destinations
         /// <summary>
         /// Ask for a file and save the capture to it, null when the user declined or the file couldn't be written.
         /// </summary>
-        internal static async Task<string> SaveWithDialogAsync(ExportRequest request, bool copyPathToClipboard, CancellationToken cancellationToken)
+        /// <param name="request">The export</param>
+        /// <param name="copyPathToClipboard">Copy the path of the saved file</param>
+        /// <param name="cancellationToken">Cancels the export</param>
+        /// <param name="suggestedPath">The file the dialog suggests, null for the file of the settings</param>
+        /// <param name="outputSettings">The quality settings of the flow (the quality was asked already), null for the settings</param>
+        internal static async Task<string> SaveWithDialogAsync(ExportRequest request, bool copyPathToClipboard, CancellationToken cancellationToken,
+            string suggestedPath = null, SurfaceOutputSettings outputSettings = null)
         {
             // JPEG XR of a capture with HDR content is the HDR file (see ExportFiles), the dialog says so; when HDR was asked for
             // (a Source step with Hdr, an opened HDR file) it is suggested, only the setting keeps the configured format
             var (hdrAvailable, hdrRequested) = await request.Source.UseSurfaceAsync(surface =>
                 (HdrExport.CanWriteHdr(surface), HdrExport.CanWriteHdr(surface) && surface.IsHdrRequested), cancellationToken).ConfigureAwait(false);
             string fileNameWithExtension = await request.Ui.PickSaveFileAsync(
-                new SaveFileRequest(request.Metadata, format: hdrRequested ? WellKnownFileFormats.Jxr : null, hdrAvailable: hdrAvailable), cancellationToken).ConfigureAwait(false);
+                new SaveFileRequest(request.Metadata, suggestedPath, hdrRequested ? WellKnownFileFormats.Jxr : null, hdrAvailable), cancellationToken).ConfigureAwait(false);
             if (fileNameWithExtension == null)
             {
                 return null;
@@ -429,16 +465,20 @@ namespace Greenshot.Destinations
             {
                 return null;
             }
-            return await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, cancellationToken).ConfigureAwait(false);
+            return await SaveToPickedFileAsync(request, fileNameWithExtension, copyPathToClipboard, outputSettings, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Save the capture to the file the user picked (asking for the quality if configured), null when the user declined or the file couldn't be written.
+        /// Save the capture to the file the user picked (with the quality of the flow, else asking for it if configured), null when the user declined or the file couldn't be written.
         /// </summary>
-        private static async Task<string> SaveToPickedFileAsync(ExportRequest request, string fileNameWithExtension, bool copyPathToClipboard, CancellationToken cancellationToken)
+        private static async Task<string> SaveToPickedFileAsync(ExportRequest request, string fileNameWithExtension, bool copyPathToClipboard, SurfaceOutputSettings flowSettings,
+            CancellationToken cancellationToken)
         {
-            var outputSettings = new SurfaceOutputSettings(ImageIO.FormatForFilename(fileNameWithExtension));
-            if (CoreConfig.OutputFilePromptQuality)
+            string format = ImageIO.FormatForFilename(fileNameWithExtension);
+            var outputSettings = flowSettings != null
+                ? new SurfaceOutputSettings(format, flowSettings.JPGQuality, flowSettings.ReduceColors)
+                : new SurfaceOutputSettings(format);
+            if (flowSettings == null && CoreConfig.OutputFilePromptQuality)
             {
                 outputSettings = await request.Ui.PromptOutputSettingsAsync(outputSettings, cancellationToken).ConfigureAwait(false);
                 if (outputSettings == null)

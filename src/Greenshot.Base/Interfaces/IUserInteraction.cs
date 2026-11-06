@@ -45,6 +45,11 @@ namespace Greenshot.Base.Interfaces
         Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Ask for an image file (or .greenshot file) to open, null when the user declined.
+        /// </summary>
+        Task<string> PickOpenFileAsync(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Ask for the output settings (e.g. JPEG quality), null when the user declined.
         /// </summary>
         Task<SurfaceOutputSettings> PromptOutputSettingsAsync(SurfaceOutputSettings current, CancellationToken cancellationToken);

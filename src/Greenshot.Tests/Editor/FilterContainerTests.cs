@@ -20,6 +20,8 @@
  */
 
 using System.Drawing;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using System.IO;
 using System.Linq;
 using Greenshot.Editor.Drawing;
@@ -92,6 +94,25 @@ namespace Greenshot.Tests.Editor
 
             Assert.True(loaded.HasField(FieldType.PIXEL_SIZE));
             Assert.False(loaded.HasField(FieldType.BLUR_RADIUS));
+        }
+
+        [Fact]
+        public void FilterReadArea_RepaintsTheWholeFilterAndWhatItReadsAround()
+        {
+            using var surface = new Surface(new Bitmap(400, 300));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 100, Top = 100, Width = 50, Height = 20 };
+            obfuscate.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, PreparedFilter.BLUR);
+            obfuscate.SetFieldValue(FieldType.BLUR_RADIUS, 5);
+            surface.AddElement(obfuscate, false, false);
+            var image = new NativeRect(0, 0, 400, 300);
+
+            // An arrow moved over a part of it: the whole blur and the 2 x 5 pixels it reads around it are repainted
+            var clip = new NativeRect(110, 105, 5, 5);
+            Assert.Equal(obfuscate.DrawingBounds.Inflate(10, 10).Union(clip).Intersect(image), surface.Elements.FilterReadArea(clip, image));
+
+            // Away from filters only the clip rectangle
+            var elsewhere = new NativeRect(300, 250, 10, 10);
+            Assert.Equal(elsewhere, surface.Elements.FilterReadArea(elsewhere, image));
         }
     }
 }

@@ -23,129 +23,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Windows;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
-using Greenshot.Base.Wpf;
-using Greenshot.Editor.Destinations;
-using Greenshot.Editor.Forms;
-using Greenshot.Helpers;
 using Greenshot.Recipes;
 using log4net;
 using Microsoft.Win32;
-using Greenshot.Base.Expressions;
 
 namespace Greenshot.Shell
 {
     /// <summary>
-    /// The actions of the tray menu and of the tray icon clicks
+    /// The actions of the fixed items of the tray menu
     /// </summary>
     internal static class TrayActions
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TrayActions));
-        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
-
-        /// <summary>
-        /// Let the user pick an image file and open it like a capture
-        /// </summary>
-        /// <param name="destination">The destination to use, null for the configured ones</param>
-        public static void CaptureFile(IDestination destination = null)
-        {
-            var fileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
-            var extensions = (fileFormatRegistry?.GetLoadableFileFormats() ?? Enumerable.Empty<FileFormatDefinition>())
-                .SelectMany(format => format.LoadableExtensions)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
-                .Select(extension => $"*.{extension}")
-                .ToList();
-
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
-            };
-            if (openFileDialog.ShowDialog() != true)
-            {
-                return;
-            }
-
-            if (File.Exists(openFileDialog.FileName))
-            {
-                CaptureHelper.CaptureFile(openFileDialog.FileName, destination);
-            }
-        }
-
-        /// <summary>
-        /// Open the last capture location in the explorer
-        /// </summary>
-        public static void OpenLastCaptureLocation()
-        {
-            var conf = CoreConfig;
-            conf.ValidateAndCorrectOutputDirectory();
-            conf.ValidateAndCorrectOutputFileAsFullpath();
-            string path = conf.OutputFileAsFullpath;
-            if (!File.Exists(path))
-            {
-                path = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.Empty, out _) ?? string.Empty;
-                // Fix for #1470, problems with a drive which is no longer available
-                try
-                {
-                    string lastFilePath = Path.GetDirectoryName(conf.OutputFileAsFullpath);
-
-                    if (lastFilePath != null && Directory.Exists(lastFilePath))
-                    {
-                        path = lastFilePath;
-                    }
-                    else if (!Directory.Exists(path))
-                    {
-                        // What do I open when nothing can be found? Right, nothing...
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Couldn't open the path to the last exported file, taking default.", ex);
-                }
-            }
-
-            try
-            {
-                ExplorerHelper.OpenInExplorer(path);
-            }
-            catch (Exception ex)
-            {
-                // Make sure we show what we tried to open in the exception
-                ex.Data["path"] = path;
-                Log.Warn("Couldn't open the path to the last exported file", ex);
-                // No reason to create a bug-form, we just display the error.
-                ThemedMessageBox.Show(ex.Message, "Opening " + path, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <summary>
-        /// Open the last capture in the editor
-        /// </summary>
-        public static void OpenLastCaptureInEditor()
-        {
-            var conf = CoreConfig;
-            conf.ValidateAndCorrectOutputFileAsFullpath();
-            if (File.Exists(conf.OutputFileAsFullpath))
-            {
-                CaptureHelper.CaptureFile(conf.OutputFileAsFullpath, DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-            }
-        }
-
-        /// <summary>
-        /// Open a new image in the editor, like the "+" after the tabs
-        /// </summary>
-        public static void OpenEmptyEditor()
-        {
-            ImageEditorForm.OpenNewImage();
-        }
 
         /// <summary>
         /// Open the "Support Greenshot" page

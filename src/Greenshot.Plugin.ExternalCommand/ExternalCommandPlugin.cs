@@ -151,4 +151,4 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-}
+}

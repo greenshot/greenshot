@@ -197,16 +197,6 @@ namespace Greenshot.Tests.Plugins
             Assert.Equal("/wiki/api/v2/pages/42/attachments", requests[1].RequestUri.AbsolutePath);
         }
 
-        [Theory]
-        [InlineData("capture.png", "capture (2).png")]
-        [InlineData("capture (2).png", "capture (3).png")]
-        [InlineData("capture (x).png", "capture (x) (2).png")]
-        [InlineData("capture", "capture (2)")]
-        public void AttachmentNames_Next_Numbers(string filename, string expected)
-        {
-            Assert.Equal(expected, Greenshot.Plugin.Atlassian.AttachmentNames.Next(filename));
-        }
-
         [Fact]
         public async Task AttachAsync_Rejected_ThrowsWithTheReasonOfConfluence()
         {

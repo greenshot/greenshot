@@ -46,6 +46,7 @@ namespace Greenshot.Base.Recipes.Triggers
         public const string TypeOpenFile = "OpenFile";
         public const string TypeExtension = "Extension";
         public const string TypeAiTool = "AiTool";
+        public const string TypeNotification = "Notification";
 
         /// <summary>
         /// The type of trigger (e.g. "Hotkey", "ContextMenu", "Clipboard", "Manual").
@@ -246,6 +247,50 @@ namespace Greenshot.Base.Recipes.Triggers
             return config;
         }
 
+        /// <summary>
+        /// The group of a ContextMenu trigger whose item is in the tray menu itself, not in its Recipes menu
+        /// </summary>
+        public const string MainMenuGroup = "Main";
+
+        /// <summary>
+        /// The parameter of a ContextMenu trigger with the icon of its item: the name of one of the icons of the tray menu,
+        /// e.g. "contextmenu_capturearea.Image"
+        /// </summary>
+        public const string IconParameter = "Icon";
+
+        /// <summary>
+        /// The parameter of a ContextMenu trigger which turns its item into a sub menu: <see cref="ExpandDisplays"/> or <see cref="ExpandWindows"/>
+        /// </summary>
+        public const string ExpandParameter = "Expand";
+
+        /// <summary>
+        /// A sub menu with "All" and each display; a display passes its bounds to the recipe as PreSuppliedRegion
+        /// </summary>
+        public const string ExpandDisplays = "Displays";
+
+        /// <summary>
+        /// A sub menu with the open windows; a window is passed to the recipe as TargetWindow
+        /// </summary>
+        public const string ExpandWindows = "Windows";
+
+        /// <summary>
+        /// A ContextMenu trigger for an item in the tray menu itself, ordered by <paramref name="order"/>: a separator is
+        /// shown between items whose order is in another hundred (e.g. 40 and 110), the Recipes menu has order 200.
+        /// </summary>
+        public static TriggerConfig CreateMainMenu(string menuItemText, int order, string icon = null, string expand = null)
+        {
+            var config = CreateContextMenu(menuItemText, MainMenuGroup, order);
+            if (!string.IsNullOrEmpty(icon))
+            {
+                config.SetParameter(IconParameter, icon);
+            }
+            if (!string.IsNullOrEmpty(expand))
+            {
+                config.SetParameter(ExpandParameter, expand);
+            }
+            return config;
+        }
+
         public static TriggerConfig CreateEditor(string menuItemText = null, string group = "Recipes", int order = 0)
         {
             var config = new TriggerConfig(TypeEditor, menuItemText ?? "Editor Menu");
@@ -308,6 +353,11 @@ namespace Greenshot.Base.Recipes.Triggers
             config.SetParameter("FireAndForget", fireAndForget);
             return config;
         }
+
+        /// <summary>
+        /// Runs the recipe for the capture of a clicked Greenshot notification, the capture is handed over
+        /// </summary>
+        public static TriggerConfig CreateNotification(string name = null) => new TriggerConfig(TypeNotification, name ?? "Clicked notification");
 
         public static TriggerConfig CreateExtension(string browser = null, bool fireAndForget = false, string name = null)
         {

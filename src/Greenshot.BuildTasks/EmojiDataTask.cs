@@ -132,7 +132,7 @@ public class EmojiDataTask : Task
 
             qualifiedLut[unqualified] = text;
 
-            var emoji = new Emojis.Emoji { Text = text };
+            var emoji = new Emojis.Emoji { Text = text, Name = name };
 
             lookupByName[ToColonSyntax(name)] = emoji;
 

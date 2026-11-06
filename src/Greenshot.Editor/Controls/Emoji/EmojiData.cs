@@ -94,7 +94,8 @@ namespace Greenshot.Editor.Controls.Emoji
         {
             var emoji = new Emojis.Emoji
             {
-                Text = (string)eElem.Attribute("T")
+                Text = (string)eElem.Attribute("T"),
+                Name = (string)eElem.Attribute("N")
             };
 
             var vElem = eElem.Element("V");

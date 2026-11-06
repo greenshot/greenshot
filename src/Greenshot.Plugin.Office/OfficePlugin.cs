@@ -123,4 +123,4 @@ namespace Greenshot.Plugin.Office
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     }
-}
+}

@@ -44,6 +44,8 @@ namespace Greenshot.Base.Interfaces.Drawing
         IDrawableContainer ClickableElementAt(int x, int y);
         void OnDoubleClick();
         bool HasIntersectingFilters(NativeRect clipRectangle);
+        /// <summary>The clip rectangle, grown by what the filters there read (their element, the pixels around it)</summary>
+        NativeRect FilterReadArea(NativeRect clipRectangle, NativeRect imageBounds);
         bool IntersectsWith(NativeRect clipRectangle);
         void Draw(Graphics g, Bitmap bitmap, RenderMode renderMode, NativeRect clipRectangle);
         void SetForegroundColor(Color color);

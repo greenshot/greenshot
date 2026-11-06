@@ -327,4 +327,4 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
 
         return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(outputFile: fullpath));
     }
-}
+}

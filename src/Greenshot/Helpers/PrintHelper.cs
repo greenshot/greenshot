@@ -305,4 +305,4 @@ namespace Greenshot.Helpers
             }
         }
     }
-}
+}

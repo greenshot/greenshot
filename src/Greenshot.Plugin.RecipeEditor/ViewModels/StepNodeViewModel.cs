@@ -2899,6 +2899,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Text", value); OnPropertyChanged(nameof(OutputText)); OnPropertyChanged(nameof(Summary)); }
         }
 
+        // --- ShowInExplorer / OpenWindow Steps ---
+        public string ShowInExplorerPath
+        {
+            get => GetParam("Path", "");
+            set { SetParam("Path", value); OnPropertyChanged(nameof(ShowInExplorerPath)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string OpenWindowWindow
+        {
+            get => GetParam("Window", "Settings");
+            set { SetParam("Window", value); OnPropertyChanged(nameof(OpenWindowWindow)); OnPropertyChanged(nameof(Summary)); }
+        }
+
         public string StderrExitCode
         {
             get => GetParam("ExitCode", "1");
@@ -3304,10 +3317,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("PromptQuality", value); OnPropertyChanged(nameof(OutputFilePromptQuality)); }
         }
 
-        public string OutputFileAllowOverwrite
+        public string OutputFileIfExists
         {
-            get => GetTriStateParam("AllowOverwrite");
-            set { SetTriStateParam("AllowOverwrite", value); OnPropertyChanged(nameof(OutputFileAllowOverwrite)); }
+            get => GetParam("IfFileExists", "");
+            set { SetParamOrRemoveIfEmpty("IfFileExists", value); OnPropertyChanged(nameof(OutputFileIfExists)); }
         }
 
         public string OutputFileCopyPath
@@ -3963,6 +3976,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             : string.Format(Texts.Get<IRecipeEditorLanguage>().SummarySlotAccepts, SlotName, SlotAccept);
                     case WellKnownStepTypes.Stdout:
                         return !string.IsNullOrWhiteSpace(OutputText) ? $"Stdout: {OutputText}" : "Stdout";
+                    case WellKnownStepTypes.ShowInExplorer:
+                        return string.IsNullOrWhiteSpace(ShowInExplorerPath)
+                            ? Texts.Get<IRecipeEditorLanguage>().SummaryShowInExplorerLast
+                            : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShowInExplorer, ShowInExplorerPath);
+                    case WellKnownStepTypes.OpenWindow:
+                        return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryOpenWindow, OpenWindowWindow);
                     case WellKnownStepTypes.Stderr:
                         return string.Format(StderrAbort ? Texts.Get<IRecipeEditorLanguage>().SummaryStderrAbort : Texts.Get<IRecipeEditorLanguage>().SummaryStderr, StderrExitCode, OutputText);
                     case WellKnownStepTypes.Conditional:
@@ -4047,7 +4066,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(AllowWindowSnappingMode));
             OnPropertyChanged(nameof(OutputFileFormat));
             OnPropertyChanged(nameof(OutputFilePromptQuality));
-            OnPropertyChanged(nameof(OutputFileAllowOverwrite));
+            OnPropertyChanged(nameof(OutputFileIfExists));
             OnPropertyChanged(nameof(OutputFileCopyPath));
             OnPropertyChanged(nameof(OutputFileHdrFormat));
             OnPropertyChanged(nameof(OutputFileAskForFilename));
@@ -4099,6 +4118,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(MetadataCopyright));
             OnPropertyChanged(nameof(NotificationShow));
             OnPropertyChanged(nameof(OutputText));
+            OnPropertyChanged(nameof(ShowInExplorerPath));
+            OnPropertyChanged(nameof(OpenWindowWindow));
             OnPropertyChanged(nameof(StderrExitCode));
             OnPropertyChanged(nameof(StderrAbort));
             OnPropertyChanged(nameof(IsFileSource));

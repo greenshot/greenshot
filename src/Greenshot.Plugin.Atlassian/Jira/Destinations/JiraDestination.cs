@@ -229,7 +229,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
                     var names = await jiraConnector.GetAttachmentNamesAsync(issue.Key, token).ConfigureAwait(false);
                     while (names.Contains(filename, StringComparer.OrdinalIgnoreCase))
                     {
-                        filename = AttachmentNames.Next(filename);
+                        filename = NumberedFileNames.Next(filename);
                     }
                 }
 

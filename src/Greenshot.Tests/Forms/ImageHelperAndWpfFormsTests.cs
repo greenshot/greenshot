@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
@@ -530,6 +531,51 @@ namespace Greenshot.Tests.Forms
                 tm.PropertyChanged -= handler;
                 tm.ToggleTheme(); // Restore
             }
+        }
+
+        [Fact]
+        public void ThemeScope_APaletteHasEveryBrushTheSharedStylesUse()
+        {
+            // The shared styles bind by name to ThemeScope.Theme: ThemeManager by default, a ThemePalette in the editor panels
+            var paletteBrushes = typeof(ThemePalette).GetProperties()
+                .Where(property => typeof(System.Windows.Media.Brush).IsAssignableFrom(property.PropertyType))
+                .Select(property => property.Name).ToList();
+            var managerBrushes = typeof(ThemeManager).GetProperties()
+                .Where(property => typeof(System.Windows.Media.Brush).IsAssignableFrom(property.PropertyType))
+                .Select(property => property.Name).ToList();
+
+            Assert.Empty(managerBrushes.Except(paletteBrushes));
+        }
+
+        [Fact]
+        public void ThemeScope_IsInheritedByTheElementsInside()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var panel = new System.Windows.Controls.StackPanel();
+                    var child = new System.Windows.Controls.TextBox();
+                    panel.Children.Add(child);
+                    Assert.Same(ThemeManager.Instance, ThemeScope.GetTheme(child));
+
+                    ThemeScope.SetTheme(panel, ThemePalette.Dark);
+                    Assert.Same(ThemePalette.Dark, ThemeScope.GetTheme(child));
+
+                    ThemeScope.SetTheme(panel, null);
+                    Assert.Same(ThemeManager.Instance, ThemeScope.GetTheme(child));
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
         }
 
         [Fact]
