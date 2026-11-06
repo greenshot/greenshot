@@ -86,6 +86,8 @@ namespace Greenshot.Tests.Recipes
                 return Task.CompletedTask;
             }
 
+            public Task<string> PickOpenFileAsync(CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+
             public Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken)
             {
                 Dialogs.Add(request);

@@ -98,7 +98,9 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.UserPrompt,
             WellKnownStepTypes.Stdout,
             WellKnownStepTypes.Stderr,
-            WellKnownStepTypes.Slot
+            WellKnownStepTypes.Slot,
+            WellKnownStepTypes.ShowInExplorer,
+            WellKnownStepTypes.OpenWindow
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

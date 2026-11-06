@@ -297,6 +297,16 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepStderr { get; }
 
         /// <summary>
+        /// Show in Explorer
+        /// </summary>
+        string StepShowInExplorer { get; }
+
+        /// <summary>
+        /// Open window
+        /// </summary>
+        string StepOpenWindow { get; }
+
+        /// <summary>
         /// OUTPUT &amp; DESTINATIONS
         /// </summary>
         string HeaderOutputDestinations { get; }
@@ -1800,6 +1810,41 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Error message written to standard error (supports ${...})
         /// </summary>
         string StderrText { get; }
+
+        /// <summary>
+        /// File or folder to show (supports ${...}, empty: the last capture)
+        /// </summary>
+        string ShowInExplorerPath { get; }
+
+        /// <summary>
+        /// Window to open
+        /// </summary>
+        string OpenWindowWindow { get; }
+
+        /// <summary>
+        /// Tray menu
+        /// </summary>
+        string OpenWindowTrayMenu { get; }
+
+        /// <summary>
+        /// Settings
+        /// </summary>
+        string OpenWindowSettings { get; }
+
+        /// <summary>
+        /// About Greenshot
+        /// </summary>
+        string OpenWindowAbout { get; }
+
+        /// <summary>
+        /// Help
+        /// </summary>
+        string OpenWindowHelp { get; }
+
+        /// <summary>
+        /// Empty image in the editor
+        /// </summary>
+        string OpenWindowEmptyEditor { get; }
 
         /// <summary>
         /// Exit Code
@@ -4571,6 +4616,21 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Stderr (exit {0}): {1}
         /// </summary>
         string SummaryStderr { get; }
+
+        /// <summary>
+        /// Show in Explorer: {0}
+        /// </summary>
+        string SummaryShowInExplorer { get; }
+
+        /// <summary>
+        /// Show the last capture in the Explorer
+        /// </summary>
+        string SummaryShowInExplorerLast { get; }
+
+        /// <summary>
+        /// Open: {0}
+        /// </summary>
+        string SummaryOpenWindow { get; }
 
         /// <summary>
         /// Stderr (exit {0}, abort): {1}

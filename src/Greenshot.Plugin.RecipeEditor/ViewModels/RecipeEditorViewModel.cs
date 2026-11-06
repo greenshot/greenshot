@@ -2455,6 +2455,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.Slot:
                     dict["Name"] = RecipeSlots.BeforeExport;
                     break;
+                case WellKnownStepTypes.OpenWindow:
+                    dict["Window"] = "Settings";
+                    break;
                 case "ExternalCommand":
                     dict["CommandLine"] = "cmd.exe";
                     dict["Arguments"] = "/c echo Processing {0}";

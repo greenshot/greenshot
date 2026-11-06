@@ -690,6 +690,12 @@
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepStderr}" Command="{Binding AddStepCommand}" CommandParameter="Stderr">
                                 <TextBlock><Run Text="⛔ "/><Run Text="{wpf:Text RecipeEditor.StepStderr}"/></TextBlock>
                             </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepShowInExplorer}" Command="{Binding AddStepCommand}" CommandParameter="ShowInExplorer">
+                                <TextBlock><Run Text="📂 "/><Run Text="{wpf:Text RecipeEditor.StepShowInExplorer}"/></TextBlock>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepOpenWindow}" Command="{Binding AddStepCommand}" CommandParameter="OpenWindow">
+                                <TextBlock><Run Text="🪟 "/><Run Text="{wpf:Text RecipeEditor.StepOpenWindow}"/></TextBlock>
+                            </Button>
 
                             <!-- 5. Destinations & Output -->
                             <TextBlock Text="{wpf:Text RecipeEditor.HeaderOutputDestinations}" FontWeight="SemiBold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
@@ -2469,6 +2475,24 @@
                                                          Padding="6,4" Margin="0,0,0,8"/>
                                             <CheckBox Content="{wpf:Text RecipeEditor.StderrEndRecipe}" IsChecked="{Binding SelectedNode.StderrAbort, Mode=TwoWay}"
                                                       Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 11b. ShowInExplorer / OpenWindow Step Inspectors -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=ShowInExplorer}">
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowInExplorerPath}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowInExplorerPath}" Text="{Binding SelectedNode.ShowInExplorerPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=OpenWindow}">
+                                            <TextBlock Text="{wpf:Text RecipeEditor.OpenWindowWindow}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.OpenWindowWindow}" SelectedValue="{Binding SelectedNode.OpenWindowWindow, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowTrayMenu}" Tag="TrayMenu"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowSettings}" Tag="Settings"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowAbout}" Tag="About"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowHelp}" Tag="Help"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowEmptyEditor}" Tag="EmptyEditor"/>
+                                            </ComboBox>
                                         </StackPanel>
 
                                         <!-- PDF Step Inspector -->

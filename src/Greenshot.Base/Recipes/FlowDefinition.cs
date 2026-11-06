@@ -387,6 +387,27 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
+        /// False when no step uses an image (e.g. only ShowInExplorer or OpenWindow): a trigger doesn't add a source or a
+        /// destination to such a recipe. True when a step does, or its contract is unknown (e.g. its plugin isn't loaded).
+        /// </summary>
+        /// <param name="registry">The registry with the contracts, default <see cref="StepRegistry.Instance"/></param>
+        public bool UsesImage(IStepRegistry registry = null)
+        {
+            var nodes = Nodes?.Where(node => node != null && !string.IsNullOrWhiteSpace(node.StepType)).ToList();
+            if (nodes == null || nodes.Count == 0) return true;
+            registry ??= StepRegistry.Instance;
+            return nodes.Any(node =>
+            {
+                var payload = registry.GetContract(node.StepType)?.PayloadContract;
+                return payload == null ||
+                       payload.RawCapture != PayloadRequirement.None ||
+                       payload.Surface != PayloadRequirement.None ||
+                       payload.ExtractedText != PayloadRequirement.None ||
+                       payload.VisualMutation != PayloadEffect.None;
+            });
+        }
+
+        /// <summary>
         /// Copies the common parts into a clone
         /// </summary>
         protected void CopyTo(FlowDefinition clone)

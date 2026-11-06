@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Steps;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using log4net;
@@ -75,6 +76,11 @@ namespace Greenshot.Recipes
         public const string RecipeIdAiCaptureWindow = "recipe_ai_capture_window";
         public const string RecipeIdAiCaptureRegion = "recipe_ai_capture_region";
         public const string RecipeIdAiCaptureScreen = "recipe_ai_capture_screen";
+        public const string RecipeIdOpenCaptureFolder = "recipe_open_capture_folder";
+        public const string RecipeIdLastCaptureInEditor = "recipe_last_capture_in_editor";
+        public const string RecipeIdTrayMenu = "recipe_tray_menu";
+        public const string RecipeIdOpenSettings = "recipe_open_settings";
+        public const string RecipeIdEmptyEditor = "recipe_empty_editor";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -277,6 +283,8 @@ namespace Greenshot.Recipes
             RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
             // The hotkeys of the general settings start the built-in recipes
             regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.RegionHotkey}", "Region Hotkey"));
+            // The items of the tray menu are ContextMenu triggers of the built-in recipes, see TrayMenu
+            regionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturearea", 10, "contextmenu_capturearea.Image"));
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -303,6 +311,7 @@ namespace Greenshot.Recipes
             var windowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
             windowHotkey.When = "${config.CaptureWindowsInteractive}";
             windowRecipe.AddTrigger(windowHotkey);
+            windowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindow", 30, "contextmenu_capturewindow.Image"));
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -322,6 +331,8 @@ namespace Greenshot.Recipes
             var activeWindowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
             activeWindowHotkey.When = "${config.CaptureWindowsInteractive == false}";
             activeWindowRecipe.AddTrigger(activeWindowHotkey);
+            // "Capture window from list": a sub menu with the open windows, the chosen one is the TargetWindow
+            activeWindowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindowfromlist", 110, expand: TriggerConfig.ExpandWindows));
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -339,6 +350,8 @@ namespace Greenshot.Recipes
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "export", "export");
             fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.FullscreenHotkey}", "Fullscreen Hotkey"));
+            // With more than one display a sub menu with "All" and each display
+            fullScreenRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturefullscreen", 40, "contextmenu_capturefullscreen.Image", TriggerConfig.ExpandDisplays));
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -356,6 +369,7 @@ namespace Greenshot.Recipes
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
             lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.LastregionHotkey}", "Last Region Hotkey"));
+            lastRegionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturelastregion", 20, "contextmenu_capturelastregion.Image"));
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -369,6 +383,7 @@ namespace Greenshot.Recipes
                 .AddTransition("acquire", "export");
             RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
             clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.ClipboardHotkey}", "Clipboard Hotkey"));
+            clipboardRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_captureclipboard", 210, "contextmenu_captureclipboard.Image"));
             RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
@@ -378,7 +393,9 @@ namespace Greenshot.Recipes
                 "Import an image or .greenshot file from disk")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }))
-                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"));
+                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"))
+                // Started from the menu (or a tray icon click) the source asks for the file
+                .AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_openfile", 220, "contextmenu_openfile.Image"));
             fileRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RegisterBuiltIn(fileRecipe, disabled);
@@ -398,6 +415,8 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
 
+            InitializeShellRecipes(disabled);
+
             // The optional parts (browser extension, AI tools), Greenshot Light has none of them
             foreach (var provider in GreenshotModules.Create<IBuiltInRecipeProvider>())
             {
@@ -406,6 +425,49 @@ namespace Greenshot.Recipes
                     RegisterBuiltIn(recipe, disabled);
                 }
             }
+        }
+
+        /// <summary>
+        /// The built-in recipes without a capture, for the tray menu and the clicks on the tray icon (Settings > General).
+        /// Their names are language keys, they are shown translated.
+        /// </summary>
+        private void InitializeShellRecipes(ISet<string> disabled)
+        {
+            // 9. Open the folder of the last capture, the default of a double click on the tray icon
+            var openFolderRecipe = new CaptureRecipe(
+                RecipeIdOpenCaptureFolder,
+                "Core.contextmenu_openrecentcapture",
+                "Shows the last capture in the Windows Explorer, or the folder of the screenshots")
+                .AddNode(new RecipeNodeConfig("show", WellKnownStepTypes.ShowInExplorer, "Show in Explorer"))
+                .AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_openrecentcapture", 310));
+            openFolderRecipe.Flow = new RecipeFlowConfig("show");
+            RegisterBuiltIn(openFolderRecipe, disabled);
+
+            // 10. Open the last capture in the editor
+            var lastCaptureRecipe = new CaptureRecipe(
+                RecipeIdLastCaptureInEditor,
+                "Core.contextmenu_openlastcaptureineditor",
+                "Opens the file of the last capture in the editor")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false)
+                    .Set("Filename", "${config.OutputFileAsFullpath}"))
+                .AddNode(RecipeStepConfig.CreateEditor("edit"));
+            lastCaptureRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "edit");
+            RegisterBuiltIn(lastCaptureRecipe, disabled);
+
+            // 11. - 13. Open a window: the tray menu (the default of a click on the tray icon), the settings, an empty editor
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdTrayMenu, "Core.contextmenu_showtraymenu", "Opens the tray menu at the mouse", OpenWindowStep.TrayMenu), disabled);
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdOpenSettings, "Core.contextmenu_opensettings", "Opens the settings", OpenWindowStep.Settings), disabled);
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdEmptyEditor, "Core.contextmenu_openemptyeditor", "Opens an empty image in the editor", OpenWindowStep.EmptyEditor), disabled);
+        }
+
+        private static CaptureRecipe CreateOpenWindowRecipe(string id, string name, string description, string window)
+        {
+            var recipe = new CaptureRecipe(id, name, description)
+                .AddNode(new RecipeNodeConfig("open", WellKnownStepTypes.OpenWindow, "Open window")
+                    .Set(OpenWindowStep.WindowParameter, window));
+            recipe.Flow = new RecipeFlowConfig("open");
+            return recipe;
         }
 
         /// <summary>

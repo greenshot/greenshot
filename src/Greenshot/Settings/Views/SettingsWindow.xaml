@@ -182,6 +182,42 @@
                             </StackPanel>
                         </GroupBox>
                         
+                        <!-- Tray icon: the recipes a click and a double-click on the icon start -->
+                        <GroupBox Header="{wpf:Text Settings.Trayicon}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.TrayiconClick}" Target="{Binding ElementName=TrayClickComboBox}"/>
+                                    <ComboBox x:Name="TrayClickComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding TrayClickChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="RecipeId"
+                                              SelectedValue="{Binding SelectedTrayClickRecipe, Mode=TwoWay}"
+                                              ToolTip="{wpf:Text Settings.TooltipTrayicon}"
+                                              AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayClickRecipe}"/>
+                                </Grid>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
+                                    <ComboBox x:Name="TrayDoubleClickComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding TrayDoubleClickChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="RecipeId"
+                                              SelectedValue="{Binding SelectedTrayDoubleClickRecipe, Mode=TwoWay}"
+                                              ToolTip="{wpf:Text Settings.TooltipTrayicon}"
+                                              AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayDoubleClickRecipe}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
                         <!-- Network Settings -->
                         <GroupBox Header="{wpf:Text Settings.Network}">
                             <StackPanel>

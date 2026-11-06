@@ -285,7 +285,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot, ShowInExplorer, OpenWindow) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
@@ -497,6 +497,15 @@
             "Copyright": {
               "type": "string",
               "description": "Used by 'SetMetadata' step: the copyright notice written into saved images, instead of the one of the settings; empty leaves it out."
+            },
+            "Path": {
+              "type": "string",
+              "description": "Used by 'ShowInExplorer' step: the file (selected in its folder) or folder to show, supports ${...}; a file which is gone shows its folder. Empty: the last capture, else the folder of the screenshots."
+            },
+            "Window": {
+              "type": "string",
+              "enum": [ "TrayMenu", "Settings", "About", "Help", "EmptyEditor" ],
+              "description": "Used by 'OpenWindow' step (required): the window of Greenshot to open."
             },
             "DestinationDesignations": {
               "type": "array",
@@ -976,12 +985,21 @@
             "Group": {
               "type": "string",
               "default": "Recipes",
-              "description": "Submenu group in the Greenshot system tray context menu (ContextMenu trigger) or image editor menu (Editor trigger). The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically."
+              "description": "Submenu group in the Greenshot system tray context menu (ContextMenu trigger) or image editor menu (Editor trigger). The default or empty 'Recipes' group is shown directly and first; named groups are submenus sorted alphabetically. 'Main' (ContextMenu trigger only) puts the item in the tray menu itself, next to the captures of the built-in recipes."
             },
             "Order": {
               "type": "integer",
               "default": 0,
-              "description": "Sort order within the menu group; recipe name breaks ties."
+              "description": "Sort order within the menu group; recipe name breaks ties. In the 'Main' group a separator goes between items whose order is in another hundred (the built-in recipes use 10 to 40 for the captures, 110 for the window list, 200 is the Recipes menu, 210 and 220 for the clipboard and Open file, 310 for Open last capture location)."
+            },
+            "Icon": {
+              "type": "string",
+              "description": "ContextMenu trigger in the 'Main' group: the image of the item, the name of an image of Greenshot's resources (e.g. 'contextmenu_capturearea.Image')."
+            },
+            "Expand": {
+              "type": "string",
+              "enum": [ "Displays", "Windows" ],
+              "description": "ContextMenu trigger in the 'Main' group: the item gets a sub menu. 'Displays' (with more than one display): all displays or one of them, given as PreSuppliedRegion. 'Windows': the open windows, the chosen one given as TargetWindow."
             },
             "OnImageCopied": {
               "type": "boolean",

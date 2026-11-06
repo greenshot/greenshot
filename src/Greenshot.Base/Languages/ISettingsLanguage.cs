@@ -993,6 +993,36 @@ namespace Greenshot.Base.Languages
         string Usedefaultproxy { get; }
 
         /// <summary>
+        /// Tray icon
+        /// </summary>
+        string Trayicon { get; }
+
+        /// <summary>
+        /// Click
+        /// </summary>
+        string TrayiconClick { get; }
+
+        /// <summary>
+        /// Double-click
+        /// </summary>
+        string TrayiconDoubleclick { get; }
+
+        /// <summary>
+        /// Do nothing
+        /// </summary>
+        string TrayiconNothing { get; }
+
+        /// <summary>
+        /// {0} (not available)
+        /// </summary>
+        string TrayiconNotavailable { get; }
+
+        /// <summary>
+        /// The recipe which runs when the Greenshot icon next to the clock is clicked. The list has the recipes which are on and need nothing given to them: no editor, no file and no arguments. Right-clicking the icon always opens the tray menu.
+        /// </summary>
+        string TooltipTrayicon { get; }
+
+        /// <summary>
         /// Effects
         /// </summary>
         string Visualization { get; }

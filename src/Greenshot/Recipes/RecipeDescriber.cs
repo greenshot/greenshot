@@ -438,6 +438,15 @@ namespace Greenshot.Recipes
             {
                 return "Lets you choose where the result goes";
             }
+            if (Is(type, WellKnownStepTypes.ShowInExplorer))
+            {
+                string path = node.GetParameter<string>("Path");
+                return string.IsNullOrWhiteSpace(path) ? "Shows the last capture in the Explorer" : $"Shows {path} in the Explorer";
+            }
+            if (Is(type, WellKnownStepTypes.OpenWindow))
+            {
+                return $"Opens {node.GetParameter<string>("Window")}";
+            }
 
             var contract = registry.GetContract(type);
             string name = string.IsNullOrWhiteSpace(contract?.DisplayName) ? type : contract.DisplayName;

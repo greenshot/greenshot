@@ -365,13 +365,13 @@ namespace Greenshot.Base.Core
         [Description("A list of experimental features, this allows us to test certain features before releasing them.")]
         List<string> ExperimentalFeatures { get; set; }
 
-        [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
-        [DefaultValue("SHOW_CONTEXT_MENU")]
-        ClickActions LeftClickAction { get; set; }
+        [Description("The id of the recipe which runs when the tray icon is clicked, empty for nothing. With a double-click recipe it runs after the double-click time of Windows.")]
+        [DefaultValue("recipe_tray_menu")]
+        string TrayClickRecipe { get; set; }
 
-        [Description("Specify what action is made if the tray icon is double clicked")]
-        [DefaultValue("OPEN_LAST_IN_EXPLORER")]
-        ClickActions DoubleClickAction { get; set; }
+        [Description("The id of the recipe which runs when the tray icon is double-clicked, empty for nothing")]
+        [DefaultValue("recipe_open_capture_folder")]
+        string TrayDoubleClickRecipe { get; set; }
 
         [Description("Sets if the zoomer is enabled")]
         [DefaultValue(true)]

@@ -826,6 +826,26 @@ namespace Greenshot.Base.Languages
         string ContextmenuOpenrecentcapture { get; }
 
         /// <summary>
+        /// Open an empty image in the editor
+        /// </summary>
+        string ContextmenuOpenemptyeditor { get; }
+
+        /// <summary>
+        /// Open last capture in the editor
+        /// </summary>
+        string ContextmenuOpenlastcaptureineditor { get; }
+
+        /// <summary>
+        /// Open the settings
+        /// </summary>
+        string ContextmenuOpensettings { get; }
+
+        /// <summary>
+        /// Show the tray menu
+        /// </summary>
+        string ContextmenuShowtraymenu { get; }
+
+        /// <summary>
         /// Quick preferences
         /// </summary>
         string ContextmenuQuicksettings { get; }

@@ -42,6 +42,10 @@ in the window mode. With more than one monitor, *Capture full screen* has a sub 
 
 You can change the hotkeys in the settings, on the General tab.
 
+A click on the Greenshot icon opens this menu, a double-click opens the folder of your last capture. Both can start
+another capture or action instead: Settings, General tab, *Tray icon*. See
+[A click on the tray icon](capture-recipes.md#a-click-on-the-tray-icon) for which recipes are in that list.
+
 ```mermaid
 flowchart LR
     R["PrintScreen<br/>Capture region"] --> S
@@ -465,6 +469,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Where | Setting | What it does |
 |---|---|---|
 | General tab, *Hotkeys* | Capture full screen, window, region, last region, image from clipboard | The hotkeys which start a capture. |
+| General tab, *Tray icon* | Click, Double-click | The recipe a click and a double-click on the Greenshot icon start, e.g. a region capture. |
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
