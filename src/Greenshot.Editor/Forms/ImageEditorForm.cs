@@ -442,6 +442,7 @@ namespace Greenshot.Editor.Forms
             IconBinder.Bind(btnCursor, IconSource.FromResource(typeof(ImageEditorForm), "btnCursor.Image"));
             IconBinder.Bind(btnRect, IconSource.FromResource(typeof(ImageEditorForm), "btnRect.Image"));
             IconBinder.Bind(btnEllipse, IconSource.FromResource(typeof(ImageEditorForm), "btnEllipse.Image"));
+            IconBinder.Bind(btnPolyline, IconSource.FromResource(typeof(ImageEditorForm), "btnPolyline.Image"));
             IconBinder.Bind(btnLine, IconSource.FromResource(typeof(ImageEditorForm), "btnLine.Image"));
             IconBinder.Bind(btnArrow, IconSource.FromResource(typeof(ImageEditorForm), "btnArrow.Image"));
             IconBinder.Bind(btnFreehand, IconSource.FromResource(typeof(ImageEditorForm), "btnFreehand.Image"));
@@ -1342,7 +1343,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnPolyline, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1789,6 +1790,9 @@ namespace Greenshot.Editor.Forms
                 case DrawingModes.Line:
                     SetButtonChecked(btnLine);
                     break;
+                case DrawingModes.Polyline:
+                    SetButtonChecked(btnPolyline);
+                    break;
                 case DrawingModes.Arrow:
                     SetButtonChecked(btnArrow);
                     break;
@@ -1911,6 +1915,12 @@ namespace Greenshot.Editor.Forms
         private void BtnLineClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.Line;
+            RefreshFieldControls();
+        }
+
+        private void BtnPolylineClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Polyline;
             RefreshFieldControls();
         }
 
@@ -2167,6 +2177,9 @@ namespace Greenshot.Editor.Forms
                         break;
                     case Keys.L:
                         BtnLineClick(sender, e);
+                        break;
+                    case Keys.P:
+                        BtnPolylineClick(sender, e);
                         break;
                     case Keys.F:
                         BtnFreehandClick(sender, e);
@@ -3783,6 +3796,7 @@ namespace Greenshot.Editor.Forms
             this.btnRect.Text = Texts.Editor.Drawrectangle;
             this.btnEllipse.Text = Texts.Editor.Drawellipse;
             this.btnLine.Text = Texts.Editor.Drawline;
+            this.btnPolyline.Text = Texts.Editor.Drawpolyline;
             this.btnArrow.Text = Texts.Editor.Drawarrow;
             this.btnFreehand.Text = Texts.Editor.Drawfreehand;
             this.btnText.Text = Texts.Editor.Drawtextbox;
@@ -3815,6 +3829,7 @@ namespace Greenshot.Editor.Forms
             this.addRectangleToolStripMenuItem.Text = Texts.Editor.Drawrectangle;
             this.addEllipseToolStripMenuItem.Text = Texts.Editor.Drawellipse;
             this.drawLineToolStripMenuItem.Text = Texts.Editor.Drawline;
+            this.drawPolylineToolStripMenuItem.Text = Texts.Editor.Drawpolyline;
             this.drawArrowToolStripMenuItem.Text = Texts.Editor.Drawarrow;
             this.drawFreehandToolStripMenuItem.Text = Texts.Editor.Drawfreehand;
             this.addTextBoxToolStripMenuItem.Text = Texts.Editor.Drawtextbox;

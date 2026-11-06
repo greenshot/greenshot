@@ -232,3 +232,5 @@ src/**/*.Credentials.cs
 src/**/Greenshot-proxy.exe
 # Local build/test runner requests and results (tools/build-runner)
 .build-runner/
+# Local script to exit, rebuild and restart Greenshot
+/rebuild.cmd
