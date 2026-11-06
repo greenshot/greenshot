@@ -16,7 +16,9 @@ Where the implementation differs from the design below:
 - `payload.process` isn't there yet (the capture details don't keep the process). `payload.folder` (the folder of an
   opened file) is new and trusted, so a command line recipe can save next to the file it got.
 - The settings show a live preview and the first problem under the folder, file name and footer boxes
-  (`TemplatePreview`), the help window lists the values from the same list the resolver uses; the descriptions of the
+  (`TemplatePreview`), the help window (`ExpressionHelpWindow` in Greenshot.Base, also used by the recipe editor) lists
+  the values from the same list the resolver uses; a folder in a known folder is stored as `${user.desktop}`, ... (default,
+  1.3 conversion, Browse; not for portable); the descriptions of the
   values are English for now. The recipe editor has a "Variables and functions" window (toolbar, F1) listing the options
   and variables of the open recipe, the values and the functions (`RecipeExpressionHelp`, the same lists). An "insert
   variable" menu and previews in the recipe editor, Office and ExternalCommand settings are left for later.

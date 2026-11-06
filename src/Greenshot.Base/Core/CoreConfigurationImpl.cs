@@ -120,6 +120,13 @@ namespace Greenshot.Base.Core
             return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
+        /// <summary>
+        /// The default of OutputDirectory as a template (${user.desktop}), so it moves with the folder; portable: the path next to
+        /// Greenshot, which stays as it is
+        /// </summary>
+        private string DefaultOutputDirectory() =>
+            GreenshotEnvironment.IsPortable ? CreateOutputFilePath() : OutputTemplates.FolderTemplateOf(CreateOutputFilePath());
+
         private string CreateOutputFilePath()
         {
             if (GreenshotEnvironment.IsPortable)
@@ -208,7 +215,7 @@ namespace Greenshot.Base.Core
         {
             if (string.IsNullOrWhiteSpace(OutputDirectory))
             {
-                OutputDirectory = CreateOutputFilePath();
+                OutputDirectory = DefaultOutputDirectory();
             }
         }
 
@@ -368,7 +375,7 @@ namespace Greenshot.Base.Core
             // (a network drive at the logon, values like ${payload.time:yyyy}), see GetOutputDirectory
             if (string.IsNullOrEmpty(OutputDirectory))
             {
-                OutputDirectory = CreateOutputFilePath();
+                OutputDirectory = DefaultOutputDirectory();
             }
 
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
@@ -507,6 +514,11 @@ namespace Greenshot.Base.Core
             if (!patternFixed && !string.IsNullOrEmpty(template)) return template;
             if (string.IsNullOrEmpty(pattern)) return template;
             string converted = LegacyTemplateConverter.Convert(pattern, percentVariables);
+            if (percentVariables && !GreenshotEnvironment.IsPortable)
+            {
+                // A folder: the 1.3 path in a known folder is written with its value, e.g. ${user.desktop}
+                converted = OutputTemplates.FolderTemplateOf(converted);
+            }
             if (!string.Equals(converted, template, StringComparison.Ordinal))
             {
                 Log.InfoFormat("{0} '{1}' of Greenshot 1.3 is {2} '{3}' now", patternKey, pattern, templateKey, converted);

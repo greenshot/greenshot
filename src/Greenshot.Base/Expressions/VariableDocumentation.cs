@@ -54,7 +54,8 @@ namespace Greenshot.Base.Expressions
             return sb.ToString();
         }
 
-        private static string DisplayName(string name)
+        /// <summary>The name to write, a placeholder for a name below a namespace: env.&lt;name&gt;, config.&lt;section&gt;.&lt;key&gt;</summary>
+        public static string DisplayName(string name)
         {
             if (!name.EndsWith(".*", StringComparison.Ordinal))
             {

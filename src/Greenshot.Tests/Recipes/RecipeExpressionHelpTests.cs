@@ -21,6 +21,7 @@
 
 
 using System.Linq;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Expressions;
 using Xunit;

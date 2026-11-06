@@ -28,14 +28,13 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
-using Greenshot.Base.Recipes.Expressions;
-using Greenshot.Base.Wpf;
+using Greenshot.Base.Expressions;
 
-namespace Greenshot.Plugin.RecipeEditor.Views
+namespace Greenshot.Base.Wpf.Views
 {
     /// <summary>
-    /// Everything the open recipe can use in ${...}: its options and variables, the values of Greenshot and the functions,
-    /// from <see cref="RecipeExpressionHelp"/>. A search filters the list, Enter or a double-click copies what to write.
+    /// What a ${...} can use: the values of Greenshot and the functions (<see cref="ExpressionHelp"/>), in a recipe also its options
+    /// and variables. A search filters the list, Enter or a double-click copies what to write. Used by the settings and the recipe editor.
     /// </summary>
     public partial class ExpressionHelpWindow : Window
     {
@@ -61,10 +60,13 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         /// <summary>
         /// Shows the help with these entries; one window at a time, an open one is replaced
         /// </summary>
-        public static void ShowFor(IEnumerable<ExpressionHelpEntry> entries, Window owner)
+        /// <param name="entries">What to list</param>
+        /// <param name="owner">The window it belongs to</param>
+        /// <param name="introduction">The text above the list: what the values are for here, null for none</param>
+        public static void ShowFor(IEnumerable<ExpressionHelpEntry> entries, Window owner, string introduction = null)
         {
             _open?.Close();
-            var window = new ExpressionHelpWindow(entries) { Owner = owner };
+            var window = new ExpressionHelpWindow(entries, introduction) { Owner = owner };
             window.Closed += (_, _) =>
             {
                 if (ReferenceEquals(_open, window))
@@ -76,10 +78,12 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             window.Show();
         }
 
-        public ExpressionHelpWindow(IEnumerable<ExpressionHelpEntry> entries)
+        public ExpressionHelpWindow(IEnumerable<ExpressionHelpEntry> entries, string introduction = null)
         {
             InitializeComponent();
-            var language = Texts.Get<IRecipeEditorLanguage>();
+            IntroTextBlock.Text = introduction?.Trim() ?? string.Empty;
+            IntroTextBlock.Visibility = string.IsNullOrEmpty(IntroTextBlock.Text) ? Visibility.Collapsed : Visibility.Visible;
+            var language = Texts.Get<ICoreLanguage>();
             var items = (entries ?? Enumerable.Empty<ExpressionHelpEntry>()).Select(e => new Item(e, GroupName(e.Group, language))).ToList();
             _view = new ListCollectionView(items);
             _view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(Item.GroupName)));
@@ -88,7 +92,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             Loaded += (s, e) => SearchBox.Focus();
         }
 
-        private static string GroupName(ExpressionHelpGroup group, IRecipeEditorLanguage language)
+        private static string GroupName(ExpressionHelpGroup group, ICoreLanguage language)
         {
             switch (group)
             {
@@ -114,7 +118,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         private void SearchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             _view.Refresh();
-            StatusTextBlock.Text = string.Format(Texts.Get<IRecipeEditorLanguage>().ExpressionHelpFound, _view.Count);
+            StatusTextBlock.Text = string.Format(Texts.Get<ICoreLanguage>().ExpressionHelpFound, _view.Count);
             LiveRegion.Announce(StatusTextBlock);
         }
 
@@ -153,10 +157,10 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         private void Copy()
         {
             if (!(EntryList.SelectedItem is Item item)) return;
-            var language = Texts.Get<IRecipeEditorLanguage>();
+            var language = Texts.Get<ICoreLanguage>();
             StatusTextBlock.Text = ClipboardHelper.TrySetClipboardData(item.Expression, out var error)
                 ? string.Format(language.ExpressionHelpCopied, item.Expression)
-                : string.Format(language.StatusCopyFailed, error);
+                : string.Format(language.ExpressionHelpCopyFailed, error);
             LiveRegion.Announce(StatusTextBlock);
         }
     }

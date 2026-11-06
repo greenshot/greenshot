@@ -2133,7 +2133,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 return;
             }
             SyncRecipeTransitions();
-            ExpressionHelpWindow.ShowFor(RecipeExpressionHelp.For(ActiveRecipe), Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault());
+            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(RecipeExpressionHelp.For(ActiveRecipe), Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault(),
+                Texts.Get<IRecipeEditorLanguage>().ExpressionHelpIntro);
         }
 
         public void CopyMermaidToClipboard()

@@ -1432,5 +1432,65 @@ namespace Greenshot.Base.Languages
         /// Close the viewer, or these keys when they are shown
         /// </summary>
         string ViewerKeyClose { get; }
+
+        /// <summary>
+        /// Variables and functions
+        /// </summary>
+        string ExpressionHelpTitle { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string ExpressionHelpSearch { get; }
+
+        /// <summary>
+        /// Expression
+        /// </summary>
+        string ExpressionHelpExpression { get; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        string ExpressionHelpDescription { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string ExpressionHelpCopy { get; }
+
+        /// <summary>
+        /// Copied {0}
+        /// </summary>
+        string ExpressionHelpCopied { get; }
+
+        /// <summary>
+        /// Copy failed: {0}
+        /// </summary>
+        string ExpressionHelpCopyFailed { get; }
+
+        /// <summary>
+        /// {0} found
+        /// </summary>
+        string ExpressionHelpFound { get; }
+
+        /// <summary>
+        /// Options of this recipe
+        /// </summary>
+        string ExpressionHelpGroupOptions { get; }
+
+        /// <summary>
+        /// Variables of this recipe
+        /// </summary>
+        string ExpressionHelpGroupVariables { get; }
+
+        /// <summary>
+        /// Values
+        /// </summary>
+        string ExpressionHelpGroupValues { get; }
+
+        /// <summary>
+        /// Functions
+        /// </summary>
+        string ExpressionHelpGroupFunctions { get; }
     }
 }

@@ -249,17 +249,14 @@ namespace Greenshot.Settings.Views
 
             if (!string.IsNullOrEmpty(selectedPath))
             {
-                _viewModel.CoreConfiguration.OutputDirectory = selectedPath;
+                // A folder in Pictures, Documents, ... is kept as ${user.pictures}\..., so it moves with that folder
+                _viewModel.CoreConfiguration.OutputDirectory = Base.Expressions.OutputTemplates.FolderTemplateOf(selectedPath);
             }
         }
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new PatternHelpWindow(Base.Wpf.TemplatePreview.HelpText(Base.Expressions.TemplatePurpose.FileName, Texts.Settings.MessageTemplateHelp))
-            {
-                Owner = this
-            };
-            dialog.ShowDialog();
+            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(Base.Expressions.ExpressionHelp.For(Base.Expressions.TemplatePurpose.FileName), this, Texts.Settings.MessageTemplateHelp);
         }
 
         // The buttons change the size in steps of 4 pixels, the configuration keeps the value on a step

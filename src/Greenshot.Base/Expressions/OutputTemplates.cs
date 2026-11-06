@@ -149,6 +149,42 @@ namespace Greenshot.Base.Expressions
         /// <summary>
         /// A folder from a template, e.g. a folder in a setting: null with the reason when it can't be used
         /// </summary>
+        /// <summary>The known folders a typed or picked folder is written with, the longest path first wins</summary>
+        private static readonly string[] KnownFolders =
+        {
+            "user.desktop", "user.pictures", "user.documents", "user.videos", "user.music", "user.localappdata", "user.appdata",
+            "user.profile", "machine.programfiles", "machine.commonappdata"
+        };
+
+        /// <summary>
+        /// A folder as a template: a path in a known folder starts with its value instead, e.g. ${user.pictures}\Greenshots, so it
+        /// moves with the folder (OneDrive, another user). A template or a path elsewhere stays as it is.
+        /// </summary>
+        public static string FolderTemplateOf(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOf("${", StringComparison.Ordinal) >= 0)
+            {
+                return path;
+            }
+            string best = null;
+            string bestFolder = null;
+            foreach (string name in KnownFolders)
+            {
+                string folder = VariableResolver.Instance.Render("${" + name + "}", TemplatePurpose.Folder, VariableScope.Empty);
+                if (string.IsNullOrEmpty(folder)) continue;
+                folder = folder.TrimEnd('\\', '/');
+                bool inside = path.Length == folder.Length
+                    ? string.Equals(path, folder, StringComparison.OrdinalIgnoreCase)
+                    : path.Length > folder.Length && path.StartsWith(folder, StringComparison.OrdinalIgnoreCase) && (path[folder.Length] == '\\' || path[folder.Length] == '/');
+                if (inside && (bestFolder == null || folder.Length > bestFolder.Length))
+                {
+                    best = name;
+                    bestFolder = folder;
+                }
+            }
+            return best == null ? path : "${" + best + "}" + path.Substring(bestFolder.Length);
+        }
+
         public static string RenderFolder(string template, VariableScope scope, out string problem)
         {
             problem = null;

@@ -27,6 +27,8 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Expressions;
 
 namespace Greenshot.Base.Wpf
@@ -44,7 +46,7 @@ namespace Greenshot.Base.Wpf
         public static readonly DependencyProperty PurposeProperty = DependencyProperty.Register(
             nameof(Purpose), typeof(TemplatePurpose), typeof(TemplatePreview), new PropertyMetadata(TemplatePurpose.Text, OnChanged));
 
-        /// <summary>For a file name: the extension shown after it, e.g. ".png"</summary>
+        /// <summary>For a file name: the extension shown after it, ".png" or a file format id like "png"</summary>
         public static readonly DependencyProperty ExtensionProperty = DependencyProperty.Register(
             nameof(Extension), typeof(string), typeof(TemplatePreview), new PropertyMetadata(null, OnChanged));
 
@@ -92,14 +94,15 @@ namespace Greenshot.Base.Wpf
 
         private void Update()
         {
-            var (text, isError) = Describe(Template, Purpose, Extension);
+            // A sample capture: the title of this window stands for the window title of a capture
+            var (text, isError) = Describe(Template, Purpose, Extension, Window.GetWindow(this)?.Title);
             Text = text;
             SetResourceReference(ForegroundProperty, isError ? "ThemeErrorBrush" : "ThemeMutedBrush");
             LiveRegion.Announce(this);
         }
 
         /// <summary>The preview of a template, or its first problem (exposed for tests)</summary>
-        internal static (string Text, bool IsError) Describe(string template, TemplatePurpose purpose, string extension)
+        internal static (string Text, bool IsError) Describe(string template, TemplatePurpose purpose, string extension, string sampleTitle = null)
         {
             if (string.IsNullOrEmpty(template))
             {
@@ -113,8 +116,12 @@ namespace Greenshot.Base.Wpf
             }
             try
             {
-                var scope = VariableScope.Empty;
+                var scope = VariableScope.ForCapture(new CaptureDetails { Title = string.IsNullOrWhiteSpace(sampleTitle) ? "Greenshot" : sampleTitle });
                 scope.Preview = true;
+                if (!string.IsNullOrEmpty(extension) && !extension.StartsWith(".", StringComparison.Ordinal))
+                {
+                    extension = FileFormatRegistry.GetPreferredExtensionWithDot(extension);
+                }
                 string result = purpose == TemplatePurpose.FileName
                     ? resolver.RenderFileName(template, extension, scope).Name
                     : resolver.Render(template, purpose, scope);
@@ -124,30 +131,6 @@ namespace Greenshot.Base.Wpf
             {
                 return (ex.Message, true);
             }
-        }
-
-        /// <summary>
-        /// The help for a purpose: the syntax, then every value it can use and the functions, made from the same list the
-        /// resolver uses
-        /// </summary>
-        public static string HelpText(TemplatePurpose purpose, string introduction)
-        {
-            var resolver = VariableResolver.Instance;
-            var sb = new StringBuilder();
-            if (!string.IsNullOrEmpty(introduction))
-            {
-                sb.AppendLine(introduction.Trim()).AppendLine();
-            }
-            foreach (var variable in resolver.Describe(purpose).OrderBy(v => v.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                sb.Append("${").Append(variable.Name).Append("}  ").AppendLine(variable.Description);
-            }
-            sb.AppendLine();
-            foreach (var function in resolver.Functions)
-            {
-                sb.Append(function.Signature).Append("  ").AppendLine(function.Description);
-            }
-            return sb.ToString();
         }
     }
 }

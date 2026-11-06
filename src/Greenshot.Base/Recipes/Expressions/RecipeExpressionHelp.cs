@@ -29,39 +29,6 @@ using Greenshot.Base.Recipes.Pipeline;
 
 namespace Greenshot.Base.Recipes.Expressions
 {
-    /// <summary>What a help entry is</summary>
-    public enum ExpressionHelpGroup
-    {
-        /// <summary>An option of the recipe: ${option.key}</summary>
-        RecipeOption,
-        /// <summary>A variable of the recipe: a trigger value, a step output, SetVariable: ${var.name}</summary>
-        RecipeVariable,
-        /// <summary>A value of the engine: ${payload.title}, ${time.now}, ...</summary>
-        Value,
-        /// <summary>A function: left(text, count), ...</summary>
-        Function
-    }
-
-    /// <summary>One line of the expression help</summary>
-    public sealed class ExpressionHelpEntry
-    {
-        public ExpressionHelpEntry(ExpressionHelpGroup group, string expression, string description)
-        {
-            Group = group;
-            Expression = expression;
-            Description = description ?? string.Empty;
-        }
-
-        public ExpressionHelpGroup Group { get; }
-
-        /// <summary>What to write, e.g. "${option.border}" or "left(text, count)"</summary>
-        public string Expression { get; }
-
-        public string Description { get; }
-
-        public override string ToString() => Expression;
-    }
-
     /// <summary>
     /// Everything a recipe can use in ${...}: the options and variables of this recipe (from its options, triggers and the
     /// contracts of its steps), the values of the engine and the functions. One list for the help of the recipe editor.
@@ -121,17 +88,7 @@ namespace Greenshot.Base.Recipes.Expressions
                 }
             }
 
-            var resolver = VariableResolver.Instance;
-            foreach (var variable in resolver.Describe(TemplatePurpose.Value)
-                         .Where(v => !v.Name.StartsWith("option.", StringComparison.OrdinalIgnoreCase) && !v.Name.StartsWith("var.", StringComparison.OrdinalIgnoreCase))
-                         .OrderBy(v => v.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                entries.Add(new ExpressionHelpEntry(ExpressionHelpGroup.Value, "${" + variable.Name + "}", variable.Description));
-            }
-            foreach (var function in resolver.Functions)
-            {
-                entries.Add(new ExpressionHelpEntry(ExpressionHelpGroup.Function, function.Signature, function.Description));
-            }
+            entries.AddRange(ExpressionHelp.For(TemplatePurpose.Value));
             return entries;
         }
     }
