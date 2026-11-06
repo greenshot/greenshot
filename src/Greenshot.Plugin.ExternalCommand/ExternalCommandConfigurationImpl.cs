@@ -90,44 +90,6 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         MarkAsDirty();
     }
 
-    /// <summary>
-    /// The arguments of 1.3 as a template: {0} was the file (string.Format, so {{ and }} were braces), ${...} and %NAME% were filled in
-    /// </summary>
-    internal static string ConvertArguments(string arguments)
-    {
-        if (string.IsNullOrEmpty(arguments)) return arguments;
-        string template = LegacyTemplateConverter.Convert(arguments, true);
-        var sb = new System.Text.StringBuilder();
-        int depth = 0;
-        for (int i = 0; i < template.Length; i++)
-        {
-            char c = template[i];
-            // Inside a ${...} nothing is string.Format
-            if (c == '$' && i + 1 < template.Length && template[i + 1] == '{') depth++;
-            if (depth > 0)
-            {
-                sb.Append(c);
-                if (c == '}') depth--;
-                continue;
-            }
-            if (string.CompareOrdinal(template, i, "{0}", 0, 3) == 0)
-            {
-                sb.Append("${output.file}");
-                i += 2;
-            }
-            else if ((c == '{' || c == '}') && i + 1 < template.Length && template[i + 1] == c)
-            {
-                sb.Append(c);
-                i++;
-            }
-            else
-            {
-                sb.Append(c);
-            }
-        }
-        return sb.ToString();
-    }
-
     public void OnAfterLoad()
     {
         Commands ??= new List<string>();
@@ -143,7 +105,7 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         }
         foreach (var pair in Argument.Where(p => !ArgumentTemplate.ContainsKey(p.Key)).ToList())
         {
-            ArgumentTemplate[pair.Key] = ConvertArguments(pair.Value);
+            ArgumentTemplate[pair.Key] = LegacyTemplateConverter.ConvertArguments(pair.Value);
             MarkAsDirty();
         }
         RunInbackground ??= new Dictionary<string, bool>();

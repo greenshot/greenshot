@@ -155,7 +155,7 @@ namespace Greenshot.Tests.Recipes
         public void TranslateNodeParameters_TranslatesTheTextsAndKeepsTheRest()
         {
             var recipe = RecipeSerializer.Deserialize(RecipeJson);
-            recipe.Translations["de-DE"] = new Dictionary<string, string> { ["nodes.ask.Message"] = "Wähle einen Ort für ${capture.title}" };
+            recipe.Translations["de-DE"] = new Dictionary<string, string> { ["nodes.ask.Message"] = "Wähle einen Ort für ${payload.title}" };
             var node = recipe.FindNode("ask");
             var choicesOfTheFile = node.Parameters["Choices"];
             var contract = StepRegistry.Instance.GetContract(WellKnownStepTypes.UserPrompt);
@@ -164,7 +164,7 @@ namespace Greenshot.Tests.Recipes
 
             Assert.Equal("Wohin?", german["Title"]);
             // de-DE before de, the expression is evaluated later like the text of the file
-            Assert.Equal("Wähle einen Ort für ${capture.title}", german["Message"]);
+            Assert.Equal("Wähle einen Ort für ${payload.title}", german["Message"]);
             var choices = Assert.IsType<List<PromptChoice>>(german["Choices"]);
             Assert.Equal(new[] { "yes", "no" }, choices.Select(c => c.Key));
             Assert.Equal(new[] { "Ja", "No" }, choices.Select(c => c.Label));

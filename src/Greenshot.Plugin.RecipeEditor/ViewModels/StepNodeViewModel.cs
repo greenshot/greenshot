@@ -1715,7 +1715,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 LoadPromptChoices();
             }
 
-            AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
+            AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.name}"));
             AddAnnotationCommand = new RelayCommand(p => AddAnnotation((p as string) ?? "Rectangle"));
             ImportFromEditorCommand = new RelayCommand(ExecuteImportFromEditor);
             ImportFromGreenshotFileCommand = new RelayCommand(ExecuteImportFromGreenshotFile);
@@ -1896,7 +1896,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             NotifyConfigUpdated();
         }
 
-        public void AddVariable(string key = "var_name", string value = "${user.username}")
+        public void AddVariable(string key = "var_name", string value = "${user.name}")
         {
             var item = new VariableItemViewModel(key, value, SyncVariablesToConfig, RemoveVariable);
             Variables.Add(item);
@@ -1958,7 +1958,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             };
             if (string.Equals(type, "Text", StringComparison.OrdinalIgnoreCase))
             {
-                item.Text = "Captured: ${now:yyyy-MM-dd}";
+                item.Text = "Captured: ${time.now:yyyy-MM-dd}";
                 item.Width = "220";
                 item.Height = "32";
                 item.FillColor = "transparent";
@@ -2968,7 +2968,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string FilenamePattern
         {
-            get => GetParam("FilenamePattern", "greenshot ${capturetime}");
+            get => GetParam("FilenamePattern", Greenshot.Base.Expressions.OutputTemplates.DefaultFileName);
             set { SetParam("FilenamePattern", value); OnPropertyChanged(nameof(FilenamePattern)); OnPropertyChanged(nameof(Summary)); }
         }
 
@@ -3081,7 +3081,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string ClipboardCustomText
         {
-            get => GetParam("ClipboardCustomText", "${ocr_text}");
+            get => GetParam("ClipboardCustomText", "${payload.ocr.text}");
             set { SetParam("ClipboardCustomText", value); OnPropertyChanged(nameof(ClipboardCustomText)); }
         }
 

@@ -30,9 +30,9 @@ using Xunit;
 
 namespace Greenshot.Tests.Recipes
 {
-    public class ExpressionEvaluatorTests
+    public class RecipeExpressionsTests
     {
-        public ExpressionEvaluatorTests()
+        public RecipeExpressionsTests()
         {
             TestEnvironment.EnsureInitialized();
         }
@@ -45,7 +45,7 @@ namespace Greenshot.Tests.Recipes
             context.Properties["CustomTag"] = "BugReport";
             context.Properties["Count"] = 42;
 
-            var result = ExpressionEvaluator.Instance.Evaluate("prefix_${context.CustomTag}_${context.Count}", context);
+            var result = RecipeExpressions.Evaluate("prefix_${var.CustomTag}_${var.Count}", context);
             Assert.Equal("prefix_BugReport_42", result);
         }
 
@@ -57,13 +57,13 @@ namespace Greenshot.Tests.Recipes
             context.Properties["Width"] = 1920;
             context.Properties["Height"] = 1080;
 
-            bool isFhd = ExpressionEvaluator.Instance.Evaluate<bool>("${Width == 1920 && Height == 1080}", context);
+            bool isFhd = RecipeExpressions.Evaluate<bool>("${var.Width == 1920 && var.Height == 1080}", context);
             Assert.True(isFhd);
 
-            bool is4k = ExpressionEvaluator.Instance.Evaluate<bool>("${Width >= 3840}", context);
+            bool is4k = RecipeExpressions.Evaluate<bool>("${var.Width >= 3840}", context);
             Assert.False(is4k);
 
-            double area = ExpressionEvaluator.Instance.Evaluate<double>("${Width * Height}", context);
+            double area = RecipeExpressions.Evaluate<double>("${var.Width * var.Height}", context);
             Assert.Equal(1920 * 1080, area);
         }
 
@@ -83,10 +83,10 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            int w = ExpressionEvaluator.Instance.Evaluate<int>("${payload.width}", context);
-            int h = ExpressionEvaluator.Instance.Evaluate<int>("${payload.height}", context);
-            string text = ExpressionEvaluator.Instance.Evaluate<string>("${payload.extractedtext}", context);
-            string title = ExpressionEvaluator.Instance.Evaluate<string>("${payload.title}", context);
+            int w = RecipeExpressions.Evaluate<int>("${payload.width}", context);
+            int h = RecipeExpressions.Evaluate<int>("${payload.height}", context);
+            string text = RecipeExpressions.Evaluate<string>("${payload.ocr.text}", context);
+            string title = RecipeExpressions.Evaluate<string>("${payload.title}", context);
 
             Assert.Equal(800, w);
             Assert.Equal(600, h);
@@ -104,12 +104,12 @@ namespace Greenshot.Tests.Recipes
 
             var rawParams = new Dictionary<string, object>
             {
-                { "Path", "${context.TargetFolder}\\${context.Prefix}_test.png" },
+                { "Path", "${var.TargetFolder}\\${var.Prefix}_test.png" },
                 { "StaticNum", 123 },
                 { "ConditionMet", "${1 + 1 == 2}" }
             };
 
-            var resolved = ExpressionEvaluator.Instance.ResolveParameters(rawParams, context);
+            var resolved = RecipeExpressions.ResolveParameters(rawParams, context);
             Assert.Equal("C:\\Captures\\GS_test.png", resolved["Path"]);
             Assert.Equal(123, resolved["StaticNum"]);
             Assert.Equal(true, resolved["ConditionMet"]);
@@ -133,8 +133,8 @@ namespace Greenshot.Tests.Recipes
                 Payload = new CapturePayload(capture)
             };
 
-            Assert.Equal(expected, ExpressionEvaluator.Instance.Evaluate("${payload.hdr}", context));
-            Assert.Equal(withHdr, ExpressionEvaluator.Instance.Evaluate<bool>("${payload.hdr == 'Available'}", context));
+            Assert.Equal(expected, RecipeExpressions.Evaluate("${payload.hdr}", context));
+            Assert.Equal(withHdr, RecipeExpressions.IsMet("${payload.hdr == 'Available'}", context));
         }
 
         [Fact]
@@ -155,11 +155,66 @@ namespace Greenshot.Tests.Recipes
         public void Evaluate_ChoiceOfAPromptWhichDidntRun_IsTheDefault()
         {
             using var context = new CaptureFlowContext(new CaptureRecipe("choice_test", "Choice Test"));
-            const string hdrFormat = "${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}";
+            const string hdrFormat = "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}";
 
-            Assert.Equal("Auto", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+            Assert.Equal("Auto", RecipeExpressions.Evaluate(hdrFormat, context));
             context.Properties["UserChoice.ask"] = "Png";
-            Assert.Equal("None", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+            Assert.Equal("None", RecipeExpressions.Evaluate(hdrFormat, context));
+        }
+
+        [Theory]
+        [InlineData("${context.CustomTag}", "${var.CustomTag}")]
+        [InlineData("${CustomTag}", "${var.CustomTag}")]
+        [InlineData("${Width * Height}", "${payload.width * payload.height}")]
+        [InlineData("${payload.extractedtext}", "${payload.ocr.text}")]
+        [InlineData("${payload.text} ${ocr_text}", "${payload.ocr.text} ${payload.ocr.text}")]
+        [InlineData("${payload.filename}", "${payload.file}")]
+        [InlineData("${user.username}@${machine.computername}", "${user.name}@${machine.name}")]
+        [InlineData("${user.pictures}\\Greenshot", "${user.pictures}\\Greenshot")]
+        [InlineData("${user.ONEDRIVE}", "${user.env.ONEDRIVE}")]
+        [InlineData("${machine.PROCESSOR_ARCHITECTURE}", "${machine.env.PROCESSOR_ARCHITECTURE}")]
+        [InlineData("${config.CaptureWindowsInteractive == false}", "${config.Core.CaptureWindowsInteractive == false}")]
+        [InlineData("${now:yyyy-MM}", "${time.now:yyyy-MM}")]
+        [InlineData("${now}", "${format(time.now, 'yyyy-MM-dd_HH-mm-ss')}")]
+        [InlineData("${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}", "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}")]
+        [InlineData("${option.width > 5 && payload.hdr == 'Available'}", "${option.width > 5 && payload.hdr == 'Available'}")]
+        [InlineData("${'context.x'}", "${'context.x'}")]
+        [InlineData("${context.RecipeName}", "${recipe.name}")]
+        [InlineData("no expression", "no expression")]
+        public void Migration_Of20Expressions(string old, string expected)
+        {
+            Assert.Equal(expected, RecipeFormatMigration.MigrateText(old));
+        }
+
+        [Theory]
+        [InlineData("${capturetime:d\"yyyy-MM-dd\"}_${title}", "${payload.time:yyyy-MM-dd}_${payload.title}")]
+        [InlineData("${context.Issue}-${NUM}", "${var.Issue}-${counter.global:000000}")]
+        public void Migration_Of20FileNames(string old, string expected)
+        {
+            Assert.Equal(expected, RecipeFormatMigration.MigrateFileNameTemplate(old));
+        }
+
+        [Fact]
+        public void Migration_ARecipeOf20_IsReadAs30()
+        {
+            const string json = @"{
+  ""kind"": ""recipe"", ""version"": ""2.0"", ""id"": ""migrate_test"", ""name"": ""Migrate"",
+  ""triggers"": [ { ""triggerType"": ""Hotkey"", ""when"": ""${config.CaptureWindowsInteractive}"", ""parameters"": { ""Hotkey"": ""${config.RegionHotkey}"" } } ],
+  ""nodes"": [
+    { ""id"": ""save"", ""stepType"": ""SaveFile"", ""when"": ""${payload.width > 100}"", ""parameters"": { ""FilenamePattern"": ""${capturetime:d\""yyyy\""} ${context.Issue}"" } },
+    { ""id"": ""cmd"", ""stepType"": ""ExternalCommand"", ""parameters"": { ""CommandLine"": ""%windir%\\notepad.exe"", ""Arguments"": ""\""{0}\"" ${context.Mode}"" } }
+  ],
+  ""flow"": { ""startNodes"": [ ""save"" ], ""transitions"": [ { ""from"": ""save"", ""to"": ""cmd"" } ] }
+}";
+            var recipe = RecipeSerializer.Deserialize(json, false);
+
+            Assert.Equal(FlowDefinition.CurrentVersion, recipe.Version);
+            Assert.Equal("${config.Core.CaptureWindowsInteractive}", recipe.Triggers[0].When);
+            Assert.Equal("${config.Core.RegionHotkey}", recipe.Triggers[0].GetParameter<string>("Hotkey"));
+            var save = recipe.FindNode("save");
+            Assert.Equal("${payload.width > 100}", save.When);
+            Assert.Equal("${payload.time:yyyy} ${var.Issue}", save.GetParameter<string>("FilenamePattern"));
+            Assert.Equal("\"${output.file}\" ${var.Mode}", recipe.FindNode("cmd").GetParameter<string>("Arguments"));
         }
     }
 }

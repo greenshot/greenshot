@@ -244,12 +244,12 @@ namespace Greenshot.Settings.Views
         {
             string selectedPath = ModernFolderPicker.SelectFolder(
                 this,
-                _viewModel.CoreConfiguration.OutputFilePath,
+                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _),
                 Texts.Settings.Storagelocation);
 
             if (!string.IsNullOrEmpty(selectedPath))
             {
-                _viewModel.CoreConfiguration.OutputFilePath = selectedPath;
+                _viewModel.CoreConfiguration.OutputDirectory = selectedPath;
             }
         }
 

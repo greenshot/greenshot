@@ -286,7 +286,8 @@ namespace Greenshot.Base.Recipes
             }
 
             // ${user.pictures} finds the Pictures folder also when it was moved, e.g. to OneDrive
-            if (!ExpressionEvaluator.TryExpandFolder(text, out string path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            string path = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(text, Greenshot.Base.Expressions.VariableScope.Empty, out _);
+            if (string.IsNullOrEmpty(path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             {
                 return false;
             }

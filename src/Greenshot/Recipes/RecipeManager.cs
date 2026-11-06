@@ -276,7 +276,7 @@ namespace Greenshot.Recipes
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
             // The hotkeys of the general settings start the built-in recipes
-            regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.RegionHotkey}", "Region Hotkey"));
+            regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.RegionHotkey}", "Region Hotkey"));
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -300,8 +300,8 @@ namespace Greenshot.Recipes
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(windowRecipe, "export", "export");
             // The window hotkey selects a window, or captures the active one (setting "Capture windows interactively")
-            var windowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
-            windowHotkey.When = "${config.CaptureWindowsInteractive}";
+            var windowHotkey = TriggerConfig.CreateHotkey("${config.Core.WindowHotkey}", "Window Hotkey");
+            windowHotkey.When = "${config.Core.CaptureWindowsInteractive}";
             windowRecipe.AddTrigger(windowHotkey);
             RegisterBuiltIn(windowRecipe, disabled);
 
@@ -319,8 +319,8 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "export", "export");
-            var activeWindowHotkey = TriggerConfig.CreateHotkey("${config.WindowHotkey}", "Window Hotkey");
-            activeWindowHotkey.When = "${config.CaptureWindowsInteractive == false}";
+            var activeWindowHotkey = TriggerConfig.CreateHotkey("${config.Core.WindowHotkey}", "Window Hotkey");
+            activeWindowHotkey.When = "${config.Core.CaptureWindowsInteractive == false}";
             activeWindowRecipe.AddTrigger(activeWindowHotkey);
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
@@ -338,7 +338,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "export", "export");
-            fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.FullscreenHotkey}", "Fullscreen Hotkey"));
+            fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.FullscreenHotkey}", "Fullscreen Hotkey"));
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -355,7 +355,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
-            lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.LastregionHotkey}", "Last Region Hotkey"));
+            lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.LastregionHotkey}", "Last Region Hotkey"));
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -368,7 +368,7 @@ namespace Greenshot.Recipes
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
-            clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.ClipboardHotkey}", "Clipboard Hotkey"));
+            clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.ClipboardHotkey}", "Clipboard Hotkey"));
             RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
@@ -416,7 +416,7 @@ namespace Greenshot.Recipes
         {
             var node = RecipeStepConfig.CreateConditional("text_or_image", new[]
             {
-                new KeyValuePair<string, string>("Text", "${SelectedMode == 'Text'}"),
+                new KeyValuePair<string, string>("Text", "${var.SelectedMode == 'Text'}"),
                 new KeyValuePair<string, string>("Image", "else")
             });
             node.Name = "Text or image";
@@ -1606,7 +1606,7 @@ namespace Greenshot.Recipes
 
         /// <summary>
         /// The hotkeys of the recipes which are on, as Settings > General and Self-Service show them: one per hotkey of the
-        /// general settings ("${config.RegionHotkey}", the two window recipes share one), one per Hotkey option and one per
+        /// general settings ("${config.Core.RegionHotkey}", the two window recipes share one), one per Hotkey option and one per
         /// hotkey written in a recipe file. A trigger whose 'when' is false doesn't count.
         /// </summary>
         public IReadOnlyList<RecipeHotkey> GetActiveHotkeys()

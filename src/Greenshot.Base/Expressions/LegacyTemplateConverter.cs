@@ -69,6 +69,55 @@ namespace Greenshot.Base.Expressions
             ["ss"] = ("ss", 2)
         };
 
+        /// <summary>Is it a name of the 1.3 patterns (title, capturetime, NUM, YYYY, RRR, ...)?</summary>
+        public static bool IsLegacyName(string name) =>
+            !string.IsNullOrEmpty(name) && (Names.ContainsKey(name) || TimeParts.ContainsKey(name) || RandomRegexp.IsMatch(name));
+
+        /// <summary>
+        /// The arguments of an external command of 1.3 as a template: {0} was the file (string.Format, so {{ and }} were braces),
+        /// ${...} and %NAME% were filled in
+        /// </summary>
+        public static string ConvertArguments(string arguments)
+        {
+            if (string.IsNullOrEmpty(arguments)) return arguments;
+            return ReplaceFileArgument(Convert(arguments, true));
+        }
+
+        /// <summary>{0} becomes ${output.file}, {{ and }} become braces; the ${...} stay as they are</summary>
+        public static string ReplaceFileArgument(string template)
+        {
+            if (string.IsNullOrEmpty(template)) return template;
+            var sb = new StringBuilder();
+            int depth = 0;
+            for (int i = 0; i < template.Length; i++)
+            {
+                char c = template[i];
+                // Inside a ${...} nothing is string.Format
+                if (c == '$' && i + 1 < template.Length && template[i + 1] == '{') depth++;
+                if (depth > 0)
+                {
+                    sb.Append(c);
+                    if (c == '}') depth--;
+                    continue;
+                }
+                if (string.CompareOrdinal(template, i, "{0}", 0, 3) == 0)
+                {
+                    sb.Append("${output.file}");
+                    i += 2;
+                }
+                else if ((c == '{' || c == '}') && i + 1 < template.Length && template[i + 1] == c)
+                {
+                    sb.Append(c);
+                    i++;
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
         /// <summary>Is the text a pattern of 1.3, which needs converting? A template that is already new stays as it is.</summary>
         public static bool NeedsConversion(string pattern, bool percentVariables)
         {

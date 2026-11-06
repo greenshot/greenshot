@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 
@@ -82,7 +83,7 @@ namespace Greenshot.Base.Recipes.Triggers
         public bool IsBrowserInvocationApproved { get; set; } = true;
 
         /// <summary>
-        /// An expression which decides whether the trigger is registered, e.g. "${config.CaptureWindowsInteractive}";
+        /// An expression which decides whether the trigger is registered, e.g. "${config.Core.CaptureWindowsInteractive}";
         /// checked when the triggers are registered (start, settings or option changed), not when the trigger fires.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -143,14 +144,14 @@ namespace Greenshot.Base.Recipes.Triggers
         /// <summary>
         /// The parameter of a Hotkey trigger which holds the hotkey: a hotkey, "${option.key}" for the value of a
         /// Hotkey option, which the user sets in Settings > Recipes without changing the recipe file, or
-        /// "${config.Name}" for a hotkey of the general settings (e.g. "${config.RegionHotkey}" of the built-in recipes).
+        /// "${config.Core.Name}" for a hotkey of the general settings (e.g. "${config.Core.RegionHotkey}" of the built-in recipes).
         /// </summary>
         public const string HotkeyParameter = "Hotkey";
 
-        private static readonly Regex ConfigReferencePattern = new Regex(@"^\$\{\s*config\.([A-Za-z][A-Za-z0-9_]*)\s*\}$", RegexOptions.Compiled);
+        private static readonly Regex ConfigReferencePattern = new Regex(@"^\$\{\s*config\.Core\.([A-Za-z][A-Za-z0-9_]*)\s*\}$", RegexOptions.Compiled);
 
         /// <summary>
-        /// The name of the setting when the whole text is one setting of the general settings, "${config.Name}"
+        /// The name of the setting when the whole text is one setting of the general settings, "${config.Core.Name}"
         /// </summary>
         public static bool TryParseConfigReference(string text, out string settingName)
         {
@@ -176,7 +177,7 @@ namespace Greenshot.Base.Recipes.Triggers
             }
             else if (TryParseConfigReference(hotkey, out var settingName))
             {
-                hotkey = ExpressionEvaluator.Instance.ResolveSingleToken("config." + settingName, null, null) as string;
+                hotkey = VariableResolver.Instance.Evaluate("${config.Core." + settingName + "}", VariableScope.Empty) as string;
             }
 
             return string.IsNullOrWhiteSpace(hotkey) || string.Equals(hotkey.Trim(), "None", StringComparison.OrdinalIgnoreCase) ? string.Empty : hotkey;
@@ -189,7 +190,7 @@ namespace Greenshot.Base.Recipes.Triggers
         {
             if (!IsActive) return false;
             if (string.IsNullOrWhiteSpace(When) || recipe == null) return true;
-            return ExpressionEvaluator.Instance.Evaluate(When, new CaptureFlowContext(recipe), false);
+            return RecipeExpressions.IsMet(When, new CaptureFlowContext(recipe));
         }
 
         public TriggerConfig SetParameter(string key, object value)

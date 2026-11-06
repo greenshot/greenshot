@@ -2370,7 +2370,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         new Dictionary<string, object>
                         {
                             ["Type"] = "Text",
-                            ["Text"] = "Captured: ${now:yyyy-MM-dd}",
+                            ["Text"] = "Captured: ${time.now:yyyy-MM-dd}",
                             ["HorizontalAnchor"] = "Right",
                             ["VerticalAnchor"] = "Bottom",
                             ["OffsetX"] = -15,
@@ -2385,8 +2385,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.SetVariable:
                     dict["Variables"] = new Dictionary<string, object>
                     {
-                        { "captured_by", "${user.username}" },
-                        { "timestamp", "${now:yyyy-MM-dd_HH-mm-ss}" }
+                        { "captured_by", "${user.name}" },
+                        { "timestamp", "${time.now:yyyy-MM-dd_HH-mm-ss}" }
                     };
                     break;
                 case WellKnownStepTypes.ImmediateFeedback:
@@ -2403,7 +2403,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.SaveFile:
                     dict["SaveDirectory"] = "";
-                    dict["FilenamePattern"] = "greenshot ${capturetime}";
+                    dict["FilenamePattern"] = "greenshot ${payload.time:yyyy-MM-dd HH-mm-ss}";
                     dict["Format"] = "png";
                     dict["AllowOverwrite"] = false;
                     break;
@@ -2416,7 +2416,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ClipboardFormatHTML"] = true;
                     dict["ClipboardFormatHTMLDataUrl"] = false;
                     dict["ClipboardFormatText"] = false;
-                    dict["ClipboardCustomText"] = "${Payload.ExtractedText}";
+                    dict["ClipboardCustomText"] = "${payload.ocr.text}";
                     break;
                 case WellKnownStepTypes.Printer:
                     dict["ShowPrintDialog"] = true;
@@ -2446,7 +2446,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     };
                     break;
                 case WellKnownStepTypes.Stdout:
-                    dict["Text"] = "${Payload.ExtractedText}";
+                    dict["Text"] = "${payload.ocr.text}";
                     break;
                 case WellKnownStepTypes.Stderr:
                     dict["Text"] = "The recipe failed.";

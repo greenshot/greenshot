@@ -319,7 +319,7 @@ namespace Greenshot.Recipes.Pipeline
                         if (step != null && !(step is IEvaluatesOwnParameters))
                         {
                             var resolvedConfig = translatedConfig.Clone();
-                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(translatedConfig.Parameters, nodeContext);
+                            resolvedConfig.Parameters = RecipeExpressions.ResolveParameters(translatedConfig.Parameters, nodeContext, contract);
                             step = _stepFactory(resolvedConfig);
                         }
                         if (step == null)
@@ -484,7 +484,7 @@ namespace Greenshot.Recipes.Pipeline
                                 break;
                             }
 
-                            bool isMet = ExpressionEvaluator.Instance.Evaluate<bool>(exp, nodeContext, false);
+                            bool isMet = RecipeExpressions.IsMet(exp, nodeContext);
                             if (isMet)
                             {
                                 matchedBranchKey = b.Key;

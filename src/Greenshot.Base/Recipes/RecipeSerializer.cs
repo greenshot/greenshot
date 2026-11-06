@@ -228,6 +228,7 @@ namespace Greenshot.Base.Recipes
             {
                 throw new JsonException("Failed to deserialize RecipeExtension from JSON.");
             }
+            Expressions.RecipeFormatMigration.Migrate(extension);
 
             if (validate)
             {
@@ -262,6 +263,7 @@ namespace Greenshot.Base.Recipes
             {
                 throw new JsonException("Failed to deserialize CaptureRecipe from JSON.");
             }
+            Expressions.RecipeFormatMigration.Migrate(recipe);
 
             if (validate)
             {
@@ -298,6 +300,7 @@ namespace Greenshot.Base.Recipes
                     var recipe = item.Deserialize<CaptureRecipe>(Options);
                     if (recipe != null)
                     {
+                        Expressions.RecipeFormatMigration.Migrate(recipe);
                         list.Add(recipe);
                     }
                 }

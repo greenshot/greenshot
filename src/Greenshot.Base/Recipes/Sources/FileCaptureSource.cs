@@ -83,7 +83,7 @@ namespace Greenshot.Base.Recipes.Sources
 
             if (string.IsNullOrWhiteSpace(filename))
             {
-                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${Filename}') or provide 'Filename' in the flow context properties.");
+                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${var.Filename}') or provide 'Filename' in the flow context properties.");
                 return Task.FromResult<ICapturePayload>(null);
             }
 

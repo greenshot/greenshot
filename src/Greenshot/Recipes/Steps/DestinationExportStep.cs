@@ -20,6 +20,8 @@ using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Helpers;
 using Greenshot.Recipes.Pipeline;
+using Greenshot.Base.Expressions;
+using Greenshot.Base.Recipes.Expressions;
 using log4net;
 using Greenshot.Base.Threading;
 
@@ -34,7 +36,7 @@ namespace Greenshot.Recipes.Steps
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Optional)]
     [StepParameter("DestinationDesignations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "List of destination designations (default: settings)")]
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
-    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Purpose = TemplatePurpose.FileName, RenderedByStep = true, Description = "File name template, e.g. ${payload.time:yyyy-MM-dd} ${payload.title} (default: settings)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter(HdrOutput.ParameterName, ContractDataType.Enum, DefaultValue = HdrOutput.None, SupportsExpressions = false, Description = "Save an HDR file of a capture on an HDR display (SaveFile): Auto or Jxr (JPEG XR, lossless). Needs a capture with HDR content (Hdr of Source, or the setting) whose image wasn't changed, otherwise the normal Format is saved (Auto quietly).", AllowedValues = new[] { HdrOutput.None, HdrOutput.Auto, HdrOutput.Jxr })]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
@@ -54,9 +56,9 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("Center", ContractDataType.Boolean, Description = "Center on the page (Printer)")]
     [StepParameter("ColorMode", ContractDataType.Enum, Description = "Print colors (Printer)", AllowedValues = new[] { "Color", "Grayscale", "Monochrome" })]
     [StepParameter("PrintFooter", ContractDataType.Boolean, Description = "Print a footer (Printer)")]
-    [StepParameter("FooterPattern", ContractDataType.String, Description = "Footer text pattern (Printer)")]
+    [StepParameter("FooterPattern", ContractDataType.String, Purpose = TemplatePurpose.Text, Description = "Footer text, e.g. ${payload.time:D} - ${payload.title} (Printer)")]
     [StepParameter("ClipboardMode", ContractDataType.Enum, DefaultValue = "ImageOnly", Description = "What to copy (Clipboard); TextOnly copies the extracted or OCR text", AllowedValues = new[] { "ImageOnly", "TextOnly", "ImageAndText" })]
-    [StepParameter("ClipboardCustomText", ContractDataType.String, Description = "Text to copy instead of the OCR text; ${ocr_text} is the OCR text (Clipboard)")]
+    [StepParameter("ClipboardCustomText", ContractDataType.String, Purpose = TemplatePurpose.Text, RenderedByStep = true, Description = "Text to copy instead of the OCR text; ${payload.ocr.text} is the OCR text (Clipboard)")]
     [StepParameter("ClipboardFormatPNG", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as PNG (Clipboard)")]
     [StepParameter("ClipboardFormatDIB", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as DIB (Clipboard)")]
     [StepParameter("ClipboardFormatDIBV5", ContractDataType.Boolean, Description = "Copy as DIBV5 (Clipboard)")]
@@ -82,6 +84,7 @@ namespace Greenshot.Recipes.Steps
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private readonly IDestinationDispatcher _dispatcher;
+        private RenderedFileName _renderedFileName;
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
@@ -170,7 +173,7 @@ namespace Greenshot.Recipes.Steps
                         Center = center,
                         PromptOptions = promptOptions,
                         Footer = printFooter,
-                        FooterTemplate = footerPattern,
+                        FooterText = footerPattern,
                         Grayscale = string.Equals(colorMode, "Grayscale", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                         Monochrome = string.Equals(colorMode, "Monochrome", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                     };
@@ -223,6 +226,12 @@ namespace Greenshot.Recipes.Steps
 
             var dispatcher = _dispatcher ?? new DestinationDispatcher();
             await dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
+
+            // The counters of the file name count only when the file was written
+            if (_renderedFileName?.FullPath != null && File.Exists(_renderedFileName.FullPath))
+            {
+                _renderedFileName.Commit();
+            }
         }
 
         /// <summary>
@@ -262,6 +271,7 @@ namespace Greenshot.Recipes.Steps
 
         private void ApplyCustomFileSettings(CaptureFlowContext context)
         {
+            _renderedFileName = null;
             string customDir = Config.GetParameter<string>("SaveDirectory");
             bool? promptQuality = Config.GetParameter<bool?>("PromptQuality");
             if (promptQuality.HasValue) context.Properties["Destination.PromptQuality"] = promptQuality.Value;
@@ -293,8 +303,8 @@ namespace Greenshot.Recipes.Steps
 
             if (!string.IsNullOrWhiteSpace(customDir))
             {
-                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
-                string expandedDir = FilenameHelper.FillPattern(customDir, captureDetails, false);
+                // The engine rendered the folder already (a DirectoryPath parameter)
+                string expandedDir = customDir;
                 if (!Directory.Exists(expandedDir))
                 {
                     try
@@ -307,25 +317,20 @@ namespace Greenshot.Recipes.Steps
                     }
                 }
 
-                string pattern = Config.GetParameter<string>("FilenamePattern")
-                    ?? CoreConfig.OutputFileFilenamePattern
-                    ?? "greenshot ${capturetime}";
-
-                string outputFormat = CoreConfig.OutputFileFormat;
-                string formatStr = Config.GetParameter<string>("Format");
-                outputFormat = ResolveFormatId(formatStr, outputFormat);
-
-                if (captureDetails == null)
-                {
-                    captureDetails = context.Payload?.RawCapture?.CaptureDetails;
-                }
+                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
                 if (captureDetails != null)
                 {
-                    string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);
-                    string fullPath = Path.Combine(expandedDir, filename);
+                    string outputFormat = ResolveFormatId(Config.GetParameter<string>("Format"), CoreConfig.OutputFileFormat);
+                    // Rendered here: the counters of the name need the folder
+                    var scope = RecipeExpressions.ScopeOf(context);
+                    scope.TargetFolder = expandedDir;
+                    var rendered = OutputTemplates.RenderFileName(Config.GetParameter<string>("FilenamePattern"),
+                        FileFormatRegistry.GetPreferredExtensionWithDot(outputFormat), scope);
+                    string fullPath = rendered.FullPath ?? Path.Combine(expandedDir, rendered.Name);
                     captureDetails.Filename = fullPath;
                     context.Properties["Destination.SaveDirectory"] = expandedDir;
                     context.Properties["Destination.Filename"] = fullPath;
+                    _renderedFileName = rendered;
                     Log.InfoFormat("Custom save location configured: '{0}'", fullPath);
                 }
             }
@@ -430,10 +435,9 @@ namespace Greenshot.Recipes.Steps
                 string customPattern = Config.GetParameter<string>("ClipboardCustomText");
                 if (!string.IsNullOrWhiteSpace(customPattern))
                 {
-                    string expandedPattern = customPattern
-                        .Replace("${ocr_text}", textToCopy ?? "")
-                        .Replace("${payload.text}", textToCopy ?? "");
-                    textToCopy = FilenameHelper.FillVariables(expandedPattern, false);
+                    // Rendered here: ${payload.ocr.text} is the text just extracted or recognized
+                    var values = new Dictionary<string, object> { ["payload.ocr.text"] = textToCopy ?? string.Empty };
+                    textToCopy = RecipeExpressions.Evaluate(customPattern, context, TemplatePurpose.Text, values)?.ToString();
                 }
             }
 

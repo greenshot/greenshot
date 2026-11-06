@@ -51,11 +51,12 @@ namespace Greenshot.Base.Recipes
         public string Schema { get; set; }
 
         /// <summary>
-        /// The version of the recipe format: "2.0" since transitions are one list and conditions are in "when".
+        /// The version of the recipe format: "2.0" since transitions are one list and conditions are in "when", "3.0" since the ${...}
+        /// use the names of the one expression engine (2.x is converted when it is read, see RecipeFormatMigration).
         /// </summary>
         public string Version { get; set; } = CurrentVersion;
 
-        public const string CurrentVersion = "2.0";
+        public const string CurrentVersion = "3.0";
 
         public string Id { get; set; }
         public string Name { get; set; }

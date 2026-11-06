@@ -35,7 +35,8 @@ namespace Greenshot.Helpers
         public bool? Monochrome { get; set; }
         public byte? MonochromeThreshold { get; set; }
         public bool? Footer { get; set; }
-        public string FooterTemplate { get; set; }
+        /// <summary>The footer as it is printed, already rendered (a recipe renders it with its values); null: the template of the settings</summary>
+        public string FooterText { get; set; }
         public bool? PromptOptions { get; set; }
     }
 }

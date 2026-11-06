@@ -59,7 +59,7 @@ namespace Greenshot.Ai
                 RecipeManager.RecipeIdAiCaptureWindow,
                 "AI tool: capture window",
                 "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${Window}"))
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${var.Window}"))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
                 .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
@@ -136,7 +136,7 @@ namespace Greenshot.Ai
         /// </summary>
         private static RecipeNodeConfig CreateOcrCondition(string id)
         {
-            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${Ocr}") }).WithName("OCR wanted?");
+            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${var.Ocr}") }).WithName("OCR wanted?");
         }
     }
 }

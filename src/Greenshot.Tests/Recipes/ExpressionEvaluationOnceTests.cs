@@ -66,7 +66,7 @@ namespace Greenshot.Tests.Recipes
 
             var node = new RecipeNodeConfig("print", WellKnownStepTypes.Stdout)
             {
-                Parameters = new Dictionary<string, object> { ["text"] = "Decoded: ${Barcode.Text}" }
+                Parameters = new Dictionary<string, object> { ["text"] = "Decoded: ${var.Barcode.Text}" }
             };
             await SingleNodeRunner.RunAsync(node, cfg => new StdoutStep(cfg), context);
 
@@ -86,7 +86,7 @@ namespace Greenshot.Tests.Recipes
 
             var node = new RecipeNodeConfig("fail", WellKnownStepTypes.Stderr)
             {
-                Parameters = new Dictionary<string, object> { ["text"] = "${Barcode.Text}", ["abort"] = false }
+                Parameters = new Dictionary<string, object> { ["text"] = "${var.Barcode.Text}", ["abort"] = false }
             };
             await SingleNodeRunner.RunAsync(node, cfg => new StderrStep(cfg), context);
 
@@ -102,7 +102,7 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    ["Variables"] = new Dictionary<string, object> { ["Copy"] = "${Barcode.Text}", ["Other"] = "prefix ${Barcode.Text}" }
+                    ["Variables"] = new Dictionary<string, object> { ["Copy"] = "${var.Barcode.Text}", ["Other"] = "prefix ${var.Barcode.Text}" }
                 }
             };
             await SingleNodeRunner.RunAsync(node, cfg => new SetVariableStep(cfg), context);
@@ -119,7 +119,7 @@ namespace Greenshot.Tests.Recipes
 
             var node = new RecipeNodeConfig("load", WellKnownStepTypes.Source)
             {
-                Parameters = new Dictionary<string, object> { ["sourceType"] = "File", ["filename"] = "${InputFile}" }
+                Parameters = new Dictionary<string, object> { ["sourceType"] = "File", ["filename"] = "${var.InputFile}" }
             };
             await SingleNodeRunner.RunAsync(node,
                 cfg => new MockTestStep(cfg.Id, async ctx => await new FileCaptureSource(cfg).AcquireAsync(ctx)),
@@ -149,11 +149,11 @@ namespace Greenshot.Tests.Recipes
                         new Dictionary<string, object>
                         {
                             ["Type"] = "QRCode",
-                            ["Text"] = "${Barcode.Text}",
+                            ["Text"] = "${var.Barcode.Text}",
                             ["HorizontalAnchor"] = "Right",
                             ["VerticalAnchor"] = "Bottom",
-                            ["Width"] = "${w - 850}",
-                            ["Height"] = "${h - 650}",
+                            ["Width"] = "${payload.width - 850}",
+                            ["Height"] = "${payload.height - 650}",
                             ["Margin"] = 25
                         }
                     }

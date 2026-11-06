@@ -79,7 +79,6 @@ namespace Greenshot.Helpers
         private bool Monochrome => _options?.Monochrome ?? CoreConfig.OutputPrintMonochrome;
         private byte MonochromeThreshold => _options?.MonochromeThreshold ?? CoreConfig.OutputPrintMonochromeThreshold;
         private bool Footer => _options?.Footer ?? CoreConfig.OutputPrintFooter;
-        private string FooterTemplate => _options?.FooterTemplate ?? OutputTemplates.PrintFooterTemplate;
         private bool PromptOptions => _options?.PromptOptions ?? CoreConfig.OutputPrintPromptOptions;
 
         /**
@@ -223,7 +222,7 @@ namespace Greenshot.Helpers
                 string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
                 if (Footer)
                 {
-                    footerString = OutputTemplates.RenderText(FooterTemplate, _captureDetails);
+                    footerString = _options?.FooterText ?? OutputTemplates.RenderText(OutputTemplates.PrintFooterTemplate, _captureDetails);
                     using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
                     footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
                     footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
