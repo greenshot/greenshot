@@ -1153,6 +1153,24 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Elements were changed on the canvas: moved or resized with the mouse or the keys, undo or redo.
+        /// Not raised for every step of a drag, only when it ends.
+        /// </summary>
+        internal event EventHandler ElementsChanged;
+
+        /// <summary>
+        /// An element asks to show its properties, e.g. a double click on an emoji: the editor shows the Selection panel
+        /// </summary>
+        internal event EventHandler PropertiesRequested;
+
+        internal void OnElementsChanged() => ElementsChanged?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
+        /// Show the properties of the selected elements in the Selection panel and move the keyboard there
+        /// </summary>
+        internal void RequestProperties() => PropertiesRequested?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
         /// Undo the last action
         /// </summary>
         public void Undo()
@@ -1164,6 +1182,7 @@ namespace Greenshot.Editor.Drawing
                 _redoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -1179,6 +1198,7 @@ namespace Greenshot.Editor.Drawing
                 _undoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -2638,6 +2658,7 @@ namespace Greenshot.Editor.Drawing
             if (adorner != null)
             {
                 adorner.MouseUp(sender, e);
+                OnElementsChanged();
                 return;
             }
 
@@ -2696,6 +2717,8 @@ namespace Greenshot.Editor.Drawing
             {
                 FinishDrawingElement(currentMouse);
             }
+
+            OnElementsChanged();
         }
 
         /// <summary>
@@ -4246,6 +4269,7 @@ namespace Greenshot.Editor.Drawing
                 ResizeSelectedElements(resizeX, resizeY);
             }
 
+            OnElementsChanged();
             return true;
 
         }

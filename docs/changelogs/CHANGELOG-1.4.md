@@ -50,6 +50,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
+- A panel at the right of the editor shows the size and position of the selected element and the emoji picker, with a search for emojis
 - Contributed by @jairbubbles
 
 **Stamps** (Beta)

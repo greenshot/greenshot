@@ -43,6 +43,11 @@ namespace Greenshot.Base.Interfaces
         event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
+
+        /// <summary>
+        /// The tool which is picked, e.g. Emoji: the next drag on the canvas draws that element
+        /// </summary>
+        DrawingModes DrawingMode { get; }
         event SurfaceElementEventHandler MovingElementChanged;
         event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
