@@ -59,6 +59,12 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <!-- A box which can't be changed (option off, or fixed by an administrator) looks like it, as in the dialogs -->
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
         </ResourceDictionary>
