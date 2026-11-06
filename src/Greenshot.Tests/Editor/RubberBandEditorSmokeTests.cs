@@ -31,9 +31,9 @@ using Xunit;
 namespace Greenshot.Tests.Editor
 {
     [Collection(TestCollections.Clipboard)]
-    public class FeatureEditorSmokeTests
+    public class RubberBandEditorSmokeTests
     {
-        public FeatureEditorSmokeTests() => TestEnvironment.EnsureInitialized();
+        public RubberBandEditorSmokeTests() => TestEnvironment.EnsureInitialized();
 
         [Fact]
         public void EditorRendersFeatureAtConstrainedWidth()
