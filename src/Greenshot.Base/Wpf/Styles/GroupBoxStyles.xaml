@@ -5,9 +5,9 @@
     <Style TargetType="{x:Type GroupBox}">
         <Setter Property="Margin" Value="8"/>
         <Setter Property="Padding" Value="12"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).GroupBoxBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template">
             <Setter.Value>

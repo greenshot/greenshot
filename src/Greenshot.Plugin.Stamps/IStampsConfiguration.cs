@@ -32,8 +32,4 @@ public interface IStampsConfiguration : IIniSection
     [Description("The folder with the stamps and their names and tags (stamps.json), empty for the folder Stamps next to greenshot.ini")]
     [DefaultValue("")]
     string LibraryPath { get; set; }
-
-    [Description("The hotkey which shows the stamps from everywhere, empty for none")]
-    [DefaultValue("")]
-    string Hotkey { get; set; }
 }

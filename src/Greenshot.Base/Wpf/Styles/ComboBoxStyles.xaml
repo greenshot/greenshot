@@ -10,7 +10,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="DefaultComboBoxItemStyle" TargetType="ComboBoxItem">
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="8,5"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -26,23 +26,23 @@
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             <ContentPresenter.Resources>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                                 </Style>
                             </ContentPresenter.Resources>
                         </ContentPresenter>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=HighlightForegroundBrush}"/>
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).HighlightForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TabItemSelectedBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <!-- The item the arrow keys are on in the open list -->
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=HighlightForegroundBrush}"/>
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).HighlightForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -52,10 +52,10 @@
 
     <Style x:Key="DefaultComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultComboBoxItemStyle}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Padding" Value="8,4"/>
         <Setter Property="Height" Value="28"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
@@ -87,12 +87,12 @@
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"
                                                   Data="M 0 0 L 4 4 L 8 0 Z"
-                                                  Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                  Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                                         </Grid>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Border" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                                            <Setter TargetName="Border" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -108,7 +108,7 @@
                                           HorizontalAlignment="Left">
                             <ContentPresenter.Resources>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                                 </Style>
                             </ContentPresenter.Resources>
                         </ContentPresenter>
@@ -136,9 +136,9 @@
                                   MinWidth="{TemplateBinding ActualWidth}"
                                   MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                 <Border Name="DropDownBorder"
-                                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
-                                        TextElement.Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                        Background="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"
+                                        BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"
+                                        TextElement.Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"
                                         BorderThickness="1"
                                         CornerRadius="4"
                                         Margin="0,1,0,0">

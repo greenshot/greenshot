@@ -14,9 +14,9 @@
     <!-- Default themed button style for dialogs that do not choose a semantic style explicitly. -->
     <Style TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="14,6"/>
         <Setter Property="MinWidth" Value="88"/>
@@ -35,12 +35,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=HighlightForegroundBrush}"/>
+                            <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).HighlightForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=HighlightForegroundBrush}"/>
+                            <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonPressedBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).HighlightForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>
@@ -55,8 +55,8 @@
     <!-- Filled semantic actions -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="14,7"/>
@@ -87,9 +87,9 @@
 
     <Style x:Key="SecondaryButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -104,10 +104,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonPressedBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
@@ -121,8 +121,8 @@
 
     <Style x:Key="WarnButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningForegroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).WarningBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).WarningForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,6"/>
@@ -154,8 +154,8 @@
     <!-- Strong, filled red treatment for destructive actions (small X controls stay neutral). -->
     <Style x:Key="ErrorButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="14,7"/>
@@ -169,10 +169,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerHoverBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerPressedBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerPressedBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
@@ -186,9 +186,9 @@
 
     <!-- Danger / Delete Button Style -->
     <Style x:Key="LightErrorButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBackground}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBorder}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ErrorBackground, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ErrorBorder, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ErrorBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
@@ -196,7 +196,7 @@
     <Style x:Key="PrimaryTextButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Margin" Value="8,0,0,0"/>
         <Setter Property="Padding" Value="6,4"/>
@@ -210,7 +210,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
@@ -223,10 +223,10 @@
     </Style>
 
     <Style x:Key="SecondaryTextButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryTextButtonStyle}">
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -253,7 +253,7 @@
     <!-- Caption buttons are separate because their dimensions and close-hover behavior differ from dialog buttons. -->
     <Style x:Key="TitleBarButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
         <Setter Property="Width" Value="46"/>
@@ -267,7 +267,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.8"/>
@@ -290,12 +290,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerHoverBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).DangerForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -334,9 +334,9 @@
     </Style>
 
     <Style x:Key="ToolboxButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).TextPrimary, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Padding" Value="8,6"/>
         <Setter Property="Margin" Value="0,2"/>
         <Setter Property="Height" Value="36"/>
@@ -351,8 +351,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -363,7 +363,7 @@
     <!-- RadioButton Style -->
     <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).TextPrimary, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -378,14 +378,14 @@
                         <Border x:Name="radioBorder" Grid.Column="0"
                              Width="16" Height="16"
                              CornerRadius="8"
-                             Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path= CurrentPalette.CardBackground}"
-                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path= CurrentPalette.CardBorder}"
+                             Background="{Binding Path=(wpf:ThemeScope.Theme).CardBackground, RelativeSource={RelativeSource Self}}"
+                             BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).CardBorder, RelativeSource={RelativeSource Self}}"
                              BorderThickness="1.5"
                              VerticalAlignment="Center"
                              HorizontalAlignment="Center"
                              SnapsToDevicePixels="True">
                             <Ellipse x:Name="dot" Width="8" Height="8"
-                                  Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                                  Fill="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"
                                   Visibility="Collapsed"
                                   VerticalAlignment="Center"
                                   HorizontalAlignment="Center"/>
@@ -398,10 +398,10 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="dot" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="radioBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="radioBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="radioBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="radioBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -412,7 +412,7 @@
     <!-- Filter Chip Button Style -->
     <Style x:Key="FilterChipRadioButtonStyle" TargetType="RadioButton">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).TextSecondary, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 11}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -420,19 +420,19 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="b" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
-                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
+                    <Border x:Name="b" Background="{Binding Path=(wpf:ThemeScope.Theme).CardBackground, RelativeSource={RelativeSource Self}}"
+                                    BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).CardBorder, RelativeSource={RelativeSource Self}}"
                                     BorderThickness="1" CornerRadius="12" Padding="10,4">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="b" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                            <Setter TargetName="b" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                            <Setter Property="Foreground"  Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
+                            <Setter TargetName="b" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="b" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground"  Value="{Binding Path=(wpf:ThemeScope.Theme).AccentForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="b" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="b" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -9,8 +9,8 @@
 
     <!-- A pill: put the text and a RemoveEntryButtonStyle button in a horizontal StackPanel inside it -->
     <Style x:Key="PillStyle" TargetType="Border">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="10,3,4,3"/>
@@ -21,7 +21,7 @@
     <Style x:Key="RemoveEntryButtonStyle" TargetType="Button">
         <Setter Property="AutomationProperties.Name" Value="{wpf:Text Core.AccessibleRemove}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -32,8 +32,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ErrorBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>
@@ -47,7 +47,7 @@
     <!-- The text of a pill as a button, e.g. to change the entry; set Content to the text and ToolTip to what a click does -->
     <Style x:Key="EditEntryButtonStyle" TargetType="Button">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Template">
@@ -72,7 +72,7 @@
     <Style x:Key="TakeEntryButtonStyle" TargetType="Button">
         <Setter Property="AutomationProperties.Name" Value="{wpf:Text Core.AccessibleAdd}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -83,8 +83,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>
@@ -99,21 +99,21 @@
     <Style x:Key="AddPillButtonStyle" TargetType="Button">
         <Setter Property="AutomationProperties.Name" Value="{wpf:Text Core.AccessibleAdd}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,0,6,6"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bd" Background="Transparent" CornerRadius="12" Padding="10,3" MinHeight="26"
-                            BorderThickness="1" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                            BorderThickness="1" BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}">
                         <TextBlock Text="+" FontSize="{wpf:FontSize 14}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>

@@ -113,7 +113,10 @@ namespace Greenshot.Editor.Panels
         {
             var theme = EditorTheme.Current;
             BackColor = theme.Background;
-            EditorPanelResources.Apply(_view.Resources, ThemeManager.Instance.GetPalette(_configuration.EditorTheme));
+            var palette = ThemeManager.Instance.GetPalette(_configuration.EditorTheme);
+            EditorPanelResources.Apply(_view.Resources, palette);
+            // The shared styles in the views of panels (e.g. Stamps) use the editor theme too
+            ThemeScope.SetTheme(_view, palette);
         }
 
         protected override void Dispose(bool disposing)

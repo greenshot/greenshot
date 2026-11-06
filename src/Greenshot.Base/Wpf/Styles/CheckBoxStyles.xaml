@@ -3,7 +3,7 @@
                     xmlns:wpf="clr-namespace:Greenshot.Base.Wpf">
     <!-- Shared checkbox appearance for all Greenshot WPF surfaces. -->
     <Style x:Key="GreenshotCheckBoxStyle" TargetType="{x:Type CheckBox}">
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -22,14 +22,14 @@
                                 Width="16"
                                 Height="16"
                                 CornerRadius="3"
-                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
+                                Background="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"
+                                BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"
                                 BorderThickness="1.5"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                             <Path x:Name="CheckMark"
                                   Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
-                                  Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"
+                                  Stroke="{Binding Path=(wpf:ThemeScope.Theme).AccentForegroundBrush, RelativeSource={RelativeSource Self}}"
                                   StrokeThickness="2"
                                   StrokeStartLineCap="Round"
                                   StrokeEndLineCap="Round"
@@ -48,21 +48,21 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="CheckBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="CheckBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                             <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="{x:Null}">
-                            <Setter TargetName="CheckBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="CheckBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                             <Setter TargetName="CheckMark" Property="Data" Value="M 4,8 L 12,8"/>
                             <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                            <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.45"/>

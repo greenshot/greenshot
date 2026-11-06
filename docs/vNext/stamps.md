@@ -22,11 +22,10 @@ in the full and the custom installation.
 
 - In the editor: *Plugins*, *Stamps...*, **Ctrl+Shift+K**, or *Stamps* in the list at the top of the
   [panel area](editor-panels.md). The stamps are a panel at the right of the capture and go into the capture which is shown;
-  every editor window has its own, all show the same stamps folder. Esc goes back to the capture. Picking the emoji tool
-  switches to the *Selection* panel to choose the emoji; the list switches back.
-- From the tray menu: *Stamps...*. Without an editor the stamps are a window of their own, to give them to other programs.
-- With a hotkey from everywhere: set `Hotkey` in `[Stamps]` of greenshot.ini, e.g. `Hotkey=Ctrl + Shift + Alt + S`. It opens
-  the window of its own; in the editor Ctrl+Shift+K opens the panel.
+  every editor window has its own, all show the same stamps folder, in the colors of the editor theme. Esc goes back to the
+  capture. Picking the emoji tool switches to the *Selection* panel to choose the emoji, and back to the stamps once the emoji
+  is placed.
+- To give a stamp to another program, open an editor and copy or drag it from the panel.
 
 ### Use a stamp
 
@@ -37,7 +36,7 @@ in the full and the custom installation.
 | Give it to another program | *Copy* or Ctrl+C: the clipboard gets the file, PNG and DIBV5 (with transparency), and for an SVG also the SVG itself. Or drag the stamp to the program: it gets the file. |
 | Filter by tags | The **+** next to *Filter* adds a tag of the list: only the stamps with all the tags of the filter are shown. The **x** of a tag removes it, *Clear all* removes all. |
 | Name and tags | Select the stamp and type into *Name*; Enter or leaving the field saves it. F2 goes to *Name*. Its tags are shown under the stamps: the **+** adds one from the list of tags, the **x** removes one. A tag which isn't in the list yet is added with *New tag* in the same list, it goes into the list and to the stamp. |
-| Add | *Add...* (several files at once), drop image files or folders onto the window, drop an image from a web page, or *Paste* (Ctrl+V) from the clipboard: image files keep their format, an image is saved as PNG. *Paste* is only enabled while the clipboard has an image, and not for a stamp copied from this window or a file of the stamps folder, which would only make a copy. The files are copied into the stamps folder. |
+| Add | *Add...* (several files at once), drop image files or folders onto the panel, drop an image from a web page, or *Paste* (Ctrl+V) from the clipboard: image files keep their format, an image is saved as PNG. *Paste* is only enabled while the clipboard has an image, and not for a stamp copied from the stamps or a file of the stamps folder, which would only make a copy. The files are copied into the stamps folder. |
 | Categories | Every stamp is in a category: a sub folder of the stamps folder. The stamps without one are in *General*, the stamps folder itself. Choose another category in *Category* or type a new name (`/` for a category in a category); the file moves into that folder. Added stamps go into the category of the selected stamp, dropped ones into the category of the group they are dropped on. A dropped folder becomes a category with its name, its sub folders categories in it. |
 | Delete | *Delete* or the Delete key, after a question. The file is deleted from the stamps folder. |
 | Show the folder | The buttons for the stamps folder (*Add...*, *Paste*, *Open folder*) are below a line, apart from those of the selected stamp. *Open folder* shows the stamps folder in Explorer, with the file of the selected stamp selected. F5 reads the folder again. |
@@ -90,14 +89,13 @@ and `TryLoadFromStream`), so the plugin supports what Greenshot opens; a `.green
 
 | Part | What it does |
 |---|---|
-| `StampsPlugin` | Registers everything only for beta testers: the editor panel, the tray menu entry, the hotkey; one `StampLibrary` for all; shows the window of its own |
-| `StampsPanel` | The `IEditorPanel`: a view model per editor window (`StampsViewModel.ForEditor`) on the shared library |
+| `StampsPlugin` | Registers the editor panel only for beta testers; one `StampLibrary` for all |
+| `StampsPanel` | The `IEditorPanel`: a view model per editor window (`StampsViewModel`) on the shared library |
 | `Library/StampLibrary`, `Stamp` | The folder and `stamps.json`: load, search, import, add, change, move to a category, delete. No image is decoded here |
-| Clipboard | The window follows the clipboard with `ClipboardNative.OnUpdate` of Dapplo.Windows (no extra contract needed, Greenshot.Base brings it) and stops when it closes. A copied stamp carries the private format `Greenshot.StampCopy`, so it isn't offered for paste |
+| Clipboard | The panel follows the clipboard with `ClipboardNative.OnUpdate` of Dapplo.Windows (no extra contract needed, Greenshot.Base brings it) while it's shown. A copied stamp carries the private format `Greenshot.StampCopy`, so it isn't offered for paste |
 | `Library/DroppedImages` | What was dropped, read during the drop: files and folders, the virtual files of a browser, image urls, the image |
 | `Library/StampImages` | Previews, elements and clipboard content, with the file format handlers |
-| `ViewModels`, `Views/StampsView` | The stamps (WPF), in the panel and in the window. The library is shared: `StampLibrary.Version` counts the changes, a view shows the stamps again when it sees another number (when it's shown, gets the mouse or the keyboard) |
-| `Views/StampsWindow` | The window of its own: the title bar and the view |
+| `ViewModels`, `Views/StampsView` | The stamps (WPF) in the panel, with the shared styles in the editor theme (`ThemeScope`). The library is shared: `StampLibrary.Version` counts the changes, a view shows the stamps again when it sees another number (when it's shown, gets the mouse or the keyboard) |
 
 For the drop, `Greenshot.Base` has two generic helpers: `ClipboardHelper.GetVirtualImageFiles` (the image files of a drop or the
 clipboard as they are) and `ImageDownloader.DownloadImageFileAsync` (an image download kept in its format, which the content

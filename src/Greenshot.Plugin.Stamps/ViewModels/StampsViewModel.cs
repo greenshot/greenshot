@@ -44,15 +44,13 @@ using log4net;
 namespace Greenshot.Plugin.Stamps.ViewModels;
 
 /// <summary>
-/// The stamps window: the stamps of the folder, the search, the selected stamp and what can be done with it
+/// The stamps panel of one editor window: the stamps of the folder, the search, the selected stamp and what can be done with it
 /// </summary>
 public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(StampsViewModel));
     private readonly ObservableCollection<StampViewModel> _items = new();
     private readonly HashSet<string> _collapsedCategories = new(StringComparer.CurrentCultureIgnoreCase);
-    private readonly Func<ISurface> _target;
-    private readonly Action _focusTarget;
     private IEditorPanelContext _context;
     private int _shownVersion = -1;
     private string _searchText = string.Empty;
@@ -60,13 +58,12 @@ public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
     private string _statusText;
 
     /// <param name="library">the stamps folder, shared by the views of all editor windows</param>
-    /// <param name="target">the capture the stamps are inserted into, null when there is none (the window of its own)</param>
-    /// <param name="focusTarget">gives the capture the keyboard: after a stamp was inserted, and for Esc in the panel</param>
-    internal StampsViewModel(StampLibrary library, Func<ISurface> target, Action focusTarget = null)
+    /// <param name="context">the editor window: the stamps are inserted into the capture it shows</param>
+    internal StampsViewModel(StampLibrary library, IEditorPanelContext context)
     {
         Library = library ?? throw new ArgumentNullException(nameof(library));
-        _target = target ?? throw new ArgumentNullException(nameof(target));
-        _focusTarget = focusTarget;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context.CurrentSurfaceChanged += OnCurrentSurfaceChanged;
         Stamps = CollectionViewSource.GetDefaultView(_items);
         Stamps.Filter = item => ((StampViewModel)item).Stamp.Matches(_searchText) && HasFilterTagsOf(((StampViewModel)item).Stamp);
         // The stamps without category first, as "General"
@@ -249,14 +246,9 @@ public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
     }
 
     /// <summary>
-    /// A stamp is selected and an editor is open to insert it into
+    /// A stamp is selected and the editor shows a capture to insert it into
     /// </summary>
-    public bool CanInsert => _selectedStamp != null && _target() != null;
-
-    /// <summary>
-    /// What the insert button does, or why it can't
-    /// </summary>
-    public string InsertToolTip => _target() != null ? Language.InsertTooltip : Language.NoEditor;
+    public bool CanInsert => _selectedStamp != null && _context?.CurrentSurface != null;
 
     /// <summary>
     /// Shown instead of the list when it is empty: there are no stamps yet, or none matches the search
@@ -324,18 +316,8 @@ public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
         ShowCount();
     }
 
-    /// <summary>
-    /// For the panel of an editor window: insert into the capture it shows
-    /// </summary>
-    internal static StampsViewModel ForEditor(StampLibrary library, IEditorPanelContext context)
-    {
-        var viewModel = new StampsViewModel(library, () => context.CurrentSurface, context.FocusCanvas) { _context = context };
-        context.CurrentSurfaceChanged += viewModel.OnCurrentSurfaceChanged;
-        viewModel.RefreshIfChanged();
-        return viewModel;
-    }
-
-    private void OnCurrentSurfaceChanged(object sender, EventArgs e) => OnTargetChanged();
+    // The capture to insert into changed, e.g. another tab
+    private void OnCurrentSurfaceChanged(object sender, EventArgs e) => OnPropertyChanged(nameof(CanInsert));
 
     /// <summary>
     /// The editor window closed
@@ -350,18 +332,9 @@ public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
     }
 
     /// <summary>
-    /// The keyboard goes to the capture, when there is one
+    /// The keyboard goes to the capture: after a stamp was inserted, and for Esc in the panel
     /// </summary>
-    internal void FocusTarget() => _focusTarget?.Invoke();
-
-    /// <summary>
-    /// The capture to insert into changed, e.g. another tab
-    /// </summary>
-    internal void OnTargetChanged()
-    {
-        OnPropertyChanged(nameof(CanInsert));
-        OnPropertyChanged(nameof(InsertToolTip));
-    }
+    internal void FocusTarget() => _context?.FocusCanvas();
 
     /// <summary>
     /// Insert the stamp into the capture of the editor window which was active last, and give that window the keyboard
@@ -369,10 +342,9 @@ public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
     /// <returns>true when it was inserted</returns>
     public bool Insert(StampViewModel stamp)
     {
-        var surface = _target();
+        var surface = _context?.CurrentSurface;
         if (stamp == null || surface == null)
         {
-            StatusText = Language.NoEditor;
             return false;
         }
 

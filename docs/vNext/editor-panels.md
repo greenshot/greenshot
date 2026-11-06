@@ -177,6 +177,10 @@ Use the shared styles of `Greenshot.Base.Wpf.Styles` (see [ui-how-to.md](ui-how-
 (`EditorTheme`), which can differ from the theme of the other windows. Keys: `Background`, `Foreground`, `Muted`,
 `Border`, `SectionBackground`, `ControlBackground`, `ControlBorder`, `Hover`, `Accent`, all with the prefix
 `Greenshot.EditorPanel.`. A view in a popup or window of its own calls `EditorPanelResources.Apply` on its resources.
+The shared styles follow the editor theme in the panel area too: the area sets the editor palette as `ThemeScope.Theme`
+(see [ui-how-to.md](ui-how-to.md)), so a view which merges e.g. `DialogStyles.xaml` looks like the editor. In your own
+bindings use `{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}` instead of
+`ThemeManager.Instance`.
 
 Texts come from the language files, as everywhere ([ui-how-to.md](ui-how-to.md)); give every input an
 `AutomationProperties.Name` ([accessibility.md](accessibility.md)).
@@ -198,7 +202,7 @@ drop down button (`EmojiPickerButton`), e.g. in the recipe editor. The English n
 
 ### Later
 
-Planned with the same contract: a button to make a panel a window of its own (e.g. Stamps), a barcode
+Planned with the same contract: a button to make a panel a window of its own, a barcode
 section for the Zxing plugin, the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
 capture at the bottom of the area. Then the other WinForms parts of the editor API (`IEditorPlugin` with its menu items
 and form) go away.

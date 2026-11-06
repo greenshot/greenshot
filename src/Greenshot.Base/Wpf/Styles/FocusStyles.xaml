@@ -11,7 +11,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Rectangle Margin="-2" RadiusX="4" RadiusY="4" StrokeThickness="2" SnapsToDevicePixels="True"
-                               Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                               Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -57,7 +57,7 @@ internal sealed class StampsPanel : IEditorPanel
 
     public bool IsAvailable(IEditorPanelContext context) => StampsPlugin.IsEnabled;
 
-    public object CreateViewModel(IEditorPanelContext context) => StampsViewModel.ForEditor(_library(), context);
+    public object CreateViewModel(IEditorPanelContext context) => new StampsViewModel(_library(), context);
 
     public object CreateView(object viewModel)
     {

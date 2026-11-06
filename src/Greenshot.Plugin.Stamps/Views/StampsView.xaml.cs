@@ -44,7 +44,7 @@ namespace Greenshot.Plugin.Stamps.Views;
 
 /// <summary>
 /// The stamps: search, a preview of each, name and tags of the selected one, and what can be done with it.
-/// Shown in the panel area of the editor (one per editor window) and in the window of its own.
+/// Shown in the panel area of the editor, one per editor window.
 /// </summary>
 public partial class StampsView : UserControl
 {
@@ -87,21 +87,12 @@ public partial class StampsView : UserControl
     }
 
     /// <summary>
-    /// Esc without a list of tags open: the window closes, in the editor the keyboard goes back to the capture
+    /// Esc without a list of tags open: the keyboard goes back to the capture
     /// </summary>
     public event EventHandler CloseRequested;
 
     /// <summary>
-    /// The keyboard goes to the search, typing filters at once
-    /// </summary>
-    public void FocusSearch()
-    {
-        SearchBox.Focus();
-        SearchBox.SelectAll();
-    }
-
-    /// <summary>
-    /// Paste is only possible while the clipboard has an image which isn't a stamp of this window. The first update is the current state,
+    /// Paste is only possible while the clipboard has an image which isn't a stamp of this panel. The first update is the current state,
     /// the others come after a change (throttled, the copying program may still be busy); checked on the UI thread.
     /// </summary>
     private void SubscribeToClipboardChanges()
@@ -425,7 +416,7 @@ public partial class StampsView : UserControl
     }
 
     /// <summary>
-    /// Files, folders and images of a web page can be dropped, the stamps of this window itself not
+    /// Files, folders and images of a web page can be dropped, the stamps of this panel itself not
     /// </summary>
     private void OnDragEnter(object sender, DragEventArgs e)
     {
