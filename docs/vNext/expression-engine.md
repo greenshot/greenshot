@@ -1,8 +1,19 @@
 # Variables and expressions: one engine (design)
 
-Status: design for review (2026-11-04), not implemented yet.
-Code references are to `main` at 6685bc5 (after #1691). Everything marked *(read, not run)* comes from reading the
-code; nothing was built or run for this document.
+Status: implemented in #1693 (2026-11-06); the user documentation is [variables.md](variables.md).
+Code references in section 1 are to `main` at 6685bc5 (after #1691), before the change.
+
+Where the implementation differs from the design below:
+- No lock file and no reservation for `counter.folder` / `counter.name`: two saves at the same moment into one folder
+  can get the same number (documented; `counter.scope(...)` never repeats a number).
+- `counter.global` stays in `OutputFileIncrementingNumber` (no new `FileCounter` key).
+- Command arguments are not quoted automatically: the template writes `"${output.file}"` itself (1.3 had `"{0}"`).
+- `payload.process` isn't there yet (the capture details don't keep the process). `payload.folder` (the folder of an
+  opened file) is new and trusted, so a command line recipe can save next to the file it got.
+- The settings show a live preview and the first problem under the folder, file name and footer boxes
+  (`TemplatePreview`), the help window lists the values from the same list the resolver uses; the descriptions of the
+  values are English for now. An "insert variable" menu and previews in the recipe editor, Office and ExternalCommand
+  settings are left for later.
 
 ---
 

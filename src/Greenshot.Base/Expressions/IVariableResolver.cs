@@ -48,9 +48,9 @@ namespace Greenshot.Base.Expressions
 
         /// <summary>
         /// Fill in a file name (purpose <see cref="TemplatePurpose.FileName"/>), with the extension.
-        /// Folder counters read <see cref="VariableScope.TargetFolder"/>; outside a preview they reserve the name by
-        /// creating an empty file. Call <see cref="RenderedFileName.Commit"/> after the file was written (or uploaded):
-        /// then the stored counters go up. Disposing without a commit removes the reserved file.
+        /// Folder counters read <see cref="VariableScope.TargetFolder"/> (nothing is reserved: two saves at the same moment
+        /// can get the same number). Call <see cref="RenderedFileName.Commit"/> after the file was written (or uploaded):
+        /// then the stored counters go up; without a commit nothing changes.
         /// </summary>
         RenderedFileName RenderFileName(string text, string extension, VariableScope scope);
 

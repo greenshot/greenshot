@@ -313,6 +313,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### ⚙️ Configuration & Settings
 
+**One way to write variables** (#1693)
+- The screenshot folder, file name, print footer, Outlook subject, external commands and recipes all use the same `${...}` values, e.g. `${payload.time:yyyy-MM-dd}`, `${payload.title}`, `${user.pictures}`; see [variables](../vNext/variables.md)
+- The settings show what a file name or folder gives and what is wrong with it while you type
+- New counters: per folder (`${counter.folder}`), per name and per key; a counter only goes up when a file was saved
+- A window title or other text of a capture can no longer choose the folder or the program of an external command
+- The settings of 1.3 are converted once and kept, so going back to 1.3 still works
+
 **Switching plugins and destinations on or off**
 - Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini
 - Administrators can block plugins and destinations, or allow only some and block everything else, with greenshot-fixed.ini, and decide if users may switch off more; the settings show the lines to copy

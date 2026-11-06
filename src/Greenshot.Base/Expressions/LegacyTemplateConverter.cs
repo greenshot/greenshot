@@ -55,7 +55,14 @@ namespace Greenshot.Base.Expressions
             ["Personal"] = "user.documents",
             ["Desktop"] = "user.desktop",
             ["ApplicationData"] = "user.appdata",
-            ["LocalApplicationData"] = "user.localappdata"
+            ["LocalApplicationData"] = "user.localappdata",
+            // The details of an opened file (1.3 and 2.x recipes): "filename" was the name without extension
+            ["file"] = "payload.file",
+            ["source"] = "payload.source",
+            ["dirname"] = "payload.folder",
+            ["filename"] = "fileNameWithoutExtension(payload.file)",
+            ["basename"] = "fileNameWithoutExtension(payload.file)",
+            ["extension"] = "extension(payload.file)"
         };
 
         /// <summary>The parts of the capture time: the old name, the .NET format, the old default width</summary>

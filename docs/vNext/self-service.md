@@ -77,7 +77,7 @@ The badge counts the problems: an outdated version, a hidden icon, the Snipping 
 ### Files & Configuration
 
 - **Screenshot Folder (where Greenshot saves)**: the folder from the settings, the folder that is really used (with
-  variables like `${YYYY}` filled in), and the name the next file gets, e.g. with the filename pattern. Below that the
+  variables like `${payload.time:yyyy}` filled in), and the name the next file gets, e.g. with the filename pattern. Below that the
   checks, each with ✓, ⚠️ or ❌:
 
   | Check | What it means |

@@ -175,7 +175,7 @@ public sealed class ExportImageMetadata
         if (includePrivate && captureDetails != null)
         {
             AddPrivateDetails(metadata, captureDetails, fields);
-            // The title and description of a recipe can hold what was captured (e.g. ${title}): private like the details they replace
+            // The title and description of a recipe can hold what was captured (e.g. ${payload.title}): private like the details they replace
             metadata.Title = RecipeValue(recipeValues, RecipeTitleKey, metadata.Title);
             metadata.Description = RecipeValue(recipeValues, RecipeDescriptionKey, metadata.Description);
         }

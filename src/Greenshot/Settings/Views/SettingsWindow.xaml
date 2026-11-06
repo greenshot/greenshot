@@ -476,16 +476,22 @@
                                     </Grid.RowDefinitions>
                                     
                                     <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0" Target="{Binding ElementName=StorageLocationTextBox}"/>
-                                    <TextBox x:Name="StorageLocationTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputDirectory}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputDirectory,OutputFilePath'}"/>
+                                    <StackPanel Grid.Row="0" Grid.Column="1">
+                                        <TextBox x:Name="StorageLocationTextBox" Text="{Binding CoreConfiguration.OutputDirectory}"
+                                                 IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputDirectory,OutputFilePath'}"/>
+                                        <wpf:TemplatePreview Purpose="Folder" Template="{Binding Text, ElementName=StorageLocationTextBox}"/>
+                                    </StackPanel>
                                     <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="BrowseStorageLocation_Click"
                                             ToolTip="{wpf:Text Settings.StoragelocationBrowse}"
                                             AutomationProperties.Name="{wpf:Text Settings.StoragelocationBrowse}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputDirectory,OutputFilePath'}"/>
                                     
                                     <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0" Target="{Binding ElementName=FilenamePatternTextBox}"/>
-                                    <TextBox x:Name="FilenamePatternTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileNameTemplate}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputFileNameTemplate,OutputFileFilenamePattern'}"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="1">
+                                        <TextBox x:Name="FilenamePatternTextBox" Text="{Binding CoreConfiguration.OutputFileNameTemplate}"
+                                                 IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputFileNameTemplate,OutputFileFilenamePattern'}"/>
+                                        <wpf:TemplatePreview Purpose="FileName" Template="{Binding Text, ElementName=FilenamePatternTextBox}"/>
+                                    </StackPanel>
                                     <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="ShowPatternHelp_Click"
                                             ToolTip="{wpf:Text Settings.FilenamepatternHelp}"
                                             AutomationProperties.Name="{wpf:Text Settings.FilenamepatternHelp}"
@@ -775,7 +781,12 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                     <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center" Target="{Binding ElementName=FooterPatternTextBox}"/>
+                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
                                     <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterTemplate, Mode=TwoWay}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterTemplate,OutputPrintFooterPattern">

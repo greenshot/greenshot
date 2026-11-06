@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "2.0",
+  "version": "3.0",
   "id": "recipe_window_regex_redact",
   "name": "Target Window with DLP Redaction",
   "description": "Captures a specific targeted window, adds a drop shadow effect, runs OCR to find sensitive tokens and emails by regex pattern, redacts them, and opens the editor",

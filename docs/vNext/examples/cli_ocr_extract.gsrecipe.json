@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "2.0",
+  "version": "3.0",
   "id": "recipe_cli_ocr_extract",
   "name": "CLI Headless OCR Text Extractor",
   "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",
@@ -13,7 +13,7 @@
         "Command": "ocr",
         "Description": "Extract text from an image file using OCR and return to stdout",
         "FireAndForget": false,
-        "Stdout": "${Payload.ExtractedText}",
+        "Stdout": "${payload.ocr.text}",
         "Arguments": [
           {
             "name": "file",
@@ -41,7 +41,7 @@
       "enabled": true,
       "parameters": {
         "SourceType": "File",
-        "Filename": "${Filename}"
+        "Filename": "${var.Filename}"
       }
     },
     {
@@ -57,7 +57,7 @@
       "name": "Print Extracted Text",
       "enabled": true,
       "parameters": {
-        "Text": "${Payload.ExtractedText}"
+        "Text": "${payload.ocr.text}"
       }
     }
   ],

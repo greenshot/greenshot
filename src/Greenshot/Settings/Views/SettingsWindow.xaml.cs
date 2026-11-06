@@ -255,7 +255,7 @@ namespace Greenshot.Settings.Views
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new PatternHelpWindow(Texts.Settings.MessageFilenamepattern)
+            var dialog = new PatternHelpWindow(Base.Wpf.TemplatePreview.HelpText(Base.Expressions.TemplatePurpose.FileName, Texts.Settings.MessageTemplateHelp))
             {
                 Owner = this
             };

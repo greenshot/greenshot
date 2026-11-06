@@ -129,7 +129,7 @@ namespace Greenshot.Base.Recipes
 
         /// <summary>
         /// <see cref="Format"/> of a String option whose value is a template: ${...} in the value is evaluated where the
-        /// option is used, e.g. "Captured ${now:yyyy-MM-dd}" (options of the recipe can't be used in it)
+        /// option is used, e.g. "Captured ${time.now:yyyy-MM-dd}" (options of the recipe can't be used in it)
         /// </summary>
         public const string FormatTemplate = "template";
 

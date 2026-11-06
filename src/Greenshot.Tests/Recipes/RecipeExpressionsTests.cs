@@ -165,6 +165,8 @@ namespace Greenshot.Tests.Recipes
         [Theory]
         [InlineData("${context.CustomTag}", "${var.CustomTag}")]
         [InlineData("${CustomTag}", "${var.CustomTag}")]
+        [InlineData("${Destination.Filename}", "${var.Destination.Filename}")]
+        [InlineData("${dirname}", "${payload.folder}")]
         [InlineData("${Width * Height}", "${payload.width * payload.height}")]
         [InlineData("${payload.extractedtext}", "${payload.ocr.text}")]
         [InlineData("${payload.text} ${ocr_text}", "${payload.ocr.text} ${payload.ocr.text}")]

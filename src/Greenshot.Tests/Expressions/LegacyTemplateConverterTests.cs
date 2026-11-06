@@ -42,6 +42,7 @@ namespace Greenshot.Tests.Expressions
         [InlineData("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}", "${payload.time:yyyy-MM-dd HH_mm_ss}-${payload.title}")]
         [InlineData("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}", "${payload.time:D} ${payload.time:T} - ${payload.title}")]
         [InlineData("${title}", "${payload.title}")]
+        [InlineData("${dirname}\\${filename}-small", "${payload.folder}\\${fileNameWithoutExtension(payload.file)}-small")]
         // Other names and options
         [InlineData("${capturetime}", "${payload.time:yyyy-MM-dd HH-mm-ss}")]
         [InlineData("${YYYY}-${MM}-${DD} ${hh}${mm}${ss}", "${payload.time:yyyy}-${payload.time:MM}-${payload.time:dd} ${payload.time:HH}${payload.time:mm}${payload.time:ss}")]

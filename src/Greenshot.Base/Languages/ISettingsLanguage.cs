@@ -547,28 +547,9 @@ namespace Greenshot.Base.Languages
         string Language { get; }
 
         /// <summary>
-        /// The following placeholders will be replaced automatically in the pattern defined:
-        ///     ${YYYY} year, 4 digits
-        ///     ${MM} month, 2 digits
-        ///     ${DD} day, 2 digits
-        ///     ${hh} hour, 2 digits
-        ///     ${mm} minute, 2 digits
-        ///     ${ss} second, 2 digits
-        ///     ${NUM} incrementing number, 6 digits by default
-        ///     ${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
-        ///     ${RRR...} random alphanumerics, same length as 'R's
-        ///     ${title} Window title
-        ///     ${user} Windows user
-        ///     ${domain} Windows domain
-        ///     ${hostname} PC name
-        ///
-        ///     You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
-        ///     To reset the ${NUM} counter, change its value in Expert settings.
-        ///     Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-        ///     will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
-        ///     time, e.g. 11_58_32 (plus extension defined in the settings)
+        /// The introduction of the help for templates: the syntax; the list of values and functions follows it.
         /// </summary>
-        string MessageFilenamepattern { get; }
+        string MessageTemplateHelp { get; }
 
         /// <summary>
         /// Network and updates

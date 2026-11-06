@@ -98,6 +98,13 @@ namespace Greenshot.Base.Expressions
                 return string.IsNullOrEmpty(title) ? null : title;
             });
             p.Add<string>("file", Untrusted, "The full path of an opened file", s => Meta(s, "file"));
+            // Trusted, unlike the file: it is where the file already is, chosen by whoever named the file (command line,
+            // Open, a watched folder), not something the content of a capture can choose. Saving next to it writes nowhere new.
+            p.Add<string>("folder", Trusted, "The folder of an opened file, e.g. to save the result next to it", s =>
+            {
+                string file = Meta(s, "file") as string;
+                return string.IsNullOrEmpty(file) ? null : Empty(System.IO.Path.GetDirectoryName(file));
+            });
             p.Add<string>("url", Untrusted, "The web address stored with the capture", s => Meta(s, "url"));
             p.Add<string>("ocr.text", Untrusted, "The text found by OCR or a barcode", s =>
             {

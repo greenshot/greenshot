@@ -257,6 +257,8 @@ namespace Greenshot.Base.Recipes.Expressions
                     if (string.Equals(name, "now", StringComparison.OrdinalIgnoreCase)) return "format(time.now, 'yyyy-MM-dd_HH-mm-ss')";
                     if (string.Equals(name, "utcnow", StringComparison.OrdinalIgnoreCase)) return "format(time.utc, 'yyyy-MM-dd_HH-mm-ss')";
                     if (string.Equals(name, "ocr_text", StringComparison.OrdinalIgnoreCase)) return "payload.ocr.text";
+                    // The folder of the opened file of 1.3 file name patterns, also used for SaveDirectory (2.x lost it)
+                    if (string.Equals(name, "dirname", StringComparison.Ordinal)) return "payload.folder";
                     // The size of the surface, which annotations had as width, w, height and h
                     if (string.Equals(name, "width", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "w", StringComparison.OrdinalIgnoreCase)) return "payload.width";
                     if (string.Equals(name, "height", StringComparison.OrdinalIgnoreCase) || string.Equals(name, "h", StringComparison.OrdinalIgnoreCase)) return "payload.height";
@@ -277,8 +279,17 @@ namespace Greenshot.Base.Recipes.Expressions
                     return LegacyNames.Hint(name) ?? name;
                 case "surface":
                     return "payload." + rest;
-                default:
+                case "option":
+                case "var":
+                case "time":
+                case "env":
+                case "recipe":
+                case "counter":
+                case "output":
                     return name;
+                default:
+                    // A dotted name of a step output (Destination.Filename, Barcode.Text) was a value of the running recipe too
+                    return "var." + name;
             }
         }
     }
