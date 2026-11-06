@@ -45,6 +45,7 @@ namespace Greenshot.Base.Recipes.Triggers
         public const string TypeOpenFile = "OpenFile";
         public const string TypeExtension = "Extension";
         public const string TypeAiTool = "AiTool";
+        public const string TypeNotification = "Notification";
 
         /// <summary>
         /// The type of trigger (e.g. "Hotkey", "ContextMenu", "Clipboard", "Manual").
@@ -351,6 +352,11 @@ namespace Greenshot.Base.Recipes.Triggers
             config.SetParameter("FireAndForget", fireAndForget);
             return config;
         }
+
+        /// <summary>
+        /// Runs the recipe for the capture of a clicked Greenshot notification, the capture is handed over
+        /// </summary>
+        public static TriggerConfig CreateNotification(string name = null) => new TriggerConfig(TypeNotification, name ?? "Clicked notification");
 
         public static TriggerConfig CreateExtension(string browser = null, bool fireAndForget = false, string name = null)
         {

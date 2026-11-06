@@ -2688,6 +2688,16 @@ namespace Greenshot.Plugin.RecipeEditor
         string TipTriggerAddBrowserExtension { get; }
 
         /// <summary>
+        /// + Clicked notification
+        /// </summary>
+        string TriggerAddNotification { get; }
+
+        /// <summary>
+        /// Run this recipe for the capture of a clicked Greenshot notification
+        /// </summary>
+        string TipTriggerAddNotification { get; }
+
+        /// <summary>
         /// + AI Tool
         /// </summary>
         string TriggerAddAiTool { get; }
@@ -3301,6 +3311,11 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Browser extension
         /// </summary>
         string TriggerBrowserExtension { get; }
+
+        /// <summary>
+        /// Clicked notification
+        /// </summary>
+        string TriggerNotification { get; }
 
         /// <summary>
         /// Schedule

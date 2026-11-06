@@ -151,9 +151,11 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Show the tray menu (`recipe_tray_menu`) | `OpenWindow` `TrayMenu`: the tray menu at the mouse | | |
 | Open the settings (`recipe_open_settings`) | `OpenWindow` `Settings` | | |
 | Open an empty image in the editor (`recipe_empty_editor`) | `OpenWindow` `EmptyEditor` | | |
+| Handle the capture of a notification (`recipe_notification`) | A click on a Greenshot notification hands it the capture, it shows the destination window | | |
 
 The browser extension and the AI tools add their own built-in recipes; they get their capture from the browser or the AI
-tool, so they are never in the tray menu or the click list.
+tool, so they are never in the tray menu or the click list. A `Notification` trigger makes a recipe of your own handle a
+clicked Greenshot notification instead of `recipe_notification` (the first recipe which is on and has one).
 
 **The `Main` group.** A `ContextMenu` trigger with `"Group": "Main"` puts its item in the tray menu itself instead of the
 Recipes menu. Its `Order` places it: the built-in recipes use 10 to 40 for the captures, 110 for the window list, 210
@@ -198,7 +200,8 @@ its recipe right away instead of waiting whether a second click follows.
 
 - it is switched on,
 - its triggers are not only ones which hand something to the recipe: `Editor` (an image in the editor), `OpenFile` (a
-  file), `Extension` (a capture of the browser), `Commandline` and `AiTool` (arguments). A recipe with one of these and
+  file), `Extension` (a capture of the browser), `Notification` (the capture of a clicked Greenshot notification),
+  `Commandline` and `AiTool` (arguments). A recipe with one of these and
   also a hotkey or a menu entry, or with no triggers at all, is in the list,
 - none of its steps needs a variable which no step before it sets (only a caller could give it).
 

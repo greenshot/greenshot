@@ -954,9 +954,10 @@
             "Commandline",
             "OpenFile",
             "Extension",
-            "AiTool"
+            "AiTool",
+            "Notification"
           ],
-          "description": "The trigger mechanism type."
+          "description": "The trigger mechanism type. 'Notification' runs the recipe for the capture of a clicked Greenshot notification (the capture is handed over), instead of the built-in recipe_notification."
         },
         "name": {
           "type": "string",

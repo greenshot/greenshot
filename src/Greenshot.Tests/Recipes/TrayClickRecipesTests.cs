@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Desktop;
@@ -87,6 +88,14 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void NotificationRecipe_IsNotInTheList()
+        {
+            var recipe = new Greenshot.Notifications.NotificationRecipes().CreateRecipes().Single();
+
+            Assert.False(TrayClickRecipes.IsSuitable(recipe, _registry));
+        }
+
+        [Fact]
         public void SwitchedOffRecipe_IsNotInTheList()
         {
             var recipe = OpenFolderRecipe("switched_off");
@@ -101,6 +110,7 @@ namespace Greenshot.Tests.Recipes
         [InlineData(TriggerConfig.TypeExtension)]
         [InlineData(TriggerConfig.TypeCommandline)]
         [InlineData(TriggerConfig.TypeAiTool)]
+        [InlineData(TriggerConfig.TypeNotification)]
         public void RecipeOnlyForAnInputTrigger_IsNotInTheList(string triggerType)
         {
             var recipe = OpenFolderRecipe("input_only");

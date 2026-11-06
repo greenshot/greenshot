@@ -184,6 +184,14 @@ namespace Greenshot.Recipes
                     Risk = "Runs for files opened with Greenshot, for example with \"Open with\" in Explorer."
                 };
             }
+            if (Is(type, TriggerConfig.TypeNotification))
+            {
+                return new RecipeTriggerDescription
+                {
+                    Label = "When a Greenshot notification is clicked",
+                    Risk = "Gets the capture of a clicked Greenshot notification, instead of the default recipe."
+                };
+            }
             if (Is(type, TriggerConfig.TypeExtension))
             {
                 string browser = trigger.GetParameter<string>("Browser");

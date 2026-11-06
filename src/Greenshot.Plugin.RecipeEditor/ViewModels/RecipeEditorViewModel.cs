@@ -2203,6 +2203,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         string browser = t.GetParameter<string>("Browser", "");
                         tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Browser Extension ({browser})";
                     }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = "🔔 Clicked notification";
+                    }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
                     {
                         tLabel = $"🤖 AI tool: {t.GetParameter<string>("ToolName", t.Name ?? "tool")}";

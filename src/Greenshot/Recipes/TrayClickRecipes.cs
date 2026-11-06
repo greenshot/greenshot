@@ -40,7 +40,8 @@ namespace Greenshot.Recipes
         private static readonly ILog Log = LogManager.GetLogger(typeof(TrayClickRecipes));
 
         /// <summary>
-        /// The triggers which hand something to the recipe (the editor, a file, a browser capture, arguments):
+        /// The triggers which hand something to the recipe (the editor, a file, a browser capture, arguments, the capture of a
+        /// clicked notification):
         /// a recipe which only has these is meant for them, not for a click
         /// </summary>
         private static readonly HashSet<string> InputTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -49,7 +50,8 @@ namespace Greenshot.Recipes
             TriggerConfig.TypeOpenFile,
             TriggerConfig.TypeExtension,
             TriggerConfig.TypeCommandline,
-            TriggerConfig.TypeAiTool
+            TriggerConfig.TypeAiTool,
+            TriggerConfig.TypeNotification
         };
 
         /// <summary>
