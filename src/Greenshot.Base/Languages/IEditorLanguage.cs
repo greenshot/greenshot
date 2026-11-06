@@ -391,6 +391,9 @@ namespace Greenshot.Base.Languages
         /// </summary>
         string Drawpolyline { get; }
 
+        /// <summary>Draw polygon</summary>
+        string Drawpolygon { get; }
+
         /// <summary>
         /// Draw rectangle (R)
         /// </summary>
@@ -1040,6 +1043,9 @@ namespace Greenshot.Base.Languages
         /// Polyline
         /// </summary>
         string ElementPolyline { get; }
+
+        /// <summary>Polygon</summary>
+        string ElementPolygon { get; }
 
         /// <summary>
         /// Obfuscation

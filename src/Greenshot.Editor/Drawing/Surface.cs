@@ -1449,6 +1449,9 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.Line:
                     _undrawnElement = new LineContainer(this);
                     break;
+                case DrawingModes.Polygon:
+                    _undrawnElement = new PolygonContainer(this);
+                    break;
                 case DrawingModes.Polyline:
                     _undrawnElement = new PolylineContainer(this);
                     break;
@@ -4491,6 +4494,7 @@ namespace Greenshot.Editor.Drawing
                 // A freehand line needs a path, an image comes from a file or the clipboard
                 case DrawingModes.Path:
                 case DrawingModes.Bitmap:
+                case DrawingModes.Polygon:
                 case DrawingModes.Polyline:
                     return false;
                 case DrawingModes.Crop when _cropContainer != null && _undrawnElement != _cropContainer:

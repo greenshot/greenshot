@@ -516,8 +516,9 @@ namespace Greenshot.Tests.Editor
             var adorner = Assert.IsType<PolylineVertexAdorner>(polyline.Adorners[1]);
             var displayLocation = surface.ToSurfaceCoordinates(adorner.Location);
 
-            Assert.True(adorner.HitTest(surface.ToImageCoordinates(displayLocation.Offset(4, 0))));
-            Assert.False(adorner.HitTest(surface.ToImageCoordinates(displayLocation.Offset(10, 0))));
+            // Current upstream HitTest receives screen coordinates; Surface passes the unscaled mouse point.
+            Assert.True(adorner.HitTest(displayLocation.Offset(4, 0)));
+            Assert.False(adorner.HitTest(displayLocation.Offset(10, 0)));
         }
 
         [Fact]

@@ -122,6 +122,7 @@ namespace Greenshot.Editor.Drawing
             EllipseContainer => Texts.Editor.ElementEllipse,
             ArrowContainer => Texts.Editor.ElementArrow,
             LineContainer => Texts.Editor.ElementLine,
+            PolygonContainer => Texts.Editor.ElementPolygon,
             PolylineContainer => Texts.Editor.ElementPolyline,
             FreehandContainer => Texts.Editor.ElementFreehand,
             HighlightContainer => Texts.Editor.ElementHighlight,

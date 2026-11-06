@@ -541,6 +541,7 @@ namespace Greenshot.Editor.Forms
             //
             InitializeComponent();
             ApplyImages();
+            InitializePolygonTool();
             EventHandler themeChangedHandler = (s, e) =>
             {
                 if (IsDisposed || Disposing || !IsHandleCreated)
@@ -1343,7 +1344,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnPolyline, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnPolyline, _polygonButton, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -1789,6 +1790,9 @@ namespace Greenshot.Editor.Forms
                     break;
                 case DrawingModes.Line:
                     SetButtonChecked(btnLine);
+                    break;
+                case DrawingModes.Polygon:
+                    SetButtonChecked(_polygonButton);
                     break;
                 case DrawingModes.Polyline:
                     SetButtonChecked(btnPolyline);

@@ -47,7 +47,7 @@ namespace Greenshot.Editor.Drawing
 
         private List<Point> _points = new List<Point>();
         private Rectangle _pointBounds;
-        private bool _closed;
+        protected bool _closed;
         [NonSerialized] private Point? _previewPoint;
 
         public PolylineContainer(ISurface parent) : base(parent)

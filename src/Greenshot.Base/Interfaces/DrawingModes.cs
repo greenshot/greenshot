@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -37,6 +37,7 @@ namespace Greenshot.Base.Interfaces
         SpeechBubble,
         StepLabel,
         Emoji,
-        Polyline
+        Polyline,
+        Polygon
     }
 }
