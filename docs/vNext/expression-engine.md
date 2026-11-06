@@ -375,19 +375,16 @@ Planned as one PR for the whole change. Suggested order inside it:
 6. `TemplateBox` + help from descriptors, language keys.
 7. Docs: `docs/vNext/variables.md` (generated table of names), `capture-recipes.md`.
 
-It is big. If it should be split, 1-5 first and the UI (6) after works, since the settings UI keeps working with
-plain text boxes plus validation.
-
 Sessions and profiles only get their namespace now; they fill it when they are built.
 
 ---
 
-## 11. Open decisions
+## 11. Decisions
 
 1. ~~Format syntax~~ decided: format suffix `${x:fmt}` (may be quoted), a choice `? :` needs parentheses, standard
    formats (`D`, `T`, ...) preferred for texts meant for people. Compared with `if()`, pipes and a `format()` function.
 2. ~~Environment variables~~ decided: `env.X` generic, `user.env.X` / `machine.env.X` on Windows, no fallback in `user.*`.
 3. ~~Folder counter~~ decided: `counter.folder` and `counter.name` from the folder's files, `counter.scope(key)` stored
    per key, `counter.global` stored.
-4. Global counter increases only after a successful write (recommended) vs. on every name, as in 1.3.
-5. One PR vs. engine first, UI second.
+4. ~~Global counter~~ decided: increases only after a successful write or upload, never for a preview.
+5. ~~Delivery~~ decided: one PR for the whole change, including the UI.
