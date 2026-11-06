@@ -68,7 +68,8 @@ Pictures is `${MyPictures}` in (1) and `${user.pictures}` in (4).
 
 ```
 ${ expression }                 value of the expression
-${ expression : format }        formatted like .NET: ${payload.time:yyyy-MM-dd}, ${counter.global:000}
+${ expression : format }        formatted like .NET: ${payload.time:yyyy-MM-dd}, ${counter.global:000}, ${time.now:T}
+${ expression : 'format' }      the format may be quoted, e.g. ${time.now:'HH:mm:ss'}
 ${ a ?? 'fallback' }            fallback when a value is missing (no session, no title)
 ${ (a > 1 ? 'x' : 'y') }        a ternary needs parentheses (like C# interpolation), the first top-level ':' is the format
 ${ left(payload.title, 40) }    functions, see below
@@ -102,7 +103,13 @@ has no loops and no user-defined functions. Unknown functions and wrong argument
 | `c ? a : b` | choice; inside `${...}` it needs parentheses, because the first top-level `:` starts the format |
 
 **Format** (`${value:format}`): the .NET format of the value's type, so nothing new to learn and documented by Microsoft.
-- Date and time: `${payload.time:yyyy-MM-dd HH_mm_ss}`, `${time.now:dddd}`; standard formats `d`, `D`, `t`, `T` too.
+- Date and time: `${payload.time:yyyy-MM-dd HH_mm_ss}`, `${time.now:dddd}`.
+- Standard formats are preferred wherever a date or time is meant for people (footer, caption, e-mail subject):
+  `d`/`D` (short/long date), `t`/`T` (short/long time), `g`/`G` (date and time), in the culture of the purpose, so a
+  footer shows `21:07:53` in German and `9:07:53 PM` in English. The 1.3 footer default becomes
+  `${payload.time:D} ${payload.time:T} - ${payload.title}`. Custom formats are for file names (fixed, sortable).
+- The format may be quoted: `${time.now:'HH:mm:ss'}`. Docs and examples always quote a format which contains `:`;
+  unquoted it works as well, because everything after the first top-level `:` is the format.
 - Numbers: `${counter.global:000000}` (leading zeros), `${payload.width:N0}`, `${x:0.00}`.
 - Text has no format; use the functions.
 - Culture by purpose (section 4): file names and folders the Windows culture (as 1.3), texts for people the UI language,
@@ -352,7 +359,8 @@ Sessions and profiles only get their namespace now; they fill it when they are b
 
 ## 11. Open decisions
 
-1. Format suffix `${x:fmt}` with parentheses for ternaries (recommended) vs. pipes `${x | format:'fmt'}`.
+1. ~~Format syntax~~ decided: format suffix `${x:fmt}` (may be quoted), a choice `? :` needs parentheses, standard
+   formats (`D`, `T`, ...) preferred for texts meant for people. Compared with `if()`, pipes and a `format()` function.
 2. ~~Environment variables~~ decided: `env.X` generic, `user.env.X` / `machine.env.X` on Windows, no fallback in `user.*`.
 3. `counter.folder` from the folder's files, no state (recommended) vs. a stored counter per folder.
 4. Global counter increases only after a successful write (recommended) vs. on every name, as in 1.3.
