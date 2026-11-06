@@ -191,7 +191,7 @@ namespace Greenshot.Tests.Ipc
 
             private static List<IOcrLineFeature> Lines() => new List<IOcrLineFeature>
             {
-                new DetectedOcrLine(new NativeRect(5, 6, 70, 12), "Hello OCR", new List<OcrWordInfo>())
+                new DetectedOcrLine("Hello OCR", new List<OcrWordInfo> { new OcrWordInfo("Hello OCR", new System.Windows.Rect(5, 6, 70, 12)) })
             };
         }
 

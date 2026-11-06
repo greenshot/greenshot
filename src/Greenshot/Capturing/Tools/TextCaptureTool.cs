@@ -109,20 +109,25 @@ namespace Greenshot.Capturing.Tools
                 {
                     continue;
                 }
-                var lineRect = new Rect(lineBounds.X, lineBounds.Y, lineBounds.Width, lineBounds.Height);
-                drawingContext.DrawRectangle(null, linePen, new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
+                // Rotated text is drawn rotated, with the rects of the text before the rotation
+                bool rotated = line.Angle != 0;
+                if (rotated)
+                {
+                    drawingContext.PushTransform(new RotateTransform(line.Angle, line.RotationCenter.X, line.RotationCenter.Y));
+                }
+                var lineRect = rotated ? line.TextBounds : new Rect(lineBounds.X, lineBounds.Y, lineBounds.Width, lineBounds.Height);
+                drawingContext.DrawRectangle(null, linePen, rotated ? lineRect : new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
                 if (IsSelecting)
                 {
                     // Highlight the words which are selected
-                    if (!lineBounds.IntersectsWith(Selection))
+                    if (lineBounds.IntersectsWith(Selection))
                     {
-                        continue;
-                    }
-                    foreach (var word in line.Words)
-                    {
-                        if (word.Bounds.IntersectsWith(Selection))
+                        foreach (var word in line.Words)
                         {
-                            drawingContext.DrawRectangle(highlightBrush, null, new Rect(word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height));
+                            if (IsSelected(line, word))
+                            {
+                                drawingContext.DrawRectangle(highlightBrush, null, rotated ? word.TextBounds : new Rect(word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height));
+                            }
                         }
                     }
                 }
@@ -130,7 +135,44 @@ namespace Greenshot.Capturing.Tools
                 {
                     drawingContext.DrawRectangle(highlightBrush, null, lineRect);
                 }
+                if (rotated)
+                {
+                    drawingContext.Pop();
+                }
             }
+        }
+
+        /// <summary>
+        /// True when the word touches the selection, for rotated text the rotated word
+        /// </summary>
+        private bool IsSelected(IOcrLineFeature line, OcrWordInfo word)
+        {
+            if (!word.Bounds.IntersectsWith(Selection))
+            {
+                return false;
+            }
+            if (line.Angle == 0)
+            {
+                return true;
+            }
+            var wordGeometry = new RectangleGeometry(word.TextBounds, 0, 0, new RotateTransform(line.Angle, line.RotationCenter.X, line.RotationCenter.Y));
+            var selectionGeometry = new RectangleGeometry(new Rect(Selection.X, Selection.Y, Selection.Width, Selection.Height));
+            return wordGeometry.FillContainsWithDetail(selectionGeometry) != IntersectionDetail.Empty;
+        }
+
+        /// <summary>
+        /// True when the pixel is on the line, for rotated text the rotated line
+        /// </summary>
+        private static bool IsOnLine(IOcrLineFeature line, NativePoint location)
+        {
+            if (line.Angle == 0)
+            {
+                return line.Bounds.Contains(location);
+            }
+            // Rotate the centre of the pixel back, to compare it with the line before the rotation
+            var matrix = Matrix.Identity;
+            matrix.RotateAt(-line.Angle, line.RotationCenter.X, line.RotationCenter.Y);
+            return line.TextBounds.Contains(matrix.Transform(new Point(location.X + 0.5, location.Y + 0.5)));
         }
 
         private List<IOcrLineFeature> GetOcrLines()
@@ -142,7 +184,7 @@ namespace Greenshot.Capturing.Tools
             }
         }
 
-        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => line.Bounds.Contains(location));
+        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => IsOnLine(line, location));
 
         /// <summary>
         /// Start the OCR when there are no text lines yet, and it isn't running in the background already
