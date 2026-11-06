@@ -28,6 +28,7 @@
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
         <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
         <KeyBinding Key="M" Modifiers="Control" Command="{Binding OpenRecipeManagerCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding ShowExpressionHelpCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -602,6 +603,7 @@
                             <Button Content="{wpf:Text RecipeEditor.BtnAutoLayout}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AutoLayoutCommand}" ToolTip="{wpf:Text RecipeEditor.TipAutoLayout}"/>
                             <Button Content="{}{ } JSON" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleJsonViewCommand}" ToolTip="{wpf:Text RecipeEditor.TipEditJson}"/>
                             <Button Content="🧜 Mermaid" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleMermaidViewCommand}" ToolTip="{wpf:Text RecipeEditor.TipMermaid}"/>
+                            <Button Content="{wpf:Text RecipeEditor.ExpressionHelpButton}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ShowExpressionHelpCommand}" ToolTip="{wpf:Text RecipeEditor.TipExpressionHelp}"/>
                         </StackPanel>
 
                         <!-- Right Action: Test Run -->

@@ -20,6 +20,9 @@ work. The design and the reasons are in [expression-engine.md](expression-engine
 A value which isn't known is missing: it gives an empty text. A name which doesn't exist, a wrong function or a wrong
 number of arguments is an error, shown where the text is typed (settings, recipe editor) and in the log.
 
+In the recipe editor, the toolbar button "${ } Variables" (or F1) lists everything the open recipe can use: its
+options, its variables, the values below and the functions, with a search; Enter copies the selected line.
+
 `%NAME%` is gone, use `${env.NAME}`. Settings of 1.3 are converted once (see below).
 
 ## Names

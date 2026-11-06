@@ -11,6 +11,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
@@ -764,6 +765,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand ApplyJsonCommand { get; }
         public ICommand ToggleMermaidViewCommand { get; }
         public ICommand CopyMermaidCommand { get; }
+        public ICommand ShowExpressionHelpCommand { get; }
         public ICommand CopyRecipeIdCommand { get; }
         public ICommand SetStartNodeCommand { get; }
         public ICommand ToggleStartNodeCommand { get; }
@@ -807,6 +809,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ApplyJsonCommand = new RelayCommand(ApplyJson);
             ToggleMermaidViewCommand = new RelayCommand(ToggleMermaidView);
             CopyMermaidCommand = new RelayCommand(CopyMermaidToClipboard);
+            ShowExpressionHelpCommand = new RelayCommand(ShowExpressionHelp, () => ActiveRecipe != null);
             CopyRecipeIdCommand = new RelayCommand(() =>
             {
                 if (!string.IsNullOrWhiteSpace(RecipeId))
@@ -2118,6 +2121,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 IsMermaidViewVisible = false;
             }
+        }
+
+        /// <summary>
+        /// Opens the list of what a ${...} of the active recipe can use, built from the recipe as it is now
+        /// </summary>
+        public void ShowExpressionHelp()
+        {
+            if (ActiveRecipe == null)
+            {
+                return;
+            }
+            SyncRecipeTransitions();
+            ExpressionHelpWindow.ShowFor(RecipeExpressionHelp.For(ActiveRecipe), Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault());
         }
 
         public void CopyMermaidToClipboard()

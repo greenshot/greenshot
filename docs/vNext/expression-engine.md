@@ -12,8 +12,9 @@ Where the implementation differs from the design below:
   opened file) is new and trusted, so a command line recipe can save next to the file it got.
 - The settings show a live preview and the first problem under the folder, file name and footer boxes
   (`TemplatePreview`), the help window lists the values from the same list the resolver uses; the descriptions of the
-  values are English for now. An "insert variable" menu and previews in the recipe editor, Office and ExternalCommand
-  settings are left for later.
+  values are English for now. The recipe editor has a "Variables and functions" window (toolbar, F1) listing the options
+  and variables of the open recipe, the values and the functions (`RecipeExpressionHelp`, the same lists). An "insert
+  variable" menu and previews in the recipe editor, Office and ExternalCommand settings are left for later.
 
 ---
 

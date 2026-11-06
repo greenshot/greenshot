@@ -1147,7 +1147,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string DeleteVariable { get; }
 
         /// <summary>
-        /// Available scopes: ${user.username}, ${machine.computername}, ${now:yyyy-MM-dd}, ${payload.width}
+        /// Available scopes: ${user.name}, ${machine.name}, ${time.now:yyyy-MM-dd}, ${payload.width}
         /// </summary>
         string HintVariableScopes { get; }
 
@@ -4736,5 +4736,75 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
         /// </summary>
         string ManagerBtnGetMoreTooltip { get; }
+
+        /// <summary>
+        /// ${ } Variables
+        /// </summary>
+        string ExpressionHelpButton { get; }
+
+        /// <summary>
+        /// Lists the variables and functions this recipe can use (F1)
+        /// </summary>
+        string TipExpressionHelp { get; }
+
+        /// <summary>
+        /// Variables and functions
+        /// </summary>
+        string ExpressionHelpTitle { get; }
+
+        /// <summary>
+        /// Everything a ${...} in this recipe can use: its options, its variables, the values of Greenshot and the functions. Enter or a double click copies the selected line.
+        /// </summary>
+        string ExpressionHelpIntro { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string ExpressionHelpSearch { get; }
+
+        /// <summary>
+        /// Expression
+        /// </summary>
+        string ExpressionHelpExpression { get; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        string ExpressionHelpDescription { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string ExpressionHelpCopy { get; }
+
+        /// <summary>
+        /// Copied {0}
+        /// </summary>
+        string ExpressionHelpCopied { get; }
+
+        /// <summary>
+        /// {0} found
+        /// </summary>
+        string ExpressionHelpFound { get; }
+
+        /// <summary>
+        /// Options of this recipe
+        /// </summary>
+        string ExpressionHelpGroupOptions { get; }
+
+        /// <summary>
+        /// Variables of this recipe
+        /// </summary>
+        string ExpressionHelpGroupVariables { get; }
+
+        /// <summary>
+        /// Values
+        /// </summary>
+        string ExpressionHelpGroupValues { get; }
+
+        /// <summary>
+        /// Functions
+        /// </summary>
+        string ExpressionHelpGroupFunctions { get; }
     }
 }
