@@ -17,7 +17,7 @@ Plugins can add panels of their own, or sections to the Selection panel.
 |---|---|
 | Show | Double-click an emoji, or choose the emoji item of its context menu. The area also opens by itself when a tool needs it: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
 | Hide | The **x** at the top of the area. When it opened by itself it also closes by itself, when nothing which needs it is selected anymore. Closed with the **x**, it stays closed until something which needs it is selected again. |
-| Size | Drag the bar between the capture and the area. The width is remembered. |
+| Size | Drag the bar between the capture and the area. The width is remembered. The editor window can't get so small that the capture has less than 300 by 200 pixels (at 100 % scaling), plus the panel area when it's shown; a smaller window grows when the area opens. For a small window with a capture, use the [viewer](viewer.md). |
 | Another panel | When there is more than one panel, the list at the top of the area chooses which one is shown. |
 | Keyboard | F6 goes from the menu, the tools, the properties, the destinations and the capture to the panel area (and on to the tabs). Esc in the area goes back to the capture. |
 
@@ -30,7 +30,7 @@ With nothing selected and no tool which needs it, the panel says so.
 | Section | What it does |
 |---|---|
 | Size and position | For one selected element: left, top, width and height in pixels of the capture. Type a number and press Enter or leave the field. When the element keeps its aspect ratio (e.g. an emoji or an image), changing the width also changes the height and the other way round. Ctrl+Z undoes it. |
-| Emoji | Picks the emoji: for the emoji tool the next one to place, for selected emojis the emoji of all of them, in one step for Ctrl+Z. *Search* finds emojis by their English name, by group (e.g. "animal") or by the emoji itself; every word must fit. Enter places the first one found, Down goes to the emojis. The tabs show the groups, the first one the emojis used last. An emoji with skin tones shows them in a small list after the click. |
+| Emoji | Takes the rest of the height of the panel. Picks the emoji: for the emoji tool the next one to place, for selected emojis the emoji of all of them, in one step for Ctrl+Z. *Search* finds emojis by their English name, by group (e.g. "animal") or by the emoji itself; every word must fit. Enter places the first one found, Down goes to the emojis. The tabs show the groups, the first one the emojis used last. An emoji with skin tones shows them in a small list after the click. |
 
 ### Settings
 
@@ -77,6 +77,7 @@ public interface IEditorSection
     int Order { get; }                               // EditorSectionOrder.SizeAndPosition / Element / Other
     bool AppliesTo(IEditorPanelContext context);     // for the current selection and drawing mode
     bool ShowsPanel { get; }                         // true: shows the Selection panel by itself
+    bool FillsHeight { get; }                        // true: gets the height the other sections leave
     object CreateViewModel(IEditorPanelContext context);
     object CreateView(object viewModel);
 }
@@ -102,6 +103,9 @@ public interface IEditorSection
 - **Showing a panel.** `context.ShowPanel(id, activate)` shows a panel; `activate: false` doesn't take the keyboard from
   the capture. Only do that on a user action: the editor itself shows the Selection panel for sections with
   `ShowsPanel = true`, and doesn't replace a panel the user is looking at.
+- **Height.** A section is as high as its content, the panel scrolls when they don't fit. A section with `FillsHeight = true`
+  (e.g. a list to pick from) gets the height the other sections leave, at least 160 pixels; its view must scroll its
+  content itself and gets a fixed height, so a virtualized list stays virtualized.
 
 ### Register
 

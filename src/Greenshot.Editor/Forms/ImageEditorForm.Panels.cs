@@ -38,9 +38,11 @@ namespace Greenshot.Editor.Forms
     public partial class ImageEditorForm
     {
         /// <summary>
-        /// The canvas keeps at least this width (at 96 DPI), the panel area is hidden before the canvas gets narrower
+        /// The canvas keeps at least this size (at 96 DPI): the editor window can't get smaller than that, plus the panel area when it's open.
+        /// A small window for a capture is the viewer's job.
         /// </summary>
         private const int MinimumCanvasWidth = 300;
+        private const int MinimumCanvasHeight = 200;
 
         private EditorPanelContext _panelContext;
         private EditorPanelHost _panelHost;
@@ -72,7 +74,9 @@ namespace Greenshot.Editor.Forms
             _panelContext = new EditorPanelContext(this, (panelId, activate) => _panelHost.Show(panelId, activate), () => FocusCanvas(fromKeyboard: false));
             _panelHost = new EditorPanelHost(_panelContext, panels, sections, EditorConfiguration.SelectedEditorPanel);
             _panelHost.Changed += (_, activate) => OnPanelHostChanged(activate);
-            topToolStripContainer.ContentPanel.Resize += (_, _) => UpdatePanelDockVisibility();
+            // The tool bars change their size with the DPI and when they wrap: the minimum follows
+            topToolStripContainer.ContentPanel.Resize += (_, _) => UpdateMinimumSize();
+            UpdateMinimumSize();
         }
 
         /// <summary>
@@ -133,6 +137,7 @@ namespace Greenshot.Editor.Forms
             _panelSplitter.SplitterMoved += (_, _) =>
             {
                 EditorConfiguration.EditorPanelWidth = DpiCalculator.UnscaleWithDpi(_panelDock.Width, DeviceDpi);
+                UpdateMinimumSize();
                 AlignCanvasPositionAfterResize();
             };
             ApplyPanelDockSize();
@@ -168,7 +173,7 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
-        /// Shown when a panel is open and the canvas keeps enough room
+        /// Shown when a panel is open. The window gets wider if the canvas would get less than its minimum width.
         /// </summary>
         private void UpdatePanelDockVisibility()
         {
@@ -177,8 +182,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            int available = topToolStripContainer.ContentPanel.ClientSize.Width;
-            bool show = _panelHost.IsOpen && available - _panelDock.Width >= DpiCalculator.ScaleWithDpi(MinimumCanvasWidth, DeviceDpi);
+            bool show = _panelHost.IsOpen;
             if (_panelDock.Visible == show)
             {
                 return;
@@ -186,7 +190,29 @@ namespace Greenshot.Editor.Forms
 
             _panelSplitter.Visible = show;
             _panelDock.Visible = show;
+            UpdateMinimumSize();
             AlignCanvasPositionAfterResize();
+        }
+
+        /// <summary>
+        /// The smallest window: the tool bars and the frame, the minimum size of the canvas and the panel area when it's shown.
+        /// A window which is smaller grows to it (WinForms does that when the minimum size is set).
+        /// </summary>
+        private void UpdateMinimumSize()
+        {
+            var contentPanel = topToolStripContainer.ContentPanel;
+            int width = Width - contentPanel.ClientSize.Width + DpiCalculator.ScaleWithDpi(MinimumCanvasWidth, DeviceDpi);
+            if (_panelDock?.Visible == true)
+            {
+                width += _panelDock.Width + _panelSplitter.Width;
+            }
+
+            int height = Height - contentPanel.ClientSize.Height + DpiCalculator.ScaleWithDpi(MinimumCanvasHeight, DeviceDpi);
+            var minimumSize = new System.Drawing.Size(width, height);
+            if (MinimumSize != minimumSize)
+            {
+                MinimumSize = minimumSize;
+            }
         }
 
         /// <summary>

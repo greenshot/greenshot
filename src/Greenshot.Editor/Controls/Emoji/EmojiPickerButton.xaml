@@ -17,7 +17,8 @@
             <Border Width="372" Padding="6" BorderThickness="1"
                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
-                <emoji:EmojiPicker x:Name="Picker"/>
+                <!-- The picker fills the height it gets: a fixed height in the popup -->
+                <emoji:EmojiPicker x:Name="Picker" Height="400"/>
             </Border>
         </Popup>
     </Grid>

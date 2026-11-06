@@ -42,6 +42,8 @@ namespace Greenshot.Editor.Panels.Sections
 
         public bool ShowsPanel => false;
 
+        public bool FillsHeight => false;
+
         /// <summary>
         /// One selected element: the numbers of several elements would mean nothing
         /// </summary>

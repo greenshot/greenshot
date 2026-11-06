@@ -153,6 +153,11 @@ namespace Greenshot.Editor.Panels.ViewModels
         public string Title => Section.Title;
 
         /// <summary>
+        /// The section takes the height which the others leave, see <see cref="IEditorSection.FillsHeight"/>
+        /// </summary>
+        public bool FillsHeight => Section.FillsHeight;
+
+        /// <summary>
         /// The view model of the section, created on first use
         /// </summary>
         public object ViewModel => _viewModel ??= Section.CreateViewModel(_context);

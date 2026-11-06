@@ -87,7 +87,6 @@
             <Setter Property="KeyboardNavigation.TabNavigation" Value="Once"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="MaxHeight" Value="320"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
             <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
@@ -189,11 +188,11 @@
                 </TabControl.ContentTemplate>
             </TabControl>
 
-            <StackPanel Visibility="{Binding IsSearching, Converter={StaticResource BoolToVis}}">
-                <ListView ItemsSource="{Binding SearchRows}" Style="{StaticResource EmojiRows}" PreviewKeyDown="OnEmojiGridKeyDown"/>
-                <TextBlock Text="{Binding NoResultsText}" Margin="2,4" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}"
+            <DockPanel Visibility="{Binding IsSearching, Converter={StaticResource BoolToVis}}">
+                <TextBlock DockPanel.Dock="Top" Text="{Binding NoResultsText}" Margin="2,4" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}"
                            Visibility="{Binding HasNoResults, Converter={StaticResource BoolToVis}}"/>
-            </StackPanel>
+                <ListView ItemsSource="{Binding SearchRows}" Style="{StaticResource EmojiRows}" PreviewKeyDown="OnEmojiGridKeyDown"/>
+            </DockPanel>
         </Grid>
     </DockPanel>
 </UserControl>

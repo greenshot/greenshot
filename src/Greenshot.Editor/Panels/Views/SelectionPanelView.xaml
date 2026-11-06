@@ -9,12 +9,18 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
-        <StackPanel Margin="6">
+    <!-- The padding is outside the viewport, so the sections panel knows the height it can fill -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="6">
+        <Grid>
             <TextBlock Text="{Binding EmptyText}" TextWrapping="Wrap" Margin="2,4"
                        Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}"
                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"/>
             <ItemsControl ItemsSource="{Binding Sections}" Focusable="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <views:SectionsPanel VisibleHeight="{Binding ViewportHeight, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Expander Header="{Binding Title}" IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Margin="0,0,0,6">
@@ -23,6 +29,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </StackPanel>
+        </Grid>
     </ScrollViewer>
 </UserControl>

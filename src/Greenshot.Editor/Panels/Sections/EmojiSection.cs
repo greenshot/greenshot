@@ -54,6 +54,11 @@ namespace Greenshot.Editor.Panels.Sections
 
         public bool ShowsPanel => true;
 
+        /// <summary>
+        /// The emoji fill the panel below the other sections: more to see without scrolling
+        /// </summary>
+        public bool FillsHeight => true;
+
         public bool AppliesTo(IEditorPanelContext context)
         {
             var surface = context.CurrentSurface;

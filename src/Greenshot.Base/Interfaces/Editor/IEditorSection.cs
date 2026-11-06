@@ -58,6 +58,13 @@ namespace Greenshot.Base.Interfaces.Editor
         bool ShowsPanel { get; }
 
         /// <summary>
+        /// true: the section gets the height of the panel which the other sections leave (at least a small part), e.g. a list to pick from.
+        /// Its view must then scroll its content itself. false: the section is as high as its content.
+        /// When several sections ask for it, the first one in the panel gets it.
+        /// </summary>
+        bool FillsHeight { get; }
+
+        /// <summary>
         /// The view model of the section for one editor window, without a UI toolkit (see <see cref="IEditorPanel"/>).
         /// When it implements IDisposable it is disposed when the window closes.
         /// </summary>
