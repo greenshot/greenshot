@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The platform-neutral document model of Greenshot: a canvas with layers of elements (shapes, text, images, filters, ...)
+    and the resources (image bytes) they reference. Experimental, it runs in parallel with Surface / DrawableContainer and
+    nothing in a release build uses it yet.
+    On purpose without references to System.Drawing, WinForms, WPF or Dapplo.Windows, so it can move to other platforms.
+    GreenshotPackage reads and writes the document as a zip with JSON (the new .greenshot format).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.12" />
+  </ItemGroup>
+</Project>

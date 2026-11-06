@@ -1,0 +1,970 @@
+# Greenshot document model and file format
+
+Experimental. The document model runs in parallel with the editor's `Surface` / `DrawableContainer`. It will
+replace them step by step, and nothing in a release build uses it yet.
+
+## Why
+
+The editor keeps its content in `Surface` and `DrawableContainer` objects. These need System.Drawing and WinForms,
+keep their settings in untyped field bags (`FieldType.LINE_COLOR`, ...), and are saved with BinaryFormatter, which
+.NET 9+ no longer has. The `GreenshotDocument` holds the same content as plain data, so that:
+
+- capture, recipes, export and the file format can work without the editor
+- the same code runs on .NET Framework 4.8 today and on .NET 10 (and other platforms) later
+- a new editor or renderer can be built on it, while the current editor keeps working
+
+## Projects
+
+```mermaid
+flowchart BT
+    Document["Greenshot.Document<br/>netstandard2.0, System.Text.Json<br/>model and new file format"]
+    Legacy["Greenshot.Document.Legacy<br/>netstandard2.0, System.Formats.Nrbf<br/>.greenshot / .gst of 1.2-1.4 → document"]
+    EditorMap["Greenshot.Document.Editor<br/>net48<br/>Surface ⇄ document, document → bitmap"]
+    Rendering["Greenshot.Document.Rendering<br/>netstandard2.0, ImageSharp.Drawing<br/>document → image"]
+    Editor["Greenshot.Editor<br/>Surface, DrawableContainer"]
+    Base["Greenshot.Base"]
+    Tests["Greenshot.Tests"]
+
+    Legacy --> Document
+    EditorMap --> Document
+    EditorMap --> Editor
+    Rendering --> Document
+    Editor --> Base
+    Tests --> EditorMap
+    Tests --> Legacy
+    Tests --> Rendering
+```
+
+Arrows point to the referenced project.
+
+- **Greenshot.Document** holds the model and its file format (`GreenshotPackage`, zip + JSON). It targets
+  netstandard2.0, so one binary loads in .NET Framework 4.8 and in .NET 10, with no multi-targeting. Its only reference
+  is System.Text.Json (part of .NET 10), so neither System.Drawing nor Windows code can creep in.
+- **Greenshot.Document.Legacy** reads the BinaryFormatter files of Greenshot 1.2 - 1.4 without BinaryFormatter.
+  It is its own project so that the model doesn't carry the NRBF reader or the frozen 1.x schema, and so that legacy
+  support can later be removed by deleting one project. If writing 1.3 files is ever wanted, it goes here as well.
+- **Greenshot.Document.Editor** is the bridge to the current editor. It maps a `Surface` to a document and back, and
+  renders a document to a bitmap through a `Surface`.
+- **Greenshot.Document.Rendering** draws a document without the editor (`DocumentRenderer.Render`), with
+  ImageSharp.Drawing, which already ships with Greenshot. It draws what today's editor can't: turned elements, frames
+  with a band or rounded corners, frames along a turned target, labels. Shapes, shadows, arrow heads, highlight and
+  pixelate follow the editor's drawing; pixelate is the editor's algorithm with its noise, copied until both use one.
+  Not drawn the editor's way yet: freehand is a polyline (no curves), emojis are monochrome glyphs, cursors without
+  their mask, underline and strikeout, the shadow of a cut mark; SVG and metafile resources aren't drawn.
+- Only the tests reference these projects. Later, `Greenshot.csproj` references them in Debug builds only, and they
+  register through `[assembly: GreenshotModule]`. The installer doesn't list them.
+
+## The model
+
+```mermaid
+classDiagram
+    direction LR
+    class GreenshotDocument {
+        Guid Id
+        Canvas Canvas
+        IReadOnlyList~Layer~ Layers
+        IReadOnlyDictionary Resources
+        IReadOnlyList~Group~ Groups
+        RawJson Extensions
+    }
+    class Canvas {
+        CanvasFit Fit
+        double Padding
+        int? Width
+        int? Height
+        Rgba Background
+    }
+    class Group {
+        Guid Id
+        string Type
+        IReadOnlyList~Guid?~ Members
+        string Name
+        Style Style
+        RawJson Properties
+        RawJson Extensions
+    }
+    class Layer {
+        Guid Id
+        string Name
+        LayerKind Kind
+        IReadOnlyList~Element~ Elements
+        bool Visible
+        bool Locked
+        RawJson Extensions
+    }
+    class Resource {
+        Guid Id
+        string MediaType
+        ReadOnlyMemory~byte~ Data
+        int? Width
+        int? Height
+        RawJson Extensions
+    }
+    class Element {
+        <<abstract>>
+        Guid Id
+        Style Style
+        RawJson Extensions
+        RectD Bounds
+    }
+    class Style {
+        StrokeStyle Stroke
+        FillStyle Fill
+        ShadowStyle Shadow
+        TextStyle Text
+        RawJson Extensions
+    }
+    GreenshotDocument *-- Canvas
+    GreenshotDocument *-- "1..*" Layer
+    GreenshotDocument *-- "*" Resource
+    GreenshotDocument *-- "*" Group
+    Group ..> Element : Members, element ids
+    Group *-- Style
+    Layer *-- "*" Element
+    Element *-- Style
+    Element ..> Resource : references by id
+```
+
+Basics (the numbered rules are in "Rules" below):
+
+- **Immutable**: all types are records. A change makes a new instance (`element with { Area = ... }`) with the same id.
+  Undo can keep earlier documents, since unchanged parts are shared.
+- **Order**: `Layers[0]` is drawn first (bottom). Within a layer, `Elements[0]` is drawn first. A layer owns its
+  elements, there is no z-index or order field (decided): one source of truth, no duplicates or gaps, and "bring to
+  front" is moving within the list. Recipes place an element with a command ("to front", "above an element") when they
+  add it. An optional `z` can come later if edits from several places ever have to be merged; readers which ignore it
+  still have the list order. Numbering order is separate from drawing order: it is the member order of a steps group
+  (see "Groups, styles and defaults"), so moving an element up or down never renumbers.
+- **Ids**: new ids are UUID version 7 (`Uuid7.CreateVersion7`, replaced by `Guid.CreateVersion7` on .NET 10). They
+  start with the creation time, so `Uuid7.TryGetTimestamp` gives the date a document, element or resource was created.
+  Ids are kept on read and write; ids from elsewhere (e.g. `Surface.ID`) can be any version.
+- **Coordinates**: canvas pixels as `double`, origin top-left (`PointD`, `RectD`). The capture normally is at 0, 0;
+  the canvas is a rule (see "Canvas"), so an element left of the capture has a negative x and nothing moves when the
+  canvas changes.
+- **Colors**: `Rgba`, written as `#RRGGBBAA`.
+- **Style**: every part and value is optional and inherited when it isn't set, see "Groups, styles and defaults".
+  Text uses its own color (for text, speech bubbles and step labels this is today's line color).
+- **Visibility** (decided): only layers have it (R10). Groups have no visibility ("hide all in this group" is an editor command), elements have none for now (see
+  "Groups, styles and defaults").
+- **Redaction**: a `.greenshot` file always contains the original capture, blur and pixelate are elements on top. A
+  redaction is only safe in a flattened export (PNG, JPG, ...), never in the `.greenshot` file. The same is true for 1.3.
+  The same goes for an image element with a `source`: the part outside of it is still in the resource, so a crop done
+  that way only removes pixels in a flattened export.
+- **Resources**: the original bytes with their media type (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`, ...).
+  An image loaded from a file keeps that file, in every format a file format handler reads; only an image which
+  didn't come from a file (or was changed) is stored as PNG. Elements reference them by id, so the same bytes can be shared.
+- **Derived values aren't stored**: the bounds of lines, arrows and freehand lines come from their points, and step
+  label numbers come from their place in their series.
+- A document made from a `Surface` has a locked **Capture** layer with the image and an **Annotations** layer with
+  the elements.
+
+### Elements
+
+| Editor container | Element | Data |
+|---|---|---|
+| `RectangleContainer`, `EllipseContainer` | `RectangleElement`, `EllipseElement` | `Area` |
+| `LineContainer`, `ArrowContainer` | `LineElement`, `ArrowElement` | `Start`, `End`, `Heads` (none, start, end, both) |
+| `FreehandContainer` | `FreehandElement` | `Points` |
+| `TextContainer` | `TextElement` | `Area`, `Text` |
+| `SpeechbubbleContainer` | `SpeechBubbleElement` | `Area`, `Text`, `Tail` |
+| `StepLabelContainer` | `StepLabelElement` | `Area` (the number is derived) |
+| `HighlightContainer` | `HighlightElement` | `Mode` (text, area, grayscale, magnify), `Color`, `Brightness`, `BlurRadius`, `Magnification` |
+| `ObfuscateContainer` | `ObfuscateElement` | `Mode` (pixelate, blur), `Size` (pixel size or blur radius) |
+| `ImageContainer`, `IconContainer`, `SvgContainer`, `MetafileContainer` | `ImageElement` | `Area`, `Resource`, `Rotation`, `Source`, `Scaling` (see "Images" below). A metafile becomes a PNG: the document has no EMF/WMF |
+| `EmojiContainer` | `EmojiElement` | `Area`, `Emoji`, `Rotation` |
+
+Box-shaped elements can have a `rotation`, rectangles, ellipses and images a box label, lines and arrows a line label
+(see "Rotation and labels").
+| `CursorContainer` | `CursorElement` | `Area`, `Resource` (color layer), `MaskResource`, `Hotspot` (the tip as a fraction 0..1 of `Area`, so it stays right when the cursor is resized) |
+| `CutMarkContainer` | `CutMarkElement` | `Area`, `Horizontal`, `Shape`, `Seed` |
+| `TornEdgeContainer` | `FrameElement` | `Area`, `Target`, `Shape`, `Sides`, `CornerRadius`, `Placement`, `Band`, `Seed` (see "Frames" below) |
+| containers of plugins (e.g. the barcode) | `PluginElement` | `Area`, `Kind`, `Version`, `Data` (JSON), `Resources`, `Fallback` (see below) |
+| — | `UnknownElement` | an element of a type this version doesn't know (e.g. from a newer Greenshot): `TypeName`, `Area`, `Json` |
+| `CropContainer` | — | a tool, never part of the document |
+
+Effects such as cut marks and torn edges stay elements that can still be edited; they are never baked into the image.
+
+### Frames
+
+A frame shapes the outline of an element, normally the capture: torn edges, a wavy or zig-zag edge, a border or paper
+band, rounded corners, a drop shadow. It cuts its target to its shape, then draws the line along the outer edge and the
+shadow; elements above the target are not cut, so an arrow can still point out of the screenshot.
+
+```json
+{ "type": "frame", "id": "…", "area": { "x": 0, "y": 0, "width": 800, "height": 600 }, "seed": 48211,
+  "target": "…",
+  "placement": "outside", "band": { "width": 16, "color": "#FFFFFFFF" },
+  "shape": { "style": "torn", "height": 12, "range": 20 },
+  "sides": { "bottom": { "style": "wave", "height": 8, "range": 24 }, "left": { "style": "none" } },
+  "cornerRadius": 8,
+  "style": { "stroke": { "color": "#000000FF", "width": 1, "position": "outside" },
+             "shadow": { "enabled": true, "size": 6, "darkness": 0.6, "offset": { "x": 3, "y": 3 } },
+             "fill": { "color": "#FFFFFF00" } } }
+```
+
+- `area` is what the frame frames: with a `target` the frame follows that element and `Anchors.Apply` sets `area` to
+  the target's bounds. Without a target `area` is where the frame is (today's editor and old files: the capture
+  without the room for the shadow).
+- `band` (optional): a band of `width` pixels in `color`, like a border, a mat or paper. `placement` says where it
+  lies: `inside` (the default) over the edge of the target, `outside` around it (nothing of the target is covered,
+  the frame reaches `width` further), `center` half and half. Without a band there is nothing to place and
+  `placement` doesn't matter. The **outer edge** is `area` grown by the part of the band around it
+  (`FrameElement.OuterEdge`).
+- `shape` is the outer edge of all sides (`EdgeShape`: `style` none, line, zigZag, wave or torn, `height` how deep the
+  teeth or waves go, `range` how wide one is); `sides` only has the sides which differ, `none` leaves a side straight.
+  The teeth always cut **inward** from the outer edge, into the band or, without one, into the target; nothing
+  reaches past the outer edge. `cornerRadius` rounds the outer edge. The shape comes from `seed`, so it stays the
+  same. The cut mark uses the same `EdgeShape`.
+- The style: `fill` colours what the teeth cut off (transparent by default, the torn edge's background colour in the
+  editor), `stroke` the line along the outer edge with its `position`, `shadow` the shadow, always outside the outer
+  edge. A frame has no stroke by default.
+- The Bounds are `area`, the visual bounds add the band around it, the line and the shadow (see Geometry), so a
+  content canvas grows with them.
+
+| what you want | placement | band | shape | result |
+|---|---|---|---|---|
+| drop shadow only | – | none | none | the screenshot unchanged, a shadow around it |
+| today's torn edge | inside | none | torn | the teeth cut into the screenshot, the shadow falls into the torn-off part |
+| classic border | outside | 8 px, colour | none | an 8 px border around the screenshot, no pixels lost, the canvas grows |
+| mat over the edge | inside | 8 px, colour | none | an 8 px band over the screenshot's edge, the size stays |
+| torn paper | outside | 16 px, white | torn | the whole screenshot on paper with a torn outer edge |
+| rounded screenshot | inside | none | none, `cornerRadius` | the corners cut round, optionally with a shadow |
+
+Rules: R3 (the shadow), R19 - R22 (see "Rules").
+
+- **Today's editor** shows a frame without a target, band and rounded corners, with one shape (sides may only be
+  `none`), inside the image, as its torn edge (`TornEdgeContainer`, which covers the whole image with the room for the
+  shadow as margins); its line is drawn centred, the position and placement are kept. Other frames are kept and
+  written back unchanged, but not shown.
+- Later: the torn edge, border and drop shadow effects can become frames, so they stay editable.
+
+### Plugin elements
+
+The core doesn't know the elements of plugins, it has one generic `PluginElement` for all of them:
+
+- `Kind`: a stable name the plugin owns, e.g. `greenshot.barcode`, never a CLR type name. Nothing in a file says which
+  class to create.
+- `Version` and `Data`: the plugin's own data as JSON, in the version of the plugin; only the plugin reads it.
+- `Resources`: the resources the data links to, so writing keeps them.
+- `Fallback`: a PNG rendering of the element, so it can be shown and exported without the plugin.
+
+A plugin registers an `IPluginElementConverter` (SimpleServiceProvider) for its `Kind`: container to element and back.
+Without the plugin, or when the element has a newer `Version` than the plugin reads, the `Surface` shows the fallback
+image; it can be moved, resized or deleted, and is written back unchanged (with its new area). A plugin container
+without a converter becomes a `PluginElement` with the CLR type name as `Kind`, only the fallback and no data.
+
+An element of an unknown type (`UnknownElement`) keeps its JSON as it was read and is written back unchanged, with
+the resources it links to. The `Surface` can't show it; it is kept with the surface and added at the end of the
+annotations when the surface becomes a document again.
+
+Plugin elements of old .greenshot files only have the CLR type name: their data can't be read without the plugin's
+types, so they become a `PluginElement` without data or fallback.
+
+### Geometry: Area and Bounds
+
+All coordinates are canvas pixels (`double`), origin top-left, x to the right, y down.
+
+- **`Area`** (stored): the rectangle of a box-shaped element, **before rotation**: `x`, `y` (top-left), `width`,
+  `height`. It is what the user draws and edits. Box-shaped are rectangle, ellipse, text, speech bubble, step label,
+  highlight, obfuscate, image, emoji, cursor, cut mark, frame, plugin and unknown elements. In `document.json` it is
+  `"area": {"x": 10, "y": 20, "width": 100, "height": 50}`.
+- **Points** (stored): elements defined by points store those instead of an `Area`: `start` and `end` for lines and
+  arrows, `points` for freehand, and the `tail` of a speech bubble (next to its `Area`).
+- **`Bounds`** (calculated, never stored): the smallest axis-aligned rectangle around the shape of the element, after
+  rotation and including points like the tail, without stroke width or shadow. Every element has it. It is used for
+  what needs one box per element: the edges an anchor refers to when the target is a line or freehand, the selection
+  frame, finding the element under the mouse (first test) and the box of a group. Changing a line's width or position
+  never moves an anchored element.
+- **Visual bounds** (calculated, `GreenshotDocument.VisualBounds`): where the element draws: the Bounds (a frame's
+  outer edge) with the part of the line outside of them (`center` half the width, `outside` the width, `inside`
+  nothing) and the shadow with its `size` and `offset`. Used for "fit the canvas to the content" and which part of the
+  canvas to redraw. The tail of a speech bubble and a label outside of the element are included (R46).
+
+### Images
+
+An `ImageElement` shows its resource in its `Area`. Resizing only changes the `Area`, the resource is never resampled
+and stored again.
+
+- **`source`**: the part of the resource that is shown, stretched into `Area`, as a fraction (0..1) of the resource's
+  width and height, so the document doesn't have to decode the image to know its size and it also works for SVG.
+  Missing means the whole image. Rotation is applied after the part is fitted into `Area`.
+- **Shared resources**: several image elements can use the same resource with different parts, e.g. a zoom inset next
+  to the capture showing a detail of it larger. The bytes are stored once.
+- **Crop that keeps the original**: a crop of an image changes its `source` and `Area`, so it can be widened again
+  later. The pixels outside of `source` stay in the file, see the redaction rule.
+- **`scaling`**: how the image is drawn when its size differs from `source`: `smooth` (bilinear or bicubic, the
+  default) or `pixelated` (nearest neighbour, text and lines of 1 px stay crisp when zoomed). Each renderer maps it to
+  its own modes.
+- **`scale`**: shows the image at a factor of the size of the part it shows (`0.5` is half the size), so another
+  screenshot in its place keeps it. Like an anchor it is a rule: `Area` is still written as the result, and resizing in
+  the editor removes it. It needs the size of the resource, which the resource table has (`width`, `height`; read from
+  the header of a PNG when it's missing).
+- **Today's editor** (Surface): the `ImageContainer` draws the `source` part of a bitmap with its `scaling`. A rotated
+  bitmap is turned in its pixels there, so its part is cut out before and the trip back has no `source`. SVG and icons
+  are shown whole, their `source` and `scaling` are kept through the trip.
+
+### Canvas
+
+The canvas is the area which is drawn and exported. It is a rule, not a stored size:
+
+| `fit` | the canvas is | stored |
+|---|---|---|
+| `capture` (default) | the Bounds of the capture image (the first image of a capture layer), plus `padding` | `padding` |
+| `content` | the union of the visual bounds of all elements of visible layers (line and shadow included), plus `padding` | `padding` |
+| `fixed` | `width` x `height` from 0, 0 | `width`, `height` |
+
+`GreenshotDocument.CanvasArea()` works it out (R9, after `Anchors.Apply`, so anchored elements are where they belong).
+`background` fills what no element covers, transparent by default (`#00000000`); an export to a format without alpha
+(JPG, BMP) needs a fill colour. On a `fixed` canvas elements can be anchored to it with `"target": "canvas"`, e.g. to
+centre the capture; the other canvases depend on the elements, so there `canvas` is no target.
+
+A screenshot at half size with a footer centred below it, on white with 20 px around both:
+
+```json
+"canvas": { "fit": "content", "padding": 20, "background": "#FFFFFFFF" },
+"layers": [
+  { "id": "…", "name": "Capture", "kind": "capture", "locked": true, "elements": [
+    { "type": "image", "id": "…", "resource": "<id>", "scale": 0.5, "area": { "x": 0, "y": 0, "width": 960, "height": 540 } } ] },
+  { "id": "…", "name": "Footer", "kind": "custom", "elements": [
+    { "type": "text", "id": "…", "text": "Figure 1", "area": { "x": 280, "y": 550, "width": 400, "height": 30 },
+      "anchor": { "x": { "target": "center", "self": "center" }, "y": { "target": "end", "self": "start", "offset": 10 } } } ] }
+],
+"resources": { "<id>": { "path": "resources/<id>.png", "mediaType": "image/png", "width": 1920, "height": 1080 } }
+```
+
+Today's editor (Surface) has no canvas of its own, its image is the canvas. When the capture doesn't simply fill the
+canvas, the editor gets the capture layers drawn onto the canvas and the elements moved by the start of the canvas; as
+long as the editor keeps that image, the capture layers, the canvas and the coordinates come back unchanged. An effect
+which changes the image (border, crop, resize) bakes the canvas into a new capture at 0, 0.
+
+### Text
+
+The `text` part of a style:
+
+- `family`: font families separated by commas, the first which is available is used, e.g.
+  `"Segoe UI, Arial, sans-serif"`. It can end with a generic family: `sans-serif`, `serif` or `monospace`. Segoe UI
+  doesn't exist on Linux or macOS, so a list keeps documents portable.
+- `size` in canvas pixels, not points (the editor creates its fonts with `GraphicsUnit.Pixel`).
+- `weight` 100 - 900 (400 normal, 700 bold), `italic`, `underline`, `strikeout`, `color`.
+- `horizontal`, `vertical`: `start`, `center`, `end`, the words the anchors use (start is left or top, right for
+  right-to-left text).
+- `lineHeight`: the distance of lines as a multiple of the size, without it the font decides.
+- `wrap`: text which is too long for its `Area` continues on the next line.
+- `outline`: a stroke around each letter (`color`, `width`), so text on a screenshot is readable on any background.
+
+Today's editor uses the first installed family, bold for a weight from 600 and none of underline, strikeout, line
+height, wrap and outline; the list and these values are kept through a trip through the editor.
+
+Fonts aren't embedded. A font can be used without installing it (GDI+ `PrivateFontCollection`, WPF and SkiaSharp
+load fonts from a stream), but most font licences, those of the Windows fonts too, don't allow passing them on; a
+font would only be embedded when the user asks and its licence (`fsType` in the font) allows it.
+
+### Extensions
+
+Extensions are data someone other than the core attaches to an object. The core never interprets them and writes them
+back unchanged.
+
+```json
+"extensions": {
+  "greenshot.ocr": { "text": "Save changes", "confidence": 0.97 },
+  "jira": { "issue": "GS-123" }
+}
+```
+
+- **Where**: on the document, a layer, a resource, an element, a style and a group. Not on values (anchors, areas,
+  colours); the element they belong to holds such data.
+- **Key**: the owner's namespace, a plugin id or a reverse domain (`greenshot.ocr`, `zxing`, `jira`), one key per
+  owner, the value is any JSON. `greenshot.*` is for Greenshot's own optional features.
+- **Only the owner writes its key**: it adds, changes and removes its own key and nothing outside it. Everyone else (the
+  core, the editor, other plugins) leaves the key alone, also when they don't understand it.
+- **Never needed for drawing**: a reader without the owner draws the document correctly. Anything that changes the look
+  is a plugin element (with its fallback) or a generated resource.
+- **No binary data inline**: it is stored as a resource and linked by id; the extension lists the resource ids it links
+  to, so the write gate keeps them (not built yet).
+- **Lifecycle**: deleting an object deletes its extensions; copying copies them, unless the owner's data says
+  `"copy": false`; merging documents keeps each object's own extensions; removing all extensions is an explicit choice of
+  the user (e.g. a privacy option when saving or sharing). Unknown extensions are never dropped on read or write, and
+  their size counts against the package limits.
+- **Group `properties` vs `extensions`**: `properties` belong to the group's `type` and are defined by its owner (`start`
+  and `format` for `steps`, a plugin for its own type); `extensions` are additions by anyone, on a group of any type.
+  Type and properties say what a thing is, extensions what someone else wants to remember about it.
+- **Examples**: OCR text under a highlight (element), the recipe that added an element so a re-run replaces it
+  (element, `greenshot.recipe`), a hand-drawn look a plugin renderer uses (style, the normal renderer draws clean
+  lines), the page a set of callouts was uploaded to (group), a blend mode for an export (layer), the OCR or barcode
+  result of one image (resource), the recipe which made the document (document).
+- **Today's editor** keeps the extensions of the document, of elements and of groups through a trip. It has one image and
+  one annotation layer: the capture layers and their resources come back with their extensions while the editor still has
+  the image it got, the extensions of the other layers are lost.
+- Open: a style's extensions replace those of its group as a whole, not per key.
+
+### Security and privacy
+
+- **Untrusted input**: extensions, unknown elements, plugin data, metadata and analysis are data from the file. The core
+  never runs them and never creates a type from a name in the file; it reads them as JSON within the package limits
+  and writes them back unchanged. A plugin validates its own data like any input.
+- **Keys are namespaces**: `greenshot.*` or a plugin id avoids collisions, it doesn't say who wrote the data.
+- **Fallbacks**: without its plugin, a plugin element shows its fallback image, which could differ from its data. An
+  installed plugin draws from its data and makes the fallback again.
+- **Hidden data**: a file can carry what the editor doesn't show (extensions, unknown elements and their resources,
+  metadata, analysis). A normal save keeps it, so nothing is lost with an older Greenshot or without a plugin.
+  `GreenshotDocument.Strict()` keeps only what is drawn (R28): no metadata, analysis or extensions, no elements or groups of
+  unknown types, a plugin element becomes an image of its fallback, and only the resources the elements link to (a new
+  document, the bytes are shared). Built: `Strict()`. Not built: the save option ("clean for sharing"), a setting to always save strictly (off by
+  default), and a view that lists the hidden data of a file.
+- **Original pixels**: a .greenshot keeps the capture under obfuscate and highlight elements and the parts a crop with
+  a source hides, also in a strict save. Only an export to an image file contains just the drawn pixels.
+
+### Metadata
+
+Metadata describes the document and where its picture came from; it never changes how anything is drawn. It is an
+optional `metadata.json` in the package next to `document.json`, written when the setting to store capture information is
+on (useful most of all with a central capture store). Saving or sharing without metadata leaves the file out. Today the
+information is the editor's `CaptureDetails` (title, time, file name, capture mode, DPI and a key/value list).
+
+```json
+{
+  "title": "Checkout dialog",
+  "description": "",
+  "tags": ["bug-report"],
+  "created": "2026-10-12T16:20:00+02:00",
+  "modified": "2026-10-12T16:25:00+02:00",
+  "generator": "Greenshot 2.0.1",
+  "revision": 3,
+  "source": {
+    "type": "capture",
+    "mode": "window",
+    "date": "2026-10-12T16:20:00+02:00",
+    "window": {
+      "title": "Checkout",
+      "bounds": { "x": 0, "y": 0, "width": 1280, "height": 800 },
+      "application": { "name": "Notepad", "publisher": "Microsoft Corporation", "version": "11.2408.12.0", "id": "notepad.exe" }
+    },
+    "screens": [ { "name": "DISPLAY1", "bounds": { "x": 0, "y": 0, "width": 1920, "height": 1080 }, "dpi": 144 } ],
+    "recipe": "region-blue-border"
+  },
+  "session": {
+    "id": "01a13a2c-…",
+    "name": "PROD-1042 Checkout times out",
+    "workItem": { "provider": "jira", "key": "PROD-1042", "title": "Checkout times out", "url": "https://jira.example.com/browse/PROD-1042" }
+  },
+  "extensions": { }
+}
+```
+
+- **Top level** is about the document, with the names most formats share (Dublin Core, as in OpenDocument `meta.xml`,
+  Office `core.xml`, EPUB, XMP): `title` (what `${title}` uses), `description`, `tags`, `created`, `modified`,
+  `generator`, `revision`. `modified` and `revision` change on every save. The user name (`creator`) is left out unless
+  the user sets it. The same names map to PNG text chunks and XMP when an export writes metadata (off by default).
+- **`source`** is how the picture came about. `type` says from where, `mode` how; only the fields that apply are written.
+  Its `date` is when the picture was taken (like EXIF `DateTimeOriginal`), which differs from `created` for an opened
+  file.
+
+  | type | fields |
+  |---|---|
+  | `capture` | `mode` (`region`, `fullscreen`, `window`, or what a capture tool reports), `date`, `region` (desktop coordinates), `window`, `screens` (only those the capture touches), `recipe` |
+  | `browser` | `mode` (`visible`, `fullPage`, `element`, `selection`), `date`, `url`, `title`, `browser` (name, version), `viewport` (width, height, device pixel ratio) |
+  | `file` | `name`, `date` (the file's date) |
+  | `clipboard` | `date`, `format` |
+
+  A capture tool's own details go into `extensions` keyed by its id, so the format needs no fields for one tool.
+- **Privacy**: an application is stored by `name`, `publisher` and `version` from the executable's version info and an
+  `id` (the AppUserModelID of a packaged app, otherwise the executable name), not by its path; a full path only on
+  request, with the profile folder as `%USERPROFILE%`. A URL is stored without its query string unless asked.
+- **`session`** is the work session the user picked when the capture was made (see the work sessions plan). The session
+  itself (start, end, options) lives in the capture history; the file keeps id, name and work item, so a file opened
+  elsewhere still knows where it belongs.
+- **Not in the file**: what happened to the file later (exports, favourite) belongs to the capture history; work items
+  detected in the picture are derived data, the history can find them again from `source`.
+- A document with a second captured image (two screenshots side by side) is rare; that image's source can go on its
+  resource later.
+- Legacy files have no metadata, their package has no `metadata.json`.
+
+Built: `GreenshotDocument.Metadata` (`DocumentMetadata` with `MetadataSource`, `WindowInfo`, `ApplicationInfo`,
+`ScreenInfo`, `SessionInfo`, `WorkItem`), written and read as `metadata.json` by `GreenshotPackage`. Writing sets
+`modified`, the next `revision`, and `created` when it is missing (`DocumentMetadata.Saved`); a document without
+metadata (null) has no `metadata.json`. Values a reader doesn't know (such as the `browser` fields) are written back
+unchanged. Today's editor gets the title and time from it, and a document which comes back from the editor keeps its
+metadata with the editor's title; without any, it is made from `CaptureDetails`: `title`, `created`, `generator` and the
+`source` (`capture` with mode region, fullscreen or window and the window title; `clipboard`; `file` with the name
+only). Not built yet: the setting which decides whether metadata is saved, the window's application, the region and
+the screens (the editor doesn't have them), the recipe, the session (work sessions) and the browser source.
+
+### Analysis
+
+What was found in an image: OCR text, barcodes and, optionally, the windows and UI areas on the screen at capture time.
+Built: `GreenshotDocument.Analysis` (`ImageAnalysis` per resource id with `OcrResult`, `BarcodeResult`, `AreaResult`),
+written and read as `analysis.json` by `GreenshotPackage`, and carried through today's editor for OCR and barcodes. Not
+built yet: collecting the areas at capture time, and leaving the file out when saving without metadata (the setting).
+In the editor these are `CaptureDetails.Features` (`IDetectedFeature`: OCR lines with words, barcodes, windows), kept
+only in memory.
+
+They describe the pixels of one image, so they are an optional `analysis.json` in the package next to `document.json`,
+keyed by resource id, with coordinates in that image's own pixels. A resource never changes, so the results can't go
+stale: moving, scaling or cropping the image element maps them through its `Area` and `Source`. Changed pixels are a new
+resource, which has no results until it is analysed again.
+
+```json
+{
+  "01a130e9-ef80-783b-a89b-b2d54bafa78f": {
+    "ocr": {
+      "engine": "Windows.Media.Ocr", "language": "en-US", "date": "2026-10-12T16:20:02+02:00", "textAngle": 0,
+      "lines": [
+        { "text": "Save changes", "bounds": { "x": 12, "y": 40, "width": 300, "height": 18 },
+          "words": [ { "text": "Save", "bounds": { "x": 12, "y": 40, "width": 60, "height": 18 } },
+                     { "text": "changes", "bounds": { "x": 80, "y": 40, "width": 120, "height": 18 }, "confidence": 0.97 } ] }
+      ]
+    },
+    "barcodes": [
+      { "format": "QR_CODE", "text": "https://getgreenshot.org",
+        "points": [ { "x": 400, "y": 80 }, { "x": 480, "y": 80 }, { "x": 480, "y": 160 }, { "x": 400, "y": 160 } ] }
+    ],
+    "areas": [
+      { "id": 1, "type": "window", "title": "Settings", "bounds": { "x": 0, "y": 0, "width": 1280, "height": 800 }, "z": 0 },
+      { "id": 2, "parent": 1, "type": "element", "role": "button", "name": "Save", "bounds": { "x": 1100, "y": 740, "width": 90, "height": 30 } }
+    ],
+    "extensions": { }
+  }
+}
+```
+
+- **OCR** keeps the `engine`, `language`, `date` and `textAngle` (the skew Windows OCR reports), so it is reproducible and
+  a better engine can run again. `confidence` is optional per word and line, written only by an engine that has it
+  (Windows.Media.Ocr has none, Tesseract and the Windows AI text recognizer do); a missing value means unknown.
+- **Barcodes** keep their four corner points, so a tilted code is described exactly; the bounds follow from them.
+- **Areas** (optional, a setting) are the windows and UI elements under the capture, read at capture time with their
+  bounds, title or name, role and z-order; `parent` builds the tree. Unlike OCR and barcodes they can't be found again
+  later, so they are only there when stored at capture time, converted from screen coordinates to the image's pixels.
+  Off by default (titles and names can be private), limited to visible elements and a depth like the area snapping of
+  the window capture tool, which reads them already. An element can also keep its `automationId`. They let the editor
+  snap to them, recipes point at them (`{ "role": "button", "name": "Save" }`) and a redaction cover a whole element.
+- **Uses**: reopening restores hotspots and tooltips without scanning again; recipes can test the text or anchor to a
+  word or an area; a capture history can search the text; a PDF export can write the text as a searchable layer.
+- Only the image itself is analysed, not the rendered result: text elements are in the document already. A barcode
+  Greenshot generates is an element, not analysis. A result for one element (the text under a highlight) is an element
+  extension (`greenshot.ocr`).
+- **Privacy**: OCR text, titles and names are easier to search and leak than pixels, so saving or sharing without
+  metadata also leaves out `analysis.json`.
+- A plugin's own results go into the `extensions` of the resource entry, keyed by its id.
+- **Today's editor**: when the capture is the editor's image, its OCR lines and barcodes become features (hotspots and
+  tooltips without scanning again). While the editor still has exactly those features, the analysis comes back as it
+  was; after a new OCR run it is made from the features, which have no engine or language, and a barcode's corners come
+  from its bounds. With a canvas other than the capture (the stand-in image) the analysis is kept unchanged and not
+  shown. The editor doesn't move features when its image is cropped, as before.
+
+### Design proposals (not decided)
+
+- **Rotation**: built, see "Rotation and labels" below.
+- **Styles beyond the current set**: an element's style has optional parts (stroke, fill, shadow, text). A new kind
+  of style becomes a new optional part, readers which don't know it ignore it and still draw the rest. So a document
+  written by a newer Greenshot doesn't lose them on save, unknown properties of a style (and of an element) are kept
+  and written back unchanged. Style settings only one plugin understands go in the plugin element's data, or under a key with the plugin's name
+  (`"zxing.quietZone"`) so they never collide with core names. Shared styles: decided, see "Groups, styles and defaults".
+- **Speech bubble tail with anchors**: decided, see "What is anchored": the text box and the tail have their own
+  anchors. The same anchors on `start` and `end` turn a line or arrow into a connector between two elements.
+- **Text in elements**: built as labels, see "Rotation and labels". A speech bubble stays its own type, its text is its
+  content.
+- **Grouping**: decided, see "Groups, styles and defaults" (the `set` type).
+
+### Rotation and labels
+
+Built in the model (rules R35 - R53). What rotation is for: placing text the way the user wants it, and covering OCR
+text which is at an angle. A label is text which belongs to an element: a caption below an image, the text in a
+rectangle, the text on a line.
+
+```json
+{ "type": "rectangle", "id": "…", "area": { "x": 50, "y": 20, "width": 120, "height": 40 }, "rotation": 15,
+  "label": { "text": "Login", "x": "center", "y": "center" } }
+{ "type": "image", "id": "…", "resource": "<id>", "area": { "x": 0, "y": 0, "width": 800, "height": 600 },
+  "label": { "text": "Figure 1: the settings dialog", "x": "center", "y": "after", "offset": 8 } }
+{ "type": "arrow", "id": "…", "start": { "x": 10, "y": 10 }, "end": { "x": 200, "y": 10 },
+  "label": { "text": "max 20 ms", "at": 0.5, "offset": 6, "orientation": "along" } }
+```
+
+- `rotation` is on every element (`Element.Rotation`), only the box-shaped ones turn (R35). `Area` stays unturned,
+  `Bounds` is the box around the turned area (R36).
+- A box label (`BoxLabel`) has `x` and `y`: `before`, `start`, `center`, `end`, `after`; `start` to `end` are inside the
+  box, `before` and `after` outside. A line label (`LineLabel`) has `at`, `offset` and `orientation` (R44, R45). Its
+  text is drawn with the element's `style.text`; for more text, a text element anchored to the element.
+- OCR at an angle: `OcrResult.OnCanvas` gives the area and rotation on the canvas of a line or word (R42), so an
+  obfuscate or highlight element covers it exactly.
+- Turning the whole capture (R48 - R54): `CaptureTurn.Apply(document, 90)` gives the capture image a `rotation` and
+  takes every element along, so the document is never "rotated" as a whole and nothing in the root says so. Only
+  elements whose content has a direction get a `rotation`, a box without one swaps width and height. Text turns too,
+  unless the user chooses to keep it upright. Today's editor still turns the pixels with `RotateEffect`.
+
+### Groups, styles and defaults
+
+Built in the model: groups with members, the steps numbering (`StepNumbering`, `GreenshotDocument.LabelOf`), the
+`Style` type with merging (`GreenshotDocument.StyleOf`, `StyleDefaults`), extensions and the write gate. Not built yet,
+they come with an editor which knows groups: joining and leaving, the checks on joining, what a `set` does.
+
+One concept for everything that belongs together: step label numbering, shared styles and PowerPoint-like grouping.
+
+```json
+"groups": [
+  { "id": "…", "type": "steps", "name": "Steps", "properties": { "start": 1, "format": "numbers" },
+    "style": { "fill": { "color": "#0000FFFF" } }, "members": ["<a>", null, "<c>"] },
+  { "id": "…", "type": "style", "name": "Red marker", "style": { "stroke": { "color": "#FF0000FF", "width": 3 } },
+    "members": ["<arrow>"] },
+  { "id": "…", "type": "set", "name": "Callout 1", "members": ["<rectangle>", "<arrow>"] },
+  { "id": "…", "type": "zxing.barcodes", "properties": { }, "extensions": { }, "members": [] }
+]
+```
+
+- **A group** has an id, a `type`, an optional `name`, `style`, `properties` (defined by the type), `extensions` and
+  its `members` (element ids). The document has a list of groups next to its layers. Elements don't mention their
+  groups in the file; the model builds the lookup element → groups when it reads the document.
+- **Members**: an element can be in several groups, and members can be in different layers. An element is in at most
+  one `steps` group and at most one group with a style (R16; this can be relaxed later, the reverse would break
+  documents). No groups inside groups for now. Member ids which no longer exist are dropped on write (R25).
+- **Types** decide the behaviour:
+
+  | type | style for its members | numbering | selected / moved together |
+  |---|---|---|---|
+  | `steps` | optional | yes | no |
+  | `style` | yes | no | no |
+  | `set` | optional | no | yes (selected, moved, copied, deleted as one) |
+  | a plugin type | defined by the plugin | | |
+
+  In the UI they are named by what they do ("Numbering", "Style", "Group"). A group of an unknown type (a plugin which
+  isn't installed, a newer Greenshot) is kept and written back unchanged; its members behave as in no group. Unknown
+  properties of a known type are kept too.
+- **Steps**: `properties` has `start` (the counter start, which is not on the canvas) and `format` (`numbers`,
+  `lowerLetters` a..z aa, `upperLetters`, `lowerRoman`, `upperRoman`). The member order is the numbering order: the
+  entry at place n (from 0) shows `start + n`. A `null` entry skips a number (`[a, null, c]` gives 1 and 3) and is kept
+  on write. Deleting a step label removes it from the list (the following numbers move up, as today); "delete, keep the
+  number" leaves a `null`. A step label in no steps group is numbered 1, 2, 3 in drawing order. The legacy reader makes
+  one steps group of all labels, in the order of their stored number, with the stored counter start.
+- **Layers stay separate**: a layer contains its elements, each element is in exactly one layer, and the layer's list
+  is the drawing order. Groups are memberships on top of that. In code both can share a small base (id, name,
+  extensions).
+
+**Style.** One `Style` type, the same on an element and on a group, with the parts `stroke`, `fill`, `shadow` and
+`text` and `extensions`. Every value is optional: a value which isn't written is inherited, a written value is that
+value. Only a whole part can be switched off, with `enabled: false` (e.g. `"fill": { "enabled": false }` means no fill,
+even when the group has one); single values (width, size, colour, alignment) never need "off". In code every value is
+nullable, `null` means "not set here", a JSON `null` is the same as a missing value.
+
+Each part only has the values which make sense for it, so nothing like "a shadow inside" can be written:
+
+- `stroke`: `color`, `width`, `position`: where the line lies on the outline it follows, `center` (half inside, half
+  outside, the default and what the editor draws), `inside` (within the shape, it covers its edge) or `outside`
+  (around the shape, it covers nothing of it). For a 100 x 100 rectangle with a 10 px line: center looks 110 x 110,
+  inside 100 x 100, outside 120 x 120. A renderer draws any outline that way by drawing the line twice as wide and
+  clipping it to the inside or outside of the outline (GDI+, ImageSharp and Skia can).
+- `fill`: `color`.
+- `shadow`: `size`, `darkness`, `offset`; always outside and behind the shape.
+- `text`: see Text.
+
+Values which don't apply: R4, R5 (a group style "Red marker" with `outside` can style rectangles and arrows). Today's
+editor draws every line centred and keeps the position of each element (R30).
+
+- **Merging**: R1, R2. A resolver gives the full style to draw with, renderers never see the partial one.
+  Example: the group has a red stroke of 3 px, an arrow in it sets only `"stroke": { "width": 5 }`: it is drawn red,
+  5 px; when the group turns blue, the arrow turns blue and stays 5 px.
+- **Joining and leaving a group**: R17. Changes after joining are overrides on that element; "Reset to group style"
+  removes them.
+- **Changing the group's style**: every member follows, except for the values it overrides (R1).
+- **An element in no group** has its full style itself, as today and as files of 1.2 - 1.4 are read.
+
+**Defaults per element type.**
+
+- **Built-in defaults** (e.g. a step label's fill, an arrow's 2 px red stroke): R6, so a file looks the same on every
+  machine and in every later Greenshot.
+- **The user's last-used values** (`LastUsedFieldValues` in greenshot.ini, see `EditorConfigurationHelper.CreateField`): R7.
+- **Document defaults per type** ("every arrow in this capture is blue", a recipe making all step labels green) can
+  later be a style group with an "applies to type" property, not a separate table. Merging is then: built-in default
+  → groups which apply to the type → the element's group → the element. Plugin types the same way under their kind.
+  Not until a recipe or the editor needs it.
+
+**Visibility of elements**: not for now. A forgotten hidden blur or pixelate would uncover what it covers in an export;
+a small layer does the same job and stays visible in the layer list. If it comes later: an optional `visible`
+(missing = visible), drawn = layer visible and element visible, with a warning on export when a hidden element is a
+redaction. Older files are not affected.
+
+### Anchors
+
+Built in the model: `Anchor` and `AxisAnchor` on the parts below, `Anchors.Apply` (places every anchored part),
+`Anchors.MakesLoop` (the check when an anchor is set) and the loop check when a document is written. The "Add Elements"
+recipe step places its elements with them (`DocumentToSurface.Place`, relative to the capture and to each other).
+Today's editor keeps the anchors of an element (and its extensions and the groups of the document) through a trip, but
+doesn't apply them again when something moves; the dragging rules below come with an editor which knows anchors.
+
+An element can be anchored to another element, the target. Without a target it is anchored to the capture image, so
+elements follow the capture when the canvas grows (e.g. a border) or the capture moves.
+
+- **What is anchored**: the parts of an element that have a position, each on its own. A box-shaped element has an
+  anchor for its `Area`. Lines and arrows have one for `start` and one for `end`, so each end can follow a different
+  element (or none). A speech bubble has one for its `Area` (the text box) and one for its `tail`, so it can point at
+  something while the box sits beside the capture. Freehand has one for all its points together.
+- **Shape**: `anchor` on the element (its `Area`; all points of lines, arrows and freehand), `startAnchor` and
+  `endAnchor` on lines and arrows, `tailAnchor` on a speech bubble. Each has `target` (an element id, missing = the
+  capture image, the first image of the capture layer) and per axis `x`, `y`: a line on the target (`start`, `center`,
+  `end` of its `Bounds`, or `point`), a line on the element itself (`self`, for points not used) and an `offset` in
+  pixels. An axis without an entry isn't anchored, except that a point anchor (`startAnchor`, `endAnchor`, `tailAnchor`)
+  without any axis uses `point` on both. A speech bubble is placed by its text box and its tail moves with it, unless the tail has its own anchor.
+  `{"anchor": {"x": {"target": "end", "self": "end", "offset": -10}}}`
+  - Inside the target, 10 px from its right edge: x target `end`, self `end`, offset -10.
+  - Outside, a caption below the target: y target `end`, self `start`, offset 8.
+  - Centred on the target: target `center`, self `center`.
+  - An arrow pointing at the tip of the mouse cursor: `{"endAnchor": {"target": "<id of the cursor>"}}`.
+- **Anchor point**: `point` is the calculated `AnchorPoint` of the target (document, never stored): the tip of a cursor,
+  the end of a line or arrow, the tail of a speech bubble, otherwise the centre of `Bounds`. Each axis picks its own
+  line, so x can follow the tip of a cursor while y follows the bottom of its box.
+- **The position stays absolute**: the element keeps its normal position and size; the anchor is only the rule to apply
+  again when the target moves or changes size. A reader which ignores anchors still draws everything in place.
+- **When**: anchors are applied again when the target's bounds change (moved, resized, cropped, canvas grown). They use
+  the calculated `Bounds` of the target and move the element by shifting what it stores (`Area`, or the points of
+  lines and freehand), so they work for every element type.
+- **Resolving**: R11, following the targets up the chain to an element without anchor, then back down.
+- **Loops** (A to B, B to A, or longer): R13. **Deleted or missing target**: R14.
+- **Dragging** (R15): the anchor stays and only its offset changes, the element lands where it is dropped. A free
+  axis just moves. Resizing: moving the anchored edge changes the offset, resizing from the other side doesn't. On drop
+  the anchor switches to the nearest line of the target (start, center, end) and the offset is recalculated, nothing
+  visible changes. Dragging the target moves everything anchored to it. While dragging, a thin line shows the edge the
+  element is anchored to. Changing or removing an anchor is always deliberate ("Anchor to…", "Detach" in the context
+  menu); only the end of a line or arrow, or the tail of a bubble, dropped onto a highlighted element anchors to it.
+  The move and the anchor change are one undo step.
+- **Recipes**: the "Add Elements" step takes the same anchor; its elements can be anchored to the capture and to each
+  other. The anchor, margin and offset parameters of the annotation step can map onto it.
+- **Ids**: the capture image element and the layers keep their ids through the editor, also for a surface which didn't
+  come from a document (it gets them once).
+
+## Rules
+
+Every rule the model follows, in one place. A rule keeps its number for good: a removed rule leaves a gap, a new one
+gets the next number. Each says when it applies, what happens, where it is enforced and what it does to the stored data,
+and names the test which proves it (`Greenshot.Tests/Document`). Where it is enforced:
+
+- **resolver**: when a document is drawn or measured (`StyleOf`, `CascadeOf`, `VisualBounds`, `CanvasArea`, `FrameOf`,
+  `LabelOf`, `Anchors.Apply`). It never changes the stored data.
+- **edit**: when the editor or a recipe changes the document. **write** / **read**: `GreenshotPackage`.
+  **bridge**: the editor (`DocumentToSurface`, `SurfaceToDocument`).
+- **kept**: the value stays in the document and is written back unchanged, also when it isn't used.
+
+A rule marked **(not built yet)** is decided, the code doesn't do it yet.
+
+**Style**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R1 | an element is drawn | value by value: its own style, over the style of its group, over the built-in default of its type; a missing value is inherited | resolver `CascadeOf` | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R2 | a part has `enabled: false` | the whole part is off, whatever is below; single values have no "off" | resolver `CascadeOf` | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R3 | an element is framed (R20) | its own shadow isn't drawn, the frame draws the shadow of the framed shape; without the frame it is back | resolver `StyleOf`, after R1 and R2 | the element's `shadow` kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+| R4 | a line, arrow or freehand has a stroke `position` | drawn centred, they have no inside or outside | resolver, renderers | kept | `VisualBounds_HaveThePartOfTheLineOutsideOfTheShape` |
+| R5 | a value doesn't apply to an element, or a renderer can't draw it | ignored, the default is drawn, the editor doesn't offer it | resolver, renderers, bridge | kept | `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
+| R6 | a built-in default is needed | fixed in `StyleDefaults` per format version (the 1.3 editor defaults); changing one means a new version whose reader writes the old value into older documents | resolver | untouched | `StyleOf_IsTheOwnValues_OverTheGroupStyle_OverTheDefault` |
+| R7 | an element is created | the user's last-used values (greenshot.ini) are written into it; a document never depends on someone's settings | edit (today's editor) | written into the element | – (editor) |
+
+**Geometry and canvas**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R8 | one box per element is needed | `Bounds` (the shape, no line or shadow) for anchors, selection, hit test and groups; the visual bounds (with the line outside of the shape, a frame's band and the shadow) for a content canvas and redrawing | resolver `VisualBounds` | untouched | `VisualBounds_HaveThePartOfTheLineOutsideOfTheShape`, `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+| R9 | the canvas is worked out | `capture`: the capture image's Bounds; `content`: the union of the visual bounds of the visible layers' elements; `fixed`: width x height from 0, 0; plus `padding` except for fixed; after R11 | resolver `CanvasArea` | untouched | `ToDocument_PutsTheImageOnACaptureLayer_AndTheElementsInOrderOnAnAnnotationsLayer`, `Apply_ScalesTheCapture_AndAFooterStaysCenteredBelowIt_InACanvasAroundBoth`, `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt` |
+| R10 | a layer is hidden | not drawn in exports and not in a content canvas; its elements still are anchor targets; only layers have visibility | resolver, renderers | kept | `AHiddenLayer_IsNotInAContentCanvas_ButItsElementsAreStillTargets`; the editor doesn't get hidden layers yet (not built yet) |
+
+**Anchors**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R11 | anchors are applied | the target is placed first, every element once; an anchor without target follows the capture image | resolver `Anchors.Apply` | `area` or points updated | `Apply_PlacesTheTargetFirst_AndAnAxisWithoutAnchorStays`, `Apply_PlacesABoxRelativeToTheCapture` |
+| R12 | an anchor targets `canvas` | only a `fixed` canvas is a target, on the others the part stays | resolver | untouched | `Apply_CentersTheCaptureOnAFixedCanvas_OtherCanvasesAreNoTarget` |
+| R13 | an anchor would make a loop | refused | edit (`Anchors.MakesLoop`), write (`Anchors.CheckLoops`) | not written | `Loops_AreRefusedWhenSet_AndWhenWritten` |
+| R14 | the target doesn't exist | the part stays where it is; deleting a target removes the anchors to it (not built yet) | resolver; edit | kept | `Apply_LeavesAPartWithAMissingTargetWhereItIs` |
+| R15 | an anchored element is dragged | the anchor stays, its offset changes; on drop the nearest line of the target is picked; the target drags what is anchored to it (not built yet) | edit | offset changed | – |
+
+**Groups**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R16 | an element joins a group | refused when it is in a `steps` group and joins another one, or is in a group with a style and joins another one with a style (not built yet) | edit | – | – |
+| R17 | an element joins or leaves a style group | joining removes its own values for what the group sets; leaving (or deleting the group) copies the inherited values into its own style (not built yet) | edit | the element's style changed | – |
+| R18 | step labels are numbered | the member order of their `steps` group, from `start`, a `null` member skips a number; a label in no steps group is numbered in drawing order | resolver `LabelOf` | untouched | `StepLabels_AreNumberedByTheirStepsGroup` |
+
+**Frames**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R19 | a frame has a `target` | its `area` is the target's Bounds; for a turned target that is the box around it (R41) | resolver `Anchors.Apply` | `area` updated | `Apply_GivesAFrameTheBoundsOfItsTarget` |
+| R20 | a frame is drawn | only for a target with an area (not a line, arrow, freehand or frame) and only the first frame of a target in drawing order; refused when set (not built yet) | resolver `FrameOf` | the others kept | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+| R21 | the target is deleted or copied | the frame is deleted or copied with it (not built yet); writing drops a frame whose target doesn't exist | edit; write | frame removed | `Write_DropsAFrameWhoseTargetIsGone` |
+| R22 | a frame is drawn | the band lies by `placement` (none: `placement` doesn't matter); the teeth cut inward from the outer edge; elements above the target aren't cut; line and shadow follow the outer edge | resolver `OuterEdge`, renderer `DocumentRenderer` | untouched | `AFrame_DrawsItsBandWhereItIsPlaced_AndTheShadowOutsideOfIt`, `AFrameBand_LiesByItsPlacement_TheTeethCutInward` |
+
+**Data, files and sharing**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R23 | a reader doesn't know something | unknown properties, extensions, element types (`UnknownElement`), group types, metadata values and analysis kinds are kept; the core never runs them or creates a type from a name in the file | read, write | kept | `Read_KeepsAnElementOfAnUnknownType`, `RoundTrip_KeepsEveryElement`, `RoundTrip_KeepsTheExtensionsOfTheDocument_ALayer_AndAResource`, `RoundTrip_WritesTheMetadataAsSaved_AndKeepsUnknownValues`, `RoundTrip_KeepsTheAnalysisOfAWrittenResource_AndUnknownKinds` |
+| R24 | an extension is written | only its owner writes its key; it is never needed for drawing | convention, can't be enforced | – | – |
+| R25 | a document is written | only the resources elements link to; a link to a missing resource or an unknown media type is refused; group members which don't exist are dropped (gaps kept); the analysis of a resource which isn't written is dropped; R21; values which are the default are left out | write | as described | `Write_LeavesOutResourcesNoElementLinksTo`, `Write_RefusesALinkToAMissingResource`, `Write_RefusesAnUnsupportedMediaType`, `Write_DropsMembersWhichNoLongerExist_AndKeepsGaps`, `RoundTrip_KeepsTheAnalysisOfAWrittenResource_AndUnknownKinds`, `Write_LeavesOutDefaults_AndWritesTheSizeOfAResource_AndTheCanvasAsTarget` |
+| R26 | a package is read | refused when the `mimetype` differs, the `version` is newer, or it has more than 10,000 entries or an entry over 256 MB | read | – | `Read_RefusesAnotherZip`, `Read_RefusesANewerVersion`, `Read_RefusesMoreThanTenThousandEntries` |
+| R27 | a document with metadata is written | `modified` is now, `revision` + 1, `created` set when missing | write | metadata changed | `RoundTrip_WritesTheMetadataAsSaved_AndKeepsUnknownValues` |
+| R28 | a document is shared strictly | `Strict()` gives a new document with only what is drawn: no metadata, analysis or extensions, no elements or groups of unknown types, a plugin element becomes an image of its fallback, only linked resources | edit (the save option: not built yet) | new document | `Strict_KeepsOnlyWhatIsDrawn` |
+| R29 | something is redacted or cropped | the .greenshot keeps the original pixels (also strictly); only an image export contains just the drawn pixels | by design | kept | – |
+
+**Today's editor**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R30 | the editor can't show something | it is kept and comes back unchanged: unknown and plugin elements without their plugin, frames it can't show, anchors, extensions, groups, text values, stroke positions, frame placements, labels (R47), rotations (R40) | bridge | kept | `UnknownElement_IsKeptWithTheSurface`, `PluginElement_WithoutItsPlugin_IsWrittenBackUnchanged`, `AnchorsExtensionsAndGroups_SurviveTheEditor`, `AFrame_IsTheEditorsTornEdge_AndComesBack_OnesWithRoundedCornersOrABandAreKept` |
+| R31 | a document goes through the editor | the ids of the elements, the capture image and the layers stay | bridge | kept | `ElementIds_SurviveTheEditor`, `TheIdsOfTheCaptureAndTheLayers_SurviveTheEditor` |
+| R32 | the capture comes back unchanged | it is the original resource (same id, bytes and format), a changed one is encoded as PNG | bridge | kept | `AnUnchangedCapture_ComesBackAsItWas_AChangedOneIsEncoded` |
+| R33 | the editor has a metafile | it becomes a PNG, the document has no EMF/WMF | bridge | PNG | `Metafile_BecomesAPng` |
+| R34 | the editor gets an element's style | `CascadeOf`, not `StyleOf`: it draws no frames on elements, so a framed image keeps its own shadow there | bridge | untouched | `AFramedElement_HasNoShadowOfItsOwn_OnlyTheFirstFrameCounts_ALineIsNeverFramed` |
+
+**Rotation**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R35 | an element has a `rotation` | degrees, clockwise, around the centre of `Area`; `Area` stays unturned, 0 isn't written. Box-shaped elements turn: rectangle, ellipse, text, speech bubble (its box, the tail is a point on the canvas), highlight, obfuscate, image, emoji, plugin. Lines, arrows and freehand turn by changing their points; cursors, step labels, cut marks and frames stay upright (R5) | resolver | kept | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints`, `RoundTrip_KeepsEveryElement` |
+| R36 | a turned element is measured | `Bounds` is the axis-aligned box around the turned area; anchors, the canvas and groups use it (R8) | resolver `Bounds` | untouched | `ATurnedElement_HasTheBoxAroundItAsBounds_ALineKeepsItsPoints` |
+| R37 | a turned element is drawn | everything of the shape turns: outline, fill, text, image (after `source` and `scale`), label; the shadow `offset` is in canvas coordinates and doesn't turn, the light comes from the same side for every element | renderer `DocumentRenderer`; resolver `VisualBounds` for the label | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement`, `ATurnedElement_IsDrawnTurned_ItsShadowFallsTheSameWay`, `TurnedText_StaysInItsTurnedBox` |
+| R38 | an obfuscate or highlight is turned | the effect is worked out in canvas pixels and cut to the turned shape, pixelate blocks stay on the pixel grid | renderer `DocumentRenderer` | untouched | `ATurnedObfuscate_ChangesOnlyThePixelsOfItsTurnedShape` |
+| R39 | a renderer can't turn an obfuscate or highlight | it covers the element's `Bounds`, more, never less | renderers, bridge | rotation kept | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
+| R40 | a turned element goes through today's editor | images and emojis turn in the editor; other turned elements are shown upright over their `Bounds` and come back with their area and rotation while unchanged; moved or resized, they come back upright with the new area | bridge | kept while unchanged | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
+| R41 | a frame's target is turned | the frame is drawn along the turned area of its target; its `area` stays the target's `Bounds` (R19) | renderer `DocumentRenderer` | untouched | `AFrame_FollowsItsTurnedTarget` |
+| R42 | OCR text is at an angle | the bounds of lines and words are those of the straightened text; turned by `textAngle` around the centre of the image they are where the text is. `OcrResult.OnCanvas` gives the area and rotation on the canvas (through the image element's area, source and rotation) | resolver | untouched | `OcrText_AtAnAngle_IsCoveredExactly` |
+
+**Turning the capture**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R48 | the capture is turned | in multiples of 90°, as one change of the document (`CaptureTurn.Apply`); the capture image gets the turn added to its `rotation`, its resource is never changed, so its analysis stays valid (R42); the page keeps its top left corner, a fixed canvas swaps width and height | edit | rotations, areas and points changed | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R49 | an element goes with the turned capture | it stays on the same spot of the capture: lines, arrows, freehand and the tail of a speech bubble turn their points; rectangles, ellipses, highlights, obfuscates, cut marks and frames swap width and height around their turned centre and keep their `rotation` (a box turned by 90° is the swapped box), a cut mark switches `horizontal`, the sides of a frame turn with it; images, plugins, text, speech bubbles, emojis and rectangles or ellipses with a label get the turn added to their `rotation`; step labels and cursors only move (they don't turn, R35); unknown elements stay as they are; a line label `along` the line follows it, a `horizontal` one stays horizontal | edit | areas, points and rotations changed | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R50 | the capture is turned with "keep text upright" | text, speech bubbles and emojis only move, their size and `rotation` stay; a rectangle or ellipse with a label is swapped and its label keeps its side of the box (below becomes left); images turn anyway, their label with them. Text which only moves may cover something or stick out, so this is the user's choice, never the default | edit | areas changed | `ATurnedCapture_WithTextUpright_MovesTheText_ButRedactionAndImagesStillTurn` |
+| R51 | an obfuscate or highlight goes with the turned capture | it covers the same pixels as before, whatever the user chose | edit | area changed | `ATurnedCapture_WithTextUpright_MovesTheText_ButRedactionAndImagesStillTurn` |
+| R52 | an anchored element goes with the turned capture | its anchors turn with it: the new x axis is the old y axis mirrored (start and end swapped, offset negated), the new y axis the old x axis; then `Anchors.Apply` places it, so a caption below the capture is left of it after a quarter turn | edit | anchors changed | `AnElementAnchoredBelowTheCapture_IsLeftOfItAfterAQuarterTurn` |
+| R53 | a turned capture is turned back | the opposite turn gives every element back exactly; analysis, metadata, groups and styles never change with a turn, a shadow `offset` stays in canvas coordinates (R37) | edit | as before the turn | `ATurnedCapture_KeepsItsPixels_EverythingStaysOnItsSpot_AndTurnsBackExactly` |
+| R54 | the user turns the capture (not built yet) | the editor uses R48; it asks whether text stays upright only when the capture has text, speech bubbles, emojis or labels, there is no setting for it; a recipe step and the command line pass it as an option | editor, recipes | – | – |
+
+**Labels**
+
+| # | when | outcome | enforced | stored data | test |
+|---|---|---|---|---|---|
+| R43 | an element has a `label` | rectangles, ellipses and images have a box label, lines and arrows a line label; not text, speech bubbles (their text is their content), step labels, cursors, emojis, freehand and obfuscate. One label per element; it moves, turns, copies and is deleted with its element; its text style is the element's `style.text` | edit, resolver | kept | `RoundTrip_KeepsEveryElement` |
+| R44 | a box label is placed | per axis `before` / `after` outside the box at `offset`, `start` / `end` inside at `offset`, `center` in the middle; inside it wraps in the box, outside it is as wide as the box unless it has a `width` | resolver `BoxLabel.AreaIn` | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R45 | a line label is placed | at `at` (0 to 1) from start to end, `offset` from the line to the nearest edge of the label (positive above a line from left to right), `horizontal` or `along` the line, never upside down | resolver, renderers | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R46 | an element with a label is measured | the label is in the visual bounds, not in `Bounds`; its size is estimated from the text style (a line is size x line height high, a letter 0.6 of the size wide), a renderer measures it | resolver `VisualBounds` | untouched | `ALabel_IsInTheVisualBounds_NotInTheBounds_AndTurnsWithItsElement` |
+| R47 | an element with a label goes through today's editor | the editor has no labels, the label is kept and comes back | bridge | kept | `ATurnedElement_IsShownUprightOverItsBounds_AndComesBackTurned_LabelsAreKept` |
+
+**When rules meet**
+
+- Style: R1, then R2, then R3; R4 and R5 decide what a renderer does with the result.
+- Placing and measuring: R11 (and R19) first, then R8 and R9.
+- Writing: R13 refuses before anything is written, then R25 decides what is written. What the editor keeps (R30) still
+  passes R25.
+- Strict (R28) is applied before writing, so R25 runs on the strict document.
+- Redaction: R39 goes before any other way of showing a turned element (R40): an obfuscate or highlight is never
+  smaller than what it covers.
+
+## File formats
+
+### Legacy .greenshot (1.2 - 1.4)
+
+```mermaid
+flowchart LR
+    PNG["PNG<br/>the rendered image"] --> NRBF["NRBF stream<br/>DrawableContainerList<br/>(BinaryFormatter)"] --> Length["Int64<br/>length of the NRBF stream"] --> Marker["'GreenshotNN.NN'<br/>14 ASCII bytes"]
+```
+
+`.gst` templates are only the NRBF stream. The reader walks the NRBF records with `System.Formats.Nrbf`, by type
+and member name; it never creates objects by type name. Unknown types become a `PluginElement` with the type name
+instead of failing the whole file.
+
+### New .greenshot package
+
+A zip file, read and written by `GreenshotPackage`. The full spec is in the project plan (`greenshot-document-format.md`);
+`mimetype`, `document.json`, `resources/`, `metadata.json` and `analysis.json` are built; `thumbnail.png` and
+`extensions/` are designed, not built yet. Optional parts are left out when they are empty or
+switched off; readers ignore parts they don't know.
+
+```mermaid
+flowchart LR
+    Zip(["example.greenshot (zip)"])
+    Zip --> Mimetype["mimetype<br/>application/vnd.greenshot.document+zip<br/>first entry, stored"]
+    Zip --> DocumentJson["document.json<br/>canvas, layers, elements, resource table"]
+    Zip --> Metadata["metadata.json (optional)<br/>title, dates, source, session"]
+    Zip --> Analysis["analysis.json (optional)<br/>per resource: OCR, barcodes, windows and UI areas"]
+    Zip --> Thumbnail["thumbnail.png (not built)<br/>small flattened preview"]
+    Zip --> Resources["resources/{uuid}.{ext}<br/>original bytes: capture, images, cursor, svg"]
+    Zip --> Extensions["extensions/{plugin-id}.json (optional, not built)<br/>kept on re-save, even without the plugin"]
+```
+
+- `mimetype` is the first entry, stored (method 0, not compressed), without an extra field and without a data
+  descriptor. Its content is exactly `application/vnd.greenshot.document+zip`, no line break. A zip local file header is
+  30 bytes followed by the file name, so the file starts with the zip signature `PK\x03\x04`, bytes 30-37 are the name
+  `mimetype` and from byte 38 on is the media type. A tool (`file`/libmagic, a shell thumbnail handler, an upload
+  filter) recognises a Greenshot document from the first 76 bytes, without unzipping or inflating anything. Other zip
+  based formats work the same way: EPUB (`application/epub+zip`), OpenDocument (`.odt`, `.ods`, `.odp`,
+  `application/vnd.oasis.opendocument.*`) and OpenRaster (`.ora`, `image/openraster`).
+- Readers still find the entry by name and compare its content (a package re-zipped by another tool is valid without the
+  fixed place), and refuse the package when it is missing or different. `GreenshotPackage.Read` does this.
+- Open: `ZipArchive` on .NET (Core) stores an entry written with `CompressionLevel.NoCompression`, .NET Framework 4.8
+  deflates it (an uncompressed deflate block, so the text starts a few bytes later). Packages written by the .NET
+  Framework build don't have the fixed place; the writer is Debug only, so no released file has it.
+
+- `document.json` is the model as JSON (System.Text.Json, camelCase) with a `version` (now 1); newer versions are
+  refused. The element type is written as a short name (`"type": "arrow"`), never as a CLR type name. Enums are
+  camelCase names, colors `#RRGGBBAA`, derived values (bounds, the canvas area) aren't written, nor are values which
+  are the default (`scaling`, `rotation`, an empty `style`, an `offset` of 0, `locked` false). The resource table maps
+  each resource id to its path, media type and size in pixels, the bytes are in `resources/{id}.{ext}`.
+- Writing is the gate (R25): only resources an element links to are written, a link to a missing resource or a media
+  type the file format registry doesn't know (it gives the `{ext}`) is refused. A resource can be linked
+  more than once; an action which changes an image (e.g. crop) either keeps the original and stores the operation,
+  or adds a new resource in a format the registry supports.
+- Readers ignore properties they don't know. An element with an unknown `type` becomes an `UnknownElement`, which is
+  written back unchanged.
+- Readers have limits (R26): number of entries (10,000) and size per entry (256 MB).
+- `metadata.json` (see "Metadata") and `analysis.json` (see "Analysis") are about the document and its images, never
+  needed for drawing. Saving or sharing without metadata leaves out both (the setting isn't built yet). Like the resources, the analysis of a resource which isn't written is left out; kinds of results a reader
+  doesn't know are written back unchanged.
+- Open: `thumbnail.png` and the `extensions/` files.
+
+## Conversions
+
+```mermaid
+flowchart LR
+    OldFile[".greenshot / .gst<br/>1.2 - 1.4"]
+    NewFile[".greenshot<br/>zip package"]
+    Surface["Surface<br/>(editor)"]
+    Doc(("GreenshotDocument"))
+    Bitmap["Bitmap"]
+
+    Surface -->|"SurfaceToDocument (done)"| Doc
+    OldFile -->|"LegacyToDocument (done)"| Doc
+    Doc -->|"DocumentToSurface (done)"| Surface
+    Doc <-->|"GreenshotPackage (done)"| NewFile
+    Doc -->|"DocumentToSurface.ToImage (later: own renderer)"| Bitmap
+    OldFile -.->|"today: BinaryFormatter"| Surface
+```
+
+## Steps
+
+| # | Step | State |
+|---|---|---|
+| 1 | Model (`Greenshot.Document`) | done |
+| 2 | Surface → document (`SurfaceToDocument`) | done |
+| 3 | Legacy file → document (`LegacyToDocument`); tested against today's loader via step 2 | done |
+| 4 | Document → Surface, and document → bitmap through the Surface (`DocumentToSurface`) | done |
+| 5 | New file format (`GreenshotPackage`): document.json and resources | done |
+| 6 | The capture pipeline carries the document next to the Surface | |
+| 7 | Recipes add elements to the document | |
+| 8 | Renderer without the editor (`DocumentRenderer`) | started: every element, rules R22, R37, R38, R41 |
+| 9 | Experimental editor UI (optional) | |
+| — | Writing 1.3 files | parked (read-only decided) |
+
+## Not in the model yet
+
+- The shadow settings of cut marks (darkness, size, offset) and those of torn edges in 1.3 and 1.4 files: the editor's
+  torn edge settings are used.
+- EMF/WMF on purpose (decided 2026-10-13): a proprietary Windows format, a metafile becomes a PNG. A converter can be
+  offered or pointed to later.
+- A resource's bytes are encoded in pooled buffers and then copied once into their own array. While the editor still has
+  the image it got from the capture resource, that resource comes back as it was (no encoding, same id and format);
+  encoding only when the bytes are written is not built yet.
+- The editor has one counter and no groups. A document becomes a `Surface` with each element's resolved style and the
+  first steps group (its start, its label order); back from the `Surface` there is one steps group (the other steps
+  groups are merged into it), the other groups are kept, and every element has its full style. Hidden layers don't
+  reach the `Surface` yet.
+- No plugin has an `IPluginElementConverter` yet (the barcode would be the first); until then a plugin's element is kept
+  with only its fallback.

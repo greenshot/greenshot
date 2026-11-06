@@ -217,7 +217,15 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void NewSeed()
         {
-            _seed = CutOutHelper.NewSeed(_seed);
+            SetSeed(CutOutHelper.NewSeed(_seed));
+        }
+
+        /// <summary>
+        /// Use the given seed for the edges
+        /// </summary>
+        internal void SetSeed(int seed)
+        {
+            _seed = seed;
             ClearShadowCache();
             Invalidate();
         }

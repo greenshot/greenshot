@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Draws a GreenshotDocument into an image with ImageSharp.Drawing, without the editor, System.Drawing or WinForms.
+    Experimental, nothing in a release build uses it yet.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
+  </ItemGroup>
+</Project>
