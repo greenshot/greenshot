@@ -51,14 +51,14 @@ namespace Greenshot.Tests.Recipes
         {
             var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
             config.Commands ??= new List<string>();
-            config.Commandline ??= new Dictionary<string, string>();
-            config.Argument ??= new Dictionary<string, string>();
+            config.CommandlineTemplate ??= new Dictionary<string, string>();
+            config.ArgumentTemplate ??= new Dictionary<string, string>();
             config.RunInbackground ??= new Dictionary<string, bool>();
             string command = $"Test_{Guid.NewGuid():N}";
             config.Commands.Add(command);
             // Never started: the file name is refused before
-            config.Commandline[command] = "greenshot-test-command-which-does-not-exist.exe";
-            config.Argument[command] = "\"{0}\"";
+            config.CommandlineTemplate[command] = "greenshot-test-command-which-does-not-exist.exe";
+            config.ArgumentTemplate[command] = "\"${export.file}\"";
             config.RunInbackground[command] = true;
             try
             {
@@ -77,8 +77,8 @@ namespace Greenshot.Tests.Recipes
             finally
             {
                 config.Commands.Remove(command);
-                config.Commandline.Remove(command);
-                config.Argument.Remove(command);
+                config.CommandlineTemplate.Remove(command);
+                config.ArgumentTemplate.Remove(command);
                 config.RunInbackground.Remove(command);
             }
         }

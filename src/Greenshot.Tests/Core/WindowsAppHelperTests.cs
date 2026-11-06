@@ -201,11 +201,11 @@ namespace Greenshot.Tests.Core
             var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
             Assert.NotNull(config);
             if (config.Commands == null) config.Commands = new System.Collections.Generic.List<string>();
-            if (config.Commandline == null) config.Commandline = new System.Collections.Generic.Dictionary<string, string>();
+            if (config.CommandlineTemplate == null) config.CommandlineTemplate = new System.Collections.Generic.Dictionary<string, string>();
 
             string cmdName = $"TestApp_{Guid.NewGuid():N}";
             config.Commands.Add(cmdName);
-            config.Commandline[cmdName] = app.ExeName;
+            config.CommandlineTemplate[cmdName] = app.ExeName;
 
             try
             {
@@ -217,7 +217,7 @@ namespace Greenshot.Tests.Core
             finally
             {
                 config.Commands.Remove(cmdName);
-                config.Commandline.Remove(cmdName);
+                config.CommandlineTemplate.Remove(cmdName);
             }
         }
     }

@@ -139,7 +139,7 @@ namespace Greenshot.Tests.Recipes
                 var save = recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.SaveFile);
                 var resolved = new RecipeNodeConfig(save.Id, save.StepType)
                 {
-                    Parameters = Greenshot.Base.Recipes.Expressions.ExpressionEvaluator.Instance.ResolveParameters(save.Parameters, new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe))
+                    Parameters = Greenshot.Base.Recipes.Expressions.RecipeExpressions.ResolveParameters(save.Parameters, new Greenshot.Base.Recipes.Pipeline.CaptureFlowContext(recipe))
                 };
 
                 Assert.Equal(ask, resolved.GetParameter<bool?>("AskForFilename"));

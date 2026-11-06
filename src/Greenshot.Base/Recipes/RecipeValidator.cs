@@ -167,6 +167,7 @@ namespace Greenshot.Base.Recipes
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
+            ValidateExpressions(recipe, result);
             ValidateTranslations(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
@@ -515,6 +516,59 @@ namespace Greenshot.Base.Recipes
                             result.AddError($"OpenFile trigger '{trigger.Name}' at index {index} has the invalid extension '{extension}' in its Filter; use extensions separated by ';', e.g. \".png;.jpg\".");
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Every ${...} of the nodes and triggers, checked for where it is used (docs/vNext/variables.md): the syntax, unknown
+        /// names and functions, and values which may not be used there (e.g. a window title choosing a folder or a command).
+        /// </summary>
+        private static void ValidateExpressions(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            var resolver = Greenshot.Base.Expressions.VariableResolver.Instance;
+            void Check(string where, object value, Greenshot.Base.Expressions.TemplatePurpose purpose)
+            {
+                switch (value)
+                {
+                    case string text when text.IndexOf("${", StringComparison.Ordinal) >= 0:
+                        foreach (var problem in resolver.Validate(text, purpose))
+                        {
+                            string message = $"{where}: {problem.Message} in '{text}'.";
+                            if (problem.IsWarning) result.AddWarning(message);
+                            else result.AddError(message);
+                        }
+                        break;
+                    case IDictionary<string, object> dictionary:
+                        foreach (var pair in dictionary) Check($"{where}.{pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                    case IEnumerable list when !(value is string):
+                        foreach (var item in list) Check(where, item, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                Check($"Node '{node.Id}' when", node.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (node.Parameters == null) continue;
+                var contract = string.IsNullOrWhiteSpace(node.StepType) ? null : StepRegistry.Instance.GetContract(node.StepType);
+                foreach (var pair in node.Parameters)
+                {
+                    var purpose = contract?.FindParameter(pair.Key)?.EffectivePurpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
+                    Check($"Node '{node.Id}' {pair.Key}", pair.Value, purpose);
+                }
+            }
+            if (recipe.Triggers == null) return;
+            for (int i = 0; i < recipe.Triggers.Count; i++)
+            {
+                var trigger = recipe.Triggers[i];
+                if (trigger == null) continue;
+                Check($"Trigger {i + 1} when", trigger.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (trigger.Parameters == null) continue;
+                foreach (var pair in trigger.Parameters)
+                {
+                    Check($"Trigger {i + 1} {pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
                 }
             }
         }

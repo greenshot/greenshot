@@ -318,6 +318,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### ⚙️ Configuration & Settings
 
+**One way to write variables** (#1693)
+- The screenshot folder, file name, print footer, Outlook subject, external commands and recipes all use the same `${...}` values, e.g. `${payload.time:yyyy-MM-dd}`, `${payload.title}`, `${user.pictures}`; see [variables](../vNext/variables.md)
+- The settings show what a file name or folder gives and what is wrong with it while you type
+- New counters: per folder (`${counter.folder}`), per name and per key; a counter only goes up when a file was saved
+- A window title or other text of a capture can no longer choose the folder or the program of an external command
+- The settings of 1.3 are converted once and kept, so going back to 1.3 still works
+
 **Clicking the tray icon** (#1708)
 - Settings > General has a new "Tray icon" group: choose what a click and a double-click on the Greenshot icon next to the clock do
 - Both start a recipe, e.g. a region capture, opening the folder of the last capture, the settings or the tray menu; the list has every recipe which needs nothing given to it

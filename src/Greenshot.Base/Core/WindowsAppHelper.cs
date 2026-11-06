@@ -233,8 +233,7 @@ public static class WindowsAppHelper
             string expandedCmd = null;
             if (!string.IsNullOrWhiteSpace(commandLine))
             {
-                expandedCmd = FilenameHelper.FillVariables(commandLine, true);
-                expandedCmd = FilenameHelper.FillCmdVariables(expandedCmd, true);
+                expandedCmd = Greenshot.Base.Expressions.OutputTemplates.RenderCommand(commandLine, Greenshot.Base.Expressions.VariableScope.Empty, out _);
             }
 
             // 1. Check if the path is an AppExecutionAlias reparse point (e.g. in %LOCALAPPDATA%\Microsoft\WindowsApps\)

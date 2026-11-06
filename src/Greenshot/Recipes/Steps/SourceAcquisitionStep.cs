@@ -63,7 +63,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("ScreenCaptureMode", ContractDataType.Enum, Description = "Which screen(s) to capture for FullScreen (default: settings)", AllowedValues = new[] { "Auto", "FullScreen", "Fixed" })]
     [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Capture the window whose title matches this regular expression (SourceType Window)")]
     [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
-    [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
+    [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${var.Window}) or a window handle")]
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
     [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen, where the selection shows what is captured.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]

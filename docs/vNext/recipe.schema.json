@@ -215,7 +215,7 @@
         },
         "format": {
           "type": "string",
-          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format, or template: ${...} in the value is evaluated where the option is used (e.g. a caption \"${now:yyyy-MM-dd}\")."
+          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format, or template: ${...} in the value is evaluated where the option is used (e.g. a caption \"${time.now:yyyy-MM-dd}\")."
         }
       }
     },
@@ -345,11 +345,11 @@
             },
             "Filename": {
               "type": "string",
-              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
+              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${var.Filename}') to the image file to load."
             },
             "Text": {
               "type": "string",
-              "description": "Used by 'Stdout' step: String template or expression (e.g. '${Barcode.Text}') to emit to stdout."
+              "description": "Used by 'Stdout' step: String template or expression (e.g. '${var.Barcode.Text}') to emit to stdout."
             },
             "WindowTitlePattern": {
               "type": "string",
@@ -361,7 +361,7 @@
             },
             "WindowHandle": {
               "type": [ "string", "integer" ],
-              "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${Window}')."
+              "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${var.Window}')."
             },
             "MatchCase": {
               "type": "boolean",
@@ -558,7 +558,7 @@
             },
             "Format": {
               "type": "string",
-              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
+              "description": "Used by 'SaveFile', 'Destinations', 'ExternalCommand', 'Jira' and 'Confluence' steps: the image format (e.g. 'png', 'jpg', or an expression like '${var.Format}'); by 'RecordVideo' step: the video format ('Mp4_H264' or 'Mp4_Hevc')."
             },
             "HdrFormat": {
               "anyOf": [ { "type": "string", "enum": [ "None", "Auto", "Jxr" ] }, { "type": "string", "pattern": "\\$\\{" } ],
@@ -736,7 +736,7 @@
         },
         "Text": {
           "type": "string",
-          "description": "Text content for Text, Speechbubble, or StepLabel (supports string interpolation like 'User: ${user.username} on ${machine.computername} at ${now:yyyy-MM-dd}')."
+          "description": "Text content for Text, Speechbubble, or StepLabel (supports string interpolation like 'User: ${user.name} on ${machine.name} at ${time.now:yyyy-MM-dd}')."
         },
         "LineColor": {
           "type": "string",
@@ -970,14 +970,14 @@
         },
         "when": {
           "type": "string",
-          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
+          "description": "Optional expression: the trigger is only registered while it is true, e.g. \"${option.useHotkey}\" or \"${config.Core.CaptureWindowsInteractive}\". Checked when the triggers are registered (start, settings or options changed)."
         },
         "parameters": {
           "type": "object",
           "properties": {
             "Hotkey": {
               "type": "string",
-              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Name}' for a hotkey of the general settings (e.g. '${config.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
+              "description": "Key combination (e.g. 'Ctrl + Shift + B', 'Alt + PrintScreen'), '${option.key}' for the value of a Hotkey option the user sets in the settings, or '${config.Core.Name}' for a hotkey of the general settings (e.g. '${config.Core.RegionHotkey}', as the built-in recipes do). Required for Hotkey triggers."
             },
             "MenuItemText": {
               "type": "string",
@@ -1027,7 +1027,7 @@
             },
             "Stdout": {
               "type": "string",
-              "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."
+              "description": "Used by Commandline trigger: Expression or string template (e.g. '${var.Barcode.Text}') evaluated and emitted to stdout upon completion."
             },
             "ToolName": {
               "type": "string",

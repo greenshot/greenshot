@@ -32,6 +32,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
@@ -1011,7 +1012,7 @@ namespace Greenshot.Ipc
                 if (queryExpr != null)
                 {
                     // Priority 1: --query replaces the recipe's own output
-                    stdoutText = ExpressionEvaluator.Instance.Evaluate(queryExpr, flowContext)?.ToString();
+                    stdoutText = RecipeExpressions.Evaluate(queryExpr, flowContext, TemplatePurpose.Text)?.ToString();
                 }
                 else if (hasStreamedStdout)
                 {
@@ -1026,7 +1027,7 @@ namespace Greenshot.Ipc
                 else if (!string.IsNullOrWhiteSpace(stdoutExpr))
                 {
                     // Priority 4: Explicit stdout template defined on the trigger
-                    stdoutText = ExpressionEvaluator.Instance.Evaluate(stdoutExpr, flowContext)?.ToString();
+                    stdoutText = RecipeExpressions.Evaluate(stdoutExpr, flowContext, TemplatePurpose.Text)?.ToString();
                 }
                 else
                 {

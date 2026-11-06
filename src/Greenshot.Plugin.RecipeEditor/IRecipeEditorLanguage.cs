@@ -1147,7 +1147,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string DeleteVariable { get; }
 
         /// <summary>
-        /// Available scopes: ${user.username}, ${machine.computername}, ${now:yyyy-MM-dd}, ${payload.width}
+        /// Available scopes: ${user.name}, ${machine.name}, ${time.now:yyyy-MM-dd}, ${payload.width}
         /// </summary>
         string HintVariableScopes { get; }
 
@@ -2546,7 +2546,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// </summary>
         string TipRemoveLanguage { get; }
 
-
         /// <summary>
         /// Key
         /// </summary>
@@ -2608,7 +2607,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string OptionExpandPlaceholders { get; }
 
         /// <summary>
-        /// Text options only: placeholders in the value the user sets are filled in when the step runs, e.g. a caption "Captured ${now:yyyy-MM-dd}" gets the date. Without it the value is used as typed.
+        /// Text options only: placeholders in the value the user sets are filled in when the step runs, e.g. a caption "Captured ${time.now:yyyy-MM-dd}" gets the date. Without it the value is used as typed.
         /// </summary>
         string TipOptionExpandPlaceholders { get; }
 
@@ -4736,5 +4735,20 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
         /// </summary>
         string ManagerBtnGetMoreTooltip { get; }
+
+        /// <summary>
+        /// ${ } Variables
+        /// </summary>
+        string ExpressionHelpButton { get; }
+
+        /// <summary>
+        /// Lists the variables and functions this recipe can use (F1)
+        /// </summary>
+        string TipExpressionHelp { get; }
+
+
+
+
+
     }
 }

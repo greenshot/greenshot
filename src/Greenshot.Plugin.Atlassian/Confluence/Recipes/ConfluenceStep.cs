@@ -34,6 +34,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Atlassian.Confluence.Destinations;
 using log4net;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
 {
@@ -85,11 +86,6 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
 
             string pageId = NodeConfig.GetParameter<string>("PageId");
 
-            if (!string.IsNullOrEmpty(pageId))
-            {
-                pageId = FilenameHelper.FillVariables(pageId, false);
-            }
-
             string formatStr = NodeConfig.GetParameter<string>("Format");
             var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
@@ -98,7 +94,7 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
+            string filename = OutputTemplates.UploadFileName(captureDetails, uploadFormat);
 
             var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(pageId) && long.TryParse(pageId, out long parsedPageId))

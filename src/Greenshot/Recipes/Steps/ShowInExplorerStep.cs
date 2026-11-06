@@ -113,10 +113,11 @@ namespace Greenshot.Recipes.Steps
                 return lastCapture;
             }
 
-            conf.ValidateAndCorrectOutputFilePath();
+            conf.ValidateAndCorrectOutputDirectory();
             try
             {
-                string screenshots = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+                string screenshots = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(conf.OutputDirectory, Greenshot.Base.Expressions.VariableScope.Empty, out _);
+                if (string.IsNullOrEmpty(screenshots)) return null;
                 return Directory.Exists(screenshots) ? screenshots : null;
             }
             catch (Exception ex)

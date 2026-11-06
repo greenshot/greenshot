@@ -166,7 +166,7 @@ namespace Greenshot.Base.Recipes
         {
             if (!Enabled) return false;
             if (string.IsNullOrWhiteSpace(When)) return true;
-            return ExpressionEvaluator.Instance.Evaluate(When, context, false);
+            return RecipeExpressions.IsMet(When, context);
         }
 
         /// <summary>

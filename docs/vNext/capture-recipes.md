@@ -66,7 +66,7 @@ Settings > Recipes offer "Get More Recipes" (beta testers only) to open the cata
 
 1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
    are part of Greenshot); an index without a valid signature is refused,
-2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`), downloads the file
+2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`, compared with the full version including the build number, e.g. 1.4.123), downloads the file
    from the catalog repository and checks it against the SHA-256 of the index,
 3. shows the approval window, marked "from the catalog", with the catalog version, its authors, a link to its page and
    the recipe's options (settings) to fill in right away,
@@ -112,7 +112,7 @@ For example:
 ### Hotkeys from the settings, and `when`
 
 A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
-see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+see Recipe Options) or a hotkey of the general settings (`"${config.Core.RegionHotkey}"`). The built-in recipes get their
 hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
 recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
 
@@ -122,7 +122,7 @@ The window hotkey uses it to start either the window capture or the active windo
 
 ```json
 "triggers": [
-  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+  { "triggerType": "Hotkey", "when": "${config.Core.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.Core.WindowHotkey}" } }
 ]
 ```
 
@@ -398,7 +398,7 @@ The `Ocr` step reads the text of the capture with Windows OCR into the variable 
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
 itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
 `Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
-selection: a `Conditional` step *Text or image* sends `${SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
+selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
@@ -407,21 +407,26 @@ selecting; the `BarcodeScan` step uses what it found. When the capture is croppe
 lines which are (partly) in the selection stay with it, also the ones the scan finds later. OCR only runs where text is needed: the text selection, the `Ocr`
 step, the OCR destination and the editor's text obfuscation, each on the image it gets.
 
-## 3. Dynamic Expressions & Scoped Environment Variables
+## 3. Dynamic Expressions & Variables
 
-Recipe step parameters support embedded mathematical expressions, boolean conditions, string interpolation, and system environment information using `${...}` syntax exclusively.
+Recipe step parameters, `when` conditions, triggers and options use `${...}`, the same syntax and names as the file name
+and folder settings: see [variables.md](variables.md) for the full list. In short:
 
-### Scopes & Variable Sources
-Greenshot expression evaluation separates system information into distinct scopes:
+| Namespace | Example |
+|---|---|
+| `var.*` (recipe variables: trigger values, `SetVariable`, step outputs) | `${var.Window}`, `${var.Barcode.Text}` |
+| `option.*` (recipe options) | `${option.border}` |
+| `payload.*` (the capture) | `${payload.width}`, `${payload.title}`, `${payload.ocr.text}`, `${payload.hdr == 'Available'}` |
+| `time.*` | `${time.now:yyyy-MM-dd HH-mm-ss}` |
+| `user.*`, `machine.*`, `env.*` | `${user.name}`, `${machine.name}`, `${user.pictures}`, `${env.TEMP}` |
+| `config.<section>.<key>` | `${config.Core.RegionHotkey}` |
+| `recipe.*` | `${recipe.name}` |
 
-| Scope Prefix | Source | Description | Example |
-|---|---|---|---|
-| `user.*` | Windows User Environment | User-specific environment variables (from `EnvironmentVariableTarget.User`) | `${user.username}`, `${user.temp}`, `${user.appdata}` |
-| `machine.*` | Windows Machine Environment | System-wide / machine-scoped environment variables (from `EnvironmentVariableTarget.Machine`) | `${machine.computername}`, `${machine.os}`, `${machine.programfiles}` |
-| `config.*` | Greenshot INI Configuration | Live configuration settings from `greenshot.ini` | `${config.language}`, `${config.capturemousepointer}` |
-| `context.*` | Pipeline Flow Context | Variables stored in `context.Properties` or set by preceding steps | `${context.watermark_text}`, `${context.WindowTitle}` |
-| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture; `payload.hdr` is `Available` (can be saved as an HDR file), `Lost` (monochrome or reduce colors changed the image) or `None` (no HDR content: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. to ask with a `UserPrompt` step how to save, or `NoHdrNote` of the `Notification` step to say so | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}`, `${payload.hdr == 'Available'}` |
-| `now:format` | Date / Time | Current timestamp formatted with .NET DateTime format strings | `${now:yyyy-MM-dd HH:mm:ss}` |
+`payload.hdr` is `Available` (can be saved as an HDR file), `Lost` (an edit changed the image) or `None` (no HDR content),
+e.g. to ask with a `UserPrompt` step how to save, or `NoHdrNote` of the `Notification` step to say so.
+
+A value from the capture (title, OCR text, file) or a recipe variable can never choose a folder or a command. Recipes
+of an earlier beta are not converted (see [variables.md](variables.md#recipes-of-an-earlier-14-beta)).
 
 ### Mathematical & Logical Expressions
 Parameters such as coordinates, widths, heights, and variables can be calculated dynamically inside `${...}`:
@@ -438,9 +443,9 @@ Create or transform variables in the pipeline context for downstream nodes to co
   "stepType": "SetVariable",
   "parameters": {
     "Variables": {
-      "captured_by": "Captured by ${user.username} on ${machine.computername}",
+      "captured_by": "Captured by ${user.name} on ${machine.name}",
       "watermark_box_width": "${payload.width * 0.4}",
-      "timestamp_header": "[${now:yyyy-MM-dd HH:mm:ss}]"
+      "timestamp_header": "[${time.now:'yyyy-MM-dd HH:mm:ss'}]"
     }
   }
 }
@@ -457,9 +462,9 @@ the image: which fields, and a title, description, author or copyright of the re
   "parameters": {
     "Fields": [ "CaptureTime", "Author", "Source" ],
     "Title": "${payload.title}",
-    "Description": "Ticket ${context.ticket}",
+    "Description": "Ticket ${var.ticket}",
     "Author": "Support team",
-    "Copyright": "(c) ${now:yyyy} Example Inc."
+    "Copyright": "(c) ${time.now:yyyy} Example Inc."
   }
 }
 ```
@@ -686,7 +691,7 @@ Annotations can be positioned using:
         "Height": 30,
         "OffsetX": -20,
         "OffsetY": -20,
-        "Text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
+        "Text": "User: ${user.name} | Host: ${machine.name} | ${time.now:yyyy-MM-dd}",
         "LineColor": "#FFFFFF",
         "FontSize": 9.5,
         "Bold": true
@@ -780,10 +785,10 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
   of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
-- **DirectoryPath**: a folder, a full local or network path. It may use `${user.*}` and `${machine.*}` values, e.g.
+- **DirectoryPath**: a folder, a full local or network path. It may use `${user.*}`, `${machine.*}` and `${env.*}` values, e.g.
   `"${user.pictures}\\Greenshot"`: `${user.pictures}`, `${user.documents}` and `${user.desktop}` find these folders also
-  when they were moved (e.g. to OneDrive), any other name is an environment variable (`${user.OneDrive}`). Other `${...}`
-  values and `%VARIABLES%` can't be used, so neither a capture nor a typed text chooses a folder; the `template` format
+  when they were moved (e.g. to OneDrive); an environment variable is `${env.OneDrive}`. Values of the capture, recipe
+  variables and `%VARIABLES%` can't be used, so neither a capture nor a typed text chooses a folder; the `template` format
   is only for `String` options. Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
   `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
@@ -791,7 +796,7 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   with an empty `SaveDirectory` uses Greenshot's output folder.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
-  `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
+  `"Captured on ${time.now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
 
 ### Automatic Steps (recipe extensions, `"kind": "extension"`)
 An automatic step is a small flow which Greenshot puts into other recipes, the built-in ones included, without copying or
@@ -867,7 +872,7 @@ change which recipe.
 
 | Extension | Options | Steps | Order |
 |---|---|---|---|
-| Caption | on/off, text (template, default `${now:yyyy-MM-dd HH:mm:ss}`), above or below, font size, text and bar color | Effect ResizeCanvas + Text annotation | 100 |
+| Caption | on/off, text (template, default `${time.now:'yyyy-MM-dd HH:mm:ss'}`), above or below, font size, text and bar color | Effect ResizeCanvas + Text annotation | 100 |
 | Border | on/off, width 1–50 px (default 2), color (default black) | Effect Border | 200 |
 | Drop shadow | on/off, size, darkness, offset | Effect DropShadow | 300 |
 
@@ -1003,7 +1008,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "parameters": {
         "Variables": {
           "department": "Engineering QA",
-          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+          "watermark_text": "Captured by ${user.name} on ${machine.name} [${time.now:'yyyy-MM-dd HH:mm'}]"
         }
       }
     },
@@ -1033,7 +1038,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
             "Height": 30,
             "OffsetX": -20,
             "OffsetY": -20,
-            "Text": "${context.watermark_text}",
+            "Text": "${var.watermark_text}",
             "LineColor": "#FFFFFF",
             "FontSize": 9.5,
             "FontFamily": "Segoe UI",
@@ -1220,8 +1225,8 @@ The complete, current description of every step type (parameters, variables it r
 The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
 
 #### Configuration Parameters:
-- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
-- **`Arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` with trusted values only (e.g. `${user.localappdata}`, `${env.ProgramFiles}`).
+- **`Arguments`**: Arguments string passed to the process. `${export.file}` is the file (quote it yourself: `"${export.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
 - **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
 - **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
 - **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
@@ -1241,7 +1246,7 @@ Every step type has a contract: its parameters (with their allowed values), the 
 
 When a recipe is loaded, Greenshot checks it against the contracts along the flow (see `recipe-contracts-cli-query-plan.md`, section 3). The warnings appear in the log, the recipe editor and `greenshot --info <recipe>`:
 
-* `${X}` is used, but `X` is only set in some branches before this node, or only by nodes that do not run before it.
+* `${var.X}` is used, but `X` is only set in some branches before this node, or only by nodes that do not run before it.
 * A step needs an image, but on some path none was acquired.
 * A required parameter is missing, a value is not allowed, or a parameter is not read by the step (often a typo, or a parameter from an older version).
 * A node is never executed.

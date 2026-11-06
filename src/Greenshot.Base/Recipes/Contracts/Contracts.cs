@@ -60,6 +60,19 @@ namespace Greenshot.Base.Recipes.Contracts
         /// <summary>A text the user sees, which the translations of a recipe can translate, see <see cref="StepParameterAttribute.Translatable"/>.</summary>
         public bool Translatable { get; set; }
 
+        /// <summary>Where the ${...} of the value is used, null for the default of the data type, see <see cref="EffectivePurpose"/></summary>
+        public Greenshot.Base.Expressions.TemplatePurpose? Purpose { get; set; }
+
+        /// <summary>Folder for paths, else Value, unless <see cref="Purpose"/> says otherwise</summary>
+        [JsonIgnore]
+        public Greenshot.Base.Expressions.TemplatePurpose EffectivePurpose =>
+            Purpose ?? (DataType == ContractDataType.DirectoryPath || DataType == ContractDataType.FilePath
+                ? Greenshot.Base.Expressions.TemplatePurpose.Folder
+                : Greenshot.Base.Expressions.TemplatePurpose.Value);
+
+        /// <summary>The step renders the template itself (it knows the folder or the written file), the engine leaves it as it is</summary>
+        public bool RenderedByStep { get; set; }
+
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);
 

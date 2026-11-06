@@ -74,7 +74,7 @@ namespace Greenshot.Tests.Recipes
         [InlineData(@"${user.pictures}\Screenshots", true)]
         [InlineData(@"${user.GREENSHOT_NO_SUCH_VARIABLE}\Screenshots", false)]
         [InlineData(@"${payload.title}\Screenshots", false)]
-        [InlineData(@"${now}\Screenshots", false)]
+        [InlineData(@"${time.now}\Screenshots", false)]
         [InlineData(@"%TEMP%\Screenshots", false)]
         [InlineData("C:\\Screen|shots", false)]
         public void DirectoryOption_TakesOnlyFullPaths(string text, bool valid)

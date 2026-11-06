@@ -1715,7 +1715,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 LoadPromptChoices();
             }
 
-            AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
+            AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.name}"));
             AddAnnotationCommand = new RelayCommand(p => AddAnnotation((p as string) ?? "Rectangle"));
             ImportFromEditorCommand = new RelayCommand(ExecuteImportFromEditor);
             ImportFromGreenshotFileCommand = new RelayCommand(ExecuteImportFromGreenshotFile);
@@ -1727,11 +1727,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dlg.ShowNewFolderButton = true;
                     if (!string.IsNullOrEmpty(SaveDirectory))
                     {
-                        try
-                        {
-                            dlg.SelectedPath = Greenshot.Base.Core.FilenameHelper.FillVariables(SaveDirectory, false);
-                        }
-                        catch { }
+                        // The folder as it is now, as a start for the dialog; null when it uses values only a capture has
+                        dlg.SelectedPath = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SaveDirectory, Greenshot.Base.Expressions.VariableScope.Empty, out _) ?? string.Empty;
                     }
                     if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
@@ -1774,7 +1771,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     try
                     {
-                        string expanded = Greenshot.Base.Core.FilenameHelper.FillVariables(SoundFilePath, false);
+                        string expanded = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SoundFilePath, Greenshot.Base.Expressions.VariableScope.Empty, out _);
                         if (!string.IsNullOrEmpty(expanded) && File.Exists(expanded))
                         {
                             using (var player = new System.Media.SoundPlayer(expanded))
@@ -1899,7 +1896,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             NotifyConfigUpdated();
         }
 
-        public void AddVariable(string key = "var_name", string value = "${user.username}")
+        public void AddVariable(string key = "var_name", string value = "${user.name}")
         {
             var item = new VariableItemViewModel(key, value, SyncVariablesToConfig, RemoveVariable);
             Variables.Add(item);
@@ -1961,7 +1958,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             };
             if (string.Equals(type, "Text", StringComparison.OrdinalIgnoreCase))
             {
-                item.Text = "Captured: ${now:yyyy-MM-dd}";
+                item.Text = "Captured: ${time.now:yyyy-MM-dd}";
                 item.Width = "220";
                 item.Height = "32";
                 item.FillColor = "transparent";
@@ -2984,7 +2981,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string FilenamePattern
         {
-            get => GetParam("FilenamePattern", "greenshot ${capturetime}");
+            get => GetParam("FilenamePattern", Greenshot.Base.Expressions.OutputTemplates.DefaultFileName);
             set { SetParam("FilenamePattern", value); OnPropertyChanged(nameof(FilenamePattern)); OnPropertyChanged(nameof(Summary)); }
         }
 
@@ -3097,7 +3094,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public string ClipboardCustomText
         {
-            get => GetParam("ClipboardCustomText", "${ocr_text}");
+            get => GetParam("ClipboardCustomText", "${payload.ocr.text}");
             set { SetParam("ClipboardCustomText", value); OnPropertyChanged(nameof(ClipboardCustomText)); }
         }
 

@@ -244,22 +244,19 @@ namespace Greenshot.Settings.Views
         {
             string selectedPath = ModernFolderPicker.SelectFolder(
                 this,
-                _viewModel.CoreConfiguration.OutputFilePath,
+                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _),
                 Texts.Settings.Storagelocation);
 
             if (!string.IsNullOrEmpty(selectedPath))
             {
-                _viewModel.CoreConfiguration.OutputFilePath = selectedPath;
+                // A folder in Pictures, Documents, ... is kept as ${user.pictures}\..., so it moves with that folder
+                _viewModel.CoreConfiguration.OutputDirectory = Base.Expressions.OutputTemplates.FolderTemplateOf(selectedPath);
             }
         }
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new PatternHelpWindow(Texts.Settings.MessageFilenamepattern)
-            {
-                Owner = this
-            };
-            dialog.ShowDialog();
+            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(Base.Expressions.ExpressionHelp.For(Base.Expressions.TemplatePurpose.FileName), this);
         }
 
         // The buttons change the size in steps of 4 pixels, the configuration keeps the value on a step

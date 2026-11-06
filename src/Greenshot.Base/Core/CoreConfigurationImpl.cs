@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Expressions;
 using System.Text.RegularExpressions;
 using log4net;
 
@@ -119,6 +120,13 @@ namespace Greenshot.Base.Core
             return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
+        /// <summary>
+        /// The default of OutputDirectory as a template (${user.desktop}), so it moves with the folder; portable: the path next to
+        /// Greenshot, which stays as it is
+        /// </summary>
+        private string DefaultOutputDirectory() =>
+            GreenshotEnvironment.IsPortable ? CreateOutputFilePath() : OutputTemplates.FolderTemplateOf(CreateOutputFilePath());
+
         private string CreateOutputFilePath()
         {
             if (GreenshotEnvironment.IsPortable)
@@ -200,36 +208,32 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Sets the default folder when no OutputFilePath is configured. A configured folder stays, also when it doesn't exist right now:
+        /// Sets the default folder when no OutputDirectory is configured. A configured folder stays, also when it doesn't exist right now:
         /// <see cref="GetOutputDirectory"/> creates it, or uses the default folder for one save (e.g. a network drive which isn't reachable).
         /// </summary>
-        public void ValidateAndCorrectOutputFilePath()
+        public void ValidateAndCorrectOutputDirectory()
         {
-            if (!string.IsNullOrEmpty(OutputFilePath))
+            if (string.IsNullOrWhiteSpace(OutputDirectory))
             {
-                OutputFilePath = NormalizePath(OutputFilePath);
-            }
-            if (string.IsNullOrWhiteSpace(OutputFilePath))
-            {
-                OutputFilePath = CreateOutputFilePath();
+                OutputDirectory = DefaultOutputDirectory();
             }
         }
 
         /// <summary>
-        /// The folder for a new screenshot: the configured folder with its variables filled in, created when it doesn't exist.
-        /// When it can't be used, the default folder, only for this save: the setting stays, so the configured folder is used
-        /// again as soon as it's available (e.g. a network drive after connecting the VPN).
+        /// The folder for a new screenshot: the configured folder rendered for the capture and created when it doesn't exist, or the
+        /// default folder for this one save when the configured one can't be used (e.g. a network drive which isn't connected).
         /// </summary>
+        /// <param name="scope">What the template can use, null for none</param>
         /// <param name="problem">Why the configured folder couldn't be used, null when it is used</param>
-        public string GetOutputDirectory(out string problem)
+        public string GetOutputDirectory(VariableScope scope, out string problem)
         {
             problem = null;
-            ValidateAndCorrectOutputFilePath();
-            string configured = OutputFilePath;
+            ValidateAndCorrectOutputDirectory();
+            string configured = OutputDirectory;
             string directory = null;
             try
             {
-                directory = FilenameHelper.FillVariables(configured, false);
+                directory = VariableResolver.Instance.Render(configured, TemplatePurpose.Folder, scope);
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -237,7 +241,7 @@ namespace Greenshot.Base.Core
                 }
                 return directory;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException || ex is TemplateException)
             {
                 problem = ex.Message;
             }
@@ -361,11 +365,17 @@ namespace Greenshot.Base.Core
                 }
             }
 
+            // The templates of 1.4 are filled once from the patterns of 1.3, which stay for going back to 1.3. A pattern fixed in
+            // greenshot-fixed.ini is converted on every start, so it keeps deciding.
+            OutputDirectory = FromLegacyPattern(nameof(OutputDirectory), OutputDirectory, nameof(OutputFilePath), OutputFilePath, true);
+            OutputFileNameTemplate = FromLegacyPattern(nameof(OutputFileNameTemplate), OutputFileNameTemplate, nameof(OutputFileFilenamePattern), OutputFileFilenamePattern, false);
+            OutputPrintFooterTemplate = FromLegacyPattern(nameof(OutputPrintFooterTemplate), OutputPrintFooterTemplate, nameof(OutputPrintFooterPattern), OutputPrintFooterPattern, false);
+
             // Set defaults for properties that need computed defaults. A configured folder stays, also when it doesn't exist right now
-            // (a network drive at the logon, variables like ${YYYY}), see GetOutputDirectory
-            if (string.IsNullOrEmpty(OutputFilePath))
+            // (a network drive at the logon, values like ${payload.time:yyyy}), see GetOutputDirectory
+            if (string.IsNullOrEmpty(OutputDirectory))
             {
-                OutputFilePath = CreateOutputFilePath();
+                OutputDirectory = DefaultOutputDirectory();
             }
 
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
@@ -492,6 +502,28 @@ namespace Greenshot.Base.Core
 
             identifiers.Clear();
             return true;
+        }
+
+        /// <summary>
+        /// The value for a template setting: the converted pattern of 1.3 when the template isn't set yet, or when the pattern is
+        /// fixed by an administrator and the template isn't
+        /// </summary>
+        private string FromLegacyPattern(string templateKey, string template, string patternKey, string pattern, bool percentVariables)
+        {
+            bool patternFixed = IsConstant(patternKey) && !IsConstant(templateKey);
+            if (!patternFixed && !string.IsNullOrEmpty(template)) return template;
+            if (string.IsNullOrEmpty(pattern)) return template;
+            string converted = LegacyTemplateConverter.Convert(pattern, percentVariables);
+            if (percentVariables && !GreenshotEnvironment.IsPortable)
+            {
+                // A folder: the 1.3 path in a known folder is written with its value, e.g. ${user.desktop}
+                converted = OutputTemplates.FolderTemplateOf(converted);
+            }
+            if (!string.Equals(converted, template, StringComparison.Ordinal))
+            {
+                Log.InfoFormat("{0} '{1}' of Greenshot 1.3 is {2} '{3}' now", patternKey, pattern, templateKey, converted);
+            }
+            return converted;
         }
 
         public bool OnBeforeSave()

@@ -52,7 +52,7 @@ namespace Greenshot.Recipes.Triggers
 
         /// <summary>
         /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the settings changed.
-        /// The hotkeys of the general settings are triggers of the built-in recipes ("${config.RegionHotkey}"), so this
+        /// The hotkeys of the general settings are triggers of the built-in recipes ("${config.Core.RegionHotkey}"), so this
         /// registers the triggers of all recipes again.
         /// </summary>
         public void RestartHotkeyTriggers()

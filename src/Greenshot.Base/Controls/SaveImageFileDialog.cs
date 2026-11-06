@@ -27,6 +27,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
 using Microsoft.Win32;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Base.Controls
 {
@@ -74,9 +75,13 @@ namespace Greenshot.Base.Controls
             {
                 _saveFileDialog.InitialDirectory = initialDirectory;
             }
-            else if (Directory.Exists(conf.OutputFilePath))
+            else
             {
-                _saveFileDialog.InitialDirectory = conf.OutputFilePath;
+                string outputDirectory = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.ForCapture(_captureDetails), out _);
+                if (Directory.Exists(outputDirectory))
+                {
+                    _saveFileDialog.InitialDirectory = outputDirectory;
+                }
             }
 
             // The following property fixes a problem that the directory where we save is locked (bug #2899790)
@@ -259,18 +264,22 @@ namespace Greenshot.Base.Controls
         /// </summary>
         private void ApplySuggestedValues()
         {
-            string expanded = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
+            string outputDirectory = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.ForCapture(_captureDetails), out _);
+            string baseDir = !string.IsNullOrEmpty(outputDirectory) ? outputDirectory : _saveFileDialog.InitialDirectory;
+            // A suggestion: the counters show their next number and stay
+            string expanded = OutputTemplates.PreviewFileName(_captureDetails, baseDir);
+            if (!string.IsNullOrEmpty(baseDir) && expanded.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase))
+            {
+                expanded = expanded.Substring(baseDir.Length).TrimStart(Path.DirectorySeparatorChar);
+            }
 
-            // Pattern may expand to a relative subpath (e.g. "2026-03-02\000002 - title").
+            // The template may hold a sub folder (e.g. "2026-03-02\002 - title").
             // Split into directory and filename parts so the dialog navigates to the right folder.
             string subDir = Path.GetDirectoryName(expanded);
             string fileName = Path.GetFileName(expanded);
 
             if (!string.IsNullOrEmpty(subDir))
             {
-                string baseDir = !string.IsNullOrEmpty(conf.OutputFilePath)
-                    ? conf.OutputFilePath
-                    : _saveFileDialog.InitialDirectory;
                 string fullDir = Path.Combine(baseDir, subDir);
 
                 if (!Directory.Exists(fullDir))

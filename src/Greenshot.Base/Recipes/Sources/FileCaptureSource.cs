@@ -39,7 +39,7 @@ namespace Greenshot.Base.Recipes.Sources
     /// <summary>
     /// Acquires a capture payload by loading an image file or .greenshot file from disk.
     /// Explicitly resolves the target file path from RecipeNodeConfig parameters ("Filename", "file", etc.)
-    /// with expression evaluation (e.g. "${Filename}"), falling back to flow context properties.
+    /// with expression evaluation (e.g. "${var.Filename}"), falling back to flow context properties.
     /// </summary>
     public class FileCaptureSource : ICaptureSource
     {
@@ -63,7 +63,7 @@ namespace Greenshot.Base.Recipes.Sources
             {
                 if (_nodeConfig.Parameters.TryGetValue("Filename", out var cfgVal))
                 {
-                    // Already evaluated by the engine (e.g. "${Filename}"); must not be evaluated again
+                    // Already evaluated by the engine (e.g. "${var.Filename}"); must not be evaluated again
                     string configured = cfgVal?.ToString();
                     if (!string.IsNullOrWhiteSpace(configured))
                     {
@@ -106,7 +106,7 @@ namespace Greenshot.Base.Recipes.Sources
         {
             if (string.IsNullOrWhiteSpace(filename))
             {
-                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${Filename}') or provide 'Filename' in the flow context properties.");
+                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${var.Filename}') or provide 'Filename' in the flow context properties.");
                 return null;
             }
 

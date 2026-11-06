@@ -132,7 +132,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" Content="{wpf:Text Office.OutlookSubjectPattern}" Target="{Binding ElementName=SubjectPatternTextBox}"/>
-                        <TextBox x:Name="SubjectPatternTextBox" Grid.Column="1" Text="{Binding Config.EmailSubjectPattern, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="SubjectPatternTextBox" Grid.Column="1" Text="{Binding Config.EmailSubjectTemplate, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
 
                     <Grid Margin="0,4">

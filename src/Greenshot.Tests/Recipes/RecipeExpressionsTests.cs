@@ -30,9 +30,9 @@ using Xunit;
 
 namespace Greenshot.Tests.Recipes
 {
-    public class ExpressionEvaluatorTests
+    public class RecipeExpressionsTests
     {
-        public ExpressionEvaluatorTests()
+        public RecipeExpressionsTests()
         {
             TestEnvironment.EnsureInitialized();
         }
@@ -45,7 +45,7 @@ namespace Greenshot.Tests.Recipes
             context.Properties["CustomTag"] = "BugReport";
             context.Properties["Count"] = 42;
 
-            var result = ExpressionEvaluator.Instance.Evaluate("prefix_${context.CustomTag}_${context.Count}", context);
+            var result = RecipeExpressions.Evaluate("prefix_${var.CustomTag}_${var.Count}", context);
             Assert.Equal("prefix_BugReport_42", result);
         }
 
@@ -57,13 +57,13 @@ namespace Greenshot.Tests.Recipes
             context.Properties["Width"] = 1920;
             context.Properties["Height"] = 1080;
 
-            bool isFhd = ExpressionEvaluator.Instance.Evaluate<bool>("${Width == 1920 && Height == 1080}", context);
+            bool isFhd = RecipeExpressions.Evaluate<bool>("${var.Width == 1920 && var.Height == 1080}", context);
             Assert.True(isFhd);
 
-            bool is4k = ExpressionEvaluator.Instance.Evaluate<bool>("${Width >= 3840}", context);
+            bool is4k = RecipeExpressions.Evaluate<bool>("${var.Width >= 3840}", context);
             Assert.False(is4k);
 
-            double area = ExpressionEvaluator.Instance.Evaluate<double>("${Width * Height}", context);
+            double area = RecipeExpressions.Evaluate<double>("${var.Width * var.Height}", context);
             Assert.Equal(1920 * 1080, area);
         }
 
@@ -83,10 +83,10 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            int w = ExpressionEvaluator.Instance.Evaluate<int>("${payload.width}", context);
-            int h = ExpressionEvaluator.Instance.Evaluate<int>("${payload.height}", context);
-            string text = ExpressionEvaluator.Instance.Evaluate<string>("${payload.extractedtext}", context);
-            string title = ExpressionEvaluator.Instance.Evaluate<string>("${payload.title}", context);
+            int w = RecipeExpressions.Evaluate<int>("${payload.width}", context);
+            int h = RecipeExpressions.Evaluate<int>("${payload.height}", context);
+            string text = RecipeExpressions.Evaluate<string>("${payload.ocr.text}", context);
+            string title = RecipeExpressions.Evaluate<string>("${payload.title}", context);
 
             Assert.Equal(800, w);
             Assert.Equal(600, h);
@@ -104,12 +104,12 @@ namespace Greenshot.Tests.Recipes
 
             var rawParams = new Dictionary<string, object>
             {
-                { "Path", "${context.TargetFolder}\\${context.Prefix}_test.png" },
+                { "Path", "${var.TargetFolder}\\${var.Prefix}_test.png" },
                 { "StaticNum", 123 },
                 { "ConditionMet", "${1 + 1 == 2}" }
             };
 
-            var resolved = ExpressionEvaluator.Instance.ResolveParameters(rawParams, context);
+            var resolved = RecipeExpressions.ResolveParameters(rawParams, context);
             Assert.Equal("C:\\Captures\\GS_test.png", resolved["Path"]);
             Assert.Equal(123, resolved["StaticNum"]);
             Assert.Equal(true, resolved["ConditionMet"]);
@@ -133,8 +133,8 @@ namespace Greenshot.Tests.Recipes
                 Payload = new CapturePayload(capture)
             };
 
-            Assert.Equal(expected, ExpressionEvaluator.Instance.Evaluate("${payload.hdr}", context));
-            Assert.Equal(withHdr, ExpressionEvaluator.Instance.Evaluate<bool>("${payload.hdr == 'Available'}", context));
+            Assert.Equal(expected, RecipeExpressions.Evaluate("${payload.hdr}", context));
+            Assert.Equal(withHdr, RecipeExpressions.IsMet("${payload.hdr == 'Available'}", context));
         }
 
         [Fact]
@@ -155,11 +155,26 @@ namespace Greenshot.Tests.Recipes
         public void Evaluate_ChoiceOfAPromptWhichDidntRun_IsTheDefault()
         {
             using var context = new CaptureFlowContext(new CaptureRecipe("choice_test", "Choice Test"));
-            const string hdrFormat = "${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}";
+            const string hdrFormat = "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}";
 
-            Assert.Equal("Auto", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+            Assert.Equal("Auto", RecipeExpressions.Evaluate(hdrFormat, context));
             context.Properties["UserChoice.ask"] = "Png";
-            Assert.Equal("None", ExpressionEvaluator.Instance.Evaluate(hdrFormat, context));
+            Assert.Equal("None", RecipeExpressions.Evaluate(hdrFormat, context));
+        }
+
+        [Fact]
+        public void Validate_ANameOfTheOldEvaluator_IsAnError()
+        {
+            const string json = @"{
+  ""kind"": ""recipe"", ""version"": ""2.0"", ""id"": ""old_names"", ""name"": ""Old names"",
+  ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"", ""when"": ""${Barcode.Text == 'x'}"" } ],
+  ""flow"": { ""startNodes"": [ ""a"" ] }
+}";
+            var recipe = RecipeSerializer.Deserialize(json, false);
+
+            var result = RecipeValidator.Validate(recipe);
+
+            Assert.Contains(result.Errors, e => e.Contains("Barcode.Text"));
         }
     }
 }
