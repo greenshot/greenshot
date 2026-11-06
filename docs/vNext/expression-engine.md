@@ -248,6 +248,11 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
   files are deleted. The template is turned into a match pattern (literal parts escaped, `${counter.folder}` = the
   number, other values = anything); the file is created with `FileMode.CreateNew`, and when that fails because
   someone took the number, the next number is tried.
+  - Other values match anything, so there is one sequence per folder whatever the title: with
+    `${payload.title} ${counter.folder:000}.png` and `Notepad 001.png`, `Chrome 002.png` the next is `Paint 003.png`.
+  - Only numbers with exactly the format's width (`000` = 3 digits) and files with an image extension Greenshot writes
+    count, so an unrelated `Report 2024.png` is unlikely to match.
+  - A count per title puts the title into the folder part: `${payload.title}\Shot ${counter.folder:000}.png`.
 - Default width comes from the format: `${counter.global:000000}` is today's `${NUM}` (6 digits).
 - Named counters (`${counter.named('bugs')}`) only if someone asks.
 
