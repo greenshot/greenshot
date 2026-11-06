@@ -29,11 +29,10 @@ using Dapplo.Ini;
 using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
-using Greenshot.Plugin.Stamps.Editor;
 using Greenshot.Plugin.Stamps.Library;
 using Greenshot.Plugin.Stamps.ViewModels;
 using Greenshot.Plugin.Stamps.Views;
@@ -49,12 +48,10 @@ public class StampsPlugin : IGreenshotPlugin
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(StampsPlugin));
     private IStampsConfiguration _config;
-    private EditorTracker _editors;
+    private StampLibrary _library;
     private TrayMenuEntry _trayMenuEntry;
     private StampsWindow _window;
     private int _hotkeyId = -1;
-    // Shown for an editor window: it stays above the editor window which was active last
-    private bool _followsEditor;
 
     public ValueTask DisposeAsync() => default;
 
@@ -72,10 +69,9 @@ public class StampsPlugin : IGreenshotPlugin
         services.AddConfiguration(section);
         _config = section;
 
-        _editors = new EditorTracker(editor => ShowStamps(editor));
-        _editors.ActiveEditorChanged += OnActiveEditorChanged;
-        // Decided with the loaded configuration: nothing is registered for a user who isn't a beta tester
-        services.AddServices<IEditorPlugin>(() => IsEnabled ? new IEditorPlugin[] { _editors } : Array.Empty<IEditorPlugin>());
+        // In the editor the stamps are a panel. Decided with the loaded configuration: nothing is registered for a user who isn't a beta tester
+        var panel = new StampsPanel(() => Library);
+        services.AddServices<IEditorPanel>(() => IsEnabled ? new IEditorPanel[] { panel } : Array.Empty<IEditorPanel>());
     }
 
     /// <summary>
@@ -92,7 +88,7 @@ public class StampsPlugin : IGreenshotPlugin
         }
 
         _trayMenuEntry = new TrayMenuEntry(Texts.Get<IStampsLanguage>().Menu);
-        _trayMenuEntry.Click += (s, e) => ShowStamps(null);
+        _trayMenuEntry.Click += (s, e) => ShowStamps();
         PluginUtils.AddToContextMenu(_trayMenuEntry);
         Texts.Config.LanguageChanged += OnLanguageChanged;
 
@@ -142,30 +138,45 @@ public class StampsPlugin : IGreenshotPlugin
     }
 
     /// <summary>
-    /// Show the stamps window, for the editor window at its right edge and above it; without an editor window as a window of its own
+    /// The stamps folder, shared by the window and the panels of all editor windows: read the first time it's needed
     /// </summary>
-    private void ShowStamps(IEditorWindow editor)
+    private StampLibrary Library
+    {
+        get
+        {
+            if (_library == null)
+            {
+                _library = new StampLibrary(LibraryDirectory, StampImages.SupportedExtensions());
+                try
+                {
+                    _library.Load();
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    Log.Warn($"Can't read the stamps folder {_library.Directory}", ex);
+                }
+            }
+
+            return _library;
+        }
+    }
+
+    /// <summary>
+    /// Show the stamps in a window of their own, without an editor: to give them to other programs. In the editor they are a panel.
+    /// </summary>
+    private void ShowStamps()
     {
         try
         {
             if (_window == null)
             {
-                var viewModel = new StampsViewModel(new StampLibrary(LibraryDirectory, StampImages.SupportedExtensions()), () => _editors.ActiveEditor);
+                var viewModel = new StampsViewModel(Library, () => null);
                 viewModel.Reload();
-                _window = new StampsWindow(viewModel);
-                _window.Closed += (s, e) => _window = null;
-                _followsEditor = false;
-                if (editor == null)
+                _window = new StampsWindow(viewModel)
                 {
-                    _window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                }
-            }
-
-            if (editor != null)
-            {
-                _followsEditor = true;
-                _window.SetOwner(editor.Handle);
-                _window.PlaceNextTo(editor.Handle);
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                _window.Closed += (s, e) => _window = null;
             }
 
             _window.ShowAndFocus();
@@ -173,33 +184,6 @@ public class StampsPlugin : IGreenshotPlugin
         catch (Exception ex)
         {
             Log.Error("Can't show the stamps", ex);
-        }
-    }
-
-    /// <summary>
-    /// The stamps go into the editor window which was active last: the window stays above that one.
-    /// Shown for an editor window, it closes with the last editor window; shown from the tray it stays.
-    /// </summary>
-    private void OnActiveEditorChanged(object sender, EventArgs e)
-    {
-        if (_window == null)
-        {
-            return;
-        }
-
-        var editor = _editors.ActiveEditor;
-        if (_followsEditor && editor == null)
-        {
-            _window.Close();
-            return;
-        }
-
-        ((StampsViewModel)_window.DataContext).OnActiveEditorChanged();
-        if (_followsEditor)
-        {
-            // Before the editor window is gone: an owned window would be closed with it
-            _window.SetOwner(editor.Handle);
-            _window.ShowIfHiddenWithOwner(false);
         }
     }
 
@@ -216,20 +200,11 @@ public class StampsPlugin : IGreenshotPlugin
         var ui = UiDispatcher.Current;
         _hotkeyId = HotkeyManager.RegisterHotKey(sequence, () =>
             // Posted, the keyboard hook must return quickly
-            ui.InvokeAsync(ShowStampsForForegroundWindow).FireAndLog("Show the stamps", Log));
+            ui.InvokeAsync(ShowStamps).FireAndLog("Show the stamps", Log));
         if (_hotkeyId < 0)
         {
             Log.WarnFormat("Can't register the hotkey {0} for the stamps", _config.Hotkey);
         }
-    }
-
-    /// <summary>
-    /// With the hotkey in an editor window the stamps are shown for it, else as a window of their own
-    /// </summary>
-    private void ShowStampsForForegroundWindow()
-    {
-        var editor = _editors.ActiveEditor;
-        ShowStamps(editor != null && editor.Handle == User32Api.GetForegroundWindow() ? editor : null);
     }
 
     private void UnregisterHotkey()

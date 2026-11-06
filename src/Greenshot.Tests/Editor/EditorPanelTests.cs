@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Editor;
@@ -31,6 +32,7 @@ using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
+using Greenshot.Editor.Forms;
 using Greenshot.Editor.Panels;
 using Greenshot.Editor.Panels.Sections;
 using Greenshot.Editor.Panels.ViewModels;
@@ -57,6 +59,8 @@ namespace Greenshot.Tests.Editor
             public string Id => "Test.Other";
             public string Title => "Other";
             public int Order => 10;
+            public string MenuText => "Other";
+            public string Shortcut => "Ctrl+Shift+O";
             public bool IsAvailable(IEditorPanelContext context) => true;
             public object CreateViewModel(IEditorPanelContext context) => new object();
             public object CreateView(object viewModel) => null;
@@ -139,7 +143,7 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void AnotherPanelInUse_IsNotReplacedBySelection()
+        public void AnotherPanelInUse_GivesWayToSelection_WhenAChoiceIsNeeded()
         {
             using var surface = new Surface(new Bitmap(200, 100));
             var (_, host, _) = CreateHost(surface);
@@ -147,8 +151,24 @@ namespace Greenshot.Tests.Editor
 
             surface.DrawingMode = DrawingModes.Emoji;
             host.UpdateAutomatic();
+            Assert.Equal(SelectionPanel.PanelId, host.ActivePanel.Id);
 
+            // Back to the other panel: it stays while the emoji tool is still picked
+            host.Show("Test.Other", activate: false);
+            host.UpdateAutomatic();
             Assert.Equal("Test.Other", host.ActivePanel.Id);
+        }
+
+        [Theory]
+        [InlineData("Ctrl+Shift+K", Keys.Control | Keys.Shift | Keys.K)]
+        [InlineData("Ctrl + Alt + F9", Keys.Control | Keys.Alt | Keys.F9)]
+        [InlineData("K", Keys.None)]
+        [InlineData("Ctrl+Nonsense", Keys.None)]
+        [InlineData("", Keys.None)]
+        [InlineData(null, Keys.None)]
+        public void PanelShortcut_IsParsed_InvalidOnesAreIgnored(string shortcut, Keys expected)
+        {
+            Assert.Equal(expected, ImageEditorForm.ParseShortcut(shortcut));
         }
 
         [Fact]

@@ -80,6 +80,58 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
+        /// A menu item for every panel which has a menu text, with its keys: it shows the panel with the keyboard
+        /// </summary>
+        private void AddPanelMenuItems(ToolStripMenuItem menu)
+        {
+            if (_panelHost == null)
+            {
+                return;
+            }
+
+            foreach (var panel in _panelHost.Panels)
+            {
+                if (string.IsNullOrEmpty(panel.MenuText))
+                {
+                    continue;
+                }
+
+                var item = new ToolStripMenuItem(panel.MenuText);
+                var keys = ParseShortcut(panel.Shortcut);
+                if (keys != Keys.None)
+                {
+                    item.ShortcutKeys = keys;
+                }
+
+                string panelId = panel.Id;
+                item.Click += (_, _) => _panelHost.Show(panelId, activate: true);
+                menu.DropDownItems.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// "Ctrl+Shift+K" to keys, Keys.None for nothing or what isn't a valid shortcut
+        /// </summary>
+        internal static Keys ParseShortcut(string shortcut)
+        {
+            if (string.IsNullOrWhiteSpace(shortcut))
+            {
+                return Keys.None;
+            }
+
+            try
+            {
+                var keys = (Keys)new KeysConverter().ConvertFromInvariantString(shortcut.Replace(" ", string.Empty));
+                return ToolStripManager.IsValidShortcut(keys) ? keys : Keys.None;
+            }
+            catch (Exception ex) when (ex is ArgumentException or FormatException or NotSupportedException or InvalidCastException)
+            {
+                Log.WarnFormat("The panel shortcut {0} is not valid", shortcut);
+                return Keys.None;
+            }
+        }
+
+        /// <summary>
         /// The panel area keyboard focus: the keys stay there like in a text field
         /// </summary>
         private bool PanelDockHasFocus => _panelDock?.ContainsFocus == true;

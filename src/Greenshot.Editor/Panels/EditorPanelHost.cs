@@ -120,11 +120,11 @@ namespace Greenshot.Editor.Panels
             _automaticSectionApplied = applies;
             if (started)
             {
-                // Only when it starts to apply: a user who closed the area while the emoji is selected keeps it closed
+                // Only when it starts to apply: a user who closed the area, or went to another panel (e.g. Stamps), while the
+                // emoji is selected keeps it like that
                 var selection = Find(SelectionPanel.PanelId);
-                if (selection == null || (IsOpen && ActivePanel != selection && ActivePanel != null))
+                if (selection == null)
                 {
-                    // The user works in another panel, e.g. Stamps
                     return;
                 }
 

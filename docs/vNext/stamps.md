@@ -20,11 +20,13 @@ in the full and the custom installation.
 
 ### Open the stamps
 
-- In the editor: *Plugins*, *Stamps...*, or **Ctrl+Shift+K**. The window opens at the right edge of the editor (over it when the
-  screen has no room) and stays above it. The stamps go into the capture which is shown in the editor window you used last. It closes with the last editor window.
-- From the tray menu: *Stamps...*. Without an editor the window is a window of its own, to give stamps to other programs.
-- With a hotkey from everywhere: set `Hotkey` in `[Stamps]` of greenshot.ini, e.g. `Hotkey=Ctrl + Shift + Alt + S`. Pressed in
-  an editor it opens the window for that editor.
+- In the editor: *Plugins*, *Stamps...*, **Ctrl+Shift+K**, or *Stamps* in the list at the top of the
+  [panel area](editor-panels.md). The stamps are a panel at the right of the capture and go into the capture which is shown;
+  every editor window has its own, all show the same stamps folder. Esc goes back to the capture. Picking the emoji tool
+  switches to the *Selection* panel to choose the emoji; the list switches back.
+- From the tray menu: *Stamps...*. Without an editor the stamps are a window of their own, to give them to other programs.
+- With a hotkey from everywhere: set `Hotkey` in `[Stamps]` of greenshot.ini, e.g. `Hotkey=Ctrl + Shift + Alt + S`. It opens
+  the window of its own; in the editor Ctrl+Shift+K opens the panel.
 
 ### Use a stamp
 
@@ -74,12 +76,12 @@ it, so in a shared folder the changes of the others are kept.
 
 ## For developers
 
-The plugin only references `Greenshot.Base`, not the editor: everything it needs of the editor is in two generic contracts,
-which every plugin can use, so the plugin carries over to a new editor.
+The plugin only references `Greenshot.Base`, not the editor: everything it needs of the editor is in generic contracts,
+which every plugin can use, so the plugin carries over to a new editor. It has no WinForms code.
 
-- **`IEditorWindow`** (`Greenshot.Base/Interfaces/Forms`): an editor window without WinForms types: `Handle` (to own and place
-  a window of the plugin), `CurrentSurface` (the capture shown, a window can have tabs), `Activate()`, `Activated` and `Closed`.
-  `ImageEditorForm` implements it, a plugin gets it through `IEditorPlugin.InitializeEditor` (`editorForm is IEditorWindow`).
+- **`IEditorPanel`** (`Greenshot.Base/Interfaces/Editor`, see [editor-panels.md](editor-panels.md#for-developers)): the stamps
+  are a panel of the editor, with *Stamps...* in the Plugins menu and Ctrl+Shift+K (`MenuText`, `Shortcut`). The panel context
+  gives the capture which is shown (`CurrentSurface`, it changes with the tabs) and `FocusCanvas()` after an insert.
 - **`ISurface.InsertElements`**: adds elements in the middle of the visible part of the canvas, made smaller when they don't fit,
   as one undo step, and selects them instead of the selection before.
 
@@ -88,13 +90,14 @@ and `TryLoadFromStream`), so the plugin supports what Greenshot opens; a `.green
 
 | Part | What it does |
 |---|---|
-| `StampsPlugin` | Registers everything only for beta testers: the editor menu entry, the tray menu entry, the hotkey; shows the window and keeps it above the editor window used last |
-| `Editor/EditorTracker` | The `IEditorPlugin`: adds *Stamps...* with Ctrl+Shift+K, knows the editor window which was active last. The only class which sees WinForms |
+| `StampsPlugin` | Registers everything only for beta testers: the editor panel, the tray menu entry, the hotkey; one `StampLibrary` for all; shows the window of its own |
+| `StampsPanel` | The `IEditorPanel`: a view model per editor window (`StampsViewModel.ForEditor`) on the shared library |
 | `Library/StampLibrary`, `Stamp` | The folder and `stamps.json`: load, search, import, add, change, move to a category, delete. No image is decoded here |
 | Clipboard | The window follows the clipboard with `ClipboardNative.OnUpdate` of Dapplo.Windows (no extra contract needed, Greenshot.Base brings it) and stops when it closes. A copied stamp carries the private format `Greenshot.StampCopy`, so it isn't offered for paste |
 | `Library/DroppedImages` | What was dropped, read during the drop: files and folders, the virtual files of a browser, image urls, the image |
 | `Library/StampImages` | Previews, elements and clipboard content, with the file format handlers |
-| `ViewModels`, `Views/StampsWindow` | The WPF window |
+| `ViewModels`, `Views/StampsView` | The stamps (WPF), in the panel and in the window. The library is shared: `StampLibrary.Version` counts the changes, a view shows the stamps again when it sees another number (when it's shown, gets the mouse or the keyboard) |
+| `Views/StampsWindow` | The window of its own: the title bar and the view |
 
 For the drop, `Greenshot.Base` has two generic helpers: `ClipboardHelper.GetVirtualImageFiles` (the image files of a drop or the
 clipboard as they are) and `ImageDownloader.DownloadImageFileAsync` (an image download kept in its format, which the content

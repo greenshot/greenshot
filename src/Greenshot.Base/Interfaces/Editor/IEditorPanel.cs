@@ -48,6 +48,16 @@ namespace Greenshot.Base.Interfaces.Editor
         int Order { get; }
 
         /// <summary>
+        /// The translated text of the menu item which shows the panel (in the Plugins menu of the editor), null for none
+        /// </summary>
+        string MenuText { get; }
+
+        /// <summary>
+        /// The keys which show the panel in the editor, e.g. "Ctrl+Shift+K", null for none. Shown with the menu item.
+        /// </summary>
+        string Shortcut { get; }
+
+        /// <summary>
         /// Whether the panel can be used in this editor window, e.g. false when a feature is turned off
         /// </summary>
         bool IsAvailable(IEditorPanelContext context);
