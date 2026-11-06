@@ -175,16 +175,13 @@ and `Greenshot.Emoji`, the panel is `Greenshot.Selection`.
 
 ### Look
 
-Use the shared styles of `Greenshot.Base.Wpf.Styles` (see [ui-how-to.md](ui-how-to.md)) and, for colors, the keys of
-`Greenshot.Base.Wpf.EditorPanelResources` with `DynamicResource`, e.g.
-`Background="{DynamicResource Greenshot.EditorPanel.SectionBackground}"`. The editor fills them from its own theme
-(`EditorTheme`), which can differ from the theme of the other windows. Keys: `Background`, `Foreground`, `Muted`,
-`Border`, `SectionBackground`, `ControlBackground`, `ControlBorder`, `Hover`, `Accent`, all with the prefix
-`Greenshot.EditorPanel.`. A view in a popup or window of its own calls `EditorPanelResources.Apply` on its resources.
-The shared styles follow the editor theme in the panel area too: the area sets the editor palette as `ThemeScope.Theme`
-(see [ui-how-to.md](ui-how-to.md)), so a view which merges e.g. `DialogStyles.xaml` looks like the editor. In your own
-bindings use `{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}` instead of
-`ThemeManager.Instance`.
+Use the shared styles of `Greenshot.Base.Wpf.Styles` (see [ui-how-to.md](ui-how-to.md)). The panel area sets the palette
+of the editor theme (`EditorTheme`, which can differ from the theme of the other windows) as `ThemeScope.Theme`, so the
+shared styles and every binding to it look like the editor. For your own colors bind to the brushes of the palette, e.g.
+`Foreground="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"` (also
+`BackgroundBrush`, `ForegroundBrush`, `BorderBrush`, `CardBackground` for a section, `TextBoxBackgroundBrush`,
+`ControlBorderBrush`, `ButtonHoverBrush`, `AccentBrush`), never `ThemeManager.Instance`. A popup takes the theme of the
+element which opens it. Outside the editor the same view gets Greenshot's theme, without warnings in the log.
 
 Texts come from the language files, as everywhere ([ui-how-to.md](ui-how-to.md)); give every input an
 `AutomationProperties.Name` ([accessibility.md](accessibility.md)).

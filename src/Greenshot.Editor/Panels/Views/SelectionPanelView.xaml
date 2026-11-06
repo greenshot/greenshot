@@ -13,7 +13,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="6">
         <Grid>
             <TextBlock Text="{Binding EmptyText}" TextWrapping="Wrap" Margin="2,4"
-                       Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}"
+                       Foreground="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"
                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"/>
             <ItemsControl ItemsSource="{Binding Sections}" Focusable="False">
                 <ItemsControl.ItemsPanel>
