@@ -57,6 +57,52 @@ In `[Editor]` of greenshot.ini:
 The contract is in `Greenshot.Base.Interfaces.Editor`. It has no WinForms types and no WPF types: the editor itself is
 WinForms today, its panels are WPF, and the contract should stay usable when the editor becomes WPF, or Avalonia.
 
+### Rules
+
+These rules decide when the panel area shows and what the Selection panel shows. New panels and sections follow them.
+*Built* is in the editor now, *planned* comes with later sections.
+
+**When the panel area shows**
+
+| Rule | Status |
+|---|---|
+| It opens by itself only when a tool needs a choice before it can be used (`ShowsPanel = true`): the emoji tool and selected emojis, later stamps. It doesn't take the keyboard from the capture. | Built |
+| Opened by itself, it closes by itself when nothing which needs it applies anymore. Closed by the user, it stays closed until such a section starts to apply again. | Built |
+| Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | Built for emojis, planned for the other elements |
+| Once open, it stays open and follows the selection and the tool, until the user closes it. Another panel the user chose (e.g. Stamps) is never replaced. | Built |
+| A selection of several elements never opens it by itself, except when all of them are emojis. | Built |
+
+**What the Selection panel shows**
+
+| Rule | Status |
+|---|---|
+| Sections go by property, not by kind of element: a section shows when every selected element has its properties. Rectangle and arrow: Line, no Fill (an arrow has none). Rectangle and ellipse: Line and Fill. Text and rectangle: no Text. The same rule as the properties tool bar today (`FieldAggregator`, the fields all bound elements have). | Built for Emoji, planned for the others |
+| Order: Size and position on top, then the sections of the elements, then the rest (`EditorSectionOrder`). One section may fill the height which is left (`FillsHeight`), e.g. the emoji. | Built |
+| A value which differs between the selected elements is shown empty (not the value of one of them). A change sets it on all selected elements, as one undo step. | Planned |
+| Size and position: one element shows X, Y, width and height. Several elements show X and Y of the box around them, a change moves them together; width and height are only for one element (scaling a group would also have to decide about line thickness and text). | Built for one element, planned for several |
+| Nothing in common (e.g. an emoji and an arrow): only Size and position, so the group can still be moved. | Planned |
+| Nothing selected: the sections of the tool which is picked (e.g. the emoji to place), otherwise the text that nothing is selected. | Built |
+
+**Sections per element** (planned, each moves its settings out of the properties tool bar)
+
+| Element | Sections |
+|---|---|
+| Rectangle, ellipse | Size and position, Line and fill |
+| Line, arrow, freehand | Size and position, Line (arrow heads) |
+| Text, speech bubble | Size and position, Line and fill, Text |
+| Step label | Size and position, Line and fill, Number |
+| Highlight, obfuscate | Size and position, Effect |
+| Image | Size and position |
+| Emoji | Size and position, Emoji (built) |
+
+**Copy and apply style or size** (planned, own PR)
+
+- *Copy style* keeps the style fields of the selected element (line, fill, shadow, font, arrow heads...); *Apply style* sets them on
+  all selected elements, each only the fields it has, as one undo step.
+- *Copy size* and *Apply size* do the same for width and height; every element keeps its top left corner.
+- What was copied is kept for all editor windows until Greenshot ends, not in greenshot.ini.
+- In the panel (style at the top, size in Size and position) and in the context menu; keys if free (e.g. Ctrl+Shift+C / Ctrl+Shift+V).
+
 ### The contract
 
 ```csharp
