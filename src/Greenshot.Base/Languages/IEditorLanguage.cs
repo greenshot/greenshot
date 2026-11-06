@@ -217,6 +217,11 @@ namespace Greenshot.Base.Languages
         string PanelClose { get; }
 
         /// <summary>
+        /// Properties
+        /// </summary>
+        string PanelProperties { get; }
+
+        /// <summary>
         /// Selection
         /// </summary>
         string PanelSelection { get; }

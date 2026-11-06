@@ -15,8 +15,8 @@ Plugins can add panels of their own, or sections to the Selection panel.
 
 | What | How |
 |---|---|
-| Show | Double-click an emoji, or choose the emoji item of its context menu. The area also opens by itself when a tool needs it: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
-| Hide | The **x** at the top of the area. When it opened by itself it also closes by itself, when nothing which needs it is selected anymore. Closed with the **x**, it stays closed until something which needs it is selected again. |
+| Show | *Properties* in the context menu of any element, or a double-click on an emoji. The area also opens by itself when a choice is needed: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
+| Hide | The **x** at the top of the area. It never closes by itself: once open, it shows what fits the selection. Closed with the **x**, it opens again the next time a choice is needed (e.g. the emoji tool). |
 | Size | Drag the bar between the capture and the area. The width is remembered. The editor window can't get so small that the capture has less than 300 by 200 pixels (at 100 % scaling), plus the panel area when it's shown; a smaller window grows when the area opens. For a small window with a capture, use the [viewer](viewer.md). |
 | Another panel | When there is more than one panel, the list at the top of the area chooses which one is shown. |
 | Keyboard | F6 goes from the menu, the tools, the properties, the destinations and the capture to the panel area (and on to the tabs). Esc in the area goes back to the capture. |
@@ -67,8 +67,8 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | Rule | Status |
 |---|---|
 | It opens by itself only when a tool needs a choice before it can be used (`ShowsPanel = true`): the emoji tool and selected emojis, later stamps. It doesn't take the keyboard from the capture. | Built |
-| Opened by itself, it closes by itself when nothing which needs it applies anymore. Closed by the user, it stays closed until such a section starts to apply again. | Built |
-| Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | Built for emojis, planned for the other elements |
+| It never closes by itself, so it doesn't jump while the user clicks around. Closed by the user, it opens again the next time a choice is needed (such a section starts to apply again). | Built |
+| Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | *Properties* built for every element, double-click built for emojis |
 | Once open, it stays open and follows the selection and the tool, until the user closes it. Another panel the user chose (e.g. Stamps) is never replaced. | Built |
 | A selection of several elements never opens it by itself, except when all of them are emojis. | Built |
 

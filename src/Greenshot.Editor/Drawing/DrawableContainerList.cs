@@ -846,6 +846,15 @@ namespace Greenshot.Editor.Drawing
             {
                 surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
             }
+
+            // The panel area with the sections of the selection, for every element
+            if (surface is Surface editorSurface)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                item = new ToolStripMenuItem(Texts.Editor.PanelProperties);
+                item.Click += delegate { editorSurface.RequestProperties(); };
+                menu.Items.Add(item);
+            }
         }
 
         public virtual void ShowContextMenu(MouseEventArgs mouseEventArgs, ISurface iSurface)

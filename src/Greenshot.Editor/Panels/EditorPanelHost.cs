@@ -29,8 +29,8 @@ namespace Greenshot.Editor.Panels
 {
     /// <summary>
     /// Which panel the panel area of one editor window shows, and whether it is open. No UI: the dock control shows what this decides.
-    /// The area opens by itself when a section which needs it starts to apply (e.g. the Emoji tool is picked), and closes again when
-    /// nothing asks for it anymore, unless the user opened it.
+    /// The area opens by itself when a choice is needed: a section which asks for it starts to apply (e.g. the Emoji tool is picked).
+    /// It never closes by itself, so it doesn't jump while the user clicks around; closed by the user it opens again at the next choice.
     /// </summary>
     internal sealed class EditorPanelHost
     {
@@ -71,11 +71,6 @@ namespace Greenshot.Editor.Panels
         public bool IsOpen { get; private set; }
 
         /// <summary>
-        /// The area was opened by a section which asked for it, not by the user: it closes again when nothing asks anymore
-        /// </summary>
-        public bool OpenedAutomatically { get; private set; }
-
-        /// <summary>
         /// Open, closed or another panel. The bool is true when the panel should get the keyboard.
         /// </summary>
         public event EventHandler<bool> Changed;
@@ -96,7 +91,6 @@ namespace Greenshot.Editor.Panels
 
             ActivePanel = panel;
             IsOpen = true;
-            OpenedAutomatically = false;
             Changed?.Invoke(this, activate);
             return true;
         }
@@ -112,13 +106,12 @@ namespace Greenshot.Editor.Panels
             }
 
             IsOpen = false;
-            OpenedAutomatically = false;
             Changed?.Invoke(this, false);
         }
 
         /// <summary>
         /// Call when the selection, the tool or the shown capture changed: opens the Selection panel when a section which asks for it
-        /// starts to apply, closes it again when it was opened that way and nothing asks anymore. Never takes the keyboard.
+        /// starts to apply (a choice is needed). Never takes the keyboard, never closes the area.
         /// </summary>
         public void UpdateAutomatic()
         {
@@ -138,19 +131,9 @@ namespace Greenshot.Editor.Panels
                 if (!IsOpen || ActivePanel != selection)
                 {
                     ActivePanel = selection;
-                    OpenedAutomatically = !IsOpen;
                     IsOpen = true;
                     Changed?.Invoke(this, false);
                 }
-
-                return;
-            }
-
-            if (!applies && IsOpen && OpenedAutomatically)
-            {
-                IsOpen = false;
-                OpenedAutomatically = false;
-                Changed?.Invoke(this, false);
             }
         }
 

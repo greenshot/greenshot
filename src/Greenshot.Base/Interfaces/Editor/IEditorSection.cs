@@ -52,8 +52,8 @@ namespace Greenshot.Base.Interfaces.Editor
 
         /// <summary>
         /// true: when the section starts to apply, the editor shows the Selection panel by itself (without taking the focus),
-        /// and hides it again when nothing which asks for it applies anymore, unless the user opened the panel.
-        /// For sections which are needed to use a tool, like the emoji to place.
+        /// also when the user closed it before: a choice is needed. The panel never closes by itself.
+        /// Only for sections which are needed to use a tool, like the emoji to place.
         /// </summary>
         bool ShowsPanel { get; }
 

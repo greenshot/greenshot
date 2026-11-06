@@ -20,12 +20,10 @@
  */
 
 using System;
-using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Base.Languages;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -78,19 +76,6 @@ namespace Greenshot.Editor.Drawing.Emoji
             Top = y - (Height / 2);
             Invalidate();
             return true;
-        }
-
-        public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
-        {
-            // The surface asks every element, only the selected emoji adds its item
-            if (!Selected)
-            {
-                return;
-            }
-
-            var changeItem = new ToolStripMenuItem(Texts.Editor.EmojiPicker);
-            changeItem.Click += (_, _) => InternalParent?.RequestProperties();
-            menu.Items.Add(changeItem);
         }
 
         protected override Image ComputeBitmap()

@@ -83,7 +83,7 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void EmojiTool_OpensTheSelectionPanelWithoutTheKeyboard_AndClosesItAgain()
+        public void EmojiTool_OpensTheSelectionPanelWithoutTheKeyboard_AndItStaysOpen()
         {
             using var surface = new Surface(new Bitmap(200, 100));
             var (_, host, changes) = CreateHost(surface);
@@ -92,13 +92,14 @@ namespace Greenshot.Tests.Editor
             surface.DrawingMode = DrawingModes.Emoji;
             host.UpdateAutomatic();
             Assert.True(host.IsOpen);
-            Assert.True(host.OpenedAutomatically);
             Assert.Equal(SelectionPanel.PanelId, host.ActivePanel.Id);
             Assert.Equal(new[] { false }, changes);
 
+            // Another tool: no jumping, the area stays
             surface.DrawingMode = DrawingModes.Rect;
             host.UpdateAutomatic();
-            Assert.False(host.IsOpen);
+            Assert.True(host.IsOpen);
+            Assert.Equal(new[] { false }, changes);
         }
 
         [Fact]
@@ -115,7 +116,6 @@ namespace Greenshot.Tests.Editor
             host.UpdateAutomatic();
 
             Assert.True(host.IsOpen);
-            Assert.False(host.OpenedAutomatically);
         }
 
         [Fact]
