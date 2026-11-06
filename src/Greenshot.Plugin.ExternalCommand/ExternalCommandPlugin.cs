@@ -78,7 +78,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         {
             Log.WarnFormat("Found missing argument for {0}", command);
             // Fix it
-            ExternalCommandConfig.ArgumentTemplate.Add(command, "${output.file}");
+            ExternalCommandConfig.ArgumentTemplate.Add(command, "${export.file}");
         }
 
         if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))

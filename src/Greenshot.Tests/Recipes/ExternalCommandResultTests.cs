@@ -58,7 +58,7 @@ namespace Greenshot.Tests.Recipes
             config.Commands.Add(command);
             // Never started: the file name is refused before
             config.CommandlineTemplate[command] = "greenshot-test-command-which-does-not-exist.exe";
-            config.ArgumentTemplate[command] = "\"${output.file}\"";
+            config.ArgumentTemplate[command] = "\"${export.file}\"";
             config.RunInbackground[command] = true;
             try
             {

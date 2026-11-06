@@ -60,6 +60,9 @@ namespace Greenshot.Base.Expressions
         /// </summary>
         object Evaluate(string text, VariableScope scope, TemplatePurpose purpose = TemplatePurpose.Value);
 
+        /// <summary>All variables, whatever they can be used for (the docs)</summary>
+        IReadOnlyList<VariableDescriptor> DescribeAll();
+
         /// <summary>The variables a purpose can use, for help and completion</summary>
         IReadOnlyList<VariableDescriptor> Describe(TemplatePurpose purpose);
 

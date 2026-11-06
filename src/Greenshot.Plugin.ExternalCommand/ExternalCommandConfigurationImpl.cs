@@ -123,7 +123,7 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         {
             Commands.Add(MsPaint);
             CommandlineTemplate[MsPaint] = PaintPath;
-            ArgumentTemplate[MsPaint] = "\"${output.file}\"";
+            ArgumentTemplate[MsPaint] = "\"${export.file}\"";
             RunInbackground.Add(MsPaint, true);
             MarkAsDirty();
         }
@@ -133,7 +133,7 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         {
             Commands.Add(PaintDotNet);
             CommandlineTemplate[PaintDotNet] = PaintDotNetPath;
-            ArgumentTemplate[PaintDotNet] = "\"${output.file}\"";
+            ArgumentTemplate[PaintDotNet] = "\"${export.file}\"";
             RunInbackground.Add(PaintDotNet, true);
             MarkAsDirty();
         }

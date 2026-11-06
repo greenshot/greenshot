@@ -1226,7 +1226,7 @@ The `ExternalCommand` step allows screenshot automation workflows to invoke exte
 
 #### Configuration Parameters:
 - **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` with trusted values only (e.g. `${user.localappdata}`, `${env.ProgramFiles}`).
-- **`Arguments`**: Arguments string passed to the process. `${output.file}` is the file (quote it yourself: `"${output.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
+- **`Arguments`**: Arguments string passed to the process. `${export.file}` is the file (quote it yourself: `"${export.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
 - **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
 - **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
 - **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.

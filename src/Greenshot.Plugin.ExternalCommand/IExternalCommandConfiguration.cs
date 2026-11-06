@@ -68,7 +68,7 @@ public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
     [Description("The program of the command, a template like ${user.localappdata}\\Programs\\x\\x.exe; see docs/vNext/variables.md.")]
     Dictionary<string, string> CommandlineTemplate { get; set; }
 
-    [Description("The arguments of the command, a template: \"${output.file}\" is the file of the capture; see docs/vNext/variables.md.")]
+    [Description("The arguments of the command, a template: \"${export.file}\" is the file of the capture; see docs/vNext/variables.md.")]
     Dictionary<string, string> ArgumentTemplate { get; set; }
 
     [Description("The output file format for the output command.")]

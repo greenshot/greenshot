@@ -52,7 +52,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Command", ContractDataType.String, Description = "Name of an external command configured in the settings")]
     [StepParameter("CommandLine", ContractDataType.FilePath, Purpose = TemplatePurpose.Command, RenderedByStep = true, Description = "Executable to run, instead of a configured command, e.g. ${user.localappdata}\\Programs\\tool.exe")]
-    [StepParameter("Arguments", ContractDataType.String, Purpose = TemplatePurpose.Argument, RenderedByStep = true, Description = "Arguments, ${output.file} is the file (quote it yourself: \"${output.file}\")")]
+    [StepParameter("Arguments", ContractDataType.String, Purpose = TemplatePurpose.Argument, RenderedByStep = true, Description = "Arguments, ${export.file} is the file (quote it yourself: \"${export.file}\")")]
     [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Purpose = TemplatePurpose.Folder, RenderedByStep = true, Description = "Working directory of the command")]
     [StepParameter("Verb", ContractDataType.String, Description = "Shell verb to use instead of running the executable (e.g. open, print)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValuesProvider = typeof(SaveableFileFormatIds))]

@@ -116,13 +116,17 @@ namespace Greenshot.Base.Expressions
                 Register(provider);
             }
             _counterDescriptors = new VariableProvider("counter");
-            _counterDescriptors.Add<long>("global", VariableTrust.Trusted, "One number for all files, stored in greenshot.ini; goes up when a file was written or uploaded", null).IsCounter = true;
+            var global = _counterDescriptors.Add<long>("global", VariableTrust.Trusted, "One number for all files, stored in greenshot.ini; goes up when a file was written or uploaded", null);
+            global.IsCounter = true;
+            global.Available = "file names";
             var folder = _counterDescriptors.Add<long>("folder", VariableTrust.Trusted, "The next free number in the folder the file goes to, read from its files", null);
             folder.IsCounter = true;
             folder.NeedsTargetFolder = true;
+            folder.Available = "file names of a file written to a folder (not uploads)";
             var name = _counterDescriptors.Add<long>("name", VariableTrust.Trusted, "The next free number among the files of the folder with the same name apart from the number", null);
             name.IsCounter = true;
             name.NeedsTargetFolder = true;
+            name.Available = "file names of a file written to a folder (not uploads)";
             _providers[_counterDescriptors.Namespace] = _counterDescriptors;
             foreach (var function in BuiltInFunctions.Create())
             {
@@ -187,6 +191,12 @@ namespace Greenshot.Base.Expressions
             if (_templates.Count > 4096) _templates.Clear();
             return _templates.GetOrAdd(text, TemplateParser.Parse);
         }
+
+        public IReadOnlyList<VariableDescriptor> DescribeAll() =>
+            _providers.Values
+                .SelectMany(p => p.Variables)
+                .OrderBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
         public IReadOnlyList<VariableDescriptor> Describe(TemplatePurpose purpose) =>
             _providers.Values

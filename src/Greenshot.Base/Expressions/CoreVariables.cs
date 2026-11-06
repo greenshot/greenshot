@@ -43,7 +43,7 @@ namespace Greenshot.Base.Expressions
         {
             yield return Time();
             yield return Payload();
-            yield return Output();
+            yield return Export();
             yield return User();
             yield return Machine();
             yield return Env();
@@ -81,50 +81,50 @@ namespace Greenshot.Base.Expressions
         private static VariableProvider Payload()
         {
             var p = new VariableProvider("payload");
-            p.Add<int>("width", Trusted, "The width of the image in pixels (now, after cropping or resizing)", s => (object)ImageSizeOf(s)?.Width);
-            p.Add<int>("height", Trusted, "The height of the image in pixels (now)", s => (object)ImageSizeOf(s)?.Height);
+            p.Add<int>("width", Trusted, "The width of the image in pixels (now, after cropping or resizing)", s => (object)ImageSizeOf(s)?.Width).Available = "a capture or an opened file";
+            p.Add<int>("height", Trusted, "The height of the image in pixels (now)", s => (object)ImageSizeOf(s)?.Height).Available = "a capture or an opened file";
             p.Add<DateTime>("time", Trusted, "When it was taken; for an opened file the time stored in the file, else the file's time", s =>
             {
                 var details = CaptureOf(s);
                 if (details != null && details.DateTime != default) return details.DateTime;
                 return s.FixedNow ?? DateTime.Now;
-            });
-            p.Add<string>("source", Trusted, "Where it came from: Screen, Window, Clipboard or file", s => Meta(s, "source"));
+            }).Available = "always (the time now without a capture)";
+            p.Add<string>("source", Trusted, "Where it came from: Screen, Window, Clipboard or file", s => Meta(s, "source")).Available = "a capture or an opened file";
             p.Add<string>("hdr", Trusted, "Available (can be saved as HDR), Lost (an edit removed it) or None", s =>
-                s.Flow?.Payload != null ? HdrOutput.StateOf(s.Flow.Payload) : null);
+                s.Flow?.Payload != null ? HdrOutput.StateOf(s.Flow.Payload) : null).Available = "in a recipe";
             p.Add<string>("title", Untrusted, "The window title, or the title stored in an opened file", s =>
             {
                 string title = CaptureOf(s)?.Title;
                 return string.IsNullOrEmpty(title) ? null : title;
-            });
-            p.Add<string>("file", Untrusted, "The full path of an opened file", s => Meta(s, "file"));
+            }).Available = "a window capture, or an opened file with a title";
+            p.Add<string>("file", Untrusted, "The full path of an opened file", s => Meta(s, "file")).Available = "an opened file";
             // Trusted, unlike the file: it is where the file already is, chosen by whoever named the file (command line,
             // Open, a watched folder), not something the content of a capture can choose. Saving next to it writes nowhere new.
             p.Add<string>("folder", Trusted, "The folder of an opened file, e.g. to save the result next to it", s =>
             {
                 string file = Meta(s, "file") as string;
                 return string.IsNullOrEmpty(file) ? null : Empty(System.IO.Path.GetDirectoryName(file));
-            });
-            p.Add<string>("url", Untrusted, "The web address stored with the capture", s => Meta(s, "url"));
+            }).Available = "an opened file";
+            p.Add<string>("url", Untrusted, "The web address stored with the capture", s => Meta(s, "url")).Available = "a capture with a web address (browser extension, opened file)";
             p.Add<string>("ocr.text", Untrusted, "The text found by OCR or a barcode", s =>
             {
                 string text = s.Flow?.Payload?.ExtractedText;
                 return string.IsNullOrEmpty(text) ? null : text;
-            });
+            }).Available = "after an OCR or barcode step";
             p.Add<string>("video.file", Trusted, "The file of a video recording", s =>
-                s.Flow?.Payload?.Metadata != null && s.Flow.Payload.Metadata.TryGetValue("VideoFilePath", out var file) ? file as string : null);
+                s.Flow?.Payload?.Metadata != null && s.Flow.Payload.Metadata.TryGetValue("VideoFilePath", out var file) ? file as string : null).Available = "after a video recording";
             return p;
         }
 
-        private static VariableProvider Output()
+        private static VariableProvider Export()
         {
-            var p = new VariableProvider("output");
-            p.Add<string>("file", Trusted, "The full path of the file written by this export", s => Empty(s.OutputFile));
+            var p = new VariableProvider("export");
+            p.Add<string>("file", Trusted, "The full path of the file written by this export", s => Empty(s.ExportFile)).Available = "while an export writes a file";
             p.Add<string>("folder", Trusted, "The folder of the file written by this export", s =>
-                string.IsNullOrEmpty(s.OutputFile) ? null : Path.GetDirectoryName(s.OutputFile));
+                string.IsNullOrEmpty(s.ExportFile) ? null : Path.GetDirectoryName(s.ExportFile)).Available = "while an export writes a file";
             p.Add<string>("name", Trusted, "The file name with extension of the file written by this export", s =>
-                string.IsNullOrEmpty(s.OutputFile) ? null : Path.GetFileName(s.OutputFile));
-            p.Add<string>("url", Trusted, "The link of the upload", s => Empty(s.OutputUrl));
+                string.IsNullOrEmpty(s.ExportFile) ? null : Path.GetFileName(s.ExportFile)).Available = "while an export writes a file";
+            p.Add<string>("url", Trusted, "The link of the upload", s => Empty(s.ExportUrl)).Available = "after an upload";
             return p;
         }
 
@@ -169,8 +169,9 @@ namespace Greenshot.Base.Expressions
             p.Add<string>("appdata", Trusted, "The roaming application data folder", s => Folder(Environment.SpecialFolder.ApplicationData));
             p.Add<string>("localappdata", Trusted, "The local application data folder", s => Folder(Environment.SpecialFolder.LocalApplicationData));
             p.Add<string>("temp", Trusted, "The temporary folder", s => Empty(Path.GetTempPath()));
-            p.AddWildcard<string>("env", Trusted, "An environment variable of the user (Windows only)", (name, s) => Variable(name, EnvironmentVariableTarget.User))
-                .WindowsOnly = true;
+            var userEnv = p.AddWildcard<string>("env", Trusted, "An environment variable of the user (Windows only)", (name, s) => Variable(name, EnvironmentVariableTarget.User));
+            userEnv.WindowsOnly = true;
+            userEnv.Available = "Windows, when the variable is set";
             return p;
         }
 
@@ -185,15 +186,16 @@ namespace Greenshot.Base.Expressions
             p.Add<string>("programfiles", Trusted, "The program files folder", s => Folder(Environment.SpecialFolder.ProgramFiles));
             p.Add<string>("commonappdata", Trusted, "The application data folder of all users", s => Folder(Environment.SpecialFolder.CommonApplicationData));
             p.Add<string>("systemdir", Trusted, "The system folder", s => Empty(Environment.SystemDirectory));
-            p.AddWildcard<string>("env", Trusted, "An environment variable of the machine (Windows only)", (name, s) => Variable(name, EnvironmentVariableTarget.Machine))
-                .WindowsOnly = true;
+            var machineEnv = p.AddWildcard<string>("env", Trusted, "An environment variable of the machine (Windows only)", (name, s) => Variable(name, EnvironmentVariableTarget.Machine));
+            machineEnv.WindowsOnly = true;
+            machineEnv.Available = "Windows, when the variable is set";
             return p;
         }
 
         private static VariableProvider Env()
         {
             var p = new VariableProvider("env");
-            p.AddWildcard<string>(null, Trusted, "An environment variable of Greenshot's process (as %NAME% in Windows)", (name, s) => Variable(name, EnvironmentVariableTarget.Process));
+            p.AddWildcard<string>(null, Trusted, "An environment variable of Greenshot's process (as %NAME% in Windows)", (name, s) => Variable(name, EnvironmentVariableTarget.Process)).Available = "when the variable is set";
             return p;
         }
 
@@ -211,7 +213,7 @@ namespace Greenshot.Base.Expressions
                     return VariableResolver.Instance.RenderOptionTemplate(template, s);
                 }
                 return value;
-            });
+            }).Available = "in a recipe with that option";
             return p;
         }
 
@@ -219,7 +221,7 @@ namespace Greenshot.Base.Expressions
         {
             var p = new VariableProvider("var");
             p.AddWildcard<object>(null, Untrusted, "A recipe variable: set by a trigger, a SetVariable step or the output of a step", (name, s) =>
-                s.Flow?.Properties != null && s.Flow.Properties.TryGetValue(name, out var value) ? value : null);
+                s.Flow?.Properties != null && s.Flow.Properties.TryGetValue(name, out var value) ? value : null).Available = "in a recipe, once set";
             return p;
         }
 
@@ -231,6 +233,10 @@ namespace Greenshot.Base.Expressions
             p.Add<string>("executionId", Trusted, "The id of this run", s => s.Flow?.ExecutionId.ToString());
             p.Add<string>("state", Trusted, "The state of this run", s => s.Flow?.State.ToString());
             p.Add<string>("abortReason", Trusted, "Why this run was stopped", s => s.Flow?.AbortReason);
+            foreach (var descriptor in p.Variables)
+            {
+                descriptor.Available = "in a recipe";
+            }
             return p;
         }
     }
@@ -251,7 +257,10 @@ namespace Greenshot.Base.Expressions
             get
             {
                 yield return new VariableDescriptor("config.*", typeof(string), Trusted,
-                    "A setting of greenshot.ini as config.<section>.<key>, e.g. config.Core.OutputFileFormat");
+                    "A setting of greenshot.ini as config.<section>.<key>, e.g. config.Core.OutputFileFormat")
+                {
+                    Available = "always; settings with secrets are left out"
+                };
             }
         }
 

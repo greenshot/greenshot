@@ -88,6 +88,9 @@ namespace Greenshot.Base.Expressions
         /// <summary>English description, used in the help when no translation exists</summary>
         public string Description { get; }
 
+        /// <summary>When the value is there, in English for the help and the docs, e.g. "after OCR"; null: always</summary>
+        public string Available { get; set; }
+
         /// <summary>Only Windows has this value; elsewhere it is empty</summary>
         public bool WindowsOnly { get; set; }
 

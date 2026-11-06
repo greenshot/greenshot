@@ -90,7 +90,7 @@ namespace Greenshot.Base.Expressions
             return ReplaceFileArgument(Convert(arguments, true));
         }
 
-        /// <summary>{0} becomes ${output.file}, {{ and }} become braces; the ${...} stay as they are</summary>
+        /// <summary>{0} becomes ${export.file}, {{ and }} become braces; the ${...} stay as they are</summary>
         public static string ReplaceFileArgument(string template)
         {
             if (string.IsNullOrEmpty(template)) return template;
@@ -109,7 +109,7 @@ namespace Greenshot.Base.Expressions
                 }
                 if (string.CompareOrdinal(template, i, "{0}", 0, 3) == 0)
                 {
-                    sb.Append("${output.file}");
+                    sb.Append("${export.file}");
                     i += 2;
                 }
                 else if ((c == '{' || c == '}') && i + 1 < template.Length && template[i + 1] == c)

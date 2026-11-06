@@ -302,7 +302,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
     }
 
     /// <summary>
-    /// The arguments of a command: the template rendered for the file (${output.file}). Nothing of the capture can be part of it, the
+    /// The arguments of a command: the template rendered for the file (${export.file}). Nothing of the capture can be part of it, the
     /// file name can't hold characters a shell would read.
     /// </summary>
     public static string RenderArguments(string arguments, string fullpath, VariableScope scope)
@@ -325,6 +325,6 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             LOG.Warn("ExternalCommand configured with shell interpreter - potential security risk");
         }
 
-        return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(outputFile: fullpath));
+        return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(exportFile: fullpath));
     }
 }

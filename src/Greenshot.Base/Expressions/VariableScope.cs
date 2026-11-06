@@ -47,11 +47,11 @@ namespace Greenshot.Base.Expressions
         /// <summary>The folder a file name goes to, needed by counter.folder and counter.name</summary>
         public string TargetFolder { get; set; }
 
-        /// <summary>The file written by the running export, for output.*</summary>
-        public string OutputFile { get; set; }
+        /// <summary>The file written by the running export, for export.*</summary>
+        public string ExportFile { get; set; }
 
-        /// <summary>The link of the running upload, for output.url</summary>
-        public string OutputUrl { get; set; }
+        /// <summary>The link of the running upload, for export.url</summary>
+        public string ExportUrl { get; set; }
 
         /// <summary>A preview never changes state: counters show their next value and stay</summary>
         public bool Preview { get; set; }
@@ -63,11 +63,11 @@ namespace Greenshot.Base.Expressions
         internal DateTime? FixedNow { get; set; }
 
         /// <summary>A copy with another target folder or output file</summary>
-        public VariableScope With(string targetFolder = null, string outputFile = null)
+        public VariableScope With(string targetFolder = null, string exportFile = null)
         {
             var copy = (VariableScope)MemberwiseClone();
             if (targetFolder != null) copy.TargetFolder = targetFolder;
-            if (outputFile != null) copy.OutputFile = outputFile;
+            if (exportFile != null) copy.ExportFile = exportFile;
             return copy;
         }
 

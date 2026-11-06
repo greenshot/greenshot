@@ -4,12 +4,15 @@ Status: implemented in #1693 (2026-11-06); the user documentation is [variables.
 Code references in section 1 are to `main` at 6685bc5 (after #1691), before the change.
 
 Where the implementation differs from the design below:
+- `output.*` of this design is `export.*` in the code (the file and link of the export running now).
+- variables.md has a table of all values (type, when there, trusted), generated from the descriptors (`Available`) by
+  `VariableDocumentation`; a test fails when it is out of date.
 - The recipe format stays 2.0 and recipes of an earlier beta are not converted (recipes are experimental): an old name
   is an error in the validator and the editor, variables.md lists the renames.
 - No lock file and no reservation for `counter.folder` / `counter.name`: two saves at the same moment into one folder
   can get the same number (documented; `counter.scope(...)` never repeats a number).
 - `counter.global` stays in `OutputFileIncrementingNumber` (no new `FileCounter` key).
-- Command arguments are not quoted automatically: the template writes `"${output.file}"` itself (1.3 had `"{0}"`).
+- Command arguments are not quoted automatically: the template writes `"${export.file}"` itself (1.3 had `"{0}"`).
 - `payload.process` isn't there yet (the capture details don't keep the process). `payload.folder` (the folder of an
   opened file) is new and trusted, so a command line recipe can save next to the file it got.
 - The settings show a live preview and the first problem under the folder, file name and footer boxes
@@ -157,7 +160,7 @@ No bare names any more (decided): every value is in a namespace, so a new name n
 | `time.*` | `now` (evaluation time, local), `utc` (evaluation time, UTC); the payload's time is `payload.time` | trusted |
 | `payload.*` | what is being worked on, a capture, an opened file or the clipboard (one namespace): `width`, `height` (current size), `time` (when taken, or the file's time; one value for every output), `source`, `hdr`, `title`, `process`, `file` (full path of an opened file), `ocr.text`, `video.file`, later `url` (browser extension) | per value: `width`, `height`, `time`, `source`, `hdr` trusted; `title`, `process`, `file`, `ocr.text`, `url` **untrusted** |
 | `counter.global`, `counter.folder`, `counter.name`, `counter.scope(key)`, `counter.session` | see section 5 | trusted |
-| `output.*` | the result of the export running now: `file` (full path of the file written), `folder`, `name` (file name with extension), later `url` (link after an upload). Today this is `{0}` of the external command, `ExternalCommand.TargetFile`, `Destination.Filename` and the Jira `{capture}` placeholder | trusted: Greenshot made the name safe; as a command argument it is quoted as one argument |
+| `export.*` | the result of the export running now: `file` (full path of the file written), `folder`, `name` (file name with extension), later `url` (link after an upload). Today this is `{0}` of the external command, `ExternalCommand.TargetFile`, `Destination.Filename` and the Jira `{capture}` placeholder | trusted: Greenshot made the name safe; as a command argument it is quoted as one argument |
 | `user.*` | fixed list, resolved per OS: `name`, `domain`, `profile`, `desktop`, `documents`, `pictures`, `videos`, `appdata`, `localappdata`, `temp` (`pictures` = the shell folder on Windows, also when moved, XDG on Linux, `~/Pictures` on macOS) | trusted |
 | `machine.*` | fixed list: `name`, `os`, `osversion`, `programfiles`, `commonappdata`, ... | trusted |
 | `env.<NAME>` | the process environment, on every OS; exactly what `%NAME%` gives today | trusted |
@@ -232,7 +235,7 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
     local or network path.
   - `FileName`: the template's own `\` makes sub folders (as in 1.3); every value is made one safe path segment (no
     `\ / : ..`, trimmed, length capped); the final path must stay inside the folder (`Path.GetFullPath` check).
-  - `Command`: trusted values only. `Argument`: trusted values plus `${output.file}` (replaces `{0}`), quoted as one
+  - `Command`: trusted values only. `Argument`: trusted values plus `${export.file}` (replaces `{0}`), quoted as one
     argument.
   - `Text` (footer, e-mail subject, caption, clipboard text): all values, formatted in the UI language (today's
     `DateCultureMode.UILanguage`). Paths and file names keep the current culture, so migrated patterns give the same
@@ -334,7 +337,7 @@ key is absent, the old value is converted once and the result logged; the old ke
 | `OutputFileIncrementingNumber` (Core) | `FileCounter` | value copied |
 | `OutputPrintFooterPattern` (Core) | `OutputPrintFooterTemplate` | purpose `Text` |
 | `EmailSubjectPattern` (Office) | `EmailSubjectTemplate` | purpose `Text` |
-| `Commandline`, `Argument`, `WorkingDirectory` (ExternalCommand) | `CommandlineTemplate`, `ArgumentTemplate`, `WorkingDirectoryTemplate` | `%X%` → `${env.X}`, `{0}` → `${output.file}` |
+| `Commandline`, `Argument`, `WorkingDirectory` (ExternalCommand) | `CommandlineTemplate`, `ArgumentTemplate`, `WorkingDirectoryTemplate` | `%X%` → `${env.X}`, `{0}` → `${export.file}` |
 
 Not released, changed in place (no migration): Stamps `LibraryPath` (`%X%` → `${...}`, purpose `Folder`), recipe
 parameters and options.

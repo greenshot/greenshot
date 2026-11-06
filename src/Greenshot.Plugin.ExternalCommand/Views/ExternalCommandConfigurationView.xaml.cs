@@ -204,7 +204,7 @@ public partial class ExternalCommandConfigurationView : UserControl, INotifyProp
 
         ExternalCommandConfig.Commands.Add(newName);
         ExternalCommandConfig.CommandlineTemplate[newName] = string.Empty;
-        ExternalCommandConfig.ArgumentTemplate[newName] = "\"${output.file}\"";
+        ExternalCommandConfig.ArgumentTemplate[newName] = "\"${export.file}\"";
         ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? WellKnownFileFormats.Png;
         ExternalCommandConfig.RunInbackground[newName] = true;
         ExternalCommandConfig.RedirectStandardErrorCommand[newName] = ExternalCommandConfig.RedirectStandardError;
@@ -304,7 +304,7 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
         _arguments = config.ArgumentTemplate != null && config.ArgumentTemplate.ContainsKey(commandName)
             ? config.ArgumentTemplate[commandName]
-            : "\"${output.file}\"";
+            : "\"${export.file}\"";
 
         _outputFormat = config.OutputFormat != null && config.OutputFormat.ContainsKey(commandName)
             ? config.OutputFormat[commandName]
