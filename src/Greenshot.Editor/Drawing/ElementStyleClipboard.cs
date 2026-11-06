@@ -33,8 +33,8 @@ namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// Copy the style (line, fill, shadow, font, arrow heads, filter settings...) or the size of one element and apply it to other
-    /// elements, also in another editor window. Kept until Greenshot ends, not in greenshot.ini. No UI here: the context menu,
-    /// the keys and the Selection panel call it.
+    /// elements, also in another editor window. Kept until Greenshot ends, not in greenshot.ini. No UI here: the context menu
+    /// and the Selection panel call it.
     /// </summary>
     public static class ElementStyleClipboard
     {

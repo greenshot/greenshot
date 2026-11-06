@@ -23,9 +23,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Button Grid.Row="0" Grid.Column="0" Margin="0,2,4,2" Style="{StaticResource SecondaryButtonStyle}"
-                Content="{wpf:Text Editor.CopyStyle}" ToolTip="Ctrl+Shift+C" IsEnabled="{Binding CanCopy}" Click="CopyStyle_Click"/>
+                Content="{wpf:Text Editor.CopyStyle}" IsEnabled="{Binding CanCopy}" Click="CopyStyle_Click"/>
         <Button Grid.Row="0" Grid.Column="1" Margin="4,2,0,2" Style="{StaticResource SecondaryButtonStyle}"
-                Content="{wpf:Text Editor.ApplyStyle}" ToolTip="Ctrl+Shift+V" IsEnabled="{Binding CanApplyStyle}" Click="ApplyStyle_Click"/>
+                Content="{wpf:Text Editor.ApplyStyle}" IsEnabled="{Binding CanApplyStyle}" Click="ApplyStyle_Click"/>
         <Button Grid.Row="1" Grid.Column="0" Margin="0,2,4,2" Style="{StaticResource SecondaryButtonStyle}"
                 Content="{wpf:Text Editor.CopySize}" IsEnabled="{Binding CanCopy}" Click="CopySize_Click"/>
         <Button Grid.Row="1" Grid.Column="1" Margin="4,2,0,2" Style="{StaticResource SecondaryButtonStyle}"

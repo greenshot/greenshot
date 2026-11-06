@@ -2286,12 +2286,6 @@ namespace Greenshot.Editor.Forms
                     case Keys.OemMinus: // Ctrl + Shift + -
                         ShrinkCanvasToolStripMenuItemClick(sender, e);
                         break;
-                    case Keys.C when CanvasHasKeys && ElementStyleClipboard.CanCopy(_surface.SelectedElements):
-                        ElementStyleClipboard.CopyStyle(_surface.SelectedElements[0]);
-                        break;
-                    case Keys.V when CanvasHasKeys:
-                        ElementStyleClipboard.ApplyStyle(_surface, _surface.SelectedElements);
-                        break;
                 }
             }
         }

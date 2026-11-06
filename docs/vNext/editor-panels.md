@@ -30,7 +30,7 @@ With nothing selected and no tool which needs it, the panel says so.
 | Section | What it does |
 |---|---|
 | Size and position | For one selected element: left, top, width and height in pixels of the capture. Type a number and press Enter or leave the field. When the element keeps its aspect ratio (e.g. an emoji or an image), changing the width also changes the height and the other way round. Ctrl+Z undoes it. |
-| Style and size | For every selection: *Copy style* and *Copy size* take them from one selected element, *Apply style* and *Apply size* give them to all selected elements, in one step for Ctrl+Z. The same commands are in the context menu of the elements; Ctrl+Shift+C copies the style, Ctrl+Shift+V applies it. See the rules below. |
+| Style and size | For every selection: *Copy style* and *Copy size* take them from one selected element, *Apply style* and *Apply size* give them to all selected elements, in one step for Ctrl+Z. The same commands are in the context menu of the elements. See the rules below. |
 | Emoji | Takes the rest of the height of the panel. Picks the emoji: for the emoji tool the next one to place, for selected emojis the emoji of all of them, in one step for Ctrl+Z. *Search* finds emojis by their English name, by group (e.g. "animal") or by the emoji itself; every word must fit. Enter places the first one found, Down goes to the emojis. The tabs show the groups, the first one the emojis used last. An emoji with skin tones shows them in a small list after the click. |
 
 ### Settings
@@ -105,8 +105,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
   its top left corner, a line or arrow its direction; an element which keeps its aspect ratio (an emoji, an image) takes
   the width and its own ratio.
 - What was copied is kept for all editor windows until Greenshot ends, not in greenshot.ini.
-- *Style and size* section of the panel, context menu, Ctrl+Shift+C (copy style) and Ctrl+Shift+V (apply style). Copy needs
-  exactly one selected element. The core is `ElementStyleClipboard` (no UI), undo with `ChangeFieldsMemento`.
+- *Style and size* section of the panel and the context menu, no keys. Copy needs exactly one selected element. The core is `ElementStyleClipboard` (no UI), undo with `ChangeFieldsMemento`.
 
 ### The contract
 

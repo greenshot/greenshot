@@ -873,14 +873,14 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(new ToolStripSeparator());
             if (canCopy)
             {
-                var copyStyle = new ToolStripMenuItem(Texts.Editor.CopyStyle) { ShortcutKeyDisplayString = "Ctrl+Shift+C" };
+                var copyStyle = new ToolStripMenuItem(Texts.Editor.CopyStyle);
                 copyStyle.Click += delegate { ElementStyleClipboard.CopyStyle(this[0]); };
                 menu.Items.Add(copyStyle);
             }
 
             if (canApplyStyle)
             {
-                var applyStyle = new ToolStripMenuItem(Texts.Editor.ApplyStyle) { ShortcutKeyDisplayString = "Ctrl+Shift+V" };
+                var applyStyle = new ToolStripMenuItem(Texts.Editor.ApplyStyle);
                 applyStyle.Click += delegate { ElementStyleClipboard.ApplyStyle(surface, this); };
                 menu.Items.Add(applyStyle);
             }
