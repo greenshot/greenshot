@@ -242,6 +242,31 @@ namespace Greenshot.Base.Languages
         string SectionEmoji { get; }
 
         /// <summary>
+        /// Style and size
+        /// </summary>
+        string SectionStyleAndSize { get; }
+
+        /// <summary>
+        /// Copy style
+        /// </summary>
+        string CopyStyle { get; }
+
+        /// <summary>
+        /// Apply style
+        /// </summary>
+        string ApplyStyle { get; }
+
+        /// <summary>
+        /// Copy size
+        /// </summary>
+        string CopySize { get; }
+
+        /// <summary>
+        /// Apply size
+        /// </summary>
+        string ApplySize { get; }
+
+        /// <summary>
         /// X (left)
         /// </summary>
         string ElementLeft { get; }

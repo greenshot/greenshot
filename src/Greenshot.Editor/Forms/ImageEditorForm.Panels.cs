@@ -57,6 +57,7 @@ namespace Greenshot.Editor.Forms
             var sections = new List<IEditorSection>
             {
                 new SizeAndPositionSection(),
+                new StyleAndSizeSection(),
                 new EmojiSection(EditorConfiguration)
             };
             var panels = new List<IEditorPanel>();

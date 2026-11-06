@@ -847,6 +847,9 @@ namespace Greenshot.Editor.Drawing
                 surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
             }
 
+            // Copy the style or size of one element, apply it to the selected ones (also in another editor window)
+            AddStyleAndSizeItems(menu, surface);
+
             // The panel area with the sections of the selection, for every element
             if (surface is Surface editorSurface)
             {
@@ -854,6 +857,46 @@ namespace Greenshot.Editor.Drawing
                 item = new ToolStripMenuItem(Texts.Editor.PanelProperties);
                 item.Click += delegate { editorSurface.RequestProperties(); };
                 menu.Items.Add(item);
+            }
+        }
+
+        private void AddStyleAndSizeItems(ContextMenuStrip menu, ISurface surface)
+        {
+            bool canCopy = ElementStyleClipboard.CanCopy(this);
+            bool canApplyStyle = ElementStyleClipboard.CanApplyStyle(this);
+            bool canApplySize = ElementStyleClipboard.CanApplySize(this);
+            if (!canCopy && !canApplyStyle && !canApplySize)
+            {
+                return;
+            }
+
+            menu.Items.Add(new ToolStripSeparator());
+            if (canCopy)
+            {
+                var copyStyle = new ToolStripMenuItem(Texts.Editor.CopyStyle);
+                copyStyle.Click += delegate { ElementStyleClipboard.CopyStyle(this[0]); };
+                menu.Items.Add(copyStyle);
+            }
+
+            if (canApplyStyle)
+            {
+                var applyStyle = new ToolStripMenuItem(Texts.Editor.ApplyStyle);
+                applyStyle.Click += delegate { ElementStyleClipboard.ApplyStyle(surface, this); };
+                menu.Items.Add(applyStyle);
+            }
+
+            if (canCopy)
+            {
+                var copySize = new ToolStripMenuItem(Texts.Editor.CopySize);
+                copySize.Click += delegate { ElementStyleClipboard.CopySize(this[0]); };
+                menu.Items.Add(copySize);
+            }
+
+            if (canApplySize)
+            {
+                var applySize = new ToolStripMenuItem(Texts.Editor.ApplySize);
+                applySize.Click += delegate { ElementStyleClipboard.ApplySize(surface, this); };
+                menu.Items.Add(applySize);
             }
         }
 

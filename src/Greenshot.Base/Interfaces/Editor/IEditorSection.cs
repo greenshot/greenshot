@@ -87,6 +87,11 @@ namespace Greenshot.Base.Interfaces.Editor
         public const int SizeAndPosition = 0;
 
         /// <summary>
+        /// Copy and apply style and size: for every element, right below size and position
+        /// </summary>
+        public const int StyleAndSize = 10;
+
+        /// <summary>
         /// The sections of the kind of element, e.g. the emoji of an emoji
         /// </summary>
         public const int Element = 100;
