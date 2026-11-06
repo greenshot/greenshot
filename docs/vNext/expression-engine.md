@@ -256,6 +256,11 @@ public interface IVariableRegistry { void Register(IVariableProvider provider); 
   - `counter.name` matches the other values as they are, so each name has its own sequence: with
     `${payload.title} ${counter.name:000}.png` the files are `Notepad 001`, `Notepad 002`, `Chrome 001`. With a date in
     the name it is a counter per day: `${payload.time:yyyy-MM-dd} ${counter.name:000}`.
+  - A folder per day with its own count: `${payload.time:yyyy-MM-dd}\\Shot ${counter.folder:000}.png`; the folder part is
+    rendered first, the counter then reads that (new, empty) folder and starts at 001.
+  - Both need a folder to read: where only a name is made (uploads to Jira, Box, Confluence, ...) the validator rejects
+    them; `counter.global` is the counter there. A number is reused after its file was deleted or moved; if that must
+    never happen, a stored per-folder counter can be added later under its own name.
 - Default width comes from the format: `${counter.global:000000}` is today's `${NUM}` (6 digits).
 - Named counters (`${counter.named('bugs')}`) only if someone asks.
 
