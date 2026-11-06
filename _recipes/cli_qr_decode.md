@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "cli_qr_decode",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "CLI QR Code & Barcode Extractor",
   "summary": "Reads QR codes and barcodes in an image file and prints their text.",
   "kind": "recipe",
@@ -33,9 +33,9 @@
    "command-line",
    "qr-code"
   ],
-  "sha256": "2b5649d5ad9a4c28f5bfe5a3d3fb45c7d8ac7e51cb2b8aa91b5f4fbd66be55ea",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/cli_qr_decode/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/cli_qr_decode/README.md"
+  "sha256": "a2972b6445bb1316a535f01369d18a64dec0eb6a46bd1cde77fbec86419cf21b",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_qr_decode/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_qr_decode/README.md"
  }
 }
 ---

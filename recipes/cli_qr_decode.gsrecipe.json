@@ -28,7 +28,7 @@
         "Command": "qr",
         "Description": "Scan and decode QR codes from an image file",
         "FireAndForget": false,
-        "Stdout": "${Barcode.Text}",
+        "Stdout": "${var.Barcode.Text}",
         "Arguments": [
           {
             "name": "file",
@@ -49,7 +49,7 @@
       "enabled": true,
       "parameters": {
         "SourceType": "File",
-        "Filename": "${Filename}"
+        "Filename": "${var.Filename}"
       }
     },
     {
@@ -68,7 +68,7 @@
       "name": "Print to Console",
       "enabled": true,
       "parameters": {
-        "Text": "${Barcode.Text}"
+        "Text": "${var.Barcode.Text}"
       }
     }
   ],

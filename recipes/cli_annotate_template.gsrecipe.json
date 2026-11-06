@@ -21,7 +21,7 @@
         "Command": "annotate",
         "Description": "Apply template annotations to an image file and save with suffix",
         "FireAndForget": false,
-        "Stdout": "${Destination.Filename}",
+        "Stdout": "${var.Destination.Filename}",
         "Arguments": [
           {
             "name": "file",
@@ -42,7 +42,7 @@
       "enabled": true,
       "parameters": {
         "SourceType": "File",
-        "Filename": "${Filename}"
+        "Filename": "${var.Filename}"
       }
     },
     {
@@ -73,7 +73,7 @@
             "Height": 26,
             "OffsetX": -16,
             "OffsetY": -15,
-            "Text": "REVIEWED: ${now:yyyy-MM-dd}",
+            "Text": "REVIEWED: ${time.now:yyyy-MM-dd}",
             "LineColor": "#FFFFFF",
             "FontSize": 10.0,
             "FontFamily": "Segoe UI",
@@ -89,8 +89,8 @@
       "name": "Save Annotated Image",
       "enabled": true,
       "parameters": {
-        "SaveDirectory": "${dirname}",
-        "FilenamePattern": "${title}-with_annotation",
+        "SaveDirectory": "${payload.folder}",
+        "FilenamePattern": "${payload.title}-with_annotation",
         "IfFileExists": "Overwrite"
       }
     },
@@ -100,7 +100,7 @@
       "name": "Print Saved Path",
       "enabled": true,
       "parameters": {
-        "Text": "${Destination.Filename}"
+        "Text": "${var.Destination.Filename}"
       }
     }
   ],

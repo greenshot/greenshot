@@ -61,11 +61,11 @@
         "Branches": [
           {
             "Key": "A",
-            "Expression": "${payload.width > calculated_max}"
+            "Expression": "${payload.width > var.calculated_max}"
           },
           {
             "Key": "B",
-            "Expression": "${option.fill_up_canvas == FALSE}"
+            "Expression": "${option.fill_up_canvas == false}"
           },
           {
             "Key": "C",
@@ -82,8 +82,8 @@
       "parameters": {
         "Effect": "Resize",
         "MaintainAspectRatio": false,
-        "Width": "${calculated_max}",
-        "Height": "${(calculated_max / payload.width) * payload.height }"
+        "Width": "${var.calculated_max}",
+        "Height": "${(var.calculated_max / payload.width) * payload.height }"
       }
     },
     {
@@ -94,9 +94,9 @@
       "parameters": {
         "Effect": "ResizeCanvas",
         "BackgroundColor": "${option.canvas_color}",
-        "Right": "${((calculated_max - payload.width) - ((calculated_max - payload.width) % 2)) / 2}",
+        "Right": "${((var.calculated_max - payload.width) - ((var.calculated_max - payload.width) % 2)) / 2}",
         "Top": 0,
-        "Left": "${((calculated_max - payload.width) + ((calculated_max - payload.width) % 2)) / 2}",
+        "Left": "${((var.calculated_max - payload.width) + ((var.calculated_max - payload.width) % 2)) / 2}",
         "Bottom": 0
       }
     },

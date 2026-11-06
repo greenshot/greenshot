@@ -1,0 +1,91 @@
+{
+  "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
+  "version": "2.0",
+  "id": "region_to_printer_silent",
+  "name": "Region to Printer (silent)",
+  "description": "Captures a selected region and sends it directly to the default printer without opening print dialogs.",
+  "authors": [
+    {
+      "name": "FF-Brown",
+      "github": "FF-Brown"
+    }
+  ],
+  "copyright": "Copyright (c) 2026 FF-Brown",
+  "license": "MIT",
+  "options": [
+    {
+      "key": "hotkey",
+      "type": "Hotkey",
+      "default": "Ctrl + Alt + Shift + P",
+      "label": "Hotkey"
+    }
+  ],
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "Hotkey": "${option.hotkey}"
+      }
+    },
+    {
+      "triggerType": "ContextMenu",
+      "parameters": {
+        "Group": "Recipes"
+      }
+    }
+  ],
+  "showInContextMenu": true,
+  "requires": [],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "name": "Prepare for Region",
+      "parameters": {
+        "SourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "name": "Select Region",
+      "parameters": {
+        "SelectionMode": "Region"
+      }
+    },
+    {
+      "id": "feedback",
+      "stepType": "ImmediateFeedback",
+      "name": "Capture Feedback",
+      "parameters": {}
+    },
+    {
+      "id": "printer",
+      "stepType": "Printer",
+      "name": "Send to Printer",
+      "parameters": {
+        "ShowPrintOptions": false,
+        "ShowPrinterDialog": false
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "feedback"
+      },
+      {
+        "from": "feedback",
+        "to": "printer"
+      }
+    ]
+  }
+}

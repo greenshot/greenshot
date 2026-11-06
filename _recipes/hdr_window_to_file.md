@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "hdr_window_to_file",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "HDR Window to File",
   "summary": "Capture the active window on an HDR display and save it as a lossless HDR file (JPEG XR), highlights included.",
   "kind": "recipe",
@@ -28,8 +28,8 @@
    "file"
   ],
   "sha256": "c30ea534fb7eb086a6ca1c3892d9164f31e7a9c159d3cab228c4185f714b50f7",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/hdr_window_to_file/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/hdr_window_to_file/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/hdr_window_to_file/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/hdr_window_to_file/README.md"
  }
 }
 ---

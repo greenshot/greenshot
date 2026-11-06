@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "editor_confidential_template",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Editor Template: Confidential Watermark",
   "summary": "Editor menu entry that puts a red CONFIDENTIAL banner and watermark on the open capture.",
   "kind": "recipe",
@@ -28,8 +28,8 @@
    "annotation"
   ],
   "sha256": "8413be4cb0d3f114230511bc3ec03dc10762aa349032a825310b37b6e8d77dad",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/editor_confidential_template/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/editor_confidential_template/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/editor_confidential_template/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/editor_confidential_template/README.md"
  }
 }
 ---

@@ -52,7 +52,7 @@
             "Height": 20,
             "OffsetX": -15,
             "OffsetY": -12,
-            "Text": "Greenshot: ${now:HH:mm:ss}",
+            "Text": "Greenshot: ${time.now:HH:mm:ss}",
             "LineColor": "#FFFFFF",
             "FontSize": 9.0,
             "FontFamily": "Segoe UI",

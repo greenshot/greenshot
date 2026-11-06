@@ -57,7 +57,7 @@
       "name": "Run Image Optimizer",
       "parameters": {
         "CommandLine": "cmd.exe",
-        "Arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
+        "Arguments": "/c echo Optimizing \"${export.file}\"",
         "ReloadAfterExecution": false,
         "OutputVariable": "opt_output"
       }

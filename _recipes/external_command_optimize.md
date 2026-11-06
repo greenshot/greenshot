@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "external_command_optimize",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Region Snip with External Tool Optimization",
   "summary": "Template: region capture that runs an external program on the file, then opens the editor.",
   "kind": "recipe",
@@ -28,9 +28,9 @@
    "external-command",
    "editor"
   ],
-  "sha256": "d9a581779686064d825a1b67589199a52eba130d34ca8301d72d2fd2d9767dc5",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/external_command_optimize/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/external_command_optimize/README.md"
+  "sha256": "c0e767a4f941c91f1355658b6cdc31b61345e950e285920b830df74744239b3a",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/external_command_optimize/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/external_command_optimize/README.md"
  }
 }
 ---

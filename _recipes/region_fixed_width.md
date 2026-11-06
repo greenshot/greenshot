@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "region_fixed_width",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Region with fixed width",
   "summary": "Region capture scaled down to a maximum width, smaller images filled up, with an optional border.",
   "kind": "recipe",
@@ -27,9 +27,9 @@
    "after-capture",
    "resize"
   ],
-  "sha256": "1473416ad46a173805dc5346fcf8a7e0445c765960cbf0b3e345d22eade068d2",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/region_fixed_width/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/region_fixed_width/README.md"
+  "sha256": "1fe0f851be094d78c59d488fc399386310e14e343e3e12733afdef20a9ea8271",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/region_fixed_width/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/region_fixed_width/README.md"
  }
 }
 ---

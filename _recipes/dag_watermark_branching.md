@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "dag_watermark_branching",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "DAG Workflow with environment watermark and parallel feedback",
   "summary": "Region capture with a watermark of user, machine and time, plus a sound while it works.",
   "kind": "recipe",
@@ -27,9 +27,9 @@
    "after-capture",
    "annotation"
   ],
-  "sha256": "898ea7ebc163c2f2c832e6844ce0ead8ab27cc8676e8a886c07fe94ba636b5fb",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/dag_watermark_branching/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/dag_watermark_branching/README.md"
+  "sha256": "a3c0700567eb5d9a285af2548497b63db9486bc67e53e136d85fdd4fb643a37a",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/dag_watermark_branching/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/dag_watermark_branching/README.md"
  }
 }
 ---

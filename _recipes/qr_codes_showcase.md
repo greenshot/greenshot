@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "qr_codes_showcase",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "QR Codes Showcase (Payments, Business Cards & Links)",
   "summary": "Region capture with three example QR codes: a SEPA payment, a business card and a link.",
   "kind": "recipe",
@@ -36,8 +36,8 @@
    "annotation"
   ],
   "sha256": "d99e0f67634b0c90e6d4971b44f31e5f4a4c8861a0dc6abf349c87c7e495ebce",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/qr_codes_showcase/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/qr_codes_showcase/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/qr_codes_showcase/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/qr_codes_showcase/README.md"
  }
 }
 ---

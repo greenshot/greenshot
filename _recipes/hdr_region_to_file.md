@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "hdr_region_to_file",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "HDR Region to File",
   "summary": "Select a region on the live screen of an HDR display and save it as a lossless HDR file (JPEG XR), highlights included.",
   "kind": "recipe",
@@ -27,9 +27,9 @@
    "hdr",
    "file"
   ],
-  "sha256": "fd3cfda0e220cd5f399072967bbadcf562a45a942367eed2cb7ed4a03ddce7ed",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/hdr_region_to_file/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/hdr_region_to_file/README.md"
+  "sha256": "3c955a4e0559b4798731df168ade368fff760a236ba05397184bbda0e1dd2769",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/hdr_region_to_file/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/hdr_region_to_file/README.md"
  }
 }
 ---

@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "cli_convert_format",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "name": "CLI Image Format Converter",
   "summary": "Converts an image file to another format (png, jpg, webp, bmp, gif, tiff) from the command line.",
   "kind": "recipe",
@@ -27,9 +27,9 @@
    "command-line",
    "files"
   ],
-  "sha256": "ba0106864b24f9e0cf81d923db8d59a79f1fe751c4e026955037c9949c9cc1cb",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/cli_convert_format/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/cli_convert_format/README.md"
+  "sha256": "323deeb5c8b71ed90a5c5dc859da179d3e20f6580506917eb2d0b40da26ac0ce",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_convert_format/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_convert_format/README.md"
  }
 }
 ---

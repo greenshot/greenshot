@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "clipboard_format_converter",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Clipboard Format Converter & Watermark",
   "summary": "Watches the clipboard: a copied image gets a small time stamp and opens in the editor.",
   "kind": "recipe",
@@ -28,9 +28,9 @@
    "annotation",
    "editor"
   ],
-  "sha256": "08cc23a2a479ae987dd348960124f7b7ee94121c513f3416a9adb20209d97e2c",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/clipboard_format_converter/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/196923352da5e3a61f9a2ddaad7468bb2f5a93bb/recipes/clipboard_format_converter/README.md"
+  "sha256": "a275c79a61d7b320561da19dc92ef3dda97927639ed5134d6f8eed712ca34ac2",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/clipboard_format_converter/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/clipboard_format_converter/README.md"
  }
 }
 ---

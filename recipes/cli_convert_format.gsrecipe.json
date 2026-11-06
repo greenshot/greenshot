@@ -21,7 +21,7 @@
         "Command": "convert",
         "Description": "Convert an image from one format to another",
         "FireAndForget": false,
-        "Stdout": "${Destination.Filename}",
+        "Stdout": "${var.Destination.Filename}",
         "Arguments": [
           {
             "name": "file",
@@ -58,7 +58,7 @@
       "enabled": true,
       "parameters": {
         "SourceType": "File",
-        "Filename": "${Filename}"
+        "Filename": "${var.Filename}"
       }
     },
     {
@@ -67,9 +67,9 @@
       "name": "Save Converted File",
       "enabled": true,
       "parameters": {
-        "SaveDirectory": "${dirname}",
-        "FilenamePattern": "${title}",
-        "Format": "${Format}",
+        "SaveDirectory": "${payload.folder}",
+        "FilenamePattern": "${payload.title}",
+        "Format": "${var.Format}",
         "IfFileExists": "Overwrite"
       }
     },
@@ -79,7 +79,7 @@
       "name": "Print Saved Path",
       "enabled": true,
       "parameters": {
-        "Text": "${Destination.Filename}"
+        "Text": "${var.Destination.Filename}"
       }
     }
   ],

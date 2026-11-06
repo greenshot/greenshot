@@ -69,7 +69,7 @@
       "parameters": {
         "Variables": {
           "department": "Engineering QA",
-          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+          "watermark_text": "Captured by ${user.name} on ${machine.name} [${time.now:yyyy-MM-dd HH:mm}]"
         }
       }
     },
@@ -100,7 +100,7 @@
             "Height": 30,
             "OffsetX": -20,
             "OffsetY": -20,
-            "Text": "${context.watermark_text}",
+            "Text": "${var.watermark_text}",
             "LineColor": "#FFFFFF",
             "FontSize": 9.5,
             "FontFamily": "Segoe UI",
