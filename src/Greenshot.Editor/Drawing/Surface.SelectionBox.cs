@@ -77,9 +77,11 @@ namespace Greenshot.Editor.Drawing
         {
             if (!_selectionBoxStart.HasValue || e.Button != MouseButtons.Left) return false;
             MoveSelectionBox(e.Location);
-            if (!_selectionBoxActive && !_selectionBoxToggle) SetBoxSelection(Array.Empty<IDrawableContainer>());
+            bool wasDrag = _selectionBoxActive;
             _selectionBoxStart = null; _selectionBoxInitial = null; _selectionBoxActive = false;
-            Capture = false; Invalidate(); return true;
+            Capture = false; Invalidate();
+            // Below the drag threshold, keep upstream release-position hit testing and modifiers.
+            return wasDrag;
         }
 
         internal bool CancelSelectionBox()

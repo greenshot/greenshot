@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Reflection;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces;
@@ -30,6 +31,7 @@ using Greenshot.Editor.Drawing.Fields;
 using Xunit;
 namespace Greenshot.Tests.Editor
 {
+    [Collection(TestCollections.InputState)]
     public class RubberBandSelectionTests
     {
         public RubberBandSelectionTests() => TestEnvironment.EnsureInitialized();
@@ -39,7 +41,7 @@ namespace Greenshot.Tests.Editor
             Exception error = null;
             var thread = new Thread(() => { try { action(); } catch (Exception e) { error = e; } });
             thread.SetApartmentState(ApartmentState.STA); thread.Start(); thread.Join();
-            if (error != null) throw error;
+            if (error != null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
         }
 
         private static void Mouse(Surface s, string name, int x, int y)
@@ -49,7 +51,7 @@ namespace Greenshot.Tests.Editor
         private static RectangleContainer Box(Surface s, int x)
         {
             var box = new RectangleContainer(s) { Left = x, Top = 40, Width = 20, Height = 20 };
-            box.SetFieldValue(FieldType.SHADOW, false); s.AddElement(box, false); return box;
+            box.SetFieldValue(FieldType.SHADOW, false); box.SetFieldValue(FieldType.FILL_COLOR, Color.Blue); s.AddElement(box, false); return box;
         }
 
         [Fact]
@@ -89,6 +91,78 @@ namespace Greenshot.Tests.Editor
             Assert.False(first.Selected); Assert.True(second.Selected);
             s.Capture = false;
             Assert.True(first.Selected); Assert.True(second.Selected);
+        });
+        [Fact]
+        public void SubThresholdReleaseUsesExistingObjectClickSelection() => Sta(() =>
+        {
+            using var s = new Surface(new Bitmap(300, 200));
+            var first = Box(s, 40); var second = Box(s, 160);
+            s.DrawingMode = DrawingModes.None; s.DeselectAllElements(); s.SelectElement(second);
+            int edge = System.Linq.Enumerable.Range(0, 60).First(x => first.ClickableAt(x, 50));
+            Assert.False(first.ClickableAt(edge - 1, 50));
+            Mouse(s, "OnMouseDown", edge - 1, 50);
+            Mouse(s, "OnMouseUp", edge + 1, 50);
+            Assert.True(first.Selected); Assert.False(second.Selected);
+        });
+
+        [Fact]
+        public void ExistingClicksAndShiftClicksKeepUpstreamSelectionRules() => Sta(() =>
+        {
+            Keys modifiers = Keys.None;
+            Greenshot.Base.Core.InputState.ModifierKeysSource = () => modifiers;
+            try
+            {
+                using var s = new Surface(new Bitmap(300, 200));
+                var first = Box(s, 40); var second = Box(s, 160);
+                first.Width = first.Height = second.Width = second.Height = 80;
+                s.DrawingMode = DrawingModes.None; s.DeselectAllElements();
+                Mouse(s, "OnMouseDown", 80, 80); Mouse(s, "OnMouseUp", 80, 80);
+                Assert.True(first.Selected, "initial click selects first"); Assert.False(second.Selected);
+                modifiers = Keys.Shift;
+                Mouse(s, "OnMouseDown", 200, 80); Mouse(s, "OnMouseUp", 200, 80);
+                Assert.True(first.Selected); Assert.True(second.Selected);
+                Mouse(s, "OnMouseDown", 10, 10); Mouse(s, "OnMouseUp", 10, 10);
+                Assert.True(first.Selected); Assert.True(second.Selected);
+                Mouse(s, "OnMouseDown", 80, 80); Mouse(s, "OnMouseUp", 80, 80);
+                Assert.False(first.Selected); Assert.True(second.Selected);
+                modifiers = Keys.None;
+                Mouse(s, "OnMouseDown", 10, 10); Mouse(s, "OnMouseUp", 10, 10);
+                Assert.False(first.Selected); Assert.False(second.Selected);
+            }
+            finally { Greenshot.Base.Core.InputState.ModifierKeysSource = () => Keys.None; }
+        });
+
+        [Theory]
+        [InlineData(Keys.None)]
+        [InlineData(Keys.Control)]
+        public void ExistingObjectDragAndUndoKeepUpstreamBehavior(Keys modifiers) => Sta(() =>
+        {
+            Greenshot.Base.Core.InputState.ModifierKeysSource = () => modifiers;
+            try
+            {
+                using var s = new Surface(new Bitmap(400, 200));
+                var first = Box(s, 40); var second = Box(s, 160);
+                first.Width = 120; first.Height = 100;
+                s.DrawingMode = DrawingModes.None; s.DeselectAllElements(); s.SelectElement(first); s.SelectElement(second);
+                Assert.Same(first, s.Elements.ClickableElementAt(100, 90));
+                Mouse(s, "OnMouseDown", 100, 90);
+                Mouse(s, "OnMouseMove", 130, 110); Mouse(s, "OnMouseUp", 130, 110);
+                Assert.Equal(70, first.Left); Assert.Equal(190, second.Left); Assert.Equal(60, first.Top);
+                s.Undo();
+                Assert.Equal(40, first.Left); Assert.Equal(160, second.Left); Assert.Equal(40, first.Top);
+            }
+            finally { Greenshot.Base.Core.InputState.ModifierKeysSource = () => Keys.None; }
+        });
+
+        [Fact]
+        public void DrawingToolEmptyCanvasDragStillCreatesItsShape() => Sta(() =>
+        {
+            using var s = new Surface(new Bitmap(300, 200)) { DrawingMode = DrawingModes.Rect };
+            Mouse(s, "OnMouseDown", 10, 10); Mouse(s, "OnMouseMove", 100, 110); Mouse(s, "OnMouseUp", 100, 110);
+            var rectangle = Assert.IsType<RectangleContainer>(Assert.Single(s.Elements));
+            Assert.Equal(10, rectangle.Left); Assert.Equal(10, rectangle.Top);
+            Assert.Equal(90, rectangle.Width); Assert.Equal(100, rectangle.Height);
+            s.Undo(); Assert.Empty(s.Elements);
         });
     }
 }
