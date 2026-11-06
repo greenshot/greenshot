@@ -66,7 +66,7 @@ Settings > Recipes offer "Get More Recipes" (beta testers only) to open the cata
 
 1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
    are part of Greenshot); an index without a valid signature is refused,
-2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`), downloads the file
+2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`, compared with the full version including the build number, e.g. 1.4.123), downloads the file
    from the catalog repository and checks it against the SHA-256 of the index,
 3. shows the approval window, marked "from the catalog", with the catalog version, its authors, a link to its page and
    the recipe's options (settings) to fill in right away,

@@ -87,9 +87,13 @@ namespace Greenshot.Recipes.Catalog
         internal static Func<IRecipeConfiguration> ConfigurationProvider { get; set; } = RecipeConfigHelper.TryGetRecipeConfiguration;
 
         /// <summary>
-        /// The version of this Greenshot, compared with the minGreenshot of a recipe; replaceable for tests
+        /// The version of this Greenshot, compared with the minGreenshot of a recipe; replaceable for tests. The file version (1.4.123,
+        /// with the build number): the assembly version is only 1.4.0.0, so a recipe could not ask for a newer 1.4 build.
         /// </summary>
-        internal static Func<Version> GreenshotVersionProvider { get; set; } = () => typeof(EnvironmentInfo).Assembly.GetName().Version;
+        internal static Func<Version> GreenshotVersionProvider { get; set; } = () =>
+            TryParseVersion(EnvironmentInfo.GetVersion(typeof(EnvironmentInfo).Assembly, true), out var fileVersion)
+                ? fileVersion
+                : typeof(EnvironmentInfo).Assembly.GetName().Version;
 
         public static string GetPageUrl(string recipeId) => string.Format(PageUrlFormat, Uri.EscapeDataString(recipeId ?? string.Empty));
 
