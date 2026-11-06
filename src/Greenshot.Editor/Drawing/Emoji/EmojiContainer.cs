@@ -20,16 +20,12 @@
  */
 
 using System;
-using System.ComponentModel;
-using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Languages;
-using Greenshot.Editor.Controls.Emoji;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -40,10 +36,6 @@ namespace Greenshot.Editor.Drawing.Emoji
     [Serializable]
     public sealed class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
     {
-        [NonSerialized] private static EmojiContainer _currentContainer;
-        [NonSerialized] private static ElementHost _emojiPickerHost;
-        [NonSerialized] private static EmojiPicker _emojiPicker;
-
         private string _emoji;
 
         public string Emoji
@@ -67,116 +59,11 @@ namespace Greenshot.Editor.Drawing.Emoji
         }
 
         /// <summary>
-        /// A double click opens the picker, a single click only selects the emoji.
+        /// A double click shows the emoji in the Selection panel and moves the keyboard there, a single click only selects the emoji.
         /// </summary>
         public override void OnDoubleClick()
         {
-            ShowEmojiPicker();
-        }
-
-        private void ShowEmojiPicker()
-        {
-            if (System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA || _parent?.Controls == null)
-            {
-                return;
-            }
-
-            _currentContainer = this;
-
-            GetOrCreatePickerControl();
-
-            var absRectangle = Bounds;
-            var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
-            _emojiPickerHost.Width = 0; // Trick to hide the picker's button
-            _emojiPickerHost.Height = displayRectangle.Height;
-            _emojiPickerHost.Left = displayRectangle.Left;
-            _emojiPickerHost.Top = displayRectangle.Top;
-
-            _emojiPicker.Selection = Emoji;
-
-            // The keys go to the picker while it is open, like to the text box of a text element.
-            // The focus has to be in the host first, otherwise the picker can't take it from the canvas.
-            InternalParent.KeysLocked = true;
-            _emojiPickerHost.Focus();
-            _emojiPicker.ShowPopup(true);
-        }
-
-        private void GetOrCreatePickerControl()
-        {
-            // Create one picker control by surface
-            // TODO: This is not ideal, as we need to controls from the surface, should replace this with a different solution.
-            _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
-            if (_emojiPickerHost != null)
-            {
-                _emojiPicker = (EmojiPicker)_emojiPickerHost.Child;
-                return;
-            }
-
-            _emojiPicker = new EmojiPicker();
-            _emojiPicker.Picked += (_, args) =>
-            {
-                EditorConfig.RecentEmoji = args.Emoji;
-                EmojiPicker.AddToHistory(args.Emoji);
-                _currentContainer.Emoji = args.Emoji;
-                _currentContainer.Invalidate();
-            };
-
-            _emojiPickerHost = new ElementHost
-            {
-                Dock = DockStyle.None,
-                Child = _emojiPicker,
-                Name = "EmojiPickerHost",
-                // The host is only there for the popup, Tab on the canvas must not go into it
-                TabStop = false
-            };
-
-            // Don't keep a closed editor alive through the static fields
-            var pickerHost = _emojiPickerHost;
-            pickerHost.Disposed += (_, _) =>
-            {
-                if (_emojiPickerHost != pickerHost)
-                {
-                    return;
-                }
-
-                _emojiPickerHost = null;
-                _emojiPicker = null;
-                _currentContainer = null;
-            };
-
-            // Give the keys and the focus back to the canvas, unless the user went somewhere else (e.g. clicked into a tool bar)
-            _emojiPicker.Closed += (_, _) =>
-            {
-                if (pickerHost.Parent is not Surface surface)
-                {
-                    return;
-                }
-
-                surface.KeysLocked = false;
-                if (pickerHost.ContainsFocus)
-                {
-                    surface.SelectFromKeyboard();
-                }
-            };
-
-            // F6 or a click moves the focus away: close the picker, otherwise it stays open and the canvas keys stay locked
-            pickerHost.Leave += (_, _) => _emojiPicker?.ShowPopup(false);
-
-            _parent.Controls.Add(_emojiPickerHost);
-        }
-
-        private void HideEmojiPicker()
-        {
-            _emojiPicker?.ShowPopup(false);
-        }
-
-        /// <summary>
-        /// Make sure we register the property changed, to manage the state of the picker
-        /// </summary>
-        protected override void Init()
-        {
-            base.Init();
-            PropertyChanged += OnPropertyChanged;
+            InternalParent?.RequestProperties();
         }
 
         public override bool HandleMouseDown(int mouseX, int mouseY)
@@ -193,22 +80,6 @@ namespace Greenshot.Editor.Drawing.Emoji
             return true;
         }
 
-        /// <summary> Close the Emoji Picker when the emoji gets deselected </summary>
-        /// <param name="sender">object</param>
-        /// <param name="e">PropertyChangedEventArgs</param>
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (!e.PropertyName.Equals(nameof(Selected)))
-            {
-                return;
-            }
-
-            if (!Selected)
-            {
-                HideEmojiPicker();
-            }
-        }
-
         public override void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs)
         {
             // The surface asks every element, only the selected emoji adds its item
@@ -218,7 +89,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             }
 
             var changeItem = new ToolStripMenuItem(Texts.Editor.EmojiPicker);
-            changeItem.Click += (_, _) => ShowEmojiPicker();
+            changeItem.Click += (_, _) => InternalParent?.RequestProperties();
             menu.Items.Add(changeItem);
         }
 

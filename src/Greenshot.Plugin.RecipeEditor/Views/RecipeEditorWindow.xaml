@@ -1897,7 +1897,7 @@
                                                                                 BorderThickness="1" CornerRadius="3"
                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                 Padding="2" VerticalAlignment="Center">
-                                                                            <emoji:EmojiPicker AutomationProperties.Name="{wpf:Text RecipeEditor.PickEmoji}" Selection="{Binding Emoji, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                                                            <emoji:EmojiPickerButton AutomationProperties.Name="{wpf:Text RecipeEditor.PickEmoji}" Selection="{Binding Emoji, Mode=TwoWay}" VerticalAlignment="Center"/>
                                                                         </Border>
                                                                         <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.EmojiIcon}" Grid.Column="2" Text="{Binding Emoji, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                                  FontSize="{wpf:FontSize 13}" VerticalContentAlignment="Center"

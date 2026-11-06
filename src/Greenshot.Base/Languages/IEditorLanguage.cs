@@ -207,6 +207,66 @@ namespace Greenshot.Base.Languages
         string EmojiHistory { get; }
 
         /// <summary>
+        /// Panels
+        /// </summary>
+        string PanelArea { get; }
+
+        /// <summary>
+        /// Close the panel
+        /// </summary>
+        string PanelClose { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string PanelSelection { get; }
+
+        /// <summary>
+        /// Select an element to see its properties
+        /// </summary>
+        string PanelSelectionEmpty { get; }
+
+        /// <summary>
+        /// Size and position
+        /// </summary>
+        string SectionSizeAndPosition { get; }
+
+        /// <summary>
+        /// Emoji
+        /// </summary>
+        string SectionEmoji { get; }
+
+        /// <summary>
+        /// X (left)
+        /// </summary>
+        string ElementLeft { get; }
+
+        /// <summary>
+        /// Y (top)
+        /// </summary>
+        string ElementTop { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string ElementWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string ElementHeight { get; }
+
+        /// <summary>
+        /// Search emoji
+        /// </summary>
+        string EmojiSearch { get; }
+
+        /// <summary>
+        /// No emoji found
+        /// </summary>
+        string EmojiSearchNoResults { get; }
+
+        /// <summary>
         /// New image
         /// </summary>
         string NewImage { get; }

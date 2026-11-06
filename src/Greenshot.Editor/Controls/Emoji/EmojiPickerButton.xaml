@@ -1,0 +1,24 @@
+<!--
+    A button with the emoji, a click opens the emoji picker in a popup (Esc or a click elsewhere closes it)
+-->
+<UserControl x:Class="Greenshot.Editor.Controls.Emoji.EmojiPickerButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             x:Name="Root">
+    <Grid>
+        <ToggleButton x:Name="OpenButton" Background="Transparent" BorderThickness="0" Padding="2"
+                      AutomationProperties.Name="{Binding (AutomationProperties.Name), ElementName=Root}">
+            <emoji:EmojiControl Height="24" Emoji="{Binding Selection, ElementName=Root}"/>
+        </ToggleButton>
+        <Popup x:Name="PickerPopup" IsOpen="{Binding IsChecked, ElementName=OpenButton, Mode=TwoWay}" StaysOpen="False"
+               PlacementTarget="{Binding ElementName=OpenButton}" Opened="OnPopupOpened" AllowsTransparency="True">
+            <Border Width="372" Padding="6" BorderThickness="1"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                <emoji:EmojiPicker x:Name="Picker"/>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>
