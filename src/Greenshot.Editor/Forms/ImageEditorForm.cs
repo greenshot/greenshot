@@ -540,6 +540,7 @@ namespace Greenshot.Editor.Forms
             //
             InitializeComponent();
             ApplyImages();
+            InitializeQuickColors();
             EventHandler themeChangedHandler = (s, e) =>
             {
                 if (IsDisposed || Disposing || !IsHandleCreated)
@@ -1584,6 +1585,7 @@ namespace Greenshot.Editor.Forms
         /// <param name="eventArgs">SurfaceForegroundColorEventArgs</param>
         private void ForegroundColorChanged(object sender, SurfaceForegroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.LINE_COLOR).Value = eventArgs.Color;
         }
 
@@ -1594,6 +1596,7 @@ namespace Greenshot.Editor.Forms
         /// <param name="eventArgs">SurfaceBackgroundColorEventArgs</param>
         private void BackgroundColorChanged(object sender, SurfaceBackgroundColorEventArgs eventArgs)
         {
+            _quickColors?.Remember(eventArgs.Color);
             _surface.FieldAggregator.GetField(FieldType.FILL_COLOR).Value = eventArgs.Color;
         }
 
@@ -2804,6 +2807,7 @@ namespace Greenshot.Editor.Forms
                 HideToolstripItems();
             }
 
+            RefreshQuickColors();
             propertiesToolStrip.ResumeLayout();
         }
 
