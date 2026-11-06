@@ -70,8 +70,6 @@ namespace Greenshot.Editor.Controls.Emoji
                 Picker.DataContext = _picker;
             }
 
-            // The colors of Greenshot's theme, the picker uses the keys of the editor panels
-            EditorPanelResources.Apply(Resources, ThemeManager.Instance.CurrentPalette);
             _picker.CurrentEmoji = Selection;
             Picker.Focus();
         }

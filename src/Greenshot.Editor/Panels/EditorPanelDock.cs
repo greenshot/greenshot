@@ -114,8 +114,7 @@ namespace Greenshot.Editor.Panels
             var theme = EditorTheme.Current;
             BackColor = theme.Background;
             var palette = ThemeManager.Instance.GetPalette(_configuration.EditorTheme);
-            EditorPanelResources.Apply(_view.Resources, palette);
-            // The shared styles in the views of panels (e.g. Stamps) use the editor theme too
+            // The views of the panel area and the shared styles in them (e.g. Stamps) take their colors from it
             ThemeScope.SetTheme(_view, palette);
         }
 

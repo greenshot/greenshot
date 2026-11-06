@@ -16,7 +16,7 @@
                 <Setter.Value>
                     <ControlTemplate>
                         <Rectangle Margin="1" StrokeThickness="2" SnapsToDevicePixels="True"
-                                   Stroke="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}"/>
+                                   Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -35,7 +35,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource {x:Static wpf:EditorPanelResources.Hover}}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -44,8 +44,8 @@
         </Style>
 
         <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
-            <Border Background="{DynamicResource {x:Static wpf:EditorPanelResources.Background}}"
-                    BorderBrush="{DynamicResource {x:Static wpf:EditorPanelResources.Border}}" BorderThickness="1">
+            <Border Background="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"
+                    BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}" BorderThickness="1">
                 <ItemsControl ItemsSource="{Binding AllVariations}" KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
                               MaxWidth="280" Margin="1">
                     <ItemsControl.ItemsPanel>
@@ -73,7 +73,7 @@
                     <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
                              Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}"/>
+                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                     <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened">
                         <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
                     </Popup>
@@ -140,10 +140,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource {x:Static wpf:EditorPanelResources.Accent}}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource {x:Static wpf:EditorPanelResources.Hover}}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -158,7 +158,7 @@
             <TextBox x:Name="SearchBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                      AutomationProperties.Name="{wpf:Text Editor.EmojiSearch}" PreviewKeyDown="OnSearchKeyDown"/>
             <TextBlock Text="{wpf:Text Editor.EmojiSearch}" IsHitTestVisible="False" Margin="6,0" VerticalAlignment="Center"
-                       Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}">
+                       Foreground="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -189,7 +189,7 @@
             </TabControl>
 
             <DockPanel Visibility="{Binding IsSearching, Converter={StaticResource BoolToVis}}">
-                <TextBlock DockPanel.Dock="Top" Text="{Binding NoResultsText}" Margin="2,4" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Muted}}"
+                <TextBlock DockPanel.Dock="Top" Text="{Binding NoResultsText}" Margin="2,4" Foreground="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"
                            Visibility="{Binding HasNoResults, Converter={StaticResource BoolToVis}}"/>
                 <ListView ItemsSource="{Binding SearchRows}" Style="{StaticResource EmojiRows}" PreviewKeyDown="OnEmojiGridKeyDown"/>
             </DockPanel>

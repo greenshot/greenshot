@@ -16,17 +16,17 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" Grid.Column="0" Target="{Binding ElementName=LeftBox}" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}" Content="X" Padding="0,0,6,0" VerticalAlignment="Center"/>
+        <Label Grid.Row="0" Grid.Column="0" Target="{Binding ElementName=LeftBox}" Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" Content="X" Padding="0,0,6,0" VerticalAlignment="Center"/>
         <TextBox x:Name="LeftBox" Grid.Row="0" Grid.Column="1" Margin="0,2,10,2" AutomationProperties.Name="{wpf:Text Editor.ElementLeft}"
                  Text="{Binding Left, UpdateSourceTrigger=LostFocus}" KeyDown="OnFieldKeyDown"/>
-        <Label Grid.Row="0" Grid.Column="2" Target="{Binding ElementName=TopBox}" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}" Content="Y" Padding="0,0,6,0" VerticalAlignment="Center"/>
+        <Label Grid.Row="0" Grid.Column="2" Target="{Binding ElementName=TopBox}" Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" Content="Y" Padding="0,0,6,0" VerticalAlignment="Center"/>
         <TextBox x:Name="TopBox" Grid.Row="0" Grid.Column="3" Margin="0,2" AutomationProperties.Name="{wpf:Text Editor.ElementTop}"
                  Text="{Binding Top, UpdateSourceTrigger=LostFocus}" KeyDown="OnFieldKeyDown"/>
-        <Label Grid.Row="1" Grid.Column="0" Target="{Binding ElementName=WidthBox}" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}" Content="W" Padding="0,0,6,0" VerticalAlignment="Center"
+        <Label Grid.Row="1" Grid.Column="0" Target="{Binding ElementName=WidthBox}" Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" Content="W" Padding="0,0,6,0" VerticalAlignment="Center"
                ToolTip="{wpf:Text Editor.ElementWidth}"/>
         <TextBox x:Name="WidthBox" Grid.Row="1" Grid.Column="1" Margin="0,2,10,2" AutomationProperties.Name="{wpf:Text Editor.ElementWidth}"
                  Text="{Binding Width, UpdateSourceTrigger=LostFocus}" KeyDown="OnFieldKeyDown"/>
-        <Label Grid.Row="1" Grid.Column="2" Target="{Binding ElementName=HeightBox}" Foreground="{DynamicResource {x:Static wpf:EditorPanelResources.Foreground}}" Content="H" Padding="0,0,6,0" VerticalAlignment="Center"
+        <Label Grid.Row="1" Grid.Column="2" Target="{Binding ElementName=HeightBox}" Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" Content="H" Padding="0,0,6,0" VerticalAlignment="Center"
                ToolTip="{wpf:Text Editor.ElementHeight}"/>
         <TextBox x:Name="HeightBox" Grid.Row="1" Grid.Column="3" Margin="0,2" AutomationProperties.Name="{wpf:Text Editor.ElementHeight}"
                  Text="{Binding Height, UpdateSourceTrigger=LostFocus}" KeyDown="OnFieldKeyDown"/>
