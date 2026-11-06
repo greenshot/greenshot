@@ -212,7 +212,11 @@ namespace Greenshot.Base.Expressions
             for (int index = 0; index < template.Segments.Count; index++)
             {
                 var segment = template.Segments[index];
-                if (segment.IsLiteral) continue;
+                if (segment.IsLiteral)
+                {
+                    CheckLiteral(segment, index, template, purpose, errors);
+                    continue;
+                }
                 foreach (var node in Walk(segment.Expression))
                 {
                     switch (node)
@@ -236,6 +240,24 @@ namespace Greenshot.Base.Expressions
                 errors.Add(new TemplateError(0, "Only one counter.folder or counter.name can be used in a file name"));
             }
             return errors;
+        }
+
+        /// <summary>The fixed text of a file name or folder can't hold what Windows doesn't allow in a path</summary>
+        private static void CheckLiteral(TemplateSegment segment, int index, Template template, TemplatePurpose purpose, List<TemplateError> errors)
+        {
+            if (purpose != TemplatePurpose.FileName && purpose != TemplatePurpose.Folder) return;
+            string text = segment.Text;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                // A drive (C:) is the only place for a colon, at the start of a folder
+                bool driveColon = c == ':' && purpose == TemplatePurpose.Folder && index == 0 && i == 1;
+                if (c < ' ' || (c == ':' && !driveColon) || "<>\"|?*".IndexOf(c) >= 0)
+                {
+                    errors.Add(new TemplateError(segment.Position + i, $"'{c}' can't be in a file name or folder"));
+                    return;
+                }
+            }
         }
 
         private static IEnumerable<ExpressionNode> Walk(ExpressionNode root)

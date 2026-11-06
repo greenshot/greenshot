@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Helpers;
@@ -64,7 +65,7 @@ namespace Greenshot.Helpers
             _captureDetails = captureDetails;
             _options = options;
             _printDialog.UseEXDialog = true;
-            _printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
+            _printDocument.DocumentName = System.IO.Path.GetFileName(OutputTemplates.PreviewFileName(captureDetails));
             _printDocument.PrintPage += DrawImageForPrint;
             _printDialog.Document = _printDocument;
         }
@@ -78,7 +79,7 @@ namespace Greenshot.Helpers
         private bool Monochrome => _options?.Monochrome ?? CoreConfig.OutputPrintMonochrome;
         private byte MonochromeThreshold => _options?.MonochromeThreshold ?? CoreConfig.OutputPrintMonochromeThreshold;
         private bool Footer => _options?.Footer ?? CoreConfig.OutputPrintFooter;
-        private string FooterPattern => _options?.FooterPattern ?? CoreConfig.OutputPrintFooterPattern;
+        private string FooterTemplate => _options?.FooterTemplate ?? OutputTemplates.PrintFooterTemplate;
         private bool PromptOptions => _options?.PromptOptions ?? CoreConfig.OutputPrintPromptOptions;
 
         /**
@@ -222,7 +223,7 @@ namespace Greenshot.Helpers
                 string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
                 if (Footer)
                 {
-                    footerString = FilenameHelper.FillPattern(FooterPattern, _captureDetails, false, DateCultureMode.UILanguage);
+                    footerString = OutputTemplates.RenderText(FooterTemplate, _captureDetails);
                     using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
                     footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
                     footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;

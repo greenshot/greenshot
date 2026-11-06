@@ -45,7 +45,7 @@ namespace Greenshot.Destinations
         /// Icon for the OCR function, the icon was found via: https://help4windows.com/windows_8_imageres_dll.shtml
         /// </summary>
         public override DestinationDescriptor Descriptor { get; } =
-            new DestinationDescriptor("Windows OCR", 3, DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97));
+            new DestinationDescriptor("Windows OCR", 3, DestinationIcons.Exe(System.IO.Path.Combine(System.Environment.SystemDirectory, "imageres.dll"), 97));
 
         /// <summary>
         /// Run the Windows OCR engine to process the text on the captured image

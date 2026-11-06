@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -59,7 +60,7 @@ public static class IconCache
 
         var configuration = Config;
         string rawCommandLine = null;
-        if (configuration?.Commandline != null && configuration.Commandline.TryGetValue(commandName, out var cmdLine))
+        if (configuration?.CommandlineTemplate != null && configuration.CommandlineTemplate.TryGetValue(commandName, out var cmdLine))
         {
             rawCommandLine = cmdLine;
         }
@@ -69,8 +70,7 @@ public static class IconCache
         {
             try
             {
-                expanded = FilenameHelper.FillVariables(rawCommandLine, true);
-                expanded = FilenameHelper.FillCmdVariables(expanded, true);
+                expanded = OutputTemplates.RenderCommand(rawCommandLine, VariableScope.Empty, out _);
             }
             catch (Exception ex)
             {

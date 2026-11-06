@@ -68,6 +68,7 @@ using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Editor.Forms
 {
@@ -2831,7 +2832,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
+                FileName = Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails))
             };
             DialogResult dialogResult = saveFileDialog.ShowDialog();
             if (dialogResult.Equals(DialogResult.OK))

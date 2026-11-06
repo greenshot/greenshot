@@ -124,6 +124,7 @@ namespace Greenshot.Base.Expressions
             // Conversion
             yield return new ExpressionFunction("number", 1, 1, "number(value)", "The value as a number (0 when it isn't one)", a => Normalize(ToNumber(a[0])));
             yield return new ExpressionFunction("text", 1, 1, "text(value)", "The value as a text", a => ToText(a[0], null, CultureInfo.InvariantCulture));
+            yield return new ExpressionFunction("format", 2, 2, "format(value, format)", "The value as a text with a .NET format, like ${value:format} but inside an expression", a => ToText(a[0], T(a, 1), CultureInfo.CurrentCulture));
             yield return new ExpressionFunction("bool", 1, 1, "bool(value)", "The value as true or false", a => ToBoolean(a[0]));
             yield return new ExpressionFunction("empty", 1, 1, "empty(value)", "Is the value missing or an empty text", a => IsMissing(a[0]));
 

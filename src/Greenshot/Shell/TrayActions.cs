@@ -38,6 +38,7 @@ using Greenshot.Helpers;
 using Greenshot.Recipes;
 using log4net;
 using Microsoft.Win32;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Shell
 {
@@ -84,12 +85,12 @@ namespace Greenshot.Shell
         public static void OpenLastCaptureLocation()
         {
             var conf = CoreConfig;
-            conf.ValidateAndCorrectOutputFilePath();
+            conf.ValidateAndCorrectOutputDirectory();
             conf.ValidateAndCorrectOutputFileAsFullpath();
             string path = conf.OutputFileAsFullpath;
             if (!File.Exists(path))
             {
-                path = FilenameHelper.FillVariables(conf.OutputFilePath, false);
+                path = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.Empty, out _) ?? string.Empty;
                 // Fix for #1470, problems with a drive which is no longer available
                 try
                 {

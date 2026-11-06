@@ -35,7 +35,7 @@ namespace Greenshot.Helpers
         public bool? Monochrome { get; set; }
         public byte? MonochromeThreshold { get; set; }
         public bool? Footer { get; set; }
-        public string FooterPattern { get; set; }
+        public string FooterTemplate { get; set; }
         public bool? PromptOptions { get; set; }
     }
 }

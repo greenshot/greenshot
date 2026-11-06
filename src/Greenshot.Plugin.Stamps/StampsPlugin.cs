@@ -37,6 +37,7 @@ using Greenshot.Plugin.Stamps.Editor;
 using Greenshot.Plugin.Stamps.Library;
 using Greenshot.Plugin.Stamps.ViewModels;
 using Greenshot.Plugin.Stamps.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Stamps;
 
@@ -128,7 +129,12 @@ public class StampsPlugin : IGreenshotPlugin
             string configured = _config?.LibraryPath;
             if (!string.IsNullOrWhiteSpace(configured))
             {
-                return Environment.ExpandEnvironmentVariables(configured.Trim());
+                string folder = OutputTemplates.RenderFolder(configured, VariableScope.Empty, out string problem);
+                if (folder != null)
+                {
+                    return folder;
+                }
+                Log.WarnFormat("The stamps folder '{0}' can't be used, using the default: {1}", configured, problem);
             }
 
             string iniDirectory = Path.GetDirectoryName(GreenshotEnvironment.ConfigLocation);

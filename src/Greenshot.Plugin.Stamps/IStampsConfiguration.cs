@@ -29,7 +29,7 @@ namespace Greenshot.Plugin.Stamps;
 [Description("Greenshot stamps plugin configuration (beta)")]
 public interface IStampsConfiguration : IIniSection
 {
-    [Description("The folder with the stamps and their names and tags (stamps.json), empty for the folder Stamps next to greenshot.ini")]
+    [Description("The folder with the stamps and their names and tags (stamps.json), a template like ${user.documents}\\Stamps; empty for the folder Stamps next to greenshot.ini")]
     [DefaultValue("")]
     string LibraryPath { get; set; }
 

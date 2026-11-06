@@ -22,7 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Greenshot.Base.Core;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -67,8 +69,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         }
 
         Commands.Remove(command);
-        Commandline.Remove(command);
-        Argument.Remove(command);
+        CommandlineTemplate.Remove(command);
+        ArgumentTemplate.Remove(command);
         RunInbackground.Remove(command);
         OutputFormat.Remove(command);
         RedirectStandardErrorCommand?.Remove(command);
@@ -88,11 +90,62 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         MarkAsDirty();
     }
 
+    /// <summary>
+    /// The arguments of 1.3 as a template: {0} was the file (string.Format, so {{ and }} were braces), ${...} and %NAME% were filled in
+    /// </summary>
+    internal static string ConvertArguments(string arguments)
+    {
+        if (string.IsNullOrEmpty(arguments)) return arguments;
+        string template = LegacyTemplateConverter.Convert(arguments, true);
+        var sb = new System.Text.StringBuilder();
+        int depth = 0;
+        for (int i = 0; i < template.Length; i++)
+        {
+            char c = template[i];
+            // Inside a ${...} nothing is string.Format
+            if (c == '$' && i + 1 < template.Length && template[i + 1] == '{') depth++;
+            if (depth > 0)
+            {
+                sb.Append(c);
+                if (c == '}') depth--;
+                continue;
+            }
+            if (string.CompareOrdinal(template, i, "{0}", 0, 3) == 0)
+            {
+                sb.Append("${output.file}");
+                i += 2;
+            }
+            else if ((c == '{' || c == '}') && i + 1 < template.Length && template[i + 1] == c)
+            {
+                sb.Append(c);
+                i++;
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+        return sb.ToString();
+    }
+
     public void OnAfterLoad()
     {
         Commands ??= new List<string>();
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();
+        CommandlineTemplate ??= new Dictionary<string, string>();
+        ArgumentTemplate ??= new Dictionary<string, string>();
+        // The templates are filled once from the command lines of 1.3, which stay for going back to 1.3
+        foreach (var pair in Commandline.Where(p => !CommandlineTemplate.ContainsKey(p.Key)).ToList())
+        {
+            CommandlineTemplate[pair.Key] = LegacyTemplateConverter.Convert(pair.Value, true);
+            MarkAsDirty();
+        }
+        foreach (var pair in Argument.Where(p => !ArgumentTemplate.ContainsKey(p.Key)).ToList())
+        {
+            ArgumentTemplate[pair.Key] = ConvertArguments(pair.Value);
+            MarkAsDirty();
+        }
         RunInbackground ??= new Dictionary<string, bool>();
         OutputFormat ??= new Dictionary<string, string>();
         RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
@@ -107,8 +160,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         if (HasPaint && !Commands.Contains(MsPaint) && !DeletedBuildInCommands.Contains(MsPaint))
         {
             Commands.Add(MsPaint);
-            Commandline.Add(MsPaint, PaintPath);
-            Argument.Add(MsPaint, "\"{0}\"");
+            CommandlineTemplate[MsPaint] = PaintPath;
+            ArgumentTemplate[MsPaint] = "\"${output.file}\"";
             RunInbackground.Add(MsPaint, true);
             MarkAsDirty();
         }
@@ -117,8 +170,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         if (HasPaintDotNet && !Commands.Contains(PaintDotNet) && !DeletedBuildInCommands.Contains(PaintDotNet))
         {
             Commands.Add(PaintDotNet);
-            Commandline.Add(PaintDotNet, PaintDotNetPath);
-            Argument.Add(PaintDotNet, "\"{0}\"");
+            CommandlineTemplate[PaintDotNet] = PaintDotNetPath;
+            ArgumentTemplate[PaintDotNet] = "\"${output.file}\"";
             RunInbackground.Add(PaintDotNet, true);
             MarkAsDirty();
         }

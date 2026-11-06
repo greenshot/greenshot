@@ -35,6 +35,7 @@ using Greenshot.Base.Core.FileFormat;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand.Views;
 
@@ -160,13 +161,13 @@ public partial class ExternalCommandConfigurationView : UserControl, INotifyProp
         {
             ExternalCommandConfig.Commands = new List<string>();
         }
-        if (ExternalCommandConfig.Commandline == null)
+        if (ExternalCommandConfig.CommandlineTemplate == null)
         {
-            ExternalCommandConfig.Commandline = new Dictionary<string, string>();
+            ExternalCommandConfig.CommandlineTemplate = new Dictionary<string, string>();
         }
-        if (ExternalCommandConfig.Argument == null)
+        if (ExternalCommandConfig.ArgumentTemplate == null)
         {
-            ExternalCommandConfig.Argument = new Dictionary<string, string>();
+            ExternalCommandConfig.ArgumentTemplate = new Dictionary<string, string>();
         }
         if (ExternalCommandConfig.OutputFormat == null)
         {
@@ -202,8 +203,8 @@ public partial class ExternalCommandConfigurationView : UserControl, INotifyProp
         } while (ExternalCommandConfig.Commands.Contains(newName));
 
         ExternalCommandConfig.Commands.Add(newName);
-        ExternalCommandConfig.Commandline[newName] = string.Empty;
-        ExternalCommandConfig.Argument[newName] = "\"{0}\"";
+        ExternalCommandConfig.CommandlineTemplate[newName] = string.Empty;
+        ExternalCommandConfig.ArgumentTemplate[newName] = "\"${output.file}\"";
         ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? WellKnownFileFormats.Png;
         ExternalCommandConfig.RunInbackground[newName] = true;
         ExternalCommandConfig.RedirectStandardErrorCommand[newName] = ExternalCommandConfig.RedirectStandardError;
@@ -297,13 +298,13 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
         _config = config;
         _name = commandName;
 
-        _commandLine = config.Commandline != null && config.Commandline.ContainsKey(commandName)
-            ? config.Commandline[commandName]
+        _commandLine = config.CommandlineTemplate != null && config.CommandlineTemplate.ContainsKey(commandName)
+            ? config.CommandlineTemplate[commandName]
             : string.Empty;
 
-        _arguments = config.Argument != null && config.Argument.ContainsKey(commandName)
-            ? config.Argument[commandName]
-            : "\"{0}\"";
+        _arguments = config.ArgumentTemplate != null && config.ArgumentTemplate.ContainsKey(commandName)
+            ? config.ArgumentTemplate[commandName]
+            : "\"${output.file}\"";
 
         _outputFormat = config.OutputFormat != null && config.OutputFormat.ContainsKey(commandName)
             ? config.OutputFormat[commandName]
@@ -372,18 +373,18 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
                     }
                 }
 
-                if (_config.Commandline != null && _config.Commandline.ContainsKey(oldName))
+                if (_config.CommandlineTemplate != null && _config.CommandlineTemplate.ContainsKey(oldName))
                 {
-                    string cmd = _config.Commandline[oldName];
-                    _config.Commandline.Remove(oldName);
-                    _config.Commandline[_name] = cmd;
+                    string cmd = _config.CommandlineTemplate[oldName];
+                    _config.CommandlineTemplate.Remove(oldName);
+                    _config.CommandlineTemplate[_name] = cmd;
                 }
 
-                if (_config.Argument != null && _config.Argument.ContainsKey(oldName))
+                if (_config.ArgumentTemplate != null && _config.ArgumentTemplate.ContainsKey(oldName))
                 {
-                    string arg = _config.Argument[oldName];
-                    _config.Argument.Remove(oldName);
-                    _config.Argument[_name] = arg;
+                    string arg = _config.ArgumentTemplate[oldName];
+                    _config.ArgumentTemplate.Remove(oldName);
+                    _config.ArgumentTemplate[_name] = arg;
                 }
 
                 if (_config.OutputFormat != null && _config.OutputFormat.ContainsKey(oldName))
@@ -420,9 +421,9 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
             if (_commandLine != value)
             {
                 _commandLine = value;
-                if (_config.Commandline != null)
+                if (_config.CommandlineTemplate != null)
                 {
-                    _config.Commandline[_name] = value;
+                    _config.CommandlineTemplate[_name] = value;
                 }
                 UpdateIcon();
                 OnPropertyChanged();
@@ -438,9 +439,9 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
             if (_arguments != value)
             {
                 _arguments = value;
-                if (_config.Argument != null)
+                if (_config.ArgumentTemplate != null)
                 {
-                    _config.Argument[_name] = value;
+                    _config.ArgumentTemplate[_name] = value;
                 }
                 OnPropertyChanged();
             }
@@ -641,9 +642,8 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
         try
         {
-            string expanded = FilenameHelper.FillVariables(_commandLine, true);
-            expanded = FilenameHelper.FillCmdVariables(expanded, true);
-            if (File.Exists(expanded))
+            string expanded = OutputTemplates.RenderCommand(_commandLine, VariableScope.Empty, out _);
+            if (expanded != null && File.Exists(expanded))
             {
                 var icon = await PluginUtils.GetCachedExeIconAsync(expanded, 0);
                 if (icon != null)

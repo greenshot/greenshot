@@ -40,6 +40,7 @@ using Greenshot.Plugin.ExternalCommand.Destinations;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand.Recipes
 {
@@ -107,9 +108,9 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             string commandLine = NodeConfig.GetParameter<string>("CommandLine");
 
             var extConfig = Config;
-            if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
+            if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.CommandlineTemplate != null && extConfig.CommandlineTemplate.ContainsKey(commandName))
             {
-                commandLine = extConfig.Commandline[commandName];
+                commandLine = extConfig.CommandlineTemplate[commandName];
             }
 
             string target = !string.IsNullOrEmpty(commandLine)
@@ -152,14 +153,14 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             var extConfig = Config;
             if (!string.IsNullOrEmpty(commandName) && extConfig != null)
             {
-                if (string.IsNullOrEmpty(commandLine) && extConfig.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
+                if (string.IsNullOrEmpty(commandLine) && extConfig.CommandlineTemplate != null && extConfig.CommandlineTemplate.ContainsKey(commandName))
                 {
-                    commandLine = extConfig.Commandline[commandName];
+                    commandLine = extConfig.CommandlineTemplate[commandName];
                 }
 
-                if (string.IsNullOrEmpty(arguments) && extConfig.Argument != null && extConfig.Argument.ContainsKey(commandName))
+                if (string.IsNullOrEmpty(arguments) && extConfig.ArgumentTemplate != null && extConfig.ArgumentTemplate.ContainsKey(commandName))
                 {
-                    arguments = extConfig.Argument[commandName];
+                    arguments = extConfig.ArgumentTemplate[commandName];
                 }
 
                 if (!runInBackgroundParam.HasValue && extConfig.RunInbackground != null && extConfig.RunInbackground.ContainsKey(commandName))
@@ -211,18 +212,15 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             context.Properties["ExternalCommand.TargetFile"] = fullPath;
 
             // 3. Resolve command line and argument variables
-            string resolvedCommandLine = FilenameHelper.FillVariables(commandLine, true);
-            resolvedCommandLine = FilenameHelper.FillCmdVariables(resolvedCommandLine, true);
-
-            string resolvedArguments = FilenameHelper.FillVariables(arguments, false);
-            resolvedArguments = FilenameHelper.FillCmdVariables(resolvedArguments, false);
-            resolvedArguments = ExternalCommandDestination.FormatArguments(resolvedArguments, fullPath);
+            var scope = VariableScope.ForFlow(context);
+            string resolvedCommandLine = OutputTemplates.RenderCommand(commandLine, scope, out string problem)
+                ?? throw new ArgumentException(problem);
+            string resolvedArguments = ExternalCommandDestination.RenderArguments(arguments, fullPath, scope);
 
             string resolvedWorkingDir = null;
             if (!string.IsNullOrWhiteSpace(workingDirectory))
             {
-                resolvedWorkingDir = FilenameHelper.FillVariables(workingDirectory, true);
-                resolvedWorkingDir = FilenameHelper.FillCmdVariables(resolvedWorkingDir, true);
+                resolvedWorkingDir = OutputTemplates.RenderFolder(workingDirectory, scope, out problem) ?? throw new ArgumentException(problem);
             }
 
             context.LogStep($"Executing external command: {resolvedCommandLine} {resolvedArguments}");

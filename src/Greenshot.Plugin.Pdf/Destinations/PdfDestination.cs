@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Languages;
@@ -61,9 +62,11 @@ public sealed class PdfDestination : DestinationBase
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         string suggestedPath;
+        RenderedFileName generated;
         try
         {
-            suggestedPath = CreateFilename(request.Metadata, request.Ui);
+            generated = CreateFilename(request.Metadata, request.Ui);
+            suggestedPath = generated.FullPath;
         }
         catch (Exception exception)
         {
@@ -96,6 +99,11 @@ public sealed class PdfDestination : DestinationBase
         try
         {
             string savedPath = await ExportFiles.SaveAsync(request.Source, pdfPath, _showSaveDialog || CoreConfiguration.OutputFileAllowOverwrite, outputSettings, cancellationToken).ConfigureAwait(false);
+            if (string.Equals(pdfPath, suggestedPath, StringComparison.OrdinalIgnoreCase))
+            {
+                // The name of the template was used: its counters go up
+                generated.Commit();
+            }
             if (request.Metadata != null)
             {
                 request.Metadata.Filename = savedPath;
@@ -110,22 +118,17 @@ public sealed class PdfDestination : DestinationBase
         }
     }
 
-    private static string CreateFilename(ICaptureDetails captureDetails, IUserInteraction userInteraction)
+    private static RenderedFileName CreateFilename(ICaptureDetails captureDetails, IUserInteraction userInteraction)
     {
-        string pattern = CoreConfiguration.OutputFileFilenamePattern;
-        if (string.IsNullOrWhiteSpace(pattern))
-        {
-            pattern = "greenshot ${capturetime}";
-        }
-
-        string filename = FilenameHelper.GetFilenameFromPattern(pattern, PdfFileFormatHandler.FormatId, captureDetails);
-        string directory = CoreConfiguration.GetOutputDirectory(out string folderProblem);
+        var scope = VariableScope.ForCapture(captureDetails);
+        string directory = CoreConfiguration.GetOutputDirectory(scope, out string folderProblem);
         if (folderProblem != null)
         {
-            string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfiguration.OutputFilePath, folderProblem, directory);
+            string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfiguration.OutputDirectory, folderProblem, directory);
             userInteraction?.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("Screenshot folder fallback notification", Log);
         }
-        return Path.Combine(directory, Path.ChangeExtension(filename, ".pdf"));
+        scope.TargetFolder = directory;
+        return OutputTemplates.RenderFileName(null, ".pdf", scope);
     }
 }
 

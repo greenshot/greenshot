@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Expressions;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.OfficeExport;
@@ -152,7 +153,7 @@ namespace Greenshot.Plugin.Office.Destinations
             }
             else
             {
-                string subject = FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage);
+                string subject = OutputTemplates.RenderText(OfficeConfig.EmailSubjectTemplate ?? "${payload.title}", captureDetails);
                 exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
                     subject, attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC), cancellationToken).ConfigureAwait(false);
             }

@@ -59,11 +59,17 @@ public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
     [DefaultValue(true)]
     bool UriToClipboard { get; set; }
 
-    [Description("The commandline for the output command.")]
+    [Description("The commandline of Greenshot 1.3, only read once to fill CommandlineTemplate; kept for going back to 1.3.")]
     Dictionary<string, string> Commandline { get; set; }
 
-    [Description("The arguments for the output command.")]
+    [Description("The arguments of Greenshot 1.3 ({0} for the file), only read once to fill ArgumentTemplate; kept for going back to 1.3.")]
     Dictionary<string, string> Argument { get; set; }
+
+    [Description("The program of the command, a template like ${user.localappdata}\\Programs\\x\\x.exe; see docs/vNext/variables.md.")]
+    Dictionary<string, string> CommandlineTemplate { get; set; }
+
+    [Description("The arguments of the command, a template: \"${output.file}\" is the file of the capture; see docs/vNext/variables.md.")]
+    Dictionary<string, string> ArgumentTemplate { get; set; }
 
     [Description("The output file format for the output command.")]
     Dictionary<string, string> OutputFormat { get; set; }

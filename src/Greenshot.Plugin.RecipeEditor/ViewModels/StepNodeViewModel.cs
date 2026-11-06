@@ -1727,11 +1727,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dlg.ShowNewFolderButton = true;
                     if (!string.IsNullOrEmpty(SaveDirectory))
                     {
-                        try
-                        {
-                            dlg.SelectedPath = Greenshot.Base.Core.FilenameHelper.FillVariables(SaveDirectory, false);
-                        }
-                        catch { }
+                        // The folder as it is now, as a start for the dialog; null when it uses values only a capture has
+                        dlg.SelectedPath = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SaveDirectory, Greenshot.Base.Expressions.VariableScope.Empty, out _) ?? string.Empty;
                     }
                     if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
@@ -1774,7 +1771,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     try
                     {
-                        string expanded = Greenshot.Base.Core.FilenameHelper.FillVariables(SoundFilePath, false);
+                        string expanded = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SoundFilePath, Greenshot.Base.Expressions.VariableScope.Empty, out _);
                         if (!string.IsNullOrEmpty(expanded) && File.Exists(expanded))
                         {
                             using (var player = new System.Media.SoundPlayer(expanded))

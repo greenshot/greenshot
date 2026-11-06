@@ -170,7 +170,7 @@ namespace Greenshot.Recipes.Steps
                         Center = center,
                         PromptOptions = promptOptions,
                         Footer = printFooter,
-                        FooterPattern = footerPattern,
+                        FooterTemplate = footerPattern,
                         Grayscale = string.Equals(colorMode, "Grayscale", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                         Monochrome = string.Equals(colorMode, "Monochrome", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
                     };
