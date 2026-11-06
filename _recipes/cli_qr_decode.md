@@ -21,7 +21,7 @@
    }
   ],
   "license": "MIT",
-  "minGreenshot": "1.4.0",
+  "minGreenshot": "1.4.465",
   "requires": [
    {
     "id": "Greenshot.Plugin.Zxing",
@@ -34,8 +34,8 @@
    "qr-code"
   ],
   "sha256": "a2972b6445bb1316a535f01369d18a64dec0eb6a46bd1cde77fbec86419cf21b",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_qr_decode/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/cli_qr_decode/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/cli_qr_decode/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/cli_qr_decode/README.md"
  }
 }
 ---

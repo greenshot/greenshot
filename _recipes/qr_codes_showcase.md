@@ -36,8 +36,8 @@
    "annotation"
   ],
   "sha256": "d99e0f67634b0c90e6d4971b44f31e5f4a4c8861a0dc6abf349c87c7e495ebce",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/qr_codes_showcase/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/qr_codes_showcase/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/qr_codes_showcase/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/qr_codes_showcase/README.md"
  }
 }
 ---

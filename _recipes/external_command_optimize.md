@@ -21,7 +21,7 @@
    }
   ],
   "license": "MIT",
-  "minGreenshot": "1.4.0",
+  "minGreenshot": "1.4.465",
   "requires": [],
   "tags": [
    "after-capture",
@@ -29,8 +29,8 @@
    "editor"
   ],
   "sha256": "c0e767a4f941c91f1355658b6cdc31b61345e950e285920b830df74744239b3a",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/external_command_optimize/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/f6dacc4cbbdf2e8792befd147ccba60e4d3db45c/recipes/external_command_optimize/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/external_command_optimize/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/external_command_optimize/README.md"
  }
 }
 ---
