@@ -152,7 +152,11 @@ namespace Greenshot.Recipes.Triggers
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order)
+                            {
+                                Icon = tc.GetParameter<string>(TriggerConfig.IconParameter),
+                                Expand = tc.GetParameter<string>(TriggerConfig.ExpandParameter)
+                            });
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                         {
@@ -277,45 +281,53 @@ namespace Greenshot.Recipes.Triggers
         private void OnTriggerFired(object sender, TriggerEventArgs e)
         {
             TriggerFired?.Invoke(sender, e);
+            Run(e.TargetRecipeId, sender as ITrigger, e.Parameters);
+        }
 
+        /// <summary>
+        /// Run the recipe like its trigger does: prepared for the trigger, with the parameters as flow variables. Nothing runs
+        /// (it is logged) when the recipe doesn't exist or is switched off.
+        /// </summary>
+        /// <param name="recipeId">The id of the recipe</param>
+        /// <param name="trigger">What started it, e.g. a ManualTrigger for a click on the tray icon</param>
+        /// <param name="parameters">Variables for the flow, can be null</param>
+        public void Run(string recipeId, ITrigger trigger, IDictionary<string, object> parameters = null)
+        {
             var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
-            var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
+            var recipe = recipeManager.GetRecipeById(recipeId);
 
-            if (recipe != null)
+            if (recipe == null)
             {
-                if (!recipe.IsEnabled)
-                {
-                    Log.WarnFormat("Trigger fired for deactivated recipe '{0}', ignoring.", recipe.Id);
-                    return;
-                }
+                Log.WarnFormat("Target recipe '{0}' not found for trigger '{1}'", recipeId, trigger?.Name);
+                return;
+            }
 
-                var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true);
-                if (runner != null)
-                {
-                    var trigger = sender as ITrigger;
-                    var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+            if (!recipe.IsEnabled)
+            {
+                Log.WarnFormat("Trigger '{0}' fired for deactivated recipe '{1}', ignoring.", trigger?.Name, recipe.Id);
+                return;
+            }
 
-                    // Snapshot foreground window and cursor now, the flow runs later on the thread pool
-                    runner.Start(recipeToExecute, FlowTriggerContext.Capture(trigger), ctx =>
+            var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true);
+            if (runner == null)
+            {
+                Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", trigger?.Name, recipeId);
+                return;
+            }
+
+            var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+            // Snapshot foreground window and cursor now, the flow runs later on the thread pool
+            runner.Start(recipeToExecute, FlowTriggerContext.Capture(trigger), ctx =>
+            {
+                if (parameters != null)
+                {
+                    foreach (var kvp in parameters)
                     {
-                        if (e.Parameters != null)
-                        {
-                            foreach (var kvp in e.Parameters)
-                            {
-                                ctx.Properties[kvp.Key] = kvp.Value;
-                            }
-                        }
-                    });
+                        ctx.Properties[kvp.Key] = kvp.Value;
+                    }
                 }
-                else
-                {
-                    Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", (sender as ITrigger)?.Name, e.TargetRecipeId);
-                }
-            }
-            else
-            {
-                Log.WarnFormat("Target recipe '{0}' not found for trigger '{1}'", e.TargetRecipeId, (sender as ITrigger)?.Name);
-            }
+            });
         }
 
         public void Dispose()

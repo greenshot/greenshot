@@ -318,6 +318,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### ⚙️ Configuration & Settings
 
+**Clicking the tray icon** (#1708)
+- Settings > General has a new "Tray icon" group: choose what a click and a double-click on the Greenshot icon next to the clock do
+- Both start a recipe, e.g. a region capture, opening the folder of the last capture, the settings or the tray menu; the list has every recipe which needs nothing given to it
+- A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
+- The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
+
 **When the file already exists**
 - greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 

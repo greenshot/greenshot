@@ -35,13 +35,18 @@ namespace Greenshot.Base.Recipes.Triggers
         private static readonly ILog Log = LogManager.GetLogger(typeof(TriggerRecipePreparer));
 
         /// <summary>
-        /// Prepares a recipe for execution by a trigger.
+        /// Prepares a recipe for execution by a trigger. A recipe whose steps use no image (e.g. only ShowInExplorer or
+        /// OpenWindow) runs as it is: it gets no source and no destination.
         /// </summary>
         /// <param name="recipe">The recipe to prepare.</param>
         /// <param name="trigger">The trigger that determines the source and destination configuration.</param>
         /// <returns>The prepared recipe.</returns>
         public static CaptureRecipe Prepare(CaptureRecipe recipe, ITrigger trigger)
         {
+            if (recipe != null && !recipe.HasSourceStep() && !recipe.UsesImage())
+            {
+                return recipe;
+            }
             recipe = EnsureRequiredStartSource(recipe, trigger);
             recipe = EnsureRequiredDestination(recipe, trigger);
             return recipe;

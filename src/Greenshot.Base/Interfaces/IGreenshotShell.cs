@@ -55,6 +55,11 @@ namespace Greenshot.Base.Interfaces
         void ShowAbout();
 
         /// <summary>
+        /// Open the tray menu at the mouse cursor, like a right click on the tray icon
+        /// </summary>
+        void ShowTrayMenu();
+
+        /// <summary>
         /// Refresh what depends on the configuration or the language (e.g. the tray icon tooltip)
         /// </summary>
         void UpdateUi();

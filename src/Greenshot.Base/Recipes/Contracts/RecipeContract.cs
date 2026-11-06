@@ -127,6 +127,11 @@ namespace Greenshot.Base.Recipes.Contracts
                     inputs["Capture"] = new VariableContract("Capture", ContractDataType.Object, true, "The capture imported from the browser (also the payload)");
                     inputs["Browser"] = new VariableContract("Browser", ContractDataType.String, false, "The browser that sent the capture") { Conditional = true };
                 }
+                else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase))
+                {
+                    // The capture of the clicked notification is the payload
+                    providesPayload = true;
+                }
                 else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                 {
                     inputs["EditorForm"] = new VariableContract("EditorForm", ContractDataType.Object, true, "The editor that triggered the recipe");

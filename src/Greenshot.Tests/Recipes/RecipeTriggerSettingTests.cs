@@ -62,8 +62,8 @@ namespace Greenshot.Tests.Recipes
         public void WindowHotkey_StartsOneOfTheWindowRecipes()
         {
             var manager = new RecipeManager();
-            string interactive = manager.GetRecipeById(RecipeManager.RecipeIdWindow).Triggers.Single().When;
-            string active = manager.GetRecipeById(RecipeManager.RecipeIdActiveWindow).Triggers.Single().When;
+            string interactive = manager.GetRecipeById(RecipeManager.RecipeIdWindow).Triggers.Single(t => t.TriggerType == TriggerConfig.TypeHotkey).When;
+            string active = manager.GetRecipeById(RecipeManager.RecipeIdActiveWindow).Triggers.Single(t => t.TriggerType == TriggerConfig.TypeHotkey).When;
 
             Assert.Equal("${config.CaptureWindowsInteractive}", interactive);
             Assert.Equal("${config.CaptureWindowsInteractive == false}", active);

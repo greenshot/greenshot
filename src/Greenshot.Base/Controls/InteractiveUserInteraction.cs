@@ -22,16 +22,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using log4net;
+using Microsoft.Win32;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
@@ -94,6 +97,25 @@ namespace Greenshot.Base.Controls
                     saveImageFileDialog.Extension = request.Format;
                 }
                 return saveImageFileDialog.ShowDialog() ? saveImageFileDialog.FileNameWithExtension : null;
+            }, cancellationToken);
+        }
+
+        public Task<string> PickOpenFileAsync(CancellationToken cancellationToken)
+        {
+            return ModalAsync(() =>
+            {
+                var fileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+                var extensions = (fileFormatRegistry?.GetLoadableFileFormats() ?? Enumerable.Empty<FileFormatDefinition>())
+                    .SelectMany(format => format.LoadableExtensions)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
+                    .Select(extension => $"*.{extension}")
+                    .ToList();
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
+                };
+                return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
             }, cancellationToken);
         }
 

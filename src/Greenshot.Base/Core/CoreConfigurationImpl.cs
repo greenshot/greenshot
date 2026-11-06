@@ -320,6 +320,10 @@ namespace Greenshot.Base.Core
                 OutputFileAllowOverwrite = true;
             }
 
+            // The clicks on the tray icon start recipes now: the actions of LeftClickAction and DoubleClickAction are moved once
+            MoveTrayClickAction("LeftClickAction", nameof(TrayClickRecipe), value => TrayClickRecipe = value);
+            MoveTrayClickAction("DoubleClickAction", nameof(TrayDoubleClickRecipe), value => TrayDoubleClickRecipe = value);
+
             // Prevent both settings at once, bug #3435056
             if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
             {
@@ -403,6 +407,68 @@ namespace Greenshot.Base.Core
             AiToolsExcludedProcesses ??= new List<string>();
             AiToolsAllowedClients ??= new List<string>();
             AiToolsMcpServerPaths ??= new List<string>();
+        }
+
+        /// <summary>
+        /// The recipes which do what the actions of the former LeftClickAction and DoubleClickAction did
+        /// </summary>
+        private static readonly Dictionary<string, string> TrayClickActionRecipes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["DO_NOTHING"] = string.Empty,
+            ["SHOW_CONTEXT_MENU"] = "recipe_tray_menu",
+            ["OPEN_LAST_IN_EXPLORER"] = "recipe_open_capture_folder",
+            ["OPEN_LAST_IN_EDITOR"] = "recipe_last_capture_in_editor",
+            ["OPEN_SETTINGS"] = "recipe_open_settings",
+            ["OPEN_EMPTY_EDITOR"] = "recipe_empty_editor",
+            ["CAPTURE_REGION"] = "recipe_region",
+            ["CAPTURE_SCREEN"] = "recipe_fullscreen",
+            ["CAPTURE_WINDOW"] = "recipe_window",
+            // The clipboard and file recipes open the editor
+            ["CAPTURE_CLIPBOARD"] = "recipe_clipboard",
+            ["OPEN_CLIPBOARD_IN_EDITOR"] = "recipe_clipboard",
+            ["OPEN_FILE_IN_EDITOR"] = "recipe_file"
+        };
+
+        /// <summary>
+        /// Moves the action of a former tray click setting to the recipe of the new setting, and removes the old key
+        /// </summary>
+        /// <param name="oldKey">LeftClickAction or DoubleClickAction</param>
+        /// <param name="newKey">The new setting, not changed when it is fixed (greenshot-fixed.ini)</param>
+        /// <param name="setRecipe">Sets the new setting</param>
+        private void MoveTrayClickAction(string oldKey, string newKey, Action<string> setRecipe)
+        {
+            string action;
+            try
+            {
+                action = GetRawValue(oldKey);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't read {oldKey}", ex);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(action))
+            {
+                return;
+            }
+
+            if (TrayClickActionRecipes.TryGetValue(action.Trim(), out var recipeId) && !IsConstant(newKey))
+            {
+                setRecipe(recipeId);
+                Log.InfoFormat("Moved the tray icon action {0}={1} to the recipe '{2}'.", oldKey, action, recipeId);
+            }
+
+            // Moved only once: an empty value is not moved again
+            try
+            {
+                SetRawValue(oldKey, string.Empty);
+                MarkAsDirty();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
         }
 
         /// <summary>
