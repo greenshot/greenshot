@@ -315,9 +315,9 @@ namespace Greenshot.Editor.Drawing
             }
 
             bool fillVisible = Colors.IsVisible(fillColor);
-            if (fillVisible)
+            if (fillVisible && fillColor.A == 255)
             {
-                // The fills cover what the clip regions would hide, so the same picture is drawn without them:
+                // An opaque fill covers what the clip regions would hide, so the same picture is drawn without them:
                 // the bubble fill covers the tail border inside the bubble, the tail fill covers the bubble border inside the tail
                 using Pen pen = new Pen(lineColor, lineThickness);
                 using Brush brush = new SolidBrush(fillColor);
@@ -334,27 +334,47 @@ namespace Greenshot.Editor.Drawing
 
                 graphics.FillPath(brush, tail);
             }
-            else if (lineVisible)
+            else if (lineVisible || fillVisible)
             {
+                // Without a fill, or with one which lets the lines shine through, the clip regions keep the tail border out of the
+                // bubble and the bubble border out of the tail
                 using Pen pen = new Pen(lineColor, lineThickness);
-                GraphicsState state = graphics.Save();
-                // draw the tail border where the bubble is not visible
-                using (Region clipRegion = new Region(bubble))
+                using Brush brush = fillVisible ? new SolidBrush(fillColor) : null;
+                if (lineVisible)
                 {
-                    graphics.SetClip(clipRegion, CombineMode.Exclude);
-                    graphics.DrawPath(pen, tail);
+                    GraphicsState state = graphics.Save();
+                    // draw the tail border where the bubble is not visible
+                    using (Region clipRegion = new Region(bubble))
+                    {
+                        graphics.SetClip(clipRegion, CombineMode.Exclude);
+                        graphics.DrawPath(pen, tail);
+                    }
+
+                    graphics.Restore(state);
                 }
 
-                graphics.Restore(state);
-                state = graphics.Save();
-                // Draw bubble where the Tail is not visible.
-                using (Region clipRegion = new Region(tail))
+                if (fillVisible)
                 {
-                    graphics.SetClip(clipRegion, CombineMode.Exclude);
-                    graphics.DrawPath(pen, bubble);
+                    graphics.FillPath(brush, bubble);
                 }
 
-                graphics.Restore(state);
+                if (lineVisible)
+                {
+                    GraphicsState state = graphics.Save();
+                    // Draw bubble where the Tail is not visible.
+                    using (Region clipRegion = new Region(tail))
+                    {
+                        graphics.SetClip(clipRegion, CombineMode.Exclude);
+                        graphics.DrawPath(pen, bubble);
+                    }
+
+                    graphics.Restore(state);
+                }
+
+                if (fillVisible)
+                {
+                    graphics.FillPath(brush, tail);
+                }
             }
 
             // cleanup the paths
