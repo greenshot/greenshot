@@ -426,7 +426,7 @@ and folder settings: see [variables.md](variables.md) for the full list. In shor
 e.g. to ask with a `UserPrompt` step how to save, or `NoHdrNote` of the `Notification` step to say so.
 
 A value from the capture (title, OCR text, file) or a recipe variable can never choose a folder or a command. Recipes
-of format 2.x are converted when they are read (see [variables.md](variables.md#recipes-of-format-2x)).
+of an earlier beta are not converted (see [variables.md](variables.md#recipes-of-an-earlier-14-beta)).
 
 ### Mathematical & Logical Expressions
 Parameters such as coordinates, widths, heights, and variables can be calculated dynamically inside `${...}`:

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "version": "3.0",
+  "version": "2.0",
   "id": "recipe_cli_ocr_extract",
   "name": "CLI Headless OCR Text Extractor",
   "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",

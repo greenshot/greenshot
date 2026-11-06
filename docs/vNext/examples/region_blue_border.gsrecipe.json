@@ -1,5 +1,5 @@
 {
-  "version": "3.0",
+  "version": "2.0",
   "id": "recipe_region_blue_border",
   "name": "Region with Blue Border",
   "description": "Interactive region capture that adds a 2px blue border and opens the editor",

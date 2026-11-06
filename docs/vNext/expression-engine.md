@@ -4,6 +4,8 @@ Status: implemented in #1693 (2026-11-06); the user documentation is [variables.
 Code references in section 1 are to `main` at 6685bc5 (after #1691), before the change.
 
 Where the implementation differs from the design below:
+- The recipe format stays 2.0 and recipes of an earlier beta are not converted (recipes are experimental): an old name
+  is an error in the validator and the editor, variables.md lists the renames.
 - No lock file and no reservation for `counter.folder` / `counter.name`: two saves at the same moment into one folder
   can get the same number (documented; `counter.scope(...)` never repeats a number).
 - `counter.global` stays in `OutputFileIncrementingNumber` (no new `FileCounter` key).

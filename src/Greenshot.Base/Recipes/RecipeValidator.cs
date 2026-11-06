@@ -231,13 +231,9 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"The {what.ToLowerInvariant()} has version '{definition.Version}', the format of an earlier Greenshot beta. Version {FlowDefinition.CurrentVersion} has one list of transitions and conditions in 'when'.");
                 }
-                else if (major == "2")
+                else if (major != "2")
                 {
-                    result.AddWarning($"The {what.ToLowerInvariant()} has version '{definition.Version}': its ${{...}} are read with the names of version {FlowDefinition.CurrentVersion}, save it again to write them.");
-                }
-                else if (major != "3")
-                {
-                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 3.x recipes (2.x are converted).");
+                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 2.x recipes.");
                 }
             }
 

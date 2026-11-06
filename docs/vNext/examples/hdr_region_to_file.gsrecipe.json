@@ -1,5 +1,5 @@
 {
-  "version": "3.0",
+  "version": "2.0",
   "id": "recipe_hdr_region_to_file",
   "name": "HDR Region to File",
   "description": "Select a region on the live screen of an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (an SDR display, nothing brighter than SDR white) a PNG is saved, the notification says so.",

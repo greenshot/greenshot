@@ -112,7 +112,7 @@ converted once:
 
 A 1.3 setting fixed by an administrator in greenshot-fixed.ini is converted on every start.
 
-| 1.3 | 3.0 |
+| 1.3 | Now |
 |---|---|
 | `${title}` | `${payload.title}` |
 | `${capturetime}`, `${capturetime:d"yyyy-MM-dd"}` | `${payload.time:yyyy-MM-dd HH-mm-ss}`, `${payload.time:yyyy-MM-dd}` |
@@ -126,10 +126,10 @@ A 1.3 setting fixed by an administrator in greenshot-fixed.ini is converted on e
 | any other `${NAME}`, `%NAME%` (commands) | `${env.NAME}` |
 | `{0}` in command arguments | `${output.file}` |
 
-## Recipes of format 2.x
+## Recipes of an earlier 1.4 beta
 
-Recipes of the 2.x beta are converted when they are read; the file (and its approval) stays as it is, the recipe
-editor saves it as 3.0. Bare names become `var.*` (`${Barcode.Text}` → `${var.Barcode.Text}`), `context.X` becomes
-`var.X`, `${now:...}` becomes `${time.now:...}`, `${ocr_text}` and `payload.extractedtext` become `${payload.ocr.text}`,
-`${config.X}` becomes `${config.Core.X}`, a choice gets its parentheses, and file name patterns are converted like the
-1.3 settings above.
+Recipes are not converted: the recipe format stays 2.0, while recipes are experimental. A name of an earlier beta is an
+error in the validator and the recipe editor, so change it by hand: bare names become `var.*`
+(`${Barcode.Text}` → `${var.Barcode.Text}`), `context.X` becomes `var.X`, `${now:...}` becomes `${time.now:...}`,
+`${ocr_text}` and `payload.extractedtext` become `${payload.ocr.text}`, `${config.X}` becomes `${config.Core.X}`, a
+choice needs parentheses, and file name patterns use the names of the table above.

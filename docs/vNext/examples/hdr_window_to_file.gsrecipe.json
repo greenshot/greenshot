@@ -1,5 +1,5 @@
 {
-  "version": "3.0",
+  "version": "2.0",
   "id": "recipe_hdr_window_to_file",
   "name": "HDR Window to File",
   "description": "Capture the active window on an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (a window on an SDR display, nothing brighter than SDR white) a PNG is saved, the notification says so.",

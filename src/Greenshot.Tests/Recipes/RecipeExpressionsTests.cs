@@ -162,61 +162,19 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("None", RecipeExpressions.Evaluate(hdrFormat, context));
         }
 
-        [Theory]
-        [InlineData("${context.CustomTag}", "${var.CustomTag}")]
-        [InlineData("${CustomTag}", "${var.CustomTag}")]
-        [InlineData("${Destination.Filename}", "${var.Destination.Filename}")]
-        [InlineData("${dirname}", "${payload.folder}")]
-        [InlineData("${Width * Height}", "${payload.width * payload.height}")]
-        [InlineData("${payload.extractedtext}", "${payload.ocr.text}")]
-        [InlineData("${payload.text} ${ocr_text}", "${payload.ocr.text} ${payload.ocr.text}")]
-        [InlineData("${payload.filename}", "${payload.file}")]
-        [InlineData("${user.username}@${machine.computername}", "${user.name}@${machine.name}")]
-        [InlineData("${user.pictures}\\Greenshot", "${user.pictures}\\Greenshot")]
-        [InlineData("${user.ONEDRIVE}", "${user.env.ONEDRIVE}")]
-        [InlineData("${machine.PROCESSOR_ARCHITECTURE}", "${machine.env.PROCESSOR_ARCHITECTURE}")]
-        [InlineData("${config.CaptureWindowsInteractive == false}", "${config.Core.CaptureWindowsInteractive == false}")]
-        [InlineData("${now:yyyy-MM}", "${time.now:yyyy-MM}")]
-        [InlineData("${now}", "${format(time.now, 'yyyy-MM-dd_HH-mm-ss')}")]
-        [InlineData("${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}", "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}")]
-        [InlineData("${option.width > 5 && payload.hdr == 'Available'}", "${option.width > 5 && payload.hdr == 'Available'}")]
-        [InlineData("${'context.x'}", "${'context.x'}")]
-        [InlineData("${context.RecipeName}", "${recipe.name}")]
-        [InlineData("no expression", "no expression")]
-        public void Migration_Of20Expressions(string old, string expected)
-        {
-            Assert.Equal(expected, RecipeFormatMigration.MigrateText(old));
-        }
-
-        [Theory]
-        [InlineData("${capturetime:d\"yyyy-MM-dd\"}_${title}", "${payload.time:yyyy-MM-dd}_${payload.title}")]
-        [InlineData("${context.Issue}-${NUM}", "${var.Issue}-${counter.global:000000}")]
-        public void Migration_Of20FileNames(string old, string expected)
-        {
-            Assert.Equal(expected, RecipeFormatMigration.MigrateFileNameTemplate(old));
-        }
-
         [Fact]
-        public void Migration_ARecipeOf20_IsReadAs30()
+        public void Validate_ANameOfTheOldEvaluator_IsAnError()
         {
             const string json = @"{
-  ""kind"": ""recipe"", ""version"": ""2.0"", ""id"": ""migrate_test"", ""name"": ""Migrate"",
-  ""triggers"": [ { ""triggerType"": ""Hotkey"", ""when"": ""${config.CaptureWindowsInteractive}"", ""parameters"": { ""Hotkey"": ""${config.RegionHotkey}"" } } ],
-  ""nodes"": [
-    { ""id"": ""save"", ""stepType"": ""SaveFile"", ""when"": ""${payload.width > 100}"", ""parameters"": { ""FilenamePattern"": ""${capturetime:d\""yyyy\""} ${context.Issue}"" } },
-    { ""id"": ""cmd"", ""stepType"": ""ExternalCommand"", ""parameters"": { ""CommandLine"": ""%windir%\\notepad.exe"", ""Arguments"": ""\""{0}\"" ${context.Mode}"" } }
-  ],
-  ""flow"": { ""startNodes"": [ ""save"" ], ""transitions"": [ { ""from"": ""save"", ""to"": ""cmd"" } ] }
+  ""kind"": ""recipe"", ""version"": ""2.0"", ""id"": ""old_names"", ""name"": ""Old names"",
+  ""nodes"": [ { ""id"": ""a"", ""stepType"": ""SetVariable"", ""when"": ""${Barcode.Text == 'x'}"" } ],
+  ""flow"": { ""startNodes"": [ ""a"" ] }
 }";
             var recipe = RecipeSerializer.Deserialize(json, false);
 
-            Assert.Equal(FlowDefinition.CurrentVersion, recipe.Version);
-            Assert.Equal("${config.Core.CaptureWindowsInteractive}", recipe.Triggers[0].When);
-            Assert.Equal("${config.Core.RegionHotkey}", recipe.Triggers[0].GetParameter<string>("Hotkey"));
-            var save = recipe.FindNode("save");
-            Assert.Equal("${payload.width > 100}", save.When);
-            Assert.Equal("${payload.time:yyyy} ${var.Issue}", save.GetParameter<string>("FilenamePattern"));
-            Assert.Equal("\"${output.file}\" ${var.Mode}", recipe.FindNode("cmd").GetParameter<string>("Arguments"));
+            var result = RecipeValidator.Validate(recipe);
+
+            Assert.Contains(result.Errors, e => e.Contains("Barcode.Text"));
         }
     }
 }
