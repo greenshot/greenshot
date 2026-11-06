@@ -11,7 +11,7 @@
 
     <Style x:Key="ExpanderStyle" TargetType="Expander">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="IsExpanded" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -44,7 +44,7 @@
                                             </Setter>
                                         </Trigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                                            <Setter TargetName="HeaderBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

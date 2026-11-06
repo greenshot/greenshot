@@ -1369,6 +1369,7 @@ namespace Greenshot.Editor.Forms
                 Log.Error("Error initializing editor plugins", ex);
             }
 
+            AddPanelMenuItems(pluginToolStripMenuItem);
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
         }
 

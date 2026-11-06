@@ -66,6 +66,10 @@ The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.
 - **`ThemeManager.Instance`** has the brushes of the current theme (`BackgroundBrush`, `ForegroundBrush`, `MutedBrush`, `BorderBrush`,
   `ControlBackgroundBrush`, `TextBoxBackgroundBrush`, `AccentBrush`, `WarningBrush`, `ErrorBrush`, ...) and raises `PropertyChanged` when the
   theme changes. Bind to them, never write a color into the XAML, or the window breaks in the dark theme.
+- **`ThemeScope.Theme`** is what the shared styles bind to: an inherited value, `ThemeManager.Instance` unless an element above sets a
+  `ThemePalette` (the panel area of the editor sets the editor palette). Both have the same brush names, so
+  `{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}` gives the right color in a window
+  and in an editor panel. Use it in views which can be shown in the editor; context menus and tool tips keep Greenshot's theme.
 - **`WindowFrameTheme`** colors the frame of Windows to match the theme. WPF windows get it on their own, a WinForms form calls
   `WindowFrameTheme.Attach(handle)` when its handle is created.
 - **The editor (WinForms)** has its own setting on the Editor tab of the settings, `Editor.EditorTheme` (Light by default, Dark,

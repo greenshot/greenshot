@@ -51,6 +51,13 @@ namespace Greenshot.Editor.Panels
 
         public int Order => 0;
 
+        /// <summary>
+        /// Shown with "Properties" of an element, or when a choice is needed
+        /// </summary>
+        public string MenuText => null;
+
+        public string Shortcut => null;
+
         public bool IsAvailable(IEditorPanelContext context) => true;
 
         public object CreateViewModel(IEditorPanelContext context) => new SelectionPanelViewModel(context, _sections, _configuration);

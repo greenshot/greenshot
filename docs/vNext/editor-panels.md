@@ -50,7 +50,7 @@ In `[Editor]` of greenshot.ini:
 
 | Part | What it is |
 |---|---|
-| Panel (`IEditorPanel`) | A view in the panel area. One is shown at a time; the user chooses it, or the editor shows it. Examples: Selection (in the editor), later Stamps, Barcode, Text (OCR). |
+| Panel (`IEditorPanel`) | A view in the panel area. One is shown at a time; the user chooses it, or the editor shows it. Examples: Selection (in the editor), Stamps (plugin), later Barcode, Text (OCR). |
 | Section (`IEditorSection`) | A part of the Selection panel. The panel shows all sections which apply to the selection or tool, sorted by `Order`. Examples: Size and position, Emoji, later a barcode section for the barcode element of the Zxing plugin. |
 | Context (`IEditorPanelContext`) | What a panel or section sees of its editor window: the window, the surface which is shown, events when the surface, the selection, the drawing mode or the elements change, and `ShowPanel` / `FocusCanvas`. |
 
@@ -69,7 +69,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | It opens by itself only when a tool needs a choice before it can be used (`ShowsPanel = true`): the emoji tool and selected emojis, later stamps. It doesn't take the keyboard from the capture. | Built |
 | It never closes by itself, so it doesn't jump while the user clicks around. Closed by the user, it opens again the next time a choice is needed (such a section starts to apply again). | Built |
 | Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | *Properties* built for every element, double-click built for emojis |
-| Once open, it stays open and follows the selection and the tool, until the user closes it. Another panel the user chose (e.g. Stamps) is never replaced. | Built |
+| Once open, it stays open and follows the selection and the tool, until the user closes it. When a choice is needed while another panel is shown (e.g. the emoji tool while Stamps is shown), it switches to Selection, and back to that panel once the choice is done (e.g. the emoji is placed and the selection is gone). Choosing a panel or closing the area in between keeps what the user chose. | Built |
 | A selection of several elements never opens it by itself, except when all of them are emojis. | Built |
 
 **What the Selection panel shows**
@@ -111,6 +111,8 @@ public interface IEditorPanel
     string Id { get; }                               // stored, e.g. "Greenshot.Selection"
     string Title { get; }                            // translated
     int Order { get; }                               // place in the list of panels
+    string MenuText { get; }                         // menu item in the Plugins menu, null for none
+    string Shortcut { get; }                         // e.g. "Ctrl+Shift+K", null for none
     bool IsAvailable(IEditorPanelContext context);
     object CreateViewModel(IEditorPanelContext context);
     object CreateView(object viewModel);             // a WPF FrameworkElement today
@@ -148,7 +150,9 @@ public interface IEditorSection
   editor work again; after the keyboard, leave the focus where it is.
 - **Showing a panel.** `context.ShowPanel(id, activate)` shows a panel; `activate: false` doesn't take the keyboard from
   the capture. Only do that on a user action: the editor itself shows the Selection panel for sections with
-  `ShowsPanel = true`, and doesn't replace a panel the user is looking at.
+  `ShowsPanel = true`, also over another panel, because a choice is needed.
+- **Menu and keys.** `MenuText` and `Shortcut` (e.g. "Ctrl+Shift+K") put the panel into the Plugins menu of the editor;
+  the editor adds the item, the plugin needs no WinForms types. null for none (the Selection panel has none).
 - **Height.** A section is as high as its content, the panel scrolls when they don't fit. A section with `FillsHeight = true`
   (e.g. a list to pick from) gets the height the other sections leave, at least 160 pixels; its view must scroll its
   content itself and gets a fixed height, so a virtualized list stays virtualized.
@@ -173,6 +177,10 @@ Use the shared styles of `Greenshot.Base.Wpf.Styles` (see [ui-how-to.md](ui-how-
 (`EditorTheme`), which can differ from the theme of the other windows. Keys: `Background`, `Foreground`, `Muted`,
 `Border`, `SectionBackground`, `ControlBackground`, `ControlBorder`, `Hover`, `Accent`, all with the prefix
 `Greenshot.EditorPanel.`. A view in a popup or window of its own calls `EditorPanelResources.Apply` on its resources.
+The shared styles follow the editor theme in the panel area too: the area sets the editor palette as `ThemeScope.Theme`
+(see [ui-how-to.md](ui-how-to.md)), so a view which merges e.g. `DialogStyles.xaml` looks like the editor. In your own
+bindings use `{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}` instead of
+`ThemeManager.Instance`.
 
 Texts come from the language files, as everywhere ([ui-how-to.md](ui-how-to.md)); give every input an
 `AutomationProperties.Name` ([accessibility.md](accessibility.md)).
@@ -194,7 +202,7 @@ drop down button (`EmojiPickerButton`), e.g. in the recipe editor. The English n
 
 ### Later
 
-Planned with the same contract: the Stamps panel (with a button to make it a window of its own again), a barcode
+Planned with the same contract: a button to make a panel a window of its own, a barcode
 section for the Zxing plugin, the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
 capture at the bottom of the area. Then the other WinForms parts of the editor API (`IEditorPlugin` with its menu items
 and form) go away.

@@ -2,21 +2,21 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:wpf="clr-namespace:Greenshot.Base.Wpf">
     <Style x:Key="ThemedScrollViewer" TargetType="ScrollViewer">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"/>
     </Style>
 
     <Style x:Key="ThemedScrollBarThumb" TargetType="Thumb">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ScrollBarThumbBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ScrollBarThumbBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Thumb">
                     <Border x:Name="ThumbBorder" Margin="2" CornerRadius="4" Background="{TemplateBinding Background}"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ThumbBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ScrollBarThumbHoverBrush}"/>
+                            <Setter TargetName="ThumbBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ScrollBarThumbHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsDragging" Value="True">
-                            <Setter TargetName="ThumbBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ScrollBarThumbPressedBrush}"/>
+                            <Setter TargetName="ThumbBorder" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ScrollBarThumbPressedBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -54,7 +54,7 @@
     </ControlTemplate>
 
     <Style TargetType="ScrollBar">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ScrollBarTrackBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ScrollBarTrackBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Width" Value="12"/>
         <Setter Property="Template">
             <Setter.Value>
