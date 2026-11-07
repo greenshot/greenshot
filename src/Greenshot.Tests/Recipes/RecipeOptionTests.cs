@@ -204,12 +204,12 @@ namespace Greenshot.Tests.Recipes
             using var context = new CaptureFlowContext(recipe);
             context.Properties["option.width"] = 99;
 
-            Assert.Equal(7, ExpressionEvaluator.Instance.Evaluate("${option.width}", context));
-            Assert.Equal("7 px", ExpressionEvaluator.Instance.Evaluate("${option.width} px", context));
-            Assert.Equal(true, ExpressionEvaluator.Instance.Evaluate("${option.width > 5}", context));
-            Assert.Null(ExpressionEvaluator.Instance.Evaluate("${option.missing}", context));
+            Assert.Equal(7, Convert.ToInt32(RecipeExpressions.Evaluate("${option.width}", context)));
+            Assert.Equal("7 px", RecipeExpressions.Evaluate("${option.width} px", context));
+            Assert.Equal(true, RecipeExpressions.Evaluate("${option.width > 5}", context));
+            Assert.Null(RecipeExpressions.Evaluate("${option.missing}", context));
 
-            var resolved = ExpressionEvaluator.Instance.ResolveParameters(recipe.FindNode("frame").Parameters, context);
+            var resolved = RecipeExpressions.ResolveParameters(recipe.FindNode("frame").Parameters, context);
             Assert.Equal("#000000", resolved["color"]);
         }
 

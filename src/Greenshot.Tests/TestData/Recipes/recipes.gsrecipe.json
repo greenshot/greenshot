@@ -799,7 +799,7 @@
         "parameters": {
           "SaveDirectory": "${dirname}",
           "FilenamePattern": "${title}-with_annotation",
-          "AllowOverwrite": true
+          "IfFileExists": "Overwrite"
         }
       },
       {
@@ -898,7 +898,7 @@
           "SaveDirectory": "${dirname}",
           "FilenamePattern": "${title}",
           "Format": "${Format}",
-          "AllowOverwrite": true
+          "IfFileExists": "Overwrite"
         }
       },
       {

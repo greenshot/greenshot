@@ -61,7 +61,12 @@ namespace Greenshot.Base.Wpf
         {
             if (value is Dapplo.Ini.Interfaces.IIniSection section && parameter is string propertyName)
             {
-                return !section.IsConstant(propertyName);
+                // "A,B": disabled when one of them is fixed, e.g. a template and the 1.3 pattern it is converted from
+                foreach (string name in propertyName.Split(','))
+                {
+                    if (section.IsConstant(name.Trim())) return false;
+                }
+                return true;
             }
 
             if (value is bool isFixed)
@@ -133,7 +138,10 @@ namespace Greenshot.Base.Wpf
 
             if (section != null && !string.IsNullOrEmpty(propertyName))
             {
-                return !section.IsConstant(propertyName);
+                foreach (string name in propertyName.Split(','))
+                {
+                    if (section.IsConstant(name.Trim())) return false;
+                }
             }
 
             return true;

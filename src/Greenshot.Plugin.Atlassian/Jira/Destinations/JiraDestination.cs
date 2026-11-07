@@ -30,9 +30,11 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Pipeline;
+
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Atlassian.Jira.Api;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Atlassian.Jira.Destinations;
 
@@ -197,7 +199,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
 
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, request.Metadata));
+        string filename = OutputTemplates.UploadFileName(request.Metadata, Config.UploadFormat);
         var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
         var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
         var issue = _jiraIssue;
@@ -227,7 +229,7 @@ public class JiraDestination : DestinationBase, IRequiresRecipeAuthorization
                     var names = await jiraConnector.GetAttachmentNamesAsync(issue.Key, token).ConfigureAwait(false);
                     while (names.Contains(filename, StringComparer.OrdinalIgnoreCase))
                     {
-                        filename = AttachmentNames.Next(filename);
+                        filename = NumberedFileNames.Next(filename);
                     }
                 }
 

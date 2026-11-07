@@ -88,6 +88,21 @@ namespace Greenshot.Tests.Stamps
         }
 
         [Fact]
+        public void Version_CountsTheChanges_SoTheViewsOfOtherEditorsShowThem()
+        {
+            CreateFile("check.png");
+            var library = Load();
+            int loaded = library.Version;
+
+            library.Update(library.Stamps[0], "Done", "ok");
+            Assert.True(library.Version > loaded);
+
+            int updated = library.Version;
+            library.AddTag("new");
+            Assert.True(library.Version > updated);
+        }
+
+        [Fact]
         public void Update_IsKeptInStampsJson_ForTheNextLoad()
         {
             CreateFile("check.png");

@@ -33,6 +33,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
@@ -191,7 +192,10 @@ namespace Greenshot.Notifications
                 return false;
             }
 
-            var recipe = RecipeManager.Instance.GetRecipeById(NotificationRecipes.RecipeIdNotification);
+            // Like the browser extension: the first recipe with a Notification trigger, else the built-in one
+            var recipe = RecipeManager.Instance.GetAllRecipes()?.FirstOrDefault(r => r != null && r.IsEnabled && r.Triggers != null && r.Triggers.Any(t =>
+                             t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase)))
+                         ?? RecipeManager.Instance.GetRecipeById(NotificationRecipes.RecipeIdNotification);
             if (recipe?.IsEnabled != true)
             {
                 surface.Dispose();

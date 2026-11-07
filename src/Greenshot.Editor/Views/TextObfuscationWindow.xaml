@@ -147,10 +147,10 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="PixelSizeLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextPixelSize}" VerticalAlignment="Center"
+                                <TextBlock x:Name="PixelSizeLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextPixelSizeTextHeight}" TextWrapping="Wrap" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <wpf:ValueSlider x:Name="PixelSizeSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=PixelSizeLabel}" Minimum="1" Maximum="50" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
+                                    <wpf:ValueSlider x:Name="PixelSizeSlider" ValueFormat="{}{0:0} %" AutomationProperties.LabeledBy="{Binding ElementName=PixelSizeLabel}" Minimum="10" Maximum="200" Value="75" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
                                     <TextBlock Text="{Binding ElementName=PixelSizeSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
@@ -163,10 +163,10 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="BlurRadiusLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextBlurRadius}" VerticalAlignment="Center"
+                                <TextBlock x:Name="BlurRadiusLabel" Grid.Column="0" Text="{wpf:Text Editor.ObfuscateTextBlurRadiusTextHeight}" TextWrapping="Wrap" VerticalAlignment="Center"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <wpf:ValueSlider x:Name="BlurRadiusSlider" ValueFormat="{}{0:0} px" AutomationProperties.LabeledBy="{Binding ElementName=BlurRadiusLabel}" Minimum="1" Maximum="30" Value="10" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
+                                    <wpf:ValueSlider x:Name="BlurRadiusSlider" ValueFormat="{}{0:0} %" AutomationProperties.LabeledBy="{Binding ElementName=BlurRadiusLabel}" Minimum="10" Maximum="200" Value="50" Width="170" VerticalAlignment="Center" ValueChanged="Setting_Changed"/>
                                     <TextBlock Text="{Binding ElementName=BlurRadiusSlider, Path=ValueText}"
                                                Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="45"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>

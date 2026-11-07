@@ -203,6 +203,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 return "🌐 " + Texts.Get<IRecipeEditorLanguage>().TriggerBrowserExtension;
             }
+            if (Is(TriggerConfig.TypeNotification))
+            {
+                return "🔔 " + Texts.Get<IRecipeEditorLanguage>().TriggerNotification;
+            }
             if (Is(TriggerConfig.TypeSchedule))
             {
                 return "⏱ " + Texts.Get<IRecipeEditorLanguage>().TriggerSchedule;

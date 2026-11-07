@@ -1,0 +1,133 @@
+<!--
+    The panel area at the right of the canvas of the editor: the list of panels (or only the title when there is one), a close button
+    and the shown panel. The colors come from ThemeScope.Theme (the editor palette, set by
+    EditorPanelDock), the styles here also apply to the views of the panels and their sections, so plugins don't style themselves.
+    The AdornerDecorator keeps the focus rectangles inside the theme scope.
+-->
+<UserControl x:Class="Greenshot.Editor.Panels.Views.PanelDockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             Background="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"
+             Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"
+             FontSize="{wpf:FontSize 12}"
+             AutomationProperties.Name="{wpf:Text Editor.PanelArea}">
+    <UserControl.Resources>
+        <Style x:Key="PanelFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="-1" StrokeThickness="2" SnapsToDevicePixels="True"
+                                   Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Padding" Value="3,2"/>
+        </Style>
+
+        <!-- A flat button: the close button, the emoji cells -->
+        <Style x:Key="PanelFlatButton" TargetType="ButtonBase">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource PanelFocusVisual}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- A section: a header to collapse it, the content below -->
+        <Style TargetType="Expander">
+            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{Binding Path=(wpf:ThemeScope.Theme).CardBackground, RelativeSource={RelativeSource Self}}"
+                                BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"
+                                BorderThickness="1" CornerRadius="4">
+                            <DockPanel>
+                                <ToggleButton DockPanel.Dock="Top" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              AutomationProperties.Name="{TemplateBinding Header}"
+                                              FocusVisualStyle="{StaticResource PanelFocusVisual}"
+                                              HorizontalContentAlignment="Stretch" Cursor="Hand">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="Transparent" Padding="6,5">
+                                                <DockPanel>
+                                                    <Path x:Name="Arrow" DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                          Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z"
+                                                          Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" RenderTransformOrigin="0.5,0.5">
+                                                        <Path.RenderTransform>
+                                                            <RotateTransform x:Name="ArrowRotation" Angle="-90"/>
+                                                        </Path.RenderTransform>
+                                                    </Path>
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </DockPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Arrow" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="0"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                    <TextBlock Text="{TemplateBinding Header}" FontWeight="SemiBold"/>
+                                </ToggleButton>
+                                <ContentPresenter x:Name="Content" Margin="6,0,6,6" Visibility="Collapsed"/>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Content" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <AdornerDecorator>
+    <DockPanel>
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" Padding="6,4"
+                BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}">
+            <DockPanel>
+                <Button x:Name="CloseButton" DockPanel.Dock="Right" Style="{StaticResource PanelFlatButton}" Width="24" Height="24"
+                        ToolTip="{wpf:Text Editor.PanelClose}" AutomationProperties.Name="{wpf:Text Editor.PanelClose}" Click="OnCloseClick">
+                    <Path Data="M 0 0 L 8 8 M 8 0 L 0 8" Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" StrokeThickness="1.5"
+                          Width="8" Height="8"/>
+                </Button>
+                <!-- With one panel only its title, with more a list to switch -->
+                <TextBlock x:Name="TitleText" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                <ComboBox x:Name="PanelList" Visibility="Collapsed" HorizontalAlignment="Left" MinWidth="140"
+                          AutomationProperties.Name="{wpf:Text Editor.PanelArea}"
+                          DisplayMemberPath="Title" SelectionChanged="OnPanelListSelectionChanged"/>
+            </DockPanel>
+        </Border>
+        <ContentControl x:Name="PanelContent" Focusable="False"/>
+    </DockPanel>
+    </AdornerDecorator>
+</UserControl>

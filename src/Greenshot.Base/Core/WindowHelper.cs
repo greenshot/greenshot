@@ -152,11 +152,19 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="window">IInteropWindow</param>
         /// <returns>Bitmap, null when there is none</returns>
-        public static Bitmap GetDisplayIcon(this IInteropWindow window)
+        public static Bitmap GetDisplayIcon(this IInteropWindow window) => window.GetDisplayIcon(Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32);
+
+        /// <summary>
+        /// The small (16x16) or large (32x32) icon of the window, the caller owns (disposes) it
+        /// </summary>
+        /// <param name="window">IInteropWindow</param>
+        /// <param name="large">true for the large icon, use it for everything over 16 pixels</param>
+        /// <returns>Bitmap, null when there is none</returns>
+        public static Bitmap GetDisplayIcon(this IInteropWindow window, bool large)
         {
             try
             {
-                return window.GetIcon<Bitmap>(Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32);
+                return window.GetIcon<Bitmap>(large);
             }
             catch (Exception ex)
             {

@@ -13,6 +13,7 @@ work differently there, and they can still change before the release. The docume
 | [viewer.md](viewer.md) | The viewer: a capture in a small window of its own, e.g. on top to compare it |
 | [image-formats.md](image-formats.md) | Which image formats Greenshot opens and saves, and more formats with codecs installed in Windows |
 | [custom-uploader.md](custom-uploader.md) | Uploading to a service of your choice with an uploader file (.sxcu) |
+| [editor-panels.md](editor-panels.md) | The panel area of the editor: the Selection panel with size, position and the emoji picker |
 | [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
@@ -30,11 +31,14 @@ work differently there, and they can still change before the release. The docume
 | [accessibility.md](accessibility.md) | Rules for screen readers, keyboard, high contrast and text size, and how to check them |
 | [ui-how-to.md](ui-how-to.md) | Building windows and settings pages: styles, texts, settings |
 | [translation](translation/README.md) | Language packs and how to translate Greenshot |
+| [hdr.md](hdr.md) | HDR captures: SDR and HDR, tone mapping, the HDR image, the edits of the editor and writing JPEG XR files |
+| [editor-panels.md](editor-panels.md#for-developers) | Adding panels and sections to the panel area of the editor |
 | [capture-tools.md](capture-tools.md) | How the capture modes and helpers are built, and how a plugin adds its own |
 | [notifications.md](notifications.md) | Notifications: toasts and the tray icon |
 | [http.md](http.md) | Talking to services on the Internet with `HttpService` |
 | [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md) | The native proxy, IPC, command line and the browser extension |
 | [async-threading-roadmap.md](async-threading-roadmap.md) | The threading model and the async rules |
 | [recipe-contracts-cli-query-plan.md](recipe-contracts-cli-query-plan.md) | Plan: recipe contracts, CLI queries and error handling |
+| [expression-engine.md](expression-engine.md) | Design: one syntax and one resolver for variables (`${...}`) in settings, recipes and plugins |
 | [recipe.schema.json](recipe.schema.json), [examples](examples) | The JSON schema of recipes and example recipes; more recipes are in [greenshot/greenshot-recipes](https://github.com/greenshot/greenshot-recipes) |
 | [upstream](upstream/wpf-notifyicon-prompt.md) | Changes Greenshot would like in libraries it uses |

@@ -311,11 +311,15 @@ namespace Greenshot.Recipes.Pipeline
                     {
                         // Expressions in node parameters are evaluated exactly once: here, or by the step itself when it
                         // implements IEvaluatesOwnParameters (it then receives the raw parameters). See IEvaluatesOwnParameters.
-                        var step = _stepFactory(nodeConfig.Clone());
+                        var contract = _contractLookup?.Invoke(nodeConfig.StepType);
+                        // The texts the user sees in the language of Greenshot, from the translations of the recipe (before the expressions)
+                        var translatedConfig = nodeConfig.Clone();
+                        translatedConfig.Parameters = recipe.TranslateNodeParameters(nodeConfig, contract);
+                        var step = _stepFactory(translatedConfig.Clone());
                         if (step != null && !(step is IEvaluatesOwnParameters))
                         {
-                            var resolvedConfig = nodeConfig.Clone();
-                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
+                            var resolvedConfig = translatedConfig.Clone();
+                            resolvedConfig.Parameters = RecipeExpressions.ResolveParameters(translatedConfig.Parameters, nodeContext, contract);
                             step = _stepFactory(resolvedConfig);
                         }
                         if (step == null)
@@ -325,7 +329,6 @@ namespace Greenshot.Recipes.Pipeline
                         }
                         else
                         {
-                            var contract = _contractLookup?.Invoke(nodeConfig.StepType);
                             // Fails the node (error transitions apply) when a required parameter or input is missing
                             ValidateBeforeStep(nodeConfig, contract, nodeContext);
                             var before = contract != null && ContractViolation != null ? new Dictionary<string, object>(nodeContext.Properties, StringComparer.OrdinalIgnoreCase) : null;
@@ -481,7 +484,7 @@ namespace Greenshot.Recipes.Pipeline
                                 break;
                             }
 
-                            bool isMet = ExpressionEvaluator.Instance.Evaluate<bool>(exp, nodeContext, false);
+                            bool isMet = RecipeExpressions.IsMet(exp, nodeContext);
                             if (isMet)
                             {
                                 matchedBranchKey = b.Key;

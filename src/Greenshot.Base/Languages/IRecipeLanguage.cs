@@ -107,7 +107,7 @@ namespace Greenshot.Base.Languages
         string ExtensionCaptionTextcolor { get; }
 
         /// <summary>
-        /// The text of the caption: ${now:yyyy-MM-dd HH:mm:ss} is the date and time, ${user.username} your user name.
+        /// The text of the caption: ${time.now:yyyy-MM-dd HH:mm:ss} is the date and time, ${user.name} your user name.
         /// </summary>
         string ExtensionCaptionTextDescription { get; }
 

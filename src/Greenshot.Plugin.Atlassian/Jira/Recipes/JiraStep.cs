@@ -35,6 +35,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Atlassian.Jira.Api;
 using Greenshot.Plugin.Atlassian.Jira.Destinations;
 using log4net;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Atlassian.Jira.Recipes
 {
@@ -95,11 +96,6 @@ namespace Greenshot.Plugin.Atlassian.Jira.Recipes
             string issueKey = NodeConfig.GetParameter<string>("IssueKey")
                 ?? (context.Properties.TryGetValue("Jira.IssueKey", out var ik) && ik is string iks ? iks : null);
 
-            if (!string.IsNullOrEmpty(issueKey))
-            {
-                issueKey = FilenameHelper.FillVariables(issueKey, false);
-            }
-
             string formatStr = NodeConfig.GetParameter<string>("Format");
             var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
@@ -108,7 +104,7 @@ namespace Greenshot.Plugin.Atlassian.Jira.Recipes
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
+            string filename = OutputTemplates.UploadFileName(captureDetails, uploadFormat);
             var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(issueKey))

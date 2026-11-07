@@ -324,19 +324,13 @@ namespace Greenshot.Editor.Drawing
         {
             get
             {
-                foreach (IFilter filter in Filters)
+                if (HasInvertedFilter && _parent?.Image != null)
                 {
-                    if (filter.Invert && _parent?.Image != null)
-                    {
-                        return new NativeRect(Point.Empty, _parent.Image.Size);
-                    }
+                    return new NativeRect(Point.Empty, _parent.Image.Size);
                 }
 
-                // Take a base safety margin
+                // Take a base safety margin, the adorners are drawn in screen pixels: the surface adds their size when invalidating
                 int lineThickness = 5;
-
-                // add adorner size
-                lineThickness += Adorners.Max(adorner => Math.Max(adorner.Bounds.Width, adorner.Bounds.Height));
 
                 if (HasField(FieldType.LINE_THICKNESS))
                 {
@@ -408,7 +402,43 @@ namespace Greenshot.Editor.Drawing
             Adorners.Add(new ResizeAdorner(this, Positions.MiddleRight));
         }
 
-        public bool HasFilters => Filters.Count > 0;
+        /// <summary>
+        /// True if one of the children is a filter, without creating the list of filters (called for every element on every paint)
+        /// </summary>
+        public bool HasFilters
+        {
+            get
+            {
+                foreach (IFieldHolder child in Children)
+                {
+                    if (child is IFilter)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// True if one of the filters is inverted, it covers the image outside the element
+        /// </summary>
+        public bool HasInvertedFilter
+        {
+            get
+            {
+                foreach (IFieldHolder child in Children)
+                {
+                    if (child is IFilter { Invert: true })
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 

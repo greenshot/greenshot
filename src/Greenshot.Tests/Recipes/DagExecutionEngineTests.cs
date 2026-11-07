@@ -226,7 +226,7 @@ namespace Greenshot.Tests.Recipes
                         {
                             "Branches", new List<Dictionary<string, object>>
                             {
-                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "${CustomScore > 50}" } },
+                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "${var.CustomScore > 50}" } },
                                 new Dictionary<string, object> { { "Key", "BranchB" }, { "Expression", "else" } }
                             }
                         }

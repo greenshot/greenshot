@@ -50,7 +50,9 @@ namespace Greenshot.Base.Wpf
             nameof(ScrollBarThumbBrush), nameof(ScrollBarThumbHoverBrush), nameof(ScrollBarThumbPressedBrush), nameof(ButtonBackgroundBrush),
             nameof(ButtonHoverBrush), nameof(ButtonPressedBrush), nameof(HighlightForegroundBrush), nameof(TabItemBackgroundBrush),
             nameof(TabItemSelectedBrush), nameof(TitleBarBrush), nameof(AccentBrush), nameof(AccentForegroundBrush), nameof(WarningBrush),
-            nameof(ErrorBrush)
+            nameof(ErrorBrush), nameof(ErrorBackground), nameof(ErrorBorder), nameof(WarningForegroundBrush), nameof(DangerBrush),
+            nameof(DangerForegroundBrush), nameof(DangerHoverBrush), nameof(DangerPressedBrush), nameof(CardBackground), nameof(CardBorder),
+            nameof(TextPrimary), nameof(TextSecondary)
         };
 
         // Thread-safe: WPF windows run on several threads, and a second instance would silently lose the subscribers of the first
@@ -235,6 +237,30 @@ namespace Greenshot.Base.Wpf
 
         public Brush ErrorBrush => CurrentPalette.ErrorBrush;
 
+        // The same names as in ThemePalette: the shared styles bind to these by name, see ThemeScope
+
+        public Brush ErrorBackground => CurrentPalette.ErrorBackground;
+
+        public Brush ErrorBorder => CurrentPalette.ErrorBorder;
+
+        public Brush WarningForegroundBrush => CurrentPalette.WarningForegroundBrush;
+
+        public Brush DangerBrush => CurrentPalette.DangerBrush;
+
+        public Brush DangerForegroundBrush => CurrentPalette.DangerForegroundBrush;
+
+        public Brush DangerHoverBrush => CurrentPalette.DangerHoverBrush;
+
+        public Brush DangerPressedBrush => CurrentPalette.DangerPressedBrush;
+
+        public Brush CardBackground => CurrentPalette.CardBackground;
+
+        public Brush CardBorder => CurrentPalette.CardBorder;
+
+        public Brush TextPrimary => CurrentPalette.TextPrimary;
+
+        public Brush TextSecondary => CurrentPalette.TextSecondary;
+
         /// <summary>
         /// The core configuration with the Theme setting, null as long as it isn't loaded (e.g. in tests)
         /// </summary>
@@ -362,6 +388,29 @@ namespace Greenshot.Base.Wpf
             {
                 WindowFrameTheme.UpdateAll();
             }
+        }
+
+        /// <summary>
+        /// The palette for a theme choice of a window with its own setting (the editor): Light, Dark or System (the app mode of
+        /// Windows, not Greenshot's theme). A high contrast theme of Windows always wins. Reads the registry for System: cache it.
+        /// </summary>
+        /// <param name="theme">UiTheme</param>
+        /// <returns>ThemePalette</returns>
+        public ThemePalette GetPalette(UiTheme theme)
+        {
+            var current = CurrentPalette;
+            if (System.Windows.Forms.SystemInformation.HighContrast)
+            {
+                return current.IsHighContrast ? current : ThemePalette.CreateHighContrast();
+            }
+
+            bool isDark = theme switch
+            {
+                UiTheme.Light => false,
+                UiTheme.Dark => true,
+                _ => !ReadPersonalizeFlag("AppsUseLightTheme")
+            };
+            return current.IsDark == isDark && !current.IsHighContrast ? current : CreatePalette(isDark);
         }
 
         private ThemePalette CreatePalette(bool isDark)

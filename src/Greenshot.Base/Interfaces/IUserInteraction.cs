@@ -45,6 +45,11 @@ namespace Greenshot.Base.Interfaces
         Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Ask for an image file (or .greenshot file) to open, null when the user declined.
+        /// </summary>
+        Task<string> PickOpenFileAsync(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Ask for the output settings (e.g. JPEG quality), null when the user declined.
         /// </summary>
         Task<SurfaceOutputSettings> PromptOutputSettingsAsync(SurfaceOutputSettings current, CancellationToken cancellationToken);
@@ -116,11 +121,12 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public sealed class SaveFileRequest
     {
-        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null, string format = null)
+        public SaveFileRequest(ICaptureDetails captureDetails, string suggestedPath = null, string format = null, bool hdrAvailable = false)
         {
             CaptureDetails = captureDetails;
             SuggestedPath = suggestedPath;
             Format = format;
+            HdrAvailable = hdrAvailable;
         }
 
         public ICaptureDetails CaptureDetails { get; }
@@ -128,6 +134,11 @@ namespace Greenshot.Base.Interfaces
         public string SuggestedPath { get; }
 
         public string Format { get; }
+
+        /// <summary>
+        /// The capture can be saved as HDR file (JPEG XR), the dialog says so
+        /// </summary>
+        public bool HdrAvailable { get; }
     }
 
     /// <summary>

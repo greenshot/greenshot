@@ -22,7 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Greenshot.Base.Core;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -67,8 +69,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         }
 
         Commands.Remove(command);
-        Commandline.Remove(command);
-        Argument.Remove(command);
+        CommandlineTemplate.Remove(command);
+        ArgumentTemplate.Remove(command);
         RunInbackground.Remove(command);
         OutputFormat.Remove(command);
         RedirectStandardErrorCommand?.Remove(command);
@@ -93,6 +95,19 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Commands ??= new List<string>();
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();
+        CommandlineTemplate ??= new Dictionary<string, string>();
+        ArgumentTemplate ??= new Dictionary<string, string>();
+        // The templates are filled once from the command lines of 1.3, which stay for going back to 1.3
+        foreach (var pair in Commandline.Where(p => !CommandlineTemplate.ContainsKey(p.Key)).ToList())
+        {
+            CommandlineTemplate[pair.Key] = LegacyTemplateConverter.Convert(pair.Value, true);
+            MarkAsDirty();
+        }
+        foreach (var pair in Argument.Where(p => !ArgumentTemplate.ContainsKey(p.Key)).ToList())
+        {
+            ArgumentTemplate[pair.Key] = LegacyTemplateConverter.ConvertArguments(pair.Value);
+            MarkAsDirty();
+        }
         RunInbackground ??= new Dictionary<string, bool>();
         OutputFormat ??= new Dictionary<string, string>();
         RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
@@ -107,8 +122,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         if (HasPaint && !Commands.Contains(MsPaint) && !DeletedBuildInCommands.Contains(MsPaint))
         {
             Commands.Add(MsPaint);
-            Commandline.Add(MsPaint, PaintPath);
-            Argument.Add(MsPaint, "\"{0}\"");
+            CommandlineTemplate[MsPaint] = PaintPath;
+            ArgumentTemplate[MsPaint] = "\"${export.file}\"";
             RunInbackground.Add(MsPaint, true);
             MarkAsDirty();
         }
@@ -117,8 +132,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         if (HasPaintDotNet && !Commands.Contains(PaintDotNet) && !DeletedBuildInCommands.Contains(PaintDotNet))
         {
             Commands.Add(PaintDotNet);
-            Commandline.Add(PaintDotNet, PaintDotNetPath);
-            Argument.Add(PaintDotNet, "\"{0}\"");
+            CommandlineTemplate[PaintDotNet] = PaintDotNetPath;
+            ArgumentTemplate[PaintDotNet] = "\"${export.file}\"";
             RunInbackground.Add(PaintDotNet, true);
             MarkAsDirty();
         }

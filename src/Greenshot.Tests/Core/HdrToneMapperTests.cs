@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
 using Xunit;
@@ -107,10 +108,98 @@ public class HdrToneMapperTests
     {
         // A thin bright line or a small light: one pixel, in an odd column, must set the peak or it is cut off
         var pixels = Enumerable.Range(0, 9).Select(x => x == 5 ? Rgba(8 * SdrWhite, 8 * SdrWhite, 8 * SdrWhite) : Rgba(SdrWhite, SdrWhite, SdrWhite)).ToArray();
-        var (peakInNits, highlightShare) = OnWarp(pixels, (texture, device, context) => HdrContent.Measure(texture, device, context, SdrWhiteNits));
+        var (peakInNits, highlightShare) = OnWarp(pixels, (texture, device, context) => HdrContent.Measure(texture, device, context, SdrWhiteNits, new Rectangle(0, 0, 9, 1)));
 
         Assert.Equal(8 * SdrWhiteNits, peakInNits, 1);
         Assert.Equal(1 / 9f, highlightShare, 3);
+    }
+
+    [Fact]
+    public void Measure_OnlyTheArea()
+    {
+        // The highlight is outside the selected area: the area has none
+        var pixels = Enumerable.Range(0, 9).Select(x => x == 1 ? Rgba(8 * SdrWhite, 8 * SdrWhite, 8 * SdrWhite) : Rgba(SdrWhite / 2, SdrWhite / 2, SdrWhite / 2)).ToArray();
+
+        var (peakInNits, highlightShare) = OnWarp(pixels, (texture, device, context) => HdrContent.Measure(texture, device, context, SdrWhiteNits, new Rectangle(3, 0, 20, 1)));
+
+        Assert.Equal(SdrWhiteNits / 2, peakInNits, 1);
+        Assert.Equal(0f, highlightShare);
+    }
+
+    [Fact]
+    public void Measure_OfTheHdrImage_IsTheMeasureOfTheTexture()
+    {
+        var pixels = Enumerable.Range(0, 9).Select(x => x % 3 == 0 ? Rgba(4 * SdrWhite, 2 * SdrWhite, SdrWhite) : Rgba(SdrWhite, SdrWhite, SdrWhite)).ToArray();
+
+        var (fromTexture, fromImage) = OnWarp(pixels, (texture, device, context) =>
+        {
+            var area = new Rectangle(2, 0, 6, 1);
+            using var hdrImage = WindowsGraphicsCaptureInterop.ReadHdrImage(texture, device, context, area, SdrWhiteNits, 400);
+            return (HdrContent.Measure(texture, device, context, SdrWhiteNits, area), HdrContent.Measure(hdrImage, SdrWhiteNits));
+        });
+
+        Assert.Equal(fromTexture.PeakInNits, fromImage.PeakInNits, 1);
+        Assert.Equal(fromTexture.HighlightShare, fromImage.HighlightShare, 4);
+    }
+
+    [Fact]
+    public void ToneMapOfAnArea_IsThatPartOfTheWholeToneMap()
+    {
+        // Without highlights both use SDR white as white
+        var pixels = Enumerable.Range(0, 9).Select(x => Rgba(x / 9f * SdrWhite, (9 - x) / 9f * SdrWhite, SdrWhite / 2)).ToArray();
+
+        var (whole, part) = OnWarp(pixels, (texture, device, context) =>
+        {
+            var wholeBitmap = WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, SdrWhiteNits, 400);
+            var sdrTexture = WindowsGraphicsCaptureInterop.ToneMapHdrTexture(texture, device, context, new Rectangle(3, 0, 4, 1), SdrWhiteNits, 400, null);
+            try
+            {
+                return (wholeBitmap, WindowsGraphicsCaptureInterop.TransformTextureToBitmap(sdrTexture, device, context));
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(sdrTexture);
+            }
+        });
+        using (whole)
+        using (part)
+        {
+            Assert.Equal(4, part.Width);
+            for (int x = 0; x < 4; x++)
+            {
+                Assert.Equal(whole.GetPixel(x + 3, 0), part.GetPixel(x, 0));
+            }
+        }
+    }
+
+    [Fact]
+    public void CopyTextureToBitmap_OnlyThePart_AtTheTargetLocation()
+    {
+        var pixels = Enumerable.Range(0, 9).Select(x => Rgba(x / 9f * SdrWhite, 0, 0)).ToArray();
+
+        var (whole, target) = OnWarp(pixels, (texture, device, context) =>
+        {
+            var wholeBitmap = WindowsGraphicsCaptureInterop.ToneMapHdrTextureToBitmap(texture, device, context, SdrWhiteNits, 400);
+            var sdrTexture = WindowsGraphicsCaptureInterop.ToneMapHdrTexture(texture, device, context, new Rectangle(0, 0, 9, 1), SdrWhiteNits, 400, null);
+            try
+            {
+                var targetBitmap = new Bitmap(6, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                WindowsGraphicsCaptureInterop.CopyTextureToBitmap(sdrTexture, device, context, new Rectangle(5, 0, 3, 1), targetBitmap, new Point(2, 0));
+                return (wholeBitmap, targetBitmap);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(sdrTexture);
+            }
+        });
+        using (whole)
+        using (target)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                Assert.Equal(whole.GetPixel(x + 5, 0), target.GetPixel(x + 2, 0));
+            }
+        }
     }
 
     [Fact]

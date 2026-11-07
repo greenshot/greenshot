@@ -50,6 +50,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
+- A panel at the right of the editor shows the size and position of the selected element and the emoji picker, with a search for emojis
 - Contributed by @jairbubbles
 
 **Stamps** (Beta)
@@ -63,10 +64,17 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Useful for privacy protection and sensitive information removal
 - Beta feature by @Lakritzator
 
+**Stronger blur and pixelate**
+- A new blur or pixelate area over text gets a strength that fits that text, so large text is hidden as well as small text. When the text wasn't recognized yet, OCR runs once in the background
+- An OCR badge in the editor's status bar shows whether the text of the capture is recognized
+
 **Remove Transparency Feature** (#945)
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
+
+**Grayscale**
+- Grayscale keeps the brightness of colors
 
 #### ⚙️ Command Line Interface
 
@@ -116,6 +124,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
 - HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
 - Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
+- HDR captures: on an HDR display Greenshot can save the bright highlights as a JPEG XR file, also after editing. Switch it on in Settings > Capture.
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
@@ -308,6 +317,22 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @Copilot
 
 #### ⚙️ Configuration & Settings
+
+**One way to write variables** (#1693)
+- The screenshot folder, file name, print footer, Outlook subject, external commands and recipes all use the same `${...}` values, e.g. `${payload.time:yyyy-MM-dd}`, `${payload.title}`, `${user.pictures}`; see [variables](../vNext/variables.md)
+- The settings show what a file name or folder gives and what is wrong with it while you type
+- New counters: per folder (`${counter.folder}`), per name and per key; a counter only goes up when a file was saved
+- A window title or other text of a capture can no longer choose the folder or the program of an external command
+- The settings of 1.3 are converted once and kept, so going back to 1.3 still works
+
+**Clicking the tray icon** (#1708)
+- Settings > General has a new "Tray icon" group: choose what a click and a double-click on the Greenshot icon next to the clock do
+- Both start a recipe, e.g. a region capture, opening the folder of the last capture, the settings or the tray menu; the list has every recipe which needs nothing given to it
+- A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
+- The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
+
+**When the file already exists**
+- greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 
 **Switching plugins and destinations on or off**
 - Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini

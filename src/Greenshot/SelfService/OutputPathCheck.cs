@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.SelfService
 {
@@ -136,8 +137,8 @@ namespace Greenshot.SelfService
         /// <summary>
         /// Checks the output folder and the filename pattern
         /// </summary>
-        /// <param name="configuredPath">OutputFilePath</param>
-        /// <param name="filenamePattern">OutputFileFilenamePattern</param>
+        /// <param name="configuredPath">OutputDirectory, a template</param>
+        /// <param name="filenamePattern">OutputFileNameTemplate</param>
         /// <param name="fileFormat">OutputFileFormat, e.g. png</param>
         /// <param name="oneDriveFolders">The OneDrive folders, null for the ones of the current user</param>
         public static OutputPathCheckResult Run(string configuredPath, string filenamePattern, string fileFormat, IEnumerable<string> oneDriveFolders = null)
@@ -153,9 +154,9 @@ namespace Greenshot.SelfService
             string expanded;
             try
             {
-                expanded = FilenameHelper.FillVariables(configuredPath, false);
+                expanded = VariableResolver.Instance.Render(configuredPath, TemplatePurpose.Folder, VariableScope.Empty);
             }
-            catch (Exception ex)
+            catch (TemplateException ex)
             {
                 expanded = configuredPath;
                 result.Items.Add(new OutputPathCheckItem(OutputPathFinding.ContainsVariables, OutputPathSeverity.Error, ex.Message));
@@ -211,13 +212,15 @@ namespace Greenshot.SelfService
 
         private static void CheckFilename(OutputPathCheckResult result, string folder, string filenamePattern, string fileFormat)
         {
-            string pattern = string.IsNullOrWhiteSpace(filenamePattern) ? "greenshot ${capturetime}" : filenamePattern;
+            string pattern = string.IsNullOrWhiteSpace(filenamePattern) ? OutputTemplates.DefaultFileName : filenamePattern;
             string filename;
             try
             {
-                filename = FilenameHelper.GetFilenameFromPattern(pattern, fileFormat);
+                // A check: the counters show their next number and stay
+                var scope = new VariableScope { TargetFolder = SafeDirectoryExists(folder) ? folder : null, Preview = true };
+                filename = VariableResolver.Instance.RenderFileName(pattern, Greenshot.Base.Core.FileFormat.FileFormatRegistry.GetPreferredExtensionWithDot(fileFormat), scope).Name;
             }
-            catch (Exception ex)
+            catch (TemplateException ex)
             {
                 result.Items.Add(new OutputPathCheckItem(OutputPathFinding.InvalidFilename, OutputPathSeverity.Error, ex.Message));
                 return;

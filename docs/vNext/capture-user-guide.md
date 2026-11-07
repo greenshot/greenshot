@@ -42,6 +42,10 @@ in the window mode. With more than one monitor, *Capture full screen* has a sub 
 
 You can change the hotkeys in the settings, on the General tab.
 
+A click on the Greenshot icon opens this menu, a double-click opens the folder of your last capture. Both can start
+another capture or action instead: Settings, General tab, *Tray icon*. See
+[A click on the tray icon](capture-recipes.md#a-click-on-the-tray-icon) for which recipes are in that list.
+
 ```mermaid
 flowchart LR
     R["PrintScreen<br/>Capture region"] --> S
@@ -265,8 +269,9 @@ the mode starts. Then every line of text it found gets a thin frame.
 - **Drag over the text** to select several words or lines: the words inside the rectangle are highlighted while you drag.
   Dragging works like in the region mode, with `Enter`, the arrow keys and `Shift`.
 
-The selected part is captured like a region. To get the words as text, send the capture to the *Windows OCR* destination, which puts
-the text on the clipboard. With recipes turned on (*Enable recipes*, in the settings of the recipe editor plugin), the built-in recipe *OCR text to clipboard* starts the capture
+The words in the selection are copied to the clipboard as text; the capture doesn't go to your destinations. This is a visible step
+of the built-in region and window capture recipes (the branch *Text or image* after the selection), so a recipe of your own can do
+something else with the text. With recipes turned on (*Enable recipes*, in the settings of the recipe editor plugin), the built-in recipe *OCR text to clipboard* starts the capture
 in this mode and copies only the text; give it a hotkey or a menu entry to use it (see [capture-recipes.md](capture-recipes.md)).
 
 The text recognition needs a language installed in Windows (Time and language, Language and region). Which language Greenshot reads
@@ -464,6 +469,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Where | Setting | What it does |
 |---|---|---|
 | General tab, *Hotkeys* | Capture full screen, window, region, last region, image from clipboard | The hotkeys which start a capture. |
+| General tab, *Tray icon* | Click, Double-click | The recipe a click and a double-click on the Greenshot icon start, e.g. a region capture. |
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
 | Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |

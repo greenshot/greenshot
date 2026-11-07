@@ -34,6 +34,7 @@ using Greenshot.Plugin.Dropbox.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Dropbox.Recipes;
 using Greenshot.Plugin.Dropbox.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Dropbox;
 
@@ -91,7 +92,7 @@ public class DropboxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepP
     public async Task<bool?> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
     {
         var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        string filename = OutputTemplates.UploadFileName(captureDetails, _config.UploadFormat);
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
         return await userInteraction.RunWithProgressAsync(Texts.Get<IDropboxLanguage>().CommunicationWait,
             (progress, token) => DropboxUtils.UploadToDropboxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);

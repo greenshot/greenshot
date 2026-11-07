@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -27,7 +28,9 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Native;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
@@ -36,7 +39,7 @@ namespace Greenshot.Base.Recipes.Sources
     /// <summary>
     /// Acquires a capture payload by loading an image file or .greenshot file from disk.
     /// Explicitly resolves the target file path from RecipeNodeConfig parameters ("Filename", "file", etc.)
-    /// with expression evaluation (e.g. "${Filename}"), falling back to flow context properties.
+    /// with expression evaluation (e.g. "${var.Filename}"), falling back to flow context properties.
     /// </summary>
     public class FileCaptureSource : ICaptureSource
     {
@@ -60,7 +63,7 @@ namespace Greenshot.Base.Recipes.Sources
             {
                 if (_nodeConfig.Parameters.TryGetValue("Filename", out var cfgVal))
                 {
-                    // Already evaluated by the engine (e.g. "${Filename}"); must not be evaluated again
+                    // Already evaluated by the engine (e.g. "${var.Filename}"); must not be evaluated again
                     string configured = cfgVal?.ToString();
                     if (!string.IsNullOrWhiteSpace(configured))
                     {
@@ -78,16 +81,39 @@ namespace Greenshot.Base.Recipes.Sources
                 }
             }
 
+            // 3. Started by hand (tray menu, hotkey, tray icon click): ask the user for the file
+            if (string.IsNullOrWhiteSpace(filename) && context?.UserInteraction?.IsInteractive == true)
+            {
+                return AskAndLoadAsync(context, cancellationToken);
+            }
+
+            return Task.FromResult(Load(context, filename));
+        }
+
+        private async Task<ICapturePayload> AskAndLoadAsync(CaptureFlowContext context, CancellationToken cancellationToken)
+        {
+            string filename = await context.UserInteraction.PickOpenFileAsync(cancellationToken).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(filename))
             {
-                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${Filename}') or provide 'Filename' in the flow context properties.");
-                return Task.FromResult<ICapturePayload>(null);
+                context.Abort("No file was chosen.");
+                return null;
+            }
+
+            return Load(context, filename);
+        }
+
+        private ICapturePayload Load(CaptureFlowContext context, string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${var.Filename}') or provide 'Filename' in the flow context properties.");
+                return null;
             }
 
             if (!File.Exists(filename))
             {
                 context?.Abort($"SourceType 'File' could not find file: '{filename}'");
-                return Task.FromResult<ICapturePayload>(null);
+                return null;
             }
 
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
@@ -128,7 +154,7 @@ namespace Greenshot.Base.Recipes.Sources
                             surface.CaptureDetails.AddMetaData("basename", Path.GetFileNameWithoutExtension(filename));
                             surface.CaptureDetails.AddMetaData("extension", Path.GetExtension(filename));
                         }
-                        return Task.FromResult<ICapturePayload>(payload);
+                        return payload;
                     }
                     catch (Exception ex)
                     {
@@ -146,14 +172,39 @@ namespace Greenshot.Base.Recipes.Sources
 
             try
             {
-                var fileImage = ImageIO.LoadImage(filename);
+                // An HDR file is opened like an HDR capture: tone mapped, with its HDR image, so it can be saved as HDR file again
+                var hdrImage = TryLoadHdrImage(filename);
+                Image fileImage;
+                try
+                {
+                    fileImage = hdrImage != null ? HdrImageToneMapping.ToBitmap(hdrImage) : ImageIO.LoadImage(filename);
+                }
+                catch
+                {
+                    hdrImage?.Dispose();
+                    throw;
+                }
                 if (fileImage == null)
                 {
-                    context.Abort($"Could not load image from '{filename}'");
-                    return Task.FromResult<ICapturePayload>(null);
+                    hdrImage?.Dispose();
+                    context?.Abort($"Could not load image from '{filename}'");
+                    return null;
                 }
 
                 ICapture capture = new Capture(fileImage);
+                // An HDR file without HDR content (nothing brighter than SDR white or outside sRGB) opens as a normal image: no HDR image
+                if (hdrImage != null && !hdrImage.HasHdrContent)
+                {
+                    hdrImage.Dispose();
+                    hdrImage = null;
+                }
+                if (hdrImage != null)
+                {
+                    hdrImage.BelongTo(capture.Image);
+                    // An HDR file: saving it again suggests JPEG XR
+                    hdrImage.IsRequested = true;
+                    capture.HdrImage = hdrImage;
+                }
                 capture.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
                 capture.CaptureDetails.Filename = filename;
                 capture.CaptureDetails.AddMetaData("file", filename);
@@ -165,14 +216,28 @@ namespace Greenshot.Base.Recipes.Sources
                 ImageMetadataReader.ReadInto(capture.CaptureDetails, filename);
 
                 var payload = new CapturePayload(capture);
-                return Task.FromResult<ICapturePayload>(payload);
+                return payload;
             }
             catch (Exception e)
             {
                 Log.Error(e.Message, e);
             }
-            context.Abort($"No filename specified.");
-            return Task.FromResult<ICapturePayload>(null);
+            context?.Abort($"Could not load '{filename}'.");
+            return null;
+        }
+
+        /// <summary>
+        /// The HDR image of an HDR file (see IHdrImageDecoder), null for an 8-bit file or without a decoder
+        /// </summary>
+        private static HdrImage TryLoadHdrImage(string filename)
+        {
+            var decoder = SimpleServiceProvider.Current.GetInstance<IHdrImageDecoder>(true);
+            if (decoder == null || !File.Exists(filename))
+            {
+                return null;
+            }
+            using var stream = File.OpenRead(filename);
+            return decoder.TryDecode(stream, out var hdrImage) ? hdrImage : null;
         }
     }
 }

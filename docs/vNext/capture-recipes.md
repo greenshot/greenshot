@@ -66,7 +66,7 @@ Settings > Recipes offer "Get More Recipes" (beta testers only) to open the cata
 
 1. downloads the catalog index from the latest catalog release and checks its signature (ECDSA P-256, the public keys
    are part of Greenshot); an index without a valid signature is refused,
-2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`), downloads the file
+2. finds the recipe in the index, checks that it runs on this Greenshot version (`minGreenshot`, compared with the full version including the build number, e.g. 1.4.123), downloads the file
    from the catalog repository and checks it against the SHA-256 of the index,
 3. shows the approval window, marked "from the catalog", with the catalog version, its authors, a link to its page and
    the recipe's options (settings) to fill in right away,
@@ -97,6 +97,8 @@ The destination window (destination "Ask for destination every time, in a window
 recipes under "Change the capture with a recipe": the recipe changes the capture shown there, like in the editor, before a
 destination is chosen.
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
+A `ContextMenu` trigger with the group `Main` puts its item in the tray menu itself, next to the captures, see
+[Built-in recipes and the tray menu](#built-in-recipes-and-the-tray-menu).
 The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
 For example:
 
@@ -110,7 +112,7 @@ For example:
 ### Hotkeys from the settings, and `when`
 
 A `Hotkey` trigger's `Hotkey` can be a hotkey (`"Ctrl + Shift + B"`), the value of a `Hotkey` option (`"${option.hotkey}"`,
-see Recipe Options) or a hotkey of the general settings (`"${config.RegionHotkey}"`). The built-in recipes get their
+see Recipe Options) or a hotkey of the general settings (`"${config.Core.RegionHotkey}"`). The built-in recipes get their
 hotkeys this way: region, window, full screen, last region and clipboard read the hotkeys of the general settings, so a
 recipe file which replaces a built-in recipe keeps its hotkey with the same trigger.
 
@@ -120,13 +122,98 @@ The window hotkey uses it to start either the window capture or the active windo
 
 ```json
 "triggers": [
-  { "triggerType": "Hotkey", "when": "${config.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.WindowHotkey}" } }
+  { "triggerType": "Hotkey", "when": "${config.Core.CaptureWindowsInteractive}", "parameters": { "Hotkey": "${config.Core.WindowHotkey}" } }
 ]
 ```
 
 Settings > General lists the hotkeys of all recipes which are on, made from their `Hotkey` triggers: a hotkey of the
 general settings or of a `Hotkey` option is changed right there, a hotkey written in the recipe file is shown with a
 button to the recipe editor. A recipe which is switched off has no hotkey in the list.
+
+### Built-in recipes and the tray menu
+
+The entries of the tray menu which capture or open something are built-in recipes, so you can give them a hotkey,
+switch them off or change them in the recipe editor like any other recipe. The recipes without a capture also make the
+targets of a click on the tray icon (see below). Their ids stay the same, a recipe file can replace any of them.
+
+| Recipe (id) | What it does | Tray menu | Hotkey |
+|---|---|---|---|
+| Capture region (`recipe_region`) | The capture screen in the region mode | Yes | `${config.RegionHotkey}` |
+| Capture last region (`recipe_lastregion`) | The area of the last capture again (the item is off while there is none) | Yes | `${config.LastregionHotkey}` |
+| Capture window (`recipe_window`) | The capture screen in the window mode | Yes | `${config.WindowHotkey}` when *interactive window capture* is on |
+| Capture full screen (`recipe_fullscreen`) | All displays; in the menu with more than one display a sub menu: all, or one of them | Yes | `${config.FullscreenHotkey}` |
+| Capture active window (`recipe_active_window`) | The active window right away; in the menu "Capture window from list", a sub menu of the open windows | Yes | `${config.WindowHotkey}` when *interactive window capture* is off |
+| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
+| Open file (`recipe_file`) | Asks for an image file and opens it, also used for files opened with Greenshot | Yes | |
+| OCR text to clipboard (`recipe_ocr`) | Select a region, its text goes to the clipboard | | |
+| Open last capture location (`recipe_open_capture_folder`) | `ShowInExplorer`: shows the last capture in the Explorer, or the folder of the screenshots | Yes | |
+| Open last capture in the editor (`recipe_last_capture_in_editor`) | Opens the file of the last capture in the editor | | |
+| Show the tray menu (`recipe_tray_menu`) | `OpenWindow` `TrayMenu`: the tray menu at the mouse | | |
+| Open the settings (`recipe_open_settings`) | `OpenWindow` `Settings` | | |
+| Open an empty image in the editor (`recipe_empty_editor`) | `OpenWindow` `EmptyEditor` | | |
+| Handle the capture of a notification (`recipe_notification`) | A click on a Greenshot notification hands it the capture, it shows the destination window | | |
+
+The browser extension and the AI tools add their own built-in recipes; they get their capture from the browser or the AI
+tool, so they are never in the tray menu or the click list. A `Notification` trigger makes a recipe of your own handle a
+clicked Greenshot notification instead of `recipe_notification` (the first recipe which is on and has one).
+
+**The `Main` group.** A `ContextMenu` trigger with `"Group": "Main"` puts its item in the tray menu itself instead of the
+Recipes menu. Its `Order` places it: the built-in recipes use 10 to 40 for the captures, 110 for the window list, 210
+and 220 for the clipboard and Open file and 310 for Open last capture location; the Recipes menu itself is at 200. A
+separator goes between items whose order is in another hundred, so an order of 50 adds an item to the captures and 400
+a block of its own. Two more parameters only work there:
+
+- `Icon`: the image of the item, the name of an image of Greenshot's resources (e.g. `contextmenu_capturearea.Image`).
+- `Expand`: the item gets a sub menu. `Displays` (only with more than one display) lists "all" and each display, the
+  chosen display is given to the recipe as `PreSuppliedRegion`. `Windows` lists the open windows, the chosen one is
+  given as `TargetWindow`.
+
+```json
+"triggers": [
+  { "triggerType": "ContextMenu", "parameters": { "MenuItemText": "Capture region to Jira", "Group": "Main", "Order": 15 } }
+]
+```
+
+A recipe file which replaces a built-in recipe keeps its own triggers: a file written before these entries were
+recipes has no `Main` trigger, so the entry is missing from the tray menu until you add one (or use "Reset Default" in the
+recipe manager).
+
+**Steps without a capture.** Two steps don't use an image. A recipe which only has steps like these gets no source and
+no destination added when a trigger starts it:
+
+- `ShowInExplorer` shows a file (selected in its folder) or a folder in the Windows Explorer. `Path` (supports `${...}`)
+  is the file or folder; when the file is gone its folder is shown. Without `Path` it shows the last capture, or the folder
+  of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
+- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `About`, `Help` or `EmptyEditor`.
+
+A `Source` with `SourceType` `File` and no `Filename` asks for the file when the recipe was started by hand (tray menu,
+hotkey, a click on the tray icon); started unattended it fails as before.
+
+### A click on the tray icon
+
+Settings > General > *Tray icon* chooses the recipe a click and a double-click on the Greenshot icon next to the clock
+start. A right-click always opens the tray menu. The defaults are "Show the tray menu" for a click and "Open last capture
+location" for a double-click. "Do nothing" leaves a click without action; with nothing on a double-click, a click starts
+its recipe right away instead of waiting whether a second click follows.
+
+**What is in the list.** Every recipe which can run without being given anything:
+
+- it is switched on,
+- its triggers are not only ones which hand something to the recipe: `Editor` (an image in the editor), `OpenFile` (a
+  file), `Extension` (a capture of the browser), `Notification` (the capture of a clicked Greenshot notification),
+  `Commandline` and `AiTool` (arguments). A recipe with one of these and
+  also a hotkey or a menu entry, or with no triggers at all, is in the list,
+- none of its steps needs a variable which no step before it sets (only a caller could give it).
+
+A recipe made only for a click needs no trigger at all. The list shows the text of the recipe's tray menu entry where it
+has one (translated for the built-in recipes), else its name, sorted by that. When the chosen recipe is deleted,
+switched off or no longer fits, the list shows it as "(not available)", so the setting stays visible; a deleted or
+switched-off recipe doesn't run, the log says why.
+
+In `greenshot.ini` the choice is `TrayClickRecipe` and `TrayDoubleClickRecipe` in `[Core]`, the id of the recipe (empty
+for nothing); `greenshot-fixed.ini` can fix them. They replace `LeftClickAction` and `DoubleClickAction`, which were
+only in the ini file: their value is moved once to the recipe which does the same (e.g. `OPEN_LAST_IN_EXPLORER` becomes
+`recipe_open_capture_folder`, `CAPTURE_REGION` becomes `recipe_region`).
 
 ---
 
@@ -292,11 +379,15 @@ other languages, in the file itself, so they travel with it:
   `options.{key}.choices.{value}` for the label of a choice of an `Enum` option, and `triggers.{index}.menuItemText` for
   the `MenuItemText` of a `ContextMenu` or `Editor` trigger (its place in `triggers`, counted from 0). A language needs
   only the texts it has.
+- The texts a step shows are named by their node: `nodes.{nodeId}.Title` and `nodes.{nodeId}.Message` of a
+  `UserPrompt`, `nodes.{nodeId}.Choices.{key}` for the label of one of its choices, and `nodes.{nodeId}.Title` of a
+  `DynamicDestination`. A translation may hold expressions (`${...}`) like the text of the file.
 - A language which isn't one, a text the file doesn't have, or an empty text is an error, so a typo shows right away.
 - A menu entry without its own `MenuItemText` shows the translated name.
 - The recipe editor has a *Translations* box on the Recipe tab: choose a language of Greenshot in *Add a language*,
   then type the translation under each text of the file; an empty box keeps the text of the file. Removing a trigger
-  there moves the translations of the menu texts of the triggers after it.
+  there moves the translations of the menu texts of the triggers after it. Renaming a node keeps the translations of
+  its texts; the translations of a removed node or choice are removed when the recipe is saved.
 - The translations are part of the file, so changing them changes the approved content, like any other change.
 
 ---
@@ -305,7 +396,10 @@ other languages, in the file itself, so they travel with it:
 
 The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
-itself and needs no `Ocr` step. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
+`Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
+selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
+everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
@@ -313,21 +407,26 @@ selecting; the `BarcodeScan` step uses what it found. When the capture is croppe
 lines which are (partly) in the selection stay with it, also the ones the scan finds later. OCR only runs where text is needed: the text selection, the `Ocr`
 step, the OCR destination and the editor's text obfuscation, each on the image it gets.
 
-## 3. Dynamic Expressions & Scoped Environment Variables
+## 3. Dynamic Expressions & Variables
 
-Recipe step parameters support embedded mathematical expressions, boolean conditions, string interpolation, and system environment information using `${...}` syntax exclusively.
+Recipe step parameters, `when` conditions, triggers and options use `${...}`, the same syntax and names as the file name
+and folder settings: see [variables.md](variables.md) for the full list. In short:
 
-### Scopes & Variable Sources
-Greenshot expression evaluation separates system information into distinct scopes:
+| Namespace | Example |
+|---|---|
+| `var.*` (recipe variables: trigger values, `SetVariable`, step outputs) | `${var.Window}`, `${var.Barcode.Text}` |
+| `option.*` (recipe options) | `${option.border}` |
+| `payload.*` (the capture) | `${payload.width}`, `${payload.title}`, `${payload.ocr.text}`, `${payload.hdr == 'Available'}` |
+| `time.*` | `${time.now:yyyy-MM-dd HH-mm-ss}` |
+| `user.*`, `machine.*`, `env.*` | `${user.name}`, `${machine.name}`, `${user.pictures}`, `${env.TEMP}` |
+| `config.<section>.<key>` | `${config.Core.RegionHotkey}` |
+| `recipe.*` | `${recipe.name}` |
 
-| Scope Prefix | Source | Description | Example |
-|---|---|---|---|
-| `user.*` | Windows User Environment | User-specific environment variables (from `EnvironmentVariableTarget.User`) | `${user.username}`, `${user.temp}`, `${user.appdata}` |
-| `machine.*` | Windows Machine Environment | System-wide / machine-scoped environment variables (from `EnvironmentVariableTarget.Machine`) | `${machine.computername}`, `${machine.os}`, `${machine.programfiles}` |
-| `config.*` | Greenshot INI Configuration | Live configuration settings from `greenshot.ini` | `${config.language}`, `${config.capturemousepointer}` |
-| `context.*` | Pipeline Flow Context | Variables stored in `context.Properties` or set by preceding steps | `${context.watermark_text}`, `${context.WindowTitle}` |
-| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}` |
-| `now:format` | Date / Time | Current timestamp formatted with .NET DateTime format strings | `${now:yyyy-MM-dd HH:mm:ss}` |
+`payload.hdr` is `Available` (can be saved as an HDR file), `Lost` (an edit changed the image) or `None` (no HDR content),
+e.g. to ask with a `UserPrompt` step how to save, or `NoHdrNote` of the `Notification` step to say so.
+
+A value from the capture (title, OCR text, file) or a recipe variable can never choose a folder or a command. Recipes
+of an earlier beta are not converted (see [variables.md](variables.md#recipes-of-an-earlier-14-beta)).
 
 ### Mathematical & Logical Expressions
 Parameters such as coordinates, widths, heights, and variables can be calculated dynamically inside `${...}`:
@@ -344,9 +443,9 @@ Create or transform variables in the pipeline context for downstream nodes to co
   "stepType": "SetVariable",
   "parameters": {
     "Variables": {
-      "captured_by": "Captured by ${user.username} on ${machine.computername}",
+      "captured_by": "Captured by ${user.name} on ${machine.name}",
       "watermark_box_width": "${payload.width * 0.4}",
-      "timestamp_header": "[${now:yyyy-MM-dd HH:mm:ss}]"
+      "timestamp_header": "[${time.now:'yyyy-MM-dd HH:mm:ss'}]"
     }
   }
 }
@@ -363,9 +462,9 @@ the image: which fields, and a title, description, author or copyright of the re
   "parameters": {
     "Fields": [ "CaptureTime", "Author", "Source" ],
     "Title": "${payload.title}",
-    "Description": "Ticket ${context.ticket}",
+    "Description": "Ticket ${var.ticket}",
     "Author": "Support team",
-    "Copyright": "(c) ${now:yyyy} Example Inc."
+    "Copyright": "(c) ${time.now:yyyy} Example Inc."
   }
 }
 ```
@@ -592,7 +691,7 @@ Annotations can be positioned using:
         "Height": 30,
         "OffsetX": -20,
         "OffsetY": -20,
-        "Text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
+        "Text": "User: ${user.name} | Host: ${machine.name} | ${time.now:yyyy-MM-dd}",
         "LineColor": "#FFFFFF",
         "FontSize": 9.5,
         "Bold": true
@@ -686,14 +785,18 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `"parameters": { "Hotkey": "${option.hotkey}" }`, so each user picks their own hotkey in Settings > General, in the list
   of the recipe hotkeys and changing it needs no new approval. The approval window shows the hotkey
   set at that moment.
-- **DirectoryPath**: a folder, a full local or network path; `%VARIABLES%` like `%USERPROFILE%` are replaced. Settings >
+- **DirectoryPath**: a folder, a full local or network path. It may use `${user.*}`, `${machine.*}` and `${env.*}` values, e.g.
+  `"${user.pictures}\\Greenshot"`: `${user.pictures}`, `${user.documents}` and `${user.desktop}` find these folders also
+  when they were moved (e.g. to OneDrive); an environment variable is `${env.OneDrive}`. Values of the capture, recipe
+  variables and `%VARIABLES%` can't be used, so neither a capture nor a typed text chooses a folder; the `template` format
+  is only for `String` options. Settings >
   Recipes has a button to choose it. Unlike a `String` option it can be used by a step which needs an approval, e.g.
   `"SaveDirectory": "${option.folder}"` of a `File` step: the approval window names the folder set at that moment, and the
   folder the user chooses later is their own choice, so it needs no new approval. Empty means not set; a `File` step
   with an empty `SaveDirectory` uses Greenshot's output folder.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 - **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
-  `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
+  `"Captured on ${time.now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
 
 ### Automatic Steps (recipe extensions, `"kind": "extension"`)
 An automatic step is a small flow which Greenshot puts into other recipes, the built-in ones included, without copying or
@@ -769,7 +872,7 @@ change which recipe.
 
 | Extension | Options | Steps | Order |
 |---|---|---|---|
-| Caption | on/off, text (template, default `${now:yyyy-MM-dd HH:mm:ss}`), above or below, font size, text and bar color | Effect ResizeCanvas + Text annotation | 100 |
+| Caption | on/off, text (template, default `${time.now:'yyyy-MM-dd HH:mm:ss'}`), above or below, font size, text and bar color | Effect ResizeCanvas + Text annotation | 100 |
 | Border | on/off, width 1–50 px (default 2), color (default black) | Effect Border | 200 |
 | Drop shadow | on/off, size, darkness, offset | Effect DropShadow | 300 |
 
@@ -905,7 +1008,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
       "parameters": {
         "Variables": {
           "department": "Engineering QA",
-          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+          "watermark_text": "Captured by ${user.name} on ${machine.name} [${time.now:'yyyy-MM-dd HH:mm'}]"
         }
       }
     },
@@ -935,7 +1038,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
             "Height": 30,
             "OffsetX": -20,
             "OffsetY": -20,
-            "Text": "${context.watermark_text}",
+            "Text": "${var.watermark_text}",
             "LineColor": "#FFFFFF",
             "FontSize": 9.5,
             "FontFamily": "Segoe UI",
@@ -1122,8 +1225,8 @@ The complete, current description of every step type (parameters, variables it r
 The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
 
 #### Configuration Parameters:
-- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
-- **`Arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` with trusted values only (e.g. `${user.localappdata}`, `${env.ProgramFiles}`).
+- **`Arguments`**: Arguments string passed to the process. `${export.file}` is the file (quote it yourself: `"${export.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
 - **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
 - **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
 - **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
@@ -1143,7 +1246,7 @@ Every step type has a contract: its parameters (with their allowed values), the 
 
 When a recipe is loaded, Greenshot checks it against the contracts along the flow (see `recipe-contracts-cli-query-plan.md`, section 3). The warnings appear in the log, the recipe editor and `greenshot --info <recipe>`:
 
-* `${X}` is used, but `X` is only set in some branches before this node, or only by nodes that do not run before it.
+* `${var.X}` is used, but `X` is only set in some branches before this node, or only by nodes that do not run before it.
 * A step needs an image, but on some path none was acquired.
 * A required parameter is missing, a value is not allowed, or a parameter is not read by the step (often a typo, or a parameter from an older version).
 * A node is never executed.

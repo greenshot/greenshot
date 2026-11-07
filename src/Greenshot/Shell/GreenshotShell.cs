@@ -442,6 +442,9 @@ namespace Greenshot.Shell
         }
 
         /// <inheritdoc />
+        public void ShowTrayMenu() => _trayIcon?.Menu.Show();
+
+        /// <inheritdoc />
         public void ShowAbout()
         {
             if (_aboutWindow != null && _aboutWindow.IsLoaded)

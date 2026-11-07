@@ -119,12 +119,13 @@ namespace Greenshot.Tests.Core
         }
 
         [Theory]
-        [InlineData("24,24", 16)]
-        [InlineData("40,40", 32)]
+        [InlineData("24,24", 24)]
+        [InlineData("40,40", 40)]
+        [InlineData("30,30", 28)]
         [InlineData("8,8", 16)]
         [InlineData("512,512", 256)]
         [InlineData("32,32", 32)]
-        public void IconSize_FromIniFile_IsCoercedToAMultipleOf16(string rawValue, int expected)
+        public void IconSize_FromIniFile_IsCoercedToAStepOf4(string rawValue, int expected)
         {
             var config = new CoreConfigurationImpl();
             config.ResetToDefaults();

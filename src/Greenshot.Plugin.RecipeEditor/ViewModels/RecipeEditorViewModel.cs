@@ -11,6 +11,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
@@ -764,6 +765,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand ApplyJsonCommand { get; }
         public ICommand ToggleMermaidViewCommand { get; }
         public ICommand CopyMermaidCommand { get; }
+        public ICommand ShowExpressionHelpCommand { get; }
         public ICommand CopyRecipeIdCommand { get; }
         public ICommand SetStartNodeCommand { get; }
         public ICommand ToggleStartNodeCommand { get; }
@@ -807,6 +809,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ApplyJsonCommand = new RelayCommand(ApplyJson);
             ToggleMermaidViewCommand = new RelayCommand(ToggleMermaidView);
             CopyMermaidCommand = new RelayCommand(CopyMermaidToClipboard);
+            ShowExpressionHelpCommand = new RelayCommand(ShowExpressionHelp, () => ActiveRecipe != null);
             CopyRecipeIdCommand = new RelayCommand(() =>
             {
                 if (!string.IsNullOrWhiteSpace(RecipeId))
@@ -1506,6 +1509,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (string.Equals(errorTransition.ToNodeId, oldId, StringComparison.OrdinalIgnoreCase)) errorTransition.ToNodeId = newId;
             }
 
+            ActiveRecipe?.RenameNodeTranslations(oldId, newId);
+
             SyncRecipeTransitions();
             IsDirty = true;
             StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRenamedStep, oldId, newId);
@@ -1931,6 +1936,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            // A translation of a removed node or choice would make the file invalid
+            ActiveRecipe.RemoveUnusedTranslations();
             if (_extension != null)
             {
                 return SaveActiveExtensionTo(filePath);
@@ -2116,6 +2123,19 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Opens the list of what a ${...} of the active recipe can use, built from the recipe as it is now
+        /// </summary>
+        public void ShowExpressionHelp()
+        {
+            if (ActiveRecipe == null)
+            {
+                return;
+            }
+            SyncRecipeTransitions();
+            Base.Wpf.Views.ExpressionHelpWindow.ShowFor(RecipeExpressionHelp.For(ActiveRecipe), Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault());
+        }
+
         public void CopyMermaidToClipboard()
         {
             try
@@ -2198,6 +2218,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     {
                         string browser = t.GetParameter<string>("Browser", "");
                         tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Browser Extension ({browser})";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = "🔔 Clicked notification";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
                     {
@@ -2366,7 +2390,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         new Dictionary<string, object>
                         {
                             ["Type"] = "Text",
-                            ["Text"] = "Captured: ${now:yyyy-MM-dd}",
+                            ["Text"] = "Captured: ${time.now:yyyy-MM-dd}",
                             ["HorizontalAnchor"] = "Right",
                             ["VerticalAnchor"] = "Bottom",
                             ["OffsetX"] = -15,
@@ -2381,8 +2405,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.SetVariable:
                     dict["Variables"] = new Dictionary<string, object>
                     {
-                        { "captured_by", "${user.username}" },
-                        { "timestamp", "${now:yyyy-MM-dd_HH-mm-ss}" }
+                        { "captured_by", "${user.name}" },
+                        { "timestamp", "${time.now:yyyy-MM-dd_HH-mm-ss}" }
                     };
                     break;
                 case WellKnownStepTypes.ImmediateFeedback:
@@ -2399,9 +2423,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.SaveFile:
                     dict["SaveDirectory"] = "";
-                    dict["FilenamePattern"] = "greenshot ${capturetime}";
+                    dict["FilenamePattern"] = "greenshot ${payload.time:yyyy-MM-dd HH-mm-ss}";
                     dict["Format"] = "png";
-                    dict["AllowOverwrite"] = false;
                     break;
                 case WellKnownStepTypes.Clipboard:
                     dict["ClipboardMode"] = "ImageOnly";
@@ -2412,7 +2435,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ClipboardFormatHTML"] = true;
                     dict["ClipboardFormatHTMLDataUrl"] = false;
                     dict["ClipboardFormatText"] = false;
-                    dict["ClipboardCustomText"] = "${Payload.ExtractedText}";
+                    dict["ClipboardCustomText"] = "${payload.ocr.text}";
                     break;
                 case WellKnownStepTypes.Printer:
                     dict["ShowPrintOptions"] = true;
@@ -2442,7 +2465,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     };
                     break;
                 case WellKnownStepTypes.Stdout:
-                    dict["Text"] = "${Payload.ExtractedText}";
+                    dict["Text"] = "${payload.ocr.text}";
                     break;
                 case WellKnownStepTypes.Stderr:
                     dict["Text"] = "The recipe failed.";
@@ -2451,6 +2474,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Slot:
                     dict["Name"] = RecipeSlots.BeforeExport;
+                    break;
+                case WellKnownStepTypes.OpenWindow:
+                    dict["Window"] = "Settings";
                     break;
                 case "ExternalCommand":
                     dict["CommandLine"] = "cmd.exe";

@@ -220,6 +220,7 @@ namespace Greenshot.Ai
             new { type = TriggerConfig.TypeCommandline, parameters = "Command, Description, FireAndForget, Stdout, Arguments, AllowBrowserInvocation", note = "greenshot-cli.exe run <Command>" },
             new { type = TriggerConfig.TypeOpenFile, parameters = "Filter, FireAndForget", note = "runs for files opened with Greenshot" },
             new { type = TriggerConfig.TypeExtension, parameters = "Browser, FireAndForget", note = "handles captures from the browser extension" },
+            new { type = TriggerConfig.TypeNotification, parameters = "", note = "handles the capture of a clicked Greenshot notification" },
             new { type = TriggerConfig.TypeAiTool, parameters = "ToolName, Title, Description, ReadOnly, Destructive, Arguments, MaxImageSize", note = "offers the recipe as a tool to AI tools" }
         };
 

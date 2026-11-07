@@ -40,7 +40,8 @@
         <!-- Modern TextBox Style -->
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="6,3"/>
-            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
@@ -58,6 +59,12 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <!-- A box which can't be changed (option off, or fixed by an administrator) looks like it, as in the dialogs -->
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
         
         </ResourceDictionary>
@@ -182,6 +189,42 @@
                             </StackPanel>
                         </GroupBox>
                         
+                        <!-- Tray icon: the recipes a click and a double-click on the icon start -->
+                        <GroupBox Header="{wpf:Text Settings.Trayicon}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.TrayiconClick}" Target="{Binding ElementName=TrayClickComboBox}"/>
+                                    <ComboBox x:Name="TrayClickComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding TrayClickChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="RecipeId"
+                                              SelectedValue="{Binding SelectedTrayClickRecipe, Mode=TwoWay}"
+                                              ToolTip="{wpf:Text Settings.TooltipTrayicon}"
+                                              AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayClickRecipe}"/>
+                                </Grid>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
+                                    <ComboBox x:Name="TrayDoubleClickComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding TrayDoubleClickChoices}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="RecipeId"
+                                              SelectedValue="{Binding SelectedTrayDoubleClickRecipe, Mode=TwoWay}"
+                                              ToolTip="{wpf:Text Settings.TooltipTrayicon}"
+                                              AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayDoubleClickRecipe}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
                         <!-- Network Settings -->
                         <GroupBox Header="{wpf:Text Settings.Network}">
                             <StackPanel>
@@ -213,6 +256,9 @@
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
+                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureHdr}"/>
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
@@ -457,12 +503,14 @@
             <!-- Output Tab -->
             <TabItem Header="{wpf:Text Settings.Output}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
+                    <!-- The labels of all groups share one width, so the boxes line up -->
+                    <StackPanel Grid.IsSharedSizeScope="True">
                         <GroupBox Header="{wpf:Text Settings.Preferredfilesettings}">
                             <StackPanel>
+                                <!-- One row per box, its preview in the row below: label, box and button stay on one line -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="OutputLabel"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
@@ -470,26 +518,30 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
                                     <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.Storagelocation}" Margin="0,0,12,0" Target="{Binding ElementName=StorageLocationTextBox}"/>
-                                    <TextBox x:Name="StorageLocationTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
-                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="BrowseStorageLocation_Click"
+                                    <TextBox x:Name="StorageLocationTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputDirectory}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputDirectory,OutputFilePath'}"/>
+                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Margin="8,0,6,4" Purpose="Folder" Template="{Binding Text, ElementName=StorageLocationTextBox}"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="0,2" VerticalAlignment="Center" Click="BrowseStorageLocation_Click"
                                             ToolTip="{wpf:Text Settings.StoragelocationBrowse}"
                                             AutomationProperties.Name="{wpf:Text Settings.StoragelocationBrowse}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputDirectory,OutputFilePath'}"/>
                                     
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0" Target="{Binding ElementName=FilenamePatternTextBox}"/>
-                                    <TextBox x:Name="FilenamePatternTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
-                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource SecondaryButtonStyle}" Margin="6,2,0,2" Click="ShowPatternHelp_Click"
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Filenamepattern}" Margin="0,0,12,0" Target="{Binding ElementName=FilenamePatternTextBox}"/>
+                                    <TextBox x:Name="FilenamePatternTextBox" Grid.Row="2" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileNameTemplate}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputFileNameTemplate,OutputFileFilenamePattern'}"/>
+                                    <wpf:TemplatePreview Grid.Row="3" Grid.Column="1" Margin="8,0,6,4" Purpose="FileName" Template="{Binding Text, ElementName=FilenamePatternTextBox}" Extension="{Binding CoreConfiguration.OutputFileFormat}"/>
+                                    <Button Grid.Row="2" Grid.Column="2" Content="?" Style="{StaticResource SecondaryButtonStyle}" Margin="0,2" VerticalAlignment="Center" Click="ShowPatternHelp_Click"
                                             ToolTip="{wpf:Text Settings.FilenamepatternHelp}"
                                             AutomationProperties.Name="{wpf:Text Settings.FilenamepatternHelp}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter='OutputFileNameTemplate,OutputFileFilenamePattern'}"/>
                                     
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0" Target="{Binding ElementName=ImageFormatComboBox}"/>
-                                    <ComboBox x:Name="ImageFormatComboBox" Grid.Row="2" Grid.Column="1"
+                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Text Settings.Primaryimageformat}" Margin="0,0,12,0" Target="{Binding ElementName=ImageFormatComboBox}"/>
+                                    <ComboBox x:Name="ImageFormatComboBox" Grid.Row="4" Grid.Column="1" Margin="6,3"
                                               ItemsSource="{Binding ImageFormats}"
                                               DisplayMemberPath="DisplayNameWithPreferredExtension"
                                               SelectedValuePath="Value"
@@ -507,11 +559,11 @@
                             <StackPanel>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="OutputLabel"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="85"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Jpegquality}" Target="{Binding ElementName=JpegQualitySlider}"/>
+                                    <Label Content="{wpf:Text Settings.Jpegquality}" Margin="0,0,12,0" Target="{Binding ElementName=JpegQualitySlider}"/>
                                     <wpf:ValueSlider x:Name="JpegQualitySlider" ValueFormat="{}{0}%" Grid.Column="1" 
                                             Minimum="0" Maximum="100" 
                                             TickFrequency="10" 
@@ -546,17 +598,17 @@
                                 </ItemsControl>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="OutputLabel"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Settings.ExportMetadataAuthorName}" Target="{Binding ElementName=ExportMetadataAuthorTextBox}"/>
+                                    <Label Grid.Row="0" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataAuthorName}" Target="{Binding ElementName=ExportMetadataAuthorTextBox}"/>
                                     <TextBox x:Name="ExportMetadataAuthorTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataAuthor}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ExportMetadataAuthor}"/>
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
                                     <TextBox x:Name="ExportMetadataCopyrightTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataCopyright}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ExportMetadataCopyright}"/>
                                 </Grid>
@@ -655,6 +707,19 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Editor}">
                             <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=EditorThemeComboBox}"/>
+                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1"
+                                              ItemsSource="{Binding Themes}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Theme"
+                                              SelectedValue="{Binding EditorConfiguration.EditorTheme, Mode=TwoWay}"
+                                              IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=EditorTheme}"/>
+                                </Grid>
                                 <CheckBox Content="{wpf:Text Editor.MatchCaptureSize}"
                                           IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"
                                           IsEnabled="{Binding EditorConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=MatchSizeToCapture}"/>
@@ -772,10 +837,15 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                     <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center" Target="{Binding ElementName=FooterPatternTextBox}"/>
-                                    <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterPattern, Mode=TwoWay}">
+                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
+                                    <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterTemplate, Mode=TwoWay}">
                                         <TextBox.IsEnabled>
-                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterPattern">
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterTemplate,OutputPrintFooterPattern">
                                                 <Binding Path="CoreConfiguration.OutputPrintFooter"/>
                                                 <Binding Path="CoreConfiguration"/>
                                             </MultiBinding>

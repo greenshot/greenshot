@@ -39,6 +39,7 @@ using Greenshot.Plugin.CustomUploader.Recipes;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using Greenshot.Plugin.CustomUploader.ViewModels;
 using Greenshot.Plugin.CustomUploader.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.CustomUploader;
 
@@ -130,7 +131,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
             return ExportResult.Declined;
         }
 
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(outputSettings.Format, captureDetails));
+        string filename = OutputTemplates.UploadFileName(captureDetails, outputSettings.Format);
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
         UploaderResponse response;

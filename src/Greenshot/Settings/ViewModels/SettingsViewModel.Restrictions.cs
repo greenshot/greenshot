@@ -79,6 +79,21 @@ namespace Greenshot.Settings.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// The names in the destination lists of the configuration which have no row yet, e.g. of a plugin which isn't installed.
+        /// A registered destination the user switched off already has its row, a second row would keep it switched off.
+        /// </summary>
+        internal static List<string> UnlistedDestinationNames(ICoreConfiguration configuration, IEnumerable<string> listed)
+        {
+            var listedSet = new HashSet<string>(listed, StringComparer.OrdinalIgnoreCase) { nameof(WellKnownDestinations.Picker) };
+            return ConfigurationRestrictions.Names(configuration.ExcludeDestinations)
+                .Concat(ConfigurationRestrictions.Names(configuration.BlockedDestinations))
+                .Concat(ConfigurationRestrictions.Names(configuration.AllowedDestinations))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(designation => !listedSet.Contains(designation))
+                .ToList();
+        }
+
         private DestinationViewModel AddUnregisteredDestination(string designation)
         {
             var item = new DestinationViewModel

@@ -826,6 +826,26 @@ namespace Greenshot.Base.Languages
         string ContextmenuOpenrecentcapture { get; }
 
         /// <summary>
+        /// Open an empty image in the editor
+        /// </summary>
+        string ContextmenuOpenemptyeditor { get; }
+
+        /// <summary>
+        /// Open last capture in the editor
+        /// </summary>
+        string ContextmenuOpenlastcaptureineditor { get; }
+
+        /// <summary>
+        /// Open the settings
+        /// </summary>
+        string ContextmenuOpensettings { get; }
+
+        /// <summary>
+        /// Show the tray menu
+        /// </summary>
+        string ContextmenuShowtraymenu { get; }
+
+        /// <summary>
         /// Quick preferences
         /// </summary>
         string ContextmenuQuicksettings { get; }
@@ -975,6 +995,36 @@ namespace Greenshot.Base.Languages
         /// Copy link
         /// </summary>
         string NotificationButtonCopylink { get; }
+
+        /// <summary>
+        /// No HDR file was saved: the capture has no HDR content (it wasn't on an HDR display, or the recipe doesn't capture HDR). It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedNoHdr { get; }
+
+        /// <summary>
+        /// No HDR file was saved: the capture itself was changed (e.g. cropped or an effect), the HDR file wouldn't show that. It was saved as {0}.
+        /// </summary>
+        string HdrNotSavedChanged { get; }
+
+        /// <summary>
+        /// The HDR file couldn't be written. The capture was saved as {0}.
+        /// </summary>
+        string HdrNotSavedFailed { get; }
+
+        /// <summary>
+        /// HDR content lost
+        /// </summary>
+        string HdrLostTitle { get; }
+
+        /// <summary>
+        /// The HDR content of this capture was lost by a change of the image (e.g. an effect): {0} would be an 8-bit JPEG XR without the HDR highlights. Save it anyway?
+        /// </summary>
+        string HdrLostQuestion { get; }
+
+        /// <summary>
+        /// No HDR content (not on an HDR display, or nothing brighter than SDR white or outside sRGB): saved as a normal file.
+        /// </summary>
+        string NotificationNoHdr { get; }
 
         /// <summary>
         /// Greenshot Help
@@ -1382,5 +1432,75 @@ namespace Greenshot.Base.Languages
         /// Close the viewer, or these keys when they are shown
         /// </summary>
         string ViewerKeyClose { get; }
+
+        /// <summary>
+        /// Variables and functions
+        /// </summary>
+        string ExpressionHelpTitle { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string ExpressionHelpSearch { get; }
+
+        /// <summary>
+        /// Expression
+        /// </summary>
+        string ExpressionHelpExpression { get; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        string ExpressionHelpDescription { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string ExpressionHelpCopy { get; }
+
+        /// <summary>
+        /// Copied {0}
+        /// </summary>
+        string ExpressionHelpCopied { get; }
+
+        /// <summary>
+        /// Copy failed: {0}
+        /// </summary>
+        string ExpressionHelpCopyFailed { get; }
+
+        /// <summary>
+        /// {0} found
+        /// </summary>
+        string ExpressionHelpFound { get; }
+
+        /// <summary>
+        /// How to write
+        /// </summary>
+        string ExpressionHelpGroupSyntax { get; }
+
+        /// <summary>
+        /// Enter or a double click copies the selected line.
+        /// </summary>
+        string ExpressionHelpHint { get; }
+
+        /// <summary>
+        /// Options of this recipe
+        /// </summary>
+        string ExpressionHelpGroupOptions { get; }
+
+        /// <summary>
+        /// Variables of this recipe
+        /// </summary>
+        string ExpressionHelpGroupVariables { get; }
+
+        /// <summary>
+        /// Values
+        /// </summary>
+        string ExpressionHelpGroupValues { get; }
+
+        /// <summary>
+        /// Functions
+        /// </summary>
+        string ExpressionHelpGroupFunctions { get; }
     }
 }

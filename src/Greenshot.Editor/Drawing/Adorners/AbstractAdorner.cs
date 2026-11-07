@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -34,7 +35,12 @@ namespace Greenshot.Editor.Drawing.Adorners
     {
         public virtual EditStatus EditStatus { get; protected set; } = EditStatus.IDLE;
 
-        private static readonly NativeSize DefaultSize = new(6, 6);
+        /// <summary>
+        /// The size of an adorner at 96 DPI, in screen pixels
+        /// </summary>
+        internal const int DefaultSizeAt96Dpi = 6;
+
+        private static readonly NativeSize DefaultSize = new(DefaultSizeAt96Dpi, DefaultSizeAt96Dpi);
 
         protected NativeSize Size
         {
@@ -59,13 +65,19 @@ namespace Greenshot.Editor.Drawing.Adorners
         public IDrawableContainer Owner { get; set; }
 
         /// <summary>
-        /// Test if the point is inside the adorner
+        /// Test if the point is inside the adorner, as it is drawn: in screen pixels, the same size at every zoom
         /// </summary>
-        /// <param name="point">NativePoint</param>
+        /// <param name="point">NativePoint in surface coordinates</param>
         /// <returns>bool</returns>
         public virtual bool HitTest(NativePoint point)
         {
-            NativeRect hitBounds = Bounds.Inflate(3, 3);
+            if (Owner?.Parent == null)
+            {
+                return false;
+            }
+
+            // A margin of half the adorner around it, so it is easy to grab
+            NativeRect hitBounds = BoundsOnSurface.Inflate(Size.Width / 2, Size.Height / 2);
             return hitBounds.Contains(point);
         }
 
@@ -146,6 +158,35 @@ namespace Greenshot.Editor.Drawing.Adorners
         public Color OutlineColor { get; set; } = Color.White;
         public Color FillColor { get; set; } = Color.Black;
 
+        // Every adorner is painted on each paint of the surface, they share a brush and a pen per color (a handful of colors).
+        // Only used on the UI thread, which paints all editors.
+        private static readonly Dictionary<int, SolidBrush> SharedBrushes = new Dictionary<int, SolidBrush>();
+        private static readonly Dictionary<int, Pen> SharedPens = new Dictionary<int, Pen>();
+
+        private static SolidBrush BrushFor(Color color)
+        {
+            int argb = color.ToArgb();
+            if (!SharedBrushes.TryGetValue(argb, out var brush))
+            {
+                brush = new SolidBrush(color);
+                SharedBrushes.Add(argb, brush);
+            }
+
+            return brush;
+        }
+
+        private static Pen PenFor(Color color)
+        {
+            int argb = color.ToArgb();
+            if (!SharedPens.TryGetValue(argb, out var pen))
+            {
+                pen = new Pen(color);
+                SharedPens.Add(argb, pen);
+            }
+
+            return pen;
+        }
+
         /// <summary>
         /// Draw the adorner
         /// </summary>
@@ -161,11 +202,8 @@ namespace Greenshot.Editor.Drawing.Adorners
             try
             {
                 var bounds = BoundsOnSurface;
-                using var fillBrush = new SolidBrush(FillColor);
-                targetGraphics.FillRectangle(fillBrush, bounds);
-                using var lineBrush = new SolidBrush(OutlineColor);
-                using var pen = new Pen(lineBrush);
-                targetGraphics.DrawRectangle(pen, bounds);
+                targetGraphics.FillRectangle(BrushFor(FillColor), bounds);
+                targetGraphics.DrawRectangle(PenFor(OutlineColor), bounds);
             }
             catch
             {

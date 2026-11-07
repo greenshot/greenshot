@@ -32,11 +32,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes.Pipeline;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.ExternalCommand.Destinations;
 using Greenshot.Plugin.ExternalCommand.Recipes;
 using Greenshot.Plugin.ExternalCommand.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -72,11 +74,11 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             ExternalCommandConfig.RunInbackground.Add(command, true);
         }
 
-        if (!ExternalCommandConfig.Argument.ContainsKey(command))
+        if (!ExternalCommandConfig.ArgumentTemplate.ContainsKey(command))
         {
             Log.WarnFormat("Found missing argument for {0}", command);
             // Fix it
-            ExternalCommandConfig.Argument.Add(command, "{0}");
+            ExternalCommandConfig.ArgumentTemplate.Add(command, "${export.file}");
         }
 
         if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))
@@ -84,19 +86,23 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             ExternalCommandConfig.OutputFormat.Add(command, WellKnownFileFormats.Png);
         }
 
-        if (!ExternalCommandConfig.Commandline.ContainsKey(command))
+        if (!ExternalCommandConfig.CommandlineTemplate.ContainsKey(command))
         {
             Log.WarnFormat("Found missing commandline for {0}", command);
             return false;
         }
 
-        string commandline = FilenameHelper.FillVariables(ExternalCommandConfig.Commandline[command], true);
-        commandline = FilenameHelper.FillCmdVariables(commandline, true);
+        string commandline = OutputTemplates.RenderCommand(ExternalCommandConfig.CommandlineTemplate[command], VariableScope.Empty, out string problem);
+        if (commandline == null)
+        {
+            Log.WarnFormat("The program {0} of the command {1} can't be used, the command is left out until the next start: {2}", ExternalCommandConfig.CommandlineTemplate[command], command, problem);
+            return false;
+        }
 
         // The command line is started as a process: it is a file, or a program on the PATH (also an App Execution Alias of a Windows App)
         if (!File.Exists(commandline) && PluginUtils.GetExePath(commandline) == null)
         {
-            Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", ExternalCommandConfig.Commandline[command], command);
+            Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", ExternalCommandConfig.CommandlineTemplate[command], command);
             return false;
         }
 
@@ -145,4 +151,4 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-}
+}

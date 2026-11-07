@@ -341,13 +341,13 @@ namespace Greenshot.Tests.Recipes
         public void TemplateOption_IsEvaluatedWhereItIsUsed()
         {
             var extension = CreateBorderExtension()
-                .AddOption(new RecipeOption { Key = "caption", Type = ContractDataType.String, Format = RecipeOption.FormatTemplate, DefaultValue = "Year ${now:yyyy} ${option.width}" })
-                .AddOption(new RecipeOption { Key = "plain", Type = ContractDataType.String, DefaultValue = "Year ${now:yyyy}" });
+                .AddOption(new RecipeOption { Key = "caption", Type = ContractDataType.String, Format = RecipeOption.FormatTemplate, DefaultValue = "Year ${time.now:yyyy} ${option.width}" })
+                .AddOption(new RecipeOption { Key = "plain", Type = ContractDataType.String, DefaultValue = "Year ${time.now:yyyy}" });
             var composed = RecipeComposer.Compose(CreateCaptureRecipe(), new[] { extension }, AllOn);
             using var context = new CaptureFlowContext(composed);
 
-            Assert.Equal($"Year {DateTime.Now:yyyy} ", ExpressionEvaluator.Instance.Evaluate("${option.ext_test_border.caption}", context));
-            Assert.Equal("Year ${now:yyyy}", ExpressionEvaluator.Instance.Evaluate("${option.ext_test_border.plain}", context));
+            Assert.Equal($"Year {DateTime.Now:yyyy} ", RecipeExpressions.Evaluate("${option.ext_test_border.caption}", context));
+            Assert.Equal("Year ${time.now:yyyy}", RecipeExpressions.Evaluate("${option.ext_test_border.plain}", context));
         }
 
         [Fact]
@@ -509,7 +509,7 @@ namespace Greenshot.Tests.Recipes
             Assert.True(image.Height >= 50 + 24 + 4, $"height {image.Height}");
             Assert.Contains(context.ExecutionLog, line => line.Contains("ext_caption/text_bottom"));
             Assert.DoesNotContain(context.ExecutionLog, line => line.Contains("Executing node: [ext_caption/text_top]"));
-            // The caption template is evaluated: the date, not "${now:...}"
+            // The caption template is evaluated: the date, not "${time.now:...}"
             var caption = Assert.Single(context.Payload.Surface.Elements.OfType<Greenshot.Editor.Drawing.TextContainer>());
             Assert.StartsWith(DateTime.Now.ToString("yyyy-MM-dd"), caption.Text);
         }
