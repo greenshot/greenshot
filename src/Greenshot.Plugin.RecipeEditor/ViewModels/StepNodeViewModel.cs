@@ -3374,16 +3374,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("PrinterName", value); OnPropertyChanged(nameof(PrinterName)); }
         }
 
-        public bool? ShowPrintOptions
+        public string ShowPrintOptions
         {
-            get => Config.GetParameter<bool?>("ShowPrintOptions");
-            set
-            {
-                if (value.HasValue) SetParam("ShowPrintOptions", value.Value);
-                else Config.Parameters?.Remove("ShowPrintOptions");
-                NotifyConfigUpdated();
-                OnPropertyChanged(nameof(ShowPrintOptions));
-            }
+            get => GetTriStateParam("ShowPrintOptions");
+            set { SetTriStateParam("ShowPrintOptions", value); OnPropertyChanged(nameof(ShowPrintOptions)); }
         }
 
         public bool ShowPrinterDialog
@@ -3391,7 +3385,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => Config.GetParameter<bool?>("ShowPrinterDialog") ?? false;
             set
             {
-                SetParam("ShowPrinterDialog", value);
+                if (value) SetParam("ShowPrinterDialog", true);
+                else Config.Parameters?.Remove("ShowPrinterDialog");
+                NotifyConfigUpdated();
                 OnPropertyChanged(nameof(ShowPrinterDialog));
             }
         }
