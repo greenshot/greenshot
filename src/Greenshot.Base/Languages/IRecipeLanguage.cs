@@ -992,6 +992,16 @@ namespace Greenshot.Base.Languages
         string PickerSearch { get; }
 
         /// <summary>
+        /// Show entries
+        /// </summary>
+        string PickerExpand { get; }
+
+        /// <summary>
+        /// Hide entries
+        /// </summary>
+        string PickerCollapse { get; }
+
+        /// <summary>
         /// Copy image to clipboard
         /// </summary>
         string PickerClipboardSub { get; }

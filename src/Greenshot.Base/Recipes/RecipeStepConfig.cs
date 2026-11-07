@@ -314,13 +314,14 @@ namespace Greenshot.Base.Recipes
         public static RecipeNodeConfig CreateDynamicDestination(
             string id = "dynamic_export",
             string title = "Export Capture",
-            bool showPreview = true,
+            bool? showPreview = null,
             IEnumerable<string> destinations = null,
             int timeoutSeconds = 0)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.DynamicDestination, title ?? "Export Capture");
             node.Set("Title", title ?? "Export Capture");
-            node.Set("ShowPreview", showPreview);
+            // Without a choice the setting of Greenshot decides
+            if (showPreview.HasValue) node.Set("ShowPreview", showPreview.Value);
             if (destinations != null) node.Set("Destinations", destinations.ToList());
             if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             return node;

@@ -628,6 +628,14 @@
                                       IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
                                       Margin="5" DockPanel.Dock="Top"/>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowAtMouse}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowAtMouse, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAtMouse}"
+                                      Margin="5,0,5,5" DockPanel.Dock="Top"/>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowShowPreview}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowShowPreview, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowPreview}"
+                                      Margin="5,0,5,5" DockPanel.Dock="Top"/>
                             <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
                             <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
                                 <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>

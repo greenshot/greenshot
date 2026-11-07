@@ -47,8 +47,10 @@ namespace Greenshot.Recipes.Steps
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
     [StepParameter("Title", ContractDataType.String, Translatable = true, Description = "Title of the flyout")]
     [StepParameter("Destinations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "Destinations to offer (default: all)")]
-    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture (default: the setting of Greenshot)")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
+    [StepParameter("WindowPosition", ContractDataType.Enum, DefaultValue = "Default", Description = "Where the window opens: Center is the middle of the screen, Mouse is at the mouse pointer, Default follows the setting of Greenshot",
+        AllowedValues = new[] { "Default", "Center", "Mouse" })]
     [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
@@ -66,8 +68,14 @@ namespace Greenshot.Recipes.Steps
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             string title = Config.GetParameter<string>("Title") ?? "Export Capture";
-            bool showPreview = Config.GetParameter<bool?>("ShowPreview") ?? true;
+            // Without a choice in the step the setting of Greenshot decides
+            bool? showPreview = Config.GetParameter<bool?>("ShowPreview");
             int timeoutSeconds = Config.GetParameter<int?>("TimeoutSeconds") ?? 0;
+            // Mouse or Center; without one (or Default) the setting decides
+            string windowPosition = Config.GetParameter<string>("WindowPosition");
+            bool? atMouse = string.Equals(windowPosition, "Mouse", StringComparison.OrdinalIgnoreCase) ? true
+                : string.Equals(windowPosition, "Center", StringComparison.OrdinalIgnoreCase) ? false
+                : (bool?)null;
 
             string lastError = null;
             if (context.Properties.TryGetValue("LastError", out var errObj) && errObj != null)
@@ -102,7 +110,7 @@ namespace Greenshot.Recipes.Steps
             try
             {
                 selectedDest = await context.Ui.InvokeAsync(
-                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, showPreview),
+                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, showPreview, atMouse),
                     cancellationToken).ConfigureAwait(false);
                 if (capture.IsChanged)
                 {
@@ -121,7 +129,9 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
-            if (EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase))
+            // The editor itself takes over the capture; an open editor chosen below it (a destination without entries of its own) only gets a copy
+            if (EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)
+                && selectedDest.Descriptor?.HasDynamicDestinations == true)
             {
                 context.Payload.RetainSurfaceForEditor = true;
                 context.LogStep("DynamicDestination: User selected Open in Editor.");

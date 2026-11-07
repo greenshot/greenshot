@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -31,16 +30,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Dapplo.Windows.Desktop;
+using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
-using Greenshot.Base.Wpf;
 using Dapplo.Ini;
 using Greenshot.Editor.Destinations;
 using Greenshot.Base.Threading;
@@ -54,12 +55,24 @@ namespace Greenshot.Recipes.Views
 {
 
     /// <summary>
-    /// Modern WPF-styled interactive export dialog that presents a capture preview thumbnail,
-    /// core destinations directly under the thumbnail, compact other destinations, search filtering,
-    /// dynamic translation updates, the capture at full size in a viewer, and rich error recovery.
+    /// The window in which the user chooses a destination: the capture as a small preview (optional), the editor recipes (when there
+    /// are some), a search box and the list of the destinations. The list is always in the same order; the number in front of an
+    /// entry is its place in the list as shown (the filtered list), Ctrl and the number pick it.
+    /// Typing filters the list, Enter takes the first entry, Down goes into the list.
     /// </summary>
     public partial class DynamicDestinationWindow : Window, INotifyPropertyChanged
     {
+        // The destinations which come first, in this order, then all others by their priority
+        private static readonly string[] LeadingDestinations =
+        {
+            EditorDestination.DESIGNATION,
+            nameof(WellKnownDestinations.Clipboard),
+            nameof(WellKnownDestinations.FileDialog),
+            nameof(WellKnownDestinations.FileNoDialog),
+            nameof(WellKnownDestinations.Printer),
+            "Windows10OCR",
+            "Windows10Share"
+        };
 
         private readonly DispatcherTimer _timer;
         private int _secondsRemaining;
@@ -68,6 +81,7 @@ namespace Greenshot.Recipes.Views
         private string _customTitle;
         private EditableCapture _capture;
         private CaptureFlowHandle _runningRecipe;
+        private bool _closed;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -80,10 +94,20 @@ namespace Greenshot.Recipes.Views
         public Visibility ThumbnailVisibility => PreviewImageSource != null ? Visibility.Visible : Visibility.Collapsed;
         public string DimensionsText { get; set; }
 
-        // Core Destinations (under the thumbnail) & Other Destinations (in the right panel)
-        public ObservableCollection<DestinationTileViewModel> CoreDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
-        public ObservableCollection<DestinationTileViewModel> OtherDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
-        public ObservableCollection<DestinationTileViewModel> FilteredOtherDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
+        /// <summary>
+        /// All destinations in their fixed order
+        /// </summary>
+        public ObservableCollection<DestinationTileViewModel> AllDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
+
+        /// <summary>
+        /// The destinations which match the search, in the same order; their place in this list is their number
+        /// </summary>
+        public ObservableCollection<DestinationTileViewModel> FilteredDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
+
+        /// <summary>
+        /// The rows of the list: the matching destinations, each followed by its entries (open editors, printers) when they are shown
+        /// </summary>
+        public ObservableCollection<DestinationTileViewModel> DisplayedTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
 
         /// <summary>
         /// The editor recipes which change the capture
@@ -91,8 +115,6 @@ namespace Greenshot.Recipes.Views
         public ObservableCollection<RecipeChoice> AvailableRecipes { get; } = new ObservableCollection<RecipeChoice>();
         public RecipeChoice SelectedRecipe { get; set; }
         public Visibility RecipeSectionVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-        public string OtherDestinationCountText => $"({FilteredOtherDestinationTiles.Count})";
 
         public string SearchText
         {
@@ -103,51 +125,30 @@ namespace Greenshot.Recipes.Views
                 {
                     _searchText = value;
                     OnPropertyChanged(nameof(SearchText));
+                    // A new search opens the destinations whose entries match again, also those the user closed
+                    foreach (var tile in AllDestinationTiles)
+                    {
+                        tile.AutoOpenSuppressed = false;
+                    }
+
                     UpdateFilteredDestinations();
                 }
             }
         }
 
-        public string TimeoutText => _secondsRemaining > 0 
-            ? string.Format(Texts.Recipe.PickerAutoClose, _secondsRemaining) 
+        public string TimeoutText => _secondsRemaining > 0
+            ? string.Format(Texts.Recipe.PickerAutoClose, _secondsRemaining)
             : "";
+
+        public Visibility TimeoutVisibility => _secondsRemaining > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public IDestination SelectedDestination { get; private set; }
 
         // Localized UI text strings
-        public string CoreDestinationsHeaderText => Texts.Recipe.PickerCoreDestinations;
-        public string OtherDestinationsHeaderText => Texts.Recipe.PickerDestinations;
         public string RecipeHeaderText => Texts.Recipe.PickerApplyRecipe;
         public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerApply;
-        public string DismissButtonText => Texts.Core.Cancel;
-        public string CloseButtonToolTip => Texts.Editor.Close;
         public string ClickToPreviewTooltip => Texts.Settings.DestinationViewer;
         public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
-
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
-            ? Texts.Recipe.PickerThemeLight
-            : Texts.Recipe.PickerThemeDark;
-
-        // Theme brushes bound to XAML
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
-        public SolidColorBrush ErrorBackgroundBrush => WpfThemeHelper.ErrorBackground;
-        public SolidColorBrush ErrorBorderBrush => WpfThemeHelper.ErrorBorder;
-        public SolidColorBrush ErrorTextBrush => WpfThemeHelper.ErrorText;
-
-        public SolidColorBrush HoverBackgroundBrush => WpfThemeHelper.IsDarkMode
-            ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x24, 0x0A, 0x84, 0xFF))
-            : new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x14, 0x00, 0x7A, 0xFF));
-
-        public SolidColorBrush PressedBackgroundBrush => WpfThemeHelper.IsDarkMode
-            ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x38, 0x0A, 0x84, 0xFF))
-            : new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x28, 0x00, 0x7A, 0xFF));
 
         public DynamicDestinationWindow(
             string title,
@@ -157,56 +158,39 @@ namespace Greenshot.Recipes.Views
         {
             InitializeComponent();
             DataContext = this;
+            // Not a binding: the first entry is selected at once, a binding only connects once the window is shown
+            DestinationList.ItemsSource = DisplayedTiles;
 
             _customTitle = title;
             ErrorMessage = errorMessage;
 
             if (destinations != null)
             {
-                // Ensure Editor destination is present among destinations for the core list
+                // Only the destinations which were given: a step with a list of destinations shows no editor which isn't in it
                 var destList = destinations.Where(d => d != null && !DestinationHelper.IsChooser(d.Designation)).ToList();
-                if (!destList.Any(d => string.Equals(d.Designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase)))
-                {
-                    var editorDest = DestinationHelper.GetDestination(EditorDestination.DESIGNATION);
-                    if (editorDest != null)
-                    {
-                        destList.Insert(0, editorDest);
-                    }
-                }
 
-                foreach (var dest in destList)
+                // The same order every time, whatever the language or the order the destinations came in: the numbers rely on it
+                foreach (var dest in destList.OrderBy(SortRank)
+                             .ThenBy(d => d.Descriptor?.Priority ?? 10)
+                             .ThenBy(d => d.Designation, StringComparer.OrdinalIgnoreCase))
                 {
                     string badge = null;
-                    if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, "Clipboard", StringComparison.OrdinalIgnoreCase))
+                    if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, nameof(WellKnownDestinations.Clipboard), StringComparison.OrdinalIgnoreCase))
                     {
                         badge = Texts.Recipe.PickerRetry;
                     }
 
-                    var (destTitle, destSubtitle) = FormatDestinationNames(dest);
-
                     var tile = new DestinationTileViewModel
                     {
                         Destination = dest,
-                        Title = destTitle,
-                        Subtitle = destSubtitle,
+                        Title = FormatDestinationTitle(dest),
                         BadgeText = badge
                     };
                     // The icon arrives asynchronously (started on the UI thread, set there)
                     tile.LoadIconAsync().FireAndLog("Load a destination icon");
-
-                    if (IsCoreDestination(dest))
-                    {
-                        CoreDestinationTiles.Add(tile);
-                    }
-                    else
-                    {
-                        OtherDestinationTiles.Add(tile);
-                    }
+                    AllDestinationTiles.Add(tile);
                 }
             }
-
-            // Order core destinations in logical Greenshot order: Editor, Clipboard, Save As, Save, Print, OCR, Share
-            SortCoreDestinations();
 
             UpdateFilteredDestinations();
 
@@ -227,12 +211,20 @@ namespace Greenshot.Recipes.Views
                 _timer.Start();
             }
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
 
-            SourceInitialized += (s, e) => ApplyImmersiveDarkMode();
+            // The search box has the focus from the start: typing filters at once
+            Loaded += (s, e) => SearchBox.Focus();
+            SourceInitialized += (s, e) =>
+            {
+                if (PlaceAtMouse)
+                {
+                    MoveToMouse();
+                }
+            };
             Closed += (s, e) =>
             {
+                _closed = true;
                 _timer?.Stop();
                 // A recipe which still runs changes nothing anymore
                 _runningRecipe?.Cancel();
@@ -241,16 +233,22 @@ namespace Greenshot.Recipes.Views
                 {
                     _capture.Changed -= OnCaptureChanged;
                 }
-                WpfThemeHelper.ThemeChanged -= OnThemeChanged;
                 Texts.Config.LanguageChanged -= OnLanguageChanged;
             };
+            DataObject.AddPastingHandler(SearchBox, SearchBox_Pasting);
+            PreviewKeyDown += OnWindowPreviewKeyDown;
+            PreviewKeyUp += (s, e) => UpdateShortcutHint();
+            // Ctrl released while another window had the focus
+            Activated += (s, e) => UpdateShortcutHint();
+            Deactivated += (s, e) => UpdateShortcutHint();
+            PreviewMouseDown += (s, e) => StopTimeout();
             KeyDown += OnWindowKeyDown;
         }
 
         /// <summary>
         /// Shows the image as preview, with its size
         /// </summary>
-        private void SetPreview(Image previewImage)
+        private void SetPreview(System.Drawing.Image previewImage)
         {
             if (previewImage == null)
             {
@@ -287,6 +285,8 @@ namespace Greenshot.Recipes.Views
         private void UseCapture(EditableCapture capture, bool showPreview)
         {
             _capture = capture;
+            // The open editors, the printers: loaded in the background, the entries show when they are there
+            StartLoadingSubEntries(capture.Surface?.CaptureDetails);
             if (showPreview)
             {
                 _capture.Changed += OnCaptureChanged;
@@ -325,8 +325,10 @@ namespace Greenshot.Recipes.Views
                 return;
             }
 
+            // Not IsEnabled=false: disabled controls are drawn in system colors, the window flashes light. The overlay dims the window
+            // and takes the mouse, the keys are caught in OnWindowPreviewKeyDown.
             _runningRecipe = handle;
-            IsEnabled = false;
+            BusyOverlay.Visibility = Visibility.Visible;
             try
             {
                 var result = await handle.Completion.ConfigureAwait(true);
@@ -340,51 +342,22 @@ namespace Greenshot.Recipes.Views
             finally
             {
                 _runningRecipe = null;
-                IsEnabled = true;
-                RunRecipeButton.Focus();
+                BusyOverlay.Visibility = Visibility.Collapsed;
+                // The capture is ready, the next thing is to choose where it goes
+                SearchBox.Focus();
             }
         }
 
-        private static bool IsCoreDestination(IDestination dest)
+        /// <summary>
+        /// The place of a destination among those which come first, the others share one place after them
+        /// </summary>
+        private static int SortRank(IDestination destination)
         {
-            if (dest == null) return false;
-            string des = dest.Designation ?? "";
-            string name = dest.Descriptor?.DisplayName ?? des;
-
-            return string.Equals(des, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(des, nameof(WellKnownDestinations.Clipboard), StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(des, nameof(WellKnownDestinations.FileDialog), StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(des, nameof(WellKnownDestinations.FileNoDialog), StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(des, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase) ||
-                   des.IndexOf("ocr", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   name.IndexOf("ocr", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   des.IndexOf("share", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   name.IndexOf("share", StringComparison.OrdinalIgnoreCase) >= 0;
+            int index = Array.FindIndex(LeadingDestinations, designation => string.Equals(designation, destination.Designation, StringComparison.OrdinalIgnoreCase));
+            return index >= 0 ? index : LeadingDestinations.Length;
         }
 
-        private void SortCoreDestinations()
-        {
-            var ordered = CoreDestinationTiles.OrderBy(t =>
-            {
-                string des = t.Destination?.Designation ?? "";
-                if (string.Equals(des, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase)) return 1;
-                if (string.Equals(des, nameof(WellKnownDestinations.Clipboard), StringComparison.OrdinalIgnoreCase)) return 2;
-                if (string.Equals(des, nameof(WellKnownDestinations.FileDialog), StringComparison.OrdinalIgnoreCase)) return 3;
-                if (string.Equals(des, nameof(WellKnownDestinations.FileNoDialog), StringComparison.OrdinalIgnoreCase)) return 4;
-                if (string.Equals(des, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase)) return 5;
-                if (des.IndexOf("ocr", StringComparison.OrdinalIgnoreCase) >= 0) return 6;
-                if (des.IndexOf("share", StringComparison.OrdinalIgnoreCase) >= 0) return 7;
-                return 10;
-            }).ToList();
-
-            CoreDestinationTiles.Clear();
-            foreach (var item in ordered)
-            {
-                CoreDestinationTiles.Add(item);
-            }
-        }
-
-        private static (string title, string subtitle) FormatDestinationNames(IDestination dest)
+        private static string FormatDestinationTitle(IDestination dest)
         {
             string des = dest.Designation ?? "";
             string rawDesc = dest.Descriptor?.DisplayName ?? des;
@@ -392,150 +365,350 @@ namespace Greenshot.Recipes.Views
             switch (des.ToLowerInvariant())
             {
                 case "clipboard":
-                    return (Texts.Settings.DestinationClipboard, Texts.Recipe.PickerClipboardSub);
+                    return Texts.Settings.DestinationClipboard;
                 case "editor":
-                    return (Texts.Editor.Title, Texts.Recipe.PickerEditorSub);
+                    return Texts.Editor.Title;
                 case "fileno_dialog":
                 case "filenodialog":
                 case "file":
-                    return (Texts.Recipe.PickerFile, Texts.Recipe.PickerFileSub);
+                    return Texts.Recipe.PickerFile;
                 case "filedialog":
                 case "fileas":
-                    return (Texts.Recipe.PickerFileas, Texts.Recipe.PickerFileasSub);
+                    return Texts.Recipe.PickerFileas;
                 case "printer":
-                    return (Texts.Settings.DestinationPrinter, Texts.Recipe.PickerPrinterSub);
+                    return Texts.Settings.DestinationPrinter;
                 case "windows10ocr":
                 case "ocr":
-                    return (Texts.Recipe.PickerOcr, Texts.Recipe.PickerOcrSub);
+                    return Texts.Recipe.PickerOcr;
                 case "windows10share":
                 case "share":
-                    return (Texts.Recipe.PickerShare, Texts.Recipe.PickerShareSub);
+                    return Texts.Recipe.PickerShare;
                 case "mail":
                 case "outlook":
-                    return (Texts.Editor.Email, Texts.Recipe.PickerEmailSub);
+                    return Texts.Editor.Email;
                 case "word":
-                    return ("Microsoft Word", Texts.Recipe.PickerWordSub);
+                    return "Microsoft Word";
                 case "excel":
-                    return ("Microsoft Excel", Texts.Recipe.PickerExcelSub);
+                    return "Microsoft Excel";
                 case "powerpoint":
-                    return ("PowerPoint", Texts.Recipe.PickerPowerpointSub);
+                    return "PowerPoint";
                 case "onenote":
-                    return ("OneNote", Texts.Recipe.PickerOnenoteSub);
+                    return "OneNote";
                 case "zxing":
                 case "zxingqrdestination":
-                    return (Texts.Recipe.PickerQr, Texts.Recipe.PickerQrSub);
+                    return Texts.Recipe.PickerQr;
                 case "paint":
-                    return ("MS Paint", Texts.Recipe.PickerPaintSub);
+                    return "MS Paint";
                 case "dropbox":
-                    return ("Dropbox", Texts.Recipe.PickerUploadSub);
+                    return "Dropbox";
                 case "box":
-                    return ("Box", Texts.Recipe.PickerUploadSub);
+                    return "Box";
                 case "jira":
-                    return ("Jira", Texts.Recipe.PickerJiraSub);
+                    return "Jira";
                 case "confluence":
-                    return ("Confluence", Texts.Recipe.PickerConfluenceSub);
+                    return "Confluence";
             }
 
             if (rawDesc.StartsWith("Upload to ", StringComparison.OrdinalIgnoreCase))
             {
-                return (rawDesc.Substring(10), Texts.Recipe.PickerCloudSub);
+                return rawDesc.Substring(10);
             }
 
             int parenIdx = rawDesc.IndexOf('(');
             if (parenIdx > 0 && rawDesc.EndsWith(")"))
             {
-                string t = rawDesc.Substring(0, parenIdx).Trim();
-                string s = rawDesc.Substring(parenIdx + 1, rawDesc.Length - parenIdx - 2).Trim();
-                return (t, s);
+                return rawDesc.Substring(0, parenIdx).Trim();
             }
 
-            return (rawDesc, Texts.Recipe.PickerExportSub);
+            return rawDesc;
         }
 
+        /// <summary>
+        /// Shows the destinations which match the search; the first row is the one Enter takes, it shows
+        /// </summary>
         private void UpdateFilteredDestinations()
         {
-            FilteredOtherDestinationTiles.Clear();
+            RefreshRows();
+            DestinationList.SelectedIndex = DisplayedTiles.Count > 0 ? 0 : -1;
+        }
+
+        /// <summary>
+        /// A destination matches the search with its name or designation
+        /// </summary>
+        private static bool MatchesSearch(DestinationTileViewModel tile, string filter) =>
+            string.IsNullOrEmpty(filter) ||
+            tile.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 ||
+            (tile.Destination?.Designation != null && tile.Destination.Designation.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+
+        /// <summary>
+        /// An entry below a destination matches with its name (its designation is that of the destination)
+        /// </summary>
+        private static bool EntryMatchesSearch(DestinationTileViewModel entry, string filter) =>
+            string.IsNullOrEmpty(filter) || entry.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
+
+        /// <summary>
+        /// Brings the list in line with the search and the entries which are shown, and numbers the rows. A destination stays in the list
+        /// when one of its entries matches, even when it doesn't match itself, and it opens to show the entries which match.
+        /// </summary>
+        private void RefreshRows()
+        {
             string filter = _searchText?.Trim() ?? "";
 
-            foreach (var tile in OtherDestinationTiles)
+            FilteredDestinationTiles.Clear();
+            foreach (var tile in AllDestinationTiles)
             {
-                if (string.IsNullOrEmpty(filter) ||
-                    tile.Title.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    (tile.Subtitle != null && tile.Subtitle.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0) ||
-                    (tile.Destination?.Designation != null && tile.Destination.Designation.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0))
+                if (MatchesSearch(tile, filter) || tile.SubEntries.Any(entry => EntryMatchesSearch(entry, filter)))
                 {
-                    FilteredOtherDestinationTiles.Add(tile);
+                    FilteredDestinationTiles.Add(tile);
                 }
             }
 
-            OnPropertyChanged(nameof(OtherDestinationCountText));
+            SyncDisplayedTiles(filter);
+            NumberRows();
         }
+
+        /// <summary>
+        /// Brings the rows of the list in line with the matching destinations and the entries which are shown, changing as little as
+        /// possible: a row which stays keeps its place (and the keyboard focus). A destination shows its entries when the user opened it, or
+        /// when the search found its text in one of them (unless the user closed it again): all its entries when the user opened it and
+        /// it matches the search itself, else those which match.
+        /// </summary>
+        private void SyncDisplayedTiles(string filter)
+        {
+            var wanted = new List<DestinationTileViewModel>();
+            foreach (var tile in AllDestinationTiles)
+            {
+                if (!FilteredDestinationTiles.Contains(tile))
+                {
+                    tile.IsShowingEntries = false;
+                    continue;
+                }
+
+                wanted.Add(tile);
+                bool entriesMatch = !string.IsNullOrEmpty(filter) && tile.SubEntries.Any(entry => EntryMatchesSearch(entry, filter));
+                bool open = tile.HasSubEntries && (tile.IsExpanded || (entriesMatch && !tile.AutoOpenSuppressed));
+                tile.IsShowingEntries = open;
+                if (open)
+                {
+                    bool showAll = tile.IsExpanded && MatchesSearch(tile, filter);
+                    wanted.AddRange(tile.SubEntries.Where(entry => showAll || EntryMatchesSearch(entry, filter)));
+                }
+            }
+
+            for (int i = 0; i < wanted.Count; i++)
+            {
+                if (i < DisplayedTiles.Count && ReferenceEquals(DisplayedTiles[i], wanted[i]))
+                {
+                    continue;
+                }
+
+                int existing = DisplayedTiles.IndexOf(wanted[i]);
+                if (existing > i)
+                {
+                    DisplayedTiles.Move(existing, i);
+                }
+                else
+                {
+                    DisplayedTiles.Insert(i, wanted[i]);
+                }
+            }
+
+            while (DisplayedTiles.Count > wanted.Count)
+            {
+                DisplayedTiles.RemoveAt(DisplayedTiles.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// The number of a row is its place in the list as shown, the entries below a destination count too; it changes with every
+        /// filter and when entries are shown or hidden
+        /// </summary>
+        private void NumberRows()
+        {
+            foreach (var tile in AllDestinationTiles.SelectMany(tile => new[] { tile }.Concat(tile.SubEntries)))
+            {
+                int index = DisplayedTiles.IndexOf(tile);
+                tile.Position = index >= 0 ? index + 1 : 0;
+            }
+        }
+
+
+        #region Entries below a destination (open editors, printers)
+
+        private void StartLoadingSubEntries(ICaptureDetails captureDetails)
+        {
+            foreach (var tile in AllDestinationTiles.Where(tile => tile.Destination?.Descriptor?.HasDynamicDestinations == true).ToList())
+            {
+                LoadSubEntriesAsync(tile, captureDetails).FireAndLog("Load the entries of a destination");
+            }
+        }
+
+        private async Task LoadSubEntriesAsync(DestinationTileViewModel tile, ICaptureDetails captureDetails)
+        {
+            // The same entries the destination picker (the menu) had, loaded in the background
+            var subDestinations = await DestinationHelper.LoadDynamicDestinationsAsync(tile.Destination, captureDetails).ConfigureAwait(false);
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (!_closed)
+                {
+                    ApplySubEntries(tile, subDestinations);
+                }
+            }).Task.ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Adds the entries below the destination. Without any the destination stays as it is. A destination which can only be used with
+        /// one of its entries and has just one becomes that entry.
+        /// </summary>
+        internal void ApplySubEntries(DestinationTileViewModel tile, IReadOnlyList<IDestination> subDestinations)
+        {
+            var valid = (subDestinations ?? Array.Empty<IDestination>()).Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance).ToList();
+            if (valid.Count == 0)
+            {
+                return;
+            }
+
+            if (tile.Destination.Descriptor.UseDynamicsOnly && valid.Count == 1)
+            {
+                tile.Destination = valid[0];
+                tile.Title = valid[0].Descriptor.DisplayName;
+                tile.LoadIconAsync().FireAndLog("Load a destination icon");
+                return;
+            }
+
+            foreach (var subDestination in valid)
+            {
+                var subTile = new DestinationTileViewModel
+                {
+                    Destination = subDestination,
+                    Title = subDestination.Descriptor.DisplayName,
+                    Parent = tile
+                };
+                subTile.LoadIconAsync().FireAndLog("Load a destination icon");
+                tile.SubEntries.Add(subTile);
+            }
+
+            tile.NotifySubEntriesChanged();
+            // The entries arrive while Ctrl may be held already
+            UpdateShortcutHint();
+            // A row arrives below, the selection stays where it is
+            RefreshRows();
+        }
+
+        /// <summary>
+        /// The user shows or hides the entries of a destination. Hiding also keeps a search from opening them again, until the search
+        /// text changes.
+        /// </summary>
+        private static void SetShowing(DestinationTileViewModel tile, bool show)
+        {
+            tile.IsExpanded = show;
+            tile.AutoOpenSuppressed = !show;
+        }
+
+        /// <summary>
+        /// Shows or hides the entries below the destination (without a value: the other of the two)
+        /// </summary>
+        internal void ToggleExpanded(DestinationTileViewModel tile, bool? expand = null)
+        {
+            if (tile.Parent != null || !tile.HasSubEntries)
+            {
+                return;
+            }
+
+            var selected = DestinationList.SelectedItem as DestinationTileViewModel;
+            SetShowing(tile, expand ?? !tile.IsShowingEntries);
+            RefreshRows();
+            // The selection stays on its row, when that row went away (an entry below) it is the destination
+            DestinationList.SelectedItem = selected != null && DisplayedTiles.Contains(selected) ? selected : tile;
+        }
+
+        /// <summary>
+        /// Shows or hides the entries below all destinations (Right and Left)
+        /// </summary>
+        /// <returns>True when something changed</returns>
+        internal bool ExpandAll(bool expand)
+        {
+            var changing = AllDestinationTiles.Where(tile => tile.HasSubEntries && tile.IsShowingEntries != expand).ToList();
+            if (changing.Count == 0)
+            {
+                return false;
+            }
+
+            var selected = DestinationList.SelectedItem as DestinationTileViewModel;
+            foreach (var tile in changing)
+            {
+                SetShowing(tile, expand);
+            }
+
+            RefreshRows();
+            // The selection stays on its row, when that row went away (an entry below) it is its destination
+            var stays = selected != null && DisplayedTiles.Contains(selected) ? selected : selected?.Parent;
+            DestinationList.SelectedItem = stays;
+            if (stays != null && DestinationList.IsKeyboardFocusWithin)
+            {
+                SelectAndFocus(DisplayedTiles.IndexOf(stays));
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// A choice of the user: the destination is taken, except one which can't be used itself (only its entries): that one opens
+        /// </summary>
+        private void Activate(DestinationTileViewModel tile)
+        {
+            if (tile.Parent == null && !tile.CanChooseItself)
+            {
+                ToggleExpanded(tile);
+                if (tile.IsShowingEntries)
+                {
+                    // The next thing is to choose one of the entries
+                    SelectAndFocus(DisplayedTiles.IndexOf(tile));
+                }
+
+                return;
+            }
+
+            Choose(tile);
+        }
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement { DataContext: DestinationTileViewModel tile })
+            {
+                ToggleExpanded(tile);
+                DestinationList.SelectedItem = tile;
+                e.Handled = true;
+            }
+        }
+
+        #endregion
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(HeaderTitle));
             OnPropertyChanged(nameof(WindowTitle));
-            OnPropertyChanged(nameof(CoreDestinationsHeaderText));
-            OnPropertyChanged(nameof(OtherDestinationsHeaderText));
             OnPropertyChanged(nameof(RecipeHeaderText));
             OnPropertyChanged(nameof(RunRecipeButtonText));
-            OnPropertyChanged(nameof(DismissButtonText));
-            OnPropertyChanged(nameof(CloseButtonToolTip));
             OnPropertyChanged(nameof(ClickToPreviewTooltip));
             OnPropertyChanged(nameof(ErrorSubtitleText));
-            OnPropertyChanged(nameof(ThemeToggleToolTip));
             OnPropertyChanged(nameof(TimeoutText));
         }
 
-        private void OnThemeChanged()
+        /// <summary>
+        /// Whoever uses the window needs the time: the countdown ends at the first key or click
+        /// </summary>
+        private void StopTimeout()
         {
-            ApplyImmersiveDarkMode();
-            NotifyAllPropertiesChanged();
-            foreach (var tile in CoreDestinationTiles)
+            if (_timer == null || !_timer.IsEnabled)
             {
-                tile.NotifyThemeChanged();
+                return;
             }
-            foreach (var tile in OtherDestinationTiles)
-            {
-                tile.NotifyThemeChanged();
-            }
-        }
 
-        private void NotifyAllPropertiesChanged()
-        {
-            OnPropertyChanged(nameof(WindowBackgroundBrush));
-            OnPropertyChanged(nameof(CardBackgroundBrush));
-            OnPropertyChanged(nameof(CardBorderBrush));
-            OnPropertyChanged(nameof(TextPrimaryBrush));
-            OnPropertyChanged(nameof(TextSecondaryBrush));
-            OnPropertyChanged(nameof(AccentBrush));
-            OnPropertyChanged(nameof(BadgeBackgroundBrush));
-            OnPropertyChanged(nameof(ErrorBackgroundBrush));
-            OnPropertyChanged(nameof(ErrorBorderBrush));
-            OnPropertyChanged(nameof(ErrorTextBrush));
-            OnPropertyChanged(nameof(HoverBackgroundBrush));
-            OnPropertyChanged(nameof(PressedBackgroundBrush));
-            OnPropertyChanged(nameof(ThemeToggleIcon));
-            OnPropertyChanged(nameof(ThemeToggleToolTip));
-        }
-
-        private void ApplyImmersiveDarkMode()
-        {
-            // The title bar in the colors of the theme, it follows theme changes from now on
-            WindowFrameTheme.Attach(this);
-        }
-
-        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                DragMove();
-            }
-        }
-
-        private void OnThemeToggleClicked(object sender, RoutedEventArgs e)
-        {
-            WpfThemeHelper.ToggleTheme();
+            _timer.Stop();
+            _secondsRemaining = 0;
+            OnPropertyChanged(nameof(TimeoutText));
+            OnPropertyChanged(nameof(TimeoutVisibility));
         }
 
         #region Preview in the viewer
@@ -600,21 +773,292 @@ namespace Greenshot.Recipes.Views
 
         #endregion
 
+        #region Keyboard and mouse
+
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
+        {
+            // Not handled before: an open list of the recipes closes with Esc, the window only when nothing else used it
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+                Close();
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// A number, alone or with Ctrl, picks the entry at that place of the list, wherever the focus is. The search takes no numbers.
+        /// </summary>
+        private void OnWindowPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            StopTimeout();
+            UpdateShortcutHint();
+
+            // A recipe is running: only Esc works, it closes the window and stops the recipe
+            if (_runningRecipe != null)
+            {
+                e.Handled = e.Key != Key.Escape;
+                return;
+            }
+
+            // Not with Shift or Alt (AltGr), they type characters like { or !
+            var modifiers = Keyboard.Modifiers;
+            if (modifiers != ModifierKeys.None && modifiers != ModifierKeys.Control)
+            {
+                return;
+            }
+
+            int index = IndexOfDigit(e.Key);
+            if (index < 0)
+            {
+                return;
+            }
+
+            e.Handled = true;
+            // The place in the list as shown, the entries below a destination count
+            if (index < DisplayedTiles.Count)
+            {
+                Activate(DisplayedTiles[index]);
+            }
+        }
+
+        /// <summary>
+        /// The place in the list a digit stands for: 1 is the first entry, 0 the tenth; -1 for any other key
+        /// </summary>
+        internal static int IndexOfDigit(Key key)
+        {
+            int digit;
+            if (key >= Key.D0 && key <= Key.D9)
+            {
+                digit = key - Key.D0;
+            }
+            else if (key >= Key.NumPad0 && key <= Key.NumPad9)
+            {
+                digit = key - Key.NumPad0;
+            }
+            else
+            {
+                return -1;
+            }
+
+            return digit == 0 ? DestinationTileViewModel.MaxNumbered - 1 : digit - 1;
+        }
+
+        /// <summary>
+        /// While Ctrl is held the numbers of the entries are underlined: they are the keys
+        /// </summary>
+        private void UpdateShortcutHint()
+        {
+            bool ctrl = IsActive && (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+            foreach (var tile in AllDestinationTiles.SelectMany(tile => new[] { tile }.Concat(tile.SubEntries)))
+            {
+                tile.ShortcutHintVisible = ctrl;
+            }
+        }
+
+        /// <summary>
+        /// Numbers pick an entry, so they don't go into the search (they are caught as keys already, this is for text which doesn't
+        /// come from a key, like an input method or a touch keyboard)
+        /// </summary>
+        private void SearchBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text.Any(char.IsDigit))
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Pasting takes the text without its numbers
+        /// </summary>
+        private static void SearchBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(DataFormats.UnicodeText) && e.DataObject.GetData(DataFormats.UnicodeText) is string text && text.Any(char.IsDigit))
+            {
+                var withoutNumbers = new DataObject();
+                withoutNumbers.SetData(DataFormats.UnicodeText, new string(text.Where(c => !char.IsDigit(c)).ToArray()));
+                e.DataObject = withoutNumbers;
+                e.FormatToApply = DataFormats.UnicodeText;
+            }
+        }
+
+        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
-                case Key.Escape:
-                    DialogResult = false;
-                    Close();
+                case Key.Enter when Keyboard.Modifiers == ModifierKeys.None:
+                    // The first row of the list as shown
+                    if (DisplayedTiles.Count > 0)
+                    {
+                        Activate(DisplayedTiles[0]);
+                    }
                     e.Handled = true;
                     break;
-                case Key.T when Keyboard.Modifiers == ModifierKeys.None:
-                    WpfThemeHelper.ToggleTheme();
+                // Right and Left show and hide the entries of all destinations, but only where the caret has nothing to move over:
+                // at the end of the search text for Right, at the start for Left
+                case Key.Right when Keyboard.Modifiers == ModifierKeys.None && SearchBox.SelectionLength == 0 && SearchBox.CaretIndex == SearchBox.Text.Length:
+                    e.Handled = ExpandAll(true);
+                    break;
+                case Key.Left when Keyboard.Modifiers == ModifierKeys.None && SearchBox.SelectionLength == 0 && SearchBox.CaretIndex == 0:
+                    e.Handled = ExpandAll(false);
+                    break;
+                case Key.Down when Keyboard.Modifiers == ModifierKeys.None:
+                    FocusList();
+                    e.Handled = true;
+                    break;
+                case Key.PageDown when Keyboard.Modifiers == ModifierKeys.None:
+                    MovePage(1);
+                    e.Handled = true;
+                    break;
+                // Nothing above the first entry: Page Up stays in the search box
+                case Key.PageUp when Keyboard.Modifiers == ModifierKeys.None && DestinationList.SelectedIndex > 0:
+                    MovePage(-1);
                     e.Handled = true;
                     break;
             }
         }
+
+        /// <summary>
+        /// Enter on the recipes runs the recipe (in the open list of the recipes it takes the entry, as always)
+        /// </summary>
+        private void RecipeBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None && !RecipeBox.IsDropDownOpen)
+            {
+                RunRecipe_Click(sender, e);
+                e.Handled = true;
+            }
+        }
+
+        private void DestinationList_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.PageDown when Keyboard.Modifiers == ModifierKeys.None:
+                    MovePage(1);
+                    e.Handled = true;
+                    break;
+                case Key.PageUp when Keyboard.Modifiers == ModifierKeys.None:
+                    MovePage(-1);
+                    e.Handled = true;
+                    break;
+                case Key.Back when Keyboard.Modifiers == ModifierKeys.None:
+                    // Deleting goes to the search box, like typing does: the last character of the search is removed
+                    FocusSearchBox();
+                    if (SearchBox.Text.Length > 0)
+                    {
+                        SearchBox.Text = SearchBox.Text.Substring(0, SearchBox.Text.Length - 1);
+                        SearchBox.CaretIndex = SearchBox.Text.Length;
+                    }
+                    e.Handled = true;
+                    break;
+                case Key.Enter when Keyboard.Modifiers == ModifierKeys.None:
+                    if (DestinationList.SelectedItem is DestinationTileViewModel selected)
+                    {
+                        Activate(selected);
+                    }
+                    e.Handled = true;
+                    break;
+                case Key.Up when Keyboard.Modifiers == ModifierKeys.None && DestinationList.SelectedIndex <= 0:
+                    // Above the first entry is the search box
+                    FocusSearchBox();
+                    e.Handled = true;
+                    break;
+                case Key.Right when Keyboard.Modifiers == ModifierKeys.None:
+                    // Shows the entries below all destinations (the open editors, the printers), wherever the selection is
+                    e.Handled = ExpandAll(true);
+                    break;
+                case Key.Left when Keyboard.Modifiers == ModifierKeys.None:
+                    // Hides them again; the selection on one of them goes to its destination
+                    e.Handled = ExpandAll(false);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Typing in the list goes to the search box
+        /// </summary>
+        private void DestinationList_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Text) || char.IsControl(e.Text[0]))
+            {
+                return;
+            }
+
+            FocusSearchBox();
+            SearchBox.SelectedText = e.Text;
+            SearchBox.CaretIndex = SearchBox.SelectionStart + SearchBox.SelectionLength;
+            SearchBox.SelectionLength = 0;
+            e.Handled = true;
+        }
+
+        private void DestinationItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement { DataContext: DestinationTileViewModel tile })
+            {
+                Activate(tile);
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Moves the focus from the search box into the list, to the selected entry (the first one)
+        /// </summary>
+        private void FocusList()
+        {
+            if (DisplayedTiles.Count == 0)
+            {
+                return;
+            }
+
+            SelectAndFocus(Math.Max(DestinationList.SelectedIndex, 0));
+        }
+
+        /// <summary>
+        /// Selects the entry, scrolls it into view and gives it the focus
+        /// </summary>
+        private void SelectAndFocus(int index)
+        {
+            DestinationList.SelectedIndex = index;
+            DestinationList.ScrollIntoView(DestinationList.SelectedItem);
+            DestinationList.UpdateLayout();
+            if (DestinationList.ItemContainerGenerator.ContainerFromIndex(index) is FrameworkElement item)
+            {
+                item.Focus();
+            }
+        }
+
+        /// <summary>
+        /// Page Up and Page Down: a page of the list further, the focus goes into the list
+        /// </summary>
+        /// <param name="direction">1 for down, -1 for up</param>
+        private void MovePage(int direction)
+        {
+            int count = DisplayedTiles.Count;
+            if (count == 0)
+            {
+                return;
+            }
+
+            // The entries which are in view, one less so the last one stays in view as the first of the next page
+            int visible = 10;
+            if (DestinationList.ItemContainerGenerator.ContainerFromIndex(0) is FrameworkElement first && first.ActualHeight > 0)
+            {
+                visible = (int)(DestinationList.ActualHeight / first.ActualHeight);
+            }
+
+            int page = Math.Max(1, visible - 1);
+            int index = Math.Max(DestinationList.SelectedIndex, 0) + direction * page;
+            SelectAndFocus(Math.Min(Math.Max(index, 0), count - 1));
+        }
+
+        private void FocusSearchBox()
+        {
+            SearchBox.Focus();
+            SearchBox.CaretIndex = SearchBox.Text.Length;
+        }
+
+        #endregion
 
         /// <summary>
         /// Shows the window modally with the capture: the editor recipes can change it, like in the editor, before a destination is
@@ -627,18 +1071,25 @@ namespace Greenshot.Recipes.Views
         /// <param name="cancellationToken">Closes the window</param>
         /// <param name="title">The title, null for the default</param>
         /// <param name="timeoutSeconds">Closes the window after this many seconds, 0 for never</param>
-        /// <param name="showPreview">Show the capture</param>
+        /// <param name="showPreview">True: show the capture, false: don't, null: as set in the settings</param>
+        /// <param name="atMouse">True: the window opens at the mouse pointer, false: in the middle of the screen (of the owner), null: as set in the settings</param>
         /// <returns>The chosen destination, or null when the window was closed</returns>
         public static IDestination Choose(Window owner, EditableCapture capture, IEnumerable<IDestination> destinations, string errorMessage,
-            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool showPreview = true)
+            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool? showPreview = null, bool? atMouse = null)
         {
+            var configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             var window = new DynamicDestinationWindow(title, destinations, errorMessage, timeoutSeconds);
-            window.UseCapture(capture, showPreview);
+            window.UseCapture(capture, showPreview ?? configuration.DestinationWindowShowPreview);
+            window.PlaceAtMouse = atMouse ?? configuration.DestinationWindowAtMouse;
             if (owner != null)
             {
                 window.Owner = owner;
-                window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             }
+
+            // At the mouse the window is moved when its handle exists (it has its size then), WPF must not center it
+            window.WindowStartupLocation = window.PlaceAtMouse ? WindowStartupLocation.Manual
+                : owner != null ? WindowStartupLocation.CenterOwner
+                : WindowStartupLocation.CenterScreen;
 
             using (cancellationToken.Register(() => window.Dispatcher.InvokeAsync(() =>
                    {
@@ -655,14 +1106,40 @@ namespace Greenshot.Recipes.Views
             return window.SelectedDestination;
         }
 
-        private void DestinationTile_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// The window opens centered on the mouse pointer (on the screen with the pointer), instead of the middle of the screen
+        /// </summary>
+        public bool PlaceAtMouse { get; set; }
+
+        /// <summary>
+        /// Moves the window (it has a handle and a size now, it isn't shown yet) to the mouse pointer
+        /// </summary>
+        private void MoveToMouse()
         {
-            if (sender is FrameworkElement elem && elem.Tag is DestinationTileViewModel vm)
-            {
-                SelectedDestination = vm.Destination;
-                DialogResult = true;
-                Close();
-            }
+            var handle = new WindowInteropHelper(this).Handle;
+            var bounds = InteropWindowFactory.CreateFor(handle).GetInfo().Bounds;
+            var mouse = System.Windows.Forms.Cursor.Position;
+            var workArea = System.Windows.Forms.Screen.FromPoint(mouse).WorkingArea;
+            var (x, y) = LocationAtMouse(mouse.X, mouse.Y, bounds.Width, bounds.Height, workArea);
+            User32Api.SetWindowPos(handle, IntPtr.Zero, x, y, 0, 0, WindowPos.SWP_NOSIZE | WindowPos.SWP_NOZORDER | WindowPos.SWP_NOACTIVATE);
+        }
+
+        /// <summary>
+        /// The top left corner of a window (in screen pixels) which is centered on the mouse pointer and stays inside the work area
+        /// of the screen; one which doesn't fit starts at the top left of the work area
+        /// </summary>
+        internal static (int X, int Y) LocationAtMouse(int mouseX, int mouseY, int width, int height, System.Drawing.Rectangle workArea)
+        {
+            int x = Math.Max(workArea.Left, Math.Min(mouseX - width / 2, workArea.Right - width));
+            int y = Math.Max(workArea.Top, Math.Min(mouseY - height / 2, workArea.Bottom - height));
+            return (x, y);
+        }
+
+        private void Choose(DestinationTileViewModel tile)
+        {
+            SelectedDestination = tile.Destination;
+            DialogResult = true;
+            Close();
         }
 
         private void RunRecipe_Click(object sender, RoutedEventArgs e)
@@ -671,12 +1148,6 @@ namespace Greenshot.Recipes.Views
             {
                 ApplyRecipeAsync(SelectedRecipe.EditorTrigger).FireAndLog("Change the capture with a recipe");
             }
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
         }
 
         private void OnPropertyChanged(string propertyName)

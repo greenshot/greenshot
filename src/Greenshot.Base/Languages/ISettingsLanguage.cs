@@ -242,6 +242,16 @@ namespace Greenshot.Base.Languages
         string DestinationWindow { get; }
 
         /// <summary>
+        /// Show destination window at the mouse pointer
+        /// </summary>
+        string DestinationWindowAtMouse { get; }
+
+        /// <summary>
+        /// Show a preview of the capture in the destination window
+        /// </summary>
+        string DestinationWindowShowPreview { get; }
+
+        /// <summary>
         /// Send to printer
         /// </summary>
         string DestinationPrinter { get; }
