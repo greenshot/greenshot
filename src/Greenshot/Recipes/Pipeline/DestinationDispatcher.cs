@@ -156,7 +156,7 @@ namespace Greenshot.Recipes.Pipeline
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, false, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, copies, cancellationToken).ConfigureAwait(false);
                 if (destinationToUse is FileDestination && result.Status == ExportStatus.Succeeded && result.FilePath != null && context.Properties.ContainsKey("Destination.Filename"))
                 {
                     // The file which was saved: a number may have been added, or another file picked in the save dialog
@@ -195,7 +195,7 @@ namespace Greenshot.Recipes.Pipeline
                     return;
                 }
 
-                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, true, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, copies, cancellationToken).ConfigureAwait(false);
                 if (result.IsSucceeded)
                 {
                     return;
@@ -248,12 +248,12 @@ namespace Greenshot.Recipes.Pipeline
         /// extensions share one copy (<paramref name="copies"/>), so the extensions run once per combination.
         /// </summary>
         private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
-            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool manuallyInitiated, CancellationToken cancellationToken)
+            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, CancellationToken cancellationToken)
         {
             var applicable = ChainsFor(context, designation);
             if (applicable.Count == 0)
             {
-                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
             }
 
             string key = string.Join("|", applicable.Select(c => c.Extension.Id));
@@ -278,14 +278,14 @@ namespace Greenshot.Recipes.Pipeline
 
             if (prepared == null)
             {
-                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
             }
-            return await ExportAsync(prepared.Context, destination, prepared.Source, prepared.CaptureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+            return await ExportAsync(prepared.Context, destination, prepared.Source, prepared.CaptureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
         }
         private static async Task<ExportResult> ExportAsync(CaptureFlowContext context, IDestination destination, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            CancellationToken cancellationToken, bool manuallyInitiated = false)
+            CancellationToken cancellationToken)
         {
-            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, manuallyInitiated, userInteraction, cancellationToken).ConfigureAwait(false);
+            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, userInteraction, cancellationToken).ConfigureAwait(false);
             if (result.KeepsCapture)
             {
                 // The editor shows the surface now: the flow must not dispose it
