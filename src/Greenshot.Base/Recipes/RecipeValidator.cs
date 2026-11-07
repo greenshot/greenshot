@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -760,8 +761,73 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
+            if (string.Equals(node.StepType, ExternalCommandStepType, StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateExternalCommandNode(node, result);
+            }
+
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
+        }
+
+        private const string ExternalCommandStepType = "ExternalCommand";
+
+        /// <summary>
+        /// The channels of an external command fit together: each choice is one of its values, nothing is set which the other choices
+        /// don't use (a text for standard input without StandardInput Text, an output of a command nobody waits for)
+        /// </summary>
+        private static void ValidateExternalCommandNode(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            var contract = StepRegistry.Instance.GetContract(node.StepType);
+            string Value(string name)
+            {
+                string value = node.GetParameter<object>(name)?.ToString();
+                return string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+            bool Is(string name, string expected) => string.Equals(Value(name), expected, StringComparison.OrdinalIgnoreCase);
+
+            foreach (string name in new[] { "File", "StandardInput", "Output", "CopyToClipboard" })
+            {
+                var allowed = contract?.FindParameter(name)?.AllowedValues;
+                string value = Value(name);
+                if (value != null && allowed != null && allowed.Count > 0 && !allowed.Contains(value, StringComparer.OrdinalIgnoreCase))
+                {
+                    result.AddError($"Node '{node.Id}' [ExternalCommand]: '{value}' is not a value of '{name}', use one of {string.Join(", ", allowed)}.");
+                }
+            }
+
+            if (Value("StandardInputText") != null && !Is("StandardInput", "Text"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'StandardInputText' is only used with 'StandardInput' Text.");
+            }
+            if (node.GetParameter<bool?>("RunInBackground") == true && Value("Output") != null && !Is("Output", "None"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: a command in the background gives no output, 'Output' must be None.");
+            }
+            if (Is("Output", "File") && Is("File", "None"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'Output' File reads the file again, but 'File' is None.");
+            }
+            if (Value("CopyToClipboard") != null && !Is("CopyToClipboard", "None") && Value("Output") != null && !Is("Output", "Text"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'CopyToClipboard' copies the text output, 'Output' must be Text.");
+            }
+            if (Value("SuccessExitCodes") is { } codes &&
+                codes.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries).Any(c => !int.TryParse(c, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _)))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'SuccessExitCodes' must be numbers like 0,98,99, not '{codes}'.");
+            }
+            if (Value("Encoding") is { } encodingName && !string.Equals(encodingName, "oem", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    _ = System.Text.Encoding.GetEncoding(encodingName);
+                }
+                catch (ArgumentException)
+                {
+                    result.AddError($"Node '{node.Id}' [ExternalCommand]: 'Encoding' '{encodingName}' is not known, use utf-8, oem or an encoding name.");
+                }
+            }
         }
 
         /// <summary>

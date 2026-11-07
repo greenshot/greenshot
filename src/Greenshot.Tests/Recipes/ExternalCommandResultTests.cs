@@ -63,8 +63,8 @@ namespace Greenshot.Tests.Recipes
             try
             {
                 var capture = new Capture(new Bitmap(8, 8));
-                // A shell metacharacter, which the external command doesn't accept
-                capture.CaptureDetails.Filename = @"C:\Temp\Greenshot & co.png";
+                // cmd.exe would expand it, the external command doesn't accept it
+                capture.CaptureDetails.Filename = @"C:\Temp\Greenshot 100%.png";
                 var payload = new CapturePayload(capture);
                 payload.EnsureSurface();
                 var source = await payload.GetExportSourceAsync(InlineUiDispatcher.Instance, CancellationToken.None);
@@ -72,7 +72,7 @@ namespace Greenshot.Tests.Recipes
                 var result = await DestinationExporter.ExportAsync(new ExternalCommandDestination(command), source, capture.CaptureDetails, false, UserInteraction.Current, CancellationToken.None);
 
                 Assert.Equal(ExportStatus.Failed, result.Status);
-                Assert.Contains("dangerous", result.Error);
+                Assert.Contains("can't be passed to a command safely", result.Error);
             }
             finally
             {

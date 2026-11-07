@@ -358,6 +358,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **External Commands**
 - An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
+- The setting "Parse output for URI" is now used, before a URL was always looked for
+- A capture whose file name has characters like ( ) & or ' can be handed to a command, only " % and line breaks are refused
+- A command which can't be started is reported as failed, Greenshot no longer tries again with administrator rights
 
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
