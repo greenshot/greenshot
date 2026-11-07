@@ -2592,6 +2592,7 @@ namespace Greenshot.Editor.Drawing
             if (e.Button == MouseButtons.Left && DrawingMode == DrawingModes.None
                 && _elements.ClickableElementAt(e.X, e.Y) == null && FindActiveAdorner(surfacePoint) == null)
             {
+                RemoveDrawnCropContainer();
                 BeginSelectionBox(e.Location, InputState.ModifierKeys);
                 return;
             }
@@ -2641,7 +2642,10 @@ namespace Greenshot.Editor.Drawing
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
-            if (FinishSelectionBox(e)) return;
+            if (FinishSelectionBox(e))
+            {
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
@@ -2997,7 +3001,10 @@ namespace Greenshot.Editor.Drawing
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
-            if (MoveSelectionBox(e.Location)) return;
+            if (MoveSelectionBox(e.Location))
+            {
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
@@ -4130,7 +4137,10 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
-            if (k == Keys.Escape && CancelSelectionBox()) return true;
+            if (k == Keys.Escape && CancelSelectionBox())
+            {
+                return true;
+            }
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
