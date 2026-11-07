@@ -3425,14 +3425,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         // --- 13. ExternalCommand Step ---
         public string ExternalCommandLine
         {
-            get => GetParam("CommandLine", "");
-            set { SetParam("CommandLine", value); OnPropertyChanged(nameof(ExternalCommandLine)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Program", "");
+            set { SetParamOrRemoveIfEmpty("Program", value); OnPropertyChanged(nameof(ExternalCommandLine)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string ExternalCommandArguments
         {
-            get => GetParam("Arguments", "{0}");
-            set { SetParam("Arguments", value); OnPropertyChanged(nameof(ExternalCommandArguments)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Arguments", "");
+            set { SetParamOrRemoveIfEmpty("Arguments", value); OnPropertyChanged(nameof(ExternalCommandArguments)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string ExternalCommandFormat
@@ -3447,53 +3447,83 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("RunInBackground", value); OnPropertyChanged(nameof(ExternalCommandRunInBackground)); }
         }
 
-        public bool ExternalCommandOutputToClipboard
-        {
-            get => GetParamBool("OutputToClipboard", false);
-            set { SetParam("OutputToClipboard", value); OnPropertyChanged(nameof(ExternalCommandOutputToClipboard)); }
-        }
-
-        public bool ExternalCommandUriToClipboard
-        {
-            get => GetParamBool("UriToClipboard", false);
-            set { SetParam("UriToClipboard", value); OnPropertyChanged(nameof(ExternalCommandUriToClipboard)); }
-        }
-
-        public bool ExternalCommandReloadAfterExecution
-        {
-            get => GetParamBool("ReloadAfterExecution", false);
-            set { SetParam("ReloadAfterExecution", value); OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution)); }
-        }
-
         public string ExternalCommandWorkingDirectory
         {
             get => GetParam("WorkingDirectory", "");
             set { SetParamOrRemoveIfEmpty("WorkingDirectory", value); OnPropertyChanged(nameof(ExternalCommandWorkingDirectory)); }
         }
 
-        public string ExternalCommandSetOutputVariable
-        {
-            get => GetParam("OutputVariable", "");
-            set { SetParamOrRemoveIfEmpty("OutputVariable", value); OnPropertyChanged(nameof(ExternalCommandSetOutputVariable)); }
-        }
-
-        /// <summary>Name of a command configured in the External Command settings; when set, CommandLine and Arguments are not used.</summary>
+        /// <summary>Name of a command configured in the External Command settings; its program, arguments and settings are the defaults.</summary>
         public string ExternalCommandCommand
         {
             get => GetParam("Command", "");
             set { SetParamOrRemoveIfEmpty("Command", value); OnPropertyChanged(nameof(ExternalCommandCommand)); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public string ExternalCommandVerb
+        /// <summary>The file handed to the command: New, LastExport or None (empty: New)</summary>
+        public string ExternalCommandFile
         {
-            get => GetParam("Verb", "");
-            set { SetParamOrRemoveIfEmpty("Verb", value); OnPropertyChanged(nameof(ExternalCommandVerb)); }
+            get => GetParam("File", "");
+            set { SetParamOrRemoveIfEmpty("File", value); OnPropertyChanged(nameof(ExternalCommandFile)); }
         }
 
-        public string ExternalCommandSetExitCodeVariable
+        /// <summary>What the command gets on standard input: None, Image or Text (empty: None)</summary>
+        public string ExternalCommandStandardInput
         {
-            get => GetParam("ExitCodeVariable", "");
-            set { SetParamOrRemoveIfEmpty("ExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
+            get => GetParam("StandardInput", "");
+            set
+            {
+                SetParamOrRemoveIfEmpty("StandardInput", value);
+                OnPropertyChanged(nameof(ExternalCommandStandardInput));
+                OnPropertyChanged(nameof(ExternalCommandHasStandardInputText));
+            }
+        }
+
+        public bool ExternalCommandHasStandardInputText => string.Equals(ExternalCommandStandardInput, "Text", StringComparison.OrdinalIgnoreCase);
+
+        public string ExternalCommandStandardInputText
+        {
+            get => GetParam("StandardInputText", "");
+            set { SetParamOrRemoveIfEmpty("StandardInputText", value); OnPropertyChanged(nameof(ExternalCommandStandardInputText)); }
+        }
+
+        /// <summary>What the standard output is: Text, Image, File or None (empty: Text)</summary>
+        public string ExternalCommandOutput
+        {
+            get => GetParam("Output", "");
+            set { SetParamOrRemoveIfEmpty("Output", value); OnPropertyChanged(nameof(ExternalCommandOutput)); }
+        }
+
+        /// <summary>The results are var.&lt;ResultName&gt;.*</summary>
+        public string ExternalCommandResultName
+        {
+            get => GetParam("ResultName", "");
+            set { SetParamOrRemoveIfEmpty("ResultName", value); OnPropertyChanged(nameof(ExternalCommandResultName)); }
+        }
+
+        /// <summary>None, Output or Url (empty: None, or the settings of a configured command)</summary>
+        public string ExternalCommandCopyToClipboard
+        {
+            get => GetParam("CopyToClipboard", "");
+            set { SetParamOrRemoveIfEmpty("CopyToClipboard", value); OnPropertyChanged(nameof(ExternalCommandCopyToClipboard)); }
+        }
+
+        public string ExternalCommandSuccessExitCodes
+        {
+            get => GetParam("SuccessExitCodes", "");
+            set { SetParamOrRemoveIfEmpty("SuccessExitCodes", value); OnPropertyChanged(nameof(ExternalCommandSuccessExitCodes)); }
+        }
+
+        public string ExternalCommandTimeout
+        {
+            get => GetParam("Timeout", "");
+            set { SetNumberParam("Timeout", value); OnPropertyChanged(nameof(ExternalCommandTimeout)); }
+        }
+
+        public string ExternalCommandEncoding
+        {
+            get => GetParam("Encoding", "");
+            set { SetParamOrRemoveIfEmpty("Encoding", value); OnPropertyChanged(nameof(ExternalCommandEncoding)); }
         }
 
         // --- 15. Jira Step ---
@@ -4096,12 +4126,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ExternalCommandArguments));
             OnPropertyChanged(nameof(ExternalCommandFormat));
             OnPropertyChanged(nameof(ExternalCommandRunInBackground));
-            OnPropertyChanged(nameof(ExternalCommandOutputToClipboard));
-            OnPropertyChanged(nameof(ExternalCommandUriToClipboard));
-            OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution));
             OnPropertyChanged(nameof(ExternalCommandWorkingDirectory));
-            OnPropertyChanged(nameof(ExternalCommandSetOutputVariable));
-            OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable));
+            OnPropertyChanged(nameof(ExternalCommandFile));
+            OnPropertyChanged(nameof(ExternalCommandStandardInput));
+            OnPropertyChanged(nameof(ExternalCommandHasStandardInputText));
+            OnPropertyChanged(nameof(ExternalCommandStandardInputText));
+            OnPropertyChanged(nameof(ExternalCommandOutput));
+            OnPropertyChanged(nameof(ExternalCommandResultName));
+            OnPropertyChanged(nameof(ExternalCommandCopyToClipboard));
+            OnPropertyChanged(nameof(ExternalCommandSuccessExitCodes));
+            OnPropertyChanged(nameof(ExternalCommandTimeout));
+            OnPropertyChanged(nameof(ExternalCommandEncoding));
             OnPropertyChanged(nameof(JiraIssueKey));
             OnPropertyChanged(nameof(JiraFormat));
             OnPropertyChanged(nameof(JiraJpegQuality));
@@ -4126,7 +4161,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(SourceFilename));
             OnPropertyChanged(nameof(WindowMatchCase));
             OnPropertyChanged(nameof(ExternalCommandCommand));
-            OnPropertyChanged(nameof(ExternalCommandVerb));
             OnPropertyChanged(nameof(PlaySound));
             OnPropertyChanged(nameof(DestinationEditor));
             OnPropertyChanged(nameof(DestinationClipboard));

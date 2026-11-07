@@ -21,10 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -36,6 +33,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Expressions;
+using Greenshot.Plugin.ExternalCommand.Running;
 
 namespace Greenshot.Plugin.ExternalCommand.Destinations;
 
@@ -73,24 +71,12 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 
-    private static readonly Regex URI_REGEXP =
-        new Regex(
-            @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
+    /// <summary>
+    /// What a file name handed to a command may not contain: no shell reads the arguments (the program is started directly), so only
+    /// what breaks a quoted argument (a quote, a line break) or is expanded by cmd.exe (%) is refused.
+    /// </summary>
+    private static readonly char[] UnsafeFileNameChars = { '"', '%', '\n', '\r' };
 
-    private static IExternalCommandConfiguration Config
-    {
-        get
-        {
-            try
-            {
-                return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-    }
     private readonly string _presetCommand;
 
     public ExternalCommandDestination(string commando)
@@ -101,11 +87,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
 
     public IEnumerable<RecipeGatedAction> GetGatedActions()
     {
-        string cmd = _presetCommand;
-        if (Config?.CommandlineTemplate != null && Config.CommandlineTemplate.ContainsKey(_presetCommand))
-        {
-            cmd = Config.CommandlineTemplate[_presetCommand];
-        }
+        string cmd = ConfiguredCommand.Find(_presetCommand)?.Program;
         string target = !string.IsNullOrWhiteSpace(cmd) ? cmd : Designation;
         yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
     }
@@ -122,9 +104,9 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             return ExportResult.Failed("No external command configured");
         }
 
-        var config = Config;
         // check if the command is still configured
-        if (config == null || !config.Commands.Contains(_presetCommand))
+        var command = ConfiguredCommand.Find(_presetCommand);
+        if (command == null)
         {
             string error = $"Unknown external command '{_presetCommand}'";
             LOG.WarnFormat("Error calling external command: {0} ", error);
@@ -132,7 +114,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         }
 
         // fallback to PNG / background if the configuration is incomplete (the plugin repairs it on startup), or the format is unknown
-        string configuredFormat = config.OutputFormat.TryGetValue(_presetCommand, out var format) ? format : WellKnownFileFormats.Png;
+        string configuredFormat = command.Format ?? WellKnownFileFormats.Png;
         var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
         if (formatRegistry != null && !formatRegistry.TryGet(configuredFormat, out _))
         {
@@ -140,7 +122,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         }
 
         var outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(configuredFormat, WellKnownFileFormats.Png));
-        bool runInBackground = !config.RunInbackground.TryGetValue(_presetCommand, out var background) || background;
+        bool runInBackground = command.RunInBackground ?? true;
         string fullPath = request.Metadata?.Filename
                           ?? await ExportFiles.SaveNamedTmpFileAsync(request.Source, request.Metadata, outputSettings, cancellationToken).ConfigureAwait(false);
 
@@ -149,7 +131,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             // The command is started here, the export doesn't wait for it to finish. What fails before the command runs (a file name
             // it doesn't accept, a missing program) completes the run right away: that is the result of the export, the notification
             // of the flow shows it. A failure of the running command is reported by a notification of its own (the task is observed).
-            var run = RunAsync(fullPath, CancellationToken.None);
+            var run = RunAsync(command, fullPath, CancellationToken.None);
             if (run.IsCompleted)
             {
                 return await run.ConfigureAwait(false);
@@ -158,7 +140,7 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             return ExportResult.Succeeded(fullPath);
         }
 
-        return await RunAsync(fullPath, cancellationToken).ConfigureAwait(false);
+        return await RunAsync(command, fullPath, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task ReportFailureAsync(Task<ExportResult> run, IUserInteraction userInteraction)
@@ -171,49 +153,39 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
     }
 
     /// <summary>
-    /// Call the external command, parse the output for an URI and place it on the clipboard
+    /// Call the external command, parse the output for an URI and place it (or the output) on the clipboard
     /// </summary>
-    private async Task<ExportResult> RunAsync(string fullPath, CancellationToken cancellationToken)
+    private static async Task<ExportResult> RunAsync(ConfiguredCommand command, string fullPath, CancellationToken cancellationToken)
     {
         try
         {
-            var (exitCode, output, error) = await CallExternalCommandAsync(_presetCommand, fullPath, cancellationToken).ConfigureAwait(false);
-            if (exitCode != 0)
+            var request = new CommandRequest
             {
-                LOG.WarnFormat("Error calling external command: {0} ", output);
-                return ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
+                Program = OutputTemplates.RenderCommand(command.Program, VariableScope.Empty, out string problem) ?? throw new ArgumentException(problem),
+                Arguments = RenderArguments(command.Arguments, fullPath, VariableScope.Empty),
+                Output = command.ReadOutput ? CommandOutput.Text : CommandOutput.None,
+                ReadError = command.ReadError,
+                FindUrl = command.FindUrl
+            };
+            var result = await CommandRunner.RunAsync(request, cancellationToken).ConfigureAwait(false);
+            if (command.ShowOutputInLog && result.Output?.Trim().Length > 0)
+            {
+                LOG.InfoFormat("Output:\n{0}", result.Output);
             }
 
-            Uri uri = null;
-            if (!string.IsNullOrEmpty(output))
+            if (!result.Succeeded)
             {
-                var clipboard = ClipboardService.Current;
-                MatchCollection uriMatches = URI_REGEXP.Matches(output);
-                // Place output on the clipboard before the URI, so if one is found this overwrites
-                bool outputToClipboard = Config?.OutputToClipboardCommand != null && Config.OutputToClipboardCommand.TryGetValue(_presetCommand, out var otc)
-                    ? otc
-                    : Config?.OutputToClipboard ?? false;
-                if (outputToClipboard)
-                {
-                    await clipboard.SetTextAsync(output, cancellationToken).ConfigureAwait(false);
-                }
-
-                if (uriMatches.Count > 0)
-                {
-                    string uriText = uriMatches[0].Groups[1].Value;
-                    LOG.InfoFormat("Got URI : {0} ", uriText);
-                    Uri.TryCreate(uriText, UriKind.RelativeOrAbsolute, out uri);
-                    bool uriToClipboard = Config?.UriToClipboardCommand != null && Config.UriToClipboardCommand.TryGetValue(_presetCommand, out var utc)
-                        ? utc
-                        : Config?.UriToClipboard ?? true;
-                    if (uriToClipboard)
-                    {
-                        await clipboard.SetTextAsync(uriText, cancellationToken).ConfigureAwait(false);
-                    }
-                }
+                LOG.WarnFormat("Error calling external command {0}: {1}", command.Name, result.FailureMessage);
+                return ExportResult.Failed(result.FailureMessage);
             }
 
-            return ExportResult.Succeeded(fullPath, uri);
+            string clipboardText = CommandRunner.ClipboardTextOf(result, command.CopyOutput, command.CopyUrl);
+            if (clipboardText != null)
+            {
+                await ClipboardService.Current.SetTextAsync(clipboardText, cancellationToken).ConfigureAwait(false);
+            }
+
+            return ExportResult.Succeeded(fullPath, Uri.TryCreate(result.Url, UriKind.Absolute, out var uri) ? uri : null);
         }
         catch (OperationCanceledException)
         {
@@ -221,110 +193,24 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         }
         catch (Exception ex)
         {
-            LOG.WarnFormat("Error calling external command: {0} ", ex.Message);
+            LOG.WarnFormat("Error calling external command {0}: {1}", command.Name, ex.Message);
             return ExportResult.Failed(ex.Message, ex);
         }
     }
 
     /// <summary>
-    /// Wrapper to retry with a runas
-    /// </summary>
-    private async Task<(int ExitCode, string Output, string Error)> CallExternalCommandAsync(string commando, string fullPath, CancellationToken cancellationToken)
-    {
-        try
-        {
-            try
-            {
-                return await CallExternalCommandAsync(commando, fullPath, null, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Win32Exception)
-            {
-                return await CallExternalCommandAsync(commando, fullPath, "runas", cancellationToken).ConfigureAwait(false);
-            }
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            ex.Data["commandline"] = Config.CommandlineTemplate[_presetCommand];
-            ex.Data["arguments"] = Config.ArgumentTemplate[_presetCommand];
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// The actual executing code for the external command
-    /// </summary>
-    private async Task<(int ExitCode, string Output, string Error)> CallExternalCommandAsync(string commando, string fullPath, string verb, CancellationToken cancellationToken)
-    {
-        string commandline = Config.CommandlineTemplate[commando];
-        string arguments = Config.ArgumentTemplate[commando];
-        if (string.IsNullOrEmpty(commandline))
-        {
-            return (-1, null, null);
-        }
-
-        using Process process = new Process();
-        process.StartInfo.FileName = OutputTemplates.RenderCommand(commandline, VariableScope.Empty, out string problem)
-            ?? throw new ArgumentException(problem);
-        process.StartInfo.Arguments = RenderArguments(arguments, fullPath, VariableScope.Empty);
-        bool redirectOutput = Config?.RedirectStandardOutputCommand != null && Config.RedirectStandardOutputCommand.TryGetValue(commando, out var rso)
-            ? rso
-            : Config?.RedirectStandardOutput ?? true;
-        bool redirectError = Config?.RedirectStandardErrorCommand != null && Config.RedirectStandardErrorCommand.TryGetValue(commando, out var rse)
-            ? rse
-            : Config?.RedirectStandardError ?? true;
-        bool showInLog = Config?.ShowStandardOutputInLogCommand != null && Config.ShowStandardOutputInLogCommand.TryGetValue(commando, out var sil)
-            ? sil
-            : Config?.ShowStandardOutputInLog ?? false;
-
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = redirectOutput;
-        process.StartInfo.RedirectStandardError = redirectError;
-
-        if (verb != null)
-        {
-            process.StartInfo.Verb = verb;
-        }
-
-        LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-        var (exitCode, output, error) = await process.RunAsync(cancellationToken).ConfigureAwait(false);
-        if (showInLog && output?.Trim().Length > 0)
-        {
-            LOG.InfoFormat("Output:\n{0}", output);
-        }
-
-        if (error?.Trim().Length > 0)
-        {
-            LOG.WarnFormat("Error:\n{0}", error);
-        }
-
-        LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-        return (exitCode, output, error);
-    }
-
-    /// <summary>
     /// The arguments of a command: the template rendered for the file (${export.file}). Nothing of the capture can be part of it, the
-    /// file name can't hold characters a shell would read.
+    /// file name can't hold characters which break a quoted argument.
     /// </summary>
+    /// <exception cref="ArgumentException">The file name has a character which can't be passed safely</exception>
     public static string RenderArguments(string arguments, string fullpath, VariableScope scope)
     {
-        // Validate filename doesn't contain shell metacharacters
-        char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'' };
-
-        if (fullpath.IndexOfAny(dangerousChars) >= 0)
+        if (fullpath != null && fullpath.IndexOfAny(UnsafeFileNameChars) >= 0)
         {
-            throw new ArgumentException(
-                "Filename contains potentially dangerous characters. " +
-                "For security reasons, filenames with shell metacharacters are not allowed."
-            );
+            throw new ArgumentException($"The file name '{fullpath}' contains a character which can't be passed to a command safely (\", % or a line break).");
         }
 
         arguments ??= string.Empty;
-        // Validate arguments template doesn't use shell interpreters
-        if (arguments.Contains("cmd.exe") || arguments.Contains("powershell"))
-        {
-            LOG.Warn("ExternalCommand configured with shell interpreter - potential security risk");
-        }
-
         return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(exportFile: fullpath));
     }
-}
+}
