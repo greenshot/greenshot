@@ -45,11 +45,13 @@ namespace Greenshot.Tests.Definitions
                 // Read again, like after a restart
                 var approvals = new FileApprovals(() => store);
                 Assert.True(approvals.IsApproved(file, hash));
+                Assert.True(approvals.IsKnown(file));
                 Assert.False(approvals.IsApproved(file, ContentHash.Sha256(new byte[] { 1, 2, 4 })));
                 Assert.DoesNotContain("a.gscommand.json", File.ReadAllText(store));
 
                 approvals.Revoke(file);
                 Assert.False(new FileApprovals(() => store).IsApproved(file, hash));
+                Assert.False(new FileApprovals(() => store).IsKnown(file));
             }
             finally
             {

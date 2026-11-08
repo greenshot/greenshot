@@ -62,8 +62,9 @@ public interface IDefinitionApprovals
 /// The definitions of a kind as files in a folder, for a <see cref="DefinitionStore{T}"/>: the id is the file name, the value its
 /// content (UTF-8). The folder is read once, with the first access: a file added, changed or removed outside Greenshot later
 /// has no effect until Greenshot is started again. What Greenshot writes (import, editor, the conversion of the 1.3 settings) is
-/// approved with the hash of its content; a file which was added or changed outside Greenshot is not approved
-/// (<see cref="IDefinitionApprovals"/>) until the user approves it in the settings. A file which can't be read has the value null.
+/// approved with the hash of its content. A file Greenshot never wrote (put into the folder by somebody else) is ignored, the
+/// user imports it; one Greenshot wrote which was changed outside Greenshot is not approved (<see cref="IDefinitionApprovals"/>)
+/// until the user approves it. A file which can't be read has the value null.
 /// </summary>
 public sealed class DefinitionFolder : IDictionary<string, string>, IDefinitionIds, IDefinitionApprovals
 {
@@ -209,6 +210,13 @@ public sealed class DefinitionFolder : IDictionary<string, string>, IDefinitionI
                          // EnumerateFiles also finds "a.sxcu_old" for "*.sxcu" (8.3 names)
                          .Where(name => name.EndsWith(Extension, StringComparison.OrdinalIgnoreCase)))
             {
+                // Only what Greenshot wrote or imported: a file somebody put into the folder is ignored, the user imports it
+                if (!_approvals.IsKnown(PathOf(fileName)))
+                {
+                    Log.InfoFormat("{0} wasn't written or imported by Greenshot, it is ignored (import it to use it)", PathOf(fileName));
+                    continue;
+                }
+
                 _entries[fileName] = ReadFile(fileName);
             }
         }

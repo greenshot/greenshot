@@ -107,7 +107,7 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string NotApproved { get; }
 
     /// <summary>
-    /// An uploader file copied into the Uploaders folder or changed outside Greenshot is only used after you approve it. Greenshot reads the folder when it starts and asks about such a file then; you can also approve it here.
+    /// An uploader file Greenshot wrote which was changed outside Greenshot is only used after you approve it: Greenshot asks when it starts, or approve it here. A file copied into the Uploaders folder is ignored, import it.
     /// </summary>
     string ApprovalHint { get; }
 

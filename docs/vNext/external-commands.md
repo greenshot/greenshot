@@ -76,14 +76,15 @@ A command file is JSON with the fields of the editor; only `kind`, `name` and `p
 
 Each command is a file of this format in the `Commands` folder next to greenshot.ini (in `%APPDATA%\Greenshot`, or next to
 Greenshot.exe for a portable install), named after the command, plain JSON (a command holds no secrets). The folder is
-read once, when Greenshot starts: a file copied into it, changed or removed there while Greenshot runs has no effect. After
-the next start a file which was added or changed outside Greenshot isn't used (no destination, recipes can't use it) until
-you approve it: like for a recipe file, Greenshot asks once it has started, with the program, its arguments and the text it
-gets, and uses the command at once when you choose *Approve*. With *Not now* it stays unused, is listed as "Not approved" in
-the settings (where you can approve it) and Greenshot asks again at the next start. What Greenshot writes itself (New, Import, Edit,
-the commands of 1.3) is approved. Each file is checked like an imported file; one which doesn't pass is listed as "can't be
-read" and isn't used. An administrator can put commands into the folder for a user, the user approves each once. Only
-import or approve commands from someone you trust: the program runs with your rights.
+read once, when Greenshot starts: a file copied into it, changed or removed there while Greenshot runs has no effect. Like
+recipe files, Greenshot only uses the files it wrote itself (New, Import, Edit, the commands of 1.3): a file somebody put
+into the folder is ignored, also after a restart, until you import it. A command file of Greenshot which was changed outside
+Greenshot isn't used after the next start (no destination, recipes can't use it) until you approve it: Greenshot asks once
+it has started, with the program, its arguments and the text it gets, and uses the command at once when you choose
+*Approve*. With *Not now* it stays unused, is listed as "Not approved" in the settings (where you can approve it) and
+Greenshot asks again at the next start. Each file is checked like an imported
+file; one which doesn't pass is listed as "can't be read" and isn't used. Only import or approve commands from someone you
+trust: the program runs with your rights.
 
 A command which is switched off on the Destinations tab isn't used by recipes either: an `ExternalCommand` step which names
 it is skipped, with a warning in the log of the flow.

@@ -28,7 +28,7 @@ using log4net;
 namespace Greenshot.Base.Definitions;
 
 /// <summary>
-/// The question at the start for the definition files which were added or changed outside Greenshot, like the one for the
+/// The question at the start for the definition files Greenshot wrote which were changed outside Greenshot, like the one for the
 /// recipe files: Greenshot starts without them, and once it runs it shows what each one does and asks whether to use it.
 /// One which isn't approved stays unused and is asked about at the next start again; the settings page can approve it too.
 /// </summary>

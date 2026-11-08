@@ -37,6 +37,11 @@ public interface IFileApprovals
     bool IsApproved(string filePath, string sha256);
 
     /// <summary>
+    /// True when the user approved some content of the file: Greenshot wrote or imported it, it may have changed since
+    /// </summary>
+    bool IsKnown(string filePath);
+
+    /// <summary>
     /// The user approved this content of the file, e.g. Greenshot wrote it or the user confirmed it
     /// </summary>
     void Approve(string filePath, string sha256);
@@ -88,6 +93,15 @@ public sealed class FileApprovals : IFileApprovals
         lock (_lock)
         {
             return Records().TryGetValue(Path.GetFullPath(filePath), out var record) && string.Equals(record.Sha256Hash, sha256, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public bool IsKnown(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath)) return false;
+        lock (_lock)
+        {
+            return Records().ContainsKey(Path.GetFullPath(filePath));
         }
     }
 

@@ -57,6 +57,8 @@ namespace Greenshot.Tests.ExternalCommand
 
             public bool IsApproved(string filePath, string sha256) => _approved.TryGetValue(Path.GetFullPath(filePath), out var hash) && hash == sha256;
 
+            public bool IsKnown(string filePath) => _approved.ContainsKey(Path.GetFullPath(filePath));
+
             public void Approve(string filePath, string sha256) => _approved[Path.GetFullPath(filePath)] = sha256;
 
             public void Revoke(string filePath) => _approved.Remove(Path.GetFullPath(filePath));
@@ -95,18 +97,25 @@ namespace Greenshot.Tests.ExternalCommand
         }
 
         [Fact]
-        public void ApprovalAtStartup_AsksOnlyAboutReadableFilesWhichWait_AndApprovesTheConfirmedOnes()
+        public void ApprovalAtStartup_AsksOnlyAboutItsOwnChangedFiles_AndApprovesTheConfirmedOnes()
         {
             string directory = NewDirectory();
             try
             {
                 var approvals = new TestApprovals();
-                FolderStore(directory, approvals).Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
-                File.WriteAllText(Path.Combine(directory, "yes.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Yes\",\"program\":\"yes.exe\"}");
-                File.WriteAllText(Path.Combine(directory, "no.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"No\",\"program\":\"no.exe\"}");
-                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+                var written = FolderStore(directory, approvals);
+                written.Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
+                string yes = written.Add(new CommandDefinition { Name = "Yes", Program = "yes.exe" });
+                string no = written.Add(new CommandDefinition { Name = "No", Program = "no.exe" });
+                string broken = written.Add(new CommandDefinition { Name = "Broken", Program = "broken.exe" });
 
-                // The start: only the files added outside Greenshot which can be read are asked about
+                // Changed outside Greenshot, and one somebody put into the folder
+                File.WriteAllText(Path.Combine(directory, yes), "{\"kind\":\"externalCommand\",\"name\":\"Yes\",\"program\":\"yes2.exe\"}");
+                File.WriteAllText(Path.Combine(directory, no), "{\"kind\":\"externalCommand\",\"name\":\"No\",\"program\":\"no2.exe\"}");
+                File.WriteAllText(Path.Combine(directory, broken), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+                File.WriteAllText(Path.Combine(directory, "stranger.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Stranger\",\"program\":\"stranger.exe\"}");
+
+                // The start: only the changed files which can be read are asked about
                 var store = FolderStore(directory, approvals);
                 var asked = new List<string>();
                 var approved = new List<string>();
@@ -119,8 +128,9 @@ namespace Greenshot.Tests.ExternalCommand
                 Assert.Equal(new[] { "No", "Yes" }, asked);
                 Assert.Equal(new[] { "Yes" }, approved);
                 Assert.Equal(1, count);
-                Assert.Equal("yes.exe", store.Find("Yes")?.Definition.Program);
+                Assert.Equal("yes2.exe", store.Find("Yes")?.Definition.Program);
                 Assert.Null(store.Find("No"));
+                Assert.Null(store.Find("Stranger"));
 
                 // The next start asks about the one which wasn't approved again
                 Assert.Equal(new[] { "No" }, DefinitionApprovalAtStartup.NotApproved(FolderStore(directory, approvals)).Select(stored => stored.Name));
@@ -132,7 +142,7 @@ namespace Greenshot.Tests.ExternalCommand
         }
 
         [Fact]
-        public void Store_InAFolder_FileCopiedIn_IsOnlyUsedAfterARestartAndTheApproval()
+        public void Store_InAFolder_FileCopiedIn_IsIgnored_AChangedFileNeedsTheApproval()
         {
             string directory = NewDirectory();
             try
@@ -143,31 +153,32 @@ namespace Greenshot.Tests.ExternalCommand
 
                 // Copied in while Greenshot runs: no effect
                 Directory.CreateDirectory(directory);
-                string otherPath = Path.Combine(directory, "other.gscommand.json");
-                File.WriteAllText(otherPath, "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"other.exe\"}");
-                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+                File.WriteAllText(Path.Combine(directory, "stranger.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Stranger\",\"program\":\"stranger.exe\"}");
                 Assert.Empty(store.GetAll());
-                Assert.Null(store.Find("Other"));
 
-                // After a restart it is listed, not approved, and not used
+                // Not after a restart either: Greenshot didn't write or import it
                 store = FolderStore(directory, approvals);
-                var other = Assert.Single(store.GetAll(), stored => stored.Name == "Other");
-                Assert.False(other.IsApproved);
-                Assert.Null(store.Find("Other"));
-                Assert.Empty(store.GetReadable());
-                Assert.Single(store.GetAll(), stored => stored.Definition == null);
+                Assert.Empty(store.GetAll());
+                Assert.Null(store.Find("Stranger"));
 
-                // Approved, it is used at once and after a restart
-                Assert.True(store.Approve(other.Id));
-                Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
+                // Written by Greenshot, it is used, also after a restart
+                string otherId = store.Add(new CommandDefinition { Name = "Other", Program = "other.exe" });
+                string otherPath = Path.Combine(directory, otherId);
                 Assert.Equal("other.exe", FolderStore(directory, approvals).Find("Other")?.Definition.Program);
 
-                // Changed outside Greenshot: the running Greenshot keeps the approved content, after a restart it needs a new approval
+                // Changed outside Greenshot: the running Greenshot keeps the approved content, after a restart it is listed, not approved, and not used
                 File.WriteAllText(otherPath, "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"evil.exe\"}");
                 Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
                 store = FolderStore(directory, approvals);
+                var other = Assert.Single(store.GetAll());
+                Assert.False(other.IsApproved);
                 Assert.Null(store.Find("Other"));
-                Assert.False(store.GetAll().Single(stored => stored.Name == "Other").IsApproved);
+                Assert.Empty(store.GetReadable());
+
+                // Approved, it is used at once and after a restart
+                Assert.True(store.Approve(other.Id));
+                Assert.Equal("evil.exe", store.Find("Other")?.Definition.Program);
+                Assert.Equal("evil.exe", FolderStore(directory, approvals).Find("Other")?.Definition.Program);
             }
             finally
             {

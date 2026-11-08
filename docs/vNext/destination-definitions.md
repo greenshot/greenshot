@@ -32,9 +32,10 @@ definition holds, how it is checked and how it runs.
   file. Someone who changes a file of the folder by hand can't get past the checks of the import.
 - <a id="approval"></a>**Nothing is picked up behind the user's back.** The folder is read once, when Greenshot starts; a
   file copied in or changed later has no effect on the running Greenshot. A file Greenshot writes (import, editor, the
-  conversion of the 1.3 settings) is approved with the SHA-256 of its content. A file which is new or changed after the next
-  start isn't approved: it has no destination and recipes can't use it until the user approves it. Like the recipe files,
-  the plugin asks once Greenshot has started (`DefinitionApprovalAtStartup.AskWhenIdle` in `StartAsync`, the same
+  conversion of the 1.3 settings) is approved with the SHA-256 of its content. Like the recipe files (only the paths an
+  import added to `RecipeFiles`), only those files are read: a file without an approval record (`IFileApprovals.IsKnown`) is
+  ignored, the user imports it. One which changed since isn't approved: it has no destination and recipes can't use it until
+  the user approves it. The plugin asks once Greenshot has started (`DefinitionApprovalAtStartup.AskWhenIdle` in `StartAsync`, the same
   confirmation as an import, *Approve* or *Not now*); one left for later is listed as *Not approved* on the plugin's page,
   which can approve it too, and is asked about again at the next start. Removing a definition removes its approval.
 - **Switched off is off everywhere.** A recipe step which uses a destination of its own says so (`IUsesDestinations`); the
