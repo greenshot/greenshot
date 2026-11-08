@@ -2691,13 +2691,16 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
-                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowPrintDialog}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintDialog}" SelectedValue="{Binding SelectedNode.PrinterShowPrintDialog, Mode=TwoWay}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowPrintOptions}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintOptions}" SelectedValue="{Binding SelectedNode.ShowPrintOptions, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogAlways}" Tag="true"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogSilent}" Tag="false"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
                                             </ComboBox>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrinterDialog}"
+                                                      IsChecked="{Binding SelectedNode.ShowPrinterDialog, Mode=TwoWay}"
+                                                      Margin="0,0,0,8"/>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.AutoRotate}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AutoRotate}" SelectedValue="{Binding SelectedNode.PrinterAllowRotate, Mode=TwoWay}"
