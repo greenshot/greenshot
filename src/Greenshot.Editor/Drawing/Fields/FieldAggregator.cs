@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
@@ -47,7 +47,8 @@ namespace Greenshot.Editor.Drawing.Fields
         private readonly IDrawableContainerList _boundContainers;
         private bool _internalUpdateRunning;
 
-        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        // EnsureSection like the other editor classes: whatever creates the first surface (also a test), the section is there
+        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
 
         public FieldAggregator(ISurface parent)
         {
