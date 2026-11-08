@@ -152,8 +152,8 @@ internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
     }
 
     /// <summary>
-    /// The uploader file with the values of the parameters, headers and form fields encrypted (escaped first: the encryption keeps
-    /// only ASCII). What can't be read is stored as it is, reading it fails the checks.
+    /// The uploader file with the values of the parameters, headers and form fields encrypted (escaped first, so the stored
+    /// value is ASCII). What can't be read is stored as it is, reading it fails the checks.
     /// </summary>
     internal static string ProtectKeys(string json, Func<string, string> protect)
     {

@@ -223,9 +223,10 @@ supported cases.
 - **No questions per upload.** Placeholders which ask the user or pick at random are refused at import.
 - **Keys encrypted at rest.** The keys in the uploader files (values of parameters, headers, form fields) and the uploads in
   `[CustomUploader]` (their deletion links are secrets) go through `StringExtensions.Encrypt`/`Decrypt`, the encryption of
-  all Greenshot secrets (the icons are the public favicons, plain base64). That encryption keeps ASCII only, so a key is
-  escaped first and the stored upload JSON escapes everything else (`AsciiJson`). A key which can't be decrypted makes the
-  uploader unreadable, it is never repaired. #1316 (DPAPI) will improve the same per-value encryption.
+  all Greenshot secrets: DPAPI for the current Windows user (the icons are the public favicons, plain base64). A key is
+  escaped first and the stored upload JSON escapes everything else (`AsciiJson`), from the time the encryption kept ASCII
+  only. A key which can't be decrypted (another Windows user or computer) makes the uploader unreadable, it is never
+  repaired.
 - **Only web links leave the plugin.** A link from a response is opened in the browser and put on the clipboard only when
   it is an absolute http or https url (`file:`, `javascript:` and others are dropped).
 - **Beta.** `CustomUploaderPlugin.IsEnabled` (`IsBetaTester`) decides at startup: without it there is no destination, no

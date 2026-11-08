@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2957" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
-    <!-- ProtectedData (DPAPI) of the approvals, see Trust/ProtectedRecordFile -->
+    <!-- ProtectedData (DPAPI) for StringExtensions.Encrypt and the approvals (Trust/ProtectedRecordFile) -->
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>

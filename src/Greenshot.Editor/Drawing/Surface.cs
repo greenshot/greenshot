@@ -62,7 +62,7 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of Surface.
     /// </summary>
-    public sealed class Surface : Control, ISurface, INotifyPropertyChanged
+    public sealed partial class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -931,6 +931,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                CancelSelectionBox();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -2608,6 +2609,14 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (e.Button == MouseButtons.Left && DrawingMode == DrawingModes.None
+                && _elements.ClickableElementAt(e.X, e.Y) == null && FindActiveAdorner(surfacePoint) == null)
+            {
+                RemoveDrawnCropContainer();
+                BeginSelectionBox(e.Location, InputState.ModifierKeys);
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
@@ -2652,6 +2661,11 @@ namespace Greenshot.Editor.Drawing
         {
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
+
+            if (FinishSelectionBox(e))
+            {
+                return;
+            }
 
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
@@ -3010,6 +3024,11 @@ namespace Greenshot.Editor.Drawing
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
+            if (MoveSelectionBox(e.Location))
+            {
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
@@ -3276,6 +3295,7 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            PaintSelectionBox(targetGraphics);
             PaintFocusFrame(targetGraphics);
         }
 
@@ -4140,6 +4160,10 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == Keys.Escape && CancelSelectionBox())
+            {
+                return true;
+            }
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;

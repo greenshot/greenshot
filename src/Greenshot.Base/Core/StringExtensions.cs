@@ -32,6 +32,9 @@ namespace Greenshot.Base.Core
     public static class StringExtensions
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(StringExtensions));
+        private const string DPAPI_PREFIX = "dpapi:";
+        // Never change this, stored values could not be decrypted any more
+        private static readonly byte[] DefaultEntropy = Encoding.UTF8.GetBytes("Greenshot");
         private const string RGBIV = "dlgjowejgogkklwj";
         private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
@@ -100,41 +103,58 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// A simply rijndael aes encryption, can be used to store passwords
+        /// Protect a string for the current Windows user (DPAPI) so it can be stored in a config file.
+        /// The value can only be decrypted by the same user, on the same machine or with a roaming profile.
         /// </summary>
         /// <param name="clearText">the string to call upon</param>
-        /// <returns>an encrypted string in base64 form</returns>
-        public static string Encrypt(this string clearText)
+        /// <param name="entropy">keeps the value apart from other parts, like a plugin, null: the Greenshot entropy. Decrypt needs the same</param>
+        /// <returns>"dpapi:" followed by the base64 of the protected UTF-8 text</returns>
+        public static string Encrypt(this string clearText, byte[] entropy = null)
         {
-            string returnValue = clearText;
-            try
+            if (clearText == null)
             {
-                byte[] clearTextBytes = Encoding.ASCII.GetBytes(clearText);
-                SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-
-                using MemoryStream ms = new MemoryStream();
-                byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
-                byte[] key = Encoding.ASCII.GetBytes(KEY);
-                using CryptoStream cs = new CryptoStream(ms, rijn.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
-                cs.Write(clearTextBytes, 0, clearTextBytes.Length);
-                cs.FlushFinalBlock();
-
-                returnValue = Convert.ToBase64String(ms.ToArray());
-            }
-            catch (Exception ex)
-            {
-                LOG.ErrorFormat("Error encrypting, error: {0}", ex.Message);
+                return null;
             }
 
-            return returnValue;
+            byte[] encryptedBytes = ProtectedData.Protect(Encoding.UTF8.GetBytes(clearText), entropy ?? DefaultEntropy, DataProtectionScope.CurrentUser);
+            return DPAPI_PREFIX + Convert.ToBase64String(encryptedBytes);
         }
 
         /// <summary>
-        /// A simply rijndael aes decryption, can be used to store passwords
+        /// Unprotect a string that was stored in a config file.
         /// </summary>
-        /// <param name="encryptedText">a base64 encoded rijndael encrypted string</param>
-        /// <returns>Decrypeted text</returns>
-        public static string Decrypt(this string encryptedText)
+        /// <param name="encryptedText">a DPAPI-prefixed encrypted string, or a legacy base64 encrypted string</param>
+        /// <param name="entropy">the entropy the value was encrypted with, null: the Greenshot entropy</param>
+        /// <returns>Decrypted text, null when a DPAPI value belongs to another user or machine</returns>
+        public static string Decrypt(this string encryptedText, byte[] entropy = null)
+        {
+            if (string.IsNullOrEmpty(encryptedText))
+            {
+                return encryptedText;
+            }
+
+            if (!encryptedText.StartsWith(DPAPI_PREFIX, StringComparison.Ordinal))
+            {
+                return LegacyDecrypt(encryptedText);
+            }
+
+            try
+            {
+                byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText.Substring(DPAPI_PREFIX.Length));
+                byte[] clearTextBytes = ProtectedData.Unprotect(encryptedTextBytes, entropy ?? DefaultEntropy, DataProtectionScope.CurrentUser);
+                return Encoding.UTF8.GetString(clearTextBytes);
+            }
+            catch (Exception ex)
+            {
+                LOG.WarnFormat("Unable to decrypt a value, it was stored by another Windows user, on another machine or with another entropy. Error: {0}", ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Decrypts a value stored by Greenshot versions before DPAPI, they are stored again with DPAPI on the next save
+        /// </summary>
+        private static string LegacyDecrypt(string encryptedText)
         {
             string returnValue = encryptedText;
             try
@@ -143,18 +163,17 @@ namespace Greenshot.Base.Core
                 using MemoryStream ms = new MemoryStream();
                 SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
 
-
                 byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
                 byte[] key = Encoding.ASCII.GetBytes(KEY);
 
                 using CryptoStream cs = new CryptoStream(ms, rijn.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
                 cs.Write(encryptedTextBytes, 0, encryptedTextBytes.Length);
                 cs.FlushFinalBlock();
-                returnValue = Encoding.ASCII.GetString(ms.ToArray());
+                returnValue = Encoding.UTF8.GetString(ms.ToArray());
             }
             catch (Exception ex)
             {
-                LOG.ErrorFormat("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
+                LOG.ErrorFormat("Error decrypting legacy value, error: {0}", ex.Message);
             }
 
             return returnValue;
