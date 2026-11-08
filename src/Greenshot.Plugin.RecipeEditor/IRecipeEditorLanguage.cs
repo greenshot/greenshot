@@ -2117,19 +2117,14 @@ namespace Greenshot.Plugin.RecipeEditor
         string PrinterName { get; }
 
         /// <summary>
-        /// Show Print Dialog
+        /// Show Greenshot's print options window
         /// </summary>
-        string ShowPrintDialog { get; }
+        string ShowPrintOptions { get; }
 
         /// <summary>
-        /// Always Show Print Dialog
+        /// Show the system printer dialog
         /// </summary>
-        string PrintDialogAlways { get; }
-
-        /// <summary>
-        /// Silent (Direct Print)
-        /// </summary>
-        string PrintDialogSilent { get; }
+        string ShowPrinterDialog { get; }
 
         /// <summary>
         /// Auto-Rotate to Fit Page

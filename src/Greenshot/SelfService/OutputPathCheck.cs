@@ -217,8 +217,18 @@ namespace Greenshot.SelfService
             try
             {
                 // A check: the counters show their next number and stay
+                string extension = Greenshot.Base.Core.FileFormat.FileFormatRegistry.GetPreferredExtensionWithDot(fileFormat);
                 var scope = new VariableScope { TargetFolder = SafeDirectoryExists(folder) ? folder : null, Preview = true };
-                filename = VariableResolver.Instance.RenderFileName(pattern, Greenshot.Base.Core.FileFormat.FileFormatRegistry.GetPreferredExtensionWithDot(fileFormat), scope).Name;
+                try
+                {
+                    filename = VariableResolver.Instance.RenderFileName(pattern, extension, scope).Name;
+                }
+                catch (PathTooLongException)
+                {
+                    // Checking that the file stays in the folder needs the full path, which is too long here: the name alone, reported as too long below
+                    scope.TargetFolder = null;
+                    filename = VariableResolver.Instance.RenderFileName(pattern, extension, scope).Name;
+                }
             }
             catch (TemplateException ex)
             {

@@ -20,99 +20,48 @@
  */
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Core;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
-using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.CustomUploader.Sxcu;
-using log4net;
 
 namespace Greenshot.Plugin.CustomUploader.Destinations;
 
 /// <summary>
 /// "Custom uploader" in the destination picker and the editor, with one sub destination per imported uploader.
-/// The uploaders are read each time, an import shows up without a restart.
 /// </summary>
-internal sealed class CustomUploaderDestination : DestinationBase, IRequiresRecipeAuthorization
+internal sealed class CustomUploaderDestination : DefinitionDestination<UploaderDefinition>
 {
-    private static readonly ILog Log = LogManager.GetLogger(typeof(CustomUploaderDestination));
-
     public const string DesignationName = "CustomUploader";
 
     private readonly CustomUploaderPlugin _plugin;
 
-    public CustomUploaderDestination(CustomUploaderPlugin plugin)
+    public CustomUploaderDestination(CustomUploaderPlugin plugin) : base(UploaderKind.Instance)
     {
         _plugin = plugin;
     }
-
-    public override string Designation => DesignationName;
 
     public override DestinationDescriptor Descriptor =>
         new DestinationDescriptor(Texts.Get<ICustomUploaderLanguage>().UploadMenuItem, iconKey: CustomUploaderIconProvider.GenericKey, hasDynamicDestinations: true,
             useDynamicsOnly: true, isLinkable: true);
 
-    /// <summary>
-    /// Only shown when there is an uploader
-    /// </summary>
-    public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && CustomUploaderPlugin.GetUploaders().Length > 0;
+    protected override IReadOnlyList<UploaderDefinition> GetDefinitions() => CustomUploaderPlugin.GetUploaders();
 
-    public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken) =>
-        new ValueTask<IReadOnlyList<IDestination>>(CreateDestinations());
-
-    /// <summary>
-    /// A recipe with this destination may send the capture to every uploader
-    /// </summary>
-    public IEnumerable<RecipeGatedAction> GetGatedActions() => CustomUploaderPlugin.GetUploaders().Select(CustomUploaderPlugin.CreateGatedAction);
-
-    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
-    {
-        var destinations = CreateDestinations();
-        if (destinations.Count == 1)
-        {
-            return await destinations[0].ExportAsync(request, cancellationToken).ConfigureAwait(false);
-        }
-
-        if (destinations.Count == 0 || !request.Ui.IsInteractive)
-        {
-            // Without the user it's unclear which uploader is meant, a recipe uses the step with the uploader's name
-            Log.WarnFormat("Custom uploader: {0} uploaders, none picked", destinations.Count);
-            return ExportResult.Declined;
-        }
-
-        var picked = await request.Ui.PickDestinationAsync(destinations, request.Metadata, cancellationToken).ConfigureAwait(false);
-        return picked == null ? ExportResult.Declined : (await picked.ExportAsync(request, cancellationToken).ConfigureAwait(false)).WithExportedBy(picked);
-    }
-
-    private IReadOnlyList<IDestination> CreateDestinations() =>
-        CustomUploaderPlugin.GetUploaders().Select(definition => (IDestination)new UploaderDestination(_plugin, definition)).ToList();
+    protected override DefinitionItemDestination<UploaderDefinition> CreateDestination(UploaderDefinition definition) => new UploaderDestination(_plugin, definition);
 }
 
 /// <summary>
 /// One imported uploader.
 /// </summary>
-internal sealed class UploaderDestination : DestinationBase, IRequiresRecipeAuthorization
+internal sealed class UploaderDestination : DefinitionItemDestination<UploaderDefinition>
 {
     private readonly CustomUploaderPlugin _plugin;
 
-    public UploaderDestination(CustomUploaderPlugin plugin, UploaderDefinition definition)
+    public UploaderDestination(CustomUploaderPlugin plugin, UploaderDefinition definition) : base(UploaderKind.Instance, definition)
     {
         _plugin = plugin;
-        Definition = definition;
-    }
-
-    public UploaderDefinition Definition { get; }
-
-    public override string Designation => CustomUploaderDestination.DesignationName + ":" + Definition.Name;
-
-    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Definition.Name, iconKey: CustomUploaderIconProvider.KeyFor(Definition.Name), isLinkable: true);
-
-    public IEnumerable<RecipeGatedAction> GetGatedActions()
-    {
-        yield return CustomUploaderPlugin.CreateGatedAction(Definition);
     }
 
     public override Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken) =>

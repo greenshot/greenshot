@@ -345,7 +345,7 @@
             },
             "Filename": {
               "type": "string",
-              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${var.Filename}') to the image file to load."
+              "description": "Used by 'Source' step (SourceType=File): Path to the image file to load; not set: the variable Filename (e.g. given on the command line). A folder can't come from the capture or from outside, so ${var.*} isn't allowed here."
             },
             "Text": {
               "type": "string",

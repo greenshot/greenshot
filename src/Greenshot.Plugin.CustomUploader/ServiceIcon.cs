@@ -23,6 +23,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Http;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.CustomUploader.Sxcu;
@@ -45,7 +46,7 @@ internal static class ServiceIcon
     /// Fetch and keep the icon of the uploader in the background when it has none: after the import (again = true),
     /// or the first time Greenshot needs it (an import whose fetch failed, an uploader imported before icons existed).
     /// </summary>
-    public static void FetchInBackground(UploaderStore store, string id, UploaderDefinition definition, bool again = false)
+    public static void FetchInBackground(DefinitionStore<UploaderDefinition> store, string id, UploaderDefinition definition, bool again = false)
     {
         if (id == null || definition == null) return;
         if (again)
@@ -61,7 +62,7 @@ internal static class ServiceIcon
         FetchAndKeepAsync(store, id, definition).FireAndLog($"The icon of the uploader {definition.Name}", Log);
     }
 
-    private static async Task FetchAndKeepAsync(UploaderStore store, string id, UploaderDefinition definition)
+    private static async Task FetchAndKeepAsync(DefinitionStore<UploaderDefinition> store, string id, UploaderDefinition definition)
     {
         // UI event → background work, like an export (the proxy lookup of the first request can take a while)
         await ThreadPoolSwitch.SwitchToThreadPoolAsync();
