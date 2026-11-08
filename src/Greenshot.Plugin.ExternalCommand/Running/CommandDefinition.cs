@@ -35,7 +35,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
 {
     /// <summary>
     /// An external command as a definition: the same fields as the ExternalCommand recipe step, without the ResultName, which
-    /// belongs to the recipe. Stored in [ExternalCommand] Definitions and in .gscommand.json files.
+    /// belongs to the recipe. Stored as a .gscommand.json file in the Commands folder.
     /// See docs/vNext/destination-definitions.md and docs/vNext/capture-recipes.md.
     /// </summary>
     public sealed class CommandDefinition
@@ -123,14 +123,14 @@ namespace Greenshot.Plugin.ExternalCommand.Running
         public static readonly string[] ClipboardValues = { "None", "Output", "Url" };
 
         /// <summary>
-        /// Indented, ASCII only (the stored value is encrypted with StringExtensions.Encrypt, which keeps only ASCII)
+        /// Indented, as in the .gscommand.json files of the Commands folder (UTF-8: nothing needs escaping for HTML)
         /// </summary>
         public static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             PropertyNameCaseInsensitive = true,
             WriteIndented = true,
-            Encoder = JavaScriptEncoder.Default,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true
         };
@@ -312,13 +312,13 @@ namespace Greenshot.Plugin.ExternalCommand.Running
     }
 
     /// <summary>
-    /// The command definitions in [ExternalCommand] Definitions, with the built-in ones (MS Paint, Paint.NET when installed).
+    /// The commands, with the built-in ones (MS Paint, Paint.NET when installed): one .gscommand.json file per command in the
+    /// Commands folder (<see cref="DefinitionFolder"/>), plain JSON (a command holds no secrets), checked on each read.
     /// </summary>
     public sealed class CommandStore : DefinitionStore<CommandDefinition>
     {
-        public CommandStore(IDictionary<string, string> definitions, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
-            IEnumerable<CommandDefinition> builtIns = null)
-            : base(CommandKind.Instance, definitions, changed, null, protect, unprotect, builtIns)
+        public CommandStore(IDictionary<string, string> definitions, Action changed, IEnumerable<CommandDefinition> builtIns = null)
+            : base(CommandKind.Instance, definitions, changed, null, text => text, text => text, builtIns)
         {
         }
     }

@@ -360,7 +360,7 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     var builtIn = new CommandDefinition { Name = "Built-in", Program = "builtin.exe" };
-                    var store = new CommandStore(new Dictionary<string, string>(), null, text => text, text => text, new[] { builtIn });
+                    var store = new CommandStore(new Dictionary<string, string>(), null, new[] { builtIn });
                     store.Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
                     var viewModel = new CommandSettingsViewModel(store);
                     var editor = new CommandEditorWindow(new CommandEditorViewModel(new CommandDefinition(), null), viewModel.Save);

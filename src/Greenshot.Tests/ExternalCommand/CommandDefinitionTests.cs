@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Greenshot.Base.Definitions;
 using Greenshot.Base.Recipes;
@@ -44,7 +45,36 @@ namespace Greenshot.Tests.ExternalCommand
         }
 
         private static CommandStore NewStore(params CommandDefinition[] builtIns) =>
-            new CommandStore(new Dictionary<string, string>(), null, text => text, text => text, builtIns);
+            new CommandStore(new Dictionary<string, string>(), null, builtIns);
+
+        [Fact]
+        public void Store_InAFolder_OneReadableFilePerCommand()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), "greenshot-commands-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var store = new CommandStore(new DefinitionFolder(directory, CommandKind.FileExtension, CommandKind.MaximumLength), null);
+                string id = store.Add(new CommandDefinition { Name = "Viewer/big", Program = "viewer.exe" });
+
+                Assert.Equal("Viewer_big.gscommand.json", id);
+                string content = File.ReadAllText(Path.Combine(directory, id));
+                Assert.Contains("\"program\": \"viewer.exe\"", content);
+                Assert.Contains("\"arguments\": \"\\\"${export.file}\\\"\"", content);
+
+                // A file added by hand is seen at once, one which doesn't pass the checks can't be read
+                File.WriteAllText(Path.Combine(directory, "other.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"other.exe\"}");
+                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+                Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
+                Assert.Single(store.GetAll(), stored => stored.Definition == null);
+
+                Assert.True(store.Remove(id));
+                Assert.False(File.Exists(Path.Combine(directory, id)));
+            }
+            finally
+            {
+                if (Directory.Exists(directory)) Directory.Delete(directory, true);
+            }
+        }
 
         [Fact]
         public void Parse_WrittenDefinition_ReadsTheSame()
@@ -143,7 +173,7 @@ namespace Greenshot.Tests.ExternalCommand
             config.CommandlineTemplate["Paint"] = "paint.exe";
             config.ArgumentTemplate["Paint"] = CommandDefinition.DefaultArguments;
             var builtIn = new CommandDefinition { Name = "Paint", Program = "paint.exe", RunInBackground = true };
-            var store = new CommandStore(config.Definitions, null, text => text, text => text, new[] { builtIn });
+            var store = new CommandStore(new Dictionary<string, string>(), null, new[] { builtIn });
 
             CommandDefinitions.ConvertOnce(config, store);
             CommandDefinitions.ConvertOnce(config, store);
@@ -164,7 +194,7 @@ namespace Greenshot.Tests.ExternalCommand
             config.OnAfterLoad();
             config.Commands.Add("Paint");
             config.CommandlineTemplate["Paint"] = @"D:\Portable\paint.exe";
-            var store = new CommandStore(config.Definitions, null, text => text, text => text, new[] { new CommandDefinition { Name = "Paint", Program = "paint.exe" } });
+            var store = new CommandStore(new Dictionary<string, string>(), null, new[] { new CommandDefinition { Name = "Paint", Program = "paint.exe" } });
 
             CommandDefinitions.ConvertOnce(config, store);
 
@@ -180,7 +210,7 @@ namespace Greenshot.Tests.ExternalCommand
 
             // Stored before the program was installed: the stored one takes the place of the built-in one
             var definitions = new Dictionary<string, string> { ["id"] = CommandKind.Instance.Write(new CommandDefinition { Name = "Paint", Program = "mine.exe" }) };
-            var withStored = new CommandStore(definitions, null, text => text, text => text, new[] { new CommandDefinition { Name = "Paint", Program = "paint.exe" } });
+            var withStored = new CommandStore(definitions, null, new[] { new CommandDefinition { Name = "Paint", Program = "paint.exe" } });
             Assert.Single(withStored.GetAll());
             Assert.Equal("mine.exe", withStored.Find("Paint").Definition.Program);
             Assert.False(withStored.IsBuiltInName("Paint"));

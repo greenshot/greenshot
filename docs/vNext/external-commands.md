@@ -6,7 +6,8 @@ command is a destination of its own ("External" + its name, like in Greenshot 1.
 
 ## The settings page
 
-Settings > Plugins > External command lists the commands with the program and its arguments.
+Settings > Plugins > External command lists the commands of the `Commands` folder ([the file](#the-file)) with the program
+and its arguments.
 
 | Button | What it does |
 |---|---|
@@ -71,5 +72,8 @@ A command file is JSON with the fields of the editor; only `kind`, `name` and `p
 }
 ```
 
-The commands are stored encrypted in greenshot.ini, `[ExternalCommand] Definitions`. Only import commands from someone you
-trust: the program runs with your rights.
+Each command is a file of this format in the `Commands` folder next to greenshot.ini (in `%APPDATA%\Greenshot`, or next to
+Greenshot.exe for a portable install), named after the command, plain JSON (a command holds no secrets). A file added,
+changed or removed there by hand is seen at once (a new or removed destination after a restart) and checked like an
+imported file; one which doesn't pass is listed as "can't be read" and isn't used. An administrator can put commands into
+the folder for a user. Only import commands from someone you trust: the program runs with your rights.

@@ -167,11 +167,16 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
             throw new DefinitionFileException(Language.TooltipDuplicateName);
         }
 
-        string id = _store.Add(definition);
-        if (originalId != null && originalId != id)
+        string id = Write(() =>
         {
-            _store.Remove(originalId);
-        }
+            string newId = _store.Add(definition);
+            if (originalId != null && originalId != newId)
+            {
+                _store.Remove(originalId);
+            }
+
+            return newId;
+        });
 
         Log.InfoFormat("Saved the external command {0}", definition.Name);
         Refresh();
@@ -212,9 +217,10 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Add the confirmed command, it replaces the one with the same name.
     /// </summary>
+    /// <exception cref="DefinitionFileException">the file of the command can't be written</exception>
     internal void Import(CommandDefinition definition)
     {
-        string id = _store.Add(definition);
+        string id = Write(() => _store.Add(definition));
         Log.InfoFormat("Imported the external command {0}: {1}", definition.Name, _store.Kind.Describe(definition));
         Refresh();
         SelectedCommand = Commands.FirstOrDefault(item => item.Id == id);
@@ -232,11 +238,29 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
         Log.InfoFormat("Exported the external command {0} to {1}", definition.Name, path);
     }
 
+    /// <exception cref="DefinitionFileException">the file of the command can't be deleted</exception>
     public void RemoveSelected()
     {
         if (!CanRemoveSelected) return;
-        _store.Remove(SelectedCommand.Id);
+        string id = SelectedCommand.Id;
+        Write(() => _store.Remove(id));
         Refresh();
+    }
+
+    /// <summary>
+    /// A change of the Commands folder, a file which can't be written or deleted is reported with the reason
+    /// </summary>
+    private static TResult Write<TResult>(Func<TResult> change)
+    {
+        try
+        {
+            return change();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn("Can't change the Commands folder", ex);
+            throw new DefinitionFileException(ex.Message, ex);
+        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = null)

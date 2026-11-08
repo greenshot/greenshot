@@ -82,7 +82,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
         }
 
         /// <summary>
-        /// The definitions of the configuration with the built-in ones; the commands of 1.3 are converted the first time.
+        /// The commands of the Commands folder with the built-in ones; the commands of 1.3 are converted the first time.
         /// Without the configuration an empty store.
         /// </summary>
         public static CommandStore CreateStore()
@@ -94,15 +94,21 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             }
 
             config.OnAfterLoad();
-            var store = new CommandStore(config.Definitions, () =>
+            var store = new CommandStore(new DefinitionFolder(FolderPath, CommandKind.FileExtension, CommandKind.MaximumLength), null, BuiltIns(config));
+            if (!config.DefinitionsConverted)
             {
-                config.MarkChanged();
-                // Saved at once, like the custom uploaders
+                ConvertOnce(config, store);
+                // The conversion is kept at once, it isn't done again at the next start
                 IniConfigRegistry.Get()?.Save();
-            }, builtIns: BuiltIns(config));
-            ConvertOnce(config, store);
+            }
+
             return store;
         }
+
+        /// <summary>
+        /// The folder of the commands, next to greenshot.ini: one .gscommand.json file per command
+        /// </summary>
+        public static string FolderPath => DefinitionFolder.NextToConfiguration("Commands");
 
         /// <summary>
         /// The definition with the name, null when there is none
@@ -177,7 +183,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
                     store.Add(definition);
                     Log.InfoFormat("Converted the external command {0} of Greenshot 1.3", definition.Name);
                 }
-                catch (Exception ex) when (ex is DefinitionFileException or InvalidOperationException)
+                catch (Exception ex) when (ex is DefinitionFileException or InvalidOperationException or IOException or UnauthorizedAccessException)
                 {
                     Log.WarnFormat("The external command {0} of Greenshot 1.3 can't be converted: {1}", name, ex.Message);
                 }

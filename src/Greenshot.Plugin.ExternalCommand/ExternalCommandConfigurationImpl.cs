@@ -27,7 +27,6 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
 {
     public void OnAfterLoad()
     {
-        Definitions ??= new Dictionary<string, string>();
         Commands ??= new List<string>();
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();

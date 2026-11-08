@@ -91,7 +91,16 @@ public partial class CustomUploaderSettingsView : UserControl
         int choice = DefinitionImport.Confirm(window, UploaderTexts.ImportTitle, _viewModel.DescribeImport(definition), buttons);
         if (choice >= 0 && choice < buttons.Length - 1)
         {
-            _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
+            try
+            {
+                _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // The Uploaders folder can't be written
+                Log.Warn("Can't write the uploader file", ex);
+                ThemedMessageBox.Show(window, string.Format(UploaderTexts.ImportFailed, Path.GetFileName(path), ex.Message), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 
@@ -132,9 +141,19 @@ public partial class CustomUploaderSettingsView : UserControl
     {
         var uploader = _viewModel.SelectedUploader;
         if (uploader == null) return;
-        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.RemoveQuestion, uploader.Name), UploaderTexts.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.RemoveQuestion, uploader.Name), UploaderTexts.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
         {
             _viewModel.RemoveSelectedUploader();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn("Can't delete the uploader file", ex);
+            ThemedMessageBox.Show(Window.GetWindow(this), ex.Message, UploaderTexts.UploadersTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

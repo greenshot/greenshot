@@ -55,8 +55,9 @@ public sealed class StoredDefinition<T> where T : class
 }
 
 /// <summary>
-/// The definitions of a kind in an ini section: one encrypted JSON value per definition (<see cref="StringExtensions.Encrypt"/>),
-/// and the icons per definition (base64 PNG). Used from the settings (UI thread) and the exports (thread pool), so every access
+/// The definitions of a kind: one JSON value per definition, in a folder of files (<see cref="DefinitionFolder"/>) or a dictionary of
+/// an ini section, protected as the plugin says (default <see cref="StringExtensions.Encrypt"/>), and the icons per definition
+/// (base64 PNG). Used from the settings (UI thread) and the exports (thread pool), so every access
 /// is locked; one lock per kind, the stores of a kind share the dictionaries of the configuration.
 /// </summary>
 /// <typeparam name="T">the definition</typeparam>
@@ -75,7 +76,7 @@ public class DefinitionStore<T> where T : class
     private readonly Func<string, string> _unprotect;
 
     /// <param name="kind">reads, writes and names the definitions</param>
-    /// <param name="definitions">id to encrypted definition</param>
+    /// <param name="definitions">id to protected definition: a <see cref="DefinitionFolder"/> (the id is the file name) or a dictionary</param>
     /// <param name="changed">Called after a change, saves the configuration</param>
     /// <param name="icons">id of the definition to its icon (base64 PNG), null: not kept</param>
     /// <param name="protect">Encrypts, null: <see cref="StringExtensions.Encrypt"/></param>
@@ -167,7 +168,7 @@ public class DefinitionStore<T> where T : class
         lock (SyncRoot)
         {
             // Also one which can't be read anymore can't be replaced by name: it gets a new id
-            id = Find(name)?.Id ?? Guid.NewGuid().ToString("N");
+            id = Find(name)?.Id ?? (_definitions is IDefinitionIds ids ? ids.NewId(name) : Guid.NewGuid().ToString("N"));
             _definitions[id] = _protect(Kind.Write(definition));
             _icons.Remove(id);
             alsoForId?.Invoke(id);

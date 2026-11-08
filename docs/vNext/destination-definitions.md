@@ -13,10 +13,11 @@ definition holds, how it is checked and how it runs.
 | Type | What it does |
 |---|---|
 | `IDefinitionKind<T>` | Implemented by the plugin, once per kind: the designation (e.g. `CustomUploader`), the name of a definition, `Read` (parse and check JSON, null when it doesn't pass), `Write` (JSON, ASCII only), `Describe` (a few words for the list, e.g. the server) and `CreateGatedAction` (what the user approves for a recipe) |
-| `DefinitionStore<T>` | The definitions in an ini section, one encrypted JSON value per definition (`StringExtensions.Encrypt`), and an icon per definition (base64 PNG). `GetAll`, `GetReadable`, `Find`, `FindOrOnly`, `Add` (replaces the one with the same name, drops its icon), `Remove`, `GetIcon`, `SetIcon`. A plugin can derive from it to keep more next to the definitions under the same lock. Built-in definitions (given to the constructor) are listed with the stored ones (`IsBuiltIn`, id `builtin:name`), aren't stored and can't be replaced; a stored definition with the same name takes the place of a built-in one |
+| `DefinitionStore<T>` | The definitions, one JSON value per definition in a `DefinitionFolder` (or any dictionary, e.g. in tests), protected as the plugin says (default `StringExtensions.Encrypt`), and an icon per definition (base64 PNG, in the ini section). `GetAll`, `GetReadable`, `Find`, `FindOrOnly`, `Add` (replaces the one with the same name, drops its icon), `Remove`, `GetIcon`, `SetIcon`. A plugin can derive from it to keep more next to the definitions under the same lock. Built-in definitions (given to the constructor) are listed with the stored ones (`IsBuiltIn`, id `builtin:name`), aren't stored and can't be replaced; a stored definition with the same name takes the place of a built-in one |
 | `DefinitionDestination<T>` | The destination of the kind: one sub destination per definition, only shown when there is one, all their approvals for a recipe. An export with one definition uses it, with more the user picks one; without the user it is declined |
 | `DefinitionItemDestination<T>` | The destination of one definition: designation `Kind:name`, icon key `kind:name`, the approval of the definition. The plugin writes `ExportAsync` |
 | `DefinitionIconProvider<T>`, `DefinitionIcons` | The icon of a definition from the store, else the generic icon of the kind. `kind:` alone is the icon of the only definition, else the generic one. `OnIconMissing` lets the plugin fetch one |
+| `DefinitionFolder` | A folder as the dictionary of a store: one file per definition (the id is the file name, made of the name: `NewId`), read on each access so changes by hand are seen, written to a new file first. `NextToConfiguration(name)` is the folder next to greenshot.ini (portable: next to the executable) |
 | `DefinitionListItem` | A row of the settings list: icon, name, `Describe`, read by a screen reader as "name, description"; `IsBuiltIn`, `IsEditable` |
 | `DefinitionListView` (`Greenshot.Base.Wpf.Views`) | The list on the plugin's own settings page: `Title` (also the list's name for a screen reader), `Items`, `SelectedItem`, `EmptyText` when there is none. The plugin adds its own buttons next to it |
 | `DefinitionImport` | The steps of an import, used by each plugin on its own page: `PickFile`, `ReadFile` (size limit, UTF-8, the plugin's parser; the reason when it fails), `Confirm` (what it does, Cancel is the default, the buttons react after a second), `PickExportFile` and `FileNameFor` for an export |
@@ -25,7 +26,7 @@ definition holds, how it is checked and how it runs.
 ## Rules
 
 - **Read is the check.** A stored definition goes through `IDefinitionKind<T>.Read` each time it is read, like an imported
-  file. Someone who changes greenshot.ini by hand can't get past the checks of the import.
+  file. Someone who changes a file of the folder by hand can't get past the checks of the import.
 - **What the user approved is what runs.** `CreateGatedAction` names what matters (the server, the program). A definition
   imported again with another server gives another target, so a recipe which uses it needs a new approval.
 - **The name is the key.** Names are unique ignoring case; recipes and designations use them. An import with a known name
@@ -40,8 +41,8 @@ definition holds, how it is checked and how it runs.
 The custom uploader is the example (`src/Greenshot.Plugin.CustomUploader`):
 
 1. `UploaderKind` implements `IDefinitionKind<UploaderDefinition>` with the checks of `UploaderFile`.
-2. `UploaderStore` derives from `DefinitionStore<UploaderDefinition>` and keeps the reminders and the upload history next
-   to the uploaders.
+2. `UploaderStore` derives from `DefinitionStore<UploaderDefinition>`: the uploaders are `.sxcu` files in the `Uploaders`
+   folder with only their keys encrypted, the reminders and the upload history stay in `[CustomUploader]`.
 3. `CustomUploaderDestination` and `UploaderDestination` derive from the destination classes; only the menu text and the
    upload are their own.
 4. `CustomUploaderIconProvider` derives from `DefinitionIconProvider<T>` and fetches the icon of the service when one is
@@ -54,7 +55,8 @@ The external command (`src/Greenshot.Plugin.ExternalCommand`, [external-commands
 user, with a few differences:
 
 - `CommandKind` reads and checks `.gscommand.json` files (`CommandKind.Parse`); `CommandStore` has the built-in commands
-  (MS Paint, Paint.NET when installed). The commands of 1.3 are converted once (`CommandDefinitions.ConvertOnce`).
+  (MS Paint, Paint.NET when installed); the commands are plain `.gscommand.json` files in the `Commands` folder (a command
+  holds no secrets). The commands of 1.3 are converted once (`CommandDefinitions.ConvertOnce`).
 - Each command stays a destination of its own, `External name` like in 1.3, so `OutputDestinations` and recipes keep
   working: `ExternalCommandDestination` derives from `DefinitionItemDestination<T>` and overrides the designation and the icon
   key (`extcmd:name`, the icon of the program). There is no destination of the kind.

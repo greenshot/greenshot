@@ -31,10 +31,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 [Description("Greenshot ExternalCommand Plugin configuration")]
 public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 {
-    [Description("The external commands, each encrypted. Change them in the settings, they can't be edited here.")]
-    Dictionary<string, string> Definitions { get; set; }
-
-    [Description("True when the commands of Greenshot 1.3 (the keys below) were converted into Definitions; they are only read once and kept for going back to 1.3.")]
+    [Description("True when the commands of Greenshot 1.3 (the keys below) were converted into files of the Commands folder; they are only read once and kept for going back to 1.3.")]
     bool DefinitionsConverted { get; set; }
 
     [Description("Greenshot 1.3: the commands that are available.")]

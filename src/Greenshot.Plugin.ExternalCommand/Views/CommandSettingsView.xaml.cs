@@ -101,9 +101,18 @@ public partial class CommandSettingsView : UserControl
 
         // The gate of the import: Cancel is the default, the buttons only react after a moment, so a double click doesn't import
         var buttons = new[] { CommandTexts.ImportButton, Texts.Core.Cancel };
-        if (DefinitionImport.Confirm(window, CommandTexts.ImportTitle, _viewModel.DescribeImport(definition), buttons) == 0)
+        if (DefinitionImport.Confirm(window, CommandTexts.ImportTitle, _viewModel.DescribeImport(definition), buttons) != 0)
+        {
+            return;
+        }
+
+        try
         {
             _viewModel.Import(definition);
+        }
+        catch (DefinitionFileException ex)
+        {
+            ThemedMessageBox.Show(window, string.Format(CommandTexts.ImportFailed, Path.GetFileName(path), ex.Message), CommandTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -133,9 +142,18 @@ public partial class CommandSettingsView : UserControl
         var command = _viewModel.SelectedCommand;
         if (command == null || !_viewModel.CanRemoveSelected) return;
         if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(CommandTexts.RemoveQuestion, command.Name), CommandTexts.LabelCommands, MessageBoxButton.YesNo,
-                MessageBoxImage.Question) == MessageBoxResult.Yes)
+                MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
         {
             _viewModel.RemoveSelected();
+        }
+        catch (DefinitionFileException ex)
+        {
+            ThemedMessageBox.Show(Window.GetWindow(this), ex.Message, CommandTexts.LabelCommands, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }
