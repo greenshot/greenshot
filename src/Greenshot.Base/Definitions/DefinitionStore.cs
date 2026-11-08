@@ -31,8 +31,9 @@ namespace Greenshot.Base.Definitions;
 /// </summary>
 public sealed class StoredDefinition<T> where T : class
 {
-    public StoredDefinition(string id, T definition, string name, bool isBuiltIn = false)
+    public StoredDefinition(string id, T definition, string name, bool isBuiltIn = false, bool isApproved = true)
     {
+        IsApproved = isApproved;
         Id = id;
         Definition = definition;
         Name = name;
@@ -43,6 +44,16 @@ public sealed class StoredDefinition<T> where T : class
     /// Comes with Greenshot or the plugin: not stored, can't be changed or removed
     /// </summary>
     public bool IsBuiltIn { get; }
+
+    /// <summary>
+    /// False for a file which was added or changed outside Greenshot and which the user didn't approve yet: it isn't used
+    /// </summary>
+    public bool IsApproved { get; }
+
+    /// <summary>
+    /// Can be read and is approved: it is used (a destination, in recipes)
+    /// </summary>
+    public bool IsUsable => Definition != null && IsApproved;
 
     public string Id { get; }
 
@@ -112,7 +123,7 @@ public class DefinitionStore<T> where T : class
             // A stored definition with the name of a built-in one (stored before the program was installed) takes its place
             return stored
                 .Concat(_builtIns
-                    .Where(builtIn => !stored.Any(s => s.Definition != null && string.Equals(s.Name, Kind.NameOf(builtIn), StringComparison.OrdinalIgnoreCase)))
+                    .Where(builtIn => !stored.Any(s => s.IsUsable && string.Equals(s.Name, Kind.NameOf(builtIn), StringComparison.OrdinalIgnoreCase)))
                     .Select(builtIn => new StoredDefinition<T>(BuiltInIdPrefix + Kind.NameOf(builtIn), builtIn, Kind.NameOf(builtIn), true)))
                 .OrderBy(stored => stored.Definition == null)
                 .ThenBy(stored => stored.Name, StringComparer.CurrentCultureIgnoreCase)
@@ -121,15 +132,15 @@ public class DefinitionStore<T> where T : class
     }
 
     /// <summary>
-    /// The definitions which can be read, sorted by name
+    /// The definitions which are used: they can be read and are approved, sorted by name
     /// </summary>
-    public IReadOnlyList<T> GetReadable() => GetAll().Where(stored => stored.Definition != null).Select(stored => stored.Definition).ToList();
+    public IReadOnlyList<T> GetReadable() => GetAll().Where(stored => stored.IsUsable).Select(stored => stored.Definition).ToList();
 
     /// <summary>
-    /// The definition with the name (ignoring case), null when there is none or it can't be read
+    /// The definition with the name (ignoring case), null when there is none, it can't be read or isn't approved
     /// </summary>
     public StoredDefinition<T> Find(string name) =>
-        string.IsNullOrEmpty(name) ? null : GetAll().FirstOrDefault(stored => stored.Definition != null && string.Equals(stored.Name, name, StringComparison.OrdinalIgnoreCase));
+        string.IsNullOrEmpty(name) ? null : GetAll().FirstOrDefault(stored => stored.IsUsable && string.Equals(stored.Name, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// The definition with the name, or without a name the only one there is (a recipe written when there was one).
@@ -167,8 +178,9 @@ public class DefinitionStore<T> where T : class
         string id;
         lock (SyncRoot)
         {
-            // Also one which can't be read anymore can't be replaced by name: it gets a new id
-            id = Find(name)?.Id ?? (_definitions is IDefinitionIds ids ? ids.NewId(name) : Guid.NewGuid().ToString("N"));
+            // Also one which can't be read anymore can't be replaced by name: it gets a new id. One which isn't approved is
+            // replaced: what is written is approved.
+            id = GetAll().FirstOrDefault(stored => !stored.IsBuiltIn && stored.Definition != null && string.Equals(stored.Name, name, StringComparison.OrdinalIgnoreCase))?.Id ?? (_definitions is IDefinitionIds ids ? ids.NewId(name) : Guid.NewGuid().ToString("N"));
             _definitions[id] = _protect(Kind.Write(definition));
             _icons.Remove(id);
             alsoForId?.Invoke(id);
@@ -206,6 +218,26 @@ public class DefinitionStore<T> where T : class
         }
 
         return removed;
+    }
+
+    /// <summary>
+    /// The user approved the definition as it is (a file added or changed outside Greenshot)
+    /// </summary>
+    /// <returns>false when the definitions of the store need no approval or there is none with the id</returns>
+    public bool Approve(string id)
+    {
+        lock (SyncRoot)
+        {
+            if (id == null || _definitions is not IDefinitionApprovals approvals || !_definitions.ContainsKey(id))
+            {
+                return false;
+            }
+
+            approvals.Approve(id);
+        }
+
+        _changed();
+        return true;
     }
 
     /// <summary>
@@ -271,7 +303,8 @@ public class DefinitionStore<T> where T : class
     /// </summary>
     protected void OnChanged() => _changed();
 
-    private StoredDefinition<T> Stored(string id, T definition) => new StoredDefinition<T>(id, definition, definition == null ? null : Kind.NameOf(definition));
+    private StoredDefinition<T> Stored(string id, T definition) =>
+        new StoredDefinition<T>(id, definition, definition == null ? null : Kind.NameOf(definition), isApproved: _definitions is not IDefinitionApprovals approvals || approvals.IsApproved(id));
 
     private T ReadDefinition(string protectedJson)
     {

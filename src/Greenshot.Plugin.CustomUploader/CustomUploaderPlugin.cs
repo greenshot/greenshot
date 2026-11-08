@@ -110,7 +110,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         }
 
         config.OnAfterLoad();
-        return new UploaderStore(new DefinitionFolder(FolderPath, UploaderFile.FileExtension, UploaderFile.MaximumLength), config.UploadHistory, () =>
+        return new UploaderStore(DefinitionFolder.Open(FolderPath, UploaderFile.FileExtension, UploaderFile.MaximumLength), config.UploadHistory, () =>
         {
             config.MarkChanged();
             // Saved at once: an import is confirmed, and a deletion link must not get lost

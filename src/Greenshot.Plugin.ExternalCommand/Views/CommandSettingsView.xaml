@@ -23,6 +23,7 @@
         <WrapPanel Orientation="Horizontal" Margin="0,6,0,0">
             <Button Content="{wpf:Text ExternalCommand.SettingsNew}" Click="Add_Click" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsImport}" Click="Import_Click" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
+            <Button Content="{wpf:Text ExternalCommand.SettingsApprove}" Click="Approve_Click" IsEnabled="{Binding CanApproveSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsEdit}" Click="Edit_Click" IsEnabled="{Binding CanEditSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsExport}" Click="Export_Click" IsEnabled="{Binding CanExportSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsDelete}" Click="Remove_Click" IsEnabled="{Binding CanRemoveSelected}" Style="{StaticResource LightErrorButtonStyle}" Margin="0,0,0,6"/>
@@ -40,6 +41,8 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
+        <TextBlock Text="{wpf:Text ExternalCommand.ApprovalHint}" TextWrapping="Wrap" Margin="0,6,0,0"
+                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
         <TextBlock Text="{wpf:Text ExternalCommand.RestartHint}" TextWrapping="Wrap" Margin="0,6,0,0"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
     </StackPanel>

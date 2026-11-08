@@ -32,6 +32,21 @@ namespace Greenshot.Plugin.ExternalCommand
     public interface IExternalCommandLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// A command file copied into the Commands folder or changed outside Greenshot is only used after you approve it here. The folder is read when Greenshot starts.
+        /// </summary>
+        string ApprovalHint { get; }
+
+        /// <summary>
+        /// The command {0} was added or changed outside Greenshot. Use it?\n\nGreenshot will run this program with your captures:\n{1}
+        /// </summary>
+        string ApproveQuestion { get; }
+
+        /// <summary>
+        /// Approve a command
+        /// </summary>
+        string ApproveTitle { get; }
+
+        /// <summary>
         /// {0} comes with Greenshot: it can be exported, but not changed or removed.
         /// </summary>
         string BuiltInHint { get; }
@@ -317,6 +332,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string NoCommands { get; }
 
         /// <summary>
+        /// Not approved: {0}
+        /// </summary>
+        string NotApproved { get; }
+
+        /// <summary>
         /// Remove the command {0}?
         /// </summary>
         string RemoveQuestion { get; }
@@ -325,6 +345,11 @@ namespace Greenshot.Plugin.ExternalCommand
         /// New and removed commands show up in the menus after Greenshot is restarted, a changed command is used at once.
         /// </summary>
         string RestartHint { get; }
+
+        /// <summary>
+        /// Approve...
+        /// </summary>
+        string SettingsApprove { get; }
 
         /// <summary>
         /// Delete

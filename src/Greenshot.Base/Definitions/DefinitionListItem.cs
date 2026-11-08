@@ -37,8 +37,10 @@ public sealed class DefinitionListItem
     /// <param name="isReadable">false when the definition can't be read</param>
     /// <param name="icon">the icon of the definition, else the generic one</param>
     /// <param name="isBuiltIn">comes with the plugin, can't be changed or removed</param>
-    public DefinitionListItem(string id, string name, string description, bool isReadable, ImageSource icon, bool isBuiltIn = false)
+    /// <param name="isApproved">false for a file added or changed outside Greenshot which the user didn't approve yet</param>
+    public DefinitionListItem(string id, string name, string description, bool isReadable, ImageSource icon, bool isBuiltIn = false, bool isApproved = true)
     {
+        IsApproved = isApproved;
         IsBuiltIn = isBuiltIn;
         Id = id;
         Name = name;
@@ -51,13 +53,23 @@ public sealed class DefinitionListItem
     /// The item of a stored definition
     /// </summary>
     /// <param name="unreadableName">the name shown for a definition which can't be read</param>
-    public static DefinitionListItem From<T>(DefinitionStore<T> store, StoredDefinition<T> stored, string unreadableName, ImageSource genericIcon) where T : class
+    /// <param name="notApprovedFormat">the description of a definition which isn't approved, {0} is what it does</param>
+    public static DefinitionListItem From<T>(DefinitionStore<T> store, StoredDefinition<T> stored, string unreadableName, ImageSource genericIcon, string notApprovedFormat = "{0}") where T : class
     {
         if (store == null) throw new ArgumentNullException(nameof(store));
         if (stored == null) throw new ArgumentNullException(nameof(stored));
-        bool readable = stored.Definition != null;
-        return new DefinitionListItem(stored.Id, readable ? stored.Name : unreadableName, readable ? store.Kind.Describe(stored.Definition) : null, readable,
-            LoadIcon(store.GetIcon(stored.Id)) ?? genericIcon, stored.IsBuiltIn);
+        return new DefinitionListItem(stored.Id, stored.Definition != null ? stored.Name : unreadableName, DescriptionOf(store.Kind, stored, notApprovedFormat),
+            stored.Definition != null, LoadIcon(store.GetIcon(stored.Id)) ?? genericIcon, stored.IsBuiltIn, stored.IsApproved);
+    }
+
+    /// <summary>
+    /// What the definition does, with <paramref name="notApprovedFormat"/> when it isn't approved; null when it can't be read
+    /// </summary>
+    public static string DescriptionOf<T>(IDefinitionKind<T> kind, StoredDefinition<T> stored, string notApprovedFormat) where T : class
+    {
+        if (stored?.Definition == null) return null;
+        string description = kind.Describe(stored.Definition);
+        return stored.IsApproved ? description : string.Format(notApprovedFormat ?? "{0}", description);
     }
 
     public string Id { get; }
@@ -77,9 +89,19 @@ public sealed class DefinitionListItem
     public bool IsBuiltIn { get; }
 
     /// <summary>
-    /// A stored definition which can be read: it can be changed and exported
+    /// False for a file added or changed outside Greenshot which the user didn't approve yet: it isn't used
     /// </summary>
-    public bool IsEditable => IsReadable && !IsBuiltIn;
+    public bool IsApproved { get; }
+
+    /// <summary>
+    /// Can be read and isn't approved: the user can approve it
+    /// </summary>
+    public bool CanBeApproved => IsReadable && !IsApproved;
+
+    /// <summary>
+    /// A stored and approved definition which can be read: it can be changed
+    /// </summary>
+    public bool IsEditable => IsReadable && IsApproved && !IsBuiltIn;
 
     public ImageSource Icon { get; }
 

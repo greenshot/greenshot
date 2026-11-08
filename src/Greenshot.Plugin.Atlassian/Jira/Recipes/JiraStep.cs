@@ -51,13 +51,15 @@ namespace Greenshot.Plugin.Atlassian.Jira.Recipes
     [StepInputVariable("Jira.IssueKey", ContractDataType.String, Description = "Issue to attach to, when the IssueKey parameter is not set")]
     [StepOutputVariable("Jira.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
     [StepOutputVariable("Jira.IssueKey", ContractDataType.String, "The issue the capture was attached to", Conditional = true)]
-    public class JiraStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class JiraStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(JiraStep));
         private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public IEnumerable<string> UsedDestinations { get; } = new[] { "Jira" };
 
         /// <summary>
         /// Uploads the capture: the user has to allow network access when approving a recipe with this step

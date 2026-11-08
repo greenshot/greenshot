@@ -76,10 +76,16 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
             _selectedUploader = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(HasSelectedUploader));
+            OnPropertyChanged(nameof(CanApproveSelectedUploader));
         }
     }
 
     public bool HasSelectedUploader => SelectedUploader != null;
+
+    /// <summary>
+    /// An uploader file which was added or changed outside Greenshot and can be read
+    /// </summary>
+    public bool CanApproveSelectedUploader => SelectedUploader?.CanBeApproved == true;
 
     public UploadItem SelectedUpload
     {
@@ -111,7 +117,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
         var icons = new Dictionary<string, ImageSource>(StringComparer.OrdinalIgnoreCase);
         foreach (var uploader in _store.GetAll())
         {
-            var item = DefinitionListItem.From(_store, uploader, Language.Unreadable, GenericIcon.Value);
+            var item = DefinitionListItem.From(_store, uploader, Language.Unreadable, GenericIcon.Value, Language.NotApproved);
             if (uploader.Name != null)
             {
                 icons[uploader.Name] = item.Icon;
@@ -236,6 +242,42 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
         Refresh();
         SelectedUploader = Uploaders.FirstOrDefault(item => item.Id == id);
         ServiceIcon.FetchInBackground(_store, id, definition, again: true);
+    }
+
+    /// <summary>
+    /// The selected uploader, null when there is none or it can't be read
+    /// </summary>
+    internal UploaderDefinition GetSelectedUploader() =>
+        SelectedUploader == null ? null : _store.GetAll().FirstOrDefault(stored => stored.Id == SelectedUploader.Id)?.Definition;
+
+    /// <summary>
+    /// What the user confirms before an uploader file which was added or changed outside Greenshot is used, like an import
+    /// </summary>
+    internal static string DescribeApproval(UploaderDefinition definition)
+    {
+        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, UploaderFile.DescribeServer(definition)));
+        var headers = definition.Headers?.Keys.ToList();
+        if (headers?.Count > 0)
+        {
+            text.Append("\n\n").Append(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
+        }
+
+        text.Append("\n\n").Append(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
+        text.Append("\n\n").Append(Language.ImportTrust);
+        return text.ToString();
+    }
+
+    /// <summary>
+    /// The user confirmed the selected uploader file: it is used in recipes at once, as a destination after a restart
+    /// </summary>
+    internal void ApproveSelectedUploader()
+    {
+        if (!CanApproveSelectedUploader) return;
+        string id = SelectedUploader.Id;
+        _store.Approve(id);
+        Log.InfoFormat("Approved the uploader file {0}", id);
+        Refresh();
+        SelectedUploader = Uploaders.FirstOrDefault(item => item.Id == id);
     }
 
     public void RemoveSelectedUploader()

@@ -26,15 +26,18 @@
     </UserControl.Resources>
 
     <StackPanel Margin="8">
-        <TextBlock Text="{wpf:Text CustomUploader.SettingsDescription}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+        <TextBlock Text="{wpf:Text CustomUploader.SettingsIntro}" TextWrapping="Wrap" Margin="0,0,0,12"/>
 
         <!-- The uploaders -->
         <views:DefinitionListView Title="{wpf:Text CustomUploader.UploadersTitle}" EmptyText="{wpf:Text CustomUploader.NoUploaders}"
                                   Items="{Binding Uploaders}" SelectedItem="{Binding SelectedUploader, Mode=TwoWay}"/>
-        <StackPanel Orientation="Horizontal" Margin="0,6,0,16">
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
             <Button Content="{wpf:Text CustomUploader.Import}" Click="Import_Click" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,6,0"/>
+            <Button Content="{wpf:Text CustomUploader.Approve}" Click="Approve_Click" IsEnabled="{Binding CanApproveSelectedUploader}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,0"/>
             <Button Content="{wpf:Text CustomUploader.Remove}" Click="Remove_Click" IsEnabled="{Binding HasSelectedUploader}" Style="{StaticResource LightErrorButtonStyle}"/>
         </StackPanel>
+        <TextBlock Text="{wpf:Text CustomUploader.ApprovalHint}" TextWrapping="Wrap" Margin="0,0,0,16"
+                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
 
         <!-- The uploads -->
         <TextBlock x:Name="UploadsTitleText" Text="{wpf:Text CustomUploader.UploadsTitle}" FontWeight="SemiBold" Margin="0,0,0,4"/>

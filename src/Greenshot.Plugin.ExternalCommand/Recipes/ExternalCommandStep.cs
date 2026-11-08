@@ -76,7 +76,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepOutputVariable("{Parameter:ResultName|command}.output", ContractDataType.String, "Standard output of the command (Output Text)", Conditional = true)]
     [StepOutputVariable("{Parameter:ResultName|command}.url", ContractDataType.String, "First URL in the output", Conditional = true)]
     [StepOutputVariable("{Parameter:ResultName|command}.error", ContractDataType.String, "Standard error of the command", Conditional = true)]
-    public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         public const string FileNew = CommandDefinitions.FileNew;
         public const string FileLastExport = CommandDefinitions.FileLastExport;
@@ -93,6 +93,18 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// The destination of the command of the settings; a command given in the recipe itself is none
+        /// </summary>
+        public IEnumerable<string> UsedDestinations
+        {
+            get
+            {
+                string command = Parameter("Command");
+                return string.IsNullOrWhiteSpace(command) ? Array.Empty<string>() : new[] { ExternalCommandDestination.DesignationOf(command.Trim()) };
+            }
+        }
 
         public ExternalCommandStep(RecipeNodeConfig config)
         {

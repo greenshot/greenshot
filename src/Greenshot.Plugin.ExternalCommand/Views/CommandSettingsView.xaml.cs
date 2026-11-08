@@ -56,7 +56,34 @@ public partial class CommandSettingsView : UserControl
 
     private void Edit_Click(object sender, RoutedEventArgs e) => EditSelected();
 
-    private void List_MouseDoubleClick(object sender, MouseButtonEventArgs e) => EditSelected();
+    private void List_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (_viewModel.CanApproveSelected)
+        {
+            ApproveSelected();
+        }
+        else
+        {
+            EditSelected();
+        }
+    }
+
+    private void Approve_Click(object sender, RoutedEventArgs e) => ApproveSelected();
+
+    /// <summary>
+    /// A command file added or changed outside Greenshot is only used after the user saw what it runs, like an import
+    /// </summary>
+    private void ApproveSelected()
+    {
+        if (!_viewModel.CanApproveSelected) return;
+        var definition = _viewModel.GetSelectedDefinition();
+        if (definition == null) return;
+        var buttons = new[] { CommandTexts.SettingsApprove, Texts.Core.Cancel };
+        if (DefinitionImport.Confirm(Window.GetWindow(this), CommandTexts.ApproveTitle, _viewModel.DescribeApproval(definition), buttons) == 0)
+        {
+            _viewModel.ApproveSelected();
+        }
+    }
 
     private void EditSelected()
     {

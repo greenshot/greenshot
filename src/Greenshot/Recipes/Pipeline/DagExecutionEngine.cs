@@ -327,6 +327,12 @@ namespace Greenshot.Recipes.Pipeline
                             Log.WarnFormat("Could not resolve executable step for node '{0}' [{1}]", nodeConfig.Id, nodeConfig.StepType);
                             nodeContext.LogStep($"Warning: unresolved step factory for node '{nodeConfig.Id}' [{nodeConfig.StepType}]");
                         }
+                        else if (UsedDestinations.FirstNotAllowed(step) is { } notAllowed)
+                        {
+                            // A destination which is switched off or blocked is never used, also not by a step of its own
+                            Log.WarnFormat("Skipped DAG node [{0}] '{1}': the destination '{2}' is switched off or blocked", nodeConfig.Id, step.Name, notAllowed);
+                            nodeContext.LogStep($"Warning: skipped node [{nodeConfig.Id}] {step.Name}, the destination '{notAllowed}' is switched off or blocked.");
+                        }
                         else
                         {
                             // Fails the node (error transitions apply) when a required parameter or input is missing

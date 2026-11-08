@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using Greenshot.Base.Definitions;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Trust;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Destinations;
 using Greenshot.Plugin.ExternalCommand.Recipes;
@@ -47,13 +48,33 @@ namespace Greenshot.Tests.ExternalCommand
         private static CommandStore NewStore(params CommandDefinition[] builtIns) =>
             new CommandStore(new Dictionary<string, string>(), null, builtIns);
 
+        /// <summary>
+        /// The approvals of a test, in memory
+        /// </summary>
+        private sealed class TestApprovals : IFileApprovals
+        {
+            private readonly Dictionary<string, string> _approved = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            public bool IsApproved(string filePath, string sha256) => _approved.TryGetValue(Path.GetFullPath(filePath), out var hash) && hash == sha256;
+
+            public void Approve(string filePath, string sha256) => _approved[Path.GetFullPath(filePath)] = sha256;
+
+            public void Revoke(string filePath) => _approved.Remove(Path.GetFullPath(filePath));
+        }
+
+        private static CommandStore FolderStore(string directory, IFileApprovals approvals) =>
+            new CommandStore(new DefinitionFolder(directory, CommandKind.FileExtension, CommandKind.MaximumLength, approvals), null);
+
+        private static string NewDirectory() => Path.Combine(Path.GetTempPath(), "greenshot-commands-" + Guid.NewGuid().ToString("N"));
+
         [Fact]
         public void Store_InAFolder_OneReadableFilePerCommand()
         {
-            string directory = Path.Combine(Path.GetTempPath(), "greenshot-commands-" + Guid.NewGuid().ToString("N"));
+            string directory = NewDirectory();
             try
             {
-                var store = new CommandStore(new DefinitionFolder(directory, CommandKind.FileExtension, CommandKind.MaximumLength), null);
+                var approvals = new TestApprovals();
+                var store = FolderStore(directory, approvals);
                 string id = store.Add(new CommandDefinition { Name = "Viewer/big", Program = "viewer.exe" });
 
                 Assert.Equal("Viewer_big.gscommand.json", id);
@@ -61,14 +82,77 @@ namespace Greenshot.Tests.ExternalCommand
                 Assert.Contains("\"program\": \"viewer.exe\"", content);
                 Assert.Contains("\"arguments\": \"\\\"${export.file}\\\"\"", content);
 
-                // A file added by hand is seen at once, one which doesn't pass the checks can't be read
-                File.WriteAllText(Path.Combine(directory, "other.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"other.exe\"}");
-                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
-                Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
-                Assert.Single(store.GetAll(), stored => stored.Definition == null);
+                // What Greenshot wrote is approved, also after a restart
+                Assert.Equal("viewer.exe", FolderStore(directory, approvals).Find("Viewer/big")?.Definition.Program);
 
                 Assert.True(store.Remove(id));
                 Assert.False(File.Exists(Path.Combine(directory, id)));
+            }
+            finally
+            {
+                if (Directory.Exists(directory)) Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public void Store_InAFolder_FileCopiedIn_IsOnlyUsedAfterARestartAndTheApproval()
+        {
+            string directory = NewDirectory();
+            try
+            {
+                var approvals = new TestApprovals();
+                var store = FolderStore(directory, approvals);
+                Assert.Empty(store.GetAll());
+
+                // Copied in while Greenshot runs: no effect
+                Directory.CreateDirectory(directory);
+                string otherPath = Path.Combine(directory, "other.gscommand.json");
+                File.WriteAllText(otherPath, "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"other.exe\"}");
+                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+                Assert.Empty(store.GetAll());
+                Assert.Null(store.Find("Other"));
+
+                // After a restart it is listed, not approved, and not used
+                store = FolderStore(directory, approvals);
+                var other = Assert.Single(store.GetAll(), stored => stored.Name == "Other");
+                Assert.False(other.IsApproved);
+                Assert.Null(store.Find("Other"));
+                Assert.Empty(store.GetReadable());
+                Assert.Single(store.GetAll(), stored => stored.Definition == null);
+
+                // Approved, it is used at once and after a restart
+                Assert.True(store.Approve(other.Id));
+                Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
+                Assert.Equal("other.exe", FolderStore(directory, approvals).Find("Other")?.Definition.Program);
+
+                // Changed outside Greenshot: the running Greenshot keeps the approved content, after a restart it needs a new approval
+                File.WriteAllText(otherPath, "{\"kind\":\"externalCommand\",\"name\":\"Other\",\"program\":\"evil.exe\"}");
+                Assert.Equal("other.exe", store.Find("Other")?.Definition.Program);
+                store = FolderStore(directory, approvals);
+                Assert.Null(store.Find("Other"));
+                Assert.False(store.GetAll().Single(stored => stored.Name == "Other").IsApproved);
+            }
+            finally
+            {
+                if (Directory.Exists(directory)) Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public void Store_InAFolder_NewCommand_DoesNotOverwriteAFileCopiedInLater()
+        {
+            string directory = NewDirectory();
+            try
+            {
+                var store = FolderStore(directory, new TestApprovals());
+                Assert.Empty(store.GetAll());
+                Directory.CreateDirectory(directory);
+                File.WriteAllText(Path.Combine(directory, "Viewer.gscommand.json"), "{}");
+
+                string id = store.Add(new CommandDefinition { Name = "Viewer", Program = "viewer.exe" });
+
+                Assert.Equal("Viewer (2).gscommand.json", id);
+                Assert.Equal("{}", File.ReadAllText(Path.Combine(directory, "Viewer.gscommand.json")));
             }
             finally
             {

@@ -47,9 +47,9 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string NoLink { get; }
 
     /// <summary>
-    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps it encrypted.
+    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps the keys in it encrypted.
     /// </summary>
-    string SettingsDescription { get; }
+    string SettingsIntro { get; }
 
     /// <summary>
     /// Uploaders
@@ -100,6 +100,31 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// Can't be read, import it again
     /// </summary>
     string Unreadable { get; }
+
+    /// <summary>
+    /// Not approved: {0}
+    /// </summary>
+    string NotApproved { get; }
+
+    /// <summary>
+    /// An uploader file copied into the Uploaders folder or changed outside Greenshot is only used after you approve it here. The folder is read when Greenshot starts.
+    /// </summary>
+    string ApprovalHint { get; }
+
+    /// <summary>
+    /// Approve...
+    /// </summary>
+    string Approve { get; }
+
+    /// <summary>
+    /// Approve an uploader
+    /// </summary>
+    string ApproveTitle { get; }
+
+    /// <summary>
+    /// The uploader "{0}" was added or changed outside Greenshot. Use it?\n\nWhen you choose it, Greenshot sends your capture to {1}.
+    /// </summary>
+    string ApproveQuestion { get; }
 
     /// <summary>
     /// Uploader files (*.sxcu)|*.sxcu|All files (*.*)|*.*

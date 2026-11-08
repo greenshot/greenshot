@@ -17,7 +17,9 @@ definition holds, how it is checked and how it runs.
 | `DefinitionDestination<T>` | The destination of the kind: one sub destination per definition, only shown when there is one, all their approvals for a recipe. An export with one definition uses it, with more the user picks one; without the user it is declined |
 | `DefinitionItemDestination<T>` | The destination of one definition: designation `Kind:name`, icon key `kind:name`, the approval of the definition. The plugin writes `ExportAsync` |
 | `DefinitionIconProvider<T>`, `DefinitionIcons` | The icon of a definition from the store, else the generic icon of the kind. `kind:` alone is the icon of the only definition, else the generic one. `OnIconMissing` lets the plugin fetch one |
-| `DefinitionFolder` | A folder as the dictionary of a store: one file per definition (the id is the file name, made of the name: `NewId`), read on each access so changes by hand are seen, written to a new file first. `NextToConfiguration(name)` is the folder next to greenshot.ini (portable: next to the executable) |
+| `DefinitionFolder` | A folder as the dictionary of a store: one file per definition (the id is the file name, made of the name: `NewId`), read once (`Open` shares one per folder), written to a new file first. `NextToConfiguration(name)` is the folder next to greenshot.ini (portable: next to the executable). Implements `IDefinitionApprovals` |
+| `IDefinitionApprovals`, `DefinitionStore.Approve` | Whether the user approved a file as it was read; `StoredDefinition.IsApproved`, `IsUsable` (read and approved: `GetReadable` and `Find` only give these) |
+| `FileApprovals`, `ProtectedRecordFile<T>`, `ContentHash` (`Greenshot.Base.Trust`) | The approvals by full path and SHA-256 in `%LocalAppData%\Greenshot\definition_trust.dat`, protected with DPAPI and an entropy of their own; the recipe approvals (`RecipeTrustStore`) use the same file code and hash |
 | `DefinitionListItem` | A row of the settings list: icon, name, `Describe`, read by a screen reader as "name, description"; `IsBuiltIn`, `IsEditable` |
 | `DefinitionListView` (`Greenshot.Base.Wpf.Views`) | The list on the plugin's own settings page: `Title` (also the list's name for a screen reader), `Items`, `SelectedItem`, `EmptyText` when there is none. The plugin adds its own buttons next to it |
 | `DefinitionImport` | The steps of an import, used by each plugin on its own page: `PickFile`, `ReadFile` (size limit, UTF-8, the plugin's parser; the reason when it fails), `Confirm` (what it does, Cancel is the default, the buttons react after a second), `PickExportFile` and `FileNameFor` for an export |
@@ -27,6 +29,13 @@ definition holds, how it is checked and how it runs.
 
 - **Read is the check.** A stored definition goes through `IDefinitionKind<T>.Read` each time it is read, like an imported
   file. Someone who changes a file of the folder by hand can't get past the checks of the import.
+- <a id="approval"></a>**Nothing is picked up behind the user's back.** The folder is read once, when Greenshot starts; a
+  file copied in or changed later has no effect on the running Greenshot. A file Greenshot writes (import, editor, the
+  conversion of the 1.3 settings) is approved with the SHA-256 of its content. A file which is new or changed after the next
+  start isn't approved: the settings list it as *Not approved*, it has no destination and recipes can't use it, until the
+  user approves it on the plugin's page (the same confirmation as an import). Removing a definition removes its approval.
+- **Switched off is off everywhere.** A recipe step which uses a destination of its own says so (`IUsesDestinations`); the
+  flow skips it when `ConfigurationRestrictions.IsDestinationAllowed` says no, like the Destinations step.
 - **What the user approved is what runs.** `CreateGatedAction` names what matters (the server, the program). A definition
   imported again with another server gives another target, so a recipe which uses it needs a new approval.
 - **The name is the key.** Names are unique ignoring case; recipes and designations use them. An import with a known name

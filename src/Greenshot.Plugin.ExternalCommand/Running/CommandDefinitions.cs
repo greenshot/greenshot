@@ -94,7 +94,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             }
 
             config.OnAfterLoad();
-            var store = new CommandStore(new DefinitionFolder(FolderPath, CommandKind.FileExtension, CommandKind.MaximumLength), null, BuiltIns(config));
+            var store = new CommandStore(DefinitionFolder.Open(FolderPath, CommandKind.FileExtension, CommandKind.MaximumLength), null, BuiltIns(config));
             if (!config.DefinitionsConverted)
             {
                 ConvertOnce(config, store);

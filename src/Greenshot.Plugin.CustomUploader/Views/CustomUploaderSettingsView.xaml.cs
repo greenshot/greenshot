@@ -105,6 +105,21 @@ public partial class CustomUploaderSettingsView : UserControl
     }
 
     /// <summary>
+    /// An uploader file added or changed outside Greenshot is only used after the user saw where it sends the captures, like an import
+    /// </summary>
+    private void Approve_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_viewModel.CanApproveSelectedUploader) return;
+        var definition = _viewModel.GetSelectedUploader();
+        if (definition == null) return;
+        var buttons = new[] { UploaderTexts.Approve, Texts.Core.Cancel };
+        if (DefinitionImport.Confirm(Window.GetWindow(this), UploaderTexts.ApproveTitle, CustomUploaderSettingsViewModel.DescribeApproval(definition), buttons) == 0)
+        {
+            _viewModel.ApproveSelectedUploader();
+        }
+    }
+
+    /// <summary>
     /// Let the user fill in the values (keys) of the uploader, until they pass the checks. Null when the user cancels.
     /// </summary>
     private static UploaderDefinition AskForValues(Window owner, UploaderDefinition definition, string fileName)

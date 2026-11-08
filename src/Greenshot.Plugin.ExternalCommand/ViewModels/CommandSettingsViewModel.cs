@@ -72,11 +72,15 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanEditSelected));
             OnPropertyChanged(nameof(CanExportSelected));
             OnPropertyChanged(nameof(CanRemoveSelected));
+            OnPropertyChanged(nameof(CanApproveSelected));
             OnPropertyChanged(nameof(BuiltInHint));
         }
     }
 
-    /// <summary>A stored command which can be read</summary>
+    /// <summary>A file which was added or changed outside Greenshot and can be read</summary>
+    public bool CanApproveSelected => SelectedCommand?.CanBeApproved == true;
+
+    /// <summary>A stored and approved command which can be read</summary>
     public bool CanEditSelected => SelectedCommand?.IsEditable == true;
 
     /// <summary>Every command which can be read, the built-in ones too</summary>
@@ -107,8 +111,8 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     private DefinitionListItem ItemOf(StoredDefinition<CommandDefinition> stored, ImageSource icon)
     {
         bool readable = stored.Definition != null;
-        return new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, readable ? _store.Kind.Describe(stored.Definition) : null, readable, icon,
-            stored.IsBuiltIn);
+        return new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, DefinitionListItem.DescriptionOf(_store.Kind, stored, Language.NotApproved),
+            readable, icon, stored.IsBuiltIn, stored.IsApproved);
     }
 
     /// <summary>
@@ -151,6 +155,34 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     /// </summary>
     internal CommandDefinition GetSelectedDefinition() =>
         SelectedCommand == null ? null : _store.GetAll().FirstOrDefault(stored => stored.Id == SelectedCommand.Id)?.Definition?.Clone();
+
+    /// <summary>
+    /// What the user confirms before a command file which was added or changed outside Greenshot is used, like an import
+    /// </summary>
+    internal string DescribeApproval(CommandDefinition definition)
+    {
+        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, _store.Kind.Describe(definition)));
+        if (CommandKind.Is(definition.StandardInput, CommandDefinitions.InputText))
+        {
+            text.Append("\n\n").Append(string.Format(Language.ImportStandardInput, definition.StandardInputText));
+        }
+
+        text.Append("\n\n").Append(Language.ImportTrust);
+        return text.ToString();
+    }
+
+    /// <summary>
+    /// The user confirmed the selected command file: it is used in recipes at once, in the menus after a restart
+    /// </summary>
+    internal void ApproveSelected()
+    {
+        if (!CanApproveSelected) return;
+        string id = SelectedCommand.Id;
+        _store.Approve(id);
+        Log.InfoFormat("Approved the external command file {0}", id);
+        Refresh();
+        SelectedCommand = Commands.FirstOrDefault(item => item.Id == id);
+    }
 
     /// <summary>
     /// Check and save a new or changed command. A changed name renames it.

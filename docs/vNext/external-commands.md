@@ -15,6 +15,7 @@ and its arguments.
 | Import | Reads a command file (`.gscommand.json`), shows the program, its arguments and the text it gets, and adds it after you confirm. Cancel is the default |
 | Edit | Opens the editor (also with a double click) |
 | Export | Writes the command to a `.gscommand.json` file, to share it or to keep it |
+| Approve | Only for a command file which was added or changed outside Greenshot: shows the program, its arguments and the text it gets, and uses the command after you confirm |
 | Delete | Removes the command |
 
 A changed command is used at once. A new or removed command shows up in the menus after Greenshot is restarted. A command
@@ -73,7 +74,13 @@ A command file is JSON with the fields of the editor; only `kind`, `name` and `p
 ```
 
 Each command is a file of this format in the `Commands` folder next to greenshot.ini (in `%APPDATA%\Greenshot`, or next to
-Greenshot.exe for a portable install), named after the command, plain JSON (a command holds no secrets). A file added,
-changed or removed there by hand is seen at once (a new or removed destination after a restart) and checked like an
-imported file; one which doesn't pass is listed as "can't be read" and isn't used. An administrator can put commands into
-the folder for a user. Only import commands from someone you trust: the program runs with your rights.
+Greenshot.exe for a portable install), named after the command, plain JSON (a command holds no secrets). The folder is
+read once, when Greenshot starts: a file copied into it, changed or removed there while Greenshot runs has no effect. After
+the next start a file which was added or changed outside Greenshot is listed as "Not approved" and isn't used (no
+destination, recipes can't use it) until you approve it in the settings. What Greenshot writes itself (New, Import, Edit,
+the commands of 1.3) is approved. Each file is checked like an imported file; one which doesn't pass is listed as "can't be
+read" and isn't used. An administrator can put commands into the folder for a user, the user approves each once. Only
+import or approve commands from someone you trust: the program runs with your rights.
+
+A command which is switched off on the Destinations tab isn't used by recipes either: an `ExternalCommand` step which names
+it is skipped, with a warning in the log of the flow.
