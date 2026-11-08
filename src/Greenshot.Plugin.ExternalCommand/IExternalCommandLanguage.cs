@@ -32,9 +32,19 @@ namespace Greenshot.Plugin.ExternalCommand
     public interface IExternalCommandLanguage : INotifyPropertyChanged
     {
         /// <summary>
-        /// A command file copied into the Commands folder or changed outside Greenshot is only used after you approve it here. The folder is read when Greenshot starts.
+        /// A command file copied into the Commands folder or changed outside Greenshot is only used after you approve it. Greenshot reads the folder when it starts and asks about such a file then; you can also approve it here.
         /// </summary>
         string ApprovalHint { get; }
+
+        /// <summary>
+        /// Approve
+        /// </summary>
+        string ApproveButton { get; }
+
+        /// <summary>
+        /// Not now
+        /// </summary>
+        string ApproveLater { get; }
 
         /// <summary>
         /// The command {0} was added or changed outside Greenshot. Use it?\n\nGreenshot will run this program with your captures:\n{1}

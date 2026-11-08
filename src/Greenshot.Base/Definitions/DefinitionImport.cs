@@ -136,11 +136,12 @@ public static class DefinitionImport
     /// <param name="title">the caption</param>
     /// <param name="question">what the definition does, e.g. where the captures go</param>
     /// <param name="buttons">the choices, the last one cancels</param>
+    /// <param name="onTop">without an owner: on top of the other windows, centered on the screen (the question at the start)</param>
     /// <returns>the index of the chosen button, -1 or the last index for Cancel</returns>
-    public static int Confirm(Window owner, string title, string question, IReadOnlyList<string> buttons)
+    public static int Confirm(Window owner, string title, string question, IReadOnlyList<string> buttons, bool onTop = false)
     {
         if (buttons == null || buttons.Count < 2) throw new ArgumentException("At least one choice and Cancel", nameof(buttons));
         int cancel = buttons.Count - 1;
-        return ThemedMessageBox.ShowChoice(owner, title, question, MessageBoxImage.Warning, buttons, defaultIndex: cancel, cancelIndex: cancel, armDelay: ArmDelay);
+        return ThemedMessageBox.ShowChoice(owner, title, question, MessageBoxImage.Warning, buttons, defaultIndex: cancel, cancelIndex: cancel, onTop: onTop, armDelay: ArmDelay);
     }
 }

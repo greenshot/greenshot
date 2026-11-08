@@ -268,7 +268,7 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// The user confirmed the selected uploader file: it is used in recipes at once, as a destination after a restart
+    /// The user confirmed the selected uploader file: it is used at once
     /// </summary>
     internal void ApproveSelectedUploader()
     {

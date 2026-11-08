@@ -112,7 +112,7 @@ public partial class CustomUploaderSettingsView : UserControl
         if (!_viewModel.CanApproveSelectedUploader) return;
         var definition = _viewModel.GetSelectedUploader();
         if (definition == null) return;
-        var buttons = new[] { UploaderTexts.Approve, Texts.Core.Cancel };
+        var buttons = new[] { UploaderTexts.ApproveButton, Texts.Core.Cancel };
         if (DefinitionImport.Confirm(Window.GetWindow(this), UploaderTexts.ApproveTitle, CustomUploaderSettingsViewModel.DescribeApproval(definition), buttons) == 0)
         {
             _viewModel.ApproveSelectedUploader();

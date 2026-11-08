@@ -58,8 +58,9 @@ to Greenshot.exe for a portable install), one file per uploader, named after it.
 the parameters, headers and form fields (where the keys are) are encrypted, as `encrypted:...`. A value without that start,
 e.g. a key typed into the file by hand, is used as it is and encrypted the next time the uploader is stored. The folder is
 read once, when Greenshot starts: a file copied into it or changed there while Greenshot runs has no effect. A file which was
-added or changed outside Greenshot is listed as *Not approved* after the next start and isn't used (no destination, recipes
-can't use it) until you select it and choose *Approve...*, which shows where it sends the captures, like an import. What
+added or changed outside Greenshot isn't used after the next start (no destination, recipes can't use it) until you approve
+it: like for a recipe file, Greenshot asks once it has started and shows where it sends the captures, like an import. With
+*Not now* it is listed as *Not approved*, you can select it and choose *Approve...*, and Greenshot asks again at the next start. What
 Greenshot writes itself (import) is approved; the approvals are kept like those of recipes ([destination-definitions.md](destination-definitions.md#approval)).
 Every file is checked like an import. When one can't be read (it doesn't pass the checks, or its keys were encrypted by
 another Windows user), the list shows *Can't be read, import it again*: remove it and import the file again.

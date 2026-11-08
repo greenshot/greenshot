@@ -18,6 +18,7 @@ definition holds, how it is checked and how it runs.
 | `DefinitionItemDestination<T>` | The destination of one definition: designation `Kind:name`, icon key `kind:name`, the approval of the definition. The plugin writes `ExportAsync` |
 | `DefinitionIconProvider<T>`, `DefinitionIcons` | The icon of a definition from the store, else the generic icon of the kind. `kind:` alone is the icon of the only definition, else the generic one. `OnIconMissing` lets the plugin fetch one |
 | `DefinitionFolder` | A folder as the dictionary of a store: one file per definition (the id is the file name, made of the name: `NewId`), read once (`Open` shares one per folder), written to a new file first. `NextToConfiguration(name)` is the folder next to greenshot.ini (portable: next to the executable). Implements `IDefinitionApprovals` |
+| `DefinitionApprovalAtStartup` | The question at the start for the files which wait for approval: `NotApproved`, `Ask` (approve the confirmed ones), `AskWhenIdle` (posted from `StartAsync`, shown once Greenshot runs) |
 | `IDefinitionApprovals`, `DefinitionStore.Approve` | Whether the user approved a file as it was read; `StoredDefinition.IsApproved`, `IsUsable` (read and approved: `GetReadable` and `Find` only give these) |
 | `FileApprovals`, `ProtectedRecordFile<T>`, `ContentHash` (`Greenshot.Base.Trust`) | The approvals by full path and SHA-256 in `%LocalAppData%\Greenshot\definition_trust.dat`, protected with DPAPI and an entropy of their own; the recipe approvals (`RecipeTrustStore`) use the same file code and hash |
 | `DefinitionListItem` | A row of the settings list: icon, name, `Describe`, read by a screen reader as "name, description"; `IsBuiltIn`, `IsEditable` |
@@ -32,8 +33,10 @@ definition holds, how it is checked and how it runs.
 - <a id="approval"></a>**Nothing is picked up behind the user's back.** The folder is read once, when Greenshot starts; a
   file copied in or changed later has no effect on the running Greenshot. A file Greenshot writes (import, editor, the
   conversion of the 1.3 settings) is approved with the SHA-256 of its content. A file which is new or changed after the next
-  start isn't approved: the settings list it as *Not approved*, it has no destination and recipes can't use it, until the
-  user approves it on the plugin's page (the same confirmation as an import). Removing a definition removes its approval.
+  start isn't approved: it has no destination and recipes can't use it until the user approves it. Like the recipe files,
+  the plugin asks once Greenshot has started (`DefinitionApprovalAtStartup.AskWhenIdle` in `StartAsync`, the same
+  confirmation as an import, *Approve* or *Not now*); one left for later is listed as *Not approved* on the plugin's page,
+  which can approve it too, and is asked about again at the next start. Removing a definition removes its approval.
 - **Switched off is off everywhere.** A recipe step which uses a destination of its own says so (`IUsesDestinations`); the
   flow skips it when `ConfigurationRestrictions.IsDestinationAllowed` says no, like the Destinations step.
 - **What the user approved is what runs.** `CreateGatedAction` names what matters (the server, the program). A definition

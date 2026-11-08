@@ -95,6 +95,43 @@ namespace Greenshot.Tests.ExternalCommand
         }
 
         [Fact]
+        public void ApprovalAtStartup_AsksOnlyAboutReadableFilesWhichWait_AndApprovesTheConfirmedOnes()
+        {
+            string directory = NewDirectory();
+            try
+            {
+                var approvals = new TestApprovals();
+                FolderStore(directory, approvals).Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
+                File.WriteAllText(Path.Combine(directory, "yes.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Yes\",\"program\":\"yes.exe\"}");
+                File.WriteAllText(Path.Combine(directory, "no.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"No\",\"program\":\"no.exe\"}");
+                File.WriteAllText(Path.Combine(directory, "broken.gscommand.json"), "{\"kind\":\"externalCommand\",\"name\":\"Broken\"}");
+
+                // The start: only the files added outside Greenshot which can be read are asked about
+                var store = FolderStore(directory, approvals);
+                var asked = new List<string>();
+                var approved = new List<string>();
+                int count = DefinitionApprovalAtStartup.Ask(store, command =>
+                {
+                    asked.Add(command.Name);
+                    return command.Name == "Yes";
+                }, command => approved.Add(command.Name));
+
+                Assert.Equal(new[] { "No", "Yes" }, asked);
+                Assert.Equal(new[] { "Yes" }, approved);
+                Assert.Equal(1, count);
+                Assert.Equal("yes.exe", store.Find("Yes")?.Definition.Program);
+                Assert.Null(store.Find("No"));
+
+                // The next start asks about the one which wasn't approved again
+                Assert.Equal(new[] { "No" }, DefinitionApprovalAtStartup.NotApproved(FolderStore(directory, approvals)).Select(stored => stored.Name));
+            }
+            finally
+            {
+                if (Directory.Exists(directory)) Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
         public void Store_InAFolder_FileCopiedIn_IsOnlyUsedAfterARestartAndTheApproval()
         {
             string directory = NewDirectory();

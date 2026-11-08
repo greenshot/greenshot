@@ -159,9 +159,9 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// What the user confirms before a command file which was added or changed outside Greenshot is used, like an import
     /// </summary>
-    internal string DescribeApproval(CommandDefinition definition)
+    internal static string DescribeApproval(CommandDefinition definition)
     {
-        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, _store.Kind.Describe(definition)));
+        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, CommandKind.Instance.Describe(definition)));
         if (CommandKind.Is(definition.StandardInput, CommandDefinitions.InputText))
         {
             text.Append("\n\n").Append(string.Format(Language.ImportStandardInput, definition.StandardInputText));
@@ -172,13 +172,14 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// The user confirmed the selected command file: it is used in recipes at once, in the menus after a restart
+    /// The user confirmed the selected command file: it is used at once, in recipes and in the menus
     /// </summary>
     internal void ApproveSelected()
     {
         if (!CanApproveSelected) return;
         string id = SelectedCommand.Id;
-        _store.Approve(id);
+        if (!_store.Approve(id)) return;
+        ExternalCommandPlugin.AddDestination(_store.GetAll().FirstOrDefault(stored => stored.Id == id)?.Definition);
         Log.InfoFormat("Approved the external command file {0}", id);
         Refresh();
         SelectedCommand = Commands.FirstOrDefault(item => item.Id == id);

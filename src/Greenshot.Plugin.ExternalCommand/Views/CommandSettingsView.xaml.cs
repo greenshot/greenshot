@@ -78,8 +78,8 @@ public partial class CommandSettingsView : UserControl
         if (!_viewModel.CanApproveSelected) return;
         var definition = _viewModel.GetSelectedDefinition();
         if (definition == null) return;
-        var buttons = new[] { CommandTexts.SettingsApprove, Texts.Core.Cancel };
-        if (DefinitionImport.Confirm(Window.GetWindow(this), CommandTexts.ApproveTitle, _viewModel.DescribeApproval(definition), buttons) == 0)
+        var buttons = new[] { CommandTexts.ApproveButton, Texts.Core.Cancel };
+        if (DefinitionImport.Confirm(Window.GetWindow(this), CommandTexts.ApproveTitle, CommandSettingsViewModel.DescribeApproval(definition), buttons) == 0)
         {
             _viewModel.ApproveSelected();
         }

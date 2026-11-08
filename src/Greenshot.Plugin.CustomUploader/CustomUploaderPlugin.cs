@@ -89,7 +89,23 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         registry.Register<CustomUploaderStep>(config => new CustomUploaderStep(config, this));
     }
 
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
+    /// <summary>
+    /// Like the recipe files: an uploader file added or changed outside Greenshot is left out at the start, once Greenshot runs
+    /// the user sees where it sends the captures and decides whether to use it
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        if (IsEnabled)
+        {
+            DefinitionApprovalAtStartup.AskWhenIdle(CreateStore, ConfirmAtStartup);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static bool ConfirmAtStartup(UploaderDefinition uploader) =>
+        DefinitionImport.Confirm(null, Language.ApproveTitle, CustomUploaderSettingsViewModel.DescribeApproval(uploader),
+            new[] { Language.ApproveButton, Language.ApproveLater }, onTop: true) == 0;
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

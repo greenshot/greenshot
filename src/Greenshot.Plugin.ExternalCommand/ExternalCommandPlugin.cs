@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Definitions;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -99,7 +100,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     /// <summary>
     /// The destinations of the commands which can run now. A command whose program isn't found (a USB stick or network drive which
     /// isn't there yet) stays in the settings, it only gets no destination until the next start. Commands added in the settings get
-    /// theirs with the next start too, a change of a command applies at once.
+    /// theirs with the next start too, an approved one at once, a change of a command applies at once.
     /// </summary>
     private static IEnumerable<IDestination> CreateDestinations()
     {
@@ -119,7 +120,33 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         registry.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
     }
 
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
+    /// <summary>
+    /// Like the recipe files: a command file added or changed outside Greenshot is left out at the start, once Greenshot runs
+    /// the user sees what it runs and decides whether to use it
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        DefinitionApprovalAtStartup.AskWhenIdle(CommandDefinitions.CreateStore, ConfirmAtStartup, AddDestination);
+        return Task.CompletedTask;
+    }
+
+    private static bool ConfirmAtStartup(CommandDefinition command)
+    {
+        var language = Texts.Get<IExternalCommandLanguage>();
+        return DefinitionImport.Confirm(null, language.ApproveTitle, CommandSettingsViewModel.DescribeApproval(command),
+            new[] { language.ApproveButton, language.ApproveLater }, onTop: true) == 0;
+    }
+
+    /// <summary>
+    /// The destination of a command which was approved after the start, when its program can be started
+    /// </summary>
+    internal static void AddDestination(CommandDefinition command)
+    {
+        if (command != null && CanRun(command))
+        {
+            SimpleServiceProvider.Current.AddService<IDestination>(new ExternalCommandDestination(command, readsSettings: true));
+        }
+    }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
