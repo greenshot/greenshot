@@ -124,6 +124,28 @@ namespace Greenshot.Plugin.ExternalCommand.Running
         /// <summary>UTF-8 without a byte order mark</summary>
         public static readonly Encoding Utf8 = new UTF8Encoding(false);
 
+        /// <summary>
+        /// .NET Framework writes standard input through a StreamWriter with Console.InputEncoding, which writes the preamble at once.
+        /// With the UTF-8 code page (65001, e.g. "Use Unicode UTF-8 for worldwide language support") that encoding has a byte order
+        /// mark, so the command would read U+FEFF before the bytes Greenshot gives it. The same code page without the mark.
+        /// </summary>
+        private static void InputWithoutByteOrderMark()
+        {
+            try
+            {
+                var encoding = Console.InputEncoding;
+                if (encoding.CodePage == Utf8.CodePage && encoding.GetPreamble().Length > 0)
+                {
+                    Console.InputEncoding = Utf8;
+                }
+            }
+            catch (IOException ex)
+            {
+                // No console code page to set: the encoding of the writer is then the ANSI code page
+                Log.Debug("Can't set the input encoding of the console", ex);
+            }
+        }
+
         /// <summary>Text output and error are kept up to this size, the rest is cut</summary>
         public const int TextLimit = 1024 * 1024;
 
@@ -195,6 +217,10 @@ namespace Greenshot.Plugin.ExternalCommand.Running
                 startInfo.WorkingDirectory = request.WorkingDirectory;
             }
             startInfo.RedirectStandardInput = request.StandardInput != null;
+            if (startInfo.RedirectStandardInput)
+            {
+                InputWithoutByteOrderMark();
+            }
             startInfo.RedirectStandardOutput = readOutput;
             startInfo.RedirectStandardError = request.ReadError;
             if (readOutput && request.Output == CommandOutput.Text)

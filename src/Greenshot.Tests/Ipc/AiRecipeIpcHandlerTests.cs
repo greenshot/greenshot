@@ -159,7 +159,7 @@ namespace Greenshot.Tests.Ipc
                 {
                     Id = "cmd_step",
                     StepType = "ExternalCommand",
-                    Parameters = new Dictionary<string, object> { { "CommandLine", @"C:\Tools\optimize.exe" }, { "Arguments", "\"{0}\"" } }
+                    Parameters = new Dictionary<string, object> { { "Program", @"C:\Tools\optimize.exe" }, { "Arguments", "\"${export.file}\"" } }
                 });
             recipe.Flow.AddTransition("source", "cmd_step");
 
