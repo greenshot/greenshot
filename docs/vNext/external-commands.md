@@ -1,6 +1,6 @@
 # External commands
 
-An external command hands your capture to another program: an image editor, an optimizer, a script or an uploader. Each
+An external command hands your capture to another program: an image editor, a converter, a script or an uploader. Each
 command is a destination of its own ("External" + its name, like in Greenshot 1.3) and a recipe uses it by its name in the
 `ExternalCommand` step ([capture-recipes.md](capture-recipes.md#external-command-step-in-depth)).
 
@@ -65,11 +65,12 @@ A command file is JSON with the fields of the editor; only `kind`, `name` and `p
 {
   "kind": "externalCommand",
   "version": 1,
-  "name": "Optimize PNG",
-  "program": "${user.localappdata}\\Programs\\pngquant.exe",
-  "arguments": "--force --ext .png \"${export.file}\"",
+  "name": "Upload to my server",
+  "program": "${machine.systemdir}\\curl.exe",
+  "arguments": "-s -F \"file=@${export.file}\" https://example.com/upload",
   "format": "png",
-  "successExitCodes": "0,98,99"
+  "output": "text",
+  "copyToClipboard": "url"
 }
 ```
 

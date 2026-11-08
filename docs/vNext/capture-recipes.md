@@ -1222,7 +1222,7 @@ The complete, current description of every step type (parameters, variables it r
 
 ### External Command Step In Depth
 
-The `ExternalCommand` step runs a program: an optimizer (`pngquant`, `optipng`, `cwebp`), a converter (`magick`), a script or an uploader. Every way into and out of the program has one parameter that says what it carries.
+The `ExternalCommand` step runs a program: an image editor, a converter (`magick`), a script or an uploader. PNG files don't need an external optimizer: Greenshot writes them optimized itself. Every way into and out of the program has one parameter that says what it carries.
 
 #### What the command gets
 
@@ -1240,7 +1240,7 @@ Standard input is the place for values of the capture (title, OCR text, a URL): 
 
 | Channel | Parameter | Values | Where it lands |
 |---|---|---|---|
-| Exit code | `SuccessExitCodes` | default `0`, e.g. `0,98,99` for pngquant | `${var.command.exitCode}`; any other code fails the export, the notification shows the standard error |
+| Exit code | `SuccessExitCodes` | default `0`, e.g. `0,1` for a tool which returns 1 for a warning | `${var.command.exitCode}`; any other code fails the export, the notification shows the standard error |
 | Standard output | `Output` | `Text` (default), `Image`, `File`, `None` | Text: `${var.command.output}`, the first URL in it is `${var.command.url}` and the link of the export; Image: the bytes are the new image; File: the image is read again from the file the command changed; None: not read |
 | Standard error | | always read | `${var.command.error}`, logged as a warning |
 
@@ -1280,15 +1280,15 @@ The OCR text to a translator on standard input, its answer to the clipboard:
 }
 ```
 
-An optimizer which changes the file the File destination just saved:
+A tool which changes the file the File destination just saved, here ImageMagick adding a border:
 
 ```json
 {
-  "id": "optimize",
+  "id": "border",
   "stepType": "ExternalCommand",
   "parameters": {
-    "Program": "${machine.programfiles}\\optipng\\optipng.exe",
-    "Arguments": "-o2 \"${export.file}\"",
+    "Program": "${machine.programfiles}\\ImageMagick\\magick.exe",
+    "Arguments": "mogrify -bordercolor white -border 20 \"${export.file}\"",
     "File": "LastExport",
     "Output": "File"
   }
