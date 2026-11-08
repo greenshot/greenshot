@@ -190,6 +190,13 @@ namespace Greenshot.Recipes.Views
 
         public Visibility ValidationErrorVisibility => IsValidationError ? Visibility.Visible : Visibility.Collapsed;
 
+        /// <summary>
+        /// The id of the recipe from the catalog which failed, null for any other recipe: the errors then offer its newest catalog version
+        /// </summary>
+        public string CatalogRecipeId { get; private set; }
+
+        public Visibility CatalogUpdateVisibility => IsValidationError && CatalogRecipeId != null ? Visibility.Visible : Visibility.Collapsed;
+
         public string WindowTitleSubtitle { get; private set; }
         public string WindowFullTitle => $"Greenshot{WindowTitleSubtitle}";
         public string HeaderIcon { get; private set; }
@@ -686,6 +693,8 @@ namespace Greenshot.Recipes.Views
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
             FilePath = filePath ?? Texts.Recipe.ApprovalUnknownPath;
             FileHash = RecipeTrustStore.ComputeSha256(filePath) ?? Texts.Recipe.ApprovalUnknown;
+            // Found by its file, so also when the file can't be read any more
+            CatalogRecipeId = RecipeCatalogInstaller.GetUpdatableId(filePath);
 
             WindowTitleSubtitle = " — " + Texts.Recipe.ApprovalValidationFailed;
             HeaderIcon = "❌";
@@ -1066,6 +1075,21 @@ namespace Greenshot.Recipes.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to open recipe file in editor: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Closes the errors and installs the version of the catalog, which shows its approval window (or tells why nothing was installed)
+        /// </summary>
+        private void OnUpdateFromCatalogClicked(object sender, RoutedEventArgs e)
+        {
+            string recipeId = CatalogRecipeId;
+            IsApproved = false;
+            DialogResult = false;
+            Close();
+            if (recipeId != null)
+            {
+                RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog($"Update the recipe '{recipeId}' from the catalog");
             }
         }
 
