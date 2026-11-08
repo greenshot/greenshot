@@ -20,13 +20,14 @@
  */
 
 using System;
+using Greenshot.Base.Definitions;
 
 namespace Greenshot.Plugin.CustomUploader.Sxcu;
 
 /// <summary>
 /// An uploader file which Greenshot can't use, the message is for the user (translated).
 /// </summary>
-internal sealed class UploaderFileException : Exception
+internal sealed class UploaderFileException : DefinitionFileException
 {
     public UploaderFileException(string message) : base(message)
     {

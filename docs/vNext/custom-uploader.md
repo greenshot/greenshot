@@ -133,7 +133,7 @@ Everything is in `src/Greenshot.Plugin.CustomUploader`:
 | `ServiceIcon.cs`, `Destinations/CustomUploaderIconProvider.cs` | The icon of the service, fetched at the import; the generic `Images/Upload.png` without one |
 | `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader (`DefinitionDestination`) |
 | `Recipes/CustomUploaderStep.cs` | The recipe step, `Uploader` parameter, `CustomUploader.Url` output |
-| `ViewModels/`, `Views/` | The settings page: import (with the confirmation), remove, the uploads |
+| `ViewModels/`, `Views/` | The settings page: the uploaders (`DefinitionListView`), import (`DefinitionImport`, with the confirmation), remove, the uploads |
 
 HTTP goes through `HttpService.Current` like everywhere in Greenshot, see [http.md](http.md): the proxy, the certificate
 rules and the logging rules apply.
@@ -144,7 +144,7 @@ rules and the logging rules apply.
    body of old files, name) and checks it. `UploaderValuesWindow` shows `GetValues` (request url, parameters, headers,
    arguments) for the user to fill in (`UploaderValue.IsSecret` masks keys in a `PasswordBox`, `LooksLikePlaceholder`
    makes the view ask once), `WithValues` puts them into a copy and runs it through `UploaderFile.Read` again.
-   The view asks with `DescribeImport` and `ThemedMessageBox.ShowChoice` (Cancel is
+   The view asks with `DescribeImport` and `DefinitionImport.Confirm` (Cancel is
    the default, the buttons are armed after a second). `UploaderStore.Add` stores the normalized JSON encrypted and saves
    greenshot.ini at once.
 2. **Read**: `UploaderStore.GetAll` decrypts each uploader and runs it through `UploaderFile.Read` again, so a changed

@@ -18,6 +18,9 @@ definition holds, how it is checked and how it runs.
 | `DefinitionItemDestination<T>` | The destination of one definition: designation `Kind:name`, icon key `kind:name`, the approval of the definition. The plugin writes `ExportAsync` |
 | `DefinitionIconProvider<T>`, `DefinitionIcons` | The icon of a definition from the store, else the generic icon of the kind. `kind:` alone is the icon of the only definition, else the generic one. `OnIconMissing` lets the plugin fetch one |
 | `DefinitionListItem` | A row of the settings list: icon, name, `Describe`, read by a screen reader as "name, description" |
+| `DefinitionListView` (`Greenshot.Base.Wpf.Views`) | The list on the plugin's own settings page: `Title` (also the list's name for a screen reader), `Items`, `SelectedItem`, `EmptyText` when there is none. The plugin adds its own buttons next to it |
+| `DefinitionImport` | The steps of an import, used by each plugin on its own page: `PickFile`, `ReadFile` (size limit, UTF-8, the plugin's parser; the reason when it fails), `Confirm` (what it does, Cancel is the default, the buttons react after a second) |
+| `DefinitionFileException` | Thrown by a plugin's parser with the reason (translated) a file can't be imported |
 
 ## Rules
 
@@ -27,6 +30,8 @@ definition holds, how it is checked and how it runs.
   imported again with another server gives another target, so a recipe which uses it needs a new approval.
 - **The name is the key.** Names are unique ignoring case; recipes and designations use them. An import with a known name
   replaces that definition and keeps its id.
+- **Nothing is stored before the user confirmed.** An import reads and checks the file, shows what the definition does
+  (`DefinitionImport.Confirm`) and only then adds it. Each plugin imports on its own settings page, with its own file type.
 - **Nothing is sent or started from the store.** The store only keeps data; the plugin decides when and how a definition
   runs.
 
@@ -41,9 +46,11 @@ The custom uploader is the example (`src/Greenshot.Plugin.CustomUploader`):
    upload are their own.
 4. `CustomUploaderIconProvider` derives from `DefinitionIconProvider<T>` and fetches the icon of the service when one is
    missing.
-5. The recipe step finds its uploader with `FindOrOnly(name)`: by name, or the only one when the step names none.
+5. The settings page shows the uploaders with `DefinitionListView` and imports with `DefinitionImport`, with the
+   uploader's own step in between: the values window for the keys.
+6. The recipe step finds its uploader with `FindOrOnly(name)`: by name, or the only one when the step names none.
 
 ## Tests
 
-`src/Greenshot.Tests/Definitions/DefinitionTests.cs` covers the store and the destinations with a small test kind;
+`src/Greenshot.Tests/Definitions/DefinitionTests.cs` covers the store, the destinations and reading a file with a small test kind;
 `src/Greenshot.Tests/CustomUploader` covers the uploader on top of it.

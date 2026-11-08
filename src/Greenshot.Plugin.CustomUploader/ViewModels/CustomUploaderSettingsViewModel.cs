@@ -149,30 +149,8 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// Read and check the uploader file, null with the reason when it can't be imported.
     /// </summary>
-    internal static UploaderDefinition ReadFile(string path, out string error)
-    {
-        error = null;
-        try
-        {
-            if (new FileInfo(path).Length > UploaderFile.MaximumLength)
-            {
-                error = Language.ErrorFileTooLarge;
-                return null;
-            }
-
-            return UploaderFile.Read(File.ReadAllText(path, Encoding.UTF8));
-        }
-        catch (UploaderFileException ex)
-        {
-            error = ex.Message;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            error = ex.Message;
-        }
-
-        return null;
-    }
+    internal static UploaderDefinition ReadFile(string path, out string error) =>
+        DefinitionImport.ReadFile(path, UploaderFile.MaximumLength, UploaderFile.Read, Language.ErrorFileTooLarge, out error);
 
     /// <summary>
     /// The values the user can fill in before the import: shared files have a text like "YOUR_API_KEY" where the key of

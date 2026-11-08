@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -371,6 +372,69 @@ namespace Greenshot.Tests.Definitions
 
             var cancelled = await destination.ExportAsync(Request(new PickingUserInteraction(null)), CancellationToken.None);
             Assert.Equal(ExportResult.Declined.Status, cancelled.Status);
+        }
+    }
+
+    public class DefinitionImportTests : IDisposable
+    {
+        private readonly string _folder = Path.Combine(Path.GetTempPath(), "greenshot-definitions-" + Guid.NewGuid().ToString("N"));
+
+        public DefinitionImportTests()
+        {
+            Directory.CreateDirectory(_folder);
+        }
+
+        public void Dispose()
+        {
+            Directory.Delete(_folder, true);
+        }
+
+        private string Write(string name, string text)
+        {
+            string path = Path.Combine(_folder, name);
+            File.WriteAllText(path, text);
+            return path;
+        }
+
+        /// <summary>
+        /// Like a plugin's parser: the reason in a DefinitionFileException
+        /// </summary>
+        private static TestDefinition Parse(string json) => TestKind.Instance.Read(json) ?? throw new DefinitionFileException("Not a test definition");
+
+        [Fact]
+        public void ReadFile_Checked_GivesTheDefinition()
+        {
+            string path = Write("good.json", "{\"Name\":\"Optimize\",\"Program\":\"optimizer.exe\"}");
+
+            var definition = DefinitionImport.ReadFile<TestDefinition>(path, 1024, Parse, "too large", out string error);
+
+            Assert.Null(error);
+            Assert.Equal("optimizer.exe", definition.Program);
+        }
+
+        [Fact]
+        public void ReadFile_FailsTheCheck_GivesTheReason()
+        {
+            string path = Write("bad.json", "{\"Name\":\"Optimize\"}");
+
+            Assert.Null(DefinitionImport.ReadFile<TestDefinition>(path, 1024, Parse, "too large", out string error));
+            Assert.Equal("Not a test definition", error);
+        }
+
+        [Fact]
+        public void ReadFile_TooLarge_IsNotRead()
+        {
+            string path = Write("large.json", new string(' ', 2048));
+
+            Assert.Null(DefinitionImport.ReadFile<TestDefinition>(path, 1024, _ => throw new InvalidOperationException("Not read"), "too large", out string error));
+            Assert.Equal("too large", error);
+        }
+
+        [Fact]
+        public void ReadFile_Missing_GivesTheReason()
+        {
+            Assert.Null(DefinitionImport.ReadFile<TestDefinition>(Path.Combine(_folder, "missing.json"), 1024, Parse, "too large", out string error));
+            Assert.False(string.IsNullOrEmpty(error));
         }
     }
 }
