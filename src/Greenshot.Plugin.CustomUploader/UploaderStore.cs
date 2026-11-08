@@ -25,26 +25,54 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Greenshot.Base.Core;
+using Greenshot.Base.Definitions;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 
 namespace Greenshot.Plugin.CustomUploader;
 
 /// <summary>
-/// An imported uploader, <see cref="Definition"/> is null when it can't be decrypted.
+/// Uploaders as definitions: stored as the checked .sxcu JSON, described and approved by their server.
 /// </summary>
-internal sealed class StoredUploader
+internal sealed class UploaderKind : IDefinitionKind<UploaderDefinition>
 {
-    public StoredUploader(string id, UploaderDefinition definition)
+    public static UploaderKind Instance { get; } = new UploaderKind();
+
+    // StringExtensions.Encrypt only keeps ASCII: the JSON escapes everything else
+    internal static readonly JsonSerializerOptions AsciiJson = new JsonSerializerOptions(UploaderFile.JsonOptions) { Encoder = JavaScriptEncoder.Default };
+
+    private UploaderKind()
     {
-        Id = id;
-        Definition = definition;
     }
 
-    public string Id { get; }
+    public string Designation => "CustomUploader";
 
-    public UploaderDefinition Definition { get; }
+    public string NameOf(UploaderDefinition definition) => definition.Name;
 
-    public string Name => Definition?.Name;
+    /// <summary>
+    /// Checked again like an imported file: what is sent stays what the user approved
+    /// </summary>
+    public UploaderDefinition Read(string json)
+    {
+        try
+        {
+            return UploaderFile.Read(json);
+        }
+        catch (UploaderFileException)
+        {
+            return null;
+        }
+    }
+
+    public string Write(UploaderDefinition definition) => JsonSerializer.Serialize(definition, AsciiJson);
+
+    public string Describe(UploaderDefinition definition) => UploaderFile.DescribeServer(definition);
+
+    /// <summary>
+    /// What the user approves for a recipe: the uploader and its server
+    /// </summary>
+    public RecipeGatedAction CreateGatedAction(UploaderDefinition definition) =>
+        new RecipeGatedAction(RecipeGateType.NetworkAccess, $"{definition.Name} ({UploaderFile.DescribeServer(definition)})");
 }
 
 /// <summary>
@@ -63,28 +91,18 @@ internal sealed class UploadRecord
 }
 
 /// <summary>
-/// The uploaders, their icons and the uploads in the [CustomUploader] section, the uploaders and uploads encrypted (<see cref="StringExtensions.Encrypt"/>).
-/// Used from the settings (UI thread) and the uploads (thread pool), so every access is locked (one lock for all instances,
-/// they share the dictionaries of the configuration).
+/// The uploaders with their icons (<see cref="DefinitionStore{T}"/>), and next to them the reminders and the uploads, all in the
+/// [CustomUploader] section; the uploads encrypted like the uploaders.
 /// </summary>
-internal sealed class UploaderStore
+internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
 {
     /// <summary>
     /// The newest uploads which are kept, older ones are forgotten
     /// </summary>
     public const int MaximumUploads = 100;
 
-    private static readonly object Lock = new object();
-    private readonly IDictionary<string, string> _uploaders;
     private readonly IDictionary<string, string> _uploads;
-    private readonly IDictionary<string, string> _icons;
     private readonly IDictionary<string, string> _reminders;
-    private readonly Action _changed;
-    private readonly Func<string, string> _protect;
-    private readonly Func<string, string> _unprotect;
-
-    // StringExtensions.Encrypt only keeps ASCII: the JSON escapes everything else
-    private static readonly JsonSerializerOptions AsciiJson = new JsonSerializerOptions(UploaderFile.JsonOptions) { Encoder = JavaScriptEncoder.Default };
 
     /// <param name="uploaders">id to encrypted uploader</param>
     /// <param name="uploads">id to encrypted upload</param>
@@ -95,36 +113,16 @@ internal sealed class UploaderStore
     /// <param name="reminders">ids of the uploaders with a reminder before each upload, null: not kept</param>
     public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
         IDictionary<string, string> icons = null, IDictionary<string, string> reminders = null)
+        : base(UploaderKind.Instance, uploaders, () => Notify(changed), icons, protect, unprotect)
     {
-        _icons = icons ?? new Dictionary<string, string>();
         _reminders = reminders ?? new Dictionary<string, string>();
-        _uploaders = uploaders ?? throw new ArgumentNullException(nameof(uploaders));
         _uploads = uploads ?? throw new ArgumentNullException(nameof(uploads));
-        _changed = changed ?? (() => { });
-        _protect = protect ?? (text => text.Encrypt());
-        _unprotect = unprotect ?? (text => string.IsNullOrEmpty(text) ? null : text.Decrypt());
     }
 
     /// <summary>
-    /// The uploaders, sorted by name; those which can't be decrypted at the end.
+    /// Add the checked uploader without a reminder, it replaces the one with the same name.
     /// </summary>
-    public IReadOnlyList<StoredUploader> GetUploaders()
-    {
-        lock (Lock)
-        {
-            return _uploaders
-                .Select(entry => new StoredUploader(entry.Key, ReadUploader(entry.Value)))
-                .OrderBy(uploader => uploader.Definition == null)
-                .ThenBy(uploader => uploader.Name, StringComparer.CurrentCultureIgnoreCase)
-                .ToList();
-        }
-    }
-
-    /// <summary>
-    /// The uploader with the name, null when there is none (or it can't be decrypted)
-    /// </summary>
-    public StoredUploader Find(string name) =>
-        string.IsNullOrEmpty(name) ? null : GetUploaders().FirstOrDefault(uploader => string.Equals(uploader.Name, name, StringComparison.OrdinalIgnoreCase));
+    public override string Add(UploaderDefinition definition) => Add(definition, false);
 
     /// <summary>
     /// Add the checked uploader, it replaces the one with the same name.
@@ -132,16 +130,9 @@ internal sealed class UploaderStore
     /// <param name="definition">the checked uploader</param>
     /// <param name="remindBeforeUpload">show a reminder with a preview before each upload</param>
     /// <returns>the id</returns>
-    public string Add(UploaderDefinition definition, bool remindBeforeUpload = false)
-    {
-        if (definition == null) throw new ArgumentNullException(nameof(definition));
-        lock (Lock)
+    public string Add(UploaderDefinition definition, bool remindBeforeUpload) =>
+        Add(definition, id =>
         {
-            var existing = Find(definition.Name);
-            string id = existing?.Id ?? Guid.NewGuid().ToString("N");
-            _uploaders[id] = _protect(JsonSerializer.Serialize(definition, AsciiJson));
-            // The icon belonged to the old file, maybe another server: fetched again
-            _icons.Remove(id);
             if (remindBeforeUpload)
             {
                 _reminders[id] = bool.TrueString;
@@ -150,79 +141,16 @@ internal sealed class UploaderStore
             {
                 _reminders.Remove(id);
             }
-        }
+        });
 
-        OnChanged();
-        return GetUploaders().First(uploader => uploader.Definition != null && string.Equals(uploader.Name, definition.Name, StringComparison.OrdinalIgnoreCase)).Id;
-    }
-
-    public void Remove(string id)
-    {
-        bool removed;
-        lock (Lock)
-        {
-            removed = id != null && _uploaders.Remove(id);
-            if (removed)
-            {
-                _icons.Remove(id);
-                _reminders.Remove(id);
-            }
-        }
-
-        if (removed)
-        {
-            OnChanged();
-        }
-    }
-
-    /// <summary>
-    /// The icon of the uploader (PNG), null when there is none or it can't be read
-    /// </summary>
-    public byte[] GetIcon(string id)
-    {
-        lock (Lock)
-        {
-            if (id == null || !_icons.TryGetValue(id, out var base64))
-            {
-                return null;
-            }
-
-            try
-            {
-                return Convert.FromBase64String(base64);
-            }
-            catch (FormatException)
-            {
-                return null;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Keep the icon of the uploader, when it is still there (it can be removed while the icon is fetched)
-    /// </summary>
-    public void SetIcon(string id, byte[] png)
-    {
-        if (png == null || png.Length == 0) return;
-        lock (Lock)
-        {
-            if (id == null || !_uploaders.ContainsKey(id))
-            {
-                return;
-            }
-
-            _icons[id] = Convert.ToBase64String(png);
-        }
-
-        OnChanged();
-    }
+    public override bool Remove(string id) => Remove(id, removed => _reminders.Remove(removed));
 
     /// <summary>
     /// True when the uploader shows a reminder with a preview before each upload
     /// </summary>
     public bool RemindsBeforeUpload(string id)
     {
-        lock (Lock)
+        lock (SyncRoot)
         {
             return id != null && _reminders.ContainsKey(id);
         }
@@ -234,7 +162,7 @@ internal sealed class UploaderStore
     public void StopReminding(string id)
     {
         bool removed;
-        lock (Lock)
+        lock (SyncRoot)
         {
             removed = id != null && _reminders.Remove(id);
         }
@@ -250,10 +178,10 @@ internal sealed class UploaderStore
     /// </summary>
     public IReadOnlyList<KeyValuePair<string, UploadRecord>> GetUploads()
     {
-        lock (Lock)
+        lock (SyncRoot)
         {
             return _uploads
-                .Select(entry => new KeyValuePair<string, UploadRecord>(entry.Key, Read<UploadRecord>(entry.Value)))
+                .Select(entry => new KeyValuePair<string, UploadRecord>(entry.Key, ReadUpload(entry.Value)))
                 .Where(entry => entry.Value != null)
                 .OrderByDescending(entry => entry.Value.Uploaded)
                 .ToList();
@@ -263,9 +191,9 @@ internal sealed class UploaderStore
     public void AddUpload(UploadRecord upload)
     {
         if (upload == null) throw new ArgumentNullException(nameof(upload));
-        lock (Lock)
+        lock (SyncRoot)
         {
-            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonSerializer.Serialize(upload, AsciiJson));
+            _uploads[Guid.NewGuid().ToString("N")] = Protect(JsonSerializer.Serialize(upload, UploaderKind.AsciiJson));
             // The oldest go first, and what can't be read anymore
             var keep = new HashSet<string>(GetUploads().Take(MaximumUploads).Select(entry => entry.Key));
             foreach (string id in _uploads.Keys.Where(id => !keep.Contains(id)).ToList())
@@ -280,7 +208,7 @@ internal sealed class UploaderStore
     public void ForgetUpload(string id)
     {
         bool removed;
-        lock (Lock)
+        lock (SyncRoot)
         {
             removed = id != null && _uploads.Remove(id);
         }
@@ -291,12 +219,9 @@ internal sealed class UploaderStore
         }
     }
 
-    /// <summary>
-    /// Checked again like an imported file: what is sent stays what the user approved
-    /// </summary>
-    private UploaderDefinition ReadUploader(string protectedJson)
+    private UploadRecord ReadUpload(string protectedJson)
     {
-        string json = _unprotect(protectedJson);
+        string json = Unprotect(protectedJson);
         if (json == null)
         {
             return null;
@@ -304,25 +229,7 @@ internal sealed class UploaderStore
 
         try
         {
-            return UploaderFile.Read(json);
-        }
-        catch (UploaderFileException)
-        {
-            return null;
-        }
-    }
-
-    private T Read<T>(string protectedJson) where T : class
-    {
-        string json = _unprotect(protectedJson);
-        if (json == null)
-        {
-            return null;
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize<T>(json, UploaderFile.JsonOptions);
+            return JsonSerializer.Deserialize<UploadRecord>(json, UploaderFile.JsonOptions);
         }
         catch (JsonException)
         {
@@ -335,9 +242,9 @@ internal sealed class UploaderStore
     /// </summary>
     public static event EventHandler Changed;
 
-    private void OnChanged()
+    private static void Notify(Action changed)
     {
-        _changed();
+        changed?.Invoke();
         Changed?.Invoke(null, EventArgs.Empty);
     }
 }
