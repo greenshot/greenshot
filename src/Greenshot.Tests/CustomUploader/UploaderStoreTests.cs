@@ -188,7 +188,7 @@ namespace Greenshot.Tests.CustomUploader
         [Fact]
         public void Add_NonAsciiText_SurvivesTheEncryption()
         {
-            // StringExtensions.Encrypt keeps ASCII only, the stored JSON escapes the rest
+            // The stored JSON escapes non-ASCII text, StringExtensions.Encrypt keeps UTF-8 as well
             var store = CreateStore();
             store.Add(Uploader("Grün – 画像"));
             store.AddUpload(new UploadRecord { Uploader = "Grün – 画像", Url = "https://i.example.com/ü.png", Uploaded = DateTimeOffset.Now });
