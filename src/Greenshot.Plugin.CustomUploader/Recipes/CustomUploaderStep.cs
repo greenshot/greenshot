@@ -73,24 +73,14 @@ namespace Greenshot.Plugin.CustomUploader.Recipes
         {
             var definition = FindUploader();
             yield return definition != null
-                ? CustomUploaderPlugin.CreateGatedAction(definition)
+                ? UploaderKind.Instance.CreateGatedAction(definition)
                 : new RecipeGatedAction(RecipeGateType.NetworkAccess, NodeConfig.GetParameter<string>("Uploader") ?? CustomUploaderDestination.DesignationName);
         }
 
         /// <summary>
         /// The uploader with the name of the parameter, or the only one when the parameter is empty
         /// </summary>
-        private UploaderDefinition FindUploader()
-        {
-            string name = NodeConfig.GetParameter<string>("Uploader");
-            var uploaders = CustomUploaderPlugin.GetUploaders();
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return uploaders.Length == 1 ? uploaders[0] : null;
-            }
-
-            return uploaders.FirstOrDefault(definition => string.Equals(definition.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        private UploaderDefinition FindUploader() => CustomUploaderPlugin.CreateStore().FindOrOnly(NodeConfig.GetParameter<string>("Uploader"));
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
