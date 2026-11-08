@@ -1,4 +1,4 @@
-# Async & threading rules, see docs/async-threading-roadmap.md section 3.
+# Async & threading rules, see docs/vNext/async-threading-roadmap.md section 3.
 # A justified exception is marked in code with "#pragma warning disable RS0030" and a comment naming the rule.
 # R1: no blocking waits
 M:System.Threading.Thread.Sleep(System.Int32);R1: use await Task.Delay

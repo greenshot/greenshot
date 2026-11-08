@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -386,6 +386,22 @@ public static class HotkeyManager
 
         var sequence = HotkeySequence.FromChord(chord);
         return RegisterHotKey(sequence, handler);
+    }
+
+    /// <summary>
+    /// True when this hotkey sequence is registered and the keyboard hook which delivers it is active
+    /// </summary>
+    public static bool IsRegistered(HotkeySequence sequence)
+    {
+        if (sequence == null || sequence.IsEmpty)
+        {
+            return false;
+        }
+
+        lock (RegisteredHotkeys)
+        {
+            return (_keyboardSubscription != null || !UseKeyboardHook) && RegisteredHotkeys.Exists(x => x.Sequence.Equals(sequence));
+        }
     }
 
     /// <summary>

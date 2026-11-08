@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf.ViewModels;
 
 namespace Greenshot.Base.Wpf.Views
@@ -18,8 +19,9 @@ namespace Greenshot.Base.Wpf.Views
         public HotkeyEditorView()
         {
             InitializeComponent();
-            DataContext = new HotkeyEditorViewModel();
+            // Subscribe first, so the live preview follows the changes of this view model too
             DataContextChanged += OnDataContextChanged;
+            DataContext = new HotkeyEditorViewModel();
             IsVisibleChanged += OnIsVisibleChanged;
         }
 
@@ -110,6 +112,8 @@ namespace Greenshot.Base.Wpf.Views
             if (ViewModel == null) return;
             var seq = ViewModel.BuildSequence();
             LivePreviewControl.HotkeyString = seq.ToString();
+            // What a screen reader reads in the capture box
+            KeyCaptureBorder.Value = LivePreviewControl.AccessibleText;
         }
 
         private void KeyCaptureBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -125,7 +129,7 @@ namespace Greenshot.Base.Wpf.Views
             if (ViewModel != null) ViewModel.IsCapturing = true;
             if (CaptureHintText != null)
             {
-                CaptureHintText.Text = "🔴 Listening... Press keys on your keyboard";
+                CaptureHintText.Text = "🔴 " + Texts.Settings.HotkeyCaptureListening;
             }
         }
 
@@ -134,7 +138,7 @@ namespace Greenshot.Base.Wpf.Views
             if (ViewModel != null) ViewModel.IsCapturing = false;
             if (CaptureHintText != null)
             {
-                CaptureHintText.Text = "Click here to focus and press shortcut keys";
+                CaptureHintText.Text = Texts.Settings.HotkeyCaptureHint;
             }
         }
 
@@ -142,6 +146,7 @@ namespace Greenshot.Base.Wpf.Views
         {
             if (Visibility != Visibility.Visible) return;
 
+            Key key = e.Key == Key.System ? e.SystemKey : e.Key;
             if (e.OriginalSource is DependencyObject dep)
             {
                 var cb = FindVisualParent<ComboBox>(dep);
@@ -149,19 +154,28 @@ namespace Greenshot.Base.Wpf.Views
                 {
                     return;
                 }
-
-                var btn = FindVisualParent<Button>(dep);
-                if (btn != null && (e.Key == Key.Enter || e.Key == Key.Space))
-                {
-                    return;
-                }
             }
 
-            HandleCapturedKeyDown(e);
-        }
+            // Esc cancels, as in a dialog
+            if (key == Key.Escape && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                e.Handled = true;
+                ViewModel?.CancelCommand.Execute(null);
+                return;
+            }
 
-        private void KeyCaptureBorder_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
+            // Tab and Shift+Tab move the focus, also out of the capture box, a keyboard user would be trapped otherwise
+            if (key == Key.Tab && (Keyboard.Modifiers & ~ModifierKeys.Shift) == ModifierKeys.None)
+            {
+                return;
+            }
+
+            // Only the capture box takes the keys, elsewhere they operate the check boxes, combo boxes and buttons
+            if (!KeyCaptureBorder.IsKeyboardFocusWithin)
+            {
+                return;
+            }
+
             HandleCapturedKeyDown(e);
         }
 
@@ -211,11 +225,10 @@ namespace Greenshot.Base.Wpf.Views
 
         private void HotkeyEditorModal_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            HandleCapturedKeyUp(e);
-        }
-
-        private void KeyCaptureBorder_PreviewKeyUp(object sender, KeyEventArgs e)
-        {
+            if (!KeyCaptureBorder.IsKeyboardFocusWithin)
+            {
+                return;
+            }
             HandleCapturedKeyUp(e);
         }
 

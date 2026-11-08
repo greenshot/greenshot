@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -59,7 +59,9 @@ namespace Greenshot.Recipes.ViewModels
         }
         public string BadgeText { get; set; }
         public Visibility BadgeVisibility => !string.IsNullOrEmpty(BadgeText) ? Visibility.Visible : Visibility.Collapsed;
-        public SolidColorBrush BadgeBackgroundBrush { get; set; } = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69));
+        // The danger role with its paired text color: readable in every theme, system colors in high contrast
+        public SolidColorBrush BadgeBackgroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerBrush;
+        public SolidColorBrush BadgeForegroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerForegroundBrush;
 
         public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
         public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;

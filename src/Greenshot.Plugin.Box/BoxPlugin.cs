@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -34,6 +34,7 @@ using Greenshot.Plugin.Box.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box.Recipes;
 using Greenshot.Plugin.Box.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Box;
 
@@ -44,11 +45,9 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
     private static IBoxConfiguration _config;
-    private TrayMenuEntry _itemPlugInConfig;
 
     public ValueTask DisposeAsync()
     {
-        // The menu item is removed and disposed in StopAsync
         return default;
     }
 
@@ -82,68 +81,9 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
         registry.Register<BoxStep>(config => new BoxStep(config, this));
     }
 
-    /// <summary>
-    /// Add the quick link to the context menu (on the UI thread)
-    /// </summary>
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private void Start()
-    {
-        _itemPlugInConfig = new TrayMenuEntry
-        {
-            Image = EmbeddedResources.GetImage(typeof(BoxPlugin), "Box"),
-            Text = PluginUtils.GetQuicklinkText("Box"),
-            Visible = _config?.QuicklinkEnabled ?? false
-        };
-        _itemPlugInConfig.Click += ConfigMenuClick;
-
-        PluginUtils.AddToContextMenu(_itemPlugInConfig);
-        Texts.Config.LanguageChanged += OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += OnConfigPropertyChanged;
-        }
-    }
-
-    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IBoxConfiguration.QuicklinkEnabled))
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-            }
-        }
-    }
-
-    public void OnLanguageChanged(object sender, EventArgs e)
-    {
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Box");
-        }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) =>
-        UiDispatcher.Current.RunOnUiAsync(() =>
-        {
-            LOG.Debug("Box Plugin shutdown.");
-            Texts.Config.LanguageChanged -= OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged -= OnConfigPropertyChanged;
-            }
-
-            _itemPlugInConfig?.Dispose();
-            _itemPlugInConfig = null;
-        }, cancellationToken);
-
-    private void ConfigMenuClick(object sender, EventArgs eventArgs)
-    {
-        // Show the settings of this plugin
-        SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-    }
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
     /// Upload the capture to Box, shows the progress to the user.
@@ -152,7 +92,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
     public async Task<string> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
     {
         var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        string filename = OutputTemplates.UploadFileName(captureDetails, _config.UploadFormat);
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
         string url = await userInteraction.RunWithProgressAsync(Texts.Get<IBoxLanguage>().CommunicationWait,

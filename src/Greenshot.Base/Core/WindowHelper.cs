@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -152,11 +152,19 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="window">IInteropWindow</param>
         /// <returns>Bitmap, null when there is none</returns>
-        public static Bitmap GetDisplayIcon(this IInteropWindow window)
+        public static Bitmap GetDisplayIcon(this IInteropWindow window) => window.GetDisplayIcon(Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32);
+
+        /// <summary>
+        /// The small (16x16) or large (32x32) icon of the window, the caller owns (disposes) it
+        /// </summary>
+        /// <param name="window">IInteropWindow</param>
+        /// <param name="large">true for the large icon, use it for everything over 16 pixels</param>
+        /// <returns>Bitmap, null when there is none</returns>
+        public static Bitmap GetDisplayIcon(this IInteropWindow window, bool large)
         {
             try
             {
-                return window.GetIcon<Bitmap>(Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32);
+                return window.GetIcon<Bitmap>(large);
             }
             catch (Exception ex)
             {
@@ -173,7 +181,7 @@ namespace Greenshot.Base.Core
         /// <param name="processName">Process name, with or without .exe</param>
         /// <param name="matchCase">bool</param>
         /// <returns>IInteropWindow, null when no window matches</returns>
-        public static IInteropWindow FindMatchingWindow(string title, string titlePattern, string processName, bool matchCase)
+        public static IInteropWindow FindMatchingWindow(string titlePattern, string processName, bool matchCase)
         {
             Regex regex = null;
             if (!string.IsNullOrEmpty(titlePattern))
@@ -184,21 +192,23 @@ namespace Greenshot.Base.Core
                 }
                 catch (ArgumentException ex)
                 {
-                    Log.Warn($"Invalid windowTitlePattern regex '{titlePattern}'", ex);
+                    // An invalid pattern matches no window, it must not capture just any window
+                    Log.Warn($"Invalid WindowTitlePattern regex '{titlePattern}'", ex);
+                    return null;
                 }
             }
 
             var comparison = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             var activeWindow = GetActiveWindow();
-            if (activeWindow != null && Matches(activeWindow, title, regex, processName, comparison))
+            if (activeWindow != null && Matches(activeWindow, regex, processName, comparison))
             {
                 return activeWindow;
             }
 
-            return GetTopLevelWindows().FirstOrDefault(window => Matches(window, title, regex, processName, comparison));
+            return GetTopLevelWindows().FirstOrDefault(window => Matches(window, regex, processName, comparison));
         }
 
-        private static bool Matches(IInteropWindow window, string title, Regex regex, string processName, StringComparison comparison)
+        private static bool Matches(IInteropWindow window, Regex regex, string processName, StringComparison comparison)
         {
             if (!string.IsNullOrEmpty(processName))
             {
@@ -209,13 +219,7 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            var caption = window.GetCaption() ?? string.Empty;
-            if (regex != null)
-            {
-                return regex.IsMatch(caption);
-            }
-
-            return string.IsNullOrEmpty(title) || caption.IndexOf(title, comparison) >= 0;
+            return regex == null || regex.IsMatch(window.GetCaption() ?? string.Empty);
         }
     }
 }

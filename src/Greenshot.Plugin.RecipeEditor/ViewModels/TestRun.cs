@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,6 +21,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -40,7 +41,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public static async Task<CaptureFlowResult> RunAsync(CaptureRecipe recipe)
         {
             var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true)
-                         ?? throw new InvalidOperationException("The capture flow runner is not available.");
+                         ?? throw new InvalidOperationException(Texts.Get<IRecipeEditorLanguage>().ErrorFlowRunnerUnavailable);
             var recipeToTest = TriggerRecipePreparer.PrepareForTestRun(recipe);
             var handle = runner.Start(recipeToTest);
             return await handle.Completion;
@@ -50,6 +51,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// The error of a failed flow, null when it didn't fail
         /// </summary>
         public static string ErrorOf(CaptureFlowResult result) =>
-            result?.State == CaptureFlowState.Failed ? result.Error?.Message ?? result.Reason ?? "unknown error" : null;
+            result?.State == CaptureFlowState.Failed ? result.Error?.Message ?? result.Reason ?? Texts.Get<IRecipeEditorLanguage>().ErrorUnknown : null;
     }
 }

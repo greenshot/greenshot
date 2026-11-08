@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ namespace Greenshot.Base.Recipes.Triggers
         IReadOnlyList<IEditorTrigger> GetEditorTriggers();
 
         /// <summary>
-        /// Registers a new trigger and starts it if enabled.
+        /// Registers a new trigger and starts it if enabled, once StartAll was called.
         /// </summary>
         void RegisterTrigger(ITrigger trigger);
 
@@ -50,7 +50,7 @@ namespace Greenshot.Base.Recipes.Triggers
         bool UnregisterTrigger(string triggerId);
 
         /// <summary>
-        /// Starts all enabled triggers.
+        /// Starts all enabled triggers, the triggers registered from now on start right away (Greenshot calls it once it has started).
         /// </summary>
         void StartAll();
 

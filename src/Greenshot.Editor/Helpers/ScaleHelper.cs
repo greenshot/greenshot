@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
@@ -258,8 +259,9 @@ namespace Greenshot.Editor.Helpers
         /// <returns>the current ScaleOptions depending on modifier keys held down</returns>
         public static ScaleOptions GetScaleOptions()
         {
-            bool anchorAtCenter = (Control.ModifierKeys & Keys.Control) != 0;
-            bool maintainAspectRatio = (Control.ModifierKeys & Keys.Shift) != 0;
+            Keys modifierKeys = InputState.ModifierKeys;
+            bool anchorAtCenter = (modifierKeys & Keys.Control) != 0;
+            bool maintainAspectRatio = (modifierKeys & Keys.Shift) != 0;
             ScaleOptions opts = ScaleOptions.Default;
             if (anchorAtCenter) opts |= ScaleOptions.Centered;
             if (maintainAspectRatio) opts |= ScaleOptions.Rational;

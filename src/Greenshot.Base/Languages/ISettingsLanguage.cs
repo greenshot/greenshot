@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -167,6 +167,16 @@ namespace Greenshot.Base.Languages
         string CaptureMousepointer { get; }
 
         /// <summary>
+        /// Keep the HDR content of HDR displays (for JPEG XR files)
+        /// </summary>
+        string CaptureHdr { get; }
+
+        /// <summary>
+        /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.
+        /// </summary>
+        string TipCaptureHdr { get; }
+
+        /// <summary>
         /// Use interactive window capture mode
         /// </summary>
         string CaptureWindowsInteractive { get; }
@@ -227,9 +237,169 @@ namespace Greenshot.Base.Languages
         string DestinationPicker { get; }
 
         /// <summary>
+        /// Ask for destination every time, in a window
+        /// </summary>
+        string DestinationWindow { get; }
+
+        /// <summary>
         /// Send to printer
         /// </summary>
         string DestinationPrinter { get; }
+
+        /// <summary>
+        /// Show in a viewer
+        /// </summary>
+        string DestinationViewer { get; }
+
+        /// <summary>
+        /// Viewer
+        /// </summary>
+        string Viewer { get; }
+
+        /// <summary>
+        /// Size of a new viewer
+        /// </summary>
+        string ViewerFirstSize { get; }
+
+        /// <summary>
+        /// Real size (1:1), at most as big as the screen
+        /// </summary>
+        string ViewerOpenAtRealSize { get; }
+
+        /// <summary>
+        /// Otherwise at most (pixels)
+        /// </summary>
+        string ViewerMaximumSize { get; }
+
+        /// <summary>
+        /// Viewer window
+        /// </summary>
+        string ViewerWindow { get; }
+
+        /// <summary>
+        /// Border color contrasting with the light or dark mode
+        /// </summary>
+        string ViewerBorderColorFollowsTheme { get; }
+
+        /// <summary>
+        /// Border color
+        /// </summary>
+        string ViewerBorderColor { get; }
+
+        /// <summary>
+        /// Available
+        /// </summary>
+        string DestinationAvailable { get; }
+
+        /// <summary>
+        /// Plugins are switched on or off at the next start of Greenshot.
+        /// </summary>
+        string PluginsRestart { get; }
+
+        /// <summary>
+        /// Switched off
+        /// </summary>
+        string PluginOff { get; }
+
+        /// <summary>
+        /// Not installed
+        /// </summary>
+        string PluginNotInstalled { get; }
+
+        /// <summary>
+        /// Not loaded, see the log
+        /// </summary>
+        string PluginNotLoaded { get; }
+
+        /// <summary>
+        /// Blocked by your administrator
+        /// </summary>
+        string PluginBlocked { get; }
+
+        /// <summary>
+        /// Signed by {0}
+        /// </summary>
+        string PluginSignedBy { get; }
+
+        /// <summary>
+        /// Not signed
+        /// </summary>
+        string PluginNotSigned { get; }
+
+        /// <summary>
+        /// Your administrator doesn't let you switch these off (greenshot-fixed.ini)
+        /// </summary>
+        string SetByAdministrator { get; }
+
+        /// <summary>
+        /// Block plugins…
+        /// </summary>
+        string BlockPlugins { get; }
+
+        /// <summary>
+        /// Block destinations…
+        /// </summary>
+        string BlockDestinations { get; }
+
+        /// <summary>
+        /// Restrict for all users (greenshot-fixed.ini)
+        /// </summary>
+        string RestrictForAllUsersTitle { get; }
+
+        /// <summary>
+        /// Copy these lines into greenshot-fixed.ini next to Greenshot.exe. Users can't switch on what these lines block.
+        /// </summary>
+        string AdministratorSettingsDescription { get; }
+
+        /// <summary>
+        /// Block what isn't checked
+        /// </summary>
+        string AdministratorSettingsBlockUnchecked { get; }
+
+        /// <summary>
+        /// Allow only what is checked, block everything else, also plugins and destinations which aren't known yet
+        /// </summary>
+        string AdministratorSettingsOnlyChecked { get; }
+
+        /// <summary>
+        /// Not installed yet? Add a plugin or destination by its name...
+        /// </summary>
+        string AddNotInstalled { get; }
+
+        /// <summary>
+        /// Name of the plugin or destination
+        /// </summary>
+        string AddNotInstalledName { get; }
+
+        /// <summary>
+        /// Add plugin
+        /// </summary>
+        string AddPlugin { get; }
+
+        /// <summary>
+        /// Add destination
+        /// </summary>
+        string AddDestination { get; }
+
+        /// <summary>
+        /// Users can't switch off plugins or destinations themselves
+        /// </summary>
+        string AdministratorSettingsNoUserExclusions { get; }
+
+        /// <summary>
+        /// Don't ask about plugins which aren't signed by the makers of Greenshot, load only the ones approved on this PC
+        /// </summary>
+        string AdministratorSettingsNoUnsignedQuestion { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string AdministratorSettingsCopy { get; }
+
+        /// <summary>
+        /// Save as…
+        /// </summary>
+        string AdministratorSettingsSave { get; }
 
         /// <summary>
         /// Editor
@@ -292,6 +462,11 @@ namespace Greenshot.Base.Languages
         string ExpertGraphicscapture { get; }
 
         /// <summary>
+        /// Ignore the screen reader flag of Windows when capturing (when a program left it on)
+        /// </summary>
+        string ExpertIgnorescreenreader { get; }
+
+        /// <summary>
         /// Keep DirectX ready for faster screenshots (uses more memory)
         /// </summary>
         string ExpertKeepgraphicscaptureready { get; }
@@ -317,9 +492,24 @@ namespace Greenshot.Base.Languages
         string ExpertOptimizeforrdp { get; }
 
         /// <summary>
-        /// Reuse editor if possible
+        /// Open new captures as a tab in the editor window used last
         /// </summary>
-        string ExpertReuseeditorifpossible { get; }
+        string OpenCaptureAsTab { get; }
+
+        /// <summary>
+        /// Show the captures of an editor window as tabs
+        /// </summary>
+        string EditorTabs { get; }
+
+        /// <summary>
+        /// Size of a new image
+        /// </summary>
+        string NewImageSize { get; }
+
+        /// <summary>
+        /// Color of a new image
+        /// </summary>
+        string NewImageColor { get; }
 
         /// <summary>
         /// Suppress the save dialog when closing the editor
@@ -355,30 +545,6 @@ namespace Greenshot.Base.Languages
         /// Language
         /// </summary>
         string Language { get; }
-
-        /// <summary>
-        /// The following placeholders will be replaced automatically in the pattern defined:
-        ///     ${YYYY} year, 4 digits
-        ///     ${MM} month, 2 digits
-        ///     ${DD} day, 2 digits
-        ///     ${hh} hour, 2 digits
-        ///     ${mm} minute, 2 digits
-        ///     ${ss} second, 2 digits
-        ///     ${NUM} incrementing number, 6 digits by default
-        ///     ${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
-        ///     ${RRR...} random alphanumerics, same length as 'R's
-        ///     ${title} Window title
-        ///     ${user} Windows user
-        ///     ${domain} Windows domain
-        ///     ${hostname} PC name
-        ///
-        ///     You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
-        ///     To reset the ${NUM} counter, change its value in Expert settings.
-        ///     Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-        ///     will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
-        ///     time, e.g. 11_58_32 (plus extension defined in the settings)
-        /// </summary>
-        string MessageFilenamepattern { get; }
 
         /// <summary>
         /// Network and updates
@@ -551,6 +717,26 @@ namespace Greenshot.Base.Languages
         string RecipesReset { get; }
 
         /// <summary>
+        /// Get More Recipes
+        /// </summary>
+        string RecipesGetMore { get; }
+
+        /// <summary>
+        /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
+        /// </summary>
+        string RecipesGetMoreTooltip { get; }
+
+        /// <summary>
+        /// The hotkey is written in the recipe file, it is changed in the recipe editor
+        /// </summary>
+        string HotkeySetInRecipe { get; }
+
+        /// <summary>
+        /// Choose a folder
+        /// </summary>
+        string RecipesChooseFolder { get; }
+
+        /// <summary>
         /// All
         /// </summary>
         string RecipesScopeAll { get; }
@@ -616,6 +802,51 @@ namespace Greenshot.Base.Languages
         string Reducecolors { get; }
 
         /// <summary>
+        /// Details in saved images
+        /// </summary>
+        string ExportMetadata { get; }
+
+        /// <summary>
+        /// When the screen was captured
+        /// </summary>
+        string ExportMetadataCapturetime { get; }
+
+        /// <summary>
+        /// Author and copyright
+        /// </summary>
+        string ExportMetadataAuthor { get; }
+
+        /// <summary>
+        /// Window title and web address (private)
+        /// </summary>
+        string ExportMetadataSource { get; }
+
+        /// <summary>
+        /// Recognized text, when OCR already ran (private)
+        /// </summary>
+        string ExportMetadataText { get; }
+
+        /// <summary>
+        /// Content of barcodes and QR codes (private)
+        /// </summary>
+        string ExportMetadataBarcodes { get; }
+
+        /// <summary>
+        /// Author
+        /// </summary>
+        string ExportMetadataAuthorName { get; }
+
+        /// <summary>
+        /// Copyright
+        /// </summary>
+        string ExportMetadataCopyright { get; }
+
+        /// <summary>
+        /// Files saved on this computer get the private details. Before they go anywhere else (upload, e-mail, Office), Greenshot asks whether to remove them.
+        /// </summary>
+        string ExportMetadataPrivateHint { get; }
+
+        /// <summary>
         /// Register Hotkeys
         /// </summary>
         string Registerhotkeys { get; }
@@ -629,6 +860,36 @@ namespace Greenshot.Base.Languages
         /// Show notifications
         /// </summary>
         string Shownotify { get; }
+
+        /// <summary>
+        /// Notifications
+        /// </summary>
+        string Notifications { get; }
+
+        /// <summary>
+        /// All
+        /// </summary>
+        string NotificationsAll { get; }
+
+        /// <summary>
+        /// Warnings and errors
+        /// </summary>
+        string NotificationsWarnings { get; }
+
+        /// <summary>
+        /// Errors only
+        /// </summary>
+        string NotificationsErrors { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string NotificationsNone { get; }
+
+        /// <summary>
+        /// Show a thumbnail of the capture in the notification
+        /// </summary>
+        string NotificationThumbnail { get; }
 
         /// <summary>
         /// Storage location
@@ -708,6 +969,36 @@ namespace Greenshot.Base.Languages
         string Usedefaultproxy { get; }
 
         /// <summary>
+        /// Tray icon
+        /// </summary>
+        string Trayicon { get; }
+
+        /// <summary>
+        /// Click
+        /// </summary>
+        string TrayiconClick { get; }
+
+        /// <summary>
+        /// Double-click
+        /// </summary>
+        string TrayiconDoubleclick { get; }
+
+        /// <summary>
+        /// Do nothing
+        /// </summary>
+        string TrayiconNothing { get; }
+
+        /// <summary>
+        /// {0} (not available)
+        /// </summary>
+        string TrayiconNotavailable { get; }
+
+        /// <summary>
+        /// The recipe which runs when the Greenshot icon next to the clock is clicked. The list has the recipes which are on and need nothing given to them: no editor, no file and no arguments. Right-clicking the icon always opens the tray menu.
+        /// </summary>
+        string TooltipTrayicon { get; }
+
+        /// <summary>
         /// Effects
         /// </summary>
         string Visualization { get; }
@@ -718,6 +1009,111 @@ namespace Greenshot.Base.Languages
         string Waittime { get; }
 
         /// <summary>
+        /// Fixed capture sizes
+        /// </summary>
+        string FixedCaptureSizes { get; }
+
+        /// <summary>
+        /// The sizes F offers in the region selection, in this order: 1 picks the first. The sizes of the last region captures are offered below them.
+        /// </summary>
+        string TooltipFixedCaptureSizes { get; }
+
+        /// <summary>
+        /// Add a size
+        /// </summary>
+        string FixedCaptureSizesAdd { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string FixedCaptureSizesWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string FixedCaptureSizesHeight { get; }
+
+        /// <summary>
+        /// X (optional)
+        /// </summary>
+        string FixedCaptureSizesX { get; }
+
+        /// <summary>
+        /// Y (optional)
+        /// </summary>
+        string FixedCaptureSizesY { get; }
+
+        /// <summary>
+        /// From the top left of
+        /// </summary>
+        string FixedCaptureSizesRelativeTo { get; }
+
+        /// <summary>
+        /// The main screen
+        /// </summary>
+        string FixedCaptureSizesMainScreen { get; }
+
+        /// <summary>
+        /// Screen {0}
+        /// </summary>
+        string FixedCaptureSizesScreen { get; }
+
+        /// <summary>
+        /// A window of a program
+        /// </summary>
+        string FixedCaptureSizesProgram { get; }
+
+        /// <summary>
+        /// Program, e.g. notepad.exe
+        /// </summary>
+        string FixedCaptureSizesProgramName { get; }
+
+        /// <summary>
+        /// Keep it as one of your own sizes
+        /// </summary>
+        string FixedCaptureSizesKeep { get; }
+
+        /// <summary>
+        /// Change this size (a click on a fixed capture size in the settings)
+        /// </summary>
+        string FixedCaptureSizesChange { get; }
+
+        /// <summary>
+        /// Recent captures keep
+        /// </summary>
+        string FixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Only the size
+        /// </summary>
+        string FixedCaptureRemembersSize { get; }
+
+        /// <summary>
+        /// The place on the screen
+        /// </summary>
+        string FixedCaptureRemembersScreen { get; }
+
+        /// <summary>
+        /// The place in the window, else on the screen
+        /// </summary>
+        string FixedCaptureRemembersWindow { get; }
+
+        /// <summary>
+        /// What F in the region selection offers of your last captures: only the size, also the place on the screen, or also the place in the window of the program, which follows the window.
+        /// </summary>
+        string TooltipFixedCaptureRemembers { get; }
+
+        /// <summary>
+        /// Move the mouse to the place of a size
+        /// </summary>
+        string FixedCaptureMovesCursor { get; }
+
+        /// <summary>
+        /// Picking a size with a place moves the mouse so the area is there. When off, the place is shown as an outline and the area snaps onto it.
+        /// </summary>
+        string TooltipFixedCaptureMovesCursor { get; }
+
+        /// <summary>
         /// Window capture
         /// </summary>
         string Windowscapture { get; }
@@ -726,5 +1122,175 @@ namespace Greenshot.Base.Languages
         /// Show magnifier
         /// </summary>
         string Zoom { get; }
+
+        /// <summary>
+        /// Freeze the screen while selecting
+        /// </summary>
+        string FreezeScreen { get; }
+
+        /// <summary>
+        /// Off: what is on the screen keeps moving while you select, only the selection is captured, when you make it
+        /// </summary>
+        string TooltipFreezeScreen { get; }
+
+        /// <summary>
+        /// Larger icons
+        /// </summary>
+        string IconsizeIncrease { get; }
+
+        /// <summary>
+        /// Smaller icons
+        /// </summary>
+        string IconsizeDecrease { get; }
+
+        /// <summary>
+        /// Choose the storage location
+        /// </summary>
+        string StoragelocationBrowse { get; }
+
+        /// <summary>
+        /// Placeholders of the filename pattern
+        /// </summary>
+        string FilenamepatternHelp { get; }
+
+        /// <summary>
+        /// Edit
+        /// </summary>
+        string HotkeyEdit { get; }
+
+        /// <summary>
+        /// Edit {0}: {1}
+        /// </summary>
+        string HotkeyEditValueAccessible { get; }
+
+        /// <summary>
+        /// Change the hotkey
+        /// </summary>
+        string HotkeyChange { get; }
+
+        /// <summary>
+        /// None
+        /// </summary>
+        string HotkeyNone { get; }
+
+        /// <summary>
+        /// then
+        /// </summary>
+        string HotkeyThen { get; }
+
+        /// <summary>
+        /// Step {0}:
+        /// </summary>
+        string HotkeyStep { get; }
+
+        /// <summary>
+        /// Step {0}: {1}
+        /// </summary>
+        string HotkeyStepAccessible { get; }
+
+        /// <summary>
+        /// Step {0}: {1}, selected
+        /// </summary>
+        string HotkeyStepSelectedAccessible { get; }
+
+        /// <summary>
+        /// Configure Hotkey: {0}
+        /// </summary>
+        string HotkeyEditorTitle { get; }
+
+        /// <summary>
+        /// Modifiers
+        /// </summary>
+        string HotkeyModifiers { get; }
+
+        /// <summary>
+        /// Ctrl key, left or right
+        /// </summary>
+        string HotkeyCtrlLocation { get; }
+
+        /// <summary>
+        /// Alt key, left or right
+        /// </summary>
+        string HotkeyAltLocation { get; }
+
+        /// <summary>
+        /// Shift key, left or right
+        /// </summary>
+        string HotkeyShiftLocation { get; }
+
+        /// <summary>
+        /// Win key, left or right
+        /// </summary>
+        string HotkeyWinLocation { get; }
+
+        /// <summary>
+        /// Key Sequence Steps &amp; Capture
+        /// </summary>
+        string HotkeyStepsCapture { get; }
+
+        /// <summary>
+        /// Remove step
+        /// </summary>
+        string HotkeyRemoveStep { get; }
+
+        /// <summary>
+        /// + Add Step
+        /// </summary>
+        string HotkeyAddStep { get; }
+
+        /// <summary>
+        /// Add next chord step to this sequence
+        /// </summary>
+        string HotkeyAddStepTooltip { get; }
+
+        /// <summary>
+        /// Hotkey
+        /// </summary>
+        string HotkeyCapture { get; }
+
+        /// <summary>
+        /// Press the keys of the hotkey. Tab moves on, Esc cancels.
+        /// </summary>
+        string HotkeyCaptureHelp { get; }
+
+        /// <summary>
+        /// Click here to focus and press shortcut keys
+        /// </summary>
+        string HotkeyCaptureHint { get; }
+
+        /// <summary>
+        /// Listening... Press keys on your keyboard
+        /// </summary>
+        string HotkeyCaptureListening { get; }
+
+        /// <summary>
+        /// Click here and press key
+        /// </summary>
+        string HotkeyPressKey { get; }
+
+        /// <summary>
+        /// Clear / Reset
+        /// </summary>
+        string HotkeyClear { get; }
+
+        /// <summary>
+        /// Preview:
+        /// </summary>
+        string HotkeyPreview { get; }
+
+        /// <summary>
+        /// Save / Apply
+        /// </summary>
+        string HotkeySave { get; }
+
+        /// <summary>
+        /// Please choose a trigger key for the selected modifiers.
+        /// </summary>
+        string HotkeyErrorNoTrigger { get; }
+
+        /// <summary>
+        /// Step {0} requires a trigger key.
+        /// </summary>
+        string HotkeyErrorStepNoTrigger { get; }
     }
 }

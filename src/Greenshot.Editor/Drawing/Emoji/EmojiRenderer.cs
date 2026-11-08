@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -43,9 +43,10 @@ namespace Greenshot.Editor.Drawing.Emoji
         public const string EmojiButtonEmoji = "\uD83D\uDE0A";
 
         /// <summary>
-        /// The size of the image of the emoji button of the editor
+        /// The size of the image of the emoji button of the editor on the main display: the icon size there, the editor renders
+        /// the emoji again in the size of the display it is on
         /// </summary>
-        public const int EmojiButtonSize = 32;
+        public static int EmojiButtonSize => IconSizing.PixelSize(IconSizing.DpiAt(System.Drawing.Point.Empty));
 
         private static readonly FontCollection TwemojiFontCollection = new();
         private static readonly ConcurrentDictionary<string, Lazy<Task<System.Drawing.Image>>> SharedBitmaps = new();

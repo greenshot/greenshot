@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Forms;
@@ -261,13 +262,59 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var dc in this)
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
+                // The cheap checks first, the drawing bounds are calculated
+                if (dc.HasFilters && dc.Status == EditStatus.IDLE && dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// The area to repaint for the clip rectangle: a filter reads the pixels under its whole element (pixelate) and around the repainted
+        /// part (blur), so these are repainted too, otherwise it reads what an earlier paint drew there (its own result, an element moved
+        /// away since).
+        /// </summary>
+        /// <param name="clipRectangle">The area which is repainted</param>
+        /// <param name="imageBounds">The image</param>
+        /// <returns>The clip rectangle, grown by what the filters there read</returns>
+        public NativeRect FilterReadArea(NativeRect clipRectangle, NativeRect imageBounds)
+        {
+            var area = clipRectangle;
+            bool grown = true;
+            // A grown area can reach the next filter
+            while (grown)
+            {
+                grown = false;
+                foreach (var drawableContainer in this)
+                {
+                    if (!(drawableContainer is DrawableContainer dc) || !dc.HasFilters || dc.Status != EditStatus.IDLE || !dc.DrawingBounds.IntersectsWith(area))
+                    {
+                        continue;
+                    }
+                    int margin = 0;
+                    bool invert = false;
+                    foreach (IFilter filter in dc.Filters)
+                    {
+                        if (filter is AbstractFilter abstractFilter)
+                        {
+                            margin = Math.Max(margin, abstractFilter.ReadMargin);
+                        }
+                        invert |= filter.Invert;
+                    }
+                    // An inverted filter covers the image outside the element: it reads around the repainted area
+                    var read = invert ? area.Inflate(margin, margin) : dc.DrawingBounds.Inflate(margin, margin);
+                    var grownArea = area.Union(read).Intersect(imageBounds);
+                    if (!grownArea.Equals(area))
+                    {
+                        area = grownArea;
+                        grown = true;
+                    }
+                }
+            }
+            return area;
         }
 
         /// <summary>
@@ -319,7 +366,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>A comma-separated string of inverted filter type names, or null if no inverted filters exist.</returns>
         private static string GetInvertedFilterGroupKey(DrawableContainer dc)
         {
-            if (dc == null || !dc.HasFilters)
+            if (dc == null || !dc.HasInvertedFilter)
             {
                 return null;
             }
@@ -357,7 +404,7 @@ namespace Greenshot.Editor.Drawing
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
-                if (dc.Parent == null || !dc.HasFilters)
+                if (dc.Parent == null || !dc.HasInvertedFilter)
                 {
                     continue;
                 }
@@ -751,16 +798,12 @@ namespace Greenshot.Editor.Drawing
             menu.Items.Add(item);
 
             #region Push Out, Fit, Snap
-            var availableTranslations = new List<string>()
-            {
-                "en-US",
-            };
-            if (availableTranslations.Contains(Texts.Config.CurrentLanguage))
+            if (Count == 1)
             {
                 menu.Items.Add(GetPushOutSubMenu(surface));
-                menu.Items.Add(GetFitSubMenu(surface));
-                menu.Items.Add(GetSnapSubMenu(surface));
             }
+            menu.Items.Add(GetFitSubMenu(surface));
+            menu.Items.Add(GetSnapSubMenu(surface));
 
             #endregion Push Out, Fit, Snap
 
@@ -803,6 +846,58 @@ namespace Greenshot.Editor.Drawing
             {
                 surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
             }
+
+            // Copy the style or size of one element, apply it to the selected ones (also in another editor window)
+            AddStyleAndSizeItems(menu, surface);
+
+            // The panel area with the sections of the selection, for every element
+            if (surface is Surface editorSurface)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                item = new ToolStripMenuItem(Texts.Editor.PanelProperties);
+                item.Click += delegate { editorSurface.RequestProperties(); };
+                menu.Items.Add(item);
+            }
+        }
+
+        private void AddStyleAndSizeItems(ContextMenuStrip menu, ISurface surface)
+        {
+            bool canCopy = ElementStyleClipboard.CanCopy(this);
+            bool canApplyStyle = ElementStyleClipboard.CanApplyStyle(this);
+            bool canApplySize = ElementStyleClipboard.CanApplySize(this);
+            if (!canCopy && !canApplyStyle && !canApplySize)
+            {
+                return;
+            }
+
+            menu.Items.Add(new ToolStripSeparator());
+            if (canCopy)
+            {
+                var copyStyle = new ToolStripMenuItem(Texts.Editor.CopyStyle);
+                copyStyle.Click += delegate { ElementStyleClipboard.CopyStyle(this[0]); };
+                menu.Items.Add(copyStyle);
+            }
+
+            if (canApplyStyle)
+            {
+                var applyStyle = new ToolStripMenuItem(Texts.Editor.ApplyStyle);
+                applyStyle.Click += delegate { ElementStyleClipboard.ApplyStyle(surface, this); };
+                menu.Items.Add(applyStyle);
+            }
+
+            if (canCopy)
+            {
+                var copySize = new ToolStripMenuItem(Texts.Editor.CopySize);
+                copySize.Click += delegate { ElementStyleClipboard.CopySize(this[0]); };
+                menu.Items.Add(copySize);
+            }
+
+            if (canApplySize)
+            {
+                var applySize = new ToolStripMenuItem(Texts.Editor.ApplySize);
+                applySize.Click += delegate { ElementStyleClipboard.ApplySize(surface, this); };
+                menu.Items.Add(applySize);
+            }
         }
 
         public virtual void ShowContextMenu(MouseEventArgs mouseEventArgs, ISurface iSurface)
@@ -824,6 +919,7 @@ namespace Greenshot.Editor.Drawing
                 menu.Dispose();
                 return;
             }
+            EditorTheme.ApplyRenderer(menu);
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
         }
 
@@ -870,15 +966,18 @@ namespace Greenshot.Editor.Drawing
         public void SnapAllToEdge(Direction direction, ISurface surface = null)
         {
             surface ??= Parent;
-            if (surface == null)
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (surfaceSize.IsEmpty)
             {
                 return;
             }
 
+            MakeBoundsChangeUndoable(false);
             foreach (IDrawableContainer container in this)
             {
-                SnapContainerToEdge(direction, container, surface);
+                container.SnapToEdge(direction, surfaceSize);
             }
+            surface.Modified = true;
             surface.DeselectAllElements();
         }
 
@@ -896,28 +995,18 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
+            Expansion expansion = GetExpansionFromSize(direction, targetElement.Bounds.Size);
             
             surface.ResizeCanvas(expansion);
 
-            SnapContainerToEdge(direction, targetElement, surface);
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (!surfaceSize.IsEmpty)
+            {
+                targetElement.MakeBoundsChangeUndoable(false);
+                targetElement.SnapToEdge(direction, surfaceSize);
+            }
 
             surface.DeselectAllElements();
-        }
-
-        private void SnapContainerToEdge(Direction direction, IDrawableContainer targetElement, ISurface surface = null)
-        {
-            Size surfaceBounds = GetSurfaceSize(surface ?? Parent);
-            if (surfaceBounds.IsEmpty)
-            {
-                return;
-            }
-            targetElement.SnapToEdge(direction, surfaceBounds);
-        }
-
-        private Size GetParentSurfaceSize()
-        {
-            return GetSurfaceSize(Parent);
         }
 
         private static Size GetSurfaceSize(ISurface surface)
@@ -1034,17 +1123,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                if (surface?.Image == null)
-                {
-                    return;
-                }
-                foreach (IDrawableContainer item in this)
-                {
-                    MakeBoundsChangeUndoable(false);
-                    item.Width = surface.Image.Width;
-                }
-                SnapAllToEdge(Direction.LEFT, surface);
-                surface.Invalidate();
+                FitAllToSurface(true, surface);
             };
             fitSubmenu.DropDownItems.Add(item);
 
@@ -1055,21 +1134,40 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                if (surface?.Image == null)
-                {
-                    return;
-                }
-                foreach (IDrawableContainer item in this)
-                {
-                    MakeBoundsChangeUndoable(false);
-                    item.Height = surface.Image.Height;
-                }
-                SnapAllToEdge(Direction.TOP, surface);
-                surface.Invalidate();
+                FitAllToSurface(false, surface);
             };
             fitSubmenu.DropDownItems.Add(item);
 
             return fitSubmenu;
+        }
+
+        /// <summary>Stretches every element to the surface width or height and aligns it to the corresponding edge.</summary>
+        public void FitAllToSurface(bool horizontal, ISurface surface = null)
+        {
+            surface ??= Parent;
+            Size surfaceSize = GetSurfaceSize(surface);
+            if (surfaceSize.IsEmpty)
+            {
+                return;
+            }
+
+            MakeBoundsChangeUndoable(false);
+            foreach (IDrawableContainer container in this)
+            {
+                if (horizontal)
+                {
+                    container.Width = container.Width < 0 ? -surfaceSize.Width : surfaceSize.Width;
+                    container.SnapToEdge(Direction.LEFT, surfaceSize);
+                }
+                else
+                {
+                    container.Height = container.Height < 0 ? -surfaceSize.Height : surfaceSize.Height;
+                    container.SnapToEdge(Direction.TOP, surfaceSize);
+                }
+            }
+            surface.Modified = true;
+            surface.DeselectAllElements();
+            surface.Invalidate();
         }
 
         private ToolStripMenuItem GetSnapSubMenu(ISurface surface)

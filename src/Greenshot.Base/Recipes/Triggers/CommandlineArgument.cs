@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,9 +20,8 @@
  */
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Contracts;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Greenshot.Base.Recipes.Triggers
 {
@@ -64,7 +63,7 @@ namespace Greenshot.Base.Recipes.Triggers
         /// FilePath / DirectoryPath values are sanitized and resolved against the caller's working directory,
         /// Integer / Decimal / Boolean values are parsed, Enum values must be one of <see cref="AllowedValues"/>.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter<ContractDataType>))]
         public ContractDataType Type { get; set; } = ContractDataType.String;
 
         /// <summary>

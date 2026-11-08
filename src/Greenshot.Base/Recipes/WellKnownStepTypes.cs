@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -45,9 +45,9 @@ namespace Greenshot.Base.Recipes
         public const string ImmediateFeedback = "ImmediateFeedback";
 
         /// <summary>
-        /// Runs image processors (e.g. Windows 10 OCR, TitleFix, or plugin processors).
+        /// Reads the text of the capture with OCR into the variable OcrText.
         /// </summary>
-        public const string Processors = "Processors";
+        public const string Ocr = "Ocr";
 
         /// <summary>
         /// Exports the capture surface to one or more destinations (File, Clipboard, Editor, Picker, etc.).
@@ -89,6 +89,11 @@ namespace Greenshot.Base.Recipes
         /// Evaluates an expression and creates or updates a variable in the flow context.
         /// </summary>
         public const string SetVariable = "SetVariable";
+
+        /// <summary>
+        /// Decides the details (EXIF/XMP) written into the image files of the following steps.
+        /// </summary>
+        public const string SetMetadata = "SetMetadata";
 
         /// <summary>
         /// Dedicated step saving the capture to a file with customizable directory, pattern, and format.
@@ -144,6 +149,16 @@ namespace Greenshot.Base.Recipes
         /// A named place in a recipe where recipe extensions put their steps (see <see cref="RecipeSlots"/>); does nothing itself.
         /// </summary>
         public const string Slot = "Slot";
+
+        /// <summary>
+        /// Shows a file or folder in the Windows Explorer, by default the last capture; needs no image.
+        /// </summary>
+        public const string ShowInExplorer = "ShowInExplorer";
+
+        /// <summary>
+        /// Opens a window of Greenshot (tray menu, settings, about, help, empty editor); needs no image.
+        /// </summary>
+        public const string OpenWindow = "OpenWindow";
 
         private static readonly HashSet<string> DestinationStepTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

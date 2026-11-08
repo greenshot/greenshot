@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Recipes
             var contracts = registry.Contracts.ToDictionary(c => c.StepType, StringComparer.OrdinalIgnoreCase);
             foreach (var pluginStep in new[]
                      {
-                         typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep), typeof(Greenshot.Plugin.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep),
+                         typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep), typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep),
                          typeof(Greenshot.Plugin.Office.Recipes.OfficeStep), typeof(Greenshot.Plugin.Box.Recipes.BoxStep), typeof(Greenshot.Plugin.Dropbox.Recipes.DropboxStep),
                          typeof(Greenshot.Plugin.Pdf.Recipes.PdfStep)
                      })
@@ -195,7 +195,7 @@ namespace Greenshot.Tests.Recipes
                 foreach (var parameter in node.Parameters)
                 {
                     var declared = contract.FindParameter(parameter.Key);
-                    Assert.True(declared != null || contract.AcceptsUndeclaredParameters, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
+                    Assert.True(declared != null, $"{stepType}: the editor sets '{parameter.Key}', which the step does not read");
                     if (declared != null && declared.AllowedValues.Count > 0 && parameter.Value is string value)
                     {
                         Assert.Contains(value, declared.AllowedValues, StringComparer.OrdinalIgnoreCase);
@@ -210,9 +210,8 @@ namespace Greenshot.Tests.Recipes
         [Theory]
         [InlineData(typeof(Greenshot.Recipes.Steps.DestinationExportStep))]
         [InlineData(typeof(Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep))]
-        [InlineData(typeof(Greenshot.Plugin.Imgur.Recipes.ImgurStep))]
-        [InlineData(typeof(Greenshot.Plugin.Jira.Recipes.JiraStep))]
-        [InlineData(typeof(Greenshot.Plugin.Confluence.Recipes.ConfluenceStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Jira.Recipes.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Atlassian.Confluence.Recipes.ConfluenceStep))]
         public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
         {
             var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();
@@ -260,18 +259,19 @@ namespace Greenshot.Tests.Recipes
         {
         }
 
-        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory()));
+        // docs/vNext/examples is three levels below the repository
+        private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory())));
 
         private static string FindExamplesDirectory()
         {
             var directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             while (directory != null)
             {
-                string candidate = Path.Combine(directory.FullName, "docs", "examples");
+                string candidate = Path.Combine(directory.FullName, "docs", "vNext", "examples");
                 if (Directory.Exists(candidate)) return candidate;
                 directory = directory.Parent;
             }
-            throw new DirectoryNotFoundException("docs/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
+            throw new DirectoryNotFoundException("docs/vNext/examples not found above " + AppDomain.CurrentDomain.BaseDirectory);
         }
 
         // --- Graph analysis ------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ namespace Greenshot.Tests.Recipes
         {
             // The consumer is listed first, but runs after the producer
             var recipe = new CaptureRecipe("order", "Order")
-                .AddNode(Use("use", "${A}"))
+                .AddNode(Use("use", "${var.A}"))
                 .AddNode(new RecipeNodeConfig("produce", "ProduceA"));
             recipe.Flow = new RecipeFlowConfig("produce").AddTransition("produce", "use");
             Assert.Empty(Warnings(recipe));
@@ -311,9 +311,9 @@ namespace Greenshot.Tests.Recipes
             // Listed first and running first: A is not set yet
             var wrong = new CaptureRecipe("order2", "Order 2")
                 .AddNode(new RecipeNodeConfig("produce", "ProduceA"))
-                .AddNode(Use("use", "${A}"));
+                .AddNode(Use("use", "${var.A}"));
             wrong.Flow = new RecipeFlowConfig("use").AddTransition("use", "produce");
-            Assert.Contains(Warnings(wrong), w => w.Contains("'use'") && w.Contains("${A}") && w.Contains("do not run before it"));
+            Assert.Contains(Warnings(wrong), w => w.Contains("'use'") && w.Contains("${var.A}") && w.Contains("do not run before it"));
         }
 
         [Fact]
@@ -323,7 +323,7 @@ namespace Greenshot.Tests.Recipes
                 .AddNode(new RecipeNodeConfig("decide", "Branch"))
                 .AddNode(new RecipeNodeConfig("left", "ProduceA"))
                 .AddNode(new RecipeNodeConfig("right", "ProduceB"))
-                .AddNode(Use("merge", "${A} ${B}"));
+                .AddNode(Use("merge", "${var.A} ${var.B}"));
             recipe.Flow = new RecipeFlowConfig("decide")
                 .AddConditionalTransition("decide", "yes", "left")
                 .AddConditionalTransition("decide", "no", "right")
@@ -331,8 +331,8 @@ namespace Greenshot.Tests.Recipes
                 .AddTransition("right", "merge");
 
             var warnings = Warnings(recipe);
-            Assert.Contains(warnings, w => w.Contains("'merge'") && w.Contains("${A}") && w.Contains("not set on every path"));
-            Assert.Contains(warnings, w => w.Contains("'merge'") && w.Contains("${B}") && w.Contains("not set on every path"));
+            Assert.Contains(warnings, w => w.Contains("'merge'") && w.Contains("${var.A}") && w.Contains("not set on every path"));
+            Assert.Contains(warnings, w => w.Contains("'merge'") && w.Contains("${var.B}") && w.Contains("not set on every path"));
         }
 
         [Fact]
@@ -342,7 +342,7 @@ namespace Greenshot.Tests.Recipes
                 .AddNode(new RecipeNodeConfig("decide", "Branch"))
                 .AddNode(new RecipeNodeConfig("left", "ProduceA"))
                 .AddNode(new RecipeNodeConfig("right", "ProduceA"))
-                .AddNode(Use("merge", "${A}"));
+                .AddNode(Use("merge", "${var.A}"));
             recipe.Flow = new RecipeFlowConfig("decide")
                 .AddConditionalTransition("decide", "yes", "left")
                 .AddConditionalTransition("decide", "no", "right")
@@ -359,7 +359,7 @@ namespace Greenshot.Tests.Recipes
                 .AddNode(new RecipeNodeConfig("start", "Capture"))
                 .AddNode(new RecipeNodeConfig("left", "ProduceA"))
                 .AddNode(new RecipeNodeConfig("right", "ProduceB"))
-                .AddNode(Use("join", "${A} ${B}"));
+                .AddNode(Use("join", "${var.A} ${var.B}"));
             recipe.Flow = new RecipeFlowConfig("start")
                 .AddTransition("start", "left")
                 .AddTransition("start", "right")
@@ -374,7 +374,7 @@ namespace Greenshot.Tests.Recipes
             var recipe = new CaptureRecipe("siblings", "Siblings")
                 .AddNode(new RecipeNodeConfig("start", "Capture"))
                 .AddNode(new RecipeNodeConfig("left", "ProduceA"))
-                .AddNode(Use("right", "${A}"));
+                .AddNode(Use("right", "${var.A}"));
             recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "left").AddTransition("start", "right");
             Assert.Contains(Warnings(recipe), w => w.Contains("'right'") && w.Contains("do not run before it"));
         }
@@ -384,7 +384,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("maybe", "Maybe")
                 .AddNode(new RecipeNodeConfig("scan", "MaybeA"))
-                .AddNode(Use("use", "${A}"));
+                .AddNode(Use("use", "${var.A}"));
             recipe.Flow = new RecipeFlowConfig("scan").AddTransition("scan", "use");
 
             var contract = RecipeContract.Analyze(recipe, CreateAnalysisRegistry());
@@ -398,14 +398,14 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("errors", "Errors")
                 .AddNode(new RecipeNodeConfig("risky", "ProduceA"))
-                .AddNode(Use("ok", "${A}"))
-                .AddNode(Use("handler", "${LastError} ${A}"));
+                .AddNode(Use("ok", "${var.A}"))
+                .AddNode(Use("handler", "${var.LastError} ${var.A}"));
             recipe.Flow = new RecipeFlowConfig("risky").AddTransition("risky", "ok").AddErrorTransition("risky", "handler");
 
             var warnings = Warnings(recipe);
             Assert.DoesNotContain(warnings, w => w.Contains("'ok'"));
-            Assert.DoesNotContain(warnings, w => w.Contains("${LastError}"));
-            Assert.Contains(warnings, w => w.Contains("'handler'") && w.Contains("${A}"));
+            Assert.DoesNotContain(warnings, w => w.Contains("${var.LastError}"));
+            Assert.Contains(warnings, w => w.Contains("'handler'") && w.Contains("${var.A}"));
         }
 
         [Fact]
@@ -435,7 +435,7 @@ namespace Greenshot.Tests.Recipes
         public void Analyze_CommandlineArguments_AreInputs_OptionalOnesAreNotGuaranteed_ButMayBeUsed()
         {
             var recipe = new CaptureRecipe("cli", "Cli")
-                .AddNode(Use("use", "${Required} ${WithDefault} ${Optional}"))
+                .AddNode(Use("use", "${var.Required} ${var.WithDefault} ${var.Optional}"))
                 .AddTrigger(TriggerConfig.CreateCommandline("cli", arguments: new[]
                 {
                     new CommandlineArgument { Name = "required", Variable = "Required", Required = true },
@@ -460,14 +460,14 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("params", "Params")
                 .AddNode(new RecipeNodeConfig("missing", "Strict").Set("Size", 3))
-                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium").Set("Colour", "red"))
-                .AddNode(new RecipeNodeConfig("fine", "Strict") { OnErrorNodeId = "missing" }.Set("Mode", "fast"));
-            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" });
+                .AddNode(new RecipeNodeConfig("wrong", "Strict").Set("Mode", "Medium"))
+                .AddNode(new RecipeNodeConfig("fine", "Strict").Set("Mode", "fast"));
+            recipe.Flow = new RecipeFlowConfig(new[] { "missing", "wrong", "fine" })
+                .AddErrorTransition("fine", "missing");
 
             var warnings = Warnings(recipe);
             Assert.Contains(warnings, w => w.Contains("'missing'") && w.Contains("missing required parameter 'Mode'"));
             Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Medium'"));
-            Assert.Contains(warnings, w => w.Contains("'wrong'") && w.Contains("'Colour'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'fine'"));
             Assert.DoesNotContain(warnings, w => w.Contains("'Size'"));
         }
@@ -477,8 +477,8 @@ namespace Greenshot.Tests.Recipes
         {
             var registry = CreatePipelineRegistry();
             var recipe = new CaptureRecipe("prompt", "Prompt")
-                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variable", "Greeting").Set("Value", "hi"))
-                .AddNode(new RecipeNodeConfig("print", WellKnownStepTypes.Stdout).Set("Text", "${Greeting} ${UserChoice.set}"));
+                .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variables", new Dictionary<string, object> { ["Greeting"] = "hi" }))
+                .AddNode(new RecipeNodeConfig("print", WellKnownStepTypes.Stdout).Set("Text", "${var.Greeting} ${var.UserChoice.set}"));
             recipe.Flow = new RecipeFlowConfig("set").AddTransition("set", "print");
 
             var contract = RecipeContract.Analyze(recipe, registry);
@@ -531,7 +531,7 @@ namespace Greenshot.Tests.Recipes
             var registry = CreatePipelineRegistry();
             var recipe = new CaptureRecipe("contracted", "Contracted")
                 .AddNode(new RecipeNodeConfig("set", WellKnownStepTypes.SetVariable).Set("Variables", new Dictionary<string, object> { ["One"] = "1", ["Two"] = "2" }))
-                .AddNode(new RecipeNodeConfig("out", WellKnownStepTypes.Stdout).Set("Text", "${One}"))
+                .AddNode(new RecipeNodeConfig("out", WellKnownStepTypes.Stdout).Set("Text", "${var.One}"))
                 .AddNode(new RecipeNodeConfig("err", WellKnownStepTypes.Stderr).Set("Text", "bad").Set("ExitCode", 4).Set("Abort", false));
             recipe.Flow = new RecipeFlowConfig("set").AddTransition("set", "out").AddTransition("out", "err");
 

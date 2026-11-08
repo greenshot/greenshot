@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -31,7 +31,7 @@ using Xunit;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Dropbox;
-using Greenshot.Plugin.Jira;
+using Greenshot.Plugin.Atlassian.Jira;
 using Greenshot.Plugin.Office;
 
 namespace Greenshot.Tests.Forms
@@ -153,7 +153,7 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(window);
                     Assert.NotNull(window.DataContext);
 
-                    var windowWithPlugin = new SettingsWindow("Imgur");
+                    var windowWithPlugin = new SettingsWindow("Jira");
                     Assert.NotNull(windowWithPlugin);
                 }
                 catch (Exception ex)
@@ -203,6 +203,21 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void UnlistedDestinationNames_SkipsDestinationsWhichHaveARow()
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+            config.ExcludeDestinations = new System.Collections.Generic.List<string> { "Printer", "Box" };
+            config.BlockedDestinations = new System.Collections.Generic.List<string> { "box", "Picker" };
+            config.AllowedDestinations = new System.Collections.Generic.List<string>();
+
+            // Printer is registered and switched off by the user: it has its row, a second one would keep it switched off
+            var names = SettingsViewModel.UnlistedDestinationNames(config, new[] { "printer", "FileDefault" });
+
+            Assert.Equal(new[] { "Box" }, names);
+        }
+
+        [Fact]
         public void SettingsViewModel_PluginSelection_ControlsAndPropertiesWork()
         {
             var viewModel = new SettingsViewModel();
@@ -231,6 +246,60 @@ namespace Greenshot.Tests.Forms
                     Assert.Equal(System.Windows.Visibility.Visible, viewModel.NoSelectedPluginControlVisibility);
                 }
             }
+        }
+
+        [Fact]
+        public void SettingsWindow_GroupBoxUsesTheSharedStyle()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // The shared GroupBox style (GroupBoxStyles.xaml) is the one the settings groups and the AI tab use
+                    var style = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.GroupBox)));
+                    var padding = Assert.Single(style.Setters, s => s is System.Windows.Setter st && st.Property == System.Windows.Controls.Control.PaddingProperty) as System.Windows.Setter;
+                    Assert.NotNull(padding);
+                    Assert.Equal(new System.Windows.Thickness(12), padding.Value);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void SettingsWindow_TabStylesComeFromTheSharedDictionary()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // TabControl and TabItem styles are defined once in TabStyles.xaml and used by the settings window
+                    var tabControlStyle = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.TabControl)));
+                    Assert.NotNull(tabControlStyle);
+                    var tabItemStyle = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.TabItem)));
+                    Assert.Contains(tabItemStyle.Setters, s => s is System.Windows.Setter st && st.Property == System.Windows.Controls.Control.TemplateProperty);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
         }
     }
 }

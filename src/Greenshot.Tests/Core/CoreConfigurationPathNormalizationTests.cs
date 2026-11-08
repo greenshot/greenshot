@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -104,12 +104,28 @@ namespace Greenshot.Tests.Core
         }
 
         [Theory]
-        [InlineData("24,24", 16)]
-        [InlineData("40,40", 32)]
+        [InlineData(@"Z:\Greenshot\Not\Connected")]
+        [InlineData(@"\\server\share\Screenshots")]
+        [InlineData(@"C:\Screenshots\${YYYY}-${MM}")]
+        public void OnAfterLoad_KeepsAFolderWhichDoesNotExist(string configuredFolder)
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+            config.SetRawValue(nameof(config.OutputFilePath), configuredFolder);
+
+            config.OnAfterLoad();
+
+            Assert.Equal(configuredFolder, config.OutputFilePath);
+        }
+
+        [Theory]
+        [InlineData("24,24", 24)]
+        [InlineData("40,40", 40)]
+        [InlineData("30,30", 28)]
         [InlineData("8,8", 16)]
         [InlineData("512,512", 256)]
         [InlineData("32,32", 32)]
-        public void IconSize_FromIniFile_IsCoercedToAMultipleOf16(string rawValue, int expected)
+        public void IconSize_FromIniFile_IsCoercedToAStepOf4(string rawValue, int expected)
         {
             var config = new CoreConfigurationImpl();
             config.ResetToDefaults();

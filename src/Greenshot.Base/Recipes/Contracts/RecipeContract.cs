@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -126,6 +126,11 @@ namespace Greenshot.Base.Recipes.Contracts
                     providesPayload = true;
                     inputs["Capture"] = new VariableContract("Capture", ContractDataType.Object, true, "The capture imported from the browser (also the payload)");
                     inputs["Browser"] = new VariableContract("Browser", ContractDataType.String, false, "The browser that sent the capture") { Conditional = true };
+                }
+                else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase))
+                {
+                    // The capture of the clicked notification is the payload
+                    providesPayload = true;
                 }
                 else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                 {
@@ -299,8 +304,8 @@ namespace Greenshot.Base.Recipes.Contracts
                         string produced = FindProducible(name, producible);
                         if (produced == null || covered[node.Id].Contains(produced)) continue;
                         _warnings.Add(possible[node.Id].Contains(produced)
-                            ? $"Node '{node.Id}' ({node.StepType}) uses ${{{produced}}}, which is not set on every path to it (it is only set in some branches)."
-                            : $"Node '{node.Id}' ({node.StepType}) uses ${{{produced}}}, which is only set by nodes that do not run before it.");
+                            ? $"Node '{node.Id}' ({node.StepType}) uses ${{var.{produced}}}, which is not set on every path to it (it is only set in some branches)."
+                            : $"Node '{node.Id}' ({node.StepType}) uses ${{var.{produced}}}, which is only set by nodes that do not run before it.");
                     }
                 }
 
@@ -344,14 +349,6 @@ namespace Greenshot.Base.Recipes.Contracts
                     }
                 }
 
-                if (contract.AcceptsUndeclaredParameters) return;
-                foreach (var name in parameters.Keys)
-                {
-                    if (contract.FindParameter(name) == null)
-                    {
-                        _warnings.Add($"Node '{node.Id}' ({node.StepType}) has parameter '{name}', which the step does not read.");
-                    }
-                }
             }
 
             private IEnumerable<string> GetStartNodes()
@@ -389,48 +386,40 @@ namespace Greenshot.Base.Recipes.Contracts
             {
                 var flow = _recipe.Flow ?? new RecipeFlowConfig();
                 var conditionalSources = new HashSet<string>(
-                    (flow.ConditionalTransitions ?? new List<RecipeConditionalTransitionConfig>()).Where(ct => !string.IsNullOrWhiteSpace(ct?.From) && !string.IsNullOrWhiteSpace(ct.To)).Select(ct => ct.From),
+                    flow.ConditionalTransitions.Where(ct => !string.IsNullOrWhiteSpace(ct.From) && !string.IsNullOrWhiteSpace(ct.To)).Select(ct => ct.From),
                     StringComparer.OrdinalIgnoreCase);
 
-                foreach (var kvp in flow.Transitions ?? new Dictionary<string, List<string>>())
+                foreach (var from in (flow.Transitions ?? new List<RecipeTransition>()).Where(t => t != null && t.IsPlain).Select(t => t.From).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct(StringComparer.OrdinalIgnoreCase))
                 {
-                    if (conditionalSources.Contains(kvp.Key))
+                    var targets = flow.GetTargets(from);
+                    if (conditionalSources.Contains(from))
                     {
                         // The engine follows only the conditional transitions of a node that has them
-                        if (kvp.Value?.Count > 0)
+                        if (targets.Count > 0)
                         {
-                            _warnings.Add($"Node '{kvp.Key}' has conditional transitions, so its normal transitions ({string.Join(", ", kvp.Value)}) are never followed.");
+                            _warnings.Add($"Node '{from}' has conditional transitions, so its normal transitions ({string.Join(", ", targets)}) are never followed.");
                         }
                         continue;
                     }
-                    foreach (var to in kvp.Value ?? new List<string>())
+                    foreach (var to in targets)
                     {
-                        AddEdge(kvp.Key, to, EdgeKind.Standard);
+                        AddEdge(from, to, EdgeKind.Standard);
                     }
                 }
 
-                foreach (var ct in flow.ConditionalTransitions ?? new List<RecipeConditionalTransitionConfig>())
+                foreach (var ct in flow.ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct.From) || string.IsNullOrWhiteSpace(ct.To)) continue;
                     AddEdge(ct.From, ct.To, EdgeKind.Conditional, ct.Branch ?? string.Empty);
                     if (!_branchKeys.TryGetValue(ct.From, out var keys)) _branchKeys[ct.From] = keys = new List<string>();
                     if (!keys.Contains(ct.Branch ?? string.Empty, StringComparer.OrdinalIgnoreCase)) keys.Add(ct.Branch ?? string.Empty);
                 }
 
-                foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
+                foreach (var et in flow.ErrorTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(et?.From) || string.IsNullOrWhiteSpace(et.To)) continue;
+                    if (string.IsNullOrWhiteSpace(et.From) || string.IsNullOrWhiteSpace(et.To)) continue;
                     AddEdge(et.From, et.To, EdgeKind.Error);
                     _hasErrorEdge.Add(et.From);
-                }
-                foreach (var node in _nodes.Values)
-                {
-                    string target = node.OnErrorNodeId;
-                    if (!string.IsNullOrWhiteSpace(target) && !_hasErrorEdge.Contains(node.Id))
-                    {
-                        AddEdge(node.Id, target, EdgeKind.Error);
-                        _hasErrorEdge.Add(node.Id);
-                    }
                 }
             }
 
@@ -606,14 +595,10 @@ namespace Greenshot.Base.Recipes.Contracts
                         case string text:
                             foreach (Match match in VariableReference.Matches(text))
                             {
-                                names.Add(match.Groups[1].Value.TrimEnd('.'));
+                                // The values of the running recipe are var.<name>; the other namespaces aren't produced by steps
+                                string name = match.Groups[1].Value.TrimEnd('.');
+                                if (name.StartsWith("var.", StringComparison.OrdinalIgnoreCase)) names.Add(name.Substring(4));
                             }
-                            return;
-                        case Newtonsoft.Json.Linq.JValue jValue:
-                            Collect(jValue.Value);
-                            return;
-                        case Newtonsoft.Json.Linq.JObject jObject:
-                            foreach (var property in jObject.Properties()) Collect(property.Value);
                             return;
                         case IDictionary dictionary:
                             foreach (var item in dictionary.Values) Collect(item);

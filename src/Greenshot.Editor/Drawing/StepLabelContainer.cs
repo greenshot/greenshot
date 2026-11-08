@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -228,17 +228,32 @@ namespace Greenshot.Editor.Drawing
             }
 
             using FontFamily fam = new(FontFamily.GenericSansSerif.Name);
-
-            //calculate new font size based on ratio from text height and text width
-            float initialFontSize = Math.Min(Math.Abs(Width), Math.Abs(Height));          
-            using Font Measurefont = new(fam, initialFontSize, FontStyle.Bold, GraphicsUnit.Pixel);            
-            var fontSize = initialFontSize * TextRenderer.MeasureText(text, Measurefont).Height / TextRenderer.MeasureText(text, Measurefont).Width;
-
-            //static scale for optimal fit
-            fontSize *= 0.7f;
-
-            using Font font = new(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            using Font font = new(fam, NumberFontSize(text), FontStyle.Bold, GraphicsUnit.Pixel);
             TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
+        }
+
+        /// <summary>
+        /// The number of this label, as drawn
+        /// </summary>
+        internal string NumberText => ((Surface) Parent).CountStepLabels(this).ToString();
+
+        /// <summary>
+        /// A rectangle instead of the circle
+        /// </summary>
+        internal bool DrawAsRectangle => _drawAsRectangle;
+
+        /// <summary>
+        /// The size in pixels of the bold number in the generic sans serif family, so it fits the label
+        /// </summary>
+        internal float NumberFontSize(string text)
+        {
+            using FontFamily fam = new(FontFamily.GenericSansSerif.Name);
+            //calculate new font size based on ratio from text height and text width
+            float initialFontSize = Math.Min(Math.Abs(Width), Math.Abs(Height));
+            using Font measureFont = new(fam, initialFontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            var measured = TextRenderer.MeasureText(text, measureFont);
+            //static scale for optimal fit
+            return initialFontSize * measured.Height / measured.Width * 0.7f;
         }
 
         public override bool ClickableAt(int x, int y)

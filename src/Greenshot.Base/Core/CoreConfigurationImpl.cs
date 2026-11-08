@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,10 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Expressions;
 using System.Text.RegularExpressions;
 using log4net;
 
@@ -50,21 +52,26 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
+        /// The steps in which the icon size can be changed
+        /// </summary>
+        public const int IconSizeStep = 4;
+
+        /// <summary>
+        /// Coerce the value to stay between 16 and 256, in steps of 4 pixels (the size at 100%, it's scaled with the DPI of the display).
         /// </summary>
         /// <param name="value">NativeSize</param>
         partial void OnIconSizeSet(ref NativeSize value) => value = CoerceIconSize(value);
 
         /// <summary>
-        /// Loading the ini file doesn't go through the setter, so a value like 24 from the file is coerced when it's read
+        /// Loading the ini file doesn't go through the setter, so a value from the file is coerced when it's read
         /// </summary>
         /// <param name="value">NativeSize</param>
         partial void OnIconSizeGet(ref NativeSize value) => value = CoerceIconSize(value);
 
         private static NativeSize CoerceIconSize(NativeSize value)
         {
-            int newWidth = (Clamp(value.Width, 16, 256) / 16) * 16;
-            int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
+            int newWidth = (Clamp(value.Width, 16, 256) / IconSizeStep) * IconSizeStep;
+            int newHeight = (Clamp(value.Height, 16, 256) / IconSizeStep) * IconSizeStep;
             return new NativeSize(newWidth, newHeight);
         }
 
@@ -92,6 +99,12 @@ namespace Greenshot.Base.Core
 
         partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
 
+        partial void OnOutputFilePngCompressionLevelSet(ref int value) => value = Clamp(value, 1, 9);
+        partial void OnOutputFilePngCompressionLevelGet(ref int value) => value = Clamp(value, 1, 9);
+
+        partial void OnClipboardPngCompressionLevelSet(ref int value) => value = Clamp(value, 1, 9);
+        partial void OnClipboardPngCompressionLevelGet(ref int value) => value = Clamp(value, 1, 9);
+
 
         /// <summary>
         /// Coerce the value for the update check interval to stay between 0 and 365, where 0 means "never check for updates". This is to prevent excessive update checking that can occur when the configuration is used on a different PC or when the user accidentally enters an excessively high value. See BUG-1992 for details.
@@ -106,6 +119,13 @@ namespace Greenshot.Base.Core
         {
             return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
+
+        /// <summary>
+        /// The default of OutputDirectory as a template (${user.desktop}), so it moves with the folder; portable: the path next to
+        /// Greenshot, which stays as it is
+        /// </summary>
+        private string DefaultOutputDirectory() =>
+            GreenshotEnvironment.IsPortable ? CreateOutputFilePath() : OutputTemplates.FolderTemplateOf(CreateOutputFilePath());
 
         private string CreateOutputFilePath()
         {
@@ -188,19 +208,47 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Validate the OutputFilePath, and if this is not correct it will be set to the default.
-        /// Added for BUG-1992, reset the OutputFilePath if it doesn't exist (e.g. the configuration is used on a different PC)
+        /// Sets the default folder when no OutputDirectory is configured. A configured folder stays, also when it doesn't exist right now:
+        /// <see cref="GetOutputDirectory"/> creates it, or uses the default folder for one save (e.g. a network drive which isn't reachable).
         /// </summary>
-        public void ValidateAndCorrectOutputFilePath()
+        public void ValidateAndCorrectOutputDirectory()
         {
-            if (!string.IsNullOrEmpty(OutputFilePath))
+            if (string.IsNullOrWhiteSpace(OutputDirectory))
             {
-                OutputFilePath = NormalizePath(OutputFilePath);
+                OutputDirectory = DefaultOutputDirectory();
             }
-            if (!Directory.Exists(OutputFilePath))
+        }
+
+        /// <summary>
+        /// The folder for a new screenshot: the configured folder rendered for the capture and created when it doesn't exist, or the
+        /// default folder for this one save when the configured one can't be used (e.g. a network drive which isn't connected).
+        /// </summary>
+        /// <param name="scope">What the template can use, null for none</param>
+        /// <param name="problem">Why the configured folder couldn't be used, null when it is used</param>
+        public string GetOutputDirectory(VariableScope scope, out string problem)
+        {
+            problem = null;
+            ValidateAndCorrectOutputDirectory();
+            string configured = OutputDirectory;
+            string directory = null;
+            try
             {
-                OutputFilePath = CreateOutputFilePath();
+                directory = VariableResolver.Instance.Render(configured, TemplatePurpose.Folder, scope);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                    Log.InfoFormat("Created the screenshot folder {0}", directory);
+                }
+                return directory;
             }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException || ex is TemplateException)
+            {
+                problem = ex.Message;
+            }
+
+            string fallback = CreateOutputFilePath();
+            Log.WarnFormat("The screenshot folder '{0}' ('{1}') can't be used: {2} Saving to '{3}' this time, the setting stays.", configured, directory, problem, fallback);
+            return fallback;
         }
 
         /// <summary>
@@ -269,6 +317,17 @@ namespace Greenshot.Base.Core
                 MarkAsDirty();
             }
 
+            // OutputFileAllowOverwrite (bool) is replaced by OutputFileIfExists: False meant the save dialog
+            if (!OutputFileAllowOverwrite)
+            {
+                OutputFileIfExists = FileExistsAction.Ask;
+                OutputFileAllowOverwrite = true;
+            }
+
+            // The clicks on the tray icon start recipes now: the actions of LeftClickAction and DoubleClickAction are moved once
+            MoveTrayClickAction("LeftClickAction", nameof(TrayClickRecipe), value => TrayClickRecipe = value);
+            MoveTrayClickAction("DoubleClickAction", nameof(TrayDoubleClickRecipe), value => TrayDoubleClickRecipe = value);
+
             // Prevent both settings at once, bug #3435056
             if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
             {
@@ -306,10 +365,17 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            // Set defaults for properties that need computed defaults
-            if (string.IsNullOrEmpty(OutputFilePath) || !Directory.Exists(OutputFilePath))
+            // The templates of 1.4 are filled once from the patterns of 1.3, which stay for going back to 1.3. A pattern fixed in
+            // greenshot-fixed.ini is converted on every start, so it keeps deciding.
+            OutputDirectory = FromLegacyPattern(nameof(OutputDirectory), OutputDirectory, nameof(OutputFilePath), OutputFilePath, true);
+            OutputFileNameTemplate = FromLegacyPattern(nameof(OutputFileNameTemplate), OutputFileNameTemplate, nameof(OutputFileFilenamePattern), OutputFileFilenamePattern, false);
+            OutputPrintFooterTemplate = FromLegacyPattern(nameof(OutputPrintFooterTemplate), OutputPrintFooterTemplate, nameof(OutputPrintFooterPattern), OutputPrintFooterPattern, false);
+
+            // Set defaults for properties that need computed defaults. A configured folder stays, also when it doesn't exist right now
+            // (a network drive at the logon, values like ${payload.time:yyyy}), see GetOutputDirectory
+            if (string.IsNullOrEmpty(OutputDirectory))
             {
-                OutputFilePath = CreateOutputFilePath();
+                OutputDirectory = DefaultOutputDirectory();
             }
 
             if (string.IsNullOrEmpty(OutputFileAsFullpath))
@@ -332,11 +398,132 @@ namespace Greenshot.Base.Core
             }
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
+            ExcludePluginNames ??= new List<string>();
+            AllowedPluginNames ??= new List<string>();
+            BlockedPluginNames ??= new List<string>();
+            AllowedDestinations ??= new List<string>();
+            BlockedDestinations ??= new List<string>();
+            PluginApprovedHashes ??= new List<string>();
+            PluginRejectedHashes ??= new List<string>();
+            PluginVerifiedHashes ??= new List<string>();
+            // The plugin lists of the user use the names now, values in greenshot-fixed.ini are still read where they are
+            if (MoveToPluginNames(nameof(ExcludePlugins), ExcludePlugins, nameof(ExcludePluginNames), ExcludePluginNames)
+                | MoveToPluginNames(nameof(IncludePlugins), IncludePlugins, nameof(AllowedPluginNames), AllowedPluginNames))
+            {
+                MarkAsDirty();
+            }
             AllowedUntrustedCertificateHosts ??= new List<string>();
             AllowedCertificateThumbprints ??= new List<string>();
             AiToolsExcludedProcesses ??= new List<string>();
             AiToolsAllowedClients ??= new List<string>();
             AiToolsMcpServerPaths ??= new List<string>();
+        }
+
+        /// <summary>
+        /// The recipes which do what the actions of the former LeftClickAction and DoubleClickAction did
+        /// </summary>
+        private static readonly Dictionary<string, string> TrayClickActionRecipes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["DO_NOTHING"] = string.Empty,
+            ["SHOW_CONTEXT_MENU"] = "recipe_tray_menu",
+            ["OPEN_LAST_IN_EXPLORER"] = "recipe_open_capture_folder",
+            ["OPEN_LAST_IN_EDITOR"] = "recipe_last_capture_in_editor",
+            ["OPEN_SETTINGS"] = "recipe_open_settings",
+            ["OPEN_EMPTY_EDITOR"] = "recipe_empty_editor",
+            ["CAPTURE_REGION"] = "recipe_region",
+            ["CAPTURE_SCREEN"] = "recipe_fullscreen",
+            ["CAPTURE_WINDOW"] = "recipe_window",
+            // The clipboard and file recipes open the editor
+            ["CAPTURE_CLIPBOARD"] = "recipe_clipboard",
+            ["OPEN_CLIPBOARD_IN_EDITOR"] = "recipe_clipboard",
+            ["OPEN_FILE_IN_EDITOR"] = "recipe_file"
+        };
+
+        /// <summary>
+        /// Moves the action of a former tray click setting to the recipe of the new setting, and removes the old key
+        /// </summary>
+        /// <param name="oldKey">LeftClickAction or DoubleClickAction</param>
+        /// <param name="newKey">The new setting, not changed when it is fixed (greenshot-fixed.ini)</param>
+        /// <param name="setRecipe">Sets the new setting</param>
+        private void MoveTrayClickAction(string oldKey, string newKey, Action<string> setRecipe)
+        {
+            string action;
+            try
+            {
+                action = GetRawValue(oldKey);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't read {oldKey}", ex);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(action))
+            {
+                return;
+            }
+
+            if (TrayClickActionRecipes.TryGetValue(action.Trim(), out var recipeId) && !IsConstant(newKey))
+            {
+                setRecipe(recipeId);
+                Log.InfoFormat("Moved the tray icon action {0}={1} to the recipe '{2}'.", oldKey, action, recipeId);
+            }
+
+            // Moved only once: an empty value is not moved again
+            try
+            {
+                SetRawValue(oldKey, string.Empty);
+                MarkAsDirty();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Move the plugin identifiers of IncludePlugins or ExcludePlugins, e.g. Box Plugin, to the list with the names, e.g. Box
+        /// </summary>
+        /// <returns>true when something was moved</returns>
+        private bool MoveToPluginNames(string identifiersKey, List<string> identifiers, string namesKey, List<string> names)
+        {
+            if (IsConstant(identifiersKey) || IsConstant(namesKey) || !ConfigurationRestrictions.Names(identifiers).Any())
+            {
+                return false;
+            }
+
+            foreach (var name in ConfigurationRestrictions.Names(identifiers).Select(ConfigurationRestrictions.PluginNameFromLegacyIdentifier))
+            {
+                if (!names.Contains(name, StringComparer.OrdinalIgnoreCase))
+                {
+                    names.Add(name);
+                }
+            }
+
+            identifiers.Clear();
+            return true;
+        }
+
+        /// <summary>
+        /// The value for a template setting: the converted pattern of 1.3 when the template isn't set yet, or when the pattern is
+        /// fixed by an administrator and the template isn't
+        /// </summary>
+        private string FromLegacyPattern(string templateKey, string template, string patternKey, string pattern, bool percentVariables)
+        {
+            bool patternFixed = IsConstant(patternKey) && !IsConstant(templateKey);
+            if (!patternFixed && !string.IsNullOrEmpty(template)) return template;
+            if (string.IsNullOrEmpty(pattern)) return template;
+            string converted = LegacyTemplateConverter.Convert(pattern, percentVariables);
+            if (percentVariables && !GreenshotEnvironment.IsPortable)
+            {
+                // A folder: the 1.3 path in a known folder is written with its value, e.g. ${user.desktop}
+                converted = OutputTemplates.FolderTemplateOf(converted);
+            }
+            if (!string.Equals(converted, template, StringComparison.Ordinal))
+            {
+                Log.InfoFormat("{0} '{1}' of Greenshot 1.3 is {2} '{3}' now", patternKey, pattern, templateKey, converted);
+            }
+            return converted;
         }
 
         public bool OnBeforeSave()

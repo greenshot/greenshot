@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -61,7 +61,7 @@ namespace Greenshot.Tests.Recipes
                 StepType = WellKnownStepTypes.Stderr,
                 Parameters = new Dictionary<string, object>
                 {
-                    { "text", "Fatal error occurred with code: ${ErrorCode}" },
+                    { "text", "Fatal error occurred with code: ${var.ErrorCode}" },
                     { "exitCode", 42 },
                     { "abort", true }
                 }
@@ -145,7 +145,7 @@ namespace Greenshot.Tests.Recipes
                                     new CommandlineArgument { Name = "format", Variable = "Format", Required = false, DefaultValue = "png", Description = "Image format" }
                                 }
                             },
-                            { "Stdout", "${QrText}" }
+                            { "Stdout", "${var.QrText}" }
                         }
                     }
                 },
@@ -158,7 +158,7 @@ namespace Greenshot.Tests.Recipes
                         Parameters = new Dictionary<string, object>
                         {
                             { "sourceType", "File" },
-                            { "filename", "${Filename}" }
+                            { "filename", "${var.Filename}" }
                         }
                     },
                     new RecipeNodeConfig
@@ -173,7 +173,7 @@ namespace Greenshot.Tests.Recipes
                         StepType = WellKnownStepTypes.Stdout,
                         Parameters = new Dictionary<string, object>
                         {
-                            { "text", "${Barcode.Text}" }
+                            { "text", "${var.Barcode.Text}" }
                         }
                     }
                 }
@@ -223,14 +223,14 @@ namespace Greenshot.Tests.Recipes
             context.Properties["CustomParam"] = "GreenshotAwesome";
 
             // Context property
-            string res1 = ExpressionEvaluator.Instance.Evaluate<string>("${CustomParam}", context);
+            string res1 = RecipeExpressions.Evaluate<string>("${var.CustomParam}", context);
             Assert.Equal("GreenshotAwesome", res1);
 
             // Payload properties
-            string res2 = ExpressionEvaluator.Instance.Evaluate<string>("${Payload.Width}x${Payload.Height}", context);
+            string res2 = RecipeExpressions.Evaluate<string>("${payload.width}x${payload.height}", context);
             Assert.Equal("800x600", res2);
 
-            string res3 = ExpressionEvaluator.Instance.Evaluate<string>("${Payload.ExtractedText}", context);
+            string res3 = RecipeExpressions.Evaluate<string>("${payload.ocr.text}", context);
             Assert.Equal("Scanned Content 123", res3);
         }
     }

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -20,19 +20,23 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -45,7 +49,9 @@ namespace Greenshot.Base.Core
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
-        private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
+        // The temporary files which are still there, removed by the housekeeping after TmpFileLifetime or at exit
+        private static readonly ConcurrentDictionary<string, bool> TmpFiles = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        private static readonly TimeSpan TmpFileLifetime = TimeSpan.FromHours(10);
 
         /// <summary>
         /// Creates a PropertyItem (Metadata) to store with the image.
@@ -425,8 +431,8 @@ namespace Greenshot.Base.Core
                 if (File.Exists(tmpfile))
                 {
                     File.Delete(tmpfile);
-                    TmpFileCache.Remove(tmpfile);
                 }
+                TmpFiles.TryRemove(tmpfile, out _);
 
                 return true;
             }
@@ -444,7 +450,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="encoded">MemoryStream with the encoded image, the position isn't changed</param>
         /// <param name="format">the format of the encoded bytes, used for the extension</param>
-        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <param name="destinationPath">directory, null for Greenshot's temp directory (see GetTmpDirectory)</param>
         /// <returns>the path of the temp file, null when it couldn't be written</returns>
         public static string SaveEncodedToTmpFile(MemoryStream encoded, string format, string destinationPath)
         {
@@ -469,27 +475,66 @@ namespace Greenshot.Base.Core
         /// A path for a temp file with a random name and the extension of the format
         /// </summary>
         /// <param name="format">the file format, used for the extension</param>
-        /// <param name="destinationPath">directory, null for the temp directory</param>
+        /// <param name="destinationPath">directory, null for Greenshot's temp directory (see GetTmpDirectory)</param>
         /// <returns>the path, the file isn't created</returns>
         public static string CreateTmpFilePath(string format, string destinationPath)
         {
             string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(format);
             // Prevent problems with "other characters", which could cause problems
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
-            string tmpPath = Path.Combine(destinationPath ?? Path.GetTempPath(), tmpFile);
+            string tmpPath = Path.Combine(destinationPath ?? GetTmpDirectory(), tmpFile);
             Log.Debug("Creating TMP File : " + tmpPath);
             return tmpPath;
         }
 
         /// <summary>
-        /// Remember a temporary file, it is removed by RemoveTmpFiles (e.g. at exit).
+        /// Greenshot's own folder for temporary files (%TEMP%\Greenshot\Files), created when missing. What is left there (a file still in use
+        /// at exit, or after a crash) is removed at a later start by RemoveExpiredTmpFiles, without remembering anything.
+        /// </summary>
+        public static string GetTmpDirectory()
+        {
+            Directory.CreateDirectory(TmpDirectory);
+            return TmpDirectory;
+        }
+
+        private static string TmpDirectory => Path.Combine(Path.GetTempPath(), "Greenshot", "Files");
+
+        /// <summary>
+        /// Removes the files in Greenshot's temp directory which are older than the lifetime of a temp file, e.g. left by an earlier run
+        /// </summary>
+        public static void RemoveExpiredTmpFiles()
+        {
+            if (!Directory.Exists(TmpDirectory))
+            {
+                return;
+            }
+            var expired = DateTime.UtcNow - TmpFileLifetime;
+            foreach (var file in new DirectoryInfo(TmpDirectory).EnumerateFiles())
+            {
+                if (file.LastWriteTimeUtc < expired)
+                {
+                    TryDeleteTmpFile(file.FullName);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remember a temporary file, the housekeeping removes it after a while, RemoveTmpFiles at exit.
         /// </summary>
         public static void RegisterTmpFile(string tmpFile)
         {
-            if (!string.IsNullOrEmpty(tmpFile))
+            if (string.IsNullOrEmpty(tmpFile) || !TmpFiles.TryAdd(tmpFile, true))
             {
-                TmpFileCache.Add(tmpFile, tmpFile);
+                return;
             }
+            Housekeeping.Current?.Enqueue("Remove an expired temp file", cancellationToken =>
+            {
+                if (TmpFiles.ContainsKey(tmpFile) && TryDeleteTmpFile(tmpFile))
+                {
+                    TmpFiles.TryRemove(tmpFile, out _);
+                }
+                return Task.CompletedTask;
+            }, TmpFileLifetime);
         }
 
         /// <summary>
@@ -497,29 +542,50 @@ namespace Greenshot.Base.Core
         /// </summary>	
         public static void RemoveTmpFiles()
         {
-            foreach (string tmpFile in TmpFileCache.Elements)
+            foreach (string tmpFile in TmpFiles.Keys)
             {
-                if (File.Exists(tmpFile))
-                {
-                    Log.DebugFormat("Removing old temp file {0}", tmpFile);
-                    File.Delete(tmpFile);
-                }
+                TryDeleteTmpFile(tmpFile);
+                TmpFiles.TryRemove(tmpFile, out _);
+            }
+            // Nothing stays behind when the folder is empty (the parent can still hold the state of a restart)
+            TryDeleteEmptyDirectory(TmpDirectory);
+            TryDeleteEmptyDirectory(Path.GetDirectoryName(TmpDirectory));
+        }
 
-                TmpFileCache.Remove(tmpFile);
+        private static void TryDeleteEmptyDirectory(string directory)
+        {
+            try
+            {
+                if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+                {
+                    Directory.Delete(directory);
+                }
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                Log.DebugFormat("Couldn't remove the folder {0}: {1}", directory, ex.Message);
             }
         }
 
         /// <summary>
-        /// Cleanup handler for expired tempfiles
+        /// Deletes the temp file, a file which is still in use (e.g. opened by the app it was handed to) is left
         /// </summary>
-        /// <param name="filekey"></param>
-        /// <param name="filename"></param>
-        private static void RemoveExpiredTmpFile(string filekey, object filename)
+        /// <returns>false when it couldn't be deleted</returns>
+        private static bool TryDeleteTmpFile(string tmpFile)
         {
-            if (filename is string path && File.Exists(path))
+            try
             {
-                Log.DebugFormat("Removing expired file {0}", path);
-                File.Delete(path);
+                if (File.Exists(tmpFile))
+                {
+                    Log.DebugFormat("Removing temp file {0}", tmpFile);
+                    File.Delete(tmpFile);
+                }
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                Log.WarnFormat("Couldn't remove the temp file {0}: {1}", tmpFile, ex.Message);
+                return false;
             }
         }
 

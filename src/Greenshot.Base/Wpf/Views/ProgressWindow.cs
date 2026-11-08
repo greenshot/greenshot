@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,6 +22,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -65,6 +66,8 @@ namespace Greenshot.Base.Wpf.Views
                 Margin = new Thickness(0, 0, 0, 8),
                 Visibility = Visibility.Collapsed
             };
+            // A screen reader says the steps of the work while the focus stays on Cancel
+            LiveRegion.SetMode(_message, AutomationLiveSetting.Polite);
             _progressBar = new ProgressBar
             {
                 Height = 6,
@@ -75,6 +78,7 @@ namespace Greenshot.Base.Wpf.Views
                 Background = WpfThemeHelper.CardBorder,
                 BorderThickness = new Thickness(0)
             };
+            AutomationProperties.SetName(_progressBar, title ?? "Greenshot");
             _cancelButton = ThemedControls.CreateButton(Texts.Core.Cancel ?? "Cancel", false, true);
             _cancelButton.IsEnabled = cancel != null;
             _cancelButton.Click += (s, e) =>

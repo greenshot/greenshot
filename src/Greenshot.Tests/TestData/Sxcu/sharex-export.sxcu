@@ -1,0 +1,27 @@
+{
+  "Version": "13.6.1",
+  "Name": "Example ShareX export (Ünïcödé)",
+  "DestinationType": "ImageUploader, TextUploader, FileUploader",
+  "RequestType": "PUT",
+  "RequestURL": "https://upload.example.com/api/v1/upload",
+  "Parameters": {
+    "expires": 3600,
+    "private": true,
+    "folder": "screenshots"
+  },
+  "Headers": {
+    "Authorization": "Bearer YOUR_TOKEN"
+  },
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "title": "{filename}"
+  },
+  "FileFormName": "file",
+  "RegexList": [
+    "id=(\\w+)"
+  ],
+  "URL": "{json:data.files[0]['direct link']}",
+  "ThumbnailURL": "{json:$.data.thumb}",
+  "DeletionURL": "https://upload.example.com/delete/{json:data.key}",
+  "ErrorMessage": "{json:error.message}"
+}

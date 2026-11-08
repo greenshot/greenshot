@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -101,9 +101,10 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<AnnotationStep>(config => new AnnotationStep(config));
             AnnotationStep.EnsureBuiltInDrawablesRegistered();
             _stepRegistry.Register<SetVariableStep>(config => new SetVariableStep(config));
+            _stepRegistry.Register<SetMetadataStep>(config => new SetMetadataStep(config));
             _stepRegistry.Register<ConditionalStep>(config => new ConditionalStep(config));
             _stepRegistry.Register<ImmediateFeedbackStep>(config => new ImmediateFeedbackStep(config));
-            _stepRegistry.Register<ProcessorExecutionStep>(config => new ProcessorExecutionStep(config));
+            _stepRegistry.Register<OcrStep>(config => new OcrStep(config));
             _stepRegistry.Register<DestinationExportStep>(config => new DestinationExportStep(config, _dispatcher));
             _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.SaveFile, "Save to File", "Saves the capture to a file without asking.",
                 config => new DestinationExportStep(config, _dispatcher));
@@ -125,6 +126,8 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<StdoutStep>(config => new StdoutStep(config));
             _stepRegistry.Register<StderrStep>(config => new StderrStep(config));
             _stepRegistry.Register<SlotStep>(config => new SlotStep(config));
+            _stepRegistry.Register<ShowInExplorerStep>(config => new ShowInExplorerStep(config));
+            _stepRegistry.Register<OpenWindowStep>(config => new OpenWindowStep(config));
 
             // Register all plugin step providers
             try
@@ -221,6 +224,24 @@ namespace Greenshot.Recipes.Pipeline
                 if (CoreConfig.MinimizeWorkingSetSize)
                 {
                     PsApi.EmptyWorkingSet();
+                }
+
+                // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export
+                // sources still exist (the kept capture of the toast comes from them). CaptureFlowRunner then shows no other message.
+                if (context.State == CaptureFlowState.Failed)
+                {
+                    try
+                    {
+                        string flowError = context.Error?.Message ?? context.AbortReason;
+                        if (await ExportNotification.ShowAsync(context, flowError, CancellationToken.None).ConfigureAwait(false))
+                        {
+                            context.Properties[ExportNotification.FailureShownProperty] = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("The notification of the failed flow failed", ex);
+                    }
                 }
 
                 // The caller's last look at the result, while the payload still exists

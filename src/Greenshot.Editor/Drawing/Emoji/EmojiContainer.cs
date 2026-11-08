@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -20,14 +20,10 @@
  */
 
 using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Editor.Controls.Emoji;
 using Image = System.Drawing.Image;
 
 namespace Greenshot.Editor.Drawing.Emoji
@@ -38,12 +34,6 @@ namespace Greenshot.Editor.Drawing.Emoji
     [Serializable]
     public sealed class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
     {
-        [NonSerialized] private static EmojiContainer _currentContainer;
-        [NonSerialized] private static ElementHost _emojiPickerHost;
-        [NonSerialized] private static EmojiPicker _emojiPicker;
-
-        [NonSerialized] private bool _justCreated = true;
-
         private string _emoji;
 
         public string Emoji
@@ -63,95 +53,15 @@ namespace Greenshot.Editor.Drawing.Emoji
             Emoji = emoji ?? EditorConfig.RecentEmoji;
             Width = size ?? DefaultSize.Width;
             Height = size ?? DefaultSize.Height;
-            if (emoji != null)
-            {
-                _justCreated = false;
-            }
             Init();
         }
 
+        /// <summary>
+        /// A double click shows the emoji in the Selection panel and moves the keyboard there, a single click only selects the emoji.
+        /// </summary>
         public override void OnDoubleClick()
         {
-            ShowEmojiPicker();
-        }
-
-        private void ShowEmojiPicker()
-        {
-            if (System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA || _parent?.Controls == null)
-            {
-                return;
-            }
-
-            _currentContainer = this;
-
-            GetOrCreatePickerControl();
-
-            var absRectangle = Bounds;
-            var displayRectangle = Parent.ToSurfaceCoordinates(absRectangle);
-            _emojiPickerHost.Width = 0; // Trick to hide the picker's button
-            _emojiPickerHost.Height = displayRectangle.Height;
-            _emojiPickerHost.Left = displayRectangle.Left;
-            _emojiPickerHost.Top = displayRectangle.Top;
-
-            _emojiPicker.Selection = Emoji;
-            _emojiPicker.ShowPopup(true);
-        }
-
-        private void GetOrCreatePickerControl()
-        {
-            // Create one picker control by surface
-            // TODO: This is not ideal, as we need to controls from the surface, should replace this with a different solution.
-            _emojiPickerHost = _parent.Controls.Find("EmojiPickerHost", false).OfType<ElementHost>().FirstOrDefault();
-            if (_emojiPickerHost != null)
-            {
-                _emojiPicker = (EmojiPicker)_emojiPickerHost.Child;
-                return;
-            }
-
-            _emojiPicker = new EmojiPicker();
-            _emojiPicker.Picked += (_, args) =>
-            {
-                EditorConfig.RecentEmoji = args.Emoji;
-                _currentContainer.Emoji = args.Emoji;
-                _currentContainer.Invalidate();
-            };
-
-            _emojiPickerHost = new ElementHost
-            {
-                Dock = DockStyle.None,
-                Child = _emojiPicker,
-                Name = "EmojiPickerHost"
-            };
-
-            // Don't keep a closed editor alive through the static fields
-            var pickerHost = _emojiPickerHost;
-            pickerHost.Disposed += (_, _) =>
-            {
-                if (_emojiPickerHost != pickerHost)
-                {
-                    return;
-                }
-
-                _emojiPickerHost = null;
-                _emojiPicker = null;
-                _currentContainer = null;
-            };
-
-            _parent.Controls.Add(_emojiPickerHost);
-        }
-
-        private void HideEmojiPicker()
-        {
-            _emojiPicker?.ShowPopup(false);
-        }
-
-        /// <summary>
-        /// Make sure we register the property changed, to manage the state of the picker
-        /// </summary>
-        protected override void Init()
-        {
-            base.Init();
-            PropertyChanged += OnPropertyChanged;
+            InternalParent?.RequestProperties();
         }
 
         public override bool HandleMouseDown(int mouseX, int mouseY)
@@ -166,28 +76,6 @@ namespace Greenshot.Editor.Drawing.Emoji
             Top = y - (Height / 2);
             Invalidate();
             return true;
-        }
-
-        /// <summary> Handle the state of the Emoji Picker </summary>
-        /// <param name="sender">object</param>
-        /// <param name="e">PropertyChangedEventArgs</param>
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (!e.PropertyName.Equals(nameof(Selected)))
-            {
-                return;
-            }
-
-            if (!Selected)
-            {
-                HideEmojiPicker();
-            }
-            else if (Status == EditStatus.IDLE && _justCreated)
-            {
-                // Show picker just after creation
-                ShowEmojiPicker();
-                _justCreated = false;
-            }
         }
 
         protected override Image ComputeBitmap()

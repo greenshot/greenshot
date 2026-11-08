@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -75,35 +75,6 @@ namespace Greenshot.Helpers
 
             CaptureFlowRunner.Current.Start(recipe, FlowTriggerContext.Capture(), configure);
         }
-
-        public static void CaptureClipboard(IDestination destination = null) => Start(RecipeManager.RecipeIdClipboard, destination: destination);
-
-        public static void CaptureRegion(bool captureMouse, IDestination destination = null) => Start(RecipeManager.RecipeIdRegion, captureMouse, destination);
-
-        /// <summary>
-        /// Capture the region without asking the user to select it
-        /// </summary>
-        public static void CaptureRegion(bool captureMouse, NativeRect region) => Start(RecipeManager.RecipeIdRegion, captureMouse, configure: ctx => ctx.Properties["PreSuppliedRegion"] = region);
-
-        public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode) =>
-            Start(RecipeManager.RecipeIdFullScreen, captureMouse, configure: ctx => ctx.Properties["ScreenCaptureMode"] = screenCaptureMode);
-
-        public static void CaptureLastRegion(bool captureMouse) => Start(RecipeManager.RecipeIdLastRegion, captureMouse);
-
-        /// <summary>
-        /// Capture the active window
-        /// </summary>
-        public static void CaptureWindow(bool captureMouse) => Start(RecipeManager.RecipeIdActiveWindow, captureMouse);
-
-        /// <summary>
-        /// Capture the window, e.g. one picked from the tray menu
-        /// </summary>
-        public static void CaptureWindow(IInteropWindow windowToCapture) => Start(RecipeManager.RecipeIdActiveWindow, configure: ctx => ctx.Properties["TargetWindow"] = windowToCapture);
-
-        /// <summary>
-        /// Let the user select the window to capture
-        /// </summary>
-        public static void CaptureWindowInteractive(bool captureMouse) => Start(RecipeManager.RecipeIdWindow, captureMouse);
 
         public static void CaptureFile(string filename, IDestination destination = null) =>
             Start(RecipeManager.RecipeIdFile, destination: destination, configure: ctx => ctx.Properties["Filename"] = filename);

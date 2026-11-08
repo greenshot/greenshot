@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -129,12 +129,12 @@ namespace Greenshot.SelfService.ViewModels
                 {
                     double totalGb = memStatus.ullTotalPhys / (1024.0 * 1024.0 * 1024.0);
                     double availGb = memStatus.ullAvailPhys / (1024.0 * 1024.0 * 1024.0);
-                    SystemMemoryText = $"{availGb:F1} GB free of {totalGb:F1} GB";
-                    MemoryLoadText = $"{memStatus.dwMemoryLoad}% in use";
+                    SystemMemoryText = string.Format(Texts.SelfService.SysMemoryFree, availGb.ToString("F1"), totalGb.ToString("F1"));
+                    MemoryLoadText = string.Format(Texts.SelfService.SysMemoryInUse, memStatus.dwMemoryLoad);
                 }
                 else
                 {
-                    SystemMemoryText = "Unknown";
+                    SystemMemoryText = Texts.SelfService.SysUnknown;
                     MemoryLoadText = "N/A";
                 }
 
@@ -152,7 +152,7 @@ namespace Greenshot.SelfService.ViewModels
 
                 int threads = proc.Threads.Count;
                 int handles = proc.HandleCount;
-                ProcessStatsText = $"PID: {proc.Id} | Threads: {threads} | Handles: {handles} | GDI: {gdiObjects} | USER: {userObjects}";
+                ProcessStatsText = string.Format(Texts.SelfService.SysProcessStats, proc.Id, threads, handles, gdiObjects, userObjects);
 
                 TimeSpan uptime = DateTime.Now - proc.StartTime;
                 UptimeText = $"{uptime.Days}d {uptime.Hours:D2}h {uptime.Minutes:D2}m {uptime.Seconds:D2}s";
@@ -173,12 +173,12 @@ namespace Greenshot.SelfService.ViewModels
                 sb.AppendLine($"Process Uptime:            {UptimeText}");
 
                 EnvironmentReport = sb.ToString().TrimEnd();
-                StatusMessage = $"Updated at {DateTime.Now:HH:mm:ss}";
+                StatusMessage = string.Format(Texts.SelfService.StatusUpdatedAt, DateTime.Now.ToString("HH:mm:ss"));
             }
             catch (Exception ex)
             {
                 EnvironmentReport = $"Error gathering system information:\n{ex}";
-                StatusMessage = "Failed to refresh metrics";
+                StatusMessage = Texts.SelfService.SysRefreshFailed;
             }
         }
 
@@ -191,7 +191,7 @@ namespace Greenshot.SelfService.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Copy failed: {ex.Message}";
+                StatusMessage = string.Format(Texts.SelfService.StatusCopyFailed, ex.Message);
             }
         }
 

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -38,23 +37,11 @@ namespace Greenshot.Recipes.Triggers
     public class TriggerManager : ITriggerManager
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TriggerManager));
-        private static ICoreConfiguration CoreConfig
-        {
-            get
-            {
-                try
-                {
-                    return IniConfigRegistry.GetSection<ICoreConfiguration>();
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
 
         private readonly Dictionary<string, ITrigger> _triggers = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
         private bool _disposed;
+        // The triggers only start with StartAll: a hotkey pressed while Greenshot starts would run a recipe before it is ready
+        private bool _started;
 
         public event EventHandler<TriggerEventArgs> TriggerFired;
 
@@ -63,49 +50,15 @@ namespace Greenshot.Recipes.Triggers
         private static readonly Lazy<TriggerManager> LazyInstance = new Lazy<TriggerManager>(() => new TriggerManager(), LazyThreadSafetyMode.ExecutionAndPublication);
         public static TriggerManager Instance => LazyInstance.Value;
 
-        public TriggerManager()
-        {
-            InitializeDefaultTriggers();
-        }
-
-        public void InitializeDefaultTriggers()
-        {
-            if (CoreConfig == null) return;
-
-            // Register hotkeys from legacy config as default hotkey triggers
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_region", "Region Hotkey", CoreConfig.RegionHotkey, RecipeManager.RecipeIdRegion);
-            string windowRecipe = CoreConfig.CaptureWindowsInteractive ? RecipeManager.RecipeIdWindow : RecipeManager.RecipeIdActiveWindow;
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_window", "Window Hotkey", CoreConfig.WindowHotkey, windowRecipe);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_fullscreen", "Fullscreen Hotkey", CoreConfig.FullscreenHotkey, RecipeManager.RecipeIdFullScreen);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_lastregion", "Last Region Hotkey", CoreConfig.LastregionHotkey, RecipeManager.RecipeIdLastRegion);
-            RegisterDefaultHotkeyTrigger("trigger_hotkey_clipboard", "Clipboard Hotkey", CoreConfig.ClipboardHotkey, RecipeManager.RecipeIdClipboard);
-        }
-
-        private void RegisterDefaultHotkeyTrigger(string id, string name, string hotkey, string recipeId)
-        {
-            if (string.IsNullOrEmpty(hotkey))
-            {
-                // The hotkey could have been removed in the settings
-                UnregisterTrigger(id);
-                return;
-            }
-            RegisterTrigger(new HotkeyTrigger(id, name, hotkey, recipeId));
-        }
-
         /// <summary>
-        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the configuration changed.
-        /// This covers the default hotkeys from the configuration and the hotkeys of the recipes.
+        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the settings changed.
+        /// The hotkeys of the general settings are triggers of the built-in recipes ("${config.Core.RegionHotkey}"), so this
+        /// registers the triggers of all recipes again.
         /// </summary>
         public void RestartHotkeyTriggers()
         {
-            InitializeDefaultTriggers();
-            lock (_triggers)
-            {
-                foreach (var trigger in _triggers.Values.OfType<HotkeyTrigger>().Where(t => t.IsEnabled))
-                {
-                    trigger.Start();
-                }
-            }
+            // New trigger objects, started when the triggers run (see RegisterTrigger)
+            SyncRecipeTriggers(RecipeManager.Instance.GetAllRecipes());
         }
 
         public IReadOnlyList<ITrigger> GetAllTriggers()
@@ -171,7 +124,7 @@ namespace Greenshot.Recipes.Triggers
                         if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
                         {
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                         }
                         continue;
                     }
@@ -180,30 +133,34 @@ namespace Greenshot.Recipes.Triggers
                     for (int i = 0; i < recipe.Triggers.Count; i++)
                     {
                         var tc = recipe.Triggers[i];
-                        if (!tc.IsActive) continue;
+                        if (!tc.IsWanted(recipe)) continue;
 
                         if (string.Equals(tc.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                         {
-                            string hotkey = tc.GetParameter<string>("Hotkey");
+                            // The hotkey in the file, or the one the user set for the recipe's Hotkey option
+                            string hotkey = tc.GetHotkey(recipe);
                             if (!string.IsNullOrWhiteSpace(hotkey))
                             {
                                 string triggerId = $"trigger_recipe_{recipe.Id}_hotkey_{i}";
                                 RegisterTrigger(new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
                             }
                         }
-                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
-                                 string.Equals(tc.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
                         {
                             hasMenuTrigger = true;
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order)
+                            {
+                                Icon = tc.GetParameter<string>(TriggerConfig.IconParameter),
+                                Expand = tc.GetParameter<string>(TriggerConfig.ExpandParameter)
+                            });
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                         {
-                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string menuText = recipe.GetTriggerMenuText(i) ?? recipe.DisplayName;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
@@ -245,7 +202,7 @@ namespace Greenshot.Recipes.Triggers
                     if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
                     {
                         string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                     }
                 }
             }
@@ -266,7 +223,7 @@ namespace Greenshot.Recipes.Triggers
 
                 _triggers[trigger.Id] = trigger;
                 trigger.Triggered += OnTriggerFired;
-                if (trigger.IsEnabled)
+                if (_started && trigger.IsEnabled)
                 {
                     trigger.Start();
                 }
@@ -299,6 +256,7 @@ namespace Greenshot.Recipes.Triggers
         {
             lock (_triggers)
             {
+                _started = true;
                 foreach (var trigger in _triggers.Values)
                 {
                     if (trigger.IsEnabled)
@@ -323,45 +281,53 @@ namespace Greenshot.Recipes.Triggers
         private void OnTriggerFired(object sender, TriggerEventArgs e)
         {
             TriggerFired?.Invoke(sender, e);
+            Run(e.TargetRecipeId, sender as ITrigger, e.Parameters);
+        }
 
-            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>() ?? RecipeManager.Instance;
-            var recipe = recipeManager.GetRecipeById(e.TargetRecipeId);
+        /// <summary>
+        /// Run the recipe like its trigger does: prepared for the trigger, with the parameters as flow variables. Nothing runs
+        /// (it is logged) when the recipe doesn't exist or is switched off.
+        /// </summary>
+        /// <param name="recipeId">The id of the recipe</param>
+        /// <param name="trigger">What started it, e.g. a ManualTrigger for a click on the tray icon</param>
+        /// <param name="parameters">Variables for the flow, can be null</param>
+        public void Run(string recipeId, ITrigger trigger, IDictionary<string, object> parameters = null)
+        {
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
+            var recipe = recipeManager.GetRecipeById(recipeId);
 
-            if (recipe != null)
+            if (recipe == null)
             {
-                if (!recipe.IsEnabled)
-                {
-                    Log.WarnFormat("Trigger fired for deactivated recipe '{0}', ignoring.", recipe.Id);
-                    return;
-                }
+                Log.WarnFormat("Target recipe '{0}' not found for trigger '{1}'", recipeId, trigger?.Name);
+                return;
+            }
 
-                var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true);
-                if (runner != null)
-                {
-                    var trigger = sender as ITrigger;
-                    var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+            if (!recipe.IsEnabled)
+            {
+                Log.WarnFormat("Trigger '{0}' fired for deactivated recipe '{1}', ignoring.", trigger?.Name, recipe.Id);
+                return;
+            }
 
-                    // Snapshot foreground window and cursor now, the flow runs later on the thread pool
-                    runner.Start(recipeToExecute, FlowTriggerContext.Capture(trigger), ctx =>
+            var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true);
+            if (runner == null)
+            {
+                Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", trigger?.Name, recipeId);
+                return;
+            }
+
+            var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+            // Snapshot foreground window and cursor now, the flow runs later on the thread pool
+            runner.Start(recipeToExecute, FlowTriggerContext.Capture(trigger), ctx =>
+            {
+                if (parameters != null)
+                {
+                    foreach (var kvp in parameters)
                     {
-                        if (e.Parameters != null)
-                        {
-                            foreach (var kvp in e.Parameters)
-                            {
-                                ctx.Properties[kvp.Key] = kvp.Value;
-                            }
-                        }
-                    });
+                        ctx.Properties[kvp.Key] = kvp.Value;
+                    }
                 }
-                else
-                {
-                    Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", (sender as ITrigger)?.Name, e.TargetRecipeId);
-                }
-            }
-            else
-            {
-                Log.WarnFormat("Target recipe '{0}' not found for trigger '{1}'", e.TargetRecipeId, (sender as ITrigger)?.Name);
-            }
+            });
         }
 
         public void Dispose()

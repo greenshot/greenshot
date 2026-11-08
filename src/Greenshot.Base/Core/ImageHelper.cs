@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -35,7 +35,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
-using Dapplo.Ini;
 using log4net;
 using SixLabors.ImageSharp.PixelFormats;
 using Brush = System.Drawing.Brush;
@@ -52,76 +51,6 @@ namespace Greenshot.Base.Core
     public static class ImageHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        private const int ExifOrientationId = 0x0112;
-
-
-        /// <summary>
-        /// Make sure the image is orientated correctly
-        /// </summary>
-        /// <param name="image"></param>
-        public static void Orientate(Image image)
-        {
-            if (!CoreConfig.ProcessEXIFOrientation)
-            {
-                return;
-            }
-
-            try
-            {
-                // Get the index of the orientation property.
-                int orientationIndex = Array.IndexOf(image.PropertyIdList, ExifOrientationId);
-                // If there is no such property, return Unknown.
-                if (orientationIndex < 0)
-                {
-                    return;
-                }
-
-                PropertyItem item = image.GetPropertyItem(ExifOrientationId);
-                if (item.Value == null || item.Value.Length == 0)
-                {
-                    return;
-                }
-
-                ExifOrientations orientation = (ExifOrientations) item.Value[0];
-                // Orient the image.
-                switch (orientation)
-                {
-                    case ExifOrientations.Unknown:
-                    case ExifOrientations.TopLeft:
-                        break;
-                    case ExifOrientations.TopRight:
-                        image.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        break;
-                    case ExifOrientations.BottomRight:
-                        image.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                        break;
-                    case ExifOrientations.BottomLeft:
-                        image.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                        break;
-                    case ExifOrientations.LeftTop:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipX);
-                        break;
-                    case ExifOrientations.RightTop:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                        break;
-                    case ExifOrientations.RightBottom:
-                        image.RotateFlip(RotateFlipType.Rotate90FlipY);
-                        break;
-                    case ExifOrientations.LeftBottom:
-                        image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                        break;
-                }
-
-                // Set the orientation to be normal, as we rotated the image.
-                item.Value[0] = (byte) ExifOrientations.TopLeft;
-                image.SetPropertyItem(item);
-            }
-            catch (Exception orientEx)
-            {
-                Log.Warn("Problem orientating the image: ", orientEx);
-            }
-        }
 
         /// <summary>
         /// Create a Thumbnail
@@ -327,6 +256,113 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The outline of what stays of an image with torn edges (see CreateTornEdge): the same seed gives the same teeth, e.g. for the HDR image
+        /// </summary>
+        /// <param name="width">The width of the image</param>
+        /// <param name="height">The height of the image</param>
+        /// <param name="toothHeight">How large (height) is each tooth</param>
+        /// <param name="horizontalToothRange">How wide is a horizontal tooth</param>
+        /// <param name="verticalToothRange">How wide is a vertical tooth</param>
+        /// <param name="edges">Which edges are torn, clockwise: 0=top,1=right,2=bottom,3=left</param>
+        /// <param name="seed">The seed of the teeth, null for random ones</param>
+        public static List<NativePoint> CreateTornEdgeOutline(int width, int height, int toothHeight, int horizontalToothRange, int verticalToothRange, bool[] edges, int? seed = null)
+        {
+            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
+            int horizontalRegions = (int) Math.Round((float) width / horizontalToothRange);
+            int verticalRegions = (int) Math.Round((float) height / verticalToothRange);
+
+            var topLeft = new NativePoint(0, 0);
+            var topRight = new NativePoint(width, 0);
+            var bottomLeft = new NativePoint(0, height);
+            var bottomRight = new NativePoint(width, height);
+
+            var points = new List<NativePoint>();
+
+            if (edges[0])
+            {
+                // calculate starting point only if the left edge is torn
+                if (!edges[3])
+                {
+                    points.Add(topLeft);
+                }
+                else
+                {
+                    points.Add(new NativePoint(random.Next(1, toothHeight), random.Next(1, toothHeight)));
+                }
+
+                for (int i = 1; i < horizontalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(i * horizontalToothRange, random.Next(1, toothHeight)));
+                }
+
+                points.Add(new NativePoint(width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // set start & endpoint to be the default "whole-line"
+                points.Add(topLeft);
+                points.Add(topRight);
+            }
+
+            // Right
+            if (edges[1])
+            {
+                for (int i = 1; i < verticalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(width - random.Next(1, toothHeight), i * verticalToothRange));
+                }
+
+                points.Add(new NativePoint(width - random.Next(1, toothHeight), height - random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = topRight;
+                // set endpoint to be the default "whole-line"
+                points.Add(bottomRight);
+            }
+
+            // Bottom
+            if (edges[2])
+            {
+                for (int i = 1; i < horizontalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(width - i * horizontalToothRange, height - random.Next(1, toothHeight)));
+                }
+
+                points.Add(new NativePoint(random.Next(1, toothHeight), height - random.Next(1, toothHeight)));
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = bottomRight;
+                // set endpoint to be the default "whole-line"
+                points.Add(bottomLeft);
+            }
+
+            // Left
+            if (edges[3])
+            {
+                // One fewer as the end point is the starting point
+                for (int i = 1; i < verticalRegions - 1; i++)
+                {
+                    points.Add(new NativePoint(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
+                }
+            }
+            else
+            {
+                // correct previous ending point
+                points[points.Count - 1] = bottomLeft;
+                // set endpoint to be the default "whole-line"
+                points.Add(topLeft);
+            }
+
+            // End point always is the starting point
+            points[points.Count - 1] = points[0];
+            return points;
+        }
+
+        /// <summary>
         /// Make the picture look like it's torn
         /// </summary>
         /// <param name="sourceImage">Bitmap to make torn edge off</param>
@@ -340,98 +376,7 @@ namespace Greenshot.Base.Core
             Image returnImage = CreateEmpty(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb, Color.Empty, sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (var path = new GraphicsPath())
             {
-                Random random = seed.HasValue ? new Random(seed.Value) : new Random();
-                int horizontalRegions = (int) Math.Round((float) sourceImage.Width / horizontalToothRange);
-                int verticalRegions = (int) Math.Round((float) sourceImage.Height / verticalToothRange);
-
-                var topLeft = new NativePoint(0, 0);
-                var topRight = new NativePoint(sourceImage.Width, 0);
-                var bottomLeft = new NativePoint(0, sourceImage.Height);
-                var bottomRight = new NativePoint(sourceImage.Width, sourceImage.Height);
-
-                var points = new List<NativePoint>();
-
-                if (edges[0])
-                {
-                    // calculate starting point only if the left edge is torn
-                    if (!edges[3])
-                    {
-                        points.Add(topLeft);
-                    }
-                    else
-                    {
-                        points.Add(new NativePoint(random.Next(1, toothHeight), random.Next(1, toothHeight)));
-                    }
-
-                    for (int i = 1; i < horizontalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(i * horizontalToothRange, random.Next(1, toothHeight)));
-                    }
-
-                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // set start & endpoint to be the default "whole-line"
-                    points.Add(topLeft);
-                    points.Add(topRight);
-                }
-
-                // Right
-                if (edges[1])
-                {
-                    for (int i = 1; i < verticalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), i * verticalToothRange));
-                    }
-
-                    points.Add(new NativePoint(sourceImage.Width - random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = topRight;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(bottomRight);
-                }
-
-                // Bottom
-                if (edges[2])
-                {
-                    for (int i = 1; i < horizontalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(sourceImage.Width - i * horizontalToothRange, sourceImage.Height - random.Next(1, toothHeight)));
-                    }
-
-                    points.Add(new NativePoint(random.Next(1, toothHeight), sourceImage.Height - random.Next(1, toothHeight)));
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = bottomRight;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(bottomLeft);
-                }
-
-                // Left
-                if (edges[3])
-                {
-                    // One fewer as the end point is the starting point
-                    for (int i = 1; i < verticalRegions - 1; i++)
-                    {
-                        points.Add(new NativePoint(random.Next(1, toothHeight), points[points.Count - 1].Y - verticalToothRange));
-                    }
-                }
-                else
-                {
-                    // correct previous ending point
-                    points[points.Count - 1] = bottomLeft;
-                    // set endpoint to be the default "whole-line"
-                    points.Add(topLeft);
-                }
-
-                // End point always is the starting point
-                points[points.Count - 1] = points[0];
+                var points = CreateTornEdgeOutline(sourceImage.Width, sourceImage.Height, toothHeight, horizontalToothRange, verticalToothRange, edges, seed);
 
                 DrawLines(path, points);
 
@@ -855,7 +800,11 @@ namespace Greenshot.Base.Core
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 using (GraphicsPath path = new GraphicsPath())
                 {
-                    path.AddRectangle(new NativeRect(borderSize >> 1, borderSize >> 1, newImage.Width - borderSize, newImage.Height - borderSize));
+                    // The pen is centered on the path, so the path runs along the middle of the border.
+                    // With an odd borderSize this is on a half pixel, an integer shift (borderSize >> 1) would move the border
+                    // by half a pixel: blurred on the left and top, and the last column and row at the right and bottom stay empty.
+                    float halfBorder = borderSize / 2f;
+                    path.AddRectangle(new RectangleF(halfBorder, halfBorder, newImage.Width - borderSize, newImage.Height - borderSize));
                     using Pen pen = new Pen(borderColor, borderSize)
                     {
                         LineJoin = LineJoin.Round,
@@ -949,31 +898,38 @@ namespace Greenshot.Base.Core
         public static Image CreateGrayscale(Image sourceImage)
         {
             Bitmap clone = (Bitmap) Clone(sourceImage);
-            ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
-            {
-                new[]
-                {
-                    .3f, .3f, .3f, 0, 0
-                },
-                new[]
-                {
-                    .59f, .59f, .59f, 0, 0
-                },
-                new[]
-                {
-                    .11f, .11f, .11f, 0, 0
-                },
-                new float[]
-                {
-                    0, 0, 0, 1, 0
-                },
-                new float[]
-                {
-                    0, 0, 0, 0, 1
-                }
-            });
-            ApplyColorMatrix(clone, grayscaleMatrix);
+            ApplyGrayscale(clone);
             return clone;
+        }
+
+        /// <summary>
+        /// Make the bitmap gray of the same brightness, like the HDR image (LinearColorEffects.LinearGrayscale): the luminance of BT.709 in linear light
+        /// </summary>
+        /// <param name="bitmap">Bitmap to change</param>
+        public static unsafe void ApplyGrayscale(Bitmap bitmap)
+        {
+            // ImageSharp works on the pixels of the bitmap, locked as 32 bit ARGB
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+            try
+            {
+                if (bitmapData.Stride == bitmap.Width * 4)
+                {
+                    // The rows have no gaps: one image
+                    using var pixels = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(bitmapData.Scan0.ToPointer(), bitmap.Width, bitmap.Height);
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(pixels, context => context.LinearGrayscale(srgbEncoded: true));
+                    return;
+                }
+                // Rows with gaps or bottom-up (a bitmap on memory of its own): row by row
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    using var row = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(((byte*)bitmapData.Scan0 + (long)y * bitmapData.Stride), bitmap.Width, 1);
+                    SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(row, context => context.LinearGrayscale(srgbEncoded: true));
+                }
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
         }
 
         /// <summary>
@@ -1260,52 +1216,58 @@ namespace Greenshot.Base.Core
             int destX = 0;
             int destY = 0;
 
-            var nPercentW = newWidth / (float) sourceImage.Width;
-            var nPercentH = newHeight / (float) sourceImage.Height;
+            // A width or height of 0 (or less) means: not given.
+            // With the aspect ratio kept it is calculated from the other one, without it the side keeps its size.
+            bool hasWidth = newWidth > 0;
+            bool hasHeight = newHeight > 0;
+            var nPercentW = hasWidth ? newWidth / (float) sourceImage.Width : 1f;
+            var nPercentH = hasHeight ? newHeight / (float) sourceImage.Height : 1f;
             if (maintainAspectRatio)
             {
-                if ((int) nPercentW == 1)
+                float nPercent;
+                if (hasWidth && hasHeight)
                 {
-                    nPercentW = nPercentH;
-                    if (canvasUseNewSize)
-                    {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
-                    }
+                    // Fit into the given size
+                    nPercent = Math.Min(nPercentW, nPercentH);
                 }
-                else if ((int) nPercentH == 1)
+                else if (hasWidth)
                 {
-                    nPercentH = nPercentW;
-                    if (canvasUseNewSize)
-                    {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
-                    }
+                    nPercent = nPercentW;
                 }
-                else if ((int) nPercentH != 0 && nPercentH < nPercentW)
+                else if (hasHeight)
                 {
-                    nPercentW = nPercentH;
-                    if (canvasUseNewSize)
-                    {
-                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercentW) / 2));
-                    }
+                    nPercent = nPercentH;
                 }
                 else
                 {
-                    nPercentH = nPercentW;
-                    if (canvasUseNewSize)
+                    nPercent = 1f;
+                }
+
+                if (canvasUseNewSize)
+                {
+                    if (hasWidth)
                     {
-                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercentH) / 2));
+                        destX = Math.Max(0, Convert.ToInt32((newWidth - sourceImage.Width * nPercent) / 2));
+                    }
+
+                    if (hasHeight)
+                    {
+                        destY = Math.Max(0, Convert.ToInt32((newHeight - sourceImage.Height * nPercent) / 2));
                     }
                 }
+
+                nPercentW = nPercent;
+                nPercentH = nPercent;
             }
 
-            int destWidth = (int) (sourceImage.Width * nPercentW);
-            int destHeight = (int) (sourceImage.Height * nPercentH);
-            if (newWidth == 0)
+            int destWidth = Math.Max(1, (int) Math.Round(sourceImage.Width * nPercentW));
+            int destHeight = Math.Max(1, (int) Math.Round(sourceImage.Height * nPercentH));
+            if (!hasWidth)
             {
                 newWidth = destWidth;
             }
 
-            if (newHeight == 0)
+            if (!hasHeight)
             {
                 newHeight = destHeight;
             }

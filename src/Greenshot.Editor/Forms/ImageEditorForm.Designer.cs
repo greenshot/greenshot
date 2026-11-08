@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -186,8 +186,6 @@ namespace Greenshot.Editor.Forms
 			this.blurRadiusUpDown = new ToolStripNumericUpDown();
 			this.brightnessLabel = new ToolStripLabel();
 			this.brightnessUpDown = new ToolStripNumericUpDown();
-			this.previewQualityLabel = new ToolStripLabel();
-			this.previewQualityUpDown = new ToolStripNumericUpDown();
 			this.magnificationFactorLabel = new ToolStripLabel();
 			this.magnificationFactorUpDown = new ToolStripNumericUpDown();
 			this.pixelSizeLabel = new ToolStripLabel();
@@ -208,6 +206,8 @@ namespace Greenshot.Editor.Forms
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new ToolStripMenuItem();
             this.closeAllToolStripMenuItem = new ToolStripMenuItem();
+            this.closeTabToolStripMenuItem = new ToolStripMenuItem();
+            this.tabStrip = new Greenshot.Editor.Tabs.EditorTabStrip();
             this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new ToolStripMenuItem();
 			this.openDirectoryMenuItem = new ToolStripMenuItem();
@@ -263,6 +263,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.topToolStripContainer.ContentPanel.AutoScroll = true;
 			this.topToolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel1);
+			this.topToolStripContainer.ContentPanel.Controls.Add(this.tabStrip);
 			this.topToolStripContainer.ContentPanel.Size = new System.Drawing.Size(761, 385);
 			this.topToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.topToolStripContainer.LeftToolStripPanel.Join(this.toolsToolStrip,0);
@@ -308,6 +309,11 @@ namespace Greenshot.Editor.Forms
 			this.statusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.statusLabel.Name = "statusLabel";
 			this.statusLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StatusLabelClicked);
+			// 
+			// tabStrip
+			// 
+			this.tabStrip.Dock = System.Windows.Forms.DockStyle.Top;
+			this.tabStrip.Name = "tabStrip";
 			// 
 			// tableLayoutPanel1
 			// 
@@ -997,8 +1003,6 @@ namespace Greenshot.Editor.Forms
 									this.blurRadiusUpDown,
 									this.brightnessLabel,
 									this.brightnessUpDown,
-									this.previewQualityLabel,
-									this.previewQualityUpDown,
 									this.magnificationFactorLabel,
 									this.magnificationFactorUpDown,
 									this.pixelSizeLabel,
@@ -1440,39 +1444,6 @@ namespace Greenshot.Editor.Forms
 			this.brightnessUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.brightnessUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
 			// 
-			// previewQualityLabel
-			// 
-			this.previewQualityLabel.Name = "previewQualityLabel";
-			this.previewQualityLabel.Text = "Preview quality";
-			// 
-			// previewQualityUpDown
-			// 
-			this.previewQualityUpDown.DecimalPlaces = 0;
-			this.previewQualityUpDown.Increment = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Maximum = new decimal(new int[] {
-									100,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Minimum = new decimal(new int[] {
-									10,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.Name = "previewQualityUpDown";
-			this.previewQualityUpDown.Text = "50";
-			this.previewQualityUpDown.Value = new decimal(new int[] {
-									50,
-									0,
-									0,
-									0});
-			this.previewQualityUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
-			this.previewQualityUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
-			// 
 			// magnificationFactorLabel
 			// 
 			this.magnificationFactorLabel.Name = "magnificationFactorLabel";
@@ -1630,6 +1601,11 @@ namespace Greenshot.Editor.Forms
             // 
 			this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
 			this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItemClick);
+            // 
+            // closeTabToolStripMenuItem
+            // 
+            this.closeTabToolStripMenuItem.Name = "closeTabToolStripMenuItem";
+            this.closeTabToolStripMenuItem.Click += new System.EventHandler(this.CloseTabToolStripMenuItemClick);
             // 
             // closeToolStripMenuItem
             // 
@@ -1946,8 +1922,6 @@ namespace Greenshot.Editor.Forms
 		private ToolStripLabel pixelSizeLabel;
 		private ToolStripNumericUpDown magnificationFactorUpDown;
 		private ToolStripLabel magnificationFactorLabel;
-		private ToolStripNumericUpDown previewQualityUpDown;
-		private ToolStripLabel previewQualityLabel;
 		private ToolStripNumericUpDown blurRadiusUpDown;
 		private ToolStripLabel blurRadiusLabel;
 		private ToolStripEx propertiesToolStrip;
@@ -1991,6 +1965,8 @@ namespace Greenshot.Editor.Forms
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
         private ToolStripMenuItem closeToolStripMenuItem;
         private ToolStripMenuItem closeAllToolStripMenuItem;
+        private ToolStripMenuItem closeTabToolStripMenuItem;
+        private Greenshot.Editor.Tabs.EditorTabStrip tabStrip;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;

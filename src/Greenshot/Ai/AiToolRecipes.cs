@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -59,9 +59,9 @@ namespace Greenshot.Ai
                 RecipeManager.RecipeIdAiCaptureWindow,
                 "AI tool: capture window",
                 "Captures a window for an AI tool, with its exact contents (also when it is covered), without activating it")
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${Window}"))
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window, captureMouse: false, delayMs: 0).Set("WindowHandle", "${var.Window}"))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_window",
                     "Screenshot of one window, with its exact contents even when other windows cover it. The window is not activated. " +
@@ -90,7 +90,7 @@ namespace Greenshot.Ai
                 "Captures a part of the screen for an AI tool")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region, captureMouse: false, delayMs: 0))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_region",
                     "Screenshot of a part of the screen, in screen coordinates (list_windows has the bounds of the windows and displays). " +
@@ -119,7 +119,7 @@ namespace Greenshot.Ai
                 "Captures all displays for an AI tool")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen, captureMouse: false, delayMs: 0, screenMode: ScreenCaptureMode.FullScreen))
                 .AddNode(CreateOcrCondition("ocr_wanted"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateOcr("ocr"))
                 .AddTrigger(TriggerConfig.CreateAiTool(
                     "capture_screen",
                     "Screenshot of all displays. For one display or a part of the screen use capture_region with the bounds from list_windows.",
@@ -136,7 +136,7 @@ namespace Greenshot.Ai
         /// </summary>
         private static RecipeNodeConfig CreateOcrCondition(string id)
         {
-            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${Ocr}") }).WithName("OCR wanted?");
+            return RecipeStepConfig.CreateConditional(id, new[] { new KeyValuePair<string, string>("ocr", "${var.Ocr}") }).WithName("OCR wanted?");
         }
     }
 }

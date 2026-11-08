@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,7 +21,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Greenshot.Editor.Controls.Emoji;
 
@@ -48,7 +47,7 @@ internal sealed class ChunkHelper<T> : IEnumerable<IEnumerable<T>>
         _hasMore = enumerator.MoveNext();
         while (_hasMore)
         {
-            yield return GetNextBatch(enumerator).ToList();
+            yield return new Row(GetNextBatch(enumerator));
         }
     }
 
@@ -66,4 +65,16 @@ internal sealed class ChunkHelper<T> : IEnumerable<IEnumerable<T>>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// A screen reader reads a row by its ToString: its emoji, not the type name of the list
+    /// </summary>
+    private sealed class Row : List<T>
+    {
+        public Row(IEnumerable<T> elements) : base(elements)
+        {
+        }
+
+        public override string ToString() => string.Join(" ", this);
+    }
 }

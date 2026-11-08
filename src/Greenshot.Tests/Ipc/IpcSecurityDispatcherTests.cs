@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -23,13 +23,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Serialization;
 using Greenshot.Ipc;
 using Greenshot.Ipc.BrowserExtension;
 using Greenshot.Recipes;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Greenshot.Tests.Ipc
@@ -76,7 +78,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("error", jobj.Value<string>("status"));
                 Assert.Equal(1, jobj.Value<int>("exit_code"));
@@ -117,7 +119,7 @@ namespace Greenshot.Tests.Ipc
                 ms.Read(payloadBytes, 0, (int)length);
 
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("ready", jobj.Value<string>("status"));
                 Assert.True(jobj.Value<bool>("greenshot_running"));
@@ -221,7 +223,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -275,13 +277,13 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("ok", jobj.Value<string>("status"));
                 Assert.Equal(0, jobj.Value<int>("exit_code"));
                 Assert.NotNull(jobj["recipes"]);
 
-                var recipes = jobj["recipes"] as JArray;
+                var recipes = jobj["recipes"] as JsonArray;
                 Assert.NotNull(recipes);
                 Assert.Contains(recipes, r => r.Value<string>("command") == "test-list-ocr" && r.Value<string>("id") == "recipe_test_list_ocr");
             }
@@ -327,7 +329,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -442,7 +444,7 @@ namespace Greenshot.Tests.Ipc
                     byte[] payloadBytes = new byte[length];
                     ms.Read(payloadBytes, 0, (int)length);
                     string json = Encoding.UTF8.GetString(payloadBytes);
-                    JObject jobj = JObject.Parse(json);
+                    JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                     Assert.Equal("ok", jobj.Value<string>("status"));
                     Assert.Equal(0, jobj.Value<int>("exit_code"));
@@ -484,7 +486,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
+                JsonObject jobj = JsonNode.Parse(json).AsObject();
 
                 Assert.Equal("error", jobj.Value<string>("status"));
                 Assert.Equal(1, jobj.Value<int>("exit_code"));
@@ -586,14 +588,17 @@ namespace Greenshot.Tests.Ipc
         [InlineData("greenshot:about", "ABOUT", null)]
         [InlineData("greenshot://about", "ABOUT", null)]
         [InlineData("greenshot:self-service?section=debug", "SELF_SERVICE", "debug")]
+        [InlineData("greenshot://log?search=HDR%20tone", "LOG_VIEWER", "HDR tone")]
         [InlineData("greenshot://recipe-editor?recipe=ocr", "RECIPE_EDITOR", "ocr")]
         [InlineData("greenshot:recipe/my-task?destination=clipboard", "RUN_RECIPE", null)]
         public async Task SecurityDispatcher_UrlScheme_ParsesAndExecutesCorrectly(string url, string expectedCommand, string expectedParam)
         {
             if (url.Contains("my-task"))
             {
+                // The recipe really runs in the background: a File source without a file aborts it before anything is captured.
+                // With the clipboard as source it took the user's clipboard and opened an editor on a pool thread (WinForms exception dialog).
                 var testRecipe = new CaptureRecipe("recipe_my_task", "My Task")
-                    .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
+                    .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.File } })
                     .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true,
                             arguments: new[] { new CommandlineArgument { Name = "destination", Variable = "Destination" } })
                         .SetParameter("AllowBrowserInvocation", true));
@@ -621,7 +626,7 @@ namespace Greenshot.Tests.Ipc
                 byte[] payloadBytes = new byte[length];
                 ms.Read(payloadBytes, 0, (int)length);
                 string json = Encoding.UTF8.GetString(payloadBytes);
-                var resp = JObject.Parse(json);
+                var resp = JsonNode.Parse(json).AsObject();
                 Assert.True(!string.IsNullOrEmpty(expectedCommand));
                 Assert.Equal("ok", resp["status"]?.ToString());
                 Assert.Equal(0, resp["exit_code"]?.Value<int>());
@@ -634,7 +639,7 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        private static JObject ReadFirstFrame(MemoryStream ms)
+        private static JsonObject ReadFirstFrame(MemoryStream ms)
         {
             ms.Position = 0;
             byte[] lenBytes = new byte[4];
@@ -642,7 +647,7 @@ namespace Greenshot.Tests.Ipc
             uint length = BitConverter.ToUInt32(lenBytes, 0);
             byte[] payloadBytes = new byte[length];
             ms.Read(payloadBytes, 0, (int)length);
-            return JObject.Parse(Encoding.UTF8.GetString(payloadBytes));
+            return JsonNode.Parse(Encoding.UTF8.GetString(payloadBytes)).AsObject();
         }
 
         [Theory]
@@ -680,6 +685,28 @@ namespace Greenshot.Tests.Ipc
                 var resp = ReadFirstFrame(ms);
                 Assert.Equal("error", resp.Value<string>("status"));
                 Assert.Contains("[SECURITY]", resp.Value<string>("stderr"));
+            }
+        }
+
+        [Theory]
+        [InlineData("greenshot://cli")]
+        [InlineData("greenshot:url_scheme")]
+        public async Task SecurityDispatcher_UrlScheme_CommandsCarryingTheLink_AreNoTarget(string url)
+        {
+            var envelope = new IpcEnvelope
+            {
+                Source = "url_scheme",
+                Command = "URL_SCHEME",
+                RawInput = url
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null, () => { }, () => { }, () => { }, f => { });
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
             }
         }
 
@@ -770,7 +797,7 @@ namespace Greenshot.Tests.Ipc
                 Assert.False(snapshot.ContainsKey("Stream"));
 
                 // The result must always be serializable
-                Newtonsoft.Json.JsonConvert.SerializeObject(snapshot);
+                JsonSerializer.Serialize(snapshot, GreenshotJson.Options);
             }
         }
 

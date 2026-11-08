@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -80,6 +80,8 @@ namespace Greenshot.Base.Languages
         public static ISelfServiceLanguage SelfService => Get<ISelfServiceLanguage>();
 
         public static IRecipeLanguage Recipe => Get<IRecipeLanguage>();
+
+        public static IWelcomeLanguage Welcome => Get<IWelcomeLanguage>();
 
         /// <summary>
         /// The language section of type T, a core section or one a plugin registered
@@ -154,7 +156,8 @@ namespace Greenshot.Base.Languages
                 .RegisterSection<IEditorLanguage>(new EditorLanguageImpl())
                 .RegisterSection<ISettingsLanguage>(new SettingsLanguageImpl())
                 .RegisterSection<ISelfServiceLanguage>(new SelfServiceLanguageImpl())
-                .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl());
+                .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl())
+                .RegisterSection<IWelcomeLanguage>(new WelcomeLanguageImpl());
             foreach (var searchPath in _searchPaths)
             {
                 builder.AddSearchPath(searchPath);
@@ -179,6 +182,7 @@ namespace Greenshot.Base.Languages
                     .RegisterSection<ISettingsLanguage>(new SettingsLanguageImpl())
                     .RegisterSection<ISelfServiceLanguage>(new SelfServiceLanguageImpl())
                     .RegisterSection<IRecipeLanguage>(new RecipeLanguageImpl())
+                    .RegisterSection<IWelcomeLanguage>(new WelcomeLanguageImpl())
                     .Create();
             }
 

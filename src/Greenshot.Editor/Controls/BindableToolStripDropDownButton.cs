@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -21,6 +21,7 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Editor.Controls
 {
@@ -49,11 +50,22 @@ namespace Greenshot.Editor.Controls
             if (Tag == null || !Tag.Equals(clickedItem.Tag))
             {
                 Tag = clickedItem.Tag;
-                Image = clickedItem.Image;
+                ShowImageOf(clickedItem);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
             }
 
             base.OnDropDownItemClicked(e);
+        }
+
+        /// <summary>
+        /// Show the icon of the item: its own copy when the item is bound (the copy of the item is replaced when the size changes)
+        /// </summary>
+        private void ShowImageOf(ToolStripItem item)
+        {
+            if (!IconBinder.BindLike(this, item))
+            {
+                Image = item.Image;
+            }
         }
 
         private void AdoptFromTag(object tag)
@@ -62,7 +74,7 @@ namespace Greenshot.Editor.Controls
             {
                 if (item.Tag != null && item.Tag.Equals(tag))
                 {
-                    Image = item.Image;
+                    ShowImageOf(item);
                     break;
                 }
             }

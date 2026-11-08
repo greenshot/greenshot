@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -56,7 +56,9 @@ namespace Greenshot.Base.Wpf
         public static bool HasRoundedCorners { get; } = Environment.OSVersion.Version.Major >= 10 && Environment.OSVersion.Version.Build >= 22000;
 
         // The windows which follow the theme, by handle: windows live on several UI threads, the handle can be used from any of them
-        private static readonly ConcurrentDictionary<IntPtr, bool> AttachedWindows = new ConcurrentDictionary<IntPtr, bool>();
+        // The attached windows, with their own light/dark decision (null: Greenshot's theme)
+        private static readonly ConcurrentDictionary<IntPtr, Func<bool>> AttachedWindows = new ConcurrentDictionary<IntPtr, Func<bool>>();
+        private static readonly Func<bool> FollowGreenshotTheme = null;
         private static bool _registered;
         private static readonly object RegisterLock = new object();
 
@@ -107,7 +109,7 @@ namespace Greenshot.Base.Wpf
             }
 
             var handle = new WindowInteropHelper(window).Handle;
-            if (handle == IntPtr.Zero || !AttachedWindows.TryAdd(handle, true))
+            if (handle == IntPtr.Zero || !AttachedWindows.TryAdd(handle, FollowGreenshotTheme))
             {
                 // No window yet, or already attached
                 ApplyTheme(handle);
@@ -121,15 +123,29 @@ namespace Greenshot.Base.Wpf
         /// <summary>
         /// The title bar of the window (e.g. a WinForms form) follows the theme from now on, call <see cref="Detach"/> when the handle is destroyed
         /// </summary>
-        public static void Attach(IntPtr handle)
+        /// <param name="handle">IntPtr of the window</param>
+        /// <param name="isDark">The window's own light/dark decision (e.g. the editor's theme setting), null follows Greenshot's theme.
+        /// Call <see cref="Update"/> when its answer changes.</param>
+        public static void Attach(IntPtr handle, Func<bool> isDark = null)
         {
             if (handle == IntPtr.Zero)
             {
                 return;
             }
 
-            AttachedWindows.TryAdd(handle, true);
+            AttachedWindows[handle] = isDark;
             ApplyTheme(handle);
+        }
+
+        /// <summary>
+        /// Apply the theme to the title bar of one attached window again, e.g. after its own light/dark decision changed
+        /// </summary>
+        public static void Update(IntPtr handle)
+        {
+            if (AttachedWindows.ContainsKey(handle))
+            {
+                ApplyTheme(handle, true);
+            }
         }
 
         /// <summary>
@@ -273,7 +289,8 @@ namespace Greenshot.Base.Wpf
 
             try
             {
-                int useDarkMode = ThemeManager.Instance.IsDarkTheme ? 1 : 0;
+                bool isDark = AttachedWindows.TryGetValue(handle, out var ownDecision) && ownDecision != null ? ownDecision() : ThemeManager.Instance.IsDarkTheme;
+                int useDarkMode = isDark ? 1 : 0;
                 if (DwmSetWindowAttribute(handle, DwmwaUseImmersiveDarkMode, ref useDarkMode, sizeof(int)) != 0)
                 {
                     // Windows 10 before 20H1 used another (undocumented) number for the same attribute

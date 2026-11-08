@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
+using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Capturing
@@ -31,7 +33,7 @@ namespace Greenshot.Base.Capturing
     /// <summary>
     /// Windows.Graphics.Capture: hardware accelerated (WARP when there is no GPU), captures windows without what covers them, HDR aware.
     /// </summary>
-    public sealed class GraphicsCaptureBackend : IScreenCaptureBackend
+    public sealed class GraphicsCaptureBackend : IScreenCaptureBackend, IHdrScreenCaptureBackend
     {
         /// <summary>
         /// The name of this backend, as it is stored in the capture metadata
@@ -59,6 +61,19 @@ namespace Greenshot.Base.Capturing
         {
             // Restores a minimized window and handles child windows itself
             return WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(window.Handle, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
+        {
+            return WindowsGraphicsCaptureInterop.CaptureRectangleWithHdrAsync(captureBounds, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<(Bitmap Image, HdrParts HdrParts)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default)
+        {
+            var (image, hdrImage) = await WindowsGraphicsCaptureInterop.CaptureWindowWithHdrAsync(window.Handle, cancellationToken).ConfigureAwait(false);
+            return (image, HdrParts.Of(hdrImage));
         }
     }
 }

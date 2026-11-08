@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -201,11 +201,11 @@ namespace Greenshot.Tests.Core
             var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
             Assert.NotNull(config);
             if (config.Commands == null) config.Commands = new System.Collections.Generic.List<string>();
-            if (config.Commandline == null) config.Commandline = new System.Collections.Generic.Dictionary<string, string>();
+            if (config.CommandlineTemplate == null) config.CommandlineTemplate = new System.Collections.Generic.Dictionary<string, string>();
 
             string cmdName = $"TestApp_{Guid.NewGuid():N}";
             config.Commands.Add(cmdName);
-            config.Commandline[cmdName] = app.ExeName;
+            config.CommandlineTemplate[cmdName] = app.ExeName;
 
             try
             {
@@ -217,7 +217,7 @@ namespace Greenshot.Tests.Core
             finally
             {
                 config.Commands.Remove(cmdName);
-                config.Commandline.Remove(cmdName);
+                config.CommandlineTemplate.Remove(cmdName);
             }
         }
     }

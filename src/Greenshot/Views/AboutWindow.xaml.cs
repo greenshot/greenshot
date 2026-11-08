@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,16 +28,13 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
 using Greenshot.SelfService.Views;
 using log4net;
-using Path = System.Windows.Shapes.Path;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 
@@ -49,13 +46,6 @@ namespace Greenshot.Views
     public partial class AboutWindow : Window, INotifyPropertyChanged
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AboutWindow));
-        private readonly Random _rand = new();
-        private readonly DispatcherTimer _highlightTimer;
-        private Storyboard _startupStoryboard;
-        private Storyboard _waveStoryboard;
-        private readonly Path[] _allDots;
-        private readonly SolidColorBrush[] _allDotBrushes;
-        private readonly ScaleTransform[] _allDotScales;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -69,7 +59,7 @@ namespace Greenshot.Views
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         // Window G Icon Source
         public ImageSource WindowIconSource { get; }
@@ -140,34 +130,6 @@ namespace Greenshot.Views
             // Populate all localized strings from language files
             InitializeLanguage();
 
-            _allDots = new[]
-            {
-                Dot0, Dot1, Dot2, Dot3, Dot4, Dot5, Dot6,
-                Dot7, Dot8, Dot9, Dot10, Dot11, Dot12, Dot13,
-                Dot14, Dot15, Dot16, Dot17, Dot18, Dot19, Dot20
-            };
-
-            _allDotBrushes = new[]
-            {
-                Dot0Brush, Dot1Brush, Dot2Brush, Dot3Brush, Dot4Brush, Dot5Brush, Dot6Brush,
-                Dot7Brush, Dot8Brush, Dot9Brush, Dot10Brush, Dot11Brush, Dot12Brush, Dot13Brush,
-                Dot14Brush, Dot15Brush, Dot16Brush, Dot17Brush, Dot18Brush, Dot19Brush, Dot20Brush
-            };
-
-            _allDotScales = new[]
-            {
-                Dot0Scale, Dot1Scale, Dot2Scale, Dot3Scale, Dot4Scale, Dot5Scale, Dot6Scale,
-                Dot7Scale, Dot8Scale, Dot9Scale, Dot10Scale, Dot11Scale, Dot12Scale, Dot13Scale,
-                Dot14Scale, Dot15Scale, Dot16Scale, Dot17Scale, Dot18Scale, Dot19Scale, Dot20Scale
-            };
-
-            // Setup highlight timer for periodic animations
-            _highlightTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(4.0)
-            };
-            _highlightTimer.Tick += OnHighlightTimerTick;
-
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
 
@@ -221,79 +183,12 @@ namespace Greenshot.Views
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             ApplyImmersiveDarkMode();
-
-            _startupStoryboard = TryFindResource("StartupStoryboard") as Storyboard;
-            _waveStoryboard = TryFindResource("WaveStoryboard") as Storyboard;
-
-            if (_startupStoryboard != null)
-            {
-                _startupStoryboard.Completed += (s, args) =>
-                {
-                    _highlightTimer.Interval = TimeSpan.FromMilliseconds(2500 + _rand.Next(3000));
-                    _highlightTimer.Start();
-                };
-                _startupStoryboard.Begin(this);
-            }
-            else
-            {
-                _highlightTimer.Start();
-            }
         }
 
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
             Texts.Config.LanguageChanged -= OnLanguageChanged;
-            _highlightTimer.Stop();
-        }
-
-        private void OnHighlightTimerTick(object sender, EventArgs e)
-        {
-            // Reset timer with next randomized interval (between 3.5s and 7s)
-            _highlightTimer.Interval = TimeSpan.FromMilliseconds(3500 + _rand.Next(3500));
-
-            // Randomly choose between full flow wave or sparkle pulses on a random subset of bubbles
-            int animationMode = _rand.Next(3);
-            if (animationMode == 0 && _waveStoryboard != null)
-            {
-                _waveStoryboard.Begin(this);
-            }
-            else
-            {
-                HighlightRandomBubbles();
-            }
-        }
-
-        private void HighlightRandomBubbles()
-        {
-            int count = _rand.Next(2, 6);
-            for (int i = 0; i < count; i++)
-            {
-                int index = _rand.Next(_allDots.Length);
-                var brush = _allDotBrushes[index];
-                var scale = _allDotScales[index];
-                if (brush == null || scale == null) continue;
-
-                var colorAnim = new ColorAnimationUsingKeyFrames
-                {
-                    BeginTime = TimeSpan.FromMilliseconds(i * 120)
-                };
-                colorAnim.KeyFrames.Add(new SplineColorKeyFrame(System.Windows.Media.Color.FromRgb(138, 255, 0), KeyTime.FromTimeSpan(TimeSpan.Zero)));
-                colorAnim.KeyFrames.Add(new SplineColorKeyFrame(Colors.White, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.2))));
-                colorAnim.KeyFrames.Add(new SplineColorKeyFrame(System.Windows.Media.Color.FromRgb(138, 255, 0), KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.45))));
-
-                var scaleAnim = new DoubleAnimationUsingKeyFrames
-                {
-                    BeginTime = TimeSpan.FromMilliseconds(i * 120)
-                };
-                scaleAnim.KeyFrames.Add(new SplineDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-                scaleAnim.KeyFrames.Add(new SplineDoubleKeyFrame(1.35, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.2))));
-                scaleAnim.KeyFrames.Add(new SplineDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.45))));
-
-                brush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnim);
-                scale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleAnim);
-                scale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnim);
-            }
         }
 
         private void OnThemeChanged()
@@ -348,7 +243,8 @@ namespace Greenshot.Views
 
         private void OpenSelfService(string sectionId = null)
         {
-            SelfServiceWindow.ShowSelfService(this, sectionId);
+            // No owner: the Self-Service window stays open when the about window closes
+            SelfServiceWindow.ShowSelfService(initialSection: sectionId);
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
@@ -384,7 +280,7 @@ namespace Greenshot.Views
             try
             {
                 string info = EnvironmentInfo.EnvironmentToString(true);
-                MessageBox.Show(this, info, "Greenshot - System Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(this, info, Texts.Core.AboutSysinfoTitle, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -404,15 +300,15 @@ namespace Greenshot.Views
                 }
                 else
                 {
-                    MessageBox.Show(this, "Greenshot cannot find the log file, expected location: " + GreenshotMain.LogFileLocation,
-                        "Log File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(this, string.Format(Texts.Core.AboutLogNotFound, GreenshotMain.LogFileLocation),
+                        Texts.Core.AboutLogNotFoundTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening log file", ex);
-                MessageBox.Show(this, "Could not open greenshot.log: " + ex.Message,
-                    "Error Opening Log", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, string.Format(Texts.Core.AboutLogError, ex.Message),
+                    Texts.Core.AboutLogErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -428,15 +324,15 @@ namespace Greenshot.Views
                 }
                 else
                 {
-                    MessageBox.Show(this, "Greenshot cannot find greenshot.ini, expected location: " + GreenshotEnvironment.ConfigLocation,
-                        "Settings File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(this, string.Format(Texts.Core.AboutIniNotFound, GreenshotEnvironment.ConfigLocation),
+                        Texts.Core.AboutIniNotFoundTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error("Error opening greenshot.ini", ex);
-                MessageBox.Show(this, "Could not open greenshot.ini: " + ex.Message,
-                    "Error Opening Settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(this, string.Format(Texts.Core.AboutIniError, ex.Message),
+                    Texts.Core.AboutIniErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,16 +22,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using log4net;
+using Microsoft.Win32;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
@@ -88,12 +91,31 @@ namespace Greenshot.Base.Controls
         {
             return ModalAsync(() =>
             {
-                var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails);
+                var saveImageFileDialog = new SaveImageFileDialog(request?.CaptureDetails, request?.HdrAvailable == true, request?.SuggestedPath);
                 if (!string.IsNullOrWhiteSpace(request?.Format))
                 {
                     saveImageFileDialog.Extension = request.Format;
                 }
                 return saveImageFileDialog.ShowDialog() ? saveImageFileDialog.FileNameWithExtension : null;
+            }, cancellationToken);
+        }
+
+        public Task<string> PickOpenFileAsync(CancellationToken cancellationToken)
+        {
+            return ModalAsync(() =>
+            {
+                var fileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+                var extensions = (fileFormatRegistry?.GetLoadableFileFormats() ?? Enumerable.Empty<FileFormatDefinition>())
+                    .SelectMany(format => format.LoadableExtensions)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
+                    .Select(extension => $"*.{extension}")
+                    .ToList();
+                var openFileDialog = new OpenFileDialog
+                {
+                    Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
+                };
+                return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
             }, cancellationToken);
         }
 
@@ -209,21 +231,7 @@ namespace Greenshot.Base.Controls
             }
 
             // Notifications are shown on the UI thread, but nobody waits for the user
-            return _ui.InvokeAsync(() =>
-            {
-                switch (notification.Kind)
-                {
-                    case NotificationKind.Error:
-                        notificationService.ShowErrorMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    case NotificationKind.Warning:
-                        notificationService.ShowWarningMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                    default:
-                        notificationService.ShowInfoMessage(notification.Message, notification.Timeout, notification.OnClick);
-                        break;
-                }
-            });
+            return _ui.InvokeAsync(() => notificationService.ShowNotification(notification));
         }
 
         public Task<bool?> ConfirmAsync(string title, string message, bool isError, CancellationToken cancellationToken)

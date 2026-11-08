@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -115,8 +115,7 @@ namespace Greenshot.Recipes.Steps
                 string stepStr = stepVal.ToString();
                 if (!string.IsNullOrWhiteSpace(stepStr))
                 {
-                    var evaluator = Greenshot.Base.Recipes.Expressions.ExpressionEvaluator.Instance;
-                    return evaluator.Evaluate<string>(stepStr, context);
+                    return Greenshot.Base.Expressions.OutputTemplates.RenderFolder(stepStr, Greenshot.Base.Recipes.Expressions.RecipeExpressions.ScopeOf(context), out _);
                 }
             }
 

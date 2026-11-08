@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -39,12 +39,6 @@ public class ZxingCaptureProcessor : AbstractProcessor
     public override string Designation => "ZxingCaptureProcessor";
     public override string Description => "ZXing Barcode Scanner";
     public override bool isActive => _config.ScanOnCapture;
-
-    /// <summary>
-    /// Runs before interactive selection so detected QR/barcode hotspots are visible
-    /// in the CaptureWindow while the user selects a region.
-    /// </summary>
-    public override ProcessorTiming PreferredTiming => ProcessorTiming.PreSelection;
 
     public ZxingCaptureProcessor(IZxingConfiguration config)
     {
@@ -88,7 +82,7 @@ if (capture.Image == null)
         }
 
         var captureDetails = capture.CaptureDetails;
-        var initialCropOffset = captureDetails.CropOffset;
+        var cropAreaWhenFound = captureDetails.CropArea;
 
         // PARALLEL: barcode detection runs next to the interactive selection, the codes show up as hotspots while the user selects.
         // (Background work tracked on the capture details, replaced by an ICaptureAnalyzer with imaging roadmap step 2.)
@@ -144,23 +138,8 @@ if (capture.Image == null)
                                 ));
                             }
 
-                            if (detectedFeatures.Count > 0)
-                            {
-                                lock (captureDetails.Features)
-                                {
-                                    var currentCropOffset = captureDetails.CropOffset;
-                                    var dx = currentCropOffset.X - initialCropOffset.X;
-                                    var dy = currentCropOffset.Y - initialCropOffset.Y;
-                                    if (dx != 0 || dy != 0)
-                                    {
-                                        foreach (var feature in detectedFeatures)
-                                        {
-                                            feature.Offset(-dx, -dy);
-                                        }
-                                    }
-                                    captureDetails.Features.AddRange(detectedFeatures);
-                                }
-                            }
+                            // Cropped to the selection in the meantime: only what is in the selection is added
+                            captureDetails.AddFeatures(detectedFeatures, cropAreaWhenFound);
                         }
                     }
                 catch (Exception ex)

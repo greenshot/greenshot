@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2705" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2957" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,5 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

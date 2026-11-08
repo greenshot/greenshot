@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,11 +22,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes.Contracts;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Greenshot.Base.Recipes.Expressions;
 
 namespace Greenshot.Base.Recipes
 {
@@ -48,7 +50,8 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public static readonly IReadOnlyCollection<ContractDataType> SupportedTypes = new[]
         {
-            ContractDataType.Boolean, ContractDataType.Integer, ContractDataType.Decimal, ContractDataType.String, ContractDataType.Enum, ContractDataType.Color
+            ContractDataType.Boolean, ContractDataType.Integer, ContractDataType.Decimal, ContractDataType.String, ContractDataType.Enum, ContractDataType.Color,
+            ContractDataType.Hotkey, ContractDataType.DirectoryPath
         };
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// The value used until the user changes it
         /// </summary>
-        [JsonProperty("default")]
+        [JsonPropertyName("default")]
         public object DefaultValue { get; set; }
 
         /// <summary>
@@ -94,7 +97,20 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// The values of an Enum option
         /// </summary>
-        public List<RecipeOptionChoice> Choices { get; set; }
+        public List<RecipeOptionChoice> Choices
+        {
+            get => _choices;
+            set
+            {
+                _choices = value;
+                if (value == null) return;
+                foreach (var choice in value.Where(c => c != null))
+                {
+                    choice.Option = this;
+                }
+            }
+        }
+        private List<RecipeOptionChoice> _choices;
 
         /// <summary>
         /// The key of a Boolean option of the same recipe: this option can only be changed while that one is on
@@ -113,7 +129,7 @@ namespace Greenshot.Base.Recipes
 
         /// <summary>
         /// <see cref="Format"/> of a String option whose value is a template: ${...} in the value is evaluated where the
-        /// option is used, e.g. "Captured ${now:yyyy-MM-dd}" (options of the recipe can't be used in it)
+        /// option is used, e.g. "Captured ${time.now:yyyy-MM-dd}" (options of the recipe can't be used in it)
         /// </summary>
         public const string FormatTemplate = "template";
 
@@ -124,13 +140,20 @@ namespace Greenshot.Base.Recipes
         /// The description for the settings, translated when it is a language key
         /// </summary>
         [JsonIgnore]
-        public string DisplayDescription => RecipeText.Translate(Description);
+        public string DisplayDescription => Owner?.Translate($"options.{Key}.description", Description) ?? RecipeText.Translate(Description);
 
         /// <summary>
         /// The text for the settings
         /// </summary>
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Key : RecipeText.Translate(Label);
+        public string DisplayLabel => Owner?.Translate($"options.{Key}.label", string.IsNullOrWhiteSpace(Label) ? Key : Label) ??
+                                      (string.IsNullOrWhiteSpace(Label) ? Key : RecipeText.Translate(Label));
+
+        /// <summary>
+        /// The recipe or extension this option belongs to, for the translations of its texts
+        /// </summary>
+        [JsonIgnore]
+        public FlowDefinition Owner { get; internal set; }
 
         /// <summary>
         /// The default value as a value of the option type, or the neutral value of the type when there is no valid default
@@ -162,15 +185,13 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Converts a value (from the recipe, greenshot.ini or the settings) to the option type:
         /// bool, int, double or string. Numbers are limited to Min and Max.
+        /// A Hotkey is written the way Greenshot writes hotkeys ("Ctrl + Shift + D"), empty or "None" for no hotkey.
+        /// A DirectoryPath is a full local or network path with its ${user.*} and ${machine.*} values replaced, empty when not set.
         /// </summary>
         /// <returns>false when the value doesn't fit the type, a color or one of the choices</returns>
         public bool TryConvert(object raw, out object value)
         {
             value = null;
-            if (raw is JValue jValue)
-            {
-                raw = jValue.Value;
-            }
             if (raw == null)
             {
                 return false;
@@ -223,9 +244,63 @@ namespace Greenshot.Base.Recipes
                 case ContractDataType.String:
                     value = text ?? string.Empty;
                     return true;
+                case ContractDataType.Hotkey:
+                    return TryConvertHotkey(text, out value);
+                case ContractDataType.DirectoryPath:
+                    return TryConvertDirectory(text, out value);
                 default:
                     return false;
             }
+        }
+
+        private static bool TryConvertHotkey(string text, out object value)
+        {
+            value = null;
+            var sequence = HotkeySequence.Parse(text);
+            if (sequence.IsEmpty)
+            {
+                // Only an empty text or "None" means no hotkey, not a text which isn't a hotkey
+                if (string.IsNullOrEmpty(text) || string.Equals(text, "None", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = string.Empty;
+                    return true;
+                }
+                return false;
+            }
+
+            if (!sequence.Validate(out _))
+            {
+                return false;
+            }
+            value = sequence.ToString();
+            return true;
+        }
+
+        private static bool TryConvertDirectory(string text, out object value)
+        {
+            value = null;
+            if (string.IsNullOrEmpty(text))
+            {
+                value = string.Empty;
+                return true;
+            }
+
+            // ${user.pictures} finds the Pictures folder also when it was moved, e.g. to OneDrive
+            string path = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(text, Greenshot.Base.Expressions.VariableScope.Empty, out _);
+            if (string.IsNullOrEmpty(path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            {
+                return false;
+            }
+
+            // A drive with its root ("C:\...") or a network path ("\\server\share"), never relative to the working directory
+            bool isDrivePath = path.Length >= 3 && char.IsLetter(path[0]) && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+            bool isNetworkPath = path.StartsWith(@"\\", StringComparison.Ordinal) && path.Length > 2;
+            if (!isDrivePath && !isNetworkPath)
+            {
+                return false;
+            }
+            value = path;
+            return true;
         }
 
         /// <summary>
@@ -276,7 +351,14 @@ namespace Greenshot.Base.Recipes
         public string Label { get; set; }
 
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Value : RecipeText.Translate(Label);
+        public string DisplayLabel => Option?.Owner?.Translate($"options.{Option.Key}.choices.{Value}", string.IsNullOrWhiteSpace(Label) ? Value : Label) ??
+                                      (string.IsNullOrWhiteSpace(Label) ? Value : RecipeText.Translate(Label));
+
+        /// <summary>
+        /// The option of this choice, for the translations of its texts
+        /// </summary>
+        [JsonIgnore]
+        public RecipeOption Option { get; internal set; }
 
         public RecipeOptionChoice Clone() => (RecipeOptionChoice)MemberwiseClone();
 

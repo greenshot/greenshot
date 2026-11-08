@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
@@ -30,17 +31,15 @@ using Greenshot.Base.Wpf.ViewModels;
 using Greenshot.Base.Wpf.Views;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Box.Views;
-using Greenshot.Plugin.Confluence;
-using Greenshot.Plugin.Confluence.Destinations;
-using Greenshot.Plugin.Confluence.Views;
+using Greenshot.Plugin.Atlassian.Confluence;
+using Greenshot.Plugin.Atlassian.Confluence.Destinations;
+using Greenshot.Plugin.Atlassian.Confluence.Views;
 using Greenshot.Plugin.Dropbox;
 using Greenshot.Plugin.Dropbox.Views;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Views;
-using Greenshot.Plugin.Imgur;
-using Greenshot.Plugin.Imgur.Views;
-using Greenshot.Plugin.Jira;
-using Greenshot.Plugin.Jira.Views;
+using Greenshot.Plugin.Atlassian.Jira;
+using Greenshot.Plugin.Atlassian.Jira.Views;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.Zxing.Drawing;
 using Greenshot.Plugin.Zxing.Views;
@@ -121,10 +120,6 @@ namespace Greenshot.Tests.Forms
                     var dropboxConfig = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
                     var dropboxControl = new DropboxConfigurationView(dropboxConfig);
                     Assert.NotNull(dropboxControl);
-
-                    var imgurConfig = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-                    var imgurControl = new ImgurConfigurationView(imgurConfig);
-                    Assert.NotNull(imgurControl);
 
                     var jiraConfig = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
                     var jiraControl = new JiraConfigurationView(jiraConfig);
@@ -227,9 +222,6 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     // Greenshot WPF windows
-                    var languageWindow = new Greenshot.Views.LanguageWindow();
-                    Assert.NotNull(languageWindow);
-
                     var printOptionsWindow = new Greenshot.Views.PrintOptionsWindow();
                     Assert.NotNull(printOptionsWindow);
 
@@ -242,6 +234,49 @@ namespace Greenshot.Tests.Forms
 
                     var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
                     Assert.NotNull(resizeWindow);
+
+                    var maximumResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
+                        new Greenshot.Base.Effects.ResizeEffect(30_000, 30_000, true));
+                    var maximumOkButton = maximumResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
+                    Assert.NotNull(maximumOkButton);
+                    Assert.True(maximumOkButton.IsEnabled);
+
+                    var overLimitResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
+                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
+                    var widthUnitComboBox = overLimitResizeWindow.FindName("WidthUnitComboBox") as System.Windows.Controls.ComboBox;
+                    var widthTextBox = overLimitResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
+                    var overLimitOkButton = overLimitResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
+                    Assert.NotNull(widthUnitComboBox);
+                    Assert.NotNull(widthTextBox);
+                    Assert.NotNull(overLimitOkButton);
+                    widthUnitComboBox.SelectedIndex = 1;
+                    widthTextBox.Text = "30001";
+                    Assert.False(overLimitOkButton.IsEnabled);
+
+                    var mouseWheelResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
+                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
+                    var mouseWheelWidthTextBox = mouseWheelResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
+                    var mouseWheelOkButton = mouseWheelResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
+                    Assert.NotNull(mouseWheelWidthTextBox);
+                    Assert.NotNull(mouseWheelOkButton);
+                    mouseWheelWidthTextBox.Text = "30001";
+                    Assert.False(mouseWheelOkButton.IsEnabled);
+                    mouseWheelWidthTextBox.RaiseEvent(new System.Windows.Input.MouseWheelEventArgs(
+                        System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, -120)
+                    {
+                        RoutedEvent = System.Windows.UIElement.PreviewMouseWheelEvent
+                    });
+                    Assert.Equal("30000", mouseWheelWidthTextBox.Text);
+                    Assert.True(mouseWheelOkButton.IsEnabled);
+
+                    var aspectRatioResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
+                        new Greenshot.Base.Effects.ResizeEffect(1, 2, true));
+                    var aspectRatioWidthTextBox = aspectRatioResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
+                    var aspectRatioOkButton = aspectRatioResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
+                    Assert.NotNull(aspectRatioWidthTextBox);
+                    Assert.NotNull(aspectRatioOkButton);
+                    aspectRatioWidthTextBox.Text = "15001";
+                    Assert.False(aspectRatioOkButton.IsEnabled);
 
                     var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
@@ -315,34 +350,6 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void PluginConfigurations_QuicklinkEnabled_DefaultsToFalse()
-        {
-            var extCmd = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-            Assert.False(extCmd.QuicklinkEnabled);
-
-            var imgur = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-            Assert.False(imgur.QuicklinkEnabled);
-
-            var dropbox = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
-            Assert.False(dropbox.QuicklinkEnabled);
-
-            var box = IniConfigHelper.EnsureSection<IBoxConfiguration>(() => new BoxConfigurationImpl());
-            Assert.False(box.QuicklinkEnabled);
-
-            var jira = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
-            Assert.False(jira.QuicklinkEnabled);
-
-            var confluence = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
-            Assert.False(confluence.QuicklinkEnabled);
-
-            var office = IniConfigHelper.EnsureSection<Greenshot.Plugin.Office.IOfficeConfiguration>(() => new Greenshot.Plugin.Office.OfficeConfigurationImpl());
-            Assert.False(office.QuicklinkEnabled);
-
-            var zxing = IniConfigHelper.EnsureSection<IZxingConfiguration>(() => new ZxingConfigurationImpl());
-            Assert.False(zxing.QuicklinkEnabled);
-        }
-
-        [Fact]
         public void ExternalCommandConfigurationControl_PropertyBindingsAndDependentPropertiesWork()
         {
             Exception threadEx = null;
@@ -352,13 +359,6 @@ namespace Greenshot.Tests.Forms
                 {
                     var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
                     var control = new ExternalCommandConfigurationView();
-
-                    // Quicklink
-                    bool origQuicklink = control.QuicklinkEnabled;
-                    control.QuicklinkEnabled = !origQuicklink;
-                    Assert.Equal(!origQuicklink, control.QuicklinkEnabled);
-                    Assert.Equal(!origQuicklink, config.QuicklinkEnabled);
-                    control.QuicklinkEnabled = origQuicklink;
 
                     // Per-command settings on SelectedCommand
                     Assert.NotNull(control.SelectedCommand);
@@ -418,16 +418,9 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void PluginUtils_QuicklinkAndTrayMenuEntriesTests()
+        public void PluginUtils_TrayMenuEntriesTests()
         {
-            // 1. Unified quicklink text
-            string text = PluginUtils.GetQuicklinkText("Dropbox");
-            Assert.Equal("Configure Dropbox", text);
-
-            string textImgur = PluginUtils.GetQuicklinkText("Imgur");
-            Assert.Equal("Configure Imgur", textImgur);
-
-            // 2. Only visible tray menu entries are in the menu, disposing removes the entry
+            // Only visible tray menu entries are in the menu, disposing removes the entry
             var entry1 = new TrayMenuEntry("Item 1") { Visible = false };
             var entry2 = new TrayMenuEntry("Item 2") { Visible = false };
             try
@@ -538,6 +531,51 @@ namespace Greenshot.Tests.Forms
                 tm.PropertyChanged -= handler;
                 tm.ToggleTheme(); // Restore
             }
+        }
+
+        [Fact]
+        public void ThemeScope_APaletteHasEveryBrushTheSharedStylesUse()
+        {
+            // The shared styles bind by name to ThemeScope.Theme: ThemeManager by default, a ThemePalette in the editor panels
+            var paletteBrushes = typeof(ThemePalette).GetProperties()
+                .Where(property => typeof(System.Windows.Media.Brush).IsAssignableFrom(property.PropertyType))
+                .Select(property => property.Name).ToList();
+            var managerBrushes = typeof(ThemeManager).GetProperties()
+                .Where(property => typeof(System.Windows.Media.Brush).IsAssignableFrom(property.PropertyType))
+                .Select(property => property.Name).ToList();
+
+            Assert.Empty(managerBrushes.Except(paletteBrushes));
+        }
+
+        [Fact]
+        public void ThemeScope_IsInheritedByTheElementsInside()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var panel = new System.Windows.Controls.StackPanel();
+                    var child = new System.Windows.Controls.TextBox();
+                    panel.Children.Add(child);
+                    Assert.Same(ThemeManager.Instance, ThemeScope.GetTheme(child));
+
+                    ThemeScope.SetTheme(panel, ThemePalette.Dark);
+                    Assert.Same(ThemePalette.Dark, ThemeScope.GetTheme(child));
+
+                    ThemeScope.SetTheme(panel, null);
+                    Assert.Same(ThemeManager.Instance, ThemeScope.GetTheme(child));
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
         }
 
         [Fact]

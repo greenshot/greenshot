@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -53,7 +53,12 @@ namespace Greenshot.Editor.Drawing
         private void Init()
         {
             FieldChanged += ObfuscateContainer_OnFieldChanged;
-            ConfigurePreparedFilters();
+            // A loaded container already has its filters, with the values from the file
+            if (Filters.Count == 0)
+            {
+                ConfigurePreparedFilters();
+            }
+
             CreateDefaultAdorners();
         }
 

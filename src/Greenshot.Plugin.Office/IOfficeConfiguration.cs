@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -30,17 +30,16 @@ namespace Greenshot.Plugin.Office
     [Description("Greenshot Office configuration")]
     public interface IOfficeConfiguration : IIniSection
     {
-        [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
-        [DefaultValue(false)]
-        bool QuicklinkEnabled { get; set; }
-
         [Description("Default type for emails. (Text, HTML)")]
         [DefaultValue("HTML")]
         EmailFormat OutlookEmailFormat { get; set; }
 
-        [Description("Email subject pattern, works like the OutputFileFilenamePattern")]
+        [Description("Email subject pattern of Greenshot 1.3, only read once to fill EmailSubjectTemplate; kept for going back to 1.3.")]
         [DefaultValue("${title}")]
         string EmailSubjectPattern { get; set; }
+
+        [Description("The subject of new emails, a template like ${payload.title}; see docs/vNext/variables.md.")]
+        string EmailSubjectTemplate { get; set; }
 
         [Description("Default value for the to in emails that are created")]
         [DefaultValue("")]

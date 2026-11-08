@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -35,6 +35,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand.Destinations;
 
@@ -101,9 +102,9 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
     public IEnumerable<RecipeGatedAction> GetGatedActions()
     {
         string cmd = _presetCommand;
-        if (Config?.Commandline != null && Config.Commandline.ContainsKey(_presetCommand))
+        if (Config?.CommandlineTemplate != null && Config.CommandlineTemplate.ContainsKey(_presetCommand))
         {
-            cmd = Config.Commandline[_presetCommand];
+            cmd = Config.CommandlineTemplate[_presetCommand];
         }
         string target = !string.IsNullOrWhiteSpace(cmd) ? cmd : Designation;
         yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
@@ -145,17 +146,24 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
 
         if (runInBackground)
         {
-            // The export doesn't wait for the command, its outcome is reported by a notification (the task is observed)
-            RunInBackgroundAsync(fullPath, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
+            // The command is started here, the export doesn't wait for it to finish. What fails before the command runs (a file name
+            // it doesn't accept, a missing program) completes the run right away: that is the result of the export, the notification
+            // of the flow shows it. A failure of the running command is reported by a notification of its own (the task is observed).
+            var run = RunAsync(fullPath, CancellationToken.None);
+            if (run.IsCompleted)
+            {
+                return await run.ConfigureAwait(false);
+            }
+            ReportFailureAsync(run, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
             return ExportResult.Succeeded(fullPath);
         }
 
         return await RunAsync(fullPath, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task RunInBackgroundAsync(string fullPath, IUserInteraction userInteraction)
+    private async Task ReportFailureAsync(Task<ExportResult> run, IUserInteraction userInteraction)
     {
-        var result = await RunAsync(fullPath, CancellationToken.None).ConfigureAwait(false);
+        var result = await run.ConfigureAwait(false);
         if (result.Status == ExportStatus.Failed)
         {
             await userInteraction.NotifyAsync(new Notification(NotificationKind.Error, $"{_presetCommand}: {result.Error}")).ConfigureAwait(false);
@@ -236,8 +244,8 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            ex.Data["commandline"] = Config.Commandline[_presetCommand];
-            ex.Data["arguments"] = Config.Argument[_presetCommand];
+            ex.Data["commandline"] = Config.CommandlineTemplate[_presetCommand];
+            ex.Data["arguments"] = Config.ArgumentTemplate[_presetCommand];
             throw;
         }
     }
@@ -247,23 +255,17 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
     /// </summary>
     private async Task<(int ExitCode, string Output, string Error)> CallExternalCommandAsync(string commando, string fullPath, string verb, CancellationToken cancellationToken)
     {
-        string commandline = Config.Commandline[commando];
-        string arguments = Config.Argument[commando];
+        string commandline = Config.CommandlineTemplate[commando];
+        string arguments = Config.ArgumentTemplate[commando];
         if (string.IsNullOrEmpty(commandline))
         {
             return (-1, null, null);
         }
 
         using Process process = new Process();
-        // Fix variables
-        commandline = FilenameHelper.FillVariables(commandline, true);
-        commandline = FilenameHelper.FillCmdVariables(commandline, true);
-
-        arguments = FilenameHelper.FillVariables(arguments, false);
-        arguments = FilenameHelper.FillCmdVariables(arguments, false);
-
-        process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
-        process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
+        process.StartInfo.FileName = OutputTemplates.RenderCommand(commandline, VariableScope.Empty, out string problem)
+            ?? throw new ArgumentException(problem);
+        process.StartInfo.Arguments = RenderArguments(arguments, fullPath, VariableScope.Empty);
         bool redirectOutput = Config?.RedirectStandardOutputCommand != null && Config.RedirectStandardOutputCommand.TryGetValue(commando, out var rso)
             ? rso
             : Config?.RedirectStandardOutput ?? true;
@@ -299,7 +301,11 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         return (exitCode, output, error);
     }
 
-    public static string FormatArguments(string arguments, string fullpath)
+    /// <summary>
+    /// The arguments of a command: the template rendered for the file (${export.file}). Nothing of the capture can be part of it, the
+    /// file name can't hold characters a shell would read.
+    /// </summary>
+    public static string RenderArguments(string arguments, string fullpath, VariableScope scope)
     {
         // Validate filename doesn't contain shell metacharacters
         char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'' };
@@ -312,15 +318,13 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             );
         }
 
+        arguments ??= string.Empty;
         // Validate arguments template doesn't use shell interpreters
         if (arguments.Contains("cmd.exe") || arguments.Contains("powershell"))
         {
             LOG.Warn("ExternalCommand configured with shell interpreter - potential security risk");
         }
 
-        // Additional: Ensure proper quoting
-        string safePath = fullpath.Replace("\"", "\\\"");
-
-        return string.Format(arguments, safePath);
+        return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(exportFile: fullpath));
     }
-}
+}

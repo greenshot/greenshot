@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,7 +28,7 @@ namespace Greenshot.Base.Wpf
 {
     /// <summary>
     /// A text of a language section in XAML: <c>{wpf:Text Editor.Undo}</c> binds to the property Undo of the [Editor] section
-    /// (plugins: <c>{wpf:Text Imgur.History}</c>). The section notifies changed texts, so a language switch updates the view.
+    /// (plugins: <c>{wpf:Text Jira.LabelUrl}</c>). The section notifies changed texts, so a language switch updates the view.
     /// </summary>
     [MarkupExtensionReturnType(typeof(object))]
     public class TextExtension : MarkupExtension

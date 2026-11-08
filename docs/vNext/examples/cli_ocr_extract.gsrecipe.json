@@ -1,0 +1,79 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "2.0",
+  "id": "recipe_cli_ocr_extract",
+  "name": "CLI Headless OCR Text Extractor",
+  "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "OCR CLI Trigger",
+      "enabled": true,
+      "parameters": {
+        "Command": "ocr",
+        "Description": "Extract text from an image file using OCR and return to stdout",
+        "FireAndForget": false,
+        "Stdout": "${payload.ocr.text}",
+        "Arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "type": "FilePath",
+            "description": "Path to the image file to extract text from",
+            "required": true
+          },
+          {
+            "name": "lang",
+            "variable": "OcrLanguage",
+            "description": "Optional OCR language code (e.g. eng, deu, fra)",
+            "required": false,
+            "defaultValue": ""
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Image File",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "File",
+        "Filename": "${var.Filename}"
+      }
+    },
+    {
+      "id": "ocr_extraction",
+      "stepType": "Ocr",
+      "name": "Perform OCR",
+      "enabled": true,
+      "parameters": {}
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print Extracted Text",
+      "enabled": true,
+      "parameters": {
+        "Text": "${payload.ocr.text}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": [
+      {
+        "from": "load_file",
+        "to": "ocr_extraction"
+      },
+      {
+        "from": "ocr_extraction",
+        "to": "print_result"
+      }
+    ]
+  }
+}

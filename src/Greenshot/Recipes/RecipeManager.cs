@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Steps;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using log4net;
@@ -75,6 +76,11 @@ namespace Greenshot.Recipes
         public const string RecipeIdAiCaptureWindow = "recipe_ai_capture_window";
         public const string RecipeIdAiCaptureRegion = "recipe_ai_capture_region";
         public const string RecipeIdAiCaptureScreen = "recipe_ai_capture_screen";
+        public const string RecipeIdOpenCaptureFolder = "recipe_open_capture_folder";
+        public const string RecipeIdLastCaptureInEditor = "recipe_last_capture_in_editor";
+        public const string RecipeIdTrayMenu = "recipe_tray_menu";
+        public const string RecipeIdOpenSettings = "recipe_open_settings";
+        public const string RecipeIdEmptyEditor = "recipe_empty_editor";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -118,8 +124,9 @@ namespace Greenshot.Recipes
             InitializeDefaultRecipes();
             InitializeBuiltInExtensions();
             // The recipe files and the triggers are loaded by ReloadRecipes at startup, once the plugins registered their recipes and steps
-            // An extension switched on or off, or set to other recipes, changes the composed recipes
-            RecipeOptionStore.ValuesChanged += (sender, args) => RecomposeRecipes();
+            // An extension switched on or off, or set to other recipes, changes the composed recipes;
+            // a Hotkey option changes the hotkey of the recipe
+            RecipeOptionStore.ValuesChanged += (sender, args) => OnOptionValuesChanged(sender as string);
         }
 
         private void InitializeBuiltInExtensions()
@@ -130,7 +137,8 @@ namespace Greenshot.Recipes
                 {
                     _builtInExtensions[extension.Id] = extension;
                 }
-                RegisterExtension(extension);
+                // Nothing is composed yet: GetEffectiveRecipe composes a recipe when it is needed
+                AddExtension(extension);
             }
         }
 
@@ -138,6 +146,16 @@ namespace Greenshot.Recipes
         /// Adds an extension after checking it; an invalid one is not added
         /// </summary>
         public RecipeValidationResult RegisterExtension(RecipeExtension extension)
+        {
+            var result = AddExtension(extension);
+            if (result.IsValid)
+            {
+                RecomposeRecipes();
+            }
+            return result;
+        }
+
+        private RecipeValidationResult AddExtension(RecipeExtension extension)
         {
             var result = RecipeValidator.Validate(extension);
             if (extension?.Extends?.Recipes != null)
@@ -160,7 +178,6 @@ namespace Greenshot.Recipes
             {
                 _extensions[extension.Id] = extension;
             }
-            RecomposeRecipes();
             return result;
         }
 
@@ -250,20 +267,24 @@ namespace Greenshot.Recipes
                 "Capture region",
                 "Interactively select a region on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Region))
+                .AddNode(CreateTextOrImage())
+                .AddNode(RecipeStepConfig.CreateClipboard("copy_text", "TextOnly"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             regionRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "scan_pre")
-                .AddTransition("scan_pre", "select")
-                .AddTransition("select", "feedback")
-                .AddTransition("feedback", "scan_post")
-                .AddTransition("scan_post", "export")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "text_or_image")
+                .AddConditionalTransition("text_or_image", "Text", "copy_text")
+                .AddConditionalTransition("text_or_image", "Image", "feedback")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(regionRecipe, "scan_post", "export");
+            RecipeStepConfig.AddStandardSlots(regionRecipe, "export", "export");
+            // The hotkeys of the general settings start the built-in recipes
+            regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.RegionHotkey}", "Region Hotkey"));
+            // The items of the tray menu are ContextMenu triggers of the built-in recipes, see TrayMenu
+            regionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturearea", 10, "contextmenu_capturearea.Image"));
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -272,20 +293,25 @@ namespace Greenshot.Recipes
                 "Capture window",
                 "Interactively select a window on the screen")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Window))
+                .AddNode(CreateTextOrImage())
+                .AddNode(RecipeStepConfig.CreateClipboard("copy_text", "TextOnly"))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             windowRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "scan_pre")
-                .AddTransition("scan_pre", "select")
-                .AddTransition("select", "feedback")
-                .AddTransition("feedback", "scan_post")
-                .AddTransition("scan_post", "export")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "text_or_image")
+                .AddConditionalTransition("text_or_image", "Text", "copy_text")
+                .AddConditionalTransition("text_or_image", "Image", "feedback")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(windowRecipe, "scan_post", "export");
+            RecipeStepConfig.AddStandardSlots(windowRecipe, "export", "export");
+            // The window hotkey selects a window, or captures the active one (setting "Capture windows interactively")
+            var windowHotkey = TriggerConfig.CreateHotkey("${config.Core.WindowHotkey}", "Window Hotkey");
+            windowHotkey.When = "${config.Core.CaptureWindowsInteractive}";
+            windowRecipe.AddTrigger(windowHotkey);
+            windowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindow", 30, "contextmenu_capturewindow.Image"));
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -295,15 +321,18 @@ namespace Greenshot.Recipes
                 "Directly capture the active window")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.ActiveWindow))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             activeWindowRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "export", "export");
+            var activeWindowHotkey = TriggerConfig.CreateHotkey("${config.Core.WindowHotkey}", "Window Hotkey");
+            activeWindowHotkey.When = "${config.Core.CaptureWindowsInteractive == false}";
+            activeWindowRecipe.AddTrigger(activeWindowHotkey);
+            // "Capture window from list": a sub menu with the open windows, the chosen one is the TargetWindow
+            activeWindowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindowfromlist", 110, expand: TriggerConfig.ExpandWindows));
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -313,15 +342,16 @@ namespace Greenshot.Recipes
                 "Capture the entire screen or monitor")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             fullScreenRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "export", "export");
+            fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.FullscreenHotkey}", "Fullscreen Hotkey"));
+            // With more than one display a sub menu with "All" and each display
+            fullScreenRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturefullscreen", 40, "contextmenu_capturefullscreen.Image", TriggerConfig.ExpandDisplays));
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -331,15 +361,15 @@ namespace Greenshot.Recipes
                 "Re-capture the coordinates of the previous region")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.LastRegion))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
                 .AddNode(RecipeStepConfig.CreateDestinations("export"))
                 .AddNode(RecipeStepConfig.CreateNotification("notify"));
             lastRegionRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
-                .AddTransition("feedback", "processors")
-                .AddTransition("processors", "export")
+                .AddTransition("feedback", "export")
                 .AddTransition("export", "notify");
-            RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "processors", "export");
+            RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
+            lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.LastregionHotkey}", "Last Region Hotkey"));
+            lastRegionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturelastregion", 20, "contextmenu_capturelastregion.Image"));
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -352,6 +382,8 @@ namespace Greenshot.Recipes
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
+            clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.ClipboardHotkey}", "Clipboard Hotkey"));
+            clipboardRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_captureclipboard", 210, "contextmenu_captureclipboard.Image"));
             RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
@@ -361,7 +393,9 @@ namespace Greenshot.Recipes
                 "Import an image or .greenshot file from disk")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }))
-                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"));
+                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"))
+                // Started from the menu (or a tray icon click) the source asks for the file
+                .AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_openfile", 220, "contextmenu_openfile.Image"));
             fileRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RegisterBuiltIn(fileRecipe, disabled);
@@ -374,14 +408,14 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.TextOcr, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Text))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
                 .AddNode(RecipeStepConfig.CreateClipboard("export", "TextOnly"));
             ocrRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
-                .AddTransition("feedback", "ocr")
-                .AddTransition("ocr", "export");
+                .AddTransition("feedback", "export");
             RegisterBuiltIn(ocrRecipe, disabled);
+
+            InitializeShellRecipes(disabled);
 
             // The optional parts (browser extension, AI tools), Greenshot Light has none of them
             foreach (var provider in GreenshotModules.Create<IBuiltInRecipeProvider>())
@@ -391,6 +425,64 @@ namespace Greenshot.Recipes
                     RegisterBuiltIn(recipe, disabled);
                 }
             }
+        }
+
+        /// <summary>
+        /// The built-in recipes without a capture, for the tray menu and the clicks on the tray icon (Settings > General).
+        /// Their names are language keys, they are shown translated.
+        /// </summary>
+        private void InitializeShellRecipes(ISet<string> disabled)
+        {
+            // 9. Open the folder of the last capture, the default of a double click on the tray icon
+            var openFolderRecipe = new CaptureRecipe(
+                RecipeIdOpenCaptureFolder,
+                "Core.contextmenu_openrecentcapture",
+                "Shows the last capture in the Windows Explorer, or the folder of the screenshots")
+                .AddNode(new RecipeNodeConfig("show", WellKnownStepTypes.ShowInExplorer, "Show in Explorer"))
+                .AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_openrecentcapture", 310));
+            openFolderRecipe.Flow = new RecipeFlowConfig("show");
+            RegisterBuiltIn(openFolderRecipe, disabled);
+
+            // 10. Open the last capture in the editor
+            var lastCaptureRecipe = new CaptureRecipe(
+                RecipeIdLastCaptureInEditor,
+                "Core.contextmenu_openlastcaptureineditor",
+                "Opens the file of the last capture in the editor")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false)
+                    .Set("Filename", "${config.Core.OutputFileAsFullpath}"))
+                .AddNode(RecipeStepConfig.CreateEditor("edit"));
+            lastCaptureRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "edit");
+            RegisterBuiltIn(lastCaptureRecipe, disabled);
+
+            // 11. - 13. Open a window: the tray menu (the default of a click on the tray icon), the settings, an empty editor
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdTrayMenu, "Core.contextmenu_showtraymenu", "Opens the tray menu at the mouse", OpenWindowStep.TrayMenu), disabled);
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdOpenSettings, "Core.contextmenu_opensettings", "Opens the settings", OpenWindowStep.Settings), disabled);
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdEmptyEditor, "Core.contextmenu_openemptyeditor", "Opens an empty image in the editor", OpenWindowStep.EmptyEditor), disabled);
+        }
+
+        private static CaptureRecipe CreateOpenWindowRecipe(string id, string name, string description, string window)
+        {
+            var recipe = new CaptureRecipe(id, name, description)
+                .AddNode(new RecipeNodeConfig("open", WellKnownStepTypes.OpenWindow, "Open window")
+                    .Set(OpenWindowStep.WindowParameter, window));
+            recipe.Flow = new RecipeFlowConfig("open");
+            return recipe;
+        }
+
+        /// <summary>
+        /// After the selection of the region and window captures: text selected in the text mode (T) goes to the clipboard as text,
+        /// everything else to the destinations
+        /// </summary>
+        private static RecipeNodeConfig CreateTextOrImage()
+        {
+            var node = RecipeStepConfig.CreateConditional("text_or_image", new[]
+            {
+                new KeyValuePair<string, string>("Text", "${var.SelectedMode == 'Text'}"),
+                new KeyValuePair<string, string>("Image", "else")
+            });
+            node.Name = "Text or image";
+            return node;
         }
 
         private HashSet<string> GetDisabledRecipeIds()
@@ -422,6 +514,8 @@ namespace Greenshot.Recipes
         private void AddRecipeFileToConfig(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) return;
+            // Only a file which is used is watched, not one which wasn't approved or valid
+            SetupWatcherForFile(filePath);
             try
             {
                 var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
@@ -505,9 +599,9 @@ namespace Greenshot.Recipes
         /// <summary>
         /// Greenshot Light has only the built-in recipes: no recipe files are loaded, imported or saved
         /// </summary>
-        private static bool RecipeFilesSupported => false;
+        internal static bool RecipeFilesSupported => false;
 #else
-        private static bool RecipeFilesSupported => true;
+        internal static bool RecipeFilesSupported => true;
 #endif
 
         /// <summary>
@@ -515,7 +609,12 @@ namespace Greenshot.Recipes
         /// </summary>
         private bool _loadingConfiguredFiles;
 
-        private void LoadConfiguredRecipeFiles()
+        /// <summary>
+        /// Loads the recipe files of the configuration
+        /// </summary>
+        /// <param name="interactive">false: no window is shown, a file which needs the user (approval, errors) is only added to <paramref name="needsUser"/></param>
+        /// <param name="needsUser">Collects the files which couldn't be loaded without the user</param>
+        private void LoadConfiguredRecipeFiles(bool interactive, List<string> needsUser)
         {
             if (!RecipeFilesSupported)
             {
@@ -543,10 +642,14 @@ namespace Greenshot.Recipes
                     string fullPath = Path.GetFullPath(trimmed);
                     if (File.Exists(fullPath))
                     {
-                        var result = LoadRecipeFromFile(fullPath);
+                        var result = LoadRecipeFromFile(fullPath, interactive);
                         if (!result.IsValid)
                         {
                             Log.WarnFormat("Validation failed for configured recipe file '{0}': {1}", fullPath, string.Join("; ", result.Errors));
+                            if (!interactive)
+                            {
+                                needsUser.Add(fullPath);
+                            }
                         }
                     }
                     else
@@ -588,9 +691,11 @@ namespace Greenshot.Recipes
 
                         watcher.Changed += handler;
                         watcher.Created += handler;
+                        // Editors which save to a temporary file and rename it to the recipe file
                         watcher.Renamed += (s, e) =>
                         {
                             Log.InfoFormat("Detected recipe file rename on disk: '{0}' -> '{1}'.", e.OldFullPath, e.FullPath);
+                            ScheduleChangedFileCheck(e.FullPath);
                         };
 
                         _fileWatchers[dir] = watcher;
@@ -625,7 +730,8 @@ namespace Greenshot.Recipes
                             _changedFileTimers.Remove(filePath);
                         }
                     }
-                    CheckChangedFile(filePath);
+                    // On the UI thread, like every other change of the recipes: it can change the triggers (hotkeys, clipboard listener)
+                    UiDispatcher.Current.InvokeAsync(() => CheckChangedFile(filePath)).FireAndLog("Check a changed recipe file");
                 }, null, ChangedFileDelay, Timeout.Infinite);
             }
         }
@@ -664,7 +770,7 @@ namespace Greenshot.Recipes
                     DropExtension(extension.Id);
                 }
                 Log.InfoFormat("Recipe file '{0}' was changed outside Greenshot, asking for approval.", fullPath);
-                UiDispatcher.Current.InvokeAsync(() => LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false)).FireAndLog("Approval of a changed recipe file");
+                LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false);
             }
             catch (Exception ex)
             {
@@ -737,12 +843,9 @@ namespace Greenshot.Recipes
                 result.AddError($"Could not save the recipe: {ex.Message}");
                 return result;
             }
-            SetupWatcherForFile(fullPath);
 
-            if (approval != null)
-            {
-                RecipeApprovalPolicy.Apply(recipe, approval);
-            }
+            // Without an approval (an invalid recipe, saved as work in progress) none of its triggers is approved until it is loaded again
+            RecipeApprovalPolicy.Apply(recipe, approval);
             recipe.ProposedBy = null;
             lock (_recipes)
             {
@@ -841,8 +944,6 @@ namespace Greenshot.Recipes
                 overallResult.AddError($"File not found: {filePath}");
                 return overallResult;
             }
-
-            SetupWatcherForFile(filePath);
 
             try
             {
@@ -1072,7 +1173,7 @@ namespace Greenshot.Recipes
             if (window.ShowDialog() == true && window.Approval != null)
             {
                 window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
-                return new ApprovalResult(window.Approval, window.OpenInEditor);
+                return new ApprovalResult(window.Approval, window.OpenInEditor) { OptionValues = window.OptionValues };
             }
             return window.IsRevoked ? ApprovalResult.Revoked : null;
         }
@@ -1082,8 +1183,25 @@ namespace Greenshot.Recipes
             return RequestInteractiveApprovalWithOptions(request)?.Approval;
         }
 
+        private void OnOptionValuesChanged(string recipeId)
+        {
+            RecomposeRecipes();
+            // Register the triggers again when the recipe takes a hotkey or a trigger's 'when' from an option
+            var recipe = GetRecipeById(recipeId);
+            bool triggersUseOptions = recipe?.Triggers?.Any(t => t != null &&
+                (RecipeValidator.FindOptionReferences(t.When).Count > 0 ||
+                 string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) &&
+                 RecipeOptionStore.TryParseReference(t.GetParameter<string>(TriggerConfig.HotkeyParameter), out _))) ?? false;
+            if (triggersUseOptions)
+            {
+                var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
+                triggerManager?.SyncRecipeTriggers(GetAllRecipes());
+            }
+        }
+
         private void NotifyRecipesChanged()
         {
+            PruneFileWatchers();
             RecomposeRecipes();
             var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
@@ -1183,7 +1301,7 @@ namespace Greenshot.Recipes
                     return $"{t.Label} ({state})";
                 }).ToList(),
                 ProposedBy = recipe.ProposedBy,
-                ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => RecipeText.Translate(e.Name ?? e.Id)).ToList()
+                ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => e.DisplayName).ToList()
             };
 
             if (!string.IsNullOrEmpty(recipe.FilePath))
@@ -1317,6 +1435,42 @@ namespace Greenshot.Recipes
 
         public void ReloadRecipes()
         {
+            ReloadRecipes(interactive: true);
+        }
+
+        /// <summary>
+        /// Loads the recipes at startup without showing a window: the files which need the user (a changed file to approve, an error
+        /// to show) are returned, to be loaded with <see cref="LoadRecipeFilesInteractively"/> once Greenshot has started
+        /// </summary>
+        /// <returns>The recipe files which weren't loaded (or only partly)</returns>
+        public IReadOnlyList<string> LoadRecipesAtStartup()
+        {
+            return ReloadRecipes(interactive: false);
+        }
+
+        /// <summary>
+        /// Loads the recipe files again, asking the user where needed (approval, errors), e.g. the ones held back by <see cref="LoadRecipesAtStartup"/>
+        /// </summary>
+        public void LoadRecipeFilesInteractively(IEnumerable<string> filePaths)
+        {
+            _loadingConfiguredFiles = true;
+            try
+            {
+                foreach (var filePath in filePaths)
+                {
+                    LoadRecipeFromFile(filePath, interactiveApproval: true);
+                }
+            }
+            finally
+            {
+                _loadingConfiguredFiles = false;
+            }
+            NotifyRecipesChanged();
+        }
+
+        private IReadOnlyList<string> ReloadRecipes(bool interactive)
+        {
+            var needsUser = new List<string>();
             lock (_recipes)
             {
                 _recipes.Clear();
@@ -1333,16 +1487,93 @@ namespace Greenshot.Recipes
                     _recipes[kvp.Key] = restored;
                 }
             }
+            // The automatic steps from files are loaded again too: one removed from the configuration is gone, a built-in one it replaced comes back
+            lock (_extensions)
+            {
+                foreach (var extensionId in _extensions.Values.Where(e => !string.IsNullOrEmpty(e.FilePath)).Select(e => e.Id).ToList())
+                {
+                    _extensions.Remove(extensionId);
+                    if (_builtInExtensions.TryGetValue(extensionId, out var builtIn))
+                    {
+                        _extensions[extensionId] = builtIn;
+                    }
+                }
+            }
             _loadingConfiguredFiles = true;
             try
             {
-                LoadConfiguredRecipeFiles();
+                LoadConfiguredRecipeFiles(interactive, needsUser);
             }
             finally
             {
                 _loadingConfiguredFiles = false;
             }
+            ForgetApprovalsOfUnusedFiles();
             NotifyRecipesChanged();
+            return needsUser;
+        }
+
+        /// <summary>
+        /// The trust store keeps the approvals of the configured recipe files only, a file which is configured again is asked for again
+        /// </summary>
+        private static void ForgetApprovalsOfUnusedFiles()
+        {
+            // Without the recipe configuration (Recipe Editor plugin not loaded, recipes off) it isn't known which files are used
+            var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
+            if (!RecipeFilesSupported || recipeConfig == null || !RecipeConfigHelper.IsRecipeFeatureEnabled(recipeConfig))
+            {
+                return;
+            }
+            var configuredFiles = new List<string>();
+            foreach (var path in (recipeConfig.RecipeFiles ?? string.Empty).Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                try
+                {
+                    configuredFiles.Add(Path.GetFullPath(path.Trim()));
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug($"Ignoring the invalid recipe file path '{path}'.", ex);
+                }
+            }
+            RecipeTrustStore.KeepOnly(configuredFiles);
+        }
+
+        /// <summary>
+        /// Stops the watchers of folders which hold no recipe or automatic step file which is used
+        /// </summary>
+        private void PruneFileWatchers()
+        {
+            var usedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            void AddDirectoryOf(string filePath)
+            {
+                if (string.IsNullOrEmpty(filePath)) return;
+                try
+                {
+                    usedDirectories.Add(Path.GetDirectoryName(Path.GetFullPath(filePath)));
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug($"Ignoring the invalid recipe file path '{filePath}'.", ex);
+                }
+            }
+            foreach (var recipe in GetAllRecipes())
+            {
+                AddDirectoryOf(recipe.FilePath);
+            }
+            foreach (var extension in GetAllExtensions())
+            {
+                AddDirectoryOf(extension.FilePath);
+            }
+            lock (_fileWatchers)
+            {
+                foreach (var directory in _fileWatchers.Keys.Where(directory => !usedDirectories.Contains(directory)).ToList())
+                {
+                    _fileWatchers[directory].Dispose();
+                    _fileWatchers.Remove(directory);
+                    Log.DebugFormat("Stopped watching '{0}' for recipe file changes.", directory);
+                }
+            }
         }
 
         public IReadOnlyList<CaptureRecipe> GetAllRecipes()
@@ -1433,6 +1664,36 @@ namespace Greenshot.Recipes
                 }
             }
             return !GetDisabledRecipeIds().Contains(recipeId);
+        }
+
+        /// <summary>
+        /// The hotkeys of the recipes which are on, as Settings > General and Self-Service show them: one per hotkey of the
+        /// general settings ("${config.Core.RegionHotkey}", the two window recipes share one), one per Hotkey option and one per
+        /// hotkey written in a recipe file. A trigger whose 'when' is false doesn't count.
+        /// </summary>
+        public IReadOnlyList<RecipeHotkey> GetActiveHotkeys()
+        {
+            var hotkeys = new List<RecipeHotkey>();
+            foreach (var recipe in GetAllRecipes().Where(r => r.IsEnabled && r.Triggers != null))
+            {
+                foreach (var trigger in recipe.Triggers.Where(t => t != null &&
+                             string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase) && t.IsWanted(recipe)))
+                {
+                    string parameter = trigger.GetParameter<string>(TriggerConfig.HotkeyParameter);
+                    var hotkey = new RecipeHotkey { Recipe = recipe, Hotkey = trigger.GetHotkey(recipe) };
+                    if (TriggerConfig.TryParseConfigReference(parameter, out var settingName))
+                    {
+                        if (hotkeys.Any(h => string.Equals(h.SettingName, settingName, StringComparison.OrdinalIgnoreCase))) continue;
+                        hotkey.SettingName = settingName;
+                    }
+                    else if (RecipeOptionStore.TryParseReference(parameter, out var optionKey))
+                    {
+                        hotkey.Option = recipe.FindOption(optionKey);
+                    }
+                    hotkeys.Add(hotkey);
+                }
+            }
+            return hotkeys;
         }
 
         public void SetRecipeEnabled(string recipeId, bool enabled)

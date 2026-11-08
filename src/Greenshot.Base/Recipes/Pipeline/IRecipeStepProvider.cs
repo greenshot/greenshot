@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -31,18 +31,5 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// </summary>
         /// <param name="registry">The step registry to register step factories with.</param>
         void RegisterSteps(IStepRegistry registry);
-    }
-
-    /// <summary>
-    /// Interface implemented by plugins or extensions that contribute JSON Schema fragments
-    /// describing the parameters of their custom capture steps.
-    /// </summary>
-    public interface IRecipeStepSchemaProvider
-    {
-        /// <summary>
-        /// Returns an optional JSON Schema fragment describing the configuration properties
-        /// accepted by the custom steps provided by this extension, or null if none is provided.
-        /// </summary>
-        string GetStepSchemaJson();
     }
 }

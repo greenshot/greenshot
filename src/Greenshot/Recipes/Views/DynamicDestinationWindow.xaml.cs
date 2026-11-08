@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -27,21 +27,28 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
+using Dapplo.Ini;
 using Greenshot.Editor.Destinations;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.ViewModels;
+using Greenshot.Viewer;
+using Greenshot.Viewer.ViewModels;
+using Greenshot.Viewer.Views;
 
 namespace Greenshot.Recipes.Views
 {
@@ -49,7 +56,7 @@ namespace Greenshot.Recipes.Views
     /// <summary>
     /// Modern WPF-styled interactive export dialog that presents a capture preview thumbnail,
     /// core destinations directly under the thumbnail, compact other destinations, search filtering,
-    /// dynamic translation updates, fullscreen preview zoom transition, and rich error recovery.
+    /// dynamic translation updates, the capture at full size in a viewer, and rich error recovery.
     /// </summary>
     public partial class DynamicDestinationWindow : Window, INotifyPropertyChanged
     {
@@ -57,8 +64,10 @@ namespace Greenshot.Recipes.Views
         private readonly DispatcherTimer _timer;
         private int _secondsRemaining;
         private string _searchText = "";
-        private bool _isFullPreviewOpen;
+        private ViewerWindow _previewViewer;
         private string _customTitle;
+        private EditableCapture _capture;
+        private CaptureFlowHandle _runningRecipe;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -76,9 +85,12 @@ namespace Greenshot.Recipes.Views
         public ObservableCollection<DestinationTileViewModel> OtherDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
         public ObservableCollection<DestinationTileViewModel> FilteredOtherDestinationTiles { get; } = new ObservableCollection<DestinationTileViewModel>();
 
-        public ObservableCollection<CaptureRecipe> AvailableRecipes { get; } = new ObservableCollection<CaptureRecipe>();
-        public CaptureRecipe SelectedRecipe { get; set; }
-        public Visibility RecipeForwardingVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        /// <summary>
+        /// The editor recipes which change the capture
+        /// </summary>
+        public ObservableCollection<RecipeChoice> AvailableRecipes { get; } = new ObservableCollection<RecipeChoice>();
+        public RecipeChoice SelectedRecipe { get; set; }
+        public Visibility RecipeSectionVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public string OtherDestinationCountText => $"({FilteredOtherDestinationTiles.Count})";
 
@@ -97,28 +109,25 @@ namespace Greenshot.Recipes.Views
         }
 
         public string TimeoutText => _secondsRemaining > 0 
-            ? string.Format("Auto-closing in {0}s...", _secondsRemaining) 
+            ? string.Format(Texts.Recipe.PickerAutoClose, _secondsRemaining) 
             : "";
 
         public IDestination SelectedDestination { get; private set; }
-        public CaptureRecipe SelectedRecipeToForward { get; private set; }
-        public bool OpenInEditorRequested { get; private set; }
 
         // Localized UI text strings
-        public string CoreDestinationsHeaderText => "Core Destinations";
-        public string OtherDestinationsHeaderText => "Destinations";
-        public string ForwardToRecipeHeaderText => Texts.Core.ContextmenuRecipeeditor;
-        public string RunRecipeButtonText => "▶ Run Recipe";
+        public string CoreDestinationsHeaderText => Texts.Recipe.PickerCoreDestinations;
+        public string OtherDestinationsHeaderText => Texts.Recipe.PickerDestinations;
+        public string RecipeHeaderText => Texts.Recipe.PickerApplyRecipe;
+        public string RunRecipeButtonText => "▶ " + Texts.Recipe.PickerApply;
         public string DismissButtonText => Texts.Core.Cancel;
         public string CloseButtonToolTip => Texts.Editor.Close;
-        public string ClickToPreviewTooltip => "Click to view full preview (Esc to exit)";
-        public string FullscreenReturnHintText => "Click anywhere or press Esc to return";
-        public string ErrorSubtitleText => "Select an alternative destination below, forward to another recipe, or retry:";
+        public string ClickToPreviewTooltip => Texts.Settings.DestinationViewer;
+        public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
 
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
         public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
-            ? "Switch to Light Mode (T)" 
-            : "Switch to Dark Mode (T)";
+            ? Texts.Recipe.PickerThemeLight
+            : Texts.Recipe.PickerThemeDark;
 
         // Theme brushes bound to XAML
         public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
@@ -142,9 +151,7 @@ namespace Greenshot.Recipes.Views
 
         public DynamicDestinationWindow(
             string title,
-            Image previewImage,
             IEnumerable<IDestination> destinations,
-            IEnumerable<CaptureRecipe> recipes = null,
             string errorMessage = null,
             int timeoutSeconds = 0)
         {
@@ -154,32 +161,10 @@ namespace Greenshot.Recipes.Views
             _customTitle = title;
             ErrorMessage = errorMessage;
 
-            if (previewImage != null)
-            {
-                try
-                {
-                    DimensionsText = $"{previewImage.Width} × {previewImage.Height} px";
-                    using var ms = new MemoryStream();
-                    previewImage.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-                    var bi = new BitmapImage();
-                    bi.BeginInit();
-                    bi.CacheOption = BitmapCacheOption.OnLoad;
-                    bi.StreamSource = ms;
-                    bi.EndInit();
-                    bi.Freeze();
-                    PreviewImageSource = bi;
-                }
-                catch
-                {
-                    // Ignore preview load error
-                }
-            }
-
             if (destinations != null)
             {
                 // Ensure Editor destination is present among destinations for the core list
-                var destList = destinations.Where(d => d != null && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList();
+                var destList = destinations.Where(d => d != null && !DestinationHelper.IsChooser(d.Designation)).ToList();
                 if (!destList.Any(d => string.Equals(d.Designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase)))
                 {
                     var editorDest = DestinationHelper.GetDestination(EditorDestination.DESIGNATION);
@@ -194,7 +179,7 @@ namespace Greenshot.Recipes.Views
                     string badge = null;
                     if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, "Clipboard", StringComparison.OrdinalIgnoreCase))
                     {
-                        badge = "Retry";
+                        badge = Texts.Recipe.PickerRetry;
                     }
 
                     var (destTitle, destSubtitle) = FormatDestinationNames(dest);
@@ -225,18 +210,6 @@ namespace Greenshot.Recipes.Views
 
             UpdateFilteredDestinations();
 
-            if (recipes != null)
-            {
-                foreach (var r in recipes)
-                {
-                    if (r != null && r.IsEnabled)
-                    {
-                        AvailableRecipes.Add(r);
-                    }
-                }
-                SelectedRecipe = AvailableRecipes.FirstOrDefault();
-            }
-
             if (timeoutSeconds > 0)
             {
                 _secondsRemaining = timeoutSeconds;
@@ -261,10 +234,115 @@ namespace Greenshot.Recipes.Views
             Closed += (s, e) =>
             {
                 _timer?.Stop();
+                // A recipe which still runs changes nothing anymore
+                _runningRecipe?.Cancel();
+                ClosePreviewViewer();
+                if (_capture != null)
+                {
+                    _capture.Changed -= OnCaptureChanged;
+                }
                 WpfThemeHelper.ThemeChanged -= OnThemeChanged;
                 Texts.Config.LanguageChanged -= OnLanguageChanged;
             };
             KeyDown += OnWindowKeyDown;
+        }
+
+        /// <summary>
+        /// Shows the image as preview, with its size
+        /// </summary>
+        private void SetPreview(Image previewImage)
+        {
+            if (previewImage == null)
+            {
+                return;
+            }
+
+            try
+            {
+                DimensionsText = $"{previewImage.Width} × {previewImage.Height} px";
+                using var ms = new MemoryStream();
+                previewImage.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = ms;
+                bi.EndInit();
+                bi.Freeze();
+                PreviewImageSource = bi;
+            }
+            catch
+            {
+                // Ignore preview load error
+            }
+
+            OnPropertyChanged(nameof(DimensionsText));
+            OnPropertyChanged(nameof(PreviewImageSource));
+            OnPropertyChanged(nameof(ThumbnailVisibility));
+        }
+
+        /// <summary>
+        /// The capture can be changed with the editor recipes, the window shows it as preview
+        /// </summary>
+        private void UseCapture(EditableCapture capture, bool showPreview)
+        {
+            _capture = capture;
+            if (showPreview)
+            {
+                _capture.Changed += OnCaptureChanged;
+                ShowCapture();
+            }
+            foreach (var trigger in EditableCapture.GetEditorRecipes())
+            {
+                AvailableRecipes.Add(new RecipeChoice(EditableCapture.DisplayName(trigger), trigger));
+            }
+            SelectedRecipe = AvailableRecipes.FirstOrDefault();
+            OnPropertyChanged(nameof(SelectedRecipe));
+            OnPropertyChanged(nameof(RecipeSectionVisibility));
+        }
+
+        private void ShowCapture()
+        {
+            using var image = _capture.GetImageForExport();
+            SetPreview(image);
+        }
+
+        private void OnCaptureChanged(object sender, EventArgs e)
+        {
+            // The viewer shows a copy, which isn't the capture anymore
+            ClosePreviewViewer();
+            ShowCapture();
+        }
+
+        /// <summary>
+        /// Runs the editor recipe on the capture; the window waits for it and shows the changed capture
+        /// </summary>
+        private async Task ApplyRecipeAsync(IEditorTrigger trigger)
+        {
+            var handle = _capture.RunRecipe(trigger);
+            if (handle == null)
+            {
+                return;
+            }
+
+            _runningRecipe = handle;
+            IsEnabled = false;
+            try
+            {
+                var result = await handle.Completion.ConfigureAwait(true);
+                if (result != null && result.State == CaptureFlowState.Failed)
+                {
+                    ErrorMessage = result.Reason ?? result.Error?.Message;
+                    OnPropertyChanged(nameof(ErrorMessage));
+                    OnPropertyChanged(nameof(ErrorBannerVisibility));
+                }
+            }
+            finally
+            {
+                _runningRecipe = null;
+                IsEnabled = true;
+                RunRecipeButton.Focus();
+            }
         }
 
         private static bool IsCoreDestination(IDestination dest)
@@ -314,55 +392,53 @@ namespace Greenshot.Recipes.Views
             switch (des.ToLowerInvariant())
             {
                 case "clipboard":
-                    return (Texts.Settings.DestinationClipboard, "Copy image to clipboard");
+                    return (Texts.Settings.DestinationClipboard, Texts.Recipe.PickerClipboardSub);
                 case "editor":
-                    return (Texts.Editor.Title, "Annotate and export");
+                    return (Texts.Editor.Title, Texts.Recipe.PickerEditorSub);
                 case "fileno_dialog":
                 case "filenodialog":
                 case "file":
-                    return ("Save Directly", "Save to folder");
+                    return (Texts.Recipe.PickerFile, Texts.Recipe.PickerFileSub);
                 case "filedialog":
                 case "fileas":
-                    return ("Save As...", "Choose folder & format");
+                    return (Texts.Recipe.PickerFileas, Texts.Recipe.PickerFileasSub);
                 case "printer":
-                    return (Texts.Settings.DestinationPrinter, "Send to printer");
+                    return (Texts.Settings.DestinationPrinter, Texts.Recipe.PickerPrinterSub);
                 case "windows10ocr":
                 case "ocr":
-                    return ("OCR Text", "Extract text from image");
+                    return (Texts.Recipe.PickerOcr, Texts.Recipe.PickerOcrSub);
                 case "windows10share":
                 case "share":
-                    return ("Windows Share", "Share with apps & contacts");
+                    return (Texts.Recipe.PickerShare, Texts.Recipe.PickerShareSub);
                 case "mail":
                 case "outlook":
-                    return (Texts.Editor.Email, "New email attachment");
+                    return (Texts.Editor.Email, Texts.Recipe.PickerEmailSub);
                 case "word":
-                    return ("Microsoft Word", "Insert into document");
+                    return ("Microsoft Word", Texts.Recipe.PickerWordSub);
                 case "excel":
-                    return ("Microsoft Excel", "Insert into worksheet");
+                    return ("Microsoft Excel", Texts.Recipe.PickerExcelSub);
                 case "powerpoint":
-                    return ("PowerPoint", "Insert into presentation");
+                    return ("PowerPoint", Texts.Recipe.PickerPowerpointSub);
                 case "onenote":
-                    return ("OneNote", "Send to notebook");
+                    return ("OneNote", Texts.Recipe.PickerOnenoteSub);
                 case "zxing":
                 case "zxingqrdestination":
-                    return ("QR Code Actions", "Detect & decode QR codes");
+                    return (Texts.Recipe.PickerQr, Texts.Recipe.PickerQrSub);
                 case "paint":
-                    return ("MS Paint", "Open in Paint");
+                    return ("MS Paint", Texts.Recipe.PickerPaintSub);
                 case "dropbox":
-                    return ("Dropbox", "Upload & copy link");
+                    return ("Dropbox", Texts.Recipe.PickerUploadSub);
                 case "box":
-                    return ("Box", "Upload & copy link");
-                case "imgur":
-                    return ("Imgur", "Upload & copy link");
+                    return ("Box", Texts.Recipe.PickerUploadSub);
                 case "jira":
-                    return ("Jira", "Attach to issue");
+                    return ("Jira", Texts.Recipe.PickerJiraSub);
                 case "confluence":
-                    return ("Confluence", "Attach to page");
+                    return ("Confluence", Texts.Recipe.PickerConfluenceSub);
             }
 
             if (rawDesc.StartsWith("Upload to ", StringComparison.OrdinalIgnoreCase))
             {
-                return (rawDesc.Substring(10), "Cloud upload");
+                return (rawDesc.Substring(10), Texts.Recipe.PickerCloudSub);
             }
 
             int parenIdx = rawDesc.IndexOf('(');
@@ -373,7 +449,7 @@ namespace Greenshot.Recipes.Views
                 return (t, s);
             }
 
-            return (rawDesc, "Export destination");
+            return (rawDesc, Texts.Recipe.PickerExportSub);
         }
 
         private void UpdateFilteredDestinations()
@@ -401,12 +477,11 @@ namespace Greenshot.Recipes.Views
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(CoreDestinationsHeaderText));
             OnPropertyChanged(nameof(OtherDestinationsHeaderText));
-            OnPropertyChanged(nameof(ForwardToRecipeHeaderText));
+            OnPropertyChanged(nameof(RecipeHeaderText));
             OnPropertyChanged(nameof(RunRecipeButtonText));
             OnPropertyChanged(nameof(DismissButtonText));
             OnPropertyChanged(nameof(CloseButtonToolTip));
             OnPropertyChanged(nameof(ClickToPreviewTooltip));
-            OnPropertyChanged(nameof(FullscreenReturnHintText));
             OnPropertyChanged(nameof(ErrorSubtitleText));
             OnPropertyChanged(nameof(ThemeToggleToolTip));
             OnPropertyChanged(nameof(TimeoutText));
@@ -463,67 +538,64 @@ namespace Greenshot.Recipes.Views
             WpfThemeHelper.ToggleTheme();
         }
 
-        #region Fullscreen Preview Zoom Transition
+        #region Preview in the viewer
 
-        private void Thumbnail_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Thumbnail_Click(object sender, RoutedEventArgs e) => OpenPreviewViewer();
+
+        /// <summary>
+        /// Shows a copy of the capture in the viewer, which has the zoom (1:1 when it fits), panning and a frame, also for a capture
+        /// of more screens. The viewer belongs to this window: it stays in front of it, closing it (Esc) comes back here, and it
+        /// closes with this window. It only shows the capture, the destination is chosen here.
+        /// </summary>
+        private void OpenPreviewViewer()
         {
-            if (e.ChangedButton == MouseButton.Left && PreviewImageSource != null)
+            if (_capture?.Surface == null)
             {
-                OpenFullscreenPreview();
+                return;
             }
-        }
 
-        private void FullPreviewOverlay_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
+            if (_previewViewer != null)
             {
-                CloseFullscreenPreview();
+                _previewViewer.Activate();
+                return;
             }
-        }
 
-        private void FullPreviewClose_Click(object sender, RoutedEventArgs e)
-        {
-            CloseFullscreenPreview();
-        }
-
-        private void OpenFullscreenPreview()
-        {
-            _isFullPreviewOpen = true;
-            FullPreviewOverlay.Visibility = Visibility.Visible;
-            FullPreviewOverlay.Opacity = 0.0;
-            PreviewScale.ScaleX = 0.88;
-            PreviewScale.ScaleY = 0.88;
-
-            var ease = new CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
-
-            var fadeAnim = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(220)) { EasingFunction = ease };
-            var scaleXAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
-            var scaleYAnim = new DoubleAnimation(0.88, 1.0, TimeSpan.FromMilliseconds(240)) { EasingFunction = ease };
-
-            FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
-        }
-
-        private void CloseFullscreenPreview()
-        {
-            if (!_isFullPreviewOpen) return;
-
-            var ease = new CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseIn };
-
-            var fadeAnim = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-            var scaleXAnim = new DoubleAnimation(1.0, 0.88, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-            var scaleYAnim = new DoubleAnimation(1.0, 0.88, TimeSpan.FromMilliseconds(180)) { EasingFunction = ease };
-
-            fadeAnim.Completed += (s, e) =>
+            var copy = _capture.Surface.Clone();
+            ViewerWindow viewer;
+            try
             {
-                FullPreviewOverlay.Visibility = Visibility.Collapsed;
-                _isFullPreviewOpen = false;
+                viewer = new ViewerWindow(new ViewerViewModel(copy, null, IniConfigRegistry.GetSection<IViewerConfiguration>(), canExport: false));
+            }
+            catch
+            {
+                copy.Dispose();
+                throw;
+            }
+
+            viewer.Owner = this;
+            viewer.Closed += (s, e) =>
+            {
+                if (_previewViewer != viewer)
+                {
+                    return;
+                }
+
+                _previewViewer = null;
+                if (IsVisible)
+                {
+                    Activate();
+                    ThumbnailButton.Focus();
+                }
             };
+            _previewViewer = viewer;
+            viewer.Show();
+        }
 
-            FullPreviewOverlay.BeginAnimation(OpacityProperty, fadeAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnim);
-            PreviewScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnim);
+        private void ClosePreviewViewer()
+        {
+            var viewer = _previewViewer;
+            _previewViewer = null;
+            viewer?.Close();
         }
 
         #endregion
@@ -533,15 +605,8 @@ namespace Greenshot.Recipes.Views
             switch (e.Key)
             {
                 case Key.Escape:
-                    if (_isFullPreviewOpen)
-                    {
-                        CloseFullscreenPreview();
-                    }
-                    else
-                    {
-                        DialogResult = false;
-                        Close();
-                    }
+                    DialogResult = false;
+                    Close();
                     e.Handled = true;
                     break;
                 case Key.T when Keyboard.Modifiers == ModifierKeys.None:
@@ -551,15 +616,50 @@ namespace Greenshot.Recipes.Views
             }
         }
 
+        /// <summary>
+        /// Shows the window modally with the capture: the editor recipes can change it, like in the editor, before a destination is
+        /// chosen. Runs on the UI thread.
+        /// </summary>
+        /// <param name="owner">The window it is centered on, or null</param>
+        /// <param name="capture">The capture, which the editor recipes replace</param>
+        /// <param name="destinations">The destinations to choose from</param>
+        /// <param name="errorMessage">The error of the last try, or null</param>
+        /// <param name="cancellationToken">Closes the window</param>
+        /// <param name="title">The title, null for the default</param>
+        /// <param name="timeoutSeconds">Closes the window after this many seconds, 0 for never</param>
+        /// <param name="showPreview">Show the capture</param>
+        /// <returns>The chosen destination, or null when the window was closed</returns>
+        public static IDestination Choose(Window owner, EditableCapture capture, IEnumerable<IDestination> destinations, string errorMessage,
+            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool showPreview = true)
+        {
+            var window = new DynamicDestinationWindow(title, destinations, errorMessage, timeoutSeconds);
+            window.UseCapture(capture, showPreview);
+            if (owner != null)
+            {
+                window.Owner = owner;
+                window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+
+            using (cancellationToken.Register(() => window.Dispatcher.InvokeAsync(() =>
+                   {
+                       if (window.IsVisible)
+                       {
+                           window.Close();
+                       }
+                   }).Task.FireAndLog("Close the destination window")))
+            {
+                window.ShowDialog();
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return window.SelectedDestination;
+        }
+
         private void DestinationTile_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement elem && elem.Tag is DestinationTileViewModel vm)
             {
                 SelectedDestination = vm.Destination;
-                if (string.Equals(vm.Destination?.Designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
-                {
-                    OpenInEditorRequested = true;
-                }
                 DialogResult = true;
                 Close();
             }
@@ -569,9 +669,7 @@ namespace Greenshot.Recipes.Views
         {
             if (SelectedRecipe != null)
             {
-                SelectedRecipeToForward = SelectedRecipe;
-                DialogResult = true;
-                Close();
+                ApplyRecipeAsync(SelectedRecipe.EditorTrigger).FireAndLog("Change the capture with a recipe");
             }
         }
 
@@ -584,6 +682,21 @@ namespace Greenshot.Recipes.Views
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// An entry of the recipe list: an editor recipe which changes the capture, with the text of the editor menu
+        /// </summary>
+        public sealed class RecipeChoice
+        {
+            public RecipeChoice(string name, IEditorTrigger editorTrigger)
+            {
+                Name = name;
+                EditorTrigger = editorTrigger;
+            }
+
+            public string Name { get; }
+            public IEditorTrigger EditorTrigger { get; }
         }
     }
 }

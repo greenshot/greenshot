@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,6 +26,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Helpers;
 
@@ -59,7 +60,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
 
             ElementsListView.ItemsSource = _items;
 
-            SourceTextBlock.Text = $"Source: {sourceName ?? "Image Source"} • {_items.Count} element{(_items.Count == 1 ? "" : "s")} found";
+            SourceTextBlock.Text = string.Format(_items.Count == 1 ? Texts.Get<IRecipeEditorLanguage>().ImportSourceOne : Texts.Get<IRecipeEditorLanguage>().ImportSourceMany, sourceName ?? Texts.Get<IRecipeEditorLanguage>().ImportImageSource, _items.Count);
 
             // Target Step Mode: pre-select based on whether step already has annotations, but keep both responsive
             if (hasExistingAnnotations)
@@ -118,12 +119,12 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             if (_isSortAscending)
             {
                 _items = _items.OrderBy(i => i.Type).ThenBy(i => i.Description).ToList();
-                SortButton.Content = "Sort A-Z ▲";
+                SortButton.Content = Texts.Get<IRecipeEditorLanguage>().ImportSortAscending;
             }
             else
             {
                 _items = _items.OrderByDescending(i => i.Type).ThenByDescending(i => i.Description).ToList();
-                SortButton.Content = "Sort Z-A ▼";
+                SortButton.Content = Texts.Get<IRecipeEditorLanguage>().ImportSortDescending;
             }
             ElementsListView.ItemsSource = null;
             ElementsListView.ItemsSource = _items;
@@ -132,7 +133,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         private void UpdateUIState()
         {
             int selectedCount = _items.Count(i => i.IsSelected);
-            StatusTextBlock.Text = $"{selectedCount} of {_items.Count} element{(selectedCount == 1 ? "" : "s")} selected";
+            StatusTextBlock.Text = string.Format(selectedCount == 1 ? Texts.Get<IRecipeEditorLanguage>().ImportSelectedOne : Texts.Get<IRecipeEditorLanguage>().ImportSelectedMany, selectedCount, _items.Count);
             ImportBtn.IsEnabled = selectedCount > 0;
 
             if (_items.Count > 0)
@@ -179,7 +180,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         {
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                dialog.Description = "Select Destination Folder for Exported Assets";
+                dialog.Description = Texts.Get<IRecipeEditorLanguage>().ImportSelectFolder;
                 if (!string.IsNullOrWhiteSpace(DirectoryTextBox.Text) && Directory.Exists(DirectoryTextBox.Text))
                 {
                     dialog.SelectedPath = DirectoryTextBox.Text;
@@ -196,7 +197,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             var selectedItems = _items.Where(i => i.IsSelected).ToList();
             if (selectedItems.Count == 0)
             {
-                ThemedMessageBox.Show(this, "Please select at least one element to import.", "Import Annotations", MessageBoxButton.OK, MessageBoxImage.Information);
+                ThemedMessageBox.Show(this, Texts.Get<IRecipeEditorLanguage>().ImportNothingSelected, Texts.Get<IRecipeEditorLanguage>().TitleImportAnnotations, MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -206,7 +207,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             {
                 if (string.IsNullOrWhiteSpace(targetDir))
                 {
-                    ThemedMessageBox.Show(this, "Please specify a destination folder for elements to be saved on disk.", "Invalid Directory", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ThemedMessageBox.Show(this, Texts.Get<IRecipeEditorLanguage>().ImportNoFolder, Texts.Get<IRecipeEditorLanguage>().TitleInvalidDirectory, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 try
@@ -218,7 +219,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
                 }
                 catch (Exception ex)
                 {
-                    ThemedMessageBox.Show(this, $"Could not create or access directory '{targetDir}':\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show(this, string.Format(Texts.Get<IRecipeEditorLanguage>().ImportFolderError, targetDir) + "\n" + ex.Message, Texts.Core.Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }

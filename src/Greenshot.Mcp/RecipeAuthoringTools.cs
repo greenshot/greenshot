@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -39,18 +39,8 @@ namespace Greenshot.Mcp
     [McpServerToolType]
     public sealed class RecipeAuthoringTools
     {
-        /// <summary>
-        /// The example recipes embedded with the schema
-        /// </summary>
-        internal static readonly string[] ExampleNames =
-        {
-            "region_blue_border.gsrecipe.json",
-            "window_regex_redact.gsrecipe.json",
-            "cli_ocr_extract.gsrecipe.json"
-        };
-
         [McpServerTool(Name = "get_recipe_schema", Title = "Get the recipe schema", ReadOnly = true, Idempotent = true, OpenWorld = false)]
-        [Description("Returns the JSON schema of Greenshot recipes and some example recipes. A recipe is a capture workflow: triggers " +
+        [Description("Returns the JSON schema of Greenshot recipes. A recipe is a capture workflow: triggers " +
                      "(hotkey, menu entry, command line, AI tool, ...) start a flow of steps (capture source, selection, effects, OCR, " +
                      "destinations such as file, clipboard, editor or an upload). Use it with get_recipe_catalog to write a recipe the user asked for.")]
         public static CallToolResult GetRecipeSchema()
@@ -58,18 +48,16 @@ namespace Greenshot.Mcp
             var builder = new StringBuilder();
             builder.AppendLine("# Greenshot recipe JSON schema");
             builder.AppendLine(ReadResource("recipe.schema.json"));
-            foreach (var name in ExampleNames)
-            {
-                builder.AppendLine();
-                builder.AppendLine($"# Example: {name}");
-                builder.AppendLine(ReadResource(name));
-            }
+            builder.AppendLine();
+            builder.AppendLine("# Examples");
+            builder.AppendLine("Greenshot's own recipes and automatic steps are the examples: get_recipe_catalog lists them, and with " +
+                               "recipe_id it returns the JSON of one of them, always in the format of this Greenshot.");
             return new CallToolResult { Content = [new TextContentBlock { Text = builder.ToString() }] };
         }
 
         [McpServerTool(Name = "get_recipe_catalog", Title = "Get the recipe catalog", ReadOnly = true, Idempotent = true, OpenWorld = false)]
         [Description("Returns what recipes can use in this Greenshot: the trigger types, the step types with their parameters, the " +
-                     "destinations (uploads=true sends the capture to the internet), the processors, the user's recipes (id, name, triggers), the slots " +
+                     "destinations (uploads=true sends the capture to the internet), the user's recipes (id, name, triggers), the slots " +
                      "and the automatic steps (steps Greenshot adds to other recipes, like a border on every capture), and the option types. " +
                      "With recipe_id it returns the JSON of that recipe or automatic step instead, to change it with update_recipe.")]
         public static Task<CallToolResult> GetRecipeCatalogAsync(McpServer server,

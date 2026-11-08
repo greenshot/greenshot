@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Expressions;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.OfficeExport;
@@ -152,7 +153,7 @@ namespace Greenshot.Plugin.Office.Destinations
             }
             else
             {
-                string subject = FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage);
+                string subject = OutputTemplates.RenderText(OfficeConfig.EmailSubjectTemplate ?? "${payload.title}", captureDetails);
                 exported = await RunOnOfficeAsync(() => _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
                     subject, attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC, OfficeConfig.EmailBCC), cancellationToken).ConfigureAwait(false);
             }

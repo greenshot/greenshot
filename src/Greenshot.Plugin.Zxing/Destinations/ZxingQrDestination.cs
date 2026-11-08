@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -39,7 +39,7 @@ namespace Greenshot.Plugin.Zxing.Destinations
         /// <summary>
         /// The icon of the destination: the QR icon of imageres.dll
         /// </summary>
-        public static string IconKey { get; } = DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+        public static string IconKey { get; } = DestinationIcons.Exe(System.IO.Path.Combine(System.Environment.SystemDirectory, "imageres.dll"), 97);
 
         public override string Designation => "ZxingQrDestination";
 

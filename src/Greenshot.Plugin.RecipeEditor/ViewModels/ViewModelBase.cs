@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -32,8 +33,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsDarkMode => WpfThemeHelper.IsDarkMode;
         public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleText => WpfThemeHelper.IsDarkMode ? "Light" : "Dark";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        public string ThemeToggleText => WpfThemeHelper.IsDarkMode ? Texts.Settings.ThemeLight : Texts.Settings.ThemeDark;
+        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Get<IRecipeEditorLanguage>().TooltipSwitchLight : Texts.Get<IRecipeEditorLanguage>().TooltipSwitchDark;
 
         // Theme brushes for WPF binding with automatic Dark/Light mode support
         public System.Windows.Media.SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;

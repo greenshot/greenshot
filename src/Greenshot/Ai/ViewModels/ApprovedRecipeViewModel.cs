@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -40,7 +40,7 @@ namespace Greenshot.Ai.ViewModels
             int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
             string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
             string changedBy = details?.ChangedBy?.Count > 0 ? $" · changed by {string.Join(", ", details.ChangedBy)}" : "";
-            Title = details?.IsExtension == true ? $"Automatic step: {recipe.Name}" : recipe.Name;
+            Title = details?.IsExtension == true ? $"Automatic step: {recipe.DisplayName}" : recipe.DisplayName;
             Subtitle = $"{state}{by}{offText}{changedBy}";
             NeedsAttention = details?.ApprovedAt == null || !details.IsApprovalCurrent || off > 0;
             DisplayText = $"{Title}{by} · {state}{offText}{changedBy}";

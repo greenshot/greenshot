@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -37,6 +37,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
 using Greenshot.Shell;
+using Greenshot.Viewer;
 using Greenshot.Views;
 using log4net;
 
@@ -149,6 +150,7 @@ public class GreenshotMain
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .RegisterSection<IViewerConfiguration>(new ViewerConfigurationImpl())
                .RegisterSection<IRecipeOptionsConfiguration>(new RecipeOptionsConfigurationImpl())
                // Plugins register their sections after the file was read, they are filled from the retained file content.
                // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.

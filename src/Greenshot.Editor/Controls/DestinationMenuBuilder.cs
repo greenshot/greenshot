@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Threading;
@@ -64,7 +65,8 @@ namespace Greenshot.Editor.Controls
         }
 
         /// <summary>
-        /// Show the icon of the key on the item, as soon as it is available (right away for built in icons).
+        /// Show the icon of the key on the item, as soon as it is available (right away for built in icons),
+        /// in the size of the menu the item is on, see <see cref="IconBinder"/>.
         /// </summary>
         public static void AssignIcon(ToolStripItem item, string iconKey)
         {
@@ -73,25 +75,7 @@ namespace Greenshot.Editor.Controls
                 return;
             }
 
-            LoadIconAsync(item, iconKey).FireAndLog($"Load icon {iconKey}", Log);
-        }
-
-        private static async Task LoadIconAsync(ToolStripItem item, string iconKey)
-        {
-            // Completes synchronously for icons which don't need to wait, the continuation stays on the UI thread
-            var image = await DestinationIcons.GetIconAsync(iconKey).ConfigureAwait(true);
-            if (image == null)
-            {
-                return;
-            }
-
-            if (item.IsDisposed)
-            {
-                image.Dispose();
-                return;
-            }
-
-            item.AssignAutoDisposingImage(image, needsClone: false);
+            IconBinder.Bind(item, IconSource.FromKey(iconKey));
         }
 
         /// <summary>
@@ -199,6 +183,7 @@ namespace Greenshot.Editor.Controls
                 // Only one: the item itself becomes that destination, without a sub menu
                 menuItem.Tag = validSubDestinations[0];
                 menuItem.Text = validSubDestinations[0].Descriptor.DisplayName;
+                AssignIcon(menuItem, validSubDestinations[0].Descriptor.IconKey);
                 return;
             }
 

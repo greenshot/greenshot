@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -67,25 +67,8 @@ namespace Greenshot.Recipes.Pipeline
             null;
 #endif
 
-        private static string GetBranchProperty(object branch, string name)
-        {
-            switch (branch)
-            {
-                case Newtonsoft.Json.Linq.JObject jObject:
-                    return jObject.GetValue(name, StringComparison.OrdinalIgnoreCase)?.ToString();
-                case System.Collections.IDictionary dictionary:
-                    foreach (System.Collections.DictionaryEntry entry in dictionary)
-                    {
-                        if (string.Equals(entry.Key?.ToString(), name, StringComparison.OrdinalIgnoreCase)) return entry.Value?.ToString();
-                    }
-                    return null;
-                default:
-                    return null;
-            }
-        }
-
         /// <summary>
-        /// Whether the node runs: a disabled node, or one whose enabled expression is false, is passed through to its next nodes
+        /// Whether the node runs: a disabled node, or one whose 'when' expression is false, is passed through to its next nodes
         /// </summary>
         private static bool IsNodeRunning(RecipeNodeConfig node, CaptureFlowContext context)
         {
@@ -95,7 +78,7 @@ namespace Greenshot.Recipes.Pipeline
             }
             catch (Exception ex)
             {
-                Log.Warn($"The enabled expression '{node.EnabledExpression}' of node '{node.Id}' failed, the node is skipped.", ex);
+                Log.Warn($"The 'when' expression '{node.When}' of node '{node.Id}' failed, the node is skipped.", ex);
             }
 
             return false;
@@ -277,22 +260,9 @@ namespace Greenshot.Recipes.Pipeline
 
                 // Collect all outgoing targets from bypassedId (both standard and conditional)
                 var outgoing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (flow.Transitions != null && flow.Transitions.TryGetValue(bypassedId, out var stdTargets) && stdTargets != null)
+                if (transitions.TryGetValue(bypassedId, out var bypassedTargets))
                 {
-                    foreach (var t in stdTargets)
-                    {
-                        if (!string.IsNullOrWhiteSpace(t)) outgoing.Add(t);
-                    }
-                }
-                if (flow.ConditionalTransitions != null)
-                {
-                    foreach (var ct in flow.ConditionalTransitions)
-                    {
-                        if (string.Equals(ct.From, bypassedId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To))
-                        {
-                            outgoing.Add(ct.To);
-                        }
-                    }
+                    outgoing.UnionWith(bypassedTargets);
                 }
 
                 foreach (var targetId in outgoing)
@@ -341,11 +311,15 @@ namespace Greenshot.Recipes.Pipeline
                     {
                         // Expressions in node parameters are evaluated exactly once: here, or by the step itself when it
                         // implements IEvaluatesOwnParameters (it then receives the raw parameters). See IEvaluatesOwnParameters.
-                        var step = _stepFactory(nodeConfig.Clone());
+                        var contract = _contractLookup?.Invoke(nodeConfig.StepType);
+                        // The texts the user sees in the language of Greenshot, from the translations of the recipe (before the expressions)
+                        var translatedConfig = nodeConfig.Clone();
+                        translatedConfig.Parameters = recipe.TranslateNodeParameters(nodeConfig, contract);
+                        var step = _stepFactory(translatedConfig.Clone());
                         if (step != null && !(step is IEvaluatesOwnParameters))
                         {
-                            var resolvedConfig = nodeConfig.Clone();
-                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
+                            var resolvedConfig = translatedConfig.Clone();
+                            resolvedConfig.Parameters = RecipeExpressions.ResolveParameters(translatedConfig.Parameters, nodeContext, contract);
                             step = _stepFactory(resolvedConfig);
                         }
                         if (step == null)
@@ -355,7 +329,6 @@ namespace Greenshot.Recipes.Pipeline
                         }
                         else
                         {
-                            var contract = _contractLookup?.Invoke(nodeConfig.StepType);
                             // Fails the node (error transitions apply) when a required parameter or input is missing
                             ValidateBeforeStep(nodeConfig, contract, nodeContext);
                             var before = contract != null && ContractViolation != null ? new Dictionary<string, object>(nodeContext.Properties, StringComparer.OrdinalIgnoreCase) : null;
@@ -388,12 +361,9 @@ namespace Greenshot.Recipes.Pipeline
                     {
                         Log.Error($"Node '{nodeConfig.Id}' failed with exception", ex);
 
-                        // Check flow error transitions or node-level error configuration
                         var errorTransition = flow.GetErrorTransition(nodeId, ex);
-                        string errorTargetNodeId = errorTransition?.To
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : null);
-                        string errorTargetRecipeId = errorTransition?.TargetRecipeId
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : null);
+                        string errorTargetNodeId = errorTransition?.To;
+                        string errorTargetRecipeId = errorTransition?.Recipe;
 
                         if (!string.IsNullOrEmpty(errorTargetNodeId) || !string.IsNullOrEmpty(errorTargetRecipeId))
                         {
@@ -482,9 +452,9 @@ namespace Greenshot.Recipes.Pipeline
                 }
                 else
                 {
-                    nodeContext.LogStep(string.IsNullOrWhiteSpace(nodeConfig.EnabledExpression)
+                    nodeContext.LogStep(!nodeConfig.Enabled || string.IsNullOrWhiteSpace(nodeConfig.When)
                         ? $"Skipping disabled node: [{nodeConfig.Id}] {nodeConfig.Name}"
-                        : $"Skipping node: [{nodeConfig.Id}] {nodeConfig.Name}, '{nodeConfig.EnabledExpression}' is not true");
+                        : $"Skipping node: [{nodeConfig.Id}] {nodeConfig.Name}, '{nodeConfig.When}' is not true");
                 }
 
                 completedNodes[nodeId] = true;
@@ -498,22 +468,10 @@ namespace Greenshot.Recipes.Pipeline
                 string matchedBranchKey = null;
                 if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                 {
-                    var branchesParam = nodeConfig.GetParameter<object>("Branches");
-                    if (branchesParam != null)
+                    var branches = nodeConfig.GetParameter<List<ConditionalBranch>>("Branches");
+                    if (branches != null)
                     {
-                        var branchList = new List<(string Key, string Expression)>();
-                        if (branchesParam is System.Collections.IEnumerable enumerable && !(branchesParam is string))
-                        {
-                            foreach (var item in enumerable)
-                            {
-                                // Branch properties are case-insensitive, like parameters (JSON recipes use "key", code "Key")
-                                string k = GetBranchProperty(item, "Key");
-                                string exp = GetBranchProperty(item, "Expression");
-                                if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp));
-                            }
-                        }
-
-                        foreach (var b in branchList)
+                        foreach (var b in branches.Where(b => !string.IsNullOrEmpty(b?.Key)))
                         {
                             string exp = b.Expression?.Trim();
                             if (string.IsNullOrEmpty(exp))
@@ -526,7 +484,7 @@ namespace Greenshot.Recipes.Pipeline
                                 break;
                             }
 
-                            bool isMet = ExpressionEvaluator.Instance.Evaluate<bool>(exp, nodeContext, false);
+                            bool isMet = RecipeExpressions.IsMet(exp, nodeContext);
                             if (isMet)
                             {
                                 matchedBranchKey = b.Key;
@@ -551,8 +509,7 @@ namespace Greenshot.Recipes.Pipeline
                 var activeNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var bypassedNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                bool hasConditionalTransitions = flow.ConditionalTransitions != null &&
-                                                 flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To));
+                bool hasConditionalTransitions = flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To));
 
                 if (hasConditionalTransitions)
                 {
@@ -574,13 +531,7 @@ namespace Greenshot.Recipes.Pipeline
                 else
                 {
                     // Standard transitions (only when no conditional transitions exist from this node)
-                    if (flow.Transitions != null && flow.Transitions.TryGetValue(nodeId, out var stdTargets) && stdTargets != null)
-                    {
-                        foreach (var t in stdTargets)
-                        {
-                            if (!string.IsNullOrWhiteSpace(t)) activeNext.Add(t);
-                        }
-                    }
+                    activeNext.UnionWith(flow.GetTargets(nodeId));
                 }
 
                 // Find next ready downstream nodes

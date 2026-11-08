@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -32,7 +32,6 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using log4net;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -137,9 +136,10 @@ namespace Greenshot.Recipes
             string menuText = trigger.GetParameter<string>("MenuItemText") ?? recipe.Name;
             if (Is(type, TriggerConfig.TypeHotkey))
             {
-                return new RecipeTriggerDescription { Label = $"Hotkey {trigger.GetParameter("Hotkey", "(none)")}" };
+                string hotkey = trigger.GetHotkey(recipe);
+                return new RecipeTriggerDescription { Label = $"Hotkey {(string.IsNullOrEmpty(hotkey) ? "(none)" : hotkey)}" };
             }
-            if (Is(type, TriggerConfig.TypeContextMenu) || Is(type, TriggerConfig.TypeSystray))
+            if (Is(type, TriggerConfig.TypeContextMenu))
             {
                 return new RecipeTriggerDescription { Label = $"Entry \"{menuText}\" in the Greenshot menu" };
             }
@@ -184,6 +184,14 @@ namespace Greenshot.Recipes
                     Risk = "Runs for files opened with Greenshot, for example with \"Open with\" in Explorer."
                 };
             }
+            if (Is(type, TriggerConfig.TypeNotification))
+            {
+                return new RecipeTriggerDescription
+                {
+                    Label = "When a Greenshot notification is clicked",
+                    Risk = "Gets the capture of a clicked Greenshot notification, instead of the default recipe."
+                };
+            }
             if (Is(type, TriggerConfig.TypeExtension))
             {
                 string browser = trigger.GetParameter<string>("Browser");
@@ -215,26 +223,91 @@ namespace Greenshot.Recipes
                 return lines;
             }
             registry ??= StepRegistry.Instance;
-            foreach (var node in recipe.Nodes.Where(n => n != null))
+            foreach (var node in InFlowOrder(recipe))
             {
                 var gatedActions = GetGatedActions(node, registry);
                 var mainRisk = gatedActions.Count > 0 ? gatedActions[0].GateType : (RecipeGateType?)null;
-                string text = DescribeStep(node, registry);
+                // What the step does with the option values set now, e.g. the folder of a DirectoryPath option
+                string text = RecipeOptionStore.FillValues(recipe, DescribeStep(node, registry));
                 if (!node.Enabled)
                 {
                     text += " (disabled)";
                 }
-                else if (!string.IsNullOrWhiteSpace(node.EnabledExpression))
+                else if (!string.IsNullOrWhiteSpace(node.When))
                 {
-                    text += $" (only when {node.EnabledExpression})";
+                    text += $" (only when {node.When})";
                 }
                 lines.Add(new RecipeDescriptionLine(text, mainRisk));
                 foreach (var action in gatedActions)
                 {
-                    lines.Add(new RecipeDescriptionLine(DescribeGatedAction(action), action.GateType, true));
+                    lines.Add(new RecipeDescriptionLine(RecipeOptionStore.FillValues(recipe, DescribeGatedAction(action)), action.GateType, true));
                 }
             }
             return lines;
+        }
+
+        /// <summary>
+        /// The nodes in the order they run: a node after every node with a transition to it (plain, branch or error), the start
+        /// nodes first, otherwise the order of the file. Nodes only reached by an error transition of every node ("*") and nodes of
+        /// a cycle (which the validator refuses) come last, also in the order of the file.
+        /// </summary>
+        internal static List<RecipeNodeConfig> InFlowOrder(CaptureRecipe recipe)
+        {
+            var nodes = (recipe?.Nodes ?? new List<RecipeNodeConfig>()).Where(n => n != null).ToList();
+            var byId = new Dictionary<string, RecipeNodeConfig>(StringComparer.OrdinalIgnoreCase);
+            foreach (var node in nodes.Where(n => !string.IsNullOrEmpty(n.Id)))
+            {
+                if (!byId.ContainsKey(node.Id))
+                {
+                    byId[node.Id] = node;
+                }
+            }
+            var inDegree = byId.Keys.ToDictionary(id => id, _ => 0, StringComparer.OrdinalIgnoreCase);
+            var targets = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var transition in recipe?.Flow?.Transitions ?? new List<RecipeTransition>())
+            {
+                if (transition == null || transition.From == null || transition.To == null || !byId.ContainsKey(transition.From) || !byId.ContainsKey(transition.To))
+                {
+                    continue;
+                }
+                if (!targets.TryGetValue(transition.From, out var list))
+                {
+                    list = new List<string>();
+                    targets[transition.From] = list;
+                }
+                if (!list.Contains(transition.To, StringComparer.OrdinalIgnoreCase))
+                {
+                    list.Add(transition.To);
+                    inDegree[transition.To]++;
+                }
+            }
+            var starts = new HashSet<string>(recipe?.Flow?.GetEffectiveStartNodes() ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            var position = nodes.Select((n, i) => (n, i)).Where(x => x.n.Id != null).GroupBy(x => x.n.Id, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().i, StringComparer.OrdinalIgnoreCase);
+
+            var ordered = new List<RecipeNodeConfig>();
+            var done = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Ready: every node before it is listed. Start nodes and nodes reached by a transition before the others, then by the file
+            var ready = byId.Keys.Where(id => inDegree[id] == 0 && starts.Contains(id)).ToList();
+            var orphans = byId.Keys.Where(id => inDegree[id] == 0 && !starts.Contains(id)).ToList();
+            while (ready.Count > 0 || orphans.Count > 0)
+            {
+                var pool = ready.Count > 0 ? ready : orphans;
+                var next = pool.OrderBy(id => position[id]).First();
+                pool.Remove(next);
+                done.Add(next);
+                ordered.Add(byId[next]);
+                foreach (var target in targets.TryGetValue(next, out var list) ? list : new List<string>())
+                {
+                    if (--inDegree[target] == 0)
+                    {
+                        ready.Add(target);
+                    }
+                }
+            }
+            // A cycle, and nodes without an id: in the order of the file
+            ordered.AddRange(nodes.Where(n => n.Id == null || !done.Contains(n.Id) || !ReferenceEquals(byId[n.Id], n)));
+            return ordered;
         }
 
         /// <summary>
@@ -319,10 +392,9 @@ namespace Greenshot.Recipes
                     ? "Sends the result to the destinations from the settings"
                     : $"Sends the result to {string.Join(", ", designations.Select(GetDestinationName))}";
             }
-            if (Is(type, WellKnownStepTypes.Processors))
+            if (Is(type, WellKnownStepTypes.Ocr))
             {
-                var processors = GetStrings(node, "ProcessorIds");
-                return processors.Count == 0 ? "Runs the processors from the settings" : $"Runs {string.Join(", ", processors.Select(GetProcessorName))}";
+                return "Reads the text of the capture (OCR)";
             }
             if (Is(type, WellKnownStepTypes.Conditional))
             {
@@ -330,7 +402,12 @@ namespace Greenshot.Recipes
             }
             if (Is(type, WellKnownStepTypes.SetVariable))
             {
-                return $"Sets the variable {node.GetParameter("Variable", "?")}";
+                var names = node.GetParameter<Dictionary<string, object>>("Variables")?.Keys.ToList() ?? new List<string>();
+                return names.Count == 1 ? $"Sets the variable {names[0]}" : $"Sets the variables {string.Join(", ", names)}";
+            }
+            if (Is(type, WellKnownStepTypes.SetMetadata))
+            {
+                return "Sets the details written into the saved image";
             }
             if (Is(type, WellKnownStepTypes.Clipboard))
             {
@@ -369,6 +446,15 @@ namespace Greenshot.Recipes
             {
                 return "Lets you choose where the result goes";
             }
+            if (Is(type, WellKnownStepTypes.ShowInExplorer))
+            {
+                string path = node.GetParameter<string>("Path");
+                return string.IsNullOrWhiteSpace(path) ? "Shows the last capture in the Explorer" : $"Shows {path} in the Explorer";
+            }
+            if (Is(type, WellKnownStepTypes.OpenWindow))
+            {
+                return $"Opens {node.GetParameter<string>("Window")}";
+            }
 
             var contract = registry.GetContract(type);
             string name = string.IsNullOrWhiteSpace(contract?.DisplayName) ? type : contract.DisplayName;
@@ -386,7 +472,7 @@ namespace Greenshot.Recipes
                     what = node.HasParameter("PreSuppliedRegion") ? "Captures a given part of the screen" : "Captures a region you select";
                     break;
                 case "window":
-                    string title = node.GetParameter<string>("WindowTitle") ?? node.GetParameter<string>("WindowTitlePattern");
+                    string title = node.GetParameter<string>("WindowTitlePattern");
                     string process = node.GetParameter<string>("ProcessName");
                     what = node.HasParameter("WindowHandle") ? "Captures the window passed to the recipe"
                         : !string.IsNullOrWhiteSpace(title) ? $"Captures the window \"{title}\""
@@ -458,8 +544,6 @@ namespace Greenshot.Recipes
                     return text;
                 case bool flag:
                     return flag ? "yes" : "no";
-                case JValue jValue:
-                    return FormatValue(jValue.Value);
                 case IFormattable formattable:
                     return formattable.ToString(null, CultureInfo.InvariantCulture);
                 default:
@@ -507,25 +591,6 @@ namespace Greenshot.Recipes
                 Log.Debug($"Could not look up the destination '{designation}'.", ex);
             }
             return designation;
-        }
-
-        private static string GetProcessorName(string processorId)
-        {
-            try
-            {
-                var processor = SimpleServiceProvider.Current?.GetAllInstances<IProcessor>()
-                    .FirstOrDefault(p => string.Equals(p.Designation, processorId, StringComparison.OrdinalIgnoreCase) ||
-                                         string.Equals(p.GetType().Name, processorId, StringComparison.OrdinalIgnoreCase));
-                if (!string.IsNullOrWhiteSpace(processor?.Description))
-                {
-                    return processor.Description;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not look up the processor '{processorId}'.", ex);
-            }
-            return processorId.EndsWith("Processor", StringComparison.Ordinal) ? processorId.Substring(0, processorId.Length - "Processor".Length) : processorId;
         }
 
         private static bool Is(string value, string expected) => string.Equals(value, expected, StringComparison.OrdinalIgnoreCase);

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -31,12 +32,15 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Recipes.Expressions;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Serialization;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
@@ -74,8 +78,10 @@ namespace Greenshot.Ipc
             "SETTINGS",
             "ABOUT",
             "SELF_SERVICE",
+            "LOG_VIEWER",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER"
+            "RECIPE_MANAGER",
+            "INSTALL_RECIPE"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -269,8 +275,12 @@ namespace Greenshot.Ipc
                 "SETTINGS",
                 "ABOUT",
                 "SELF_SERVICE",
+                // Only shows the log, filtered on a search text: the log level is changed only in the log viewer itself
+                "LOG_VIEWER",
                 "RECIPE_EDITOR",
-                "RECIPE_MANAGER"
+                "RECIPE_MANAGER",
+                // Only from the signed recipe catalog, and only what the user approves in the window
+                "INSTALL_RECIPE"
             },
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -433,12 +443,20 @@ namespace Greenshot.Ipc
                     await HandleSelfServiceAsync(context, shell).ConfigureAwait(false);
                     break;
 
+                case "LOG_VIEWER":
+                    await HandleLogViewerAsync(context, shell).ConfigureAwait(false);
+                    break;
+
                 case "RECIPE_EDITOR":
                     await HandleRecipeEditorAsync(context, shell).ConfigureAwait(false);
                     break;
 
                 case "RECIPE_MANAGER":
                     await HandleRecipeManagerAsync(context, shell).ConfigureAwait(false);
+                    break;
+
+                case "INSTALL_RECIPE":
+                    await HandleInstallRecipeAsync(context).ConfigureAwait(false);
                     break;
 
                 case "EXIT":
@@ -558,7 +576,7 @@ namespace Greenshot.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -595,7 +613,7 @@ namespace Greenshot.Ipc
                 exit_code = 0,
                 recipes = list,
                 // Console output for greenshot-cli.exe; JSON clients use "recipes"
-                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(Newtonsoft.Json.Linq.JToken.FromObject(list)) : null
+                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(JsonSerializer.SerializeToNode(list, GreenshotJson.Options)) : null
             }).ConfigureAwait(false);
         }
 
@@ -729,7 +747,7 @@ namespace Greenshot.Ipc
                 exit_code = 0,
                 recipe = recipeInfo,
                 // Console output for greenshot-cli.exe; JSON clients use "recipe"
-                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(Newtonsoft.Json.Linq.JToken.FromObject(recipeInfo)) : null
+                stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(JsonSerializer.SerializeToNode(recipeInfo, GreenshotJson.Options)) : null
             }).ConfigureAwait(false);
         }
 
@@ -776,7 +794,7 @@ namespace Greenshot.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsWanted(recipe) && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||
@@ -994,7 +1012,7 @@ namespace Greenshot.Ipc
                 if (queryExpr != null)
                 {
                     // Priority 1: --query replaces the recipe's own output
-                    stdoutText = ExpressionEvaluator.Instance.Evaluate(queryExpr, flowContext)?.ToString();
+                    stdoutText = RecipeExpressions.Evaluate(queryExpr, flowContext, TemplatePurpose.Text)?.ToString();
                 }
                 else if (hasStreamedStdout)
                 {
@@ -1009,7 +1027,7 @@ namespace Greenshot.Ipc
                 else if (!string.IsNullOrWhiteSpace(stdoutExpr))
                 {
                     // Priority 4: Explicit stdout template defined on the trigger
-                    stdoutText = ExpressionEvaluator.Instance.Evaluate(stdoutExpr, flowContext)?.ToString();
+                    stdoutText = RecipeExpressions.Evaluate(stdoutExpr, flowContext, TemplatePurpose.Text)?.ToString();
                 }
                 else
                 {
@@ -1063,33 +1081,9 @@ namespace Greenshot.Ipc
         private static async Task<string> GetFallbackOutputAsync(CaptureFlowContext flowCtx, CaptureRecipe matchedRecipe)
         {
             string outputText = null;
-            if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
-            {
-                outputText = crObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OutputText", out var otObj) && otObj != null)
-            {
-                outputText = otObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
+            if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
             {
                 outputText = lsObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Text", out var tObj) && tObj != null)
-            {
-                outputText = tObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("OcrText", out var ocrObj) && ocrObj != null)
-            {
-                outputText = ocrObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Barcode.Text", out var bObj) && bObj != null)
-            {
-                outputText = bObj.ToString();
-            }
-            else if (flowCtx.Properties.TryGetValue("Zxing.DecodedText", out var zObj) && zObj != null)
-            {
-                outputText = zObj.ToString();
             }
             else if (!string.IsNullOrWhiteSpace(flowCtx.Payload?.ExtractedText))
             {
@@ -1218,8 +1212,6 @@ namespace Greenshot.Ipc
                 case Enum enumValue:
                     safeValue = enumValue.ToString();
                     return true;
-                case Newtonsoft.Json.Linq.JValue jValue:
-                    return TryGetJsonSafeValue(jValue.Value, out safeValue);
                 case IEnumerable<string> strings:
                     safeValue = strings.ToList();
                     return true;
@@ -1465,6 +1457,31 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// The longest search text a greenshot://log?search= link can pass, longer texts are cut
+        /// </summary>
+        internal const int MaxLogSearchLength = 200;
+
+        private static async Task HandleLogViewerAsync(IpcRequestContext context, IGreenshotShell shell)
+        {
+            string search = null;
+            context.Envelope.Parsed?.Parameters?.TryGetValue("search", out search);
+            if (string.IsNullOrEmpty(search) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("search", out search);
+            if (search?.Length > MaxLogSearchLength)
+            {
+                search = search.Substring(0, MaxLogSearchLength);
+            }
+
+            RunOnUi(shell, new Action(() => LogViewerWindow.ShowForLink(search)));
+
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                stdout = "Log viewer displayed."
+            }).ConfigureAwait(false);
+        }
+
         private static async Task HandleRecipeEditorAsync(IpcRequestContext context, IGreenshotShell shell)
         {
             string recipe = null;
@@ -1498,6 +1515,24 @@ namespace Greenshot.Ipc
                 status = "ok",
                 exit_code = 0,
                 stdout = "Recipe Manager displayed."
+            }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// INSTALL_RECIPE (greenshot:install-recipe?id=...): the recipe with this id from the recipe catalog, in the approval window.
+        /// The reply doesn't wait for the user.
+        /// </summary>
+        private static async Task HandleInstallRecipeAsync(IpcRequestContext context)
+        {
+            string recipeId = null;
+            context.Envelope.Parsed?.Parameters?.TryGetValue("id", out recipeId);
+            recipeId = recipeId?.Trim();
+            RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                stdout = $"Installing the recipe '{recipeId}' from the recipe catalog."
             }).ConfigureAwait(false);
         }
 
@@ -1560,6 +1595,11 @@ namespace Greenshot.Ipc
                     return "SELF_SERVICE";
                 }
 
+                if (string.Equals(pathAndAction, "log", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "LOG_VIEWER";
+                }
+
                 if (string.Equals(pathAndAction, "recipe-editor", StringComparison.OrdinalIgnoreCase))
                 {
                     return "RECIPE_EDITOR";
@@ -1570,7 +1610,15 @@ namespace Greenshot.Ipc
                     return "RECIPE_MANAGER";
                 }
 
-                return pathAndAction.ToUpperInvariant();
+                if (string.Equals(pathAndAction, "install-recipe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "INSTALL_RECIPE";
+                }
+
+                // Other paths are checked against the whitelist of the source, e.g. greenshot://exit is refused there.
+                // The commands which carry a link are never its target: greenshot://cli or greenshot://url_scheme lead nowhere.
+                string command = pathAndAction.ToUpperInvariant();
+                return command is "CLI" or "URL_SCHEME" ? null : command;
             }
             catch (Exception ex)
             {

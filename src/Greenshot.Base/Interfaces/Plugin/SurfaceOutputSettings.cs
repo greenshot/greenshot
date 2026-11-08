@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -39,6 +39,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             Format = CoreConfig.OutputFileFormat;
             JPGQuality = CoreConfig.OutputFileJpegQuality;
             ReduceColors = CoreConfig.OutputFileReduceColors;
+            PngCompressionLevel = CoreConfig.OutputFilePngCompressionLevel;
         }
 
         public SurfaceOutputSettings(string format) : this()
@@ -81,7 +82,18 @@ namespace Greenshot.Base.Interfaces.Plugin
 
         public int JPGQuality { get; set; }
 
+        /// <summary>
+        /// True to write the private details of ExportMetadata (window title, web address, text, barcodes) into the image:
+        /// set for files saved on this computer, and for a destination when the user chose to keep them
+        /// </summary>
+        public bool IncludePrivateMetadata { get; set; }
+
         public bool SaveBackgroundOnly { get; set; }
+
+        /// <summary>
+        /// zlib compression level (1-9) for PNG
+        /// </summary>
+        public int PngCompressionLevel { get; set; }
 
         public List<IEffect> Effects { get; } = new List<IEffect>();
 

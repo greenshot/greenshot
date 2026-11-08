@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -61,7 +61,12 @@ namespace Greenshot.Base.Wpf
         {
             if (value is Dapplo.Ini.Interfaces.IIniSection section && parameter is string propertyName)
             {
-                return !section.IsConstant(propertyName);
+                // "A,B": disabled when one of them is fixed, e.g. a template and the 1.3 pattern it is converted from
+                foreach (string name in propertyName.Split(','))
+                {
+                    if (section.IsConstant(name.Trim())) return false;
+                }
+                return true;
             }
 
             if (value is bool isFixed)
@@ -133,7 +138,10 @@ namespace Greenshot.Base.Wpf
 
             if (section != null && !string.IsNullOrEmpty(propertyName))
             {
-                return !section.IsConstant(propertyName);
+                foreach (string name in propertyName.Split(','))
+                {
+                    if (section.IsConstant(name.Trim())) return false;
+                }
             }
 
             return true;

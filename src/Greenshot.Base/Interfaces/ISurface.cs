@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -28,6 +29,8 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
+using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Interfaces
@@ -40,6 +43,11 @@ namespace Greenshot.Base.Interfaces
         event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
+
+        /// <summary>
+        /// The tool which is picked, e.g. Emoji: the next drag on the canvas draws that element
+        /// </summary>
+        DrawingModes DrawingMode { get; }
         event SurfaceElementEventHandler MovingElementChanged;
         event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
@@ -71,6 +79,38 @@ namespace Greenshot.Base.Interfaces
         Image Image { get; set; }
 
         /// <summary>
+        /// The HDR image of the surface's image, null without one; owned by the surface. The HDR image of the capture (taken over from
+        /// ICapture.HdrImage) with the changes of the image which can be done on it too (crop, rotation, resize, most effects, see ImageEdits):
+        /// those are done only now, when it is asked for (e.g. an HDR file is written), and once. After a change which can't be done on it
+        /// (e.g. monochrome) it is the capture's, which no longer belongs to the image (HdrImage.BelongsTo). On the UI thread.
+        /// </summary>
+        HdrImage HdrImage { get; }
+
+        /// <summary>
+        /// The HDR content of the image without making its HDR image (see HdrImage): e.g. for the HDR badge, or whether an HDR file can be written.
+        /// Available is decided by the capture's HDR content; whether a crop left a highlight is only known when the HDR image is made.
+        /// </summary>
+        HdrState HdrState { get; }
+
+        /// <summary>
+        /// Makes the HDR image (see HdrImage) with the edits of the editor on the thread which calls it, e.g. on the thread pool before an
+        /// HDR file is written: the UI thread only gets it then. Taken on the UI thread; null when there is nothing to make.
+        /// </summary>
+        Action HdrImagePreparation { get; }
+
+        /// <summary>
+        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file, see HdrImage.IsRequested): Save as suggests JPEG XR
+        /// when the HDR file can be written (HdrState Available). Without HDR content there is no HDR image, also when HDR was asked for.
+        /// </summary>
+        bool IsHdrRequested { get; }
+
+        /// <summary>
+        /// What the elements (the mouse cursor included) do to the capture, as ImageSharp steps in their order, e.g. to draw them on the HDR image
+        /// of an HDR file (HdrImage.Compose); empty without elements. On the UI thread: the steps take all they need from the elements now.
+        /// </summary>
+        IReadOnlyList<ImageSharpStep> CreateImageSharpSteps();
+
+        /// <summary>
         /// Get the current Image from the Editor for Exporting (save/upload etc)
         /// Don't forget to call image.Dispose() when finished!!!
         /// </summary>
@@ -96,6 +136,13 @@ namespace Greenshot.Base.Interfaces
             Color fillColor);
 
         IImageContainer AddImageContainer(Image image, int x, int y);
+
+        /// <summary>
+        /// Adds the image as image container at the next place: 20 px after the last image container,
+        /// kept at least 30% on the surface in width and height, else at 10/10 on the surface.
+        /// </summary>
+        IImageContainer AddNextImageContainer(Image image);
+
         ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y);
         IIconContainer AddIconContainer(Icon icon, int x, int y);
         IImageContainer AddImageContainer(string filename, int x, int y);
@@ -160,6 +207,13 @@ namespace Greenshot.Base.Interfaces
         void SelectElements(IDrawableContainerList elements);
 
         /// <summary>
+        /// Add elements, e.g. from a plugin: in the middle of the visible part of the canvas, made smaller when they don't fit there,
+        /// as one undo step, and select them instead of the selection before
+        /// </summary>
+        /// <param name="elements">the elements, created with this surface as parent</param>
+        void InsertElements(IEnumerable<IDrawableContainer> elements);
+
+        /// <summary>
         /// Add an element to the surface
         /// </summary>
         /// <param name="element">IDrawableContainer</param>
@@ -208,6 +262,12 @@ namespace Greenshot.Base.Interfaces
         void ResizeCanvas(int left, int right, int top, int bottom);
         void ResizeCanvas(Expansion expansion);
         System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Apply the effect on the calling thread without undo, e.g. the Effect step of a recipe: the elements move with the image, the HDR image
+        /// gets the same edit (ImageEdits), like with ApplyBitmapEffectAsync. False when the effect changed nothing.
+        /// </summary>
+        bool ApplyEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }
 

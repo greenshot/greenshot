@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,6 +28,7 @@ using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using log4net;
 
@@ -49,6 +50,21 @@ namespace Greenshot.Base.Recipes
         private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
             new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
 
+        // The properties of the drawable types registered with them (with the common ones)
+        private readonly ConcurrentDictionary<string, IReadOnlyList<ParameterContract>> _properties =
+            new ConcurrentDictionary<string, IReadOnlyList<ParameterContract>>(StringComparer.OrdinalIgnoreCase);
+
+        // The provider which registered a drawable type, drawable types registered without a provider are not in here
+        private readonly ConcurrentDictionary<string, IRecipeDrawableProvider> _providers =
+            new ConcurrentDictionary<string, IRecipeDrawableProvider>(StringComparer.OrdinalIgnoreCase);
+
+        // The providers which registered their drawable types: the discovery only registers new ones
+        private readonly ConcurrentDictionary<IRecipeDrawableProvider, bool> _registeredProviders = new ConcurrentDictionary<IRecipeDrawableProvider, bool>();
+
+        // The provider which is registering its drawable types on this thread
+        [ThreadStatic]
+        private static IRecipeDrawableProvider _registeringProvider;
+
         // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
         // and a second instance would silently lose what was registered in the first one.
         private static readonly Lazy<RecipeDrawableRegistry> LazyInstance = new Lazy<RecipeDrawableRegistry>(() => new RecipeDrawableRegistry(), LazyThreadSafetyMode.ExecutionAndPublication);
@@ -61,12 +77,37 @@ namespace Greenshot.Base.Recipes
 
         public void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions)
         {
+            RegisterDrawableFactory(drawableType, factory, scaleOptions, null);
+        }
+
+        public void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory, ScaleOptions scaleOptions, IEnumerable<ParameterContract> properties)
+        {
             if (string.IsNullOrEmpty(drawableType)) throw new ArgumentNullException(nameof(drawableType));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
             _factories[drawableType] = factory;
             _scaleOptions[drawableType] = scaleOptions;
+            if (properties != null)
+            {
+                _properties[drawableType] = AnnotationProperties.WithCommon(properties);
+            }
+            else
+            {
+                _properties.TryRemove(drawableType, out _);
+            }
+            RememberProvider(drawableType);
             Log.DebugFormat("Registered recipe drawable factory for '{0}' (ScaleOptions={1})", drawableType, scaleOptions);
+        }
+
+        public IReadOnlyList<ParameterContract> GetProperties(string drawableType)
+        {
+            if (string.IsNullOrEmpty(drawableType)) return null;
+            // The built-in types are known before Greenshot registers their factories
+            var builtIn = AnnotationProperties.ForBuiltIn(drawableType);
+            if (builtIn != null) return builtIn;
+            if (_properties.TryGetValue(drawableType, out var properties)) return properties;
+            DiscoverProviders();
+            return _properties.TryGetValue(drawableType, out properties) ? properties : null;
         }
 
         public ScaleOptions GetScaleOptions(string drawableType)
@@ -115,6 +156,7 @@ namespace Greenshot.Base.Recipes
             if (configurator == null) throw new ArgumentNullException(nameof(configurator));
 
             _configurators[drawableType] = configurator;
+            RememberProvider(drawableType);
             Log.DebugFormat("Registered recipe drawable configurator for '{0}'", drawableType);
         }
 
@@ -153,7 +195,14 @@ namespace Greenshot.Base.Recipes
                 Log.DebugFormat("Recipe feature/editor is not enabled; skipping drawable registration for provider '{0}'", provider.GetType().Name);
                 return;
             }
+            if (!_registeredProviders.TryAdd(provider, true))
+            {
+                // Already registered: a lookup of an unknown drawable type doesn't run every provider again
+                return;
+            }
 
+            var previousProvider = _registeringProvider;
+            _registeringProvider = provider;
             try
             {
                 provider.RegisterDrawables(this);
@@ -161,6 +210,39 @@ namespace Greenshot.Base.Recipes
             catch (Exception ex)
             {
                 Log.Error($"Error registering recipe drawables from provider {provider.GetType().Name}", ex);
+            }
+            finally
+            {
+                _registeringProvider = previousProvider;
+            }
+        }
+
+        private void RememberProvider(string drawableType)
+        {
+            if (_registeringProvider == null)
+            {
+                _providers.TryRemove(drawableType, out _);
+                return;
+            }
+            _providers[drawableType] = _registeringProvider;
+        }
+
+        /// <summary>
+        /// Removes the drawable types registered by the provider, recipes using them then show and handle them as unknown.
+        /// The provider has to be removed from the services first, otherwise the discovery registers it again.
+        /// </summary>
+        public void UnregisterProvider(IRecipeDrawableProvider provider)
+        {
+            if (provider == null) return;
+            _registeredProviders.TryRemove(provider, out _);
+            foreach (var drawableType in _providers.Where(entry => ReferenceEquals(entry.Value, provider)).Select(entry => entry.Key).ToList())
+            {
+                _providers.TryRemove(drawableType, out _);
+                _factories.TryRemove(drawableType, out _);
+                _scaleOptions.TryRemove(drawableType, out _);
+                _properties.TryRemove(drawableType, out _);
+                _configurators.TryRemove(drawableType, out _);
+                Log.DebugFormat("Removed recipe drawable type '{0}'", drawableType);
             }
         }
 

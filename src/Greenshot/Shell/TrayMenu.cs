@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -156,49 +156,8 @@ namespace Greenshot.Shell
             var conf = CoreConfig;
             var menu = ThemedMenu.CreateContextMenu(followTaskbar: true);
 
-            // Captures
-            var captureArea = AddItem(menu, Texts.Core.ContextmenuCapturearea, "contextmenu_capturearea.Image", () => CaptureHelper.CaptureRegion(false));
-            captureArea.InputGestureText = HotkeyText(conf.RegionHotkey);
-
-            var lastRegion = AddItem(menu, Texts.Core.ContextmenuCapturelastregion, "contextmenu_capturelastregion.Image", () => CaptureHelper.CaptureLastRegion(false));
-            lastRegion.InputGestureText = HotkeyText(conf.LastregionHotkey);
-            lastRegion.IsEnabled = conf.LastCapturedRegion != NativeRect.Empty;
-
-            var captureWindow = AddItem(menu, Texts.Core.ContextmenuCapturewindow, "contextmenu_capturewindow.Image", () => CaptureHelper.CaptureWindowInteractive(false));
-            captureWindow.InputGestureText = HotkeyText(conf.WindowHotkey);
-
-            menu.Items.Add(CreateFullscreenItem(conf));
-            menu.Items.Add(ThemedMenu.CreateSeparator());
-
-            menu.Items.Add(CreateWindowListItem(conf));
-            menu.Items.Add(ThemedMenu.CreateSeparator());
-
-            var recipesItem = CreateRecipesItem();
-            if (recipesItem != null)
-            {
-                menu.Items.Add(recipesItem);
-            }
-
-            // Other sources
-            var clipboardItem = AddItem(menu, Texts.Core.ContextmenuCaptureclipboard, "contextmenu_captureclipboard.Image", () => CaptureHelper.CaptureClipboard());
-            string clipboardHotkey = HotkeyText(conf.ClipboardHotkey);
-            if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
-            {
-                clipboardItem.InputGestureText = clipboardHotkey;
-            }
-            // The quick check only looks at the formats; when a file list, virtual files or HTML could contain an image, the item is enabled when the background check finds one
-            bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
-            clipboardItem.IsEnabled = clipboardImage == true;
-            if (clipboardImage == null)
-            {
-                EnableWhenClipboardHasImageAsync(clipboardItem).FireAndLog("Check the clipboard for an image", Log);
-            }
-
-            AddItem(menu, Texts.Core.ContextmenuOpenfile, "contextmenu_openfile.Image", () => TrayActions.CaptureFile());
-            menu.Items.Add(ThemedMenu.CreateSeparator());
-
-            AddItem(menu, Texts.Core.ContextmenuOpenrecentcapture, null, TrayActions.OpenLastCaptureLocation);
-            menu.Items.Add(ThemedMenu.CreateSeparator());
+            // The captures, the Recipes menu and the other items of recipes
+            AddRecipeItems(menu, conf);
 
             // The entries of the plugins, with their own separator
             var pluginEntries = PluginUtils.GetVisibleContextMenuEntries();
@@ -282,59 +241,146 @@ namespace Greenshot.Shell
         }
 
         /// <summary>
-        /// "Capture full screen": with more than one display a sub menu with "all" and each display
+        /// The order of the Recipes menu between the items of the recipes, see <see cref="TriggerConfig.CreateMainMenu"/>
         /// </summary>
-        private static MenuItem CreateFullscreenItem(ICoreConfiguration conf)
+        internal const int RecipesMenuOrder = 200;
+
+        /// <summary>
+        /// The items of the recipes whose ContextMenu trigger is in the group "Main" (the captures of the built-in recipes,
+        /// "Open last capture location", ...) with the Recipes menu, by their order: a separator between items whose order is
+        /// in another hundred, and after the last one
+        /// </summary>
+        private void AddRecipeItems(ContextMenu menu, ICoreConfiguration conf)
         {
-            var displays = DisplayInfo.AllDisplayInfos;
-            if (displays.Length <= 1)
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
+
+            var entries = triggerManager.GetContextMenuTriggers()
+                .Where(trigger => trigger.IsInMainMenu)
+                .Select(trigger => (Trigger: trigger, Recipe: recipeManager.GetRecipeById(trigger.TargetRecipeId)))
+                .Where(entry => entry.Recipe != null && entry.Recipe.IsEnabled && entry.Recipe.ShowInContextMenu)
+                .Select(entry => (entry.Trigger.Order, Text: entry.Trigger.MenuItemText ?? entry.Recipe.DisplayName,
+                    Create: (Func<MenuItem>)(() => CreateRecipeItem(entry.Trigger, entry.Recipe, triggerManager, conf))))
+                .ToList();
+
+            var recipesItem = CreateRecipesItem(triggerManager, recipeManager);
+            if (recipesItem != null)
             {
-                var single = ThemedMenu.CreateItem(Texts.Core.ContextmenuCapturefullscreen, GetIcon("contextmenu_capturefullscreen.Image"),
-                    () => RunLater(() => CaptureHelper.CaptureFullscreen(false, conf.ScreenCaptureMode)));
-                single.InputGestureText = HotkeyText(conf.FullscreenHotkey);
-                return single;
+                entries.Add((RecipesMenuOrder, Texts.Core.ContextmenuRecipes, () => recipesItem));
             }
 
-            var fullscreen = ThemedMenu.CreateItem(Texts.Core.ContextmenuCapturefullscreen, GetIcon("contextmenu_capturefullscreen.Image"));
-            fullscreen.InputGestureText = HotkeyText(conf.FullscreenHotkey);
-            AddItem(fullscreen, Texts.Core.ContextmenuCapturefullscreenAll, null, () => CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen));
+            int? lastBlock = null;
+            foreach (var entry in entries.OrderBy(e => e.Order).ThenBy(e => e.Text, StringComparer.CurrentCultureIgnoreCase))
+            {
+                int block = (int)Math.Floor(entry.Order / 100.0);
+                if (lastBlock != null && block != lastBlock)
+                {
+                    menu.Items.Add(ThemedMenu.CreateSeparator());
+                }
+
+                menu.Items.Add(entry.Create());
+                lastBlock = block;
+            }
+
+            if (lastBlock != null)
+            {
+                menu.Items.Add(ThemedMenu.CreateSeparator());
+            }
+        }
+
+        /// <summary>
+        /// The item of a recipe in the tray menu: with its icon and hotkey, a sub menu for the displays or windows, and
+        /// disabled when its source has nothing to capture (no last region, no image on the clipboard)
+        /// </summary>
+        private MenuItem CreateRecipeItem(ContextMenuTrigger trigger, CaptureRecipe recipe, TriggerManager triggerManager, ICoreConfiguration conf)
+        {
+            string text = trigger.MenuItemText ?? recipe.DisplayName;
+            var icon = string.IsNullOrWhiteSpace(trigger.Icon) ? null : GetIcon(trigger.Icon.Trim());
+
+            MenuItem item;
+            if (string.Equals(trigger.Expand, TriggerConfig.ExpandWindows, StringComparison.OrdinalIgnoreCase))
+            {
+                // The hotkey of the recipe captures the active window, not one of the list
+                item = CreateWindowListItem(text, icon, trigger, conf);
+                return item;
+            }
+
+            item = string.Equals(trigger.Expand, TriggerConfig.ExpandDisplays, StringComparison.OrdinalIgnoreCase) && DisplayInfo.AllDisplayInfos.Length > 1
+                ? CreateDisplaysItem(text, icon, trigger)
+                : ThemedMenu.CreateItem(text, icon, () => RunLater(() => trigger.Fire()));
+
+            var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
+            if (!string.IsNullOrWhiteSpace(hotkeyTrigger?.HotkeyString))
+            {
+                item.InputGestureText = HotkeyText(hotkeyTrigger.HotkeyString);
+            }
+
+            switch (recipe.FindFirstNodeByType(WellKnownStepTypes.Source)?.GetParameter("SourceType", CaptureSourceType.Region))
+            {
+                case CaptureSourceType.LastRegion:
+                    item.IsEnabled = conf.LastCapturedRegion != NativeRect.Empty;
+                    break;
+                case CaptureSourceType.Clipboard:
+                    // The quick check only looks at the formats; when a file list, virtual files or HTML could contain an image,
+                    // the item is enabled when the background check finds one
+                    bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
+                    item.IsEnabled = clipboardImage == true;
+                    if (clipboardImage == null)
+                    {
+                        EnableWhenClipboardHasImageAsync(item).FireAndLog("Check the clipboard for an image", Log);
+                    }
+                    break;
+            }
+
+            return item;
+        }
+
+        /// <summary>
+        /// A sub menu with "All" and each display: "All" captures all displays, a display is passed as PreSuppliedRegion
+        /// </summary>
+        private static MenuItem CreateDisplaysItem(string text, ImageSource icon, ContextMenuTrigger trigger)
+        {
+            var fullscreen = ThemedMenu.CreateItem(text, icon);
+            AddItem(fullscreen, Texts.Core.ContextmenuCapturefullscreenAll, null,
+                () => trigger.Fire(new Dictionary<string, object> { ["ScreenCaptureMode"] = ScreenCaptureMode.FullScreen }));
 
             var allScreensBounds = DisplayInfo.ScreenBounds;
-            foreach (var displayInfo in displays)
+            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
             {
-                var displayToCapture = displayInfo;
-                string deviceAlignment = displayToCapture.DeviceName;
+                var bounds = displayInfo.Bounds;
+                string deviceAlignment = displayInfo.DeviceName;
 
-                if (displayInfo.Bounds.Top == allScreensBounds.Top && displayInfo.Bounds.Bottom != allScreensBounds.Bottom)
+                if (bounds.Top == allScreensBounds.Top && bounds.Bottom != allScreensBounds.Bottom)
                 {
                     deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenTop;
                 }
-                else if (displayInfo.Bounds.Top != allScreensBounds.Top && displayInfo.Bounds.Bottom == allScreensBounds.Bottom)
+                else if (bounds.Top != allScreensBounds.Top && bounds.Bottom == allScreensBounds.Bottom)
                 {
                     deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenBottom;
                 }
 
-                if (displayInfo.Bounds.Left == allScreensBounds.Left && displayInfo.Bounds.Right != allScreensBounds.Right)
+                if (bounds.Left == allScreensBounds.Left && bounds.Right != allScreensBounds.Right)
                 {
                     deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenLeft;
                 }
-                else if (displayInfo.Bounds.Left != allScreensBounds.Left && displayInfo.Bounds.Right == allScreensBounds.Right)
+                else if (bounds.Left != allScreensBounds.Left && bounds.Right == allScreensBounds.Right)
                 {
                     deviceAlignment += " " + Texts.Core.ContextmenuCapturefullscreenRight;
                 }
 
-                AddItem(fullscreen, deviceAlignment, null, () => CaptureHelper.CaptureRegion(false, displayToCapture.Bounds));
+                AddItem(fullscreen, deviceAlignment, null, () => trigger.Fire(new Dictionary<string, object> { ["PreSuppliedRegion"] = bounds }));
             }
 
             return fullscreen;
         }
 
         /// <summary>
-        /// "Capture window from list": the windows are listed when the sub menu opens, with a live thumbnail when hovering one
+        /// A sub menu with the windows, listed when it opens, with a live thumbnail when hovering one; the chosen window is
+        /// passed as TargetWindow
         /// </summary>
-        private MenuItem CreateWindowListItem(ICoreConfiguration conf)
+        private MenuItem CreateWindowListItem(string text, ImageSource icon, ContextMenuTrigger trigger, ICoreConfiguration conf)
         {
-            var windowList = ThemedMenu.CreateItem(Texts.Core.ContextmenuCapturewindowfromlist);
+            var windowList = ThemedMenu.CreateItem(text, icon);
             // A placeholder, so the item is a sub menu; replaced by the windows when it opens
             windowList.Items.Add(ThemedMenu.CreateItem("…"));
             windowList.SubmenuOpened += (sender, args) =>
@@ -345,7 +391,7 @@ namespace Greenshot.Shell
                     return;
                 }
 
-                FillWindowList(windowList, conf);
+                FillWindowList(windowList, trigger, conf);
             };
             windowList.SubmenuClosed += (sender, args) =>
             {
@@ -357,7 +403,7 @@ namespace Greenshot.Shell
             return windowList;
         }
 
-        private void FillWindowList(MenuItem windowList, ICoreConfiguration conf)
+        private void FillWindowList(MenuItem windowList, ContextMenuTrigger trigger, ICoreConfiguration conf)
         {
             windowList.Items.Clear();
             // Only show the preview when enabled and DWM is there
@@ -387,7 +433,7 @@ namespace Greenshot.Shell
                 }
 
                 var windowToCapture = window;
-                var item = AddItem(windowList, title, null, () => CaptureHelper.CaptureWindow(windowToCapture));
+                var item = AddItem(windowList, title, null, () => trigger.Fire(new Dictionary<string, object> { ["TargetWindow"] = windowToCapture }));
                 if (icon != null)
                 {
                     item.Icon = ThemedMenu.CreateIcon(icon);
@@ -397,6 +443,9 @@ namespace Greenshot.Shell
                 {
                     item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
                     item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
+                    // Also for the item the arrow keys are on
+                    item.GotKeyboardFocus += (sender, args) => ShowThumbnail(item, windowToCapture);
+                    item.LostKeyboardFocus += (sender, args) => _thumbnailWindow?.Hide();
                 }
             }
         }
@@ -439,9 +488,9 @@ namespace Greenshot.Shell
         }
 
         /// <summary>
-        /// The recipes with a context menu trigger, and the recipe commands; null when the recipe feature is off
+        /// The recipes with a context menu trigger which isn't in the group "Main", and the recipe commands; null when the recipe feature is off
         /// </summary>
-        private static MenuItem CreateRecipesItem()
+        private static MenuItem CreateRecipesItem(TriggerManager triggerManager, IRecipeManager recipeManager)
         {
             if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
             {
@@ -450,20 +499,41 @@ namespace Greenshot.Shell
 
             var recipesItem = ThemedMenu.CreateItem(Texts.Core.ContextmenuRecipes ?? "Recipes");
 
-            var triggerManager = SimpleServiceProvider.Current.GetInstance<ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
-            var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
-
             int recipeItemCount = 0;
-            foreach (var trigger in triggerManager.GetContextMenuTriggers().OrderBy(t => t.Order))
-            {
-                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null || !recipe.ShowInContextMenu || !recipe.IsEnabled)
+            var menuGroups = new Dictionary<string, MenuItem>(StringComparer.OrdinalIgnoreCase);
+            var menuEntries = triggerManager.GetContextMenuTriggers()
+                .Where(trigger => !trigger.IsInMainMenu)
+                .Select(trigger => new
                 {
-                    continue;
-                }
+                    Trigger = trigger,
+                    Recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId),
+                    Group = string.IsNullOrWhiteSpace(trigger.Group) ? "Recipes" : trigger.Group.Trim()
+                })
+                .Where(entry => entry.Recipe != null && entry.Recipe.ShowInContextMenu && entry.Recipe.IsEnabled)
+                .OrderBy(entry => string.Equals(entry.Group, "Recipes", StringComparison.OrdinalIgnoreCase) ? 0 : 10)
+                .ThenBy(entry => entry.Group, StringComparer.CurrentCultureIgnoreCase)
+                .ThenBy(entry => entry.Trigger.Order)
+                .ThenBy(entry => entry.Recipe.DisplayName, StringComparer.CurrentCultureIgnoreCase);
+            foreach (var entry in menuEntries)
+            {
+                var trigger = entry.Trigger;
+                var recipe = entry.Recipe;
 
                 var menuTrigger = trigger;
-                var item = AddItem(recipesItem, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
+                string group = entry.Group;
+                ItemsControl parent = recipesItem;
+                if (!string.Equals(group, "Recipes", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!menuGroups.TryGetValue(group, out var groupItem))
+                    {
+                        groupItem = ThemedMenu.CreateItem(group);
+                        menuGroups.Add(group, groupItem);
+                        recipesItem.Items.Add(groupItem);
+                    }
+                    parent = groupItem;
+                }
+
+                var item = AddItem(parent, trigger.MenuItemText ?? recipe.Name, null, () => menuTrigger.Fire());
                 var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
                 if (hotkeyTrigger != null && !string.IsNullOrWhiteSpace(hotkeyTrigger.HotkeyString))
                 {
@@ -649,7 +719,7 @@ namespace Greenshot.Shell
 
             foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
             {
-                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{RecipeText.Translate(recipe.Name ?? recipe.Id)}: {option.DisplayLabel}" : option.DisplayLabel;
+                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{recipe.DisplayName}: {option.DisplayLabel}" : option.DisplayLabel;
                 var value = RecipeOptionStore.GetValue(recipe, option);
                 if (option.Type == ContractDataType.Boolean)
                 {

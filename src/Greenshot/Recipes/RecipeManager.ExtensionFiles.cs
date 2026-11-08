@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,10 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Recipes;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Views;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Recipes
 {
@@ -49,7 +49,7 @@ namespace Greenshot.Recipes
         {
             try
             {
-                return JToken.Parse(content) is JObject definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
+                return RecipeSerializer.Parse(content) is { ValueKind: JsonValueKind.Object } definition && RecipeSerializer.ReadKind(definition) == FlowDefinition.KindExtension;
             }
             catch (Exception)
             {
@@ -150,7 +150,10 @@ namespace Greenshot.Recipes
             }
             Log.InfoFormat("Registered automatic step '{0}' from '{1}'", extension.Id, fullPath);
             AddRecipeFileToConfig(fullPath);
-            NotifyRecipesChanged();
+            if (!_loadingConfiguredFiles)
+            {
+                NotifyRecipesChanged();
+            }
             return result;
         }
 
@@ -211,7 +214,7 @@ namespace Greenshot.Recipes
             var lines = new List<string>();
             if (extension == null) return lines;
 
-            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.Name ?? r.Id).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.DisplayName).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
             lines.Add(recipes.Count == 0
                 ? "• Changes no recipe now (none has a slot it fits in)."
                 : $"• Changes these recipes now: {string.Join(", ", recipes)}.");
@@ -399,7 +402,6 @@ namespace Greenshot.Recipes
                 result.AddError($"Could not save the automatic step: {ex.Message}");
                 return result;
             }
-            SetupWatcherForFile(fullPath);
 
             extension.ProposedBy = null;
             extension.IsBuiltIn = false;

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,11 +25,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Serialization;
 using Greenshot.Base.Threading;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -126,7 +127,7 @@ namespace Greenshot.Base.Core.OAuth
                     using var body = request.InputStream;
                     using var reader = new StreamReader(body, request.ContentEncoding);
                     string json = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    returnValues = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                    returnValues = JsonSerializer.Deserialize<Dictionary<string, string>>(json, GreenshotJson.Options);
                 }
 
                 // Create the response.

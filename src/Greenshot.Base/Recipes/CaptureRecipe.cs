@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 
@@ -34,6 +35,7 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     public class CaptureRecipe : FlowDefinition
     {
+        [JsonPropertyOrder(-10)]
         public override string Kind => KindRecipe;
 
         /// <summary>
@@ -47,52 +49,56 @@ namespace Greenshot.Base.Recipes
         public bool ShowInContextMenu { get; set; } = true;
 
         /// <summary>
-        /// Indicates if this recipe has been overridden by an external configuration file.
+        /// Indicates if this recipe has been overridden by an external configuration file. Set by Greenshot, never read from a file.
         /// </summary>
+        [JsonIgnore]
         public bool IsOverridden { get; set; }
 
         /// <summary>
         /// Whether this recipe is currently activated / enabled.
         /// Disabled recipes do not register active triggers and cannot be triggered from menus or shortcuts.
+        /// Set by Greenshot from the user's settings, never read from a file.
         /// </summary>
+        [JsonIgnore]
         public bool IsEnabled { get; set; } = true;
 
         /// <summary>
-        /// The file path this recipe was loaded from, if loaded from external JSON.
+        /// The file path this recipe was loaded from, if loaded from external JSON. Never written to the file.
         /// </summary>
+        [JsonIgnore]
         public string FilePath { get; set; }
 
         /// <summary>
         /// The AI tool which wrote the recipe file, null when it wasn't written by an AI tool. Set by Greenshot from the approval,
         /// never read from the recipe file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string ProposedBy { get; set; }
 
         /// <summary>
         /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
         /// </summary>
-        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public FlowConcurrency? Concurrency { get; set; }
 
         /// <summary>
         /// Set by <see cref="RecipeComposer"/> on the recipe it composed: the extensions it put in (in the flow or for the
         /// destinations). ${option.extension.key} in their nodes reads their options. Never read from a file.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public IReadOnlyList<RecipeExtension> AppliedExtensions { get; set; } = Array.Empty<RecipeExtension>();
 
         /// <summary>
         /// Set by <see cref="RecipeComposer"/>: the chains of the extensions on the BeforeDestination slot, run by the export
         /// steps for each destination on its own copy of the capture.
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public IReadOnlyList<ExtensionChain> DestinationChains { get; set; } = Array.Empty<ExtensionChain>();
 
         /// <summary>
         /// True for a recipe made by <see cref="RecipeComposer"/>, which isn't composed again
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool IsComposed { get; set; }
 
         public CaptureRecipe()
@@ -116,6 +122,69 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
+        /// <summary>
+        /// The path of the menu text of a trigger in the translations, by the trigger's place in <see cref="Triggers"/>
+        /// </summary>
+        public static string TriggerMenuTextPath(int index) => $"triggers.{index}.menuItemText";
+
+        /// <summary>
+        /// The menu text of a ContextMenu or Editor trigger, in the language of Greenshot; null when the trigger has none
+        /// </summary>
+        public string GetTriggerMenuText(int index)
+        {
+            if (Triggers == null || index < 0 || index >= Triggers.Count) return null;
+            string text = Triggers[index]?.GetParameter<string>("MenuItemText");
+            return string.IsNullOrWhiteSpace(text) ? null : Translate(TriggerMenuTextPath(index), text);
+        }
+
+        public override IEnumerable<KeyValuePair<string, string>> GetTranslatableTexts()
+        {
+            foreach (var text in base.GetTranslatableTexts())
+            {
+                yield return text;
+            }
+            for (int i = 0; i < (Triggers?.Count ?? 0); i++)
+            {
+                var trigger = Triggers[i];
+                string menuText = trigger?.GetParameter<string>("MenuItemText");
+                if (!string.IsNullOrWhiteSpace(menuText) &&
+                    (string.Equals(trigger.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase)))
+                {
+                    yield return new KeyValuePair<string, string>(TriggerMenuTextPath(i), menuText);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Keeps the translations of the trigger menu texts with their triggers when the trigger at the index is removed
+        /// </summary>
+        public void RemoveTriggerTranslations(int index)
+        {
+            if (Translations == null) return;
+            foreach (var texts in Translations.Values.Where(t => t != null))
+            {
+                texts.Remove(TriggerMenuTextPath(index));
+                for (int i = index + 1; i <= (Triggers?.Count ?? 0) + 1; i++)
+                {
+                    if (texts.TryGetValue(TriggerMenuTextPath(i), out var text))
+                    {
+                        texts.Remove(TriggerMenuTextPath(i));
+                        texts[TriggerMenuTextPath(i - 1)] = text;
+                    }
+                }
+            }
+            // A language without texts is an error
+            foreach (var language in Translations.Where(t => t.Value == null || t.Value.Count == 0).Select(t => t.Key).ToList())
+            {
+                Translations.Remove(language);
+            }
+            if (Translations.Count == 0)
+            {
+                Translations = null;
+            }
+        }
+
         public CaptureRecipe AddTrigger(TriggerConfig trigger)
         {
             if (trigger != null)
@@ -129,7 +198,7 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// A recipe AI tools run (it has an AI tool trigger): extensions only change it when they name it
         /// </summary>
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public bool IsAiToolRecipe => Triggers?.Any(t => string.Equals(t?.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) ?? false;
 
         /// <summary>

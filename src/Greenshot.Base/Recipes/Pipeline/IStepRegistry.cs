@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization.Metadata;
 using Greenshot.Base.Recipes.Contracts;
 
 namespace Greenshot.Base.Recipes.Pipeline
@@ -38,6 +39,12 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// Registers a step type: the factory creating its steps and the contract describing them.
         /// </summary>
         void Register(StepContract contract, Func<RecipeNodeConfig, ICaptureStep> factory);
+
+        /// <summary>
+        /// Adds the JSON types (a source generated JsonSerializerContext) of parameters with a
+        /// <see cref="Contracts.StepParameterAttribute.ValueType"/>; call it before registering the steps using them.
+        /// </summary>
+        void RegisterJsonTypes(IJsonTypeInfoResolver resolver);
 
         /// <summary>
         /// True when the step type is registered.

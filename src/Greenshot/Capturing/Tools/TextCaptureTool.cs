@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -173,13 +173,12 @@ namespace Greenshot.Capturing.Tools
         private async Task RunOcrAsync(IOcrProvider ocrProvider)
         {
             var capture = Host.Capture;
+            var cropAreaWhenFound = capture.CaptureDetails.CropArea;
             var ocrLines = await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(true);
             if (ocrLines != null && ocrLines.Any())
             {
-                lock (capture.CaptureDetails.Features)
-                {
-                    capture.CaptureDetails.Features.AddRange(ocrLines);
-                }
+                // Cropped to the selection in the meantime: the lines are moved with it
+                capture.CaptureDetails.AddFeatures(ocrLines, cropAreaWhenFound);
 
                 if (capture.CaptureDetails is CaptureDetails concreteDetails)
                 {

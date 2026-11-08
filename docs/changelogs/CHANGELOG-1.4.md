@@ -29,20 +29,52 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 Editor Enhancements
 
+**Tabs in the editor**
+- An editor window can show several captures as tabs, like a browser
+- Drag a tab to change its place, into another editor window, or out of the window to open it in its own window
+- A new capture opens as a tab in the editor you used last, the settings can turn this or the tabs off
+- The "+" after the tabs adds a new image, its size and color are in the settings
+- Closing a window with several changed captures asks once: save all, discard all or cancel
+
+**Viewer** (#937, #1624)
+- A new destination shows the capture in a small window of its own, e.g. kept on top to compare it with the screen
+- Real size (1:1), zoom and pan with an overview, only the capture or a thin title bar, an optional border, keys for everything (H shows them)
+- Export from the viewer with the destination window of the recipes
+- Settings on the new Viewer tab
+- By @Lakritzator and @daxliniere
+
+**Ask for destination in a window**
+- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture and a search
+- The editor recipes can change the capture in that window before it goes to a destination, also when exporting from the viewer
+
 **Emoji Support** (#358)
 - Added a new "Emoji" object type to the editor
 - Insert emojis directly into your screenshots
+- A panel at the right of the editor shows the size and position of the selected element and the emoji picker, with a search for emojis
 - Contributed by @jairbubbles
+
+**Stamps** (Beta)
+- Collect small images (PNG, SVG and more) in categories, with names and tags, search them and insert them into the editor with Ctrl+Shift+K
+- Add stamps by dropping images from a web page
+- An SVG stamp stays sharp when it is resized
+- Copy or drag a stamp into other programs
 
 **Text Redaction with OCR** (Beta) (#947)
 - Automatically detect and redact text in screenshots using OCR technology
 - Useful for privacy protection and sensitive information removal
 - Beta feature by @Lakritzator
 
+**Stronger blur and pixelate**
+- A new blur or pixelate area over text gets a strength that fits that text, so large text is hidden as well as small text. When the text wasn't recognized yet, OCR runs once in the background
+- An OCR badge in the editor's status bar shows whether the text of the capture is recognized
+
 **Remove Transparency Feature** (#945)
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
+
+**Grayscale**
+- Grayscale keeps the brightness of colors
 
 #### ⚙️ Command Line Interface
 
@@ -66,21 +98,39 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture a fixed size** (#152, #1525)
+- Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
+- The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
+- The mouse holds the area at its top left corner, so the magnifier shows exactly where it starts; press C for another corner or the middle
+- The magnifier shows the edges of the area (and of a region you drag), so even a 16 × 16 area can be placed to the pixel
+- A list shows the sizes: pick one with 1 to 9 and 0 (also on the number pad), or go through them with Page Up and Page Down
+- Press S to type a width and height for the area
+- The sizes of your last region and window captures are in the list too, with where they were: picking one puts the area at the same place again, on the screen or in the window of the same program, wherever that window is now
+- Your own sizes can have a place too, on a screen or in the window of a program; the Capture tab sets what your captures remember and whether the mouse moves there, and keeps a recent capture as one of your own sizes
+- Add and remove your own sizes in the settings, on the Capture tab
+- A preview in a corner shows what will be captured, enlarged when it is small and reduced when it is large; this works for regions and windows too. Press P to move it next to the mouse in place of the magnifier, and again to turn it off
+
+**Capture without freezing the screen**
+- Turn off *Freeze the screen while selecting* on the Capture tab to select on the live screen: videos keep playing and HDR content keeps its brightness
+- The selection appears at once and only the selected area is captured, when you finish the selection
+- Press L while selecting to switch between the frozen and the live screen
+
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications
 - By @Lakritzator
 
-**Windows Graphics Capture API** (Beta)
-- Greenshot can now use the modern Windows Graphics Capture (WGC) API for full-screen and region captures
-- Produces higher-quality screenshots by capturing each monitor individually and stitching them together
-- More compatible with modern Windows applications compared to the legacy GDI-based capture method
-- Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
+**Windows Graphics Capture** (#542)
+- Screenshots use the modern Windows Graphics Capture, one monitor at a time, which works better with modern Windows applications
+- HDR screens are supported: bright parts of HDR games and videos keep their color and detail, like with the Xbox Game Bar
+- Screenshots without HDR content keep their colors exactly as on the screen, also on HDR screens
+- HDR captures: on an HDR display Greenshot can save the bright highlights as a JPEG XR file, also after editing. Switch it on in Settings > Capture.
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
 - Enhanced cursor capture logic to reflect real cursor size
 - More accurate cursor representation in screenshots
+- The captured cursor is only as big as the visible pointer, without the empty space around it
 - By @Lakritzator
 
 **Windows 11 Capture Behavior** (#771)
@@ -103,6 +153,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Confluence Plugin** (#869)
 - Replaced deprecated SOAP API with REST API
 - Modern API integration for Confluence
+- Works with Confluence Cloud and Data Center
 - By @Copilot
 
 **Dropbox Plugin** (#885)
@@ -112,6 +163,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **JIRA Plugin** (#871)
 - Various fixes to improve JIRA plugin functionality
+- The issues of a favourite filter show again on Jira Cloud (Atlassian removed the old search)
+- Jira and Confluence: a new sign-in, on Cloud with your e-mail address and an API token, on Data Center also with a personal access token; the plugin settings show the account, test the connection and sign out
+- Jira and Confluence are one plug-in now, signing in to one also signs in to the other on the same Atlassian site
 - By @Lakritzator
 
 **OneNote Plugin** (#883)
@@ -132,6 +186,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Renamed OCR feature for clarity
 - By @danrhodes
 
+**Plugin Start**
+- The tray icon is there before the plugins start, they no longer hold up the start of Greenshot
+- A plugin which fails to start is switched off completely, it no longer leaves destinations behind which don't work
+- The "Configure ..." entries of the plugins are no longer in the tray menu, the plugin settings are under Settings > Plugins
+
 #### 🖼️ Image Format Support
 
 **ImageSharp Integration** (#921)
@@ -143,6 +202,19 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Avoid quality parameter for PNG in file format handler
 - Ensures lossless PNG exports
 - By @danrhodes
+
+**Smaller PNG files**
+- PNG files, uploads, attachments and the clipboard are written as small as possible without losing anything, like optipng does
+- Images with few colors get much smaller
+- Greenshot now writes PNG, JPEG, BMP, GIF and WebP files with ImageSharp for everyone, not only for beta testers
+- For problems, greenshot.ini has OutputFilePngCompressionLevel (default 9) and ClipboardPngCompressionLevel (default 8) to save faster, and OutputFilePngPalette to turn off PNG files with a palette
+- The unused settings OptimizePNGCommand and OptimizePNGCommandArguments were removed, the External Command recipe step can still run any tool
+
+**Open image from file lists every format**
+- The dialog now also offers JPEG XR (.jxr, .hdp, .wdp, .wmp), DDS, EMF and WMF, the formats of the Windows image decoders on the PC (like HEIF, Camera RAW or JPEG XL), and "All files"
+- Images open faster and use less memory, Windows reads them; photos are turned upright by their EXIF orientation again
+- Codecs installed in Windows (e.g. HEIF, RAW or JPEG XL from the Microsoft Store) are used automatically, see [image formats](../vNext/image-formats.md)
+- JPEG, BMP, GIF and TIFF files are saved by Windows: JPEG much faster, TIFF compressed (LZW)
 
 **DIB Format** (#813)
 - Fixed GCHandle memory leak in DibFileFormatHandler
@@ -160,6 +232,52 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Custom Translation Agent** (#908)
 - Added custom agent for translations to improve localization workflow
 - By @jklingen
+
+#### 🔔 Notifications
+
+**Better notifications** (#1516)
+- After a capture you get one notification that shows a small preview and lists where the capture went
+- Click the notification to send the capture somewhere else, even after Greenshot was closed
+- Buttons on the notification let you edit the capture, open its folder or copy the link of an upload
+- If an export fails, the notification says which one and why
+- QR codes found in a capture are shown on the notification, and their links can be copied
+- Greenshot appears only once in the Windows notification settings
+- Choose in the settings which notifications you want to see (all, warnings and errors, errors only, or none) and whether they show a preview
+
+#### 🩺 Help with problems
+
+**Log viewer in Self-Service**
+- Read Greenshot's log in its own window and copy it, for example for an issue report
+- Search the log: only the entries with your text are shown, including the details of an error
+- New entries appear while the log viewer is open, also in a search
+- Choose how much Greenshot writes to the log, until Greenshot restarts
+- Links like `greenshot://log?search=HDR` open the log viewer with that search, a link never changes a setting
+
+#### 🖼️ Imgur
+
+**Imgur uploads removed, delete your old ones in Self-Service**
+- Greenshot no longer uploads to Imgur: Imgur would only allow it with paid or capped access for all Greenshot users
+- If you uploaded images anonymously with an earlier Greenshot, it still has their delete keys: Self-Service lists those images so you can delete them from Imgur
+- Save the delete links as a web page to keep them
+
+#### 🩺 Self-Service
+
+**Screenshots no longer end up on the Desktop unnoticed**
+- When the screenshot folder couldn't be found, Greenshot switched it to the Desktop for good, without a message: e.g. a network drive without VPN, a renamed folder, or a folder with variables like ${YYYY}
+- Now a missing folder is created, variables are filled in first, and only when the folder really can't be used (e.g. the network drive isn't there), Greenshot saves that one screenshot to the Desktop and says so: the setting stays
+
+**Check where screenshots are saved**
+- Self-Service shows whether the screenshot folder exists, whether Greenshot can write to it, and whether it's a network or OneDrive folder
+- It also tells if the drive of the folder is missing, or the filename pattern gives no valid name
+- The folder and the filename pattern can be reset to the default with one click
+
+#### ♿ Accessibility
+
+**Screen readers, keyboard, high contrast and text size** (settings, Self-Service, welcome, dialogs, plugins, recipe editor, capture)
+- Narrator and other screen readers can name the buttons, lists and fields, and hear status changes
+- The keyboard focus is always visible, also in dark mode
+- Greenshot follows the Windows "Text size" setting and the "Animation effects" switch
+- In the capture window, Tab and Shift+Tab select the next or previous window, and a screen reader hears the mode, window and size
 
 ### Bug Fixes & Improvements
 
@@ -200,6 +318,29 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### ⚙️ Configuration & Settings
 
+**One way to write variables** (#1693)
+- The screenshot folder, file name, print footer, Outlook subject, external commands and recipes all use the same `${...}` values, e.g. `${payload.time:yyyy-MM-dd}`, `${payload.title}`, `${user.pictures}`; see [variables](../vNext/variables.md)
+- The settings show what a file name or folder gives and what is wrong with it while you type
+- New counters: per folder (`${counter.folder}`), per name and per key; a counter only goes up when a file was saved
+- A window title or other text of a capture can no longer choose the folder or the program of an external command
+- The settings of 1.3 are converted once and kept, so going back to 1.3 still works
+
+**Clicking the tray icon** (#1708)
+- Settings > General has a new "Tray icon" group: choose what a click and a double-click on the Greenshot icon next to the clock do
+- Both start a recipe, e.g. a region capture, opening the folder of the last capture, the settings or the tray menu; the list has every recipe which needs nothing given to it
+- A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
+- The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
+
+**When the file already exists**
+- greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
+
+**Switching plugins and destinations on or off**
+- Plugins and destinations can be switched on or off in the settings, without typing their names into greenshot.ini
+- Administrators can block plugins and destinations, or allow only some and block everything else, with greenshot-fixed.ini, and decide if users may switch off more; the settings show the lines to copy
+- A destination of a plugin which isn't loaded is no longer removed from the settings
+- A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
+- The plugin list in the settings shows who signed each plugin
+
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
 - By @htcfreek
@@ -214,6 +355,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Folder browser now gracefully falls back to My Documents when the configured path is unavailable, too long, or doesn't exist
 - Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
 - By @Copilot
+
+**External Commands**
+- An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
 
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
@@ -256,6 +400,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Print Footer** (#820, #804)
 - Use Greenshot's UI language for date formatting in print footer
 - By @tsiakoulias
+
+**Language**
+- The first start uses the language of Windows instead of asking, the settings change it
+- `--reload` also applies a language set in greenshot-fixed.ini
 
 #### 🔒 Security Improvements
 
@@ -450,7 +598,7 @@ If you have scripts or shortcuts that use Greenshot's command line arguments, yo
 |--------------|--------------|-------------|
 | `/help`, `/h`, `/?` | `--help`, `-h` | Show help information |
 | `/exit` | `--exit` | Close running Greenshot instance |
-| `/reload` | `--reload` | Reload configuration |
+| `/reload` | `--reload` | Apply a changed greenshot-fixed.ini (greenshot.ini is locked while Greenshot runs) |
 | `/norun` | `--no-run` | Start in configuration mode |
 | `/language [code]` | `--language <language-code>` | Set interface language |
 | `/inidirectory [path]` | `--ini-directory <directory>` | Set configuration directory |

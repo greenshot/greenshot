@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -35,13 +35,18 @@ namespace Greenshot.Base.Recipes.Triggers
         private static readonly ILog Log = LogManager.GetLogger(typeof(TriggerRecipePreparer));
 
         /// <summary>
-        /// Prepares a recipe for execution by a trigger.
+        /// Prepares a recipe for execution by a trigger. A recipe whose steps use no image (e.g. only ShowInExplorer or
+        /// OpenWindow) runs as it is: it gets no source and no destination.
         /// </summary>
         /// <param name="recipe">The recipe to prepare.</param>
         /// <param name="trigger">The trigger that determines the source and destination configuration.</param>
         /// <returns>The prepared recipe.</returns>
         public static CaptureRecipe Prepare(CaptureRecipe recipe, ITrigger trigger)
         {
+            if (recipe != null && !recipe.HasSourceStep() && !recipe.UsesImage())
+            {
+                return recipe;
+            }
             recipe = EnsureRequiredStartSource(recipe, trigger);
             recipe = EnsureRequiredDestination(recipe, trigger);
             return recipe;

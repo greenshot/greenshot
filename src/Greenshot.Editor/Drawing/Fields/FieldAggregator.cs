@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -174,6 +174,11 @@ namespace Greenshot.Editor.Drawing.Fields
 
             _internalUpdateRunning = false;
         }
+
+        /// <summary>
+        /// The fields of the bound elements were changed from outside, e.g. Apply style: show their values
+        /// </summary>
+        internal void UpdateFromElements() => UpdateFromBoundElements();
 
         /// <summary>
         /// Updates this instance using the respective fields from the bound elements.

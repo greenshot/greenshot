@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -94,7 +94,10 @@ namespace Greenshot.Capturing.Overlays
         public static IList<(IList<string> Keys, string Description)> GetRows(IEnumerable<CaptureKeyBinding> bindings, ICaptureTool activeTool)
         {
             var rows = new List<(IList<string> Keys, string Description)>();
-            var active = (bindings ?? Enumerable.Empty<CaptureKeyBinding>()).Where(binding => binding.IsActiveFor(activeTool)).ToList();
+            // The key which switches to the active tool (e.g. F for the fixed size) does nothing new while it is active
+            var active = (bindings ?? Enumerable.Empty<CaptureKeyBinding>())
+                .Where(binding => binding.IsActiveFor(activeTool) && !(binding.Tool == null && activeTool != null && binding.Owner == activeTool))
+                .ToList();
             // The keys of the tool first, they change with the tool; OrderBy is stable, so the order of registration stays
             foreach (var binding in active.OrderBy(binding => binding.Tool == null ? 1 : 0))
             {
@@ -109,7 +112,43 @@ namespace Greenshot.Capturing.Overlays
                     rows[index].Keys.Add(binding.KeyText);
                 }
             }
+            // Many keys which do the same (the number keys which pick a size) show as a range, e.g. 1–9
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var keys = rows[i].Keys;
+                if (keys.Count > 4)
+                {
+                    rows[i] = (CollapseRuns(keys), rows[i].Description);
+                }
+            }
             return rows;
+        }
+
+        /// <summary>
+        /// Runs of more than four keys which count up (1, 2, 3...) as one range, the other keys as they are: 1–9 and 0
+        /// </summary>
+        private static IList<string> CollapseRuns(IList<string> keys)
+        {
+            var result = new List<string>();
+            int start = 0;
+            for (int i = 1; i <= keys.Count; i++)
+            {
+                bool continues = i < keys.Count && int.TryParse(keys[i - 1], out int previous) && int.TryParse(keys[i], out int current) && current == previous + 1;
+                if (continues)
+                {
+                    continue;
+                }
+                if (i - start > 4)
+                {
+                    result.Add($"{keys[start]}–{keys[i - 1]}");
+                }
+                else
+                {
+                    result.AddRange(keys.Skip(start).Take(i - start));
+                }
+                start = i;
+            }
+            return result;
         }
 
         private void ShowHelp()

@@ -4,6 +4,7 @@ Name: "plugins\recipeeditor"; Description: {cm:recipeeditor}; Types: default ful
 [Files]
 ; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
 Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.RecipeEditor\Languages\greenshot.recipeeditor.*.ini; DestDir: {app}\Languages; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 recipeeditor=Recipe Editor plug-in

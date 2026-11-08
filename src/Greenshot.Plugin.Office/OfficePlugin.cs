@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
@@ -31,7 +32,8 @@ using Greenshot.Plugin.Office.Destinations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Office.Recipes;
 using Greenshot.Plugin.Office.Views;
@@ -45,11 +47,9 @@ namespace Greenshot.Plugin.Office
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
         private IOfficeConfiguration _config;
-        private TrayMenuEntry _itemPlugInConfig;
 
         public ValueTask DisposeAsync()
         {
-            // The menu item is removed and disposed in StopAsync
             return default;
         }
 
@@ -58,77 +58,32 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         public string Name => "Office";
 
-        private IEnumerable<IDestination> Destinations()
+        private static IEnumerable<IDestination> Destinations()
         {
-            IDestination destination;
+            return new[]
+            {
+                TryCreate(() => new ExcelDestination(), "Excel"),
+                TryCreate(() => new PowerpointDestination(), "PowerPoint"),
+                TryCreate(() => new WordDestination(), "Word"),
+                TryCreate(() => new OutlookDestination(), "Outlook"),
+                TryCreate(() => new OneNoteDestination(), "OneNote")
+            }.Where(destination => destination != null);
+        }
+
+        /// <summary>
+        /// The destination, null when it couldn't be created: logged, otherwise e.g. a TypeInitializationException
+        /// would leave it out for the whole run without a trace
+        /// </summary>
+        private static IDestination TryCreate(Func<IDestination> create, string application)
+        {
             try
             {
-                destination = new ExcelDestination();
+                return create();
             }
-            catch
+            catch (Exception ex)
             {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new PowerpointDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new WordDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new OutlookDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
-            }
-
-            try
-            {
-                destination = new OneNoteDestination();
-            }
-            catch
-            {
-                destination = null;
-            }
-
-            if (destination != null)
-            {
-                yield return destination;
+                LOG.Warn($"The {application} destination isn't available.", ex);
+                return null;
             }
         }
 
@@ -139,6 +94,11 @@ namespace Greenshot.Plugin.Office
             var section = new OfficeConfigurationImpl();
             services.AddConfiguration(section);
             _config = section;
+            if (string.IsNullOrEmpty(_config.EmailSubjectTemplate) && !string.IsNullOrEmpty(_config.EmailSubjectPattern))
+            {
+                // The template is filled once from the pattern of 1.3, which stays for going back to 1.3
+                _config.EmailSubjectTemplate = LegacyTemplateConverter.Convert(_config.EmailSubjectPattern, false);
+            }
 
             // The destinations look for the Office installation and read the configuration
             services.AddServices(() => Destinations().ToList());
@@ -158,79 +118,9 @@ namespace Greenshot.Plugin.Office
             registry.Register<OfficeStep>(config => new OfficeStep(config));
         }
 
-        /// <summary>
-        /// Add the quick link to the context menu (on the UI thread)
-        /// </summary>
-        public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
-            services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+        public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 
-        private void Start()
-        {
-            Image icon = null;
-            try
-            {
-                icon = WordDestination.WordExePath == null ? null : PluginUtils.GetCachedExeIcon(WordDestination.WordExePath, 0);
-            }
-            catch
-            {
-                // Word may not be available
-            }
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-            _itemPlugInConfig = new TrayMenuEntry
-            {
-                Image = icon,
-                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
-                Visible = _config?.QuicklinkEnabled ?? false
-            };
-            _itemPlugInConfig.Click += delegate { ShowSettings(); };
-
-            PluginUtils.AddToContextMenu(_itemPlugInConfig);
-            Texts.Config.LanguageChanged += OnLanguageChanged;
-            if (_config is INotifyPropertyChanged notify)
-            {
-                notify.PropertyChanged += OnConfigPropertyChanged;
-            }
-        }
-
-        private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IOfficeConfiguration.QuicklinkEnabled))
-            {
-                if (_itemPlugInConfig != null)
-                {
-                    _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
-                }
-            }
-        }
-
-        public void OnLanguageChanged(object sender, EventArgs e)
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Microsoft Office");
-            }
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken) =>
-            UiDispatcher.Current.RunOnUiAsync(() =>
-            {
-                LOG.Debug("Office Plugin shutdown.");
-                Texts.Config.LanguageChanged -= OnLanguageChanged;
-                if (_config is INotifyPropertyChanged notify)
-                {
-                    notify.PropertyChanged -= OnConfigPropertyChanged;
-                }
-
-                _itemPlugInConfig?.Dispose();
-                _itemPlugInConfig = null;
-            }, cancellationToken);
-
-        /// <summary>
-        /// Show the settings of this plugin
-        /// </summary>
-        private void ShowSettings()
-        {
-            SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true)?.ShowSetting(Name);
-        }
     }
-}
+}

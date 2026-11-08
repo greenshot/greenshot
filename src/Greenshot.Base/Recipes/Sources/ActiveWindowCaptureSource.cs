@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -58,9 +58,6 @@ namespace Greenshot.Base.Recipes.Sources
             }
 
             // Check config and context properties for targeted window specifications
-            string title = _config?.GetParameter<string>("WindowTitle")
-                ?? (context.Properties.TryGetValue("WindowTitle", out var tObj) ? tObj as string : null);
-
             string titlePattern = _config?.GetParameter<string>("WindowTitlePattern")
                 ?? (context.Properties.TryGetValue("WindowTitlePattern", out var tpObj) ? tpObj as string : null);
 
@@ -70,18 +67,18 @@ namespace Greenshot.Base.Recipes.Sources
             bool matchCase = _config?.GetParameter("MatchCase", false)
                 ?? (context.Properties.TryGetValue("MatchCase", out var mcObj) && mcObj is bool mc && mc);
 
-            bool isTargeted = !string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
+            bool isTargeted = !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
 
             if (window == null && isTargeted)
             {
-                window = WindowHelper.FindMatchingWindow(title, titlePattern, processName, matchCase);
+                window = WindowHelper.FindMatchingWindow(titlePattern, processName, matchCase);
                 if (window != null)
                 {
                     Log.InfoFormat("Found targeted window '{0}' (Handle: {1})", window.GetCaption(), window.Handle);
                 }
                 else
                 {
-                    Log.WarnFormat("Could not find window matching title='{0}', pattern='{1}', process='{2}'", title, titlePattern, processName);
+                    Log.WarnFormat("Could not find window matching pattern='{0}', process='{1}'", titlePattern, processName);
                 }
             }
 
@@ -120,7 +117,8 @@ namespace Greenshot.Base.Recipes.Sources
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                     var capturedRegion = window.GetInfo().Bounds;
                     context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
-                    capture = await WindowCapture.CaptureWindowAsync(window, capture, cancellationToken).ConfigureAwait(false);
+                    // With the HDR content when the Source step asks for it (Hdr)
+                    capture = await WindowCapture.CaptureWindowAsync(window, capture, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                     if (capture != null)
                     {
                         if (capture.Cursor != null)
@@ -136,7 +134,7 @@ namespace Greenshot.Base.Recipes.Sources
             if (!captured)
             {
                 Log.Warn("No active or targeted window to capture or capture failed, falling back to screen capture.");
-                capture = await WindowCapture.CaptureScreenAsync(capture, cancellationToken).ConfigureAwait(false);
+                capture = await WindowCapture.CaptureScreenAsync(capture, context?.CaptureHdr == true, cancellationToken).ConfigureAwait(false);
                 capture.CaptureDetails.AddMetaData("source", "Screen");
                 capture.CaptureDetails.Title = "Screen";
             }

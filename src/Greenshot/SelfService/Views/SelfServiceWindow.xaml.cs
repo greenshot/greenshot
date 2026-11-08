@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -79,10 +79,12 @@ namespace Greenshot.SelfService.Views
             string sectionId = ViewModel?.CurrentSectionId ?? "system";
 
             SystemInfoPanel.Visibility = sectionId == "system" ? Visibility.Visible : Visibility.Collapsed;
+            SetupPanel.Visibility = sectionId == "setup" ? Visibility.Visible : Visibility.Collapsed;
             FileInfoPanel.Visibility = sectionId == "files" ? Visibility.Visible : Visibility.Collapsed;
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
             ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
+            ImgurPanel.Visibility = sectionId == "imgur" ? Visibility.Visible : Visibility.Collapsed;
 #if DEBUG
             if (IntegrationDebugPanel != null)
             {
@@ -107,22 +109,22 @@ namespace Greenshot.SelfService.Views
             switch (sectionId)
             {
                 case "system":
-                    FooterStatusText.Text = ViewModel?.SystemInfoSection.StatusMessage ?? "System information ready";
+                    FooterStatusText.Text = ViewModel?.SystemInfoSection.StatusMessage ?? Texts.SelfService.StatusSystemReady;
                     break;
                 case "files":
-                    FooterStatusText.Text = ViewModel?.FileInfoSection.StatusMessage ?? "File locations ready";
+                    FooterStatusText.Text = ViewModel?.FileInfoSection.StatusMessage ?? Texts.SelfService.StatusFilesReady;
                     break;
                 case "clipboard":
-                    FooterStatusText.Text = ViewModel?.ClipboardSection.StatusHeader ?? "Clipboard diagnostics ready";
+                    FooterStatusText.Text = ViewModel?.ClipboardSection.StatusHeader ?? Texts.SelfService.StatusClipboardReady;
                     break;
                 case "hotkeys":
-                    FooterStatusText.Text = ViewModel?.HotkeySection.StatusMessage ?? "Hotkey diagnostics ready";
+                    FooterStatusText.Text = ViewModel?.HotkeySection.StatusMessage ?? Texts.SelfService.StatusHotkeysReady;
                     break;
                 case "checksum":
-                    FooterStatusText.Text = ViewModel?.ChecksumSection.StatusMessage ?? "Checksum validation ready";
+                    FooterStatusText.Text = ViewModel?.ChecksumSection.StatusMessage ?? Texts.SelfService.StatusChecksumReady;
                     break;
                 default:
-                    FooterStatusText.Text = "Ready";
+                    FooterStatusText.Text = Texts.SelfService.StatusReady;
                     break;
             }
         }
@@ -186,29 +188,34 @@ namespace Greenshot.SelfService.Views
                     ViewModel?.ToggleTheme();
                     e.Handled = true;
                     break;
-                case Key.D1:
+                case >= Key.D1 and <= Key.D9:
+                case >= Key.NumPad1 and <= Key.NumPad9:
+                    // The number of a section in the sidebar, the sections differ per build and setup (e.g. Imgur)
+                    int index = e.Key >= Key.NumPad1 ? e.Key - Key.NumPad1 : e.Key - Key.D1;
+                    if (ViewModel != null && index < ViewModel.Sections.Count)
+                    {
+                        ViewModel.SelectedSection = ViewModel.Sections[index];
+                        e.Handled = true;
+                    }
+                    break;
                 case Key.E:
                     ViewModel?.SelectSection("system");
                     e.Handled = true;
                     break;
-                case Key.D2:
                 case Key.F:
                 case Key.L:
                 case Key.I:
                     ViewModel?.SelectSection("files");
                     e.Handled = true;
                     break;
-                case Key.D3:
                 case Key.C:
                     ViewModel?.SelectSection("clipboard");
                     e.Handled = true;
                     break;
-                case Key.D4:
                 case Key.H:
                     ViewModel?.SelectSection("hotkeys");
                     e.Handled = true;
                     break;
-                case Key.D5:
                 case Key.K:
                 case Key.V:
                     ViewModel?.SelectSection("checksum");
@@ -234,6 +241,30 @@ namespace Greenshot.SelfService.Views
         private void OnOpenLogInExplorerClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.FileInfoSection.OpenLogInExplorer();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnOpenOutputFolderClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.OpenOutputFolder();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnCopyOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.CopyOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetOutputPathClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetOutputPath();
+            UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
+        }
+
+        private void OnResetFilenamePatternClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.FileInfoSection.ResetFilenamePattern();
             UpdateStatusText(ViewModel?.FileInfoSection.StatusMessage);
         }
 
@@ -280,6 +311,27 @@ namespace Greenshot.SelfService.Views
         {
             ViewModel?.ClipboardSection.ClearLog();
             UpdateStatusText(Texts.SelfService.ClipboardLogCleared ?? "Monitor log cleared");
+        }
+
+        // Your setup actions, the same checks as in the welcome window
+        private void OnDownloadClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.OpenDownloads();
+        }
+
+        private void OnShowTrayIconClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.ShowTrayIcon();
+        }
+
+        private void OnFixSetupSnippingToolClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.FixSnippingTool();
+        }
+
+        private void OnFixSetupOneDriveClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.SetupSection.FixOneDrive();
         }
 
         // Section 4 actions

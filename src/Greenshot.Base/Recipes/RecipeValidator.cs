@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,16 +20,16 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
@@ -79,13 +79,14 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.InteractiveSelection,
             WellKnownStepTypes.Effect,
             WellKnownStepTypes.ImmediateFeedback,
-            WellKnownStepTypes.Processors,
+            WellKnownStepTypes.Ocr,
             WellKnownStepTypes.Destinations,
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,
             WellKnownStepTypes.TextEffect,
             WellKnownStepTypes.Annotation,
             WellKnownStepTypes.SetVariable,
+            WellKnownStepTypes.SetMetadata,
             WellKnownStepTypes.SaveFile,
             WellKnownStepTypes.Clipboard,
             WellKnownStepTypes.Editor,
@@ -97,14 +98,15 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.UserPrompt,
             WellKnownStepTypes.Stdout,
             WellKnownStepTypes.Stderr,
-            WellKnownStepTypes.Slot
+            WellKnownStepTypes.Slot,
+            WellKnownStepTypes.ShowInExplorer,
+            WellKnownStepTypes.OpenWindow
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeContextMenu,
-            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeSystray,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeClipboard,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeManual,
@@ -112,7 +114,8 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeCommandline,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeOpenFile,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeExtension,
-            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeNotification
         };
 
         /// <summary>
@@ -142,7 +145,7 @@ namespace Greenshot.Base.Recipes
                 for (int i = 0; i < recipe.Triggers.Count; i++)
                 {
                     var trigger = recipe.Triggers[i];
-                    ValidateTrigger(trigger, i, result);
+                    ValidateTrigger(recipe, trigger, i, result);
                 }
             }
 
@@ -159,9 +162,13 @@ namespace Greenshot.Base.Recipes
                 var node = recipe.Nodes[i];
                 ValidateNode(node, i, nodeIds, result);
             }
+            WarnAboutRegionWithoutSelection(recipe, result);
+            WarnAboutHdrFileWithoutHdrCapture(recipe, result);
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
+            ValidateExpressions(recipe, result);
+            ValidateTranslations(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
@@ -179,18 +186,54 @@ namespace Greenshot.Base.Recipes
         /// <summary>
         /// Version, id, name and requirements, the same for recipes and extensions
         /// </summary>
+        /// <summary>
+        /// A SaveFile step with HdrFormat needs the HDR content of the capture, which only a Source step with Hdr takes:
+        /// without it the normal file is always saved. A recipe forwarded a capture (no Source step of its own) isn't warned.
+        /// </summary>
+        private static void WarnAboutHdrFileWithoutHdrCapture(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            bool hasSource = recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
+            if (hasSource && HdrOutput.SavesHdrFile(recipe) && !HdrOutput.CapturesHdr(recipe))
+            {
+                result.AddWarning("A SaveFile step saves an HDR file (HdrFormat), but the Source step doesn't capture with the HDR content (Hdr is false): the normal file is always saved.");
+            }
+        }
+
+        /// <summary>
+        /// A Region source only captures the screen, the user selects the region in the InteractiveSelection step after it.
+        /// Without that step the whole screen goes on, which is easy to miss when writing a recipe. AI tools give the region themselves.
+        /// </summary>
+        private static void WarnAboutRegionWithoutSelection(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            if (recipe.Nodes.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) ||
+                recipe.Triggers?.Any(trigger => string.Equals(trigger?.TriggerType, Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return;
+            }
+            foreach (var node in recipe.Nodes)
+            {
+                if (node == null || !string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.Equals(node.GetParameter("SourceType", nameof(CaptureSourceType.Region)), nameof(CaptureSourceType.Region), StringComparison.OrdinalIgnoreCase)) continue;
+                result.AddWarning($"Node '{node.Id}' [Source]: SourceType 'Region' captures the whole screen, the region is selected by an InteractiveSelection step (SelectionMode 'Region') after it, which this recipe doesn't have.");
+            }
+        }
+
         private static void ValidateHeader(FlowDefinition definition, string what, RecipeValidationResult result)
         {
             if (string.IsNullOrWhiteSpace(definition.Version))
             {
-                result.AddWarning($"{what} 'version' is missing; defaulting to '1.0'.");
+                result.AddWarning($"{what} 'version' is missing; defaulting to '{FlowDefinition.CurrentVersion}'.");
             }
             else
             {
                 string major = definition.Version.Split('.')[0].Trim();
-                if (major != "1")
+                if (major == "1")
                 {
-                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 1.x recipes.");
+                    result.AddError($"The {what.ToLowerInvariant()} has version '{definition.Version}', the format of an earlier Greenshot beta. Version {FlowDefinition.CurrentVersion} has one list of transitions and conditions in 'when'.");
+                }
+                else if (major != "2")
+                {
+                    result.AddError($"Unsupported {what.ToLowerInvariant()} version '{definition.Version}'. This version of Greenshot supports version 2.x recipes.");
                 }
             }
 
@@ -202,6 +245,16 @@ namespace Greenshot.Base.Recipes
             if (string.IsNullOrWhiteSpace(definition.Name))
             {
                 result.AddError($"{what} 'name' is required and cannot be empty.");
+            }
+
+            if (definition.Authors != null && definition.Authors.Any(a => string.IsNullOrWhiteSpace(a?.Name)))
+            {
+                result.AddError($"Every author of the {what.ToLowerInvariant()} needs a 'name'.");
+            }
+
+            if (definition.License != null && string.IsNullOrWhiteSpace(definition.License))
+            {
+                result.AddError($"The {what.ToLowerInvariant()} 'license' is empty; use an SPDX identifier like \"MIT\" or leave it out.");
             }
 
             // Validate Requires (extension dependencies)
@@ -293,6 +346,7 @@ namespace Greenshot.Base.Recipes
             }
 
             ValidateOptions(extension, result);
+            ValidateTranslations(extension, result);
             foreach (var key in FindOptionReferences(extension.When).Where(k => extension.FindOption(k) == null))
             {
                 result.AddError($"Extension 'when' uses the option '{key}', which the extension doesn't declare in 'options'.");
@@ -324,9 +378,9 @@ namespace Greenshot.Base.Recipes
                 }
                 foreach (var branch in branches.Where(b => !string.IsNullOrEmpty(b.Key)))
                 {
-                    bool routed = flow.ConditionalTransitions?.Any(ct => string.Equals(ct?.From, node.Id, StringComparison.OrdinalIgnoreCase) &&
-                                                                         string.Equals(ct.Branch, branch.Key, StringComparison.OrdinalIgnoreCase) &&
-                                                                         !string.IsNullOrWhiteSpace(ct.To)) ?? false;
+                    bool routed = flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, node.Id, StringComparison.OrdinalIgnoreCase) &&
+                                                                        string.Equals(ct.Branch, branch.Key, StringComparison.OrdinalIgnoreCase) &&
+                                                                        !string.IsNullOrWhiteSpace(ct.To));
                     if (!routed)
                     {
                         result.AddError($"Node '{node.Id}' [Conditional]: branch '{branch.Key}' leads nowhere; route it to a node or to \"{RecipeExtension.OutNode}\".");
@@ -334,9 +388,8 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            foreach (var et in flow.ErrorTransitions ?? new List<RecipeErrorTransitionConfig>())
+            foreach (var et in flow.ErrorTransitions)
             {
-                if (et == null) continue;
                 if (extension.FindNode(et.From) == null)
                 {
                     result.AddError($"Error transition from '{et.From}': in an extension error transitions must start at one of its nodes.");
@@ -350,17 +403,8 @@ namespace Greenshot.Base.Recipes
 
         private static List<(string Key, string Expression)> ReadBranches(RecipeNodeConfig node)
         {
-            var list = new List<(string Key, string Expression)>();
-            var branches = node.GetParameter<object>("Branches");
-            if (branches == null) return list;
-            var token = branches as JToken ?? JToken.FromObject(branches);
-            foreach (var item in token.OfType<JObject>())
-            {
-                string key = item.GetValue("key", StringComparison.OrdinalIgnoreCase)?.ToString();
-                string expression = item.GetValue("expression", StringComparison.OrdinalIgnoreCase)?.ToString();
-                list.Add((key, expression));
-            }
-            return list;
+            var branches = node.GetParameter<List<ConditionalBranch>>("Branches");
+            return branches?.Where(b => b != null).Select(b => (b.Key, b.Expression)).ToList() ?? new List<(string Key, string Expression)>();
         }
 
         private static void AddContractWarnings(CaptureRecipe recipe, RecipeValidationResult result)
@@ -381,7 +425,7 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateTrigger(Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
+        private static void ValidateTrigger(CaptureRecipe recipe, Greenshot.Base.Recipes.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
         {
             if (trigger == null)
             {
@@ -400,12 +444,41 @@ namespace Greenshot.Base.Recipes
                 result.AddWarning($"Trigger at index {index} has unrecognized triggerType '{trigger.TriggerType}'.");
             }
 
+            if (!string.IsNullOrWhiteSpace(trigger.When))
+            {
+                if (trigger.When.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index}: 'when' must be an expression like \"${{option.key}}\".");
+                }
+                foreach (var key in FindOptionReferences(trigger.When).Where(k => recipe.FindOption(k) == null))
+                {
+                    result.AddError($"Trigger '{trigger.Name}' at index {index} uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                }
+            }
+
             if (string.Equals(trigger.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
             {
-                string hotkey = trigger.GetParameter<string>("Hotkey");
+                string hotkey = trigger.GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter);
                 if (string.IsNullOrWhiteSpace(hotkey))
                 {
                     result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} is missing required 'Hotkey' parameter.");
+                }
+                else if (RecipeOptionStore.TryParseReference(hotkey, out var optionKey))
+                {
+                    // The user sets the hotkey in Settings > Recipes
+                    if (recipe.FindOption(optionKey)?.Type != ContractDataType.Hotkey)
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the option '{optionKey}', which must be a Hotkey option declared in 'options'.");
+                    }
+                }
+                else if (Greenshot.Base.Recipes.Triggers.TriggerConfig.TryParseConfigReference(hotkey, out var settingName))
+                {
+                    // A hotkey of the general settings, e.g. the built-in recipes and files which replace them
+                    var setting = typeof(ICoreConfiguration).GetProperty(settingName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+                    if (setting?.PropertyType != typeof(string))
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} uses the setting '{settingName}', which is not a text setting of the general settings.");
+                    }
                 }
                 else
                 {
@@ -447,6 +520,123 @@ namespace Greenshot.Base.Recipes
             }
         }
 
+        /// <summary>
+        /// Every ${...} of the nodes and triggers, checked for where it is used (docs/vNext/variables.md): the syntax, unknown
+        /// names and functions, and values which may not be used there (e.g. a window title choosing a folder or a command).
+        /// </summary>
+        private static void ValidateExpressions(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            var resolver = Greenshot.Base.Expressions.VariableResolver.Instance;
+            void Check(string where, object value, Greenshot.Base.Expressions.TemplatePurpose purpose)
+            {
+                switch (value)
+                {
+                    case string text when text.IndexOf("${", StringComparison.Ordinal) >= 0:
+                        foreach (var problem in resolver.Validate(text, purpose))
+                        {
+                            string message = $"{where}: {problem.Message} in '{text}'.";
+                            if (problem.IsWarning) result.AddWarning(message);
+                            else result.AddError(message);
+                        }
+                        break;
+                    case IDictionary<string, object> dictionary:
+                        foreach (var pair in dictionary) Check($"{where}.{pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                    case IEnumerable list when !(value is string):
+                        foreach (var item in list) Check(where, item, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                Check($"Node '{node.Id}' when", node.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (node.Parameters == null) continue;
+                var contract = string.IsNullOrWhiteSpace(node.StepType) ? null : StepRegistry.Instance.GetContract(node.StepType);
+                foreach (var pair in node.Parameters)
+                {
+                    var purpose = contract?.FindParameter(pair.Key)?.EffectivePurpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
+                    Check($"Node '{node.Id}' {pair.Key}", pair.Value, purpose);
+                }
+            }
+            if (recipe.Triggers == null) return;
+            for (int i = 0; i < recipe.Triggers.Count; i++)
+            {
+                var trigger = recipe.Triggers[i];
+                if (trigger == null) continue;
+                Check($"Trigger {i + 1} when", trigger.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (trigger.Parameters == null) continue;
+                foreach (var pair in trigger.Parameters)
+                {
+                    Check($"Trigger {i + 1} {pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The parameters the step declares: written with the declared name, and the value of the declared type. A literal value is
+        /// converted once (a whole number for Integer, a double for Decimal), so the step reads the type it declared;
+        /// an expression ("${...}") is evaluated when the node runs. A parameter the step doesn't declare is an error.
+        /// </summary>
+        private static void ApplyDeclaredParameterTypes(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            var contract = StepRegistry.Instance.GetContract(node.StepType);
+            if (contract == null || node.Parameters == null) return;
+            foreach (var key in node.Parameters.Keys.ToList())
+            {
+                var declared = contract.FindParameter(key);
+                if (declared == null)
+                {
+                    result.AddError($"Node '{node.Id}': '{key}' is not a parameter of {contract.StepType}.");
+                    continue;
+                }
+                if (!string.Equals(declared.Name, key, StringComparison.Ordinal))
+                {
+                    result.AddError($"Node '{node.Id}': the parameter '{key}' is written '{declared.Name}'.");
+                }
+
+                object value = node.Parameters[key];
+                if (declared.ValueType != null && !(value is string expression && declared.SupportsExpressions && expression.IndexOf("${", StringComparison.Ordinal) >= 0))
+                {
+                    if (RecipeParameterTypes.TryRead(value, declared.ValueType, out var typed, out string error))
+                    {
+                        node.Parameters[key] = typed;
+                        // A list of fixed names (e.g. the torn Edges): each item one of them, written as declared
+                        if (typed is List<string> names && declared.AllowedValuesProvider == null && declared.AllowedValues.Count > 0)
+                        {
+                            foreach (string name in names.Where(n => !declared.AllowedValues.Contains(n, StringComparer.Ordinal)))
+                            {
+                                result.AddError($"Node '{node.Id}': the parameter '{declared.Name}', '{name}' is not one of {string.Join(", ", declared.AllowedValues)}.");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result.AddError($"Node '{node.Id}': the parameter '{declared.Name}', {error}");
+                    }
+                    continue;
+                }
+                if (RecipeParameterTypes.TryConvert(value, declared.DataType, out var converted, out string expected))
+                {
+                    node.Parameters[key] = converted;
+                }
+                else
+                {
+                    result.AddError($"Node '{node.Id}': the parameter '{declared.Name}' must be {expected}, not {DescribeValue(value)}.");
+                }
+            }
+        }
+
+        private static string DescribeValue(object value) => value switch
+        {
+            string => "a text",
+            bool => "true or false",
+            int or long or double or float or decimal => "a number",
+            IDictionary => "an object",
+            IEnumerable => "a list",
+            _ => value.GetType().Name
+        };
+
         private static void ValidateNode(RecipeNodeConfig node, int index, HashSet<string> seenIds, RecipeValidationResult result)
         {
             if (node == null)
@@ -482,6 +672,8 @@ namespace Greenshot.Base.Recipes
                 result.AddError($"Node '{node.Id}' uses stepType '{node.StepType}' which is not available because the required extension/plugin is not installed or active.");
             }
 
+            ApplyDeclaredParameterTypes(node, result);
+
             // Node-specific parameter validations (independent checks)
             if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.OrdinalIgnoreCase))
@@ -492,6 +684,29 @@ namespace Greenshot.Base.Recipes
                     {
                         result.AddError($"Node '{node.Id}' [Border]: 'Width' must be greater than or equal to 1 (got {width}).");
                     }
+                }
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(node.GetParameter<string>("Effect"), "Resize", StringComparison.Ordinal) &&
+                node.Parameters?.ContainsKey("Percentage") == true && (node.Parameters.ContainsKey("Width") || node.Parameters.ContainsKey("Height")))
+            {
+                result.AddError($"Node '{node.Id}' [Resize]: use 'Percentage' or 'Width' and 'Height', not both.");
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                node.Parameters?.ContainsKey("Color") == true && !string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.Ordinal))
+            {
+                result.AddError($"Node '{node.Id}' [{node.GetParameter<string>("Effect")}]: 'Color' is the border color, the color of a canvas is 'BackgroundColor'.");
+            }
+            if ((string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase) || string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase)) &&
+                node.GetParameter<string>("WindowTitlePattern") is { } titlePattern && !titlePattern.Contains("${"))
+            {
+                try
+                {
+                    _ = new Regex(titlePattern);
+                }
+                catch (ArgumentException ex)
+                {
+                    result.AddError($"Node '{node.Id}' [{node.StepType}]: 'WindowTitlePattern' is not a valid regular expression: {ex.Message}");
                 }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
@@ -516,15 +731,26 @@ namespace Greenshot.Base.Recipes
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
             {
-                var branches = node.GetParameter<object>("Branches");
-                if (branches == null)
+                if (!node.HasParameter("Branches"))
                 {
-                    result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
+                    result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'Branches' configuration list.");
                 }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
             {
                 ValidateAnnotationNode(node, result);
+            }
+            if (string.Equals(node.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) &&
+                node.GetParameter<List<PromptChoice>>("Choices") is { } choices)
+            {
+                if (choices.Count(c => c?.IsDefault == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsDefault'.");
+                }
+                if (choices.Count(c => c?.IsCancel == true) > 1)
+                {
+                    result.AddError($"Node '{node.Id}' [UserPrompt]: only one choice can be 'IsCancel'.");
+                }
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
             {
@@ -532,65 +758,79 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Node '{node.Id}' [Slot]: 'name' must be one of {string.Join(", ", RecipeSlots.All)}.");
                 }
-                if (node.Parameters.TryGetValue("Accept", out var accept) && accept != null)
-                {
-                    var acceptValue = accept is JValue jAccept ? jAccept.Value : accept;
-                    bool valid = acceptValue is string || (acceptValue is System.Collections.IEnumerable && !(acceptValue is string));
-                    if (!valid)
-                    {
-                        result.AddError($"Node '{node.Id}' [Slot]: 'accept' must be \"{RecipeSlots.AcceptAll}\", \"{RecipeSlots.AcceptNone}\" or a list of extension ids.");
-                    }
-                }
             }
 
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
         }
 
-        private static readonly HashSet<string> BuiltInAnnotationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Rectangle", "Ellipse", "Line", "Arrow", "Freehand", "Text", "Speechbubble", "StepLabel",
-            "Image", "Icon", "Cursor", "Emoji", "Svg", "Blur", "Pixelize", "Highlight", "Magnify", "Crop"
-        };
+        /// <summary>
+        /// Each annotation has a known Type and only the properties of that type (see <see cref="AnnotationProperties"/>),
+        /// written as declared, with values of the declared type (or an expression). The values are stored in their type.
+        /// </summary>
+        private static readonly string[] ImageSources = { "CursorName", "FilePath", "ImageData" };
 
         private static void ValidateAnnotationNode(RecipeNodeConfig node, RecipeValidationResult result)
         {
-            if (node.Parameters == null) return;
+            // Not a list of objects: already reported with the parameter
+            var annotations = node.GetParameter<List<Dictionary<string, object>>>("Annotations");
+            if (annotations == null) return;
+            node.Parameters["Annotations"] = annotations;
 
-            // Single annotation in Type parameter
-            if (node.Parameters.TryGetValue("Type", out var typeObj) && typeObj is string singleType && !string.IsNullOrWhiteSpace(singleType))
+            for (int i = 0; i < annotations.Count; i++)
             {
-                ValidateAnnotationType(singleType, node.Id, result);
-            }
-
-            // Multiple annotations in Annotations list
-            if (node.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj is System.Collections.IEnumerable list && !(annotationsObj is string))
-            {
-                foreach (var item in list)
+                var annotation = annotations[i];
+                string where = $"Node '{node.Id}': annotation {i + 1}";
+                if (annotation == null)
                 {
-                    string aType = null;
-                    if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
+                    result.AddError($"{where} is empty.");
+                    continue;
+                }
+                var typeKey = annotation.Keys.FirstOrDefault(k => string.Equals(k, "Type", StringComparison.OrdinalIgnoreCase));
+                string annotationType = typeKey != null ? annotation[typeKey] as string : null;
+                if (string.IsNullOrWhiteSpace(annotationType))
+                {
+                    result.AddError($"{where}: 'Type' is missing.");
+                    continue;
+                }
+                if (!AnnotationProperties.IsBuiltIn(annotationType) && !RecipeDrawableRegistry.Instance.IsRegistered(annotationType))
+                {
+                    result.AddError($"{where} uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
+                    continue;
+                }
+
+                // An image or cursor comes from one place
+                var sources = ImageSources.Where(k => annotation.TryGetValue(k, out var source) && source != null).ToList();
+                if (sources.Count > 1)
+                {
+                    result.AddError($"{where} ({annotationType}): use one of {string.Join(", ", sources)}, not {(sources.Count == 2 ? "both" : "several")}.");
+                }
+
+                // A type registered without its properties: they aren't checked
+                var properties = RecipeDrawableRegistry.Instance.GetProperties(annotationType);
+                if (properties == null) continue;
+                foreach (string key in annotation.Keys.ToList())
+                {
+                    var declared = properties.FirstOrDefault(p => p.Matches(key));
+                    if (declared == null)
                     {
-                        aType = tObj?.ToString();
+                        result.AddError($"{where} ({annotationType}): '{key}' is not a property of a {annotationType} annotation.");
+                        continue;
                     }
-                    else if (item is Newtonsoft.Json.Linq.JObject jobj && jobj.TryGetValue("Type", StringComparison.OrdinalIgnoreCase, out var jt))
+                    if (!string.Equals(declared.Name, key, StringComparison.Ordinal))
                     {
-                        aType = jt?.ToString();
+                        result.AddError($"{where} ({annotationType}): '{key}' is written '{declared.Name}'.");
                     }
-                    if (!string.IsNullOrWhiteSpace(aType))
+                    if (RecipeParameterTypes.TryConvert(annotation[key], declared.DataType, out var converted, out string expected))
                     {
-                        ValidateAnnotationType(aType, node.Id, result);
+                        annotation[key] = converted;
+                    }
+                    else
+                    {
+                        result.AddError($"{where} ({annotationType}): '{declared.Name}' must be {expected}, not {DescribeValue(annotation[key])}.");
                     }
                 }
             }
-        }
-
-        private static void ValidateAnnotationType(string annotationType, string nodeId, RecipeValidationResult result)
-        {
-            if (BuiltInAnnotationTypes.Contains(annotationType)) return;
-            if (RecipeDrawableRegistry.Instance.IsRegistered(annotationType)) return;
-
-            result.AddError($"Node '{nodeId}' uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
         }
 
         private static void ValidateRequirement(RecipeRequirement req, RecipeValidationResult result)
@@ -678,6 +918,53 @@ namespace Greenshot.Base.Recipes
             return keys;
         }
 
+        /// <summary>
+        /// A language like "de" or "de-DE", see BCP 47
+        /// </summary>
+        public static bool IsLanguageTag(string language) => !string.IsNullOrWhiteSpace(language) && LanguageTagPattern.IsMatch(language);
+
+        private static readonly Regex LanguageTagPattern = new Regex("^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// The translations may only name languages and texts which exist, so a typo shows right away instead of an untranslated text
+        /// </summary>
+        private static void ValidateTranslations(FlowDefinition definition, RecipeValidationResult result)
+        {
+            if (definition.Translations == null) return;
+            var paths = new HashSet<string>(definition.GetTranslatableTexts().Select(t => t.Key), StringComparer.Ordinal);
+            var languages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var language in definition.Translations)
+            {
+                if (!IsLanguageTag(language.Key))
+                {
+                    result.AddError($"Translations: '{language.Key}' is not a language like \"de\" or \"de-DE\".");
+                    continue;
+                }
+                if (!languages.Add(language.Key))
+                {
+                    result.AddError($"Translations: the language '{language.Key}' is there more than once.");
+                }
+                if (language.Value == null || language.Value.Count == 0)
+                {
+                    result.AddError($"Translations: '{language.Key}' has no texts.");
+                    continue;
+                }
+                foreach (var text in language.Value)
+                {
+                    if (!paths.Contains(text.Key) && !definition.IsTextOfUnknownStep(text.Key))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is not a text of this file, use \"name\", \"description\", " +
+                                        "\"options.{key}.label\", \"options.{key}.description\", \"options.{key}.choices.{value}\", \"triggers.{index}.menuItemText\", " +
+                                        "\"nodes.{nodeId}.{parameter}\" (e.g. the Title of a UserPrompt) or \"nodes.{nodeId}.Choices.{key}\".");
+                    }
+                    else if (string.IsNullOrWhiteSpace(text.Value))
+                    {
+                        result.AddError($"Translations '{language.Key}': '{text.Key}' is empty.");
+                    }
+                }
+            }
+        }
+
         private static void ValidateOptions(FlowDefinition recipe, RecipeValidationResult result)
         {
             var options = new Dictionary<string, RecipeOption>(StringComparer.OrdinalIgnoreCase);
@@ -735,9 +1022,16 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
                 }
+                if (option.Type != ContractDataType.String && string.Equals(option.Format, RecipeOption.FormatTemplate, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddWarning($"Option '{option.Key}': the 'template' format is only used for String options.");
+                }
                 if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
                 {
-                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                    string hint = option.Type == ContractDataType.DirectoryPath
+                        ? @" A folder is a full path, which may use ${user.*} and ${machine.*} values like ${user.pictures}\Greenshot."
+                        : string.Empty;
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.{hint}");
                 }
                 if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
                 {
@@ -756,14 +1050,14 @@ namespace Greenshot.Base.Recipes
 
             foreach (var node in recipe.Nodes.Where(n => n != null))
             {
-                if (!string.IsNullOrWhiteSpace(node.EnabledExpression) && node.EnabledExpression.IndexOf("${", StringComparison.Ordinal) < 0)
+                if (!string.IsNullOrWhiteSpace(node.When) && node.When.IndexOf("${", StringComparison.Ordinal) < 0)
                 {
-                    result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
+                    result.AddError($"Node '{node.Id}': 'when' must be an expression like \"${{option.key}}\".");
                 }
 
-                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonConvert.SerializeObject(node.Parameters);
+                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonSerializer.Serialize(node.Parameters, RecipeSerializer.Options);
                 var parameterReferences = FindOptionReferences(parameters);
-                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
+                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.When)).Distinct(StringComparer.OrdinalIgnoreCase))
                 {
                     // Options of the recipe, or (composed recipe) of the extension the node came from
                     if (!options.ContainsKey(key) && !RecipeOptionStore.TryResolve(recipe, key, out _, out _))
@@ -781,6 +1075,12 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
                 }
+            }
+
+            // The approval shows what the steps do with the values set now, e.g. the folder of a DirectoryPath option
+            foreach (var action in result.GatedActions)
+            {
+                action.Target = RecipeOptionStore.FillValues(recipe, action.Target);
             }
         }
 
@@ -857,43 +1157,65 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            // Validate ConditionalTransitions
-            if (flow.ConditionalTransitions != null)
+            foreach (var transition in flow.Transitions ?? new List<RecipeTransition>())
             {
-                foreach (var ct in flow.ConditionalTransitions)
+                if (transition == null || string.IsNullOrWhiteSpace(transition.From))
                 {
-                    if (string.IsNullOrWhiteSpace(ct?.From))
+                    result.AddError("A transition is missing 'from'.");
+                    continue;
+                }
+                if (transition.IsError)
+                {
+                    if (transition.Branch != null)
                     {
-                        result.AddError("Conditional transition is missing source 'from' node ID.");
-                        continue;
+                        result.AddError($"The transition from '{transition.From}' has 'branch' and 'onError'; a transition is either for a branch or for an error.");
                     }
-                    if (string.IsNullOrWhiteSpace(ct.Branch))
+                    if (string.IsNullOrWhiteSpace(transition.To) == string.IsNullOrWhiteSpace(transition.Recipe))
                     {
-                        result.AddError($"Conditional transition from '{ct.From}' is missing 'branch' key.");
+                        result.AddError($"The error transition from '{transition.From}' needs either 'to' (a node) or 'recipe' (another recipe).");
                     }
-                    if (string.IsNullOrWhiteSpace(ct.To))
+                    else if (!string.IsNullOrWhiteSpace(transition.To) && !validNodeIds.Contains(transition.To) && !(allowOutTarget && IsOutNode(transition.To)))
                     {
-                        result.AddError($"Conditional transition from '{ct.From}' is missing target 'to' node ID.");
-                        continue;
+                        result.AddError($"Error transition target node '{transition.To}' (from '{transition.From}') does not exist in 'nodes'.");
                     }
+                    if (transition.From != "*" && !validNodeIds.Contains(transition.From))
+                    {
+                        result.AddError($"Error transition source node '{transition.From}' does not exist in 'nodes'.");
+                    }
+                    continue;
+                }
+                if (transition.Recipe != null)
+                {
+                    result.AddError($"The transition from '{transition.From}' has 'recipe', which is only for error transitions ('onError').");
+                }
+                if (string.IsNullOrWhiteSpace(transition.To))
+                {
+                    result.AddError($"The transition from '{transition.From}' is missing 'to'.");
+                }
+                if (transition.Branch != null && string.IsNullOrWhiteSpace(transition.Branch))
+                {
+                    result.AddError($"The transition from '{transition.From}' has an empty 'branch'.");
+                }
+            }
 
-                    if (!validNodeIds.Contains(ct.From))
+            foreach (var ct in flow.ConditionalTransitions.Where(ct => !string.IsNullOrWhiteSpace(ct.From) && !string.IsNullOrWhiteSpace(ct.To)))
+            {
+                if (!validNodeIds.Contains(ct.From))
+                {
+                    result.AddError($"Conditional transition source node '{ct.From}' does not exist in 'nodes'.");
+                }
+                else
+                {
+                    var fromNode = recipe.FindNode(ct.From);
+                    if (fromNode != null && !string.Equals(fromNode.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                     {
-                        result.AddError($"Conditional transition source node '{ct.From}' does not exist in 'nodes'.");
+                        result.AddWarning($"Conditional transition source node '{ct.From}' has stepType '{fromNode.StepType}' rather than 'Conditional'.");
                     }
-                    else
-                    {
-                        var fromNode = recipe.FindNode(ct.From);
-                        if (fromNode != null && !string.Equals(fromNode.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
-                        {
-                            result.AddWarning($"Conditional transition source node '{ct.From}' has stepType '{fromNode.StepType}' rather than 'Conditional'.");
-                        }
-                    }
+                }
 
-                    if (!validNodeIds.Contains(ct.To) && !(allowOutTarget && IsOutNode(ct.To)))
-                    {
-                        result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
-                    }
+                if (!validNodeIds.Contains(ct.To) && !(allowOutTarget && IsOutNode(ct.To)))
+                {
+                    result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
                 }
             }
 

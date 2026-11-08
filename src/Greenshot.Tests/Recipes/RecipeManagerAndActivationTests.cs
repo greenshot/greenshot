@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -20,9 +20,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Expressions;
+using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Greenshot.Recipes;
@@ -48,6 +51,28 @@ namespace Greenshot.Tests.Recipes
             Assert.NotNull(regionRecipe);
             Assert.True(regionRecipe.IsEnabled);
             Assert.True(manager.IsRecipeEnabled(RecipeManager.RecipeIdRegion));
+        }
+
+        [Theory]
+        [InlineData(RecipeManager.RecipeIdRegion, "Text", "copy_text")]
+        [InlineData(RecipeManager.RecipeIdRegion, "Region", "feedback")]
+        [InlineData(RecipeManager.RecipeIdWindow, "Text", "copy_text")]
+        [InlineData(RecipeManager.RecipeIdWindow, "Window", "feedback")]
+        public void BuiltInCaptureRecipes_SendTextSelectionsToTheClipboard(string recipeId, string selectedMode, string expectedNext)
+        {
+            var recipe = new RecipeManager().GetRecipeById(recipeId);
+            Assert.Contains(recipe.Flow.Transitions, t => t.IsPlain && t.From == "select" && t.To == "text_or_image");
+            var copyText = recipe.FindNode("copy_text");
+            Assert.Equal(WellKnownStepTypes.Clipboard, copyText.StepType);
+            Assert.Equal("TextOnly", copyText.GetParameter<string>("ClipboardMode"));
+
+            // The branch the Conditional step takes: the first expression which is true, or "else"
+            using var context = new CaptureFlowContext(recipe);
+            context.Properties["SelectedMode"] = selectedMode;
+            var branch = recipe.FindNode("text_or_image").GetParameter<List<ConditionalBranch>>("Branches")
+                .First(b => b.Expression == "else" || RecipeExpressions.IsMet(b.Expression, context));
+            var next = recipe.Flow.ConditionalTransitions.Single(t => t.From == "text_or_image" && t.Branch == branch.Key).To;
+            Assert.Equal(expectedNext, next);
         }
 
         [Fact]

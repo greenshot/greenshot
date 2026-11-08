@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -135,10 +135,10 @@ namespace Greenshot.Base.Interfaces.Drawing
         void AddContextMenuItems(ContextMenuStrip menu, ISurface surface, MouseEventArgs mouseEventArgs);
 
         /// <summary>
-        /// Snap the container to the edge of the surface.
+        /// Snap the container to the edge of the surface. The caller is responsible for making the change undoable.
         /// </summary>
         /// <param name="direction">Direction in which to move the container.</param>
-        /// <param name="surface">The surface the container belongs to.</param>
+        /// <param name="surfaceSize">The size of the surface the container belongs to.</param>
         void SnapToEdge(Direction direction, Size surfaceSize);
     }
 }

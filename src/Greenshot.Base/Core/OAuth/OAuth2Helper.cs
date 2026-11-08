@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,10 +24,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
-using Newtonsoft.Json;
+using Greenshot.Base.Serialization;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -58,7 +60,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="cancellationToken">CancellationToken</param>
         public static async Task GenerateRefreshTokenAsync(OAuth2Settings settings, CancellationToken cancellationToken)
         {
-            IDictionary<string, object> data = new Dictionary<string, object>
+            var data = new Dictionary<string, string>
             {
                 // Use the returned code to get a refresh code
                 { Code, settings.Code },
@@ -72,9 +74,10 @@ namespace Greenshot.Base.Core.OAuth
                 data.Add(key, settings.AdditionalAttributes[key]);
             }
 
-            string accessTokenJsonResult = await NetworkHelper.PostFormUrlEncodedAsync(settings.TokenUrl, data, cancellationToken, true).ConfigureAwait(false);
+            // The error content of the token endpoint has the reason (e.g. invalid_grant), it is read below
+            string accessTokenJsonResult = (await HttpService.Current.PostFormAsync(settings.TokenUrl, data, cancellationToken).ConfigureAwait(false)).Content;
 
-            IDictionary<string, object> refreshTokenResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(accessTokenJsonResult);
+            IDictionary<string, object> refreshTokenResult = JsonSerializer.Deserialize<Dictionary<string, object>>(accessTokenJsonResult, GreenshotJson.Options);
             if (refreshTokenResult.ContainsKey("error"))
             {
                 if (refreshTokenResult.ContainsKey("error_description"))
@@ -120,7 +123,7 @@ namespace Greenshot.Base.Core.OAuth
         /// <param name="cancellationToken">CancellationToken</param>
         public static async Task GenerateAccessTokenAsync(OAuth2Settings settings, CancellationToken cancellationToken)
         {
-            IDictionary<string, object> data = new Dictionary<string, object>
+            var data = new Dictionary<string, string>
             {
                 { RefreshToken, settings.RefreshToken },
                 { ClientId, settings.ClientId },
@@ -132,14 +135,15 @@ namespace Greenshot.Base.Core.OAuth
                 data.Add(key, settings.AdditionalAttributes[key]);
             }
 
-            string accessTokenJsonResult = await NetworkHelper.PostFormUrlEncodedAsync(settings.TokenUrl, data, cancellationToken, true).ConfigureAwait(false);
+            // The error content of the token endpoint has the reason (e.g. invalid_grant), it is read below
+            string accessTokenJsonResult = (await HttpService.Current.PostFormAsync(settings.TokenUrl, data, cancellationToken).ConfigureAwait(false)).Content;
 
             // gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
             //  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
             //  "expires_in":3920,
             //  "token_type":"Bearer",
 
-            IDictionary<string, object> accessTokenResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(accessTokenJsonResult);
+            IDictionary<string, object> accessTokenResult = JsonSerializer.Deserialize<Dictionary<string, object>>(accessTokenJsonResult, GreenshotJson.Options);
             if (accessTokenResult.ContainsKey("error"))
             {
                 if ("invalid_grant" == (string) accessTokenResult["error"])

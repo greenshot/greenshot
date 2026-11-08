@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -35,7 +35,8 @@ namespace Greenshot.Helpers
         public bool? Monochrome { get; set; }
         public byte? MonochromeThreshold { get; set; }
         public bool? Footer { get; set; }
-        public string FooterPattern { get; set; }
+        /// <summary>The footer as it is printed, already rendered (a recipe renders it with its values); null: the template of the settings</summary>
+        public string FooterText { get; set; }
         public bool? PromptOptions { get; set; }
     }
 }

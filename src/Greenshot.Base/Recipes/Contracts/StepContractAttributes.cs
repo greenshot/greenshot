@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -32,12 +32,6 @@ namespace Greenshot.Base.Recipes.Contracts
         public string DisplayName { get; }
         public string Description { get; set; }
         public string Category { get; set; }
-
-        /// <summary>
-        /// The step also reads parameters that are not declared (e.g. the properties of an annotation), so undeclared
-        /// parameters are not reported.
-        /// </summary>
-        public bool AcceptsUndeclaredParameters { get; set; }
 
         public StepInfoAttribute(string stepType, string displayName = null, string description = null, string category = null)
         {
@@ -77,6 +71,41 @@ namespace Greenshot.Base.Recipes.Contracts
         public Type AllowedValuesProvider { get; set; }
 
         public bool SupportsExpressions { get; set; } = true;
+
+        /// <summary>
+        /// For an Object parameter: the type of its value, e.g. <c>typeof(List&lt;ConditionalBranch&gt;)</c>. A recipe's value is read
+        /// strictly into this type when the recipe is validated (names as declared, no unknown properties, types as declared).
+        /// The type has to be in a JSON context registered with <see cref="Pipeline.IStepRegistry.RegisterJsonTypes"/>
+        /// before the step is registered.
+        /// </summary>
+        public Type ValueType { get; set; }
+
+        /// <summary>
+        /// A text the user sees (e.g. the title of a window), which a recipe can translate in its "translations" as
+        /// "nodes.{nodeId}.{parameter}". For a list of <see cref="PromptChoice"/> the label of each choice is translatable,
+        /// as "nodes.{nodeId}.{parameter}.{key}". See <see cref="FlowDefinition.GetNodeTexts"/>.
+        /// </summary>
+        public bool Translatable { get; set; }
+
+        private Greenshot.Base.Expressions.TemplatePurpose? _purpose;
+
+        /// <summary>
+        /// Where the ${...} of the value is used, which decides what it may use and how it is written (see docs/vNext/variables.md).
+        /// Without it: Folder for FilePath and DirectoryPath, else Value.
+        /// </summary>
+        public Greenshot.Base.Expressions.TemplatePurpose Purpose
+        {
+            get => _purpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
+            set => _purpose = value;
+        }
+
+        internal Greenshot.Base.Expressions.TemplatePurpose? ExplicitPurpose => _purpose;
+
+        /// <summary>
+        /// The step renders the template itself, when it knows more (the folder of a file name, the written file): the engine passes the
+        /// text as it is
+        /// </summary>
+        public bool RenderedByStep { get; set; }
 
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
         {
@@ -163,7 +192,13 @@ namespace Greenshot.Base.Recipes.Contracts
                     p.DefaultValue,
                     p.Description,
                     p.AllowedValues,
-                    p.SupportsExpressions);
+                    p.SupportsExpressions)
+                {
+                    ValueType = p.ValueType,
+                    Translatable = p.Translatable,
+                    Purpose = p.ExplicitPurpose,
+                    RenderedByStep = p.RenderedByStep
+                };
                 if (p.AllowedValuesProvider != null)
                 {
                     if (!typeof(IAllowedValuesProvider).IsAssignableFrom(p.AllowedValuesProvider))
@@ -223,8 +258,7 @@ namespace Greenshot.Base.Recipes.Contracts
                 outVarsList,
                 payloadContract)
             {
-                ImplementationType = stepType,
-                AcceptsUndeclaredParameters = infoAttr?.AcceptsUndeclaredParameters ?? false
+                ImplementationType = stepType
             };
         }
     }

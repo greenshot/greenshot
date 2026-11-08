@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -271,6 +271,27 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Describer_ListsTheStepsInTheOrderTheyRun()
+        {
+            // Listed in the file out of order, like a recipe written in the editor: export first, the branches after it
+            var recipe = CreateRecipe("describe_order");
+            foreach (var id in new[] { "export", "check", "effect_b", "effect_a", "select" })
+            {
+                recipe.AddNode(new RecipeNodeConfig { Id = id, StepType = "Clipboard" });
+            }
+            recipe.Flow.AddTransition("effect_a", "export");
+            recipe.Flow.AddTransition("effect_b", "export");
+            recipe.Flow.AddTransition("source", "select");
+            recipe.Flow.AddTransition("select", "check");
+            recipe.Flow.Transitions.Add(new RecipeTransition("check", "effect_b") { Branch = "B" });
+            recipe.Flow.Transitions.Add(new RecipeTransition("check", "effect_a") { Branch = "A" });
+
+            var order = RecipeDescriber.InFlowOrder(recipe).Select(n => n.Id).ToList();
+
+            Assert.Equal(new[] { "source", "select", "check", "effect_b", "effect_a", "export" }, order);
+        }
+
+        [Fact]
         public void Describer_NamesAddedAndRemovedSteps()
         {
             var oldRecipe = CreateRecipe("changes");
@@ -425,6 +446,42 @@ namespace Greenshot.Tests.Recipes
 
             RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), edited, new RecipeApproval { ReplacesBuiltIn = true }, true, out decision);
             Assert.False(decision.IsNeeded);
+        }
+
+        [Fact]
+        public void KeepOnly_RemovesTheRecordsOfOtherFiles()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string used = Path.Combine(directory, "used" + RecipeSerializer.RecipeFileExtension);
+                string unused = Path.Combine(directory, "unused" + RecipeSerializer.RecipeFileExtension);
+                File.WriteAllText(used, "{}");
+                File.WriteAllText(unused, "{}");
+                RecipeTrustStore.RecordApproval(used, RecipeTrustStore.ComputeSha256(used), new RecipeApproval { RecipeId = "used" });
+                RecipeTrustStore.RecordApproval(unused, RecipeTrustStore.ComputeSha256(unused), new RecipeApproval { RecipeId = "unused" });
+
+                RecipeTrustStore.KeepOnly(new[] { used });
+
+                Assert.NotNull(RecipeTrustStore.GetTrustRecord(used));
+                Assert.Null(RecipeTrustStore.GetTrustRecord(unused));
+            });
+        }
+
+        [Fact]
+        public void UnreadableTrustStore_IsKeptNextToIt()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                string storeFile = Path.Combine(directory, "recipe_trust.dat");
+                File.WriteAllText(storeFile, "not encrypted");
+                // Reads the store again from the file
+                RecipeTrustStore.UseStoreFile(storeFile);
+
+                Assert.Null(RecipeTrustStore.GetTrustRecord(Path.Combine(directory, "any" + RecipeSerializer.RecipeFileExtension)));
+
+                Assert.False(File.Exists(storeFile));
+                Assert.Equal("not encrypted", File.ReadAllText(storeFile + ".unreadable"));
+            });
         }
 
         [Fact]

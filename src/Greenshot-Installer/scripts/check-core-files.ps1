@@ -8,12 +8,15 @@
     output is not in core-files.iss (it would be missing in the installation), or when core-files.iss names one that
     isn't there. Not checked: build-only libraries that are not shipped (as in generate-checksums.ps1) and
     greenshot-mcp.exe, which is a separate download.
+    With -Light the output is the one of Greenshot Light (setup-light.iss): lines in #ifndef IsLightEdition are not installed,
+    lines in #ifdef IsLightEdition only there.
 #>
 param(
     [Parameter(Mandatory = $true)]
     [string]$OutputDir,
     [Parameter(Mandatory = $true)]
-    [string]$CoreFilesIss
+    [string]$CoreFilesIss,
+    [switch]$Light
 )
 
 $ErrorActionPreference = 'Stop'
@@ -21,7 +24,14 @@ $ErrorActionPreference = 'Stop'
 $notShipped = @('Microsoft.Build.*.dll', 'Microsoft.IO.Redist.dll', 'Microsoft.NET.StringTools.dll', 'greenshot-mcp.exe')
 
 $listed = @()
+# The #ifdef / #ifndef IsLightEdition blocks, innermost last: whether the lines in them are installed
+$included = New-Object System.Collections.Generic.Stack[bool]
 foreach ($line in Get-Content $CoreFilesIss) {
+    if ($line -match '^\s*#ifdef\s+IsLightEdition\b') { $included.Push($Light.IsPresent); continue }
+    if ($line -match '^\s*#ifndef\s+IsLightEdition\b') { $included.Push(-not $Light.IsPresent); continue }
+    if ($line -match '^\s*#else\b' -and $included.Count -gt 0) { $included.Push(-not $included.Pop()); continue }
+    if ($line -match '^\s*#endif\b' -and $included.Count -gt 0) { [void]$included.Pop(); continue }
+    if ($included -contains $false) { continue }
     if ($line -match '^\s*Source:\s*\{#ReleaseDir\}\\([^;]+);') {
         $name = $Matches[1].Trim()
         if ($name.Contains('*') -or $name.Contains('?')) {

@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -39,6 +40,7 @@ using Greenshot.Plugin.ExternalCommand.Destinations;
 using log4net;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand.Recipes
 {
@@ -49,9 +51,9 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepInfo("ExternalCommand", "External Command", "Saves the capture to a file and runs an external command with it: a command configured in the settings (Command) or an executable (CommandLine).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Command", ContractDataType.String, Description = "Name of an external command configured in the settings")]
-    [StepParameter("CommandLine", ContractDataType.FilePath, Description = "Executable to run, instead of a configured command")]
-    [StepParameter("Arguments", ContractDataType.String, Description = "Arguments, {0} is replaced by the file")]
-    [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Description = "Working directory of the command")]
+    [StepParameter("CommandLine", ContractDataType.FilePath, Purpose = TemplatePurpose.Command, RenderedByStep = true, Description = "Executable to run, instead of a configured command, e.g. ${user.localappdata}\\Programs\\tool.exe")]
+    [StepParameter("Arguments", ContractDataType.String, Purpose = TemplatePurpose.Argument, RenderedByStep = true, Description = "Arguments, ${export.file} is the file (quote it yourself: \"${export.file}\")")]
+    [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Purpose = TemplatePurpose.Folder, RenderedByStep = true, Description = "Working directory of the command")]
     [StepParameter("Verb", ContractDataType.String, Description = "Shell verb to use instead of running the executable (e.g. open, print)")]
     [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when saving as JPEG")]
@@ -59,16 +61,16 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]
     [StepParameter("UriToClipboard", ContractDataType.Boolean, Description = "Copy a URI found in the command's output to the clipboard")]
     [StepParameter("ReloadAfterExecution", ContractDataType.Boolean, DefaultValue = false, Description = "Reload the image from the file after the command changed it")]
-    [StepParameter("SetOutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
-    [StepParameter("SetExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
+    [StepParameter("OutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
+    [StepParameter("ExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
     [StepInputVariable("Destination.Filename", ContractDataType.FilePath, Description = "File saved by an earlier destination step, handed to the command instead of a new file")]
     [StepOutputVariable("ExternalCommand.TargetFile", ContractDataType.FilePath, "The file handed to the command")]
     [StepOutputVariable("ExternalCommand.ExitCode", ContractDataType.Integer, "Exit code of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Output", ContractDataType.String, "Standard output of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Error", ContractDataType.String, "Standard error of the command", Conditional = true)]
     [StepOutputVariable("ExternalCommand.Uri", ContractDataType.String, "First URI found in the output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetOutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
-    [StepOutputVariable("{Parameter:SetExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
+    [StepOutputVariable("{Parameter:OutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
+    [StepOutputVariable("{Parameter:ExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
     public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
@@ -106,9 +108,9 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             string commandLine = NodeConfig.GetParameter<string>("CommandLine");
 
             var extConfig = Config;
-            if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
+            if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.CommandlineTemplate != null && extConfig.CommandlineTemplate.ContainsKey(commandName))
             {
-                commandLine = extConfig.Commandline[commandName];
+                commandLine = extConfig.CommandlineTemplate[commandName];
             }
 
             string target = !string.IsNullOrEmpty(commandLine)
@@ -144,21 +146,21 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             bool reloadAfterExecution = NodeConfig.GetParameter<bool?>("ReloadAfterExecution") ?? false;
             string workingDirectory = NodeConfig.GetParameter<string>("WorkingDirectory");
             string verb = NodeConfig.GetParameter<string>("Verb");
-            string setOutputVariable = NodeConfig.GetParameter<string>("SetOutputVariable");
-            string setExitCodeVariable = NodeConfig.GetParameter<string>("SetExitCodeVariable");
+            string setOutputVariable = NodeConfig.GetParameter<string>("OutputVariable");
+            string setExitCodeVariable = NodeConfig.GetParameter<string>("ExitCodeVariable");
 
             // Look up configured command if commandName is given or commandLine is not explicitly set
             var extConfig = Config;
             if (!string.IsNullOrEmpty(commandName) && extConfig != null)
             {
-                if (string.IsNullOrEmpty(commandLine) && extConfig.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
+                if (string.IsNullOrEmpty(commandLine) && extConfig.CommandlineTemplate != null && extConfig.CommandlineTemplate.ContainsKey(commandName))
                 {
-                    commandLine = extConfig.Commandline[commandName];
+                    commandLine = extConfig.CommandlineTemplate[commandName];
                 }
 
-                if (string.IsNullOrEmpty(arguments) && extConfig.Argument != null && extConfig.Argument.ContainsKey(commandName))
+                if (string.IsNullOrEmpty(arguments) && extConfig.ArgumentTemplate != null && extConfig.ArgumentTemplate.ContainsKey(commandName))
                 {
-                    arguments = extConfig.Argument[commandName];
+                    arguments = extConfig.ArgumentTemplate[commandName];
                 }
 
                 if (!runInBackgroundParam.HasValue && extConfig.RunInbackground != null && extConfig.RunInbackground.ContainsKey(commandName))
@@ -203,25 +205,22 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
 
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
-                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
                 fullPath = await ExportFiles.SaveNamedTmpFileAsync(source, captureDetails, outputSettings, cancellationToken).ConfigureAwait(false);
             }
 
             context.Properties["ExternalCommand.TargetFile"] = fullPath;
 
             // 3. Resolve command line and argument variables
-            string resolvedCommandLine = FilenameHelper.FillVariables(commandLine, true);
-            resolvedCommandLine = FilenameHelper.FillCmdVariables(resolvedCommandLine, true);
-
-            string resolvedArguments = FilenameHelper.FillVariables(arguments, false);
-            resolvedArguments = FilenameHelper.FillCmdVariables(resolvedArguments, false);
-            resolvedArguments = ExternalCommandDestination.FormatArguments(resolvedArguments, fullPath);
+            var scope = VariableScope.ForFlow(context);
+            string resolvedCommandLine = OutputTemplates.RenderCommand(commandLine, scope, out string problem)
+                ?? throw new ArgumentException(problem);
+            string resolvedArguments = ExternalCommandDestination.RenderArguments(arguments, fullPath, scope);
 
             string resolvedWorkingDir = null;
             if (!string.IsNullOrWhiteSpace(workingDirectory))
             {
-                resolvedWorkingDir = FilenameHelper.FillVariables(workingDirectory, true);
-                resolvedWorkingDir = FilenameHelper.FillCmdVariables(resolvedWorkingDir, true);
+                resolvedWorkingDir = OutputTemplates.RenderFolder(workingDirectory, scope, out problem) ?? throw new ArgumentException(problem);
             }
 
             context.LogStep($"Executing external command: {resolvedCommandLine} {resolvedArguments}");
@@ -283,6 +282,15 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
                     context.LogStep($"Copied extracted URL '{matchedUri}' to clipboard.");
                 }
             }
+
+            // The same result as the external command destination, before a reload replaces the capture: the Notification step shows it
+            var exportSource = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
+            var result = exitCode == 0
+                ? ExportResult.Succeeded(fullPath, Uri.TryCreate(matchedUri, UriKind.Absolute, out var uri) ? uri : null, clearsModified: false)
+                : ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
+            var destination = new ExternalCommandDestination(commandName ?? Path.GetFileNameWithoutExtension(resolvedCommandLine));
+            await ExportResultHandler.ApplyAsync(destination, result, exportSource, cancellationToken).ConfigureAwait(false);
+            context.RecordExport(destination, result, captureDetails, exportSource);
 
             // 5. Reload modified image if requested (e.g. for in-place optimizers like OptiPNG)
             if (reloadAfterExecution && File.Exists(fullPath))

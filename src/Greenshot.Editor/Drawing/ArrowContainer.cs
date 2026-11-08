@@ -7,7 +7,7 @@
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -110,26 +110,38 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
+        // The paint asks for the drawing bounds several times per element, the path with the arrow heads is only measured when its inputs change
+        [NonSerialized] private (int Left, int Top, int Width, int Height, int LineThickness, ArrowHeadCombination Heads)? _drawingBoundsKey;
+        [NonSerialized] private NativeRect _drawingBounds;
+
         public override NativeRect DrawingBounds
         {
             get
             {
                 int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
-                if (lineThickness > 0)
+                if (lineThickness <= 0)
                 {
-                    using Pen pen = new Pen(Color.White)
-                    {
-                        Width = lineThickness
-                    };
-                    SetArrowHeads((ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS), pen);
-                    using GraphicsPath path = new GraphicsPath();
-                    path.AddLine(Left, Top, Left + Width, Top + Height);
-                    using Matrix matrix = new Matrix();
-                    NativeRect drawingBounds = Rectangle.Round(path.GetBounds(matrix, pen));
-                    return drawingBounds.Inflate(2, 2);
+                    return NativeRect.Empty;
                 }
 
-                return NativeRect.Empty;
+                var heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
+                var key = (Left, Top, Width, Height, lineThickness, heads);
+                if (_drawingBoundsKey == key)
+                {
+                    return _drawingBounds;
+                }
+
+                using Pen pen = new Pen(Color.White)
+                {
+                    Width = lineThickness
+                };
+                SetArrowHeads(heads, pen);
+                using GraphicsPath path = new GraphicsPath();
+                path.AddLine(Left, Top, Left + Width, Top + Height);
+                using Matrix matrix = new Matrix();
+                _drawingBounds = ((NativeRect)Rectangle.Round(path.GetBounds(matrix, pen))).Inflate(2, 2);
+                _drawingBoundsKey = key;
+                return _drawingBounds;
             }
         }
 

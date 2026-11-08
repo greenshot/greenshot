@@ -1,0 +1,157 @@
+{
+  "version": "2.0",
+  "id": "recipe_hdr_region_to_file",
+  "name": "HDR Region to File",
+  "description": "Select a region on the live screen of an HDR display and save it as an HDR file (JPEG XR, lossless), highlights included. Without HDR content (an SDR display, nothing brighter than SDR white) a PNG is saved, the notification says so.",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "HDR Region Menu Item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "HDR Region to File",
+        "Group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "enabled": true,
+      "parameters": {
+        "Hotkey": "Ctrl + Shift + PrintScreen"
+      }
+    }
+  ],
+  "requires": [],
+  "options": [
+    {
+      "key": "askForFilename",
+      "type": "Boolean",
+      "default": false,
+      "label": "Ask where to save the HDR file",
+      "description": "Opens the save dialog with JPEG XR chosen, instead of saving to the output folder",
+      "quickSettings": true
+    },
+    {
+      "key": "openInEditor",
+      "type": "Boolean",
+      "default": false,
+      "label": "Open in the editor instead",
+      "description": "Opens the HDR capture in the editor (shown tone mapped) instead of saving it: draw on it, then Save as JPEG XR keeps the HDR highlights, what you drew on top",
+      "quickSettings": true
+    },
+    {
+      "key": "askHowToSave",
+      "type": "Boolean",
+      "default": false,
+      "label": "Ask how to save an HDR capture",
+      "description": "When the capture has HDR content, asks whether to save it as an HDR file (JPEG XR) or as a PNG",
+      "quickSettings": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "Region",
+        "ScreenMode": "Live",
+        "Hdr": true
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "enabled": true,
+      "parameters": {
+        "SelectionMode": "Region"
+      }
+    },
+    {
+      "id": "ask",
+      "stepType": "UserPrompt",
+      "name": "Ask How to Save",
+      "enabled": true,
+      "when": "${option.askHowToSave && option.openInEditor == false && payload.hdr == 'Available'}",
+      "parameters": {
+        "Title": "HDR capture",
+        "Message": "This capture has HDR content. How do you want to save it?",
+        "Choices": [
+          { "Key": "Hdr", "Label": "HDR file (JPEG XR)", "IsDefault": true },
+          { "Key": "Png", "Label": "PNG", "Style": "Secondary" }
+        ]
+      }
+    },
+    {
+      "id": "save",
+      "stepType": "SaveFile",
+      "name": "Save as HDR File",
+      "enabled": true,
+      "when": "${option.openInEditor == false}",
+      "parameters": {
+        "HdrFormat": "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}",
+        "Format": "png",
+        "AskForFilename": "${option.askForFilename}"
+      }
+    },
+    {
+      "id": "notify",
+      "stepType": "Notification",
+      "name": "Completion Notification",
+      "enabled": true,
+      "when": "${option.openInEditor == false}",
+      "parameters": {
+        "NoHdrNote": true
+      }
+    },
+    {
+      "id": "editor",
+      "stepType": "Editor",
+      "name": "Open in the Editor",
+      "enabled": true,
+      "when": "${option.openInEditor}",
+      "parameters": {}
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": [
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "to": "save"
+      },
+      {
+        "from": "save",
+        "to": "notify"
+      },
+      {
+        "from": "notify",
+        "to": "editor"
+      }
+    ]
+  },
+  "translations": {
+    "de-DE": {
+      "name": "HDR-Bereich als Datei",
+      "description": "Einen Bereich auf dem laufenden Bildschirm eines HDR-Displays auswählen und als HDR-Datei speichern (JPEG XR, verlustfrei), mit den Spitzlichtern. Ohne HDR-Inhalt (SDR-Display, nichts heller als SDR-Weiß) wird ein PNG gespeichert, die Benachrichtigung sagt es.",
+      "options.askForFilename.label": "Fragen, wo die HDR-Datei gespeichert wird",
+      "options.askForFilename.description": "Öffnet den Speichern-Dialog mit JPEG XR, statt im Ausgabeordner zu speichern",
+      "options.openInEditor.label": "Stattdessen im Editor öffnen",
+      "options.openInEditor.description": "Öffnet die HDR-Aufnahme im Editor (dort mit Tone-Mapping angezeigt), statt sie zu speichern: darauf zeichnen, dann Speichern als JPEG XR behält die HDR-Spitzlichter, das Gezeichnete liegt darüber",
+      "options.askHowToSave.label": "Fragen, wie eine HDR-Aufnahme gespeichert wird",
+      "options.askHowToSave.description": "Fragt bei einer Aufnahme mit HDR-Inhalt, ob sie als HDR-Datei (JPEG XR) oder als PNG gespeichert wird",
+      "triggers.0.menuItemText": "HDR-Bereich als Datei"
+    }
+  },
+  "showInContextMenu": true
+}

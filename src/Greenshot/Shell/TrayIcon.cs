@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,11 +24,10 @@ using System.Windows;
 using System.Windows.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
-using Greenshot.Editor.Destinations;
 using Greenshot.Helpers;
+using Greenshot.Recipes;
 using Hardcodet.Wpf.TaskbarNotification;
 using log4net;
 
@@ -42,7 +41,6 @@ namespace Greenshot.Shell
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TrayIcon));
 
-        private readonly IGreenshotShell _shell;
         private readonly TrayMenu _trayMenu;
         private readonly DispatcherTimer _doubleClickTimer;
         private TaskbarIcon _taskbarIcon;
@@ -55,7 +53,6 @@ namespace Greenshot.Shell
 
         public TrayIcon(IGreenshotShell shell)
         {
-            _shell = shell;
             _trayMenu = new TrayMenu(shell);
 
             _doubleClickTimer = new DispatcherTimer(DispatcherPriority.Input)
@@ -66,21 +63,25 @@ namespace Greenshot.Shell
             {
                 // No second click in time: a single click
                 _doubleClickTimer.Stop();
-                OnClick(CoreConfig.LeftClickAction);
+                TrayClickRecipes.Start(CoreConfig.TrayClickRecipe, "Tray icon click");
             };
 
             _taskbarIcon = new TaskbarIcon
             {
+                // The constructor adds the icon without icon and tooltip, Windows 11 (26200) never shows such an icon.
+                // Removed here, it is added again with both when the shell sets Visible.
+                Visibility = Visibility.Collapsed,
                 Icon = GreenshotResources.GetGreenshotIcon(),
                 // Our own menu on a right click, see OnPreviewTrayContextMenuOpen
                 MenuActivation = PopupActivationMode.RightClick,
-                // The left click is handled here, with our own double click test
+                // The left click is handled here: it waits for a double click only when a double click runs something
                 NoLeftClickDelay = true
             };
             UpdateToolTip();
 
             _taskbarIcon.PreviewTrayContextMenuOpen += OnPreviewTrayContextMenuOpen;
             _taskbarIcon.TrayLeftMouseUp += OnTrayLeftMouseUp;
+            _taskbarIcon.TrayMouseDoubleClick += OnTrayMouseDoubleClick;
             _taskbarIcon.TrayBalloonTipClicked += OnBalloonTipClicked;
             _taskbarIcon.TrayBalloonTipClosed += OnBalloonTipClosed;
         }
@@ -223,78 +224,29 @@ namespace Greenshot.Shell
             }
         }
 
+        /// <summary>
+        /// The left button went up. For a double click this comes only once, for the first click: wpf-notifyicon raises
+        /// TrayMouseDoubleClick instead of the second (#1708)
+        /// </summary>
         private void OnTrayLeftMouseUp(object sender, RoutedEventArgs e)
         {
             var conf = CoreConfig;
-            if (conf.DoubleClickAction == ClickActions.DO_NOTHING)
+            if (string.IsNullOrWhiteSpace(conf.TrayDoubleClickRecipe))
             {
-                // As there isn't a double-click we can start the Left click
-                OnClick(conf.LeftClickAction);
+                // Nothing on a double click: no need to wait for one
+                TrayClickRecipes.Start(conf.TrayClickRecipe, "Tray icon click");
                 return;
             }
 
-            // If the timer is enabled we are waiting for a double click...
-            if (_doubleClickTimer.IsEnabled)
-            {
-                // User clicked a second time before the timer tick: Double-click!
-                _doubleClickTimer.Stop();
-                OnClick(conf.DoubleClickAction);
-            }
-            else
-            {
-                // If the timer ticks before the next click it was a single click
-                _doubleClickTimer.Start();
-            }
+            // If the timer ticks before a double click it was a single click
+            _doubleClickTimer.Start();
         }
 
-        /// <summary>
-        /// Handle a click on the tray icon
-        /// </summary>
-        private void OnClick(ClickActions clickAction)
+        private void OnTrayMouseDoubleClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                switch (clickAction)
-                {
-                    case ClickActions.OPEN_LAST_IN_EXPLORER:
-                        TrayActions.OpenLastCaptureLocation();
-                        break;
-                    case ClickActions.OPEN_LAST_IN_EDITOR:
-                        TrayActions.OpenLastCaptureInEditor();
-                        break;
-                    case ClickActions.OPEN_SETTINGS:
-                        _shell.ShowSetting();
-                        break;
-                    case ClickActions.SHOW_CONTEXT_MENU:
-                        _trayMenu.Show();
-                        break;
-                    case ClickActions.CAPTURE_CLIPBOARD:
-                        CaptureHelper.CaptureClipboard();
-                        break;
-                    case ClickActions.OPEN_CLIPBOARD_IN_EDITOR:
-                        CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                        break;
-                    case ClickActions.OPEN_FILE_IN_EDITOR:
-                        TrayActions.CaptureFile(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-                        break;
-                    case ClickActions.CAPTURE_REGION:
-                        CaptureHelper.CaptureRegion(false);
-                        break;
-                    case ClickActions.CAPTURE_SCREEN:
-                        CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
-                        break;
-                    case ClickActions.CAPTURE_WINDOW:
-                        CaptureHelper.CaptureWindowInteractive(false);
-                        break;
-                    case ClickActions.OPEN_EMPTY_EDITOR:
-                        TrayActions.OpenEmptyEditor();
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error in the tray icon click action {clickAction}", ex);
-            }
+            // Not a single click after all; without a double click recipe the single click ran already
+            _doubleClickTimer.Stop();
+            TrayClickRecipes.Start(CoreConfig.TrayDoubleClickRecipe, "Tray icon double-click");
         }
 
         /// <summary>

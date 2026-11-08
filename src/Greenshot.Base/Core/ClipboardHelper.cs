@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -489,7 +489,9 @@ namespace Greenshot.Base.Core
             {
                 // Do not allow to reduce the colors, some applications dislike 256 color images
                 // reported with bug #3594681
-                DisableReduceColors = true
+                DisableReduceColors = true,
+                // The PNG is made on every copy, so this can be set lower than for files
+                PngCompressionLevel = CoreConfiguration?.ClipboardPngCompressionLevel ?? 8
             };
             try
             {
@@ -782,6 +784,55 @@ namespace Greenshot.Base.Core
                 drawables = LoadFromFiles(source, LoadDrawables, firstOnly: false);
             }
             return drawables;
+        }
+
+        /// <summary>
+        /// The virtual files of the source (e.g. an image dragged from a browser) with an extension Greenshot can load, as they are.
+        /// The content is read right away, the data object of a drop is only valid during the drop.
+        /// </summary>
+        /// <param name="source">IClipboardDataSource, e.g. a DataObjectReader of a drop</param>
+        /// <returns>list with the files, empty when there are none (or they can't be read on this thread)</returns>
+        public static IList<ImageFileContent> GetVirtualImageFiles(IClipboardDataSource source)
+        {
+            if (source == null)
+            {
+                return new List<ImageFileContent>();
+            }
+
+            var supportedExtensions = SupportedExtensions(FileFormatHandlerActions.LoadDrawableFromStream);
+            return UseVirtualFiles(source, virtualFiles =>
+            {
+                var result = new List<ImageFileContent>();
+                foreach (var virtualFile in virtualFiles)
+                {
+                    string extension = SafeExtension(virtualFile.SafeFileName);
+                    if (virtualFile.IsDirectory || virtualFile.Size > MaxVirtualFileSize || extension == null || !supportedExtensions.Contains(extension))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        using var content = virtualFile.OpenContent();
+                        if (content == null)
+                        {
+                            continue;
+                        }
+
+                        using var memoryStream = new MemoryStream();
+                        content.CopyTo(memoryStream);
+                        if (memoryStream.Length > 0)
+                        {
+                            result.Add(new ImageFileContent(Path.GetFileName(virtualFile.SafeFileName), extension, memoryStream.ToArray()));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Couldn't read file contents for {virtualFile.SafeFileName}.", ex);
+                    }
+                }
+                return result;
+            }, new List<ImageFileContent>());
         }
 
         /// <summary>

@@ -7,7 +7,7 @@
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Base.Recipes.Contracts
 {
@@ -51,6 +52,26 @@ namespace Greenshot.Base.Recipes.Contracts
         public IAllowedValuesProvider AllowedValuesProvider { get; set; }
 
         public bool SupportsExpressions { get; set; } = true;
+
+        /// <summary>The type of an Object parameter's value, see <see cref="StepParameterAttribute.ValueType"/>; null for any value.</summary>
+        [JsonIgnore]
+        public Type ValueType { get; set; }
+
+        /// <summary>A text the user sees, which the translations of a recipe can translate, see <see cref="StepParameterAttribute.Translatable"/>.</summary>
+        public bool Translatable { get; set; }
+
+        /// <summary>Where the ${...} of the value is used, null for the default of the data type, see <see cref="EffectivePurpose"/></summary>
+        public Greenshot.Base.Expressions.TemplatePurpose? Purpose { get; set; }
+
+        /// <summary>Folder for paths, else Value, unless <see cref="Purpose"/> says otherwise</summary>
+        [JsonIgnore]
+        public Greenshot.Base.Expressions.TemplatePurpose EffectivePurpose =>
+            Purpose ?? (DataType == ContractDataType.DirectoryPath || DataType == ContractDataType.FilePath
+                ? Greenshot.Base.Expressions.TemplatePurpose.Folder
+                : Greenshot.Base.Expressions.TemplatePurpose.Value);
+
+        /// <summary>The step renders the template itself (it knows the folder or the written file), the engine leaves it as it is</summary>
+        public bool RenderedByStep { get; set; }
 
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);
@@ -127,11 +148,7 @@ namespace Greenshot.Base.Recipes.Contracts
             {
                 object value = node?.GetParameter<object>(result.Substring(keysPrefix.Length, result.Length - keysPrefix.Length - 1));
                 var keys = new List<string>();
-                if (value is Newtonsoft.Json.Linq.JObject jObject)
-                {
-                    keys.AddRange(jObject.Properties().Select(p => p.Name));
-                }
-                else if (value is System.Collections.IDictionary dictionary)
+                if (value is System.Collections.IDictionary dictionary)
                 {
                     foreach (var key in dictionary.Keys)
                     {
