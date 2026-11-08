@@ -332,6 +332,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelStandardInputText { get; }
 
         /// <summary>
+        /// The program reads this text from its input; nothing is quoted or split, so it is the place for values with spaces or quotes. Variables work, e.g. ${payload.title}; ${payload.ocr.text} only has the text in a recipe, after its OCR step.
+        /// </summary>
+        string LabelStandardInputTextHint { get; }
+
+        /// <summary>
         /// Exit codes which mean success
         /// </summary>
         string LabelSuccessExitCodes { get; }

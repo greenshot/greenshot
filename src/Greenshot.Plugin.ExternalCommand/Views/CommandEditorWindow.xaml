@@ -105,9 +105,11 @@
                                       ItemsSource="{Binding StandardInputOptions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding StandardInput, Mode=TwoWay}"/>
                             <Label Grid.Row="2" Content="{wpf:Text ExternalCommand.LabelStandardInputText}" Target="{Binding ElementName=StandardInputTextBox}" Margin="0,0,12,6"
                                    Visibility="{Binding HasStandardInputText, Converter={StaticResource VisibleWhenTrue}}"/>
-                            <TextBox x:Name="StandardInputTextBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,6"
-                                     Text="{Binding StandardInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Visibility="{Binding HasStandardInputText, Converter={StaticResource VisibleWhenTrue}}"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,6" Visibility="{Binding HasStandardInputText, Converter={StaticResource VisibleWhenTrue}}">
+                                <TextBox x:Name="StandardInputTextBox" Text="{Binding StandardInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="{wpf:Text ExternalCommand.LabelStandardInputTextHint}" TextWrapping="Wrap" Margin="0,2,0,0"
+                                           FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                            </StackPanel>
                             <Label Grid.Row="3" Content="{wpf:Text ExternalCommand.LabelWorkingDirectory}" Target="{Binding ElementName=WorkingDirectoryBox}" Margin="0,0,12,0"/>
                             <TextBox x:Name="WorkingDirectoryBox" Grid.Row="3" Grid.Column="1"
                                      Text="{Binding WorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

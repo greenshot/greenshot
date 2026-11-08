@@ -40,7 +40,7 @@ The main part is what most commands need:
 | Field | What it is | Recipe parameter |
 |---|---|---|
 | Use the file you saved last | The file the capture was saved to, instead of a new one (when there is one) | `File` `LastExport` |
-| Send to the program's input | Nothing; the capture, for a tool which reads it when it gets `-` instead of a file name; a text | `StandardInput`, `StandardInputText` |
+| Send to the program's input | Nothing; the capture, for a tool which reads it when it gets `-` instead of a file name; a text, with variables, e.g. `${payload.title}` (nothing is quoted or split, so values with spaces or quotes are safe). `${payload.ocr.text}` only has the text in a recipe, after its OCR step | `StandardInput`, `StandardInputText` |
 | Working folder | Empty: the folder of the capture file. Only needed for a program which looks for its own files in the current folder | `WorkingDirectory` |
 | Exit codes which mean success | Empty means `0`; several are separated by commas, e.g. `0,1` | `SuccessExitCodes` |
 | Timeout | Seconds, 0: no limit | `Timeout` |
