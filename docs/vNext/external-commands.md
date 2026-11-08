@@ -24,21 +24,30 @@ the menus until then.
 
 ### The editor
 
+The main part is what most commands need:
+
 | Field | What it is | Recipe parameter |
 |---|---|---|
 | Name | The name in the menus and in recipes; unique | `Command` |
-| Program | The program, e.g. `${user.localappdata}\Programs\tool.exe` ([variables.md](variables.md)) | `Program` |
-| Arguments | Default `"${export.file}"`; nothing is quoted for you | `Arguments` |
-| Working folder | Default the folder of the file | `WorkingDirectory` |
-| File | A new file; the saved file (the file the capture was saved to, else a new one); no file | `File` (`New`, `LastExport`, `None`) |
-| Image format | The format of the new file and of the image on standard input | `Format` |
-| Standard input | Nothing, the image, or a text | `StandardInput`, `StandardInputText` |
-| Output | Not read; text (a link in it is the link of the notification); a new image or the changed file (only in recipes) | `Output` |
-| Clipboard | With a text output: the output or the link in it | `CopyToClipboard` |
-| Success exit codes | e.g. `0,98,99` | `SuccessExitCodes` |
+| Program | The program, e.g. `${user.localappdata}\Programs\tool.exe` ([variables.md](variables.md)). *Choose app...* lists the apps which open the image format ("Open with"), the programs Windows knows by name (App Paths) and the command-line names of Windows Apps (App Execution Aliases), with a search; *Browse...* picks any program. A Windows App without a command-line name can't be given a file and isn't listed | `Program` |
+| Arguments | Default `"${export.file}"`; nothing is quoted for you. A picked app gets the arguments of its open command. Greenshot saves the capture to a file only when the arguments (or the working folder, or the text on standard input) use `${export.file}` | `Arguments`, `File` (`New` or `None`) |
+| Image format | The format of the file and of the image on standard input | `Format` |
+| Run in background | Greenshot doesn't wait for the program to close, for an app which stays open like an image editor; what it prints isn't read. A picked app gets it | `RunInBackground` |
+| Afterwards | Nothing; show a link it prints in the notification; copy what it prints; copy the link it prints | `Output` (`None`, `Text`), `CopyToClipboard` |
+
+*For command-line tools*, open when one of them isn't the default:
+
+| Field | What it is | Recipe parameter |
+|---|---|---|
+| Use the file you saved last | The file the capture was saved to, instead of a new one (when there is one) | `File` `LastExport` |
+| Send to the program's input | Nothing; the capture, for a tool which reads it when it gets `-` instead of a file name; a text | `StandardInput`, `StandardInputText` |
+| Working folder | Empty: the folder of the capture file. Only needed for a program which looks for its own files in the current folder | `WorkingDirectory` |
+| Exit codes which mean success | Empty means `0`; several are separated by commas, e.g. `0,1` | `SuccessExitCodes` |
 | Timeout | Seconds, 0: no limit | `Timeout` |
-| Encoding | `utf-8`, `oem` or an encoding name | `Encoding` |
-| Run in background | Greenshot doesn't wait for the command; its output isn't read | `RunInBackground` |
+| Encoding of what it prints | Empty means `utf-8`; `oem` for old console tools, or an encoding name | `Encoding` |
+
+A new image or the changed file (`Output` `Image`, `File`) only means something in a recipe, which sets it in its step. The
+editor doesn't offer it; an imported command which has it keeps it and the editor says so.
 
 Save checks the command like an imported file and tells what doesn't fit, e.g. a command in the background which should give
 a new image.

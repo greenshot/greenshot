@@ -32,6 +32,36 @@ namespace Greenshot.Plugin.ExternalCommand
     public interface IExternalCommandLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// Browse...
+        /// </summary>
+        string AppPickerBrowse { get; }
+
+        /// <summary>
+        /// Choose
+        /// </summary>
+        string AppPickerChoose { get; }
+
+        /// <summary>
+        /// The apps which open images, and the programs Windows knows by name. Not in the list? Browse for the program.
+        /// </summary>
+        string AppPickerHint { get; }
+
+        /// <summary>
+        /// No app found, browse for the program.
+        /// </summary>
+        string AppPickerNone { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string AppPickerSearch { get; }
+
+        /// <summary>
+        /// Choose an app
+        /// </summary>
+        string AppPickerTitle { get; }
+
+        /// <summary>
         /// A command file Greenshot wrote which was changed outside Greenshot is only used after you approve it: Greenshot asks when it starts, or approve it here. A file copied into the Commands folder is ignored, import it.
         /// </summary>
         string ApprovalHint { get; }
@@ -62,37 +92,27 @@ namespace Greenshot.Plugin.ExternalCommand
         string BuiltInHint { get; }
 
         /// <summary>
+        /// Copy the link it prints
+        /// </summary>
+        string ChoiceAfterCopyLink { get; }
+
+        /// <summary>
+        /// Copy what it prints
+        /// </summary>
+        string ChoiceAfterCopyOutput { get; }
+
+        /// <summary>
         /// Nothing
         /// </summary>
-        string ChoiceClipboardNone { get; }
+        string ChoiceAfterNothing { get; }
 
         /// <summary>
-        /// The output
+        /// Show a link it prints in the notification
         /// </summary>
-        string ChoiceClipboardOutput { get; }
+        string ChoiceAfterNotification { get; }
 
         /// <summary>
-        /// The link in the output
-        /// </summary>
-        string ChoiceClipboardUrl { get; }
-
-        /// <summary>
-        /// The saved file, else a new one
-        /// </summary>
-        string ChoiceFileLastExport { get; }
-
-        /// <summary>
-        /// A new file
-        /// </summary>
-        string ChoiceFileNew { get; }
-
-        /// <summary>
-        /// No file
-        /// </summary>
-        string ChoiceFileNone { get; }
-
-        /// <summary>
-        /// The image
+        /// The capture, for a tool which reads it when it gets "-" instead of a file name
         /// </summary>
         string ChoiceInputImage { get; }
 
@@ -105,26 +125,6 @@ namespace Greenshot.Plugin.ExternalCommand
         /// A text
         /// </summary>
         string ChoiceInputText { get; }
-
-        /// <summary>
-        /// The changed file (only in recipes)
-        /// </summary>
-        string ChoiceOutputFile { get; }
-
-        /// <summary>
-        /// A new image (only in recipes)
-        /// </summary>
-        string ChoiceOutputImage { get; }
-
-        /// <summary>
-        /// Not read
-        /// </summary>
-        string ChoiceOutputNone { get; }
-
-        /// <summary>
-        /// Text, a link in it is the link of the notification
-        /// </summary>
-        string ChoiceOutputText { get; }
 
         /// <summary>
         /// Configure external commands
@@ -227,7 +227,7 @@ namespace Greenshot.Plugin.ExternalCommand
         string ImportFileFilter { get; }
 
         /// <summary>
-        /// Import the command {0}?  Greenshot will run this program with your captures: {1}
+        /// Import the command {0}?\n\nGreenshot will run this program with your captures:\n{1}
         /// </summary>
         string ImportQuestion { get; }
 
@@ -252,19 +252,29 @@ namespace Greenshot.Plugin.ExternalCommand
         string ImportTrust { get; }
 
         /// <summary>
+        /// For command-line tools
+        /// </summary>
+        string LabelAdvanced { get; }
+
+        /// <summary>
+        /// Afterwards
+        /// </summary>
+        string LabelAfterwards { get; }
+
+        /// <summary>
         /// Arguments
         /// </summary>
         string LabelArgument { get; }
 
         /// <summary>
-        /// ${export.file} is the file of the capture, quote it: "${export.file}"
+        /// Greenshot saves the capture to a file and puts its path where ${export.file} is, keep the quotes: "${export.file}". Without ${export.file} no file is written.
         /// </summary>
         string LabelArgumentsHint { get; }
 
         /// <summary>
-        /// Choose the program
+        /// Choose app...
         /// </summary>
-        string LabelBrowse { get; }
+        string LabelChooseApp { get; }
 
         /// <summary>
         /// Commands
@@ -272,29 +282,24 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelCommands { get; }
 
         /// <summary>
-        /// Clipboard
-        /// </summary>
-        string LabelCopyToClipboard { get; }
-
-        /// <summary>
-        /// Encoding
+        /// Encoding of what it prints
         /// </summary>
         string LabelEncoding { get; }
 
         /// <summary>
-        /// File
+        /// Empty means UTF-8. oem for old console tools, or the name of an encoding, e.g. windows-1252.
         /// </summary>
-        string LabelFile { get; }
+        string LabelEncodingHint { get; }
+
+        /// <summary>
+        /// Use the file you saved last instead of a new one, when there is one
+        /// </summary>
+        string LabelLastSavedFile { get; }
 
         /// <summary>
         /// Name
         /// </summary>
         string LabelName { get; }
-
-        /// <summary>
-        /// Output
-        /// </summary>
-        string LabelOutput { get; }
 
         /// <summary>
         /// Image format
@@ -312,7 +317,12 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelRunInBackground { get; }
 
         /// <summary>
-        /// Standard input
+        /// Greenshot doesn't wait for the program to close, for an app which stays open like an image editor. What it prints isn't read.
+        /// </summary>
+        string LabelRunInBackgroundHint { get; }
+
+        /// <summary>
+        /// Send to the program's input (standard input)
         /// </summary>
         string LabelStandardInput { get; }
 
@@ -322,9 +332,14 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelStandardInputText { get; }
 
         /// <summary>
-        /// Success exit codes
+        /// Exit codes which mean success
         /// </summary>
         string LabelSuccessExitCodes { get; }
+
+        /// <summary>
+        /// Empty means 0. Several are separated by commas, e.g. 0,1. Any other exit code is shown as a failure.
+        /// </summary>
+        string LabelSuccessExitCodesHint { get; }
 
         /// <summary>
         /// Timeout (seconds, 0: none)
@@ -337,6 +352,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelWorkingDirectory { get; }
 
         /// <summary>
+        /// Empty: the folder of the capture file. Only needed for a program which looks for its own files in the current folder.
+        /// </summary>
+        string LabelWorkingDirectoryHint { get; }
+
+        /// <summary>
         /// No commands yet: add one, or import a command file.
         /// </summary>
         string NoCommands { get; }
@@ -345,6 +365,11 @@ namespace Greenshot.Plugin.ExternalCommand
         /// Not approved: {0}
         /// </summary>
         string NotApproved { get; }
+
+        /// <summary>
+        /// This command gives back a new image or changes the file, which only a recipe uses. From the menu Greenshot doesn't read what it prints.
+        /// </summary>
+        string RecipeOutputHint { get; }
 
         /// <summary>
         /// Remove the command {0}?

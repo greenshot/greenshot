@@ -85,13 +85,6 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
 
     public IReadOnlyList<FileFormatOption> Formats { get; }
 
-    public IReadOnlyList<ChoiceOption> FileOptions { get; } = new[]
-    {
-        new ChoiceOption(CommandDefinitions.FileNew, Language.ChoiceFileNew),
-        new ChoiceOption(CommandDefinitions.FileLastExport, Language.ChoiceFileLastExport),
-        new ChoiceOption(CommandDefinitions.FileNone, Language.ChoiceFileNone)
-    };
-
     public IReadOnlyList<ChoiceOption> StandardInputOptions { get; } = new[]
     {
         new ChoiceOption(CommandDefinitions.InputNone, Language.ChoiceInputNone),
@@ -99,19 +92,18 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
         new ChoiceOption(CommandDefinitions.InputText, Language.ChoiceInputText)
     };
 
-    public IReadOnlyList<ChoiceOption> OutputOptions { get; } = new[]
-    {
-        new ChoiceOption(nameof(CommandOutput.None), Language.ChoiceOutputNone),
-        new ChoiceOption(nameof(CommandOutput.Text), Language.ChoiceOutputText),
-        new ChoiceOption(nameof(CommandOutput.Image), Language.ChoiceOutputImage),
-        new ChoiceOption(nameof(CommandOutput.File), Language.ChoiceOutputFile)
-    };
+    private const string AfterNothing = "Nothing";
+    private const string AfterNotification = "Notification";
 
-    public IReadOnlyList<ChoiceOption> ClipboardOptions { get; } = new[]
+    /// <summary>
+    /// What happens with what the program prints: the output and the clipboard in one choice
+    /// </summary>
+    public IReadOnlyList<ChoiceOption> AfterwardsOptions { get; } = new[]
     {
-        new ChoiceOption(CommandDefinitions.ClipboardNone, Language.ChoiceClipboardNone),
-        new ChoiceOption(CommandDefinitions.ClipboardOutput, Language.ChoiceClipboardOutput),
-        new ChoiceOption(CommandDefinitions.ClipboardUrl, Language.ChoiceClipboardUrl)
+        new ChoiceOption(AfterNothing, Language.ChoiceAfterNothing),
+        new ChoiceOption(AfterNotification, Language.ChoiceAfterNotification),
+        new ChoiceOption(CommandDefinitions.ClipboardOutput, Language.ChoiceAfterCopyOutput),
+        new ChoiceOption(CommandDefinitions.ClipboardUrl, Language.ChoiceAfterCopyLink)
     };
 
     public string Name
@@ -138,10 +130,13 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
         set => Set(() => Definition.WorkingDirectory = value);
     }
 
-    public string File
+    /// <summary>
+    /// The file saved last instead of a new one; whether there is a file at all comes from the arguments (<see cref="UsesFile"/>)
+    /// </summary>
+    public bool UseLastSavedFile
     {
-        get => Definition.File;
-        set => Set(() => Definition.File = value);
+        get => CommandKind.Is(Definition.File, CommandDefinitions.FileLastExport);
+        set => Set(() => Definition.File = value ? CommandDefinitions.FileLastExport : CommandDefinitions.FileNew);
     }
 
     public string Format
@@ -165,19 +160,33 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
         set => Set(() => Definition.StandardInputText = value);
     }
 
-    public string Output
-    {
-        get => Definition.Output;
-        set => Set(() => Definition.Output = value, nameof(HasTextOutput));
-    }
+    /// <summary>
+    /// A new image or the changed file: only a recipe reads that, the editor doesn't offer it but keeps it
+    /// </summary>
+    public bool HasRecipeOutput => CommandKind.Is(Definition.Output, nameof(CommandOutput.Image)) || CommandKind.Is(Definition.Output, nameof(CommandOutput.File));
 
-    /// <summary>Only a text output can go to the clipboard</summary>
-    public bool HasTextOutput => CommandKind.Is(Definition.Output, nameof(CommandOutput.Text));
-
-    public string CopyToClipboard
+    /// <summary>
+    /// What happens with what the program prints, null for an output of a recipe
+    /// </summary>
+    public string Afterwards
     {
-        get => Definition.CopyToClipboard;
-        set => Set(() => Definition.CopyToClipboard = value);
+        get
+        {
+            if (HasRecipeOutput) return null;
+            if (!CommandKind.Is(Definition.Output, nameof(CommandOutput.Text))) return AfterNothing;
+            return CommandKind.Is(Definition.CopyToClipboard, CommandDefinitions.ClipboardNone) || string.IsNullOrEmpty(Definition.CopyToClipboard)
+                ? AfterNotification
+                : AfterwardsOptions.FirstOrDefault(option => CommandKind.Is(option.Value, Definition.CopyToClipboard))?.Value ?? AfterNotification;
+        }
+        set
+        {
+            if (value == null) return;
+            Set(() =>
+            {
+                Definition.Output = value == AfterNothing ? nameof(CommandOutput.None) : nameof(CommandOutput.Text);
+                Definition.CopyToClipboard = value is AfterNothing or AfterNotification ? CommandDefinitions.ClipboardNone : value;
+            }, nameof(HasRecipeOutput));
+        }
     }
 
     public string SuccessExitCodes
@@ -198,19 +207,70 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
         set => Set(() => Definition.Encoding = value);
     }
 
+    /// <summary>
+    /// Greenshot doesn't wait for the program, what it prints isn't read
+    /// </summary>
     public bool RunInBackground
     {
         get => Definition.RunInBackground;
-        set => Set(() => Definition.RunInBackground = value);
+        set => Set(() => Definition.RunInBackground = value, nameof(CanChooseAfterwards));
+    }
+
+    public bool CanChooseAfterwards => !Definition.RunInBackground;
+
+    /// <summary>
+    /// A setting for command-line tools isn't the default: that part is open when the window opens
+    /// </summary>
+    public bool HasAdvancedSettings =>
+        !CommandKind.Is(Definition.StandardInput, CommandDefinitions.InputNone)
+        || UseLastSavedFile
+        || !string.IsNullOrWhiteSpace(Definition.WorkingDirectory)
+        || (!string.IsNullOrWhiteSpace(Definition.SuccessExitCodes) && Definition.SuccessExitCodes.Trim() != "0")
+        || Definition.Timeout != 0
+        || (!string.IsNullOrWhiteSpace(Definition.Encoding) && !CommandKind.Is(Definition.Encoding, "utf-8"));
+
+    /// <summary>
+    /// Take the program and the arguments of a picked app; Greenshot doesn't wait for an app, it stays open
+    /// </summary>
+    internal void TakeApp(InstalledApp app)
+    {
+        if (app == null) return;
+        Program = app.Program;
+        Arguments = string.IsNullOrWhiteSpace(app.Arguments) ? CommandDefinition.DefaultArguments : app.Arguments;
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            Name = app.Name;
+        }
+
+        if (!HasRecipeOutput)
+        {
+            Afterwards = AfterNothing;
+            RunInBackground = true;
+        }
     }
 
     /// <summary>
-    /// The definition to save: the clipboard is only kept for a text output
+    /// The command uses a file: ${export.file} in what the program gets, or it gives back the changed file
+    /// </summary>
+    internal static bool UsesFile(CommandDefinition definition) =>
+        new[] { definition.Arguments, definition.WorkingDirectory, definition.StandardInputText }
+            .Any(text => text?.IndexOf("export.file", StringComparison.OrdinalIgnoreCase) >= 0)
+        || CommandKind.Is(definition.Output, nameof(CommandOutput.File));
+
+    /// <summary>
+    /// The definition to save: a file only when the command uses it, the clipboard only for a text output, nothing read in the background
     /// </summary>
     internal CommandDefinition ToDefinition()
     {
         var definition = Definition.Clone();
-        if (!HasTextOutput)
+        bool lastSaved = CommandKind.Is(definition.File, CommandDefinitions.FileLastExport);
+        definition.File = !UsesFile(definition) ? CommandDefinitions.FileNone : lastSaved ? CommandDefinitions.FileLastExport : CommandDefinitions.FileNew;
+        if (definition.RunInBackground && !HasRecipeOutput)
+        {
+            definition.Output = nameof(CommandOutput.None);
+        }
+
+        if (!CommandKind.Is(definition.Output, nameof(CommandOutput.Text)))
         {
             definition.CopyToClipboard = CommandDefinitions.ClipboardNone;
         }

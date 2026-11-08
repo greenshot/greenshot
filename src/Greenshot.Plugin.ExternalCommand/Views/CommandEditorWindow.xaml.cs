@@ -20,14 +20,13 @@
  */
 
 using System;
-using System.IO;
 using System.Windows;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Definitions;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.ExternalCommand.Running;
 using Greenshot.Plugin.ExternalCommand.ViewModels;
-using Microsoft.Win32;
 
 namespace Greenshot.Plugin.ExternalCommand.Views;
 
@@ -64,35 +63,16 @@ public partial class CommandEditorWindow : Window
         }
     }
 
-    private void Browse_Click(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// Pick one of the apps Windows knows, which open the image format, or browse for a program
+    /// </summary>
+    private void ChooseApp_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
+        string extension = FileFormatRegistry.GetPreferredExtensionWithDot(_viewModel.Format ?? WellKnownFileFormats.Png);
+        var picker = new AppPickerWindow(new AppPickerViewModel(InstalledApps.Find(extension))) { Owner = this };
+        if (picker.ShowDialog() == true)
         {
-            Filter = "Executables (*.exe, *.bat, *.com, *.cmd)|*.exe;*.bat;*.com;*.cmd|All files (*.*)|*.*",
-            CheckFileExists = true,
-            Multiselect = false
-        };
-
-        string folder = null;
-        try
-        {
-            folder = string.IsNullOrWhiteSpace(_viewModel.Program) ? null : Path.GetDirectoryName(_viewModel.Program);
-        }
-        catch (ArgumentException)
-        {
-            // Not a path, e.g. a template
-        }
-
-        dialog.InitialDirectory = folder != null && Directory.Exists(folder) ? folder : Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-        if (dialog.ShowDialog(this) != true)
-        {
-            return;
-        }
-
-        _viewModel.Program = dialog.FileName;
-        if (string.IsNullOrWhiteSpace(_viewModel.Name))
-        {
-            _viewModel.Name = Path.GetFileNameWithoutExtension(dialog.FileName);
+            _viewModel.TakeApp(picker.ChosenApp);
         }
     }
 }
