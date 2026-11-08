@@ -113,12 +113,6 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
     }
 
     /// <summary>
-    /// What the user approves for a recipe: the uploader and its server
-    /// </summary>
-    internal static RecipeGatedAction CreateGatedAction(UploaderDefinition definition) =>
-        new RecipeGatedAction(RecipeGateType.NetworkAccess, $"{definition.Name} ({UploaderFile.DescribeServer(definition)})");
-
-    /// <summary>
     /// Upload the capture with the uploader, shows the progress to the user, puts the link on the clipboard and keeps the upload.
     /// </summary>
     internal async Task<ExportResult> UploadAsync(IExportSource source, ICaptureDetails captureDetails, UploaderDefinition definition, IUserInteraction userInteraction, CancellationToken cancellationToken)
@@ -265,6 +259,5 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
     /// <summary>
     /// The readable uploaders
     /// </summary>
-    internal static UploaderDefinition[] GetUploaders() =>
-        CreateStore().GetUploaders().Where(uploader => uploader.Definition != null).Select(uploader => uploader.Definition).ToArray();
+    internal static IReadOnlyList<UploaderDefinition> GetUploaders() => CreateStore().GetReadable();
 }

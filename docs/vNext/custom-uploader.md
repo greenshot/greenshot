@@ -129,11 +129,11 @@ Everything is in `src/Greenshot.Plugin.CustomUploader`:
 | `Sxcu/PlaceholderSyntax.cs` | The `{name:parameter\|parameter}` syntax of ShareX 13.7 and later |
 | `Sxcu/UploaderRequest.cs` | The request: url with parameters, headers, multipart or binary body with `HttpContents` |
 | `Sxcu/UploaderResponse.cs` | Link, thumbnail, deletion link and error from the response |
-| `UploaderStore.cs` | The uploaders, their icons and the uploads in `[CustomUploader]`, uploaders and uploads encrypted with `StringExtensions.Encrypt` |
+| `UploaderStore.cs` | `UploaderKind` (uploaders as definitions, see [destination-definitions.md](destination-definitions.md)) and `UploaderStore`: the uploaders and their icons (`DefinitionStore`), the reminders and the uploads in `[CustomUploader]`, uploaders and uploads encrypted with `StringExtensions.Encrypt` |
 | `ServiceIcon.cs`, `Destinations/CustomUploaderIconProvider.cs` | The icon of the service, fetched at the import; the generic `Images/Upload.png` without one |
-| `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader |
+| `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader (`DefinitionDestination`) |
 | `Recipes/CustomUploaderStep.cs` | The recipe step, `Uploader` parameter, `CustomUploader.Url` output |
-| `ViewModels/`, `Views/` | The settings page: import (with the confirmation), remove, the uploads |
+| `ViewModels/`, `Views/` | The settings page: the uploaders (`DefinitionListView`), import (`DefinitionImport`, with the confirmation), remove, the uploads |
 
 HTTP goes through `HttpService.Current` like everywhere in Greenshot, see [http.md](http.md): the proxy, the certificate
 rules and the logging rules apply.
@@ -144,10 +144,10 @@ rules and the logging rules apply.
    body of old files, name) and checks it. `UploaderValuesWindow` shows `GetValues` (request url, parameters, headers,
    arguments) for the user to fill in (`UploaderValue.IsSecret` masks keys in a `PasswordBox`, `LooksLikePlaceholder`
    makes the view ask once), `WithValues` puts them into a copy and runs it through `UploaderFile.Read` again.
-   The view asks with `DescribeImport` and `ThemedMessageBox.ShowChoice` (Cancel is
+   The view asks with `DescribeImport` and `DefinitionImport.Confirm` (Cancel is
    the default, the buttons are armed after a second). `UploaderStore.Add` stores the normalized JSON encrypted and saves
    greenshot.ini at once.
-2. **Read**: `UploaderStore.GetUploaders` decrypts each uploader and runs it through `UploaderFile.Read` again, so a changed
+2. **Read**: `UploaderStore.GetAll` decrypts each uploader and runs it through `UploaderFile.Read` again, so a changed
    entry is checked like a file. One which can't be decrypted or doesn't pass has a null `Definition` and is only listed.
 3. **Upload** (thread pool): with the reminder of the import (`UploaderStore.RemindsBeforeUpload`) and an interactive
    export, `ConfirmUploadAsync` first asks with a `PreviewPromptRequest` (`IUserInteraction.ShowDialogAsync`), the generic

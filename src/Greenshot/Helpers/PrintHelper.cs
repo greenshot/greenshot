@@ -153,9 +153,13 @@ namespace Greenshot.Helpers
         /// print dialog.
         /// </summary>
         /// <returns>printer settings if actually printed, or null if print was cancelled or has failed</returns>
-        public PrinterSettings PrintWithDialog()
+        public PrinterSettings PrintWithDialog(string printerName = null)
         {
             PrinterSettings returnPrinterSettings = null;
+            if (!string.IsNullOrEmpty(printerName))
+            {
+                _printDialog.PrinterSettings.PrinterName = printerName;
+            }
             if (_printDialog.ShowDialog() != DialogResult.OK) return null;
 
             DialogResult? printOptionsResult = ShowPrintOptionsDialog();
