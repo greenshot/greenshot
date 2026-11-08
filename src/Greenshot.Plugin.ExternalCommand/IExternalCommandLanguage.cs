@@ -32,9 +32,199 @@ namespace Greenshot.Plugin.ExternalCommand
     public interface IExternalCommandLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// {0} comes with Greenshot: it can be exported, but not changed or removed.
+        /// </summary>
+        string BuiltInHint { get; }
+
+        /// <summary>
+        /// Nothing
+        /// </summary>
+        string ChoiceClipboardNone { get; }
+
+        /// <summary>
+        /// The output
+        /// </summary>
+        string ChoiceClipboardOutput { get; }
+
+        /// <summary>
+        /// The link in the output
+        /// </summary>
+        string ChoiceClipboardUrl { get; }
+
+        /// <summary>
+        /// The saved file, else a new one
+        /// </summary>
+        string ChoiceFileLastExport { get; }
+
+        /// <summary>
+        /// A new file
+        /// </summary>
+        string ChoiceFileNew { get; }
+
+        /// <summary>
+        /// No file
+        /// </summary>
+        string ChoiceFileNone { get; }
+
+        /// <summary>
+        /// The image
+        /// </summary>
+        string ChoiceInputImage { get; }
+
+        /// <summary>
+        /// Nothing
+        /// </summary>
+        string ChoiceInputNone { get; }
+
+        /// <summary>
+        /// A text
+        /// </summary>
+        string ChoiceInputText { get; }
+
+        /// <summary>
+        /// The changed file (only in recipes)
+        /// </summary>
+        string ChoiceOutputFile { get; }
+
+        /// <summary>
+        /// A new image (only in recipes)
+        /// </summary>
+        string ChoiceOutputImage { get; }
+
+        /// <summary>
+        /// Not read
+        /// </summary>
+        string ChoiceOutputNone { get; }
+
+        /// <summary>
+        /// Text, a link in it is the link of the notification
+        /// </summary>
+        string ChoiceOutputText { get; }
+
+        /// <summary>
         /// Configure external commands
         /// </summary>
         string ContextmenuConfigure { get; }
+
+        /// <summary>
+        /// The command can't be saved: {0}
+        /// </summary>
+        string EditorFailed { get; }
+
+        /// <summary>
+        /// Save
+        /// </summary>
+        string EditorSave { get; }
+
+        /// <summary>
+        /// Edit {0}
+        /// </summary>
+        string EditorTitleEdit { get; }
+
+        /// <summary>
+        /// New command
+        /// </summary>
+        string EditorTitleNew { get; }
+
+        /// <summary>
+        /// A command in the background can't give a new image or change the file.
+        /// </summary>
+        string ErrorBackgroundImage { get; }
+
+        /// <summary>
+        /// Only a text output can go to the clipboard.
+        /// </summary>
+        string ErrorClipboardWithoutText { get; }
+
+        /// <summary>
+        /// The file is too large for a command.
+        /// </summary>
+        string ErrorFileTooLarge { get; }
+
+        /// <summary>
+        /// The command is of version {0}, which needs a newer Greenshot.
+        /// </summary>
+        string ErrorNewerVersion { get; }
+
+        /// <summary>
+        /// The command has no name.
+        /// </summary>
+        string ErrorNoName { get; }
+
+        /// <summary>
+        /// The command has no program.
+        /// </summary>
+        string ErrorNoProgram { get; }
+
+        /// <summary>
+        /// This is not a Greenshot command file.
+        /// </summary>
+        string ErrorNotACommand { get; }
+
+        /// <summary>
+        /// The output "the changed file" needs a file.
+        /// </summary>
+        string ErrorOutputFileWithoutFile { get; }
+
+        /// <summary>
+        /// The program can't be used: {0}
+        /// </summary>
+        string ErrorProgram { get; }
+
+        /// <summary>
+        /// {0} can't be "{1}".
+        /// </summary>
+        string ErrorValue { get; }
+
+        /// <summary>
+        /// The command couldn't be exported: {0}
+        /// </summary>
+        string ExportFailed { get; }
+
+        /// <summary>
+        /// Export a command
+        /// </summary>
+        string ExportTitle { get; }
+
+        /// <summary>
+        /// Import
+        /// </summary>
+        string ImportButton { get; }
+
+        /// <summary>
+        /// {0} can't be imported: {1}
+        /// </summary>
+        string ImportFailed { get; }
+
+        /// <summary>
+        /// Greenshot commands (*.gscommand.json)|*.gscommand.json|All files (*.*)|*.*
+        /// </summary>
+        string ImportFileFilter { get; }
+
+        /// <summary>
+        /// Import the command {0}?  Greenshot will run this program with your captures: {1}
+        /// </summary>
+        string ImportQuestion { get; }
+
+        /// <summary>
+        /// It replaces the command with the same name.
+        /// </summary>
+        string ImportReplaces { get; }
+
+        /// <summary>
+        /// The program also gets this text: {0}
+        /// </summary>
+        string ImportStandardInput { get; }
+
+        /// <summary>
+        /// Import a command
+        /// </summary>
+        string ImportTitle { get; }
+
+        /// <summary>
+        /// Only import commands from someone you trust: the program runs with your rights.
+        /// </summary>
+        string ImportTrust { get; }
 
         /// <summary>
         /// Arguments
@@ -42,14 +232,14 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelArgument { get; }
 
         /// <summary>
+        /// ${export.file} is the file of the capture, quote it: "${export.file}"
+        /// </summary>
+        string LabelArgumentsHint { get; }
+
+        /// <summary>
         /// Choose the program
         /// </summary>
         string LabelBrowse { get; }
-
-        /// <summary>
-        /// Command
-        /// </summary>
-        string LabelCommand { get; }
 
         /// <summary>
         /// Commands
@@ -57,9 +247,19 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelCommands { get; }
 
         /// <summary>
-        /// {0} is the filename of your screenshot
+        /// Clipboard
         /// </summary>
-        string LabelInformation { get; }
+        string LabelCopyToClipboard { get; }
+
+        /// <summary>
+        /// Encoding
+        /// </summary>
+        string LabelEncoding { get; }
+
+        /// <summary>
+        /// File
+        /// </summary>
+        string LabelFile { get; }
 
         /// <summary>
         /// Name
@@ -67,29 +267,19 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelName { get; }
 
         /// <summary>
+        /// Output
+        /// </summary>
+        string LabelOutput { get; }
+
+        /// <summary>
         /// Image format
         /// </summary>
         string LabelOutputimageformat { get; }
 
         /// <summary>
-        /// Copy standard output to clipboard
+        /// Program
         /// </summary>
-        string LabelOutputToClipboard { get; }
-
-        /// <summary>
-        /// Parse output for URI and open on notification click
-        /// </summary>
-        string LabelParseOutputForUri { get; }
-
-        /// <summary>
-        /// Redirect standard error to Greenshot log (as warning)
-        /// </summary>
-        string LabelRedirectStandardError { get; }
-
-        /// <summary>
-        /// Redirect standard output
-        /// </summary>
-        string LabelRedirectStandardOutput { get; }
+        string LabelProgram { get; }
 
         /// <summary>
         /// Run in background
@@ -97,14 +287,44 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelRunInBackground { get; }
 
         /// <summary>
-        /// Show standard output in Greenshot log
+        /// Standard input
         /// </summary>
-        string LabelShowOutputInLog { get; }
+        string LabelStandardInput { get; }
 
         /// <summary>
-        /// Copy found URI to clipboard
+        /// Text
         /// </summary>
-        string LabelUriToClipboard { get; }
+        string LabelStandardInputText { get; }
+
+        /// <summary>
+        /// Success exit codes
+        /// </summary>
+        string LabelSuccessExitCodes { get; }
+
+        /// <summary>
+        /// Timeout (seconds, 0: none)
+        /// </summary>
+        string LabelTimeout { get; }
+
+        /// <summary>
+        /// Working folder
+        /// </summary>
+        string LabelWorkingDirectory { get; }
+
+        /// <summary>
+        /// No commands yet: add one, or import a command file.
+        /// </summary>
+        string NoCommands { get; }
+
+        /// <summary>
+        /// Remove the command {0}?
+        /// </summary>
+        string RemoveQuestion { get; }
+
+        /// <summary>
+        /// New and removed commands show up in the menus after Greenshot is restarted, a changed command is used at once.
+        /// </summary>
+        string RestartHint { get; }
 
         /// <summary>
         /// Delete
@@ -112,9 +332,9 @@ namespace Greenshot.Plugin.ExternalCommand
         string SettingsDelete { get; }
 
         /// <summary>
-        /// Configure command
+        /// Greenshot hands your capture to these programs. Each command is a destination, recipes use it by its name.
         /// </summary>
-        string SettingsDetailTitle { get; }
+        string SettingsDescription { get; }
 
         /// <summary>
         /// Edit
@@ -122,9 +342,14 @@ namespace Greenshot.Plugin.ExternalCommand
         string SettingsEdit { get; }
 
         /// <summary>
-        /// Select a command to edit details, or click New to add one.
+        /// Export...
         /// </summary>
-        string SettingsInstructions { get; }
+        string SettingsExport { get; }
+
+        /// <summary>
+        /// Import...
+        /// </summary>
+        string SettingsImport { get; }
 
         /// <summary>
         /// New
@@ -140,5 +365,10 @@ namespace Greenshot.Plugin.ExternalCommand
         /// A command with this name already exists. Please choose a different name.
         /// </summary>
         string TooltipDuplicateName { get; }
+
+        /// <summary>
+        /// (can't be read)
+        /// </summary>
+        string Unreadable { get; }
     }
 }

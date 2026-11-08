@@ -224,7 +224,7 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void Validate_RouteB_DestinationsExternal_FlagsExternalCommands()
         {
-            var extDest = new ExternalCommandDestination("MS Paint");
+            var extDest = new ExternalCommandDestination(new Greenshot.Plugin.ExternalCommand.Running.CommandDefinition { Name = "MS Paint", Program = "mspaint.exe" });
             SimpleServiceProvider.Current.AddService<IDestination>(extDest);
 
             var recipe = new CaptureRecipe("route_b_recipe", "Route B PoC")

@@ -1210,7 +1210,7 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Runs a program with the capture (as a file, on standard input, or not at all); exit code, output and errors are its results. `Command` uses a command configured in `greenshot.ini`. | `Command`, `Program`, `Arguments`, `WorkingDirectory`, `File`, `Format`, `JpegQuality`, `StandardInput`, `StandardInputText`, `Output`, `ResultName`, `CopyToClipboard`, `SuccessExitCodes`, `Timeout`, `Encoding`, `RunInBackground` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Runs a program with the capture (as a file, on standard input, or not at all); exit code, output and errors are its results. `Command` uses a command of the settings ([external-commands.md](external-commands.md)). | `Command`, `Program`, `Arguments`, `WorkingDirectory`, `File`, `Format`, `JpegQuality`, `StandardInput`, `StandardInputText`, `Output`, `ResultName`, `CopyToClipboard`, `SuccessExitCodes`, `Timeout`, `Encoding`, `RunInBackground` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
 | `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
@@ -1228,7 +1228,7 @@ The `ExternalCommand` step runs a program: an optimizer (`pngquant`, `optipng`, 
 
 | Channel | Parameter | Values | What may be in it |
 |---|---|---|---|
-| Program | `Program`, or `Command` (a configured one) | a path, e.g. `${user.localappdata}\Programs\tool.exe` | trusted values only |
+| Program | `Program`, or `Command` (a command of the settings) | a path, e.g. `${user.localappdata}\Programs\tool.exe` | trusted values only |
 | Arguments | `Arguments` | default `"${export.file}"` | trusted values and `${export.file}`; nothing is quoted for you |
 | Working folder | `WorkingDirectory` | default the folder of the file | trusted values only |
 | File | `File` | `New` (default): a new file in `Format`; `LastExport`: the file of the export before this step; `None`: no file | it is `${export.file}` |
@@ -1246,7 +1246,7 @@ Standard input is the place for values of the capture (title, OCR text, a URL): 
 
 `command` is the default of `ResultName`: with two commands in a recipe give each its own name. `CopyToClipboard` (`None`, `Output`, `Url`) copies the output or the URL found in it. `Timeout` (seconds, `0`: no limit) stops the command, so does cancelling the recipe; the processes the command started itself keep running. `Encoding` is the encoding of the texts: `utf-8` (default), `oem` (the console code page of Windows, for older console programs) or an encoding name. `RunInBackground` starts the command without waiting for it: `Output` must be `None` then, there are no results.
 
-With `Command` the settings of that configured command are the defaults (program, arguments, format, background, reading the output, clipboard); the parameters of the step win.
+With `Command` the step uses that command of the settings ([external-commands.md](external-commands.md)): its fields are the defaults, each parameter the step sets wins. A command of the settings reads no output unless it says `Text`; without `Command` the default of `Output` is `Text`. A command converted from Greenshot 1.3 has `File` `LastExport`: in a recipe that needs an export before the step, or `"File": "New"` in the step.
 
 #### Results
 

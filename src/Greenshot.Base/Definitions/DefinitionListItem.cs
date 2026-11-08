@@ -36,8 +36,10 @@ public sealed class DefinitionListItem
     /// <param name="description">what it does (<see cref="IDefinitionKind{T}.Describe"/>), null when it can't be read</param>
     /// <param name="isReadable">false when the definition can't be read</param>
     /// <param name="icon">the icon of the definition, else the generic one</param>
-    public DefinitionListItem(string id, string name, string description, bool isReadable, ImageSource icon)
+    /// <param name="isBuiltIn">comes with the plugin, can't be changed or removed</param>
+    public DefinitionListItem(string id, string name, string description, bool isReadable, ImageSource icon, bool isBuiltIn = false)
     {
+        IsBuiltIn = isBuiltIn;
         Id = id;
         Name = name;
         Description = description;
@@ -55,7 +57,7 @@ public sealed class DefinitionListItem
         if (stored == null) throw new ArgumentNullException(nameof(stored));
         bool readable = stored.Definition != null;
         return new DefinitionListItem(stored.Id, readable ? stored.Name : unreadableName, readable ? store.Kind.Describe(stored.Definition) : null, readable,
-            LoadIcon(store.GetIcon(stored.Id)) ?? genericIcon);
+            LoadIcon(store.GetIcon(stored.Id)) ?? genericIcon, stored.IsBuiltIn);
     }
 
     public string Id { get; }
@@ -68,6 +70,16 @@ public sealed class DefinitionListItem
     public string Description { get; }
 
     public bool IsReadable { get; }
+
+    /// <summary>
+    /// Comes with the plugin: can't be changed or removed
+    /// </summary>
+    public bool IsBuiltIn { get; }
+
+    /// <summary>
+    /// A stored definition which can be read: it can be changed and exported
+    /// </summary>
+    public bool IsEditable => IsReadable && !IsBuiltIn;
 
     public ImageSource Icon { get; }
 

@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Dapplo.Ini;
@@ -37,6 +38,8 @@ using Greenshot.Plugin.Atlassian.Confluence.Views;
 using Greenshot.Plugin.Dropbox;
 using Greenshot.Plugin.Dropbox.Views;
 using Greenshot.Plugin.ExternalCommand;
+using Greenshot.Plugin.ExternalCommand.Running;
+using Greenshot.Plugin.ExternalCommand.ViewModels;
 using Greenshot.Plugin.ExternalCommand.Views;
 using Greenshot.Plugin.Atlassian.Jira;
 using Greenshot.Plugin.Atlassian.Jira.Views;
@@ -129,8 +132,7 @@ namespace Greenshot.Tests.Forms
                     var zxingControl = new ZxingConfigurationView(zxingConfig);
                     Assert.NotNull(zxingControl);
 
-                    IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var extCmdControl = new ExternalCommandConfigurationView();
+                    var extCmdControl = new CommandSettingsView(new CommandSettingsViewModel(new CommandStore(new Dictionary<string, string>(), null)));
                     Assert.NotNull(extCmdControl);
 
                     var confluenceConfig = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
@@ -350,60 +352,30 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ExternalCommandConfigurationControl_PropertyBindingsAndDependentPropertiesWork()
+        public void CommandSettings_BuiltInCommand_CanBeExportedButNotChanged()
         {
             Exception threadEx = null;
             var thread = new Thread(() =>
             {
                 try
                 {
-                    var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var control = new ExternalCommandConfigurationView();
+                    var builtIn = new CommandDefinition { Name = "Built-in", Program = "builtin.exe" };
+                    var store = new CommandStore(new Dictionary<string, string>(), null, text => text, text => text, new[] { builtIn });
+                    store.Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
+                    var viewModel = new CommandSettingsViewModel(store);
+                    var editor = new CommandEditorWindow(new CommandEditorViewModel(new CommandDefinition(), null), viewModel.Save);
+                    Assert.NotNull(editor);
 
-                    // Per-command settings on SelectedCommand
-                    Assert.NotNull(control.SelectedCommand);
-                    var cmd = control.SelectedCommand;
+                    viewModel.SelectedCommand = viewModel.Commands.Single(item => item.Name == "Built-in");
+                    Assert.False(viewModel.CanEditSelected);
+                    Assert.False(viewModel.CanRemoveSelected);
+                    Assert.True(viewModel.CanExportSelected);
+                    Assert.NotNull(viewModel.BuiltInHint);
 
-                    cmd.RedirectStandardOutput = true;
-                    cmd.ParseOutputForUri = true;
-                    Assert.True(cmd.CanConfigureOutputOptions);
-                    Assert.True(cmd.CanConfigureUriToClipboard);
-
-                    cmd.ParseOutputForUri = false;
-                    Assert.True(cmd.CanConfigureOutputOptions);
-                    Assert.False(cmd.CanConfigureUriToClipboard);
-
-                    cmd.RedirectStandardOutput = false;
-                    Assert.False(cmd.CanConfigureOutputOptions);
-                    Assert.False(cmd.CanConfigureUriToClipboard);
-
-                    cmd.RedirectStandardOutput = true;
-                    cmd.ParseOutputForUri = true;
-
-                    // Boolean toggling on SelectedCommand
-                    cmd.RedirectStandardError = false;
-                    Assert.False(cmd.RedirectStandardError);
-                    Assert.False(config.RedirectStandardErrorCommand[cmd.Name]);
-                    cmd.RedirectStandardError = true;
-                    Assert.True(config.RedirectStandardErrorCommand[cmd.Name]);
-
-                    cmd.ShowStandardOutputInLog = true;
-                    Assert.True(cmd.ShowStandardOutputInLog);
-                    Assert.True(config.ShowStandardOutputInLogCommand[cmd.Name]);
-                    cmd.ShowStandardOutputInLog = false;
-                    Assert.False(config.ShowStandardOutputInLogCommand[cmd.Name]);
-
-                    cmd.OutputToClipboard = true;
-                    Assert.True(cmd.OutputToClipboard);
-                    Assert.True(config.OutputToClipboardCommand[cmd.Name]);
-                    cmd.OutputToClipboard = false;
-                    Assert.False(config.OutputToClipboardCommand[cmd.Name]);
-
-                    cmd.UriToClipboard = false;
-                    Assert.False(cmd.UriToClipboard);
-                    Assert.False(config.UriToClipboardCommand[cmd.Name]);
-                    cmd.UriToClipboard = true;
-                    Assert.True(config.UriToClipboardCommand[cmd.Name]);
+                    viewModel.SelectedCommand = viewModel.Commands.Single(item => item.Name == "Mine");
+                    Assert.True(viewModel.CanEditSelected);
+                    Assert.True(viewModel.CanRemoveSelected);
+                    Assert.Null(viewModel.BuiltInHint);
                 }
                 catch (Exception ex)
                 {

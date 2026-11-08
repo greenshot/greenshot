@@ -31,12 +31,18 @@ namespace Greenshot.Base.Definitions;
 /// </summary>
 public sealed class StoredDefinition<T> where T : class
 {
-    public StoredDefinition(string id, T definition, string name)
+    public StoredDefinition(string id, T definition, string name, bool isBuiltIn = false)
     {
         Id = id;
         Definition = definition;
         Name = name;
+        IsBuiltIn = isBuiltIn;
     }
+
+    /// <summary>
+    /// Comes with Greenshot or the plugin: not stored, can't be changed or removed
+    /// </summary>
+    public bool IsBuiltIn { get; }
 
     public string Id { get; }
 
@@ -63,6 +69,7 @@ public class DefinitionStore<T> where T : class
 
     private readonly IDictionary<string, string> _definitions;
     private readonly IDictionary<string, string> _icons;
+    private readonly IReadOnlyList<T> _builtIns;
     private readonly Action _changed;
     private readonly Func<string, string> _protect;
     private readonly Func<string, string> _unprotect;
@@ -73,9 +80,11 @@ public class DefinitionStore<T> where T : class
     /// <param name="icons">id of the definition to its icon (base64 PNG), null: not kept</param>
     /// <param name="protect">Encrypts, null: <see cref="StringExtensions.Encrypt"/></param>
     /// <param name="unprotect">Decrypts, null: <see cref="StringExtensions.Decrypt"/> (which gives back what it can't decrypt, the JSON then can't be read)</param>
+    /// <param name="builtIns">definitions which come with the plugin: listed with the stored ones, not stored, can't be changed or removed; their names can't be used</param>
     public DefinitionStore(IDefinitionKind<T> kind, IDictionary<string, string> definitions, Action changed, IDictionary<string, string> icons = null,
-        Func<string, string> protect = null, Func<string, string> unprotect = null)
+        Func<string, string> protect = null, Func<string, string> unprotect = null, IEnumerable<T> builtIns = null)
     {
+        _builtIns = builtIns?.Where(builtIn => builtIn != null).ToList() ?? new List<T>();
         Kind = kind ?? throw new ArgumentNullException(nameof(kind));
         _definitions = definitions ?? throw new ArgumentNullException(nameof(definitions));
         _icons = icons ?? new Dictionary<string, string>();
@@ -87,14 +96,23 @@ public class DefinitionStore<T> where T : class
     public IDefinitionKind<T> Kind { get; }
 
     /// <summary>
-    /// The definitions, sorted by name; those which can't be read at the end.
+    /// The prefix of the ids of the built-in definitions
+    /// </summary>
+    public const string BuiltInIdPrefix = "builtin:";
+
+    /// <summary>
+    /// The definitions, the built-in ones included, sorted by name; those which can't be read at the end.
     /// </summary>
     public IReadOnlyList<StoredDefinition<T>> GetAll()
     {
         lock (SyncRoot)
         {
-            return _definitions
-                .Select(entry => Stored(entry.Key, ReadDefinition(entry.Value)))
+            var stored = _definitions.Select(entry => Stored(entry.Key, ReadDefinition(entry.Value))).ToList();
+            // A stored definition with the name of a built-in one (stored before the program was installed) takes its place
+            return stored
+                .Concat(_builtIns
+                    .Where(builtIn => !stored.Any(s => s.Definition != null && string.Equals(s.Name, Kind.NameOf(builtIn), StringComparison.OrdinalIgnoreCase)))
+                    .Select(builtIn => new StoredDefinition<T>(BuiltInIdPrefix + Kind.NameOf(builtIn), builtIn, Kind.NameOf(builtIn), true)))
                 .OrderBy(stored => stored.Definition == null)
                 .ThenBy(stored => stored.Name, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
@@ -131,6 +149,7 @@ public class DefinitionStore<T> where T : class
     /// Add the checked definition, it replaces the one with the same name (and loses its icon, it may be another service now).
     /// </summary>
     /// <returns>the id</returns>
+    /// <exception cref="InvalidOperationException">the name is the one of a built-in definition</exception>
     public virtual string Add(T definition) => Add(definition, null);
 
     /// <summary>
@@ -141,6 +160,8 @@ public class DefinitionStore<T> where T : class
         if (definition == null) throw new ArgumentNullException(nameof(definition));
         string name = Kind.NameOf(definition);
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("The definition has no name", nameof(definition));
+
+        if (IsBuiltInName(name)) throw new InvalidOperationException($"{name} comes with Greenshot, it can't be replaced");
 
         string id;
         lock (SyncRoot)
@@ -185,6 +206,12 @@ public class DefinitionStore<T> where T : class
 
         return removed;
     }
+
+    /// <summary>
+    /// True when a built-in definition has the name (ignoring case) and no stored one took its place: it can't be used for another one
+    /// </summary>
+    public bool IsBuiltInName(string name) =>
+        name != null && GetAll().Any(stored => stored.IsBuiltIn && string.Equals(stored.Name, name.Trim(), StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// The icon of the definition (PNG), null when there is none or it can't be read

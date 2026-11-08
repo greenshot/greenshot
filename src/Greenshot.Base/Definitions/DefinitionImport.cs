@@ -59,6 +59,41 @@ public static class DefinitionImport
     }
 
     /// <summary>
+    /// Let the user pick where to export a definition
+    /// </summary>
+    /// <param name="owner">the settings window</param>
+    /// <param name="filter">the file types</param>
+    /// <param name="fileName">the proposed file name</param>
+    /// <returns>the path, null when the user cancelled</returns>
+    public static string PickExportFile(Window owner, string filter, string fileName)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = filter,
+            FileName = fileName,
+            OverwritePrompt = true,
+            AddExtension = true
+        };
+        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+    }
+
+    /// <summary>
+    /// A file name for the definition: its name without characters a file name can't have
+    /// </summary>
+    public static string FileNameFor(string name, string extension)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var safe = new StringBuilder();
+        foreach (char c in name ?? string.Empty)
+        {
+            safe.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
+        }
+
+        string fileName = safe.ToString().Trim();
+        return (fileName.Length == 0 ? "definition" : fileName) + extension;
+    }
+
+    /// <summary>
     /// Read the file (UTF-8) and check it with the parser of the kind.
     /// </summary>
     /// <param name="path">the file</param>

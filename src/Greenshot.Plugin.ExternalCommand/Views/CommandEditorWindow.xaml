@@ -1,0 +1,128 @@
+<Window x:Class="Greenshot.Plugin.ExternalCommand.Views.CommandEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{Binding Title}"
+        Width="600" SizeToContent="Height" MaxHeight="720"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        FocusManager.FocusedElement="{Binding ElementName=NameBox}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="VisibleWhenTrue"/>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource DefaultComboBoxStyle}">
+                <Setter Property="Margin" Value="0,0,0,6"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <DockPanel>
+            <wpf:ThemedTitleBar DockPanel.Dock="Top"/>
+
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="14,0,14,14">
+                <Button Content="{wpf:Text ExternalCommand.EditorSave}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Margin="0,0,6,0" Click="Save_Click"/>
+                <Button Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True"/>
+            </StackPanel>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThemedScrollViewer}" Margin="14,10,14,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="{wpf:Text ExternalCommand.LabelName}" Target="{Binding ElementName=NameBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="NameBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="1" Content="{wpf:Text ExternalCommand.LabelProgram}" Target="{Binding ElementName=ProgramBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="ProgramBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,6"
+                             Text="{Binding Program, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="..." Style="{StaticResource SecondaryButtonStyle}" Margin="4,0,0,6" Padding="8,0" Click="Browse_Click"
+                            ToolTip="{wpf:Text ExternalCommand.LabelBrowse}" AutomationProperties.Name="{wpf:Text ExternalCommand.LabelBrowse}"/>
+
+                    <Label Grid.Row="2" Content="{wpf:Text ExternalCommand.LabelArgument}" Target="{Binding ElementName=ArgumentsBox}" Margin="0,0,12,0"/>
+                    <TextBox x:Name="ArgumentsBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                             Text="{Binding Arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{wpf:Text ExternalCommand.LabelArgumentsHint}" TextWrapping="Wrap" Margin="0,2,0,6"
+                               FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+
+                    <Label Grid.Row="4" Content="{wpf:Text ExternalCommand.LabelWorkingDirectory}" Target="{Binding ElementName=WorkingDirectoryBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="WorkingDirectoryBox" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding WorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="5" Content="{wpf:Text ExternalCommand.LabelFile}" Target="{Binding ElementName=FileBox}" Margin="0,0,12,6"/>
+                    <ComboBox x:Name="FileBox" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+                              ItemsSource="{Binding FileOptions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding File, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="6" Content="{wpf:Text ExternalCommand.LabelOutputimageformat}" Target="{Binding ElementName=FormatBox}" Margin="0,0,12,6"/>
+                    <ComboBox x:Name="FormatBox" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"
+                              ItemsSource="{Binding Formats}" DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id" SelectedValue="{Binding Format, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="7" Content="{wpf:Text ExternalCommand.LabelStandardInput}" Target="{Binding ElementName=StandardInputBox}" Margin="0,0,12,6"/>
+                    <ComboBox x:Name="StandardInputBox" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2"
+                              ItemsSource="{Binding StandardInputOptions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding StandardInput, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="8" Content="{wpf:Text ExternalCommand.LabelStandardInputText}" Target="{Binding ElementName=StandardInputTextBox}" Margin="0,0,12,6"
+                           Visibility="{Binding HasStandardInputText, Converter={StaticResource VisibleWhenTrue}}"/>
+                    <TextBox x:Name="StandardInputTextBox" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding StandardInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Visibility="{Binding HasStandardInputText, Converter={StaticResource VisibleWhenTrue}}"/>
+
+                    <Label Grid.Row="9" Content="{wpf:Text ExternalCommand.LabelOutput}" Target="{Binding ElementName=OutputBox}" Margin="0,0,12,6"/>
+                    <ComboBox x:Name="OutputBox" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2"
+                              ItemsSource="{Binding OutputOptions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Output, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="10" Content="{wpf:Text ExternalCommand.LabelCopyToClipboard}" Target="{Binding ElementName=ClipboardBox}" Margin="0,0,12,6"
+                           Visibility="{Binding HasTextOutput, Converter={StaticResource VisibleWhenTrue}}"/>
+                    <ComboBox x:Name="ClipboardBox" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2"
+                              ItemsSource="{Binding ClipboardOptions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding CopyToClipboard, Mode=TwoWay}"
+                              Visibility="{Binding HasTextOutput, Converter={StaticResource VisibleWhenTrue}}"/>
+
+                    <Label Grid.Row="11" Content="{wpf:Text ExternalCommand.LabelSuccessExitCodes}" Target="{Binding ElementName=ExitCodesBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="ExitCodesBox" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding SuccessExitCodes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="12" Content="{wpf:Text ExternalCommand.LabelTimeout}" Target="{Binding ElementName=TimeoutBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="TimeoutBox" Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding Timeout, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="13" Content="{wpf:Text ExternalCommand.LabelEncoding}" Target="{Binding ElementName=EncodingBox}" Margin="0,0,12,6"/>
+                    <TextBox x:Name="EncodingBox" Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,6"
+                             Text="{Binding Encoding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <CheckBox Grid.Row="14" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4,0,0"
+                              IsChecked="{Binding RunInBackground, Mode=TwoWay}" Content="{wpf:Text ExternalCommand.LabelRunInBackground}"/>
+                </Grid>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</Window>

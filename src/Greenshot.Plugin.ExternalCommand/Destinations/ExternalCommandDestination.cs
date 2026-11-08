@@ -26,19 +26,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
-using Dapplo.Ini;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Definitions;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
-using Greenshot.Base.Expressions;
 using Greenshot.Plugin.ExternalCommand.Running;
 
 namespace Greenshot.Plugin.ExternalCommand.Destinations;
 
 /// <summary>
-/// Icons of the external commands: key "extcmd:commandName".
+/// Icons of the external commands: key "extcmd:commandName", the icon of the program of the definition.
 /// </summary>
 public sealed class ExternalCommandIconProvider : IIconProvider
 {
@@ -50,7 +49,8 @@ public sealed class ExternalCommandIconProvider : IIconProvider
 
     public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
     {
-        var icon = await IconCache.IconForCommandAsync(iconKey.Substring(Prefix.Length), cancellationToken).ConfigureAwait(false);
+        string name = iconKey.Substring(Prefix.Length);
+        var icon = await IconCache.IconForCommandAsync(CommandDefinitions.Find(name)?.Program, name, cancellationToken).ConfigureAwait(false);
         if (icon == null)
         {
             return null;
@@ -65,121 +65,126 @@ public sealed class ExternalCommandIconProvider : IIconProvider
 }
 
 /// <summary>
-/// Calls an external command with the capture.
+/// Calls the external command of a definition with the capture. One destination per definition, "External name" like in
+/// Greenshot 1.3, so OutputDestinations and recipes keep working.
 /// </summary>
-public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthorization
+public class ExternalCommandDestination : DefinitionItemDestination<CommandDefinition>
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 
+    private readonly bool _readsSettings;
+
+    /// <param name="definition">the command</param>
+    /// <param name="readsSettings">true: the command is read from the settings for each export (a change applies at once, a removed
+    /// command fails), false: the definition is used as it is (a recipe step)</param>
+    public ExternalCommandDestination(CommandDefinition definition, bool readsSettings = false) : base(CommandKind.Instance, definition)
+    {
+        _readsSettings = readsSettings;
+    }
+
+    public override string Designation => DesignationOf(Definition.Name);
+
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Definition.Name, iconKey: ExternalCommandIconProvider.KeyFor(Definition.Name));
+
     /// <summary>
-    /// What a file name handed to a command may not contain: no shell reads the arguments (the program is started directly), so only
-    /// what breaks a quoted argument (a quote, a line break) or is expanded by cmd.exe (%) is refused.
+    /// The designation of the destination of a command: "External name", as in Greenshot 1.3
     /// </summary>
-    private static readonly char[] UnsafeFileNameChars = { '"', '%', '\n', '\r' };
+    public static string DesignationOf(string name) => "External " + (name ?? string.Empty).Replace(',', '_');
 
-    private readonly string _presetCommand;
-
-    public ExternalCommandDestination(string commando)
-    {
-        _presetCommand = commando;
-        Descriptor = new DestinationDescriptor(commando, iconKey: ExternalCommandIconProvider.KeyFor(commando));
-    }
-
-    public IEnumerable<RecipeGatedAction> GetGatedActions()
-    {
-        string cmd = ConfiguredCommand.Find(_presetCommand)?.Program;
-        string target = !string.IsNullOrWhiteSpace(cmd) ? cmd : Designation;
-        yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
-    }
-
-    public override string Designation => "External " + _presetCommand.Replace(',', '_');
-
-    public override DestinationDescriptor Descriptor { get; }
-
+    /// <summary>
+    /// The command gets the file (in a destination LastExport is the file the capture was saved to, when it was), standard input and
+    /// its text output goes to the clipboard as the definition says. An image or file as output is only read by the recipe step.
+    /// </summary>
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
-        if (_presetCommand is null)
+        if (request == null) throw new ArgumentNullException(nameof(request));
+        var definition = _readsSettings ? CommandDefinitions.Find(Definition.Name) : Definition;
+        if (definition == null)
         {
-            LOG.Warn("No external command configured");
-            return ExportResult.Failed("No external command configured");
-        }
-
-        // check if the command is still configured
-        var command = ConfiguredCommand.Find(_presetCommand);
-        if (command == null)
-        {
-            string error = $"Unknown external command '{_presetCommand}'";
+            string error = $"Unknown external command '{Definition.Name}'";
             LOG.WarnFormat("Error calling external command: {0} ", error);
             return ExportResult.Failed(error);
         }
 
-        // fallback to PNG / background if the configuration is incomplete (the plugin repairs it on startup), or the format is unknown
-        string configuredFormat = command.Format ?? WellKnownFileFormats.Png;
         var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
-        if (formatRegistry != null && !formatRegistry.TryGet(configuredFormat, out _))
+        if (definition.Format != null && formatRegistry != null && !formatRegistry.TryGet(definition.Format, out _))
         {
-            LOG.WarnFormat("Unknown output file format '{0}' for external command '{1}'; using PNG.", configuredFormat, _presetCommand);
+            LOG.WarnFormat("Unknown output file format '{0}' for external command '{1}'; using PNG.", definition.Format, definition.Name);
         }
 
-        var outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(configuredFormat, WellKnownFileFormats.Png));
-        bool runInBackground = command.RunInBackground ?? true;
-        string fullPath = request.Metadata?.Filename
-                          ?? await ExportFiles.SaveNamedTmpFileAsync(request.Source, request.Metadata, outputSettings, cancellationToken).ConfigureAwait(false);
-
-        if (runInBackground)
+        var outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(definition.Format, WellKnownFileFormats.Png));
+        string fullPath = null;
+        if (!CommandKind.Is(definition.File, CommandDefinitions.FileNone))
         {
-            // The command is started here, the export doesn't wait for it to finish. What fails before the command runs (a file name
-            // it doesn't accept, a missing program) completes the run right away: that is the result of the export, the notification
-            // of the flow shows it. A failure of the running command is reported by a notification of its own (the task is observed).
-            var run = RunAsync(command, fullPath, CancellationToken.None);
+            fullPath = (CommandKind.Is(definition.File, CommandDefinitions.FileLastExport) ? request.Metadata?.Filename : null)
+                       ?? await ExportFiles.SaveNamedTmpFileAsync(request.Source, request.Metadata, outputSettings, cancellationToken).ConfigureAwait(false);
+        }
+
+        CommandRequest commandRequest;
+        try
+        {
+            commandRequest = CommandDefinitions.CreateRequest(definition, fullPath, VariableScope.ForCapture(request.Metadata));
+            if (CommandKind.Is(definition.StandardInput, CommandDefinitions.InputImage))
+            {
+                var encoded = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                commandRequest.StandardInput = encoded.ToArray();
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            LOG.WarnFormat("Error calling external command {0}: {1}", definition.Name, ex.Message);
+            return ExportResult.Failed(ex.Message, ex);
+        }
+
+        if (commandRequest.Output is CommandOutput.Image or CommandOutput.File)
+        {
+            LOG.InfoFormat("The output {0} of the external command {1} is only read in a recipe step", commandRequest.Output, definition.Name);
+            commandRequest.Output = CommandOutput.None;
+        }
+
+        if (definition.RunInBackground)
+        {
+            // The command is started here, the export doesn't wait for it to finish. What fails before the command runs (a missing
+            // program) completes the run right away: that is the result of the export, the notification of the flow shows it.
+            // A failure of the running command is reported by a notification of its own (the task is observed).
+            var run = RunAsync(definition, commandRequest, fullPath, CancellationToken.None);
             if (run.IsCompleted)
             {
                 return await run.ConfigureAwait(false);
             }
-            ReportFailureAsync(run, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
+
+            ReportFailureAsync(definition.Name, run, request.Ui).FireAndLog("Running " + definition.Name, LOG);
             return ExportResult.Succeeded(fullPath);
         }
 
-        return await RunAsync(command, fullPath, cancellationToken).ConfigureAwait(false);
+        return await RunAsync(definition, commandRequest, fullPath, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task ReportFailureAsync(Task<ExportResult> run, IUserInteraction userInteraction)
+    private static async Task ReportFailureAsync(string name, Task<ExportResult> run, IUserInteraction userInteraction)
     {
         var result = await run.ConfigureAwait(false);
         if (result.Status == ExportStatus.Failed)
         {
-            await userInteraction.NotifyAsync(new Notification(NotificationKind.Error, $"{_presetCommand}: {result.Error}")).ConfigureAwait(false);
+            await userInteraction.NotifyAsync(new Notification(NotificationKind.Error, $"{name}: {result.Error}")).ConfigureAwait(false);
         }
     }
 
     /// <summary>
-    /// Call the external command, parse the output for an URI and place it (or the output) on the clipboard
+    /// Run the command, place the output or the URL in it on the clipboard as the definition says
     /// </summary>
-    private static async Task<ExportResult> RunAsync(ConfiguredCommand command, string fullPath, CancellationToken cancellationToken)
+    private static async Task<ExportResult> RunAsync(CommandDefinition definition, CommandRequest request, string fullPath, CancellationToken cancellationToken)
     {
         try
         {
-            var request = new CommandRequest
-            {
-                Program = OutputTemplates.RenderCommand(command.Program, VariableScope.Empty, out string problem) ?? throw new ArgumentException(problem),
-                Arguments = RenderArguments(command.Arguments, fullPath, VariableScope.Empty),
-                Output = command.ReadOutput ? CommandOutput.Text : CommandOutput.None,
-                ReadError = command.ReadError,
-                FindUrl = command.FindUrl
-            };
             var result = await CommandRunner.RunAsync(request, cancellationToken).ConfigureAwait(false);
-            if (command.ShowOutputInLog && result.Output?.Trim().Length > 0)
-            {
-                LOG.InfoFormat("Output:\n{0}", result.Output);
-            }
-
             if (!result.Succeeded)
             {
-                LOG.WarnFormat("Error calling external command {0}: {1}", command.Name, result.FailureMessage);
+                LOG.WarnFormat("Error calling external command {0}: {1}", definition.Name, result.FailureMessage);
                 return ExportResult.Failed(result.FailureMessage);
             }
 
-            string clipboardText = CommandRunner.ClipboardTextOf(result, command.CopyOutput, command.CopyUrl);
+            string clipboardText = CommandRunner.ClipboardTextOf(result, CommandKind.Is(definition.CopyToClipboard, CommandDefinitions.ClipboardOutput),
+                CommandKind.Is(definition.CopyToClipboard, CommandDefinitions.ClipboardUrl));
             if (clipboardText != null)
             {
                 await ClipboardService.Current.SetTextAsync(clipboardText, cancellationToken).ConfigureAwait(false);
@@ -193,24 +198,8 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
         }
         catch (Exception ex)
         {
-            LOG.WarnFormat("Error calling external command {0}: {1}", command.Name, ex.Message);
+            LOG.WarnFormat("Error calling external command {0}: {1}", definition.Name, ex.Message);
             return ExportResult.Failed(ex.Message, ex);
         }
-    }
-
-    /// <summary>
-    /// The arguments of a command: the template rendered for the file (${export.file}). Nothing of the capture can be part of it, the
-    /// file name can't hold characters which break a quoted argument.
-    /// </summary>
-    /// <exception cref="ArgumentException">The file name has a character which can't be passed safely</exception>
-    public static string RenderArguments(string arguments, string fullpath, VariableScope scope)
-    {
-        if (fullpath != null && fullpath.IndexOfAny(UnsafeFileNameChars) >= 0)
-        {
-            throw new ArgumentException($"The file name '{fullpath}' contains a character which can't be passed to a command safely (\", % or a line break).");
-        }
-
-        arguments ??= string.Empty;
-        return VariableResolver.Instance.Render(arguments, TemplatePurpose.Argument, (scope ?? VariableScope.Empty).With(exportFile: fullpath));
     }
 }

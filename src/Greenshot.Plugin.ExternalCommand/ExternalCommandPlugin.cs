@@ -25,7 +25,6 @@ using System.ComponentModel;
 using System.IO;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
-using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using System.Linq;
@@ -37,6 +36,8 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.ExternalCommand.Destinations;
 using Greenshot.Plugin.ExternalCommand.Recipes;
+using Greenshot.Plugin.ExternalCommand.Running;
+using Greenshot.Plugin.ExternalCommand.ViewModels;
 using Greenshot.Plugin.ExternalCommand.Views;
 using Greenshot.Base.Expressions;
 
@@ -48,7 +49,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-    private static IExternalCommandConfiguration ExternalCommandConfig;
 
     public ValueTask DisposeAsync()
     {
@@ -61,48 +61,20 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     public string Name => "ExternalCommand";
 
     /// <summary>
-    /// Check and eventually fix the command settings
+    /// The program of the command can be started now: a file, or a program on the PATH (also an App Execution Alias of a Windows App)
     /// </summary>
-    /// <param name="command"></param>
-    /// <returns>false if the command is not correctly configured</returns>
-    private bool IsCommandValid(string command)
+    private static bool CanRun(CommandDefinition command)
     {
-        if (!ExternalCommandConfig.RunInbackground.ContainsKey(command))
+        string program = OutputTemplates.RenderCommand(command.Program, VariableScope.Empty, out string problem);
+        if (program == null)
         {
-            Log.WarnFormat("Found missing runInbackground for {0}", command);
-            // Fix it
-            ExternalCommandConfig.RunInbackground.Add(command, true);
-        }
-
-        if (!ExternalCommandConfig.ArgumentTemplate.ContainsKey(command))
-        {
-            Log.WarnFormat("Found missing argument for {0}", command);
-            // Fix it
-            ExternalCommandConfig.ArgumentTemplate.Add(command, "${export.file}");
-        }
-
-        if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))
-        {
-            ExternalCommandConfig.OutputFormat.Add(command, WellKnownFileFormats.Png);
-        }
-
-        if (!ExternalCommandConfig.CommandlineTemplate.ContainsKey(command))
-        {
-            Log.WarnFormat("Found missing commandline for {0}", command);
+            Log.WarnFormat("The program {0} of the command {1} can't be used, the command is left out until the next start: {2}", command.Program, command.Name, problem);
             return false;
         }
 
-        string commandline = OutputTemplates.RenderCommand(ExternalCommandConfig.CommandlineTemplate[command], VariableScope.Empty, out string problem);
-        if (commandline == null)
+        if (!File.Exists(program) && PluginUtils.GetExePath(program) == null)
         {
-            Log.WarnFormat("The program {0} of the command {1} can't be used, the command is left out until the next start: {2}", ExternalCommandConfig.CommandlineTemplate[command], command, problem);
-            return false;
-        }
-
-        // The command line is started as a process: it is a file, or a program on the PATH (also an App Execution Alias of a Windows App)
-        if (!File.Exists(commandline) && PluginUtils.GetExePath(commandline) == null)
-        {
-            Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", ExternalCommandConfig.CommandlineTemplate[command], command);
+            Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", command.Program, command.Name);
             return false;
         }
 
@@ -114,26 +86,26 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         Texts.Register<IExternalCommandLanguage>(new ExternalCommandLanguageImpl());
         var externalCommandSection = new ExternalCommandConfigurationImpl();
         services.AddConfiguration(externalCommandSection);
-        ExternalCommandConfig = externalCommandSection;
 
         services.AddService<IIconProvider>(new ExternalCommandIconProvider());
         // The destinations come from the loaded configuration
         services.AddServices(CreateDestinations);
         services.AddRecipeStepProvider(this);
-        services.AddSettingsView<IExternalCommandConfiguration>(_ => new ExternalCommandConfigurationView());
+        services.AddSettingsView<CommandSettingsViewModel>(viewModel => new CommandSettingsView(viewModel));
     }
 
-    public object CreateSettingsViewModel(IServiceProvider services) => ExternalCommandConfig;
+    public object CreateSettingsViewModel(IServiceProvider services) => new CommandSettingsViewModel(CommandDefinitions.CreateStore());
 
     /// <summary>
     /// The destinations of the commands which can run now. A command whose program isn't found (a USB stick or network drive which
-    /// isn't there yet) stays in the configuration, it only gets no destination until the next start.
+    /// isn't there yet) stays in the settings, it only gets no destination until the next start. Commands added in the settings get
+    /// theirs with the next start too, a change of a command applies at once.
     /// </summary>
-    private IEnumerable<IDestination> CreateDestinations()
+    private static IEnumerable<IDestination> CreateDestinations()
     {
-        return ExternalCommandConfig.Commands
-            .Where(IsCommandValid)
-            .Select(command => (IDestination)new ExternalCommandDestination(command))
+        return CommandDefinitions.CreateStore().GetReadable()
+            .Where(CanRun)
+            .Select(command => (IDestination)new ExternalCommandDestination(command, readsSettings: true))
             .ToList();
     }
 
@@ -151,4 +123,4 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-}
+}

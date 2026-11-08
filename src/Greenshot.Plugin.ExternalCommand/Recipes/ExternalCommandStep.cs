@@ -50,7 +50,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     /// </summary>
     [StepInfo("ExternalCommand", "External Command", "Runs a program with the capture: as a file, on standard input, or not at all; its output, exit code and errors are the results of the step.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
-    [StepParameter("Command", ContractDataType.String, Description = "Name of an external command configured in the settings; its program, arguments and settings are the defaults of the other parameters")]
+    [StepParameter("Command", ContractDataType.String, Description = "Name of an external command of the settings; its program, arguments and settings are the defaults of the other parameters")]
     [StepParameter("Program", ContractDataType.FilePath, Purpose = TemplatePurpose.Command, RenderedByStep = true, Description = "The program to run, e.g. ${user.localappdata}\\Programs\\tool.exe (only trusted values)")]
     [StepParameter("Arguments", ContractDataType.String, Purpose = TemplatePurpose.Argument, RenderedByStep = true, Description = "Arguments, ${export.file} is the file (quote it yourself: \"${export.file}\"); default \"${export.file}\"")]
     [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Purpose = TemplatePurpose.Folder, RenderedByStep = true, Description = "Working directory of the command; default the folder of the file")]
@@ -78,17 +78,16 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
     [StepOutputVariable("{Parameter:ResultName|command}.error", ContractDataType.String, "Standard error of the command", Conditional = true)]
     public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
-        public const string FileNew = "New";
-        public const string FileLastExport = "LastExport";
-        public const string FileNone = "None";
-        public const string InputNone = "None";
-        public const string InputImage = "Image";
-        public const string InputText = "Text";
-        public const string ClipboardNone = "None";
-        public const string ClipboardOutput = "Output";
-        public const string ClipboardUrl = "Url";
+        public const string FileNew = CommandDefinitions.FileNew;
+        public const string FileLastExport = CommandDefinitions.FileLastExport;
+        public const string FileNone = CommandDefinitions.FileNone;
+        public const string InputNone = CommandDefinitions.InputNone;
+        public const string InputImage = CommandDefinitions.InputImage;
+        public const string InputText = CommandDefinitions.InputText;
+        public const string ClipboardNone = CommandDefinitions.ClipboardNone;
+        public const string ClipboardOutput = CommandDefinitions.ClipboardOutput;
+        public const string ClipboardUrl = CommandDefinitions.ClipboardUrl;
         public const string DefaultResultName = "command";
-        private const string DefaultArguments = "\"${export.file}\"";
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
 
@@ -107,25 +106,49 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             return string.IsNullOrWhiteSpace(value) ? fallback : value;
         }
 
-        private string ProgramTemplate(ConfiguredCommand configured) => Parameter("Program") ?? configured?.Program;
+        /// <summary>
+        /// The command of the step: the definition named by Command (a copy), each parameter which is set wins. Without Command the
+        /// parameters alone, the output is Text by default.
+        /// </summary>
+        /// <exception cref="ArgumentException">a choice has a value it doesn't know</exception>
+        public CommandDefinition ResolveCommand()
+        {
+            string commandName = Parameter("Command");
+            var named = CommandDefinitions.Find(commandName);
+            if (commandName != null && named == null)
+            {
+                Log.WarnFormat("ExternalCommandStep: there is no external command '{0}' in the settings.", commandName);
+            }
+
+            var command = named?.Clone() ?? new CommandDefinition { Name = commandName, Output = nameof(CommandOutput.Text) };
+            command.Program = Parameter("Program") ?? command.Program;
+            command.Arguments = Parameter("Arguments") ?? command.Arguments ?? CommandDefinition.DefaultArguments;
+            command.WorkingDirectory = Parameter("WorkingDirectory") ?? command.WorkingDirectory;
+            command.File = Choice("File", command.File ?? FileNew, CommandKind.FileValues);
+            command.Format = Parameter("Format") ?? command.Format;
+            command.StandardInput = Choice("StandardInput", command.StandardInput ?? InputNone, CommandKind.StandardInputValues);
+            command.StandardInputText = Parameter("StandardInputText") ?? command.StandardInputText;
+            command.Output = Choice("Output", command.Output ?? nameof(CommandOutput.Text), CommandKind.OutputValues);
+            command.CopyToClipboard = Choice("CopyToClipboard", command.CopyToClipboard ?? ClipboardNone, CommandKind.ClipboardValues);
+            command.SuccessExitCodes = Parameter("SuccessExitCodes") ?? command.SuccessExitCodes;
+            command.Timeout = NodeConfig.GetParameter<int?>("Timeout") ?? command.Timeout;
+            command.Encoding = Parameter("Encoding") ?? command.Encoding;
+            command.RunInBackground = NodeConfig.GetParameter<bool?>("RunInBackground") ?? command.RunInBackground;
+            return command;
+        }
 
         public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
-            string commandName = Parameter("Command");
-            string program = ProgramTemplate(ConfiguredCommand.Find(commandName));
-
-            string target = !string.IsNullOrEmpty(program)
-                ? (!string.IsNullOrEmpty(commandName) ? $"{commandName} ({program})" : program)
-                : (commandName ?? string.Empty);
-            // The approval shows what else the command gets and whether it replaces the image
-            if (string.Equals(Parameter("StandardInput"), InputText, StringComparison.OrdinalIgnoreCase))
+            string target;
+            try
             {
-                target += $", standard input: {Parameter("StandardInputText", string.Empty)}";
+                // The approval shows the program with its arguments, what else the command gets and whether it replaces the image
+                target = CommandKind.GateTarget(ResolveCommand());
             }
-            string output = Parameter("Output");
-            if (string.Equals(output, nameof(CommandOutput.Image), StringComparison.OrdinalIgnoreCase) || string.Equals(output, nameof(CommandOutput.File), StringComparison.OrdinalIgnoreCase))
+            catch (ArgumentException)
             {
-                target += ", replaces the image";
+                // A value the validator reports
+                target = Parameter("Program") ?? Parameter("Command") ?? string.Empty;
             }
 
             yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "Recipe.gate_external_command");
@@ -145,42 +168,23 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            // 1. The parameters, a configured command gives the defaults
-            string commandName = Parameter("Command");
-            var configured = ConfiguredCommand.Find(commandName);
-            if (commandName != null && configured == null)
+            // 1. The parameters, a command of the settings gives the defaults
+            var command = ResolveCommand();
+            if (string.IsNullOrWhiteSpace(command.Program))
             {
-                Log.WarnFormat("ExternalCommandStep: no command '{0}' is configured.", commandName);
-            }
-
-            string program = ProgramTemplate(configured);
-            if (string.IsNullOrWhiteSpace(program))
-            {
-                string msg = $"ExternalCommandStep: No program configured for command '{commandName ?? NodeConfig.Id}'.";
+                string msg = $"ExternalCommandStep: No program for command '{command.Name ?? NodeConfig.Id}'.";
                 context.LogStep(msg);
                 Log.Warn(msg);
                 return;
             }
 
-            string arguments = Parameter("Arguments") ?? configured?.Arguments ?? DefaultArguments;
-            string file = Choice("File", FileNew, FileNew, FileLastExport, FileNone);
-            string input = Choice("StandardInput", InputNone, InputNone, InputImage, InputText);
-            var output = (CommandOutput)Enum.Parse(typeof(CommandOutput),
-                Choice("Output", configured is { ReadOutput: false } ? nameof(CommandOutput.None) : nameof(CommandOutput.Text), Enum.GetNames(typeof(CommandOutput))));
+            string file = command.File;
+            string input = command.StandardInput;
             string resultName = Parameter("ResultName", DefaultResultName);
-            bool runInBackground = NodeConfig.GetParameter<bool?>("RunInBackground") ?? configured?.RunInBackground ?? false;
-            var (copyOutput, copyUrl) = ClipboardChoice(configured);
-            var encoding = EncodingOf(Parameter("Encoding"));
-            int timeoutSeconds = NodeConfig.GetParameter<int?>("Timeout") ?? 0;
-
-            if (runInBackground && output != CommandOutput.None)
-            {
-                // Nobody waits for the output of a command in the background
-                output = CommandOutput.None;
-            }
+            bool runInBackground = command.RunInBackground;
 
             var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
-            string formatStr = Parameter("Format") ?? configured?.Format;
+            string formatStr = command.Format;
             if (!string.IsNullOrWhiteSpace(formatStr) && formatRegistry != null && !formatRegistry.TryGet(formatStr, out _))
             {
                 Log.WarnFormat("Unknown output file format '{0}' for external command; using PNG.", formatStr);
@@ -207,39 +211,13 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             }
 
             // 3. Program, arguments, working folder and standard input
-            var scope = VariableScope.ForFlow(context);
-            var request = new CommandRequest
-            {
-                Program = OutputTemplates.RenderCommand(program, scope, out string problem) ?? throw new ArgumentException(problem),
-                Arguments = ExternalCommandDestination.RenderArguments(arguments, fullPath, scope),
-                Output = output,
-                ReadError = !runInBackground,
-                FindUrl = configured?.FindUrl ?? true,
-                Encoding = encoding,
-                Timeout = timeoutSeconds > 0 ? TimeSpan.FromSeconds(timeoutSeconds) : null,
-                SuccessExitCodes = CommandRunner.ParseExitCodes(Parameter("SuccessExitCodes"))
-            };
-
-            string workingDirectory = Parameter("WorkingDirectory");
-            if (workingDirectory != null)
-            {
-                request.WorkingDirectory = OutputTemplates.RenderFolder(workingDirectory, scope, out problem) ?? throw new ArgumentException(problem);
-            }
-            else if (fullPath != null)
-            {
-                request.WorkingDirectory = Path.GetDirectoryName(fullPath);
-            }
-
+            var request = CommandDefinitions.CreateRequest(command, fullPath, VariableScope.ForFlow(context));
+            var output = request.Output;
             if (input == InputImage)
             {
                 var source = await context.GetExportSourceAsync(cancellationToken).ConfigureAwait(false);
                 var encoded = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
                 request.StandardInput = encoded.ToArray();
-            }
-            else if (input == InputText)
-            {
-                string text = VariableResolver.Instance.Render(Parameter("StandardInputText", string.Empty), TemplatePurpose.Text, scope);
-                request.StandardInput = encoding.GetBytes(text ?? string.Empty);
             }
 
             // The standard input isn't logged, it can be the text of the capture
@@ -252,7 +230,7 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
                 // The flow doesn't wait for the command, the task is observed (logged) and outlives the flow
                 CommandRunner.RunAsync(request, CancellationToken.None)
                     .FireAndLog($"External command background execution: {request.Program}", Log);
-                context.LogStep($"External command '{commandName ?? request.Program}' launched in background.");
+                context.LogStep($"External command '{command.Name ?? request.Program}' launched in background.");
                 return;
             }
 
@@ -269,14 +247,9 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
                     surface.UploadUrl = result.Url;
                 }
             }
-            if (configured?.ShowOutputInLog == true && result.Output?.Trim().Length > 0)
-            {
-                Log.InfoFormat("Output:\n{0}", result.Output);
-            }
-
             if (result.Succeeded)
             {
-                string clipboardText = CommandRunner.ClipboardTextOf(result, copyOutput, copyUrl);
+                string clipboardText = CommandRunner.ClipboardTextOf(result, command.CopyToClipboard == ClipboardOutput, command.CopyToClipboard == ClipboardUrl);
                 if (clipboardText != null)
                 {
                     await ClipboardService.For(context.Ui).SetTextAsync(clipboardText, cancellationToken).ConfigureAwait(false);
@@ -289,7 +262,9 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
             var exportResult = result.Succeeded
                 ? ExportResult.Succeeded(fullPath, Uri.TryCreate(result.Url, UriKind.Absolute, out var uri) ? uri : null, clearsModified: false)
                 : ExportResult.Failed(result.FailureMessage);
-            var destination = new ExternalCommandDestination(commandName ?? Path.GetFileNameWithoutExtension(request.Program));
+            var named = command.Clone();
+            named.Name ??= Path.GetFileNameWithoutExtension(request.Program);
+            var destination = new ExternalCommandDestination(named);
             await ExportResultHandler.ApplyAsync(destination, exportResult, exportSource, cancellationToken).ConfigureAwait(false);
             context.RecordExport(destination, exportResult, captureDetails, exportSource);
 
@@ -312,22 +287,11 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
         /// <summary>
         /// One of the allowed values of a parameter (case is ignored), the default when it isn't set
         /// </summary>
-        private string Choice(string name, string defaultValue, params string[] allowed)
+        private string Choice(string name, string defaultValue, IReadOnlyList<string> allowed)
         {
-            string value = Parameter(name);
-            if (value == null) return defaultValue;
+            string value = Parameter(name) ?? defaultValue;
             return allowed.FirstOrDefault(a => string.Equals(a, value, StringComparison.OrdinalIgnoreCase))
                 ?? throw new ArgumentException($"ExternalCommand: '{value}' is not a value of {name}, use one of {string.Join(", ", allowed)}.");
-        }
-
-        private (bool CopyOutput, bool CopyUrl) ClipboardChoice(ConfiguredCommand configured)
-        {
-            if (Parameter("CopyToClipboard") == null && configured != null)
-            {
-                return (configured.CopyOutput, configured.CopyUrl);
-            }
-            string choice = Choice("CopyToClipboard", ClipboardNone, ClipboardNone, ClipboardOutput, ClipboardUrl);
-            return (choice == ClipboardOutput, choice == ClipboardUrl);
         }
 
         /// <summary>

@@ -32,6 +32,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Destinations;
+using Greenshot.Plugin.ExternalCommand.Running;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -49,18 +50,14 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public async Task Export_InTheBackground_FileNameItDoesntAccept_Fails()
         {
-            var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            config.Commands ??= new List<string>();
-            config.CommandlineTemplate ??= new Dictionary<string, string>();
-            config.ArgumentTemplate ??= new Dictionary<string, string>();
-            config.RunInbackground ??= new Dictionary<string, bool>();
-            string command = $"Test_{Guid.NewGuid():N}";
-            config.Commands.Add(command);
             // Never started: the file name is refused before
-            config.CommandlineTemplate[command] = "greenshot-test-command-which-does-not-exist.exe";
-            config.ArgumentTemplate[command] = "\"${export.file}\"";
-            config.RunInbackground[command] = true;
-            try
+            var command = new CommandDefinition
+            {
+                Name = $"Test_{Guid.NewGuid():N}",
+                Program = "greenshot-test-command-which-does-not-exist.exe",
+                File = "LastExport",
+                RunInBackground = true
+            };
             {
                 var capture = new Capture(new Bitmap(8, 8));
                 // cmd.exe would expand it, the external command doesn't accept it
@@ -73,13 +70,6 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.Equal(ExportStatus.Failed, result.Status);
                 Assert.Contains("can't be passed to a command safely", result.Error);
-            }
-            finally
-            {
-                config.Commands.Remove(command);
-                config.CommandlineTemplate.Remove(command);
-                config.ArgumentTemplate.Remove(command);
-                config.RunInbackground.Remove(command);
             }
         }
     }
