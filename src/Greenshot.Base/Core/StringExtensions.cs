@@ -34,7 +34,7 @@ namespace Greenshot.Base.Core
         private static readonly ILog LOG = LogManager.GetLogger(typeof(StringExtensions));
         private const string DPAPI_PREFIX = "dpapi:";
         // Never change this, stored values could not be decrypted any more
-        private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("Greenshot");
+        private static readonly byte[] DefaultEntropy = Encoding.UTF8.GetBytes("Greenshot");
         private const string RGBIV = "dlgjowejgogkklwj";
         private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
@@ -107,15 +107,16 @@ namespace Greenshot.Base.Core
         /// The value can only be decrypted by the same user, on the same machine or with a roaming profile.
         /// </summary>
         /// <param name="clearText">the string to call upon</param>
+        /// <param name="entropy">keeps the value apart from other parts, like a plugin, null: the Greenshot entropy. Decrypt needs the same</param>
         /// <returns>"dpapi:" followed by the base64 of the protected UTF-8 text</returns>
-        public static string Encrypt(this string clearText)
+        public static string Encrypt(this string clearText, byte[] entropy = null)
         {
             if (clearText == null)
             {
                 return null;
             }
 
-            byte[] encryptedBytes = ProtectedData.Protect(Encoding.UTF8.GetBytes(clearText), Entropy, DataProtectionScope.CurrentUser);
+            byte[] encryptedBytes = ProtectedData.Protect(Encoding.UTF8.GetBytes(clearText), entropy ?? DefaultEntropy, DataProtectionScope.CurrentUser);
             return DPAPI_PREFIX + Convert.ToBase64String(encryptedBytes);
         }
 
@@ -123,8 +124,9 @@ namespace Greenshot.Base.Core
         /// Unprotect a string that was stored in a config file.
         /// </summary>
         /// <param name="encryptedText">a DPAPI-prefixed encrypted string, or a legacy base64 encrypted string</param>
+        /// <param name="entropy">the entropy the value was encrypted with, null: the Greenshot entropy</param>
         /// <returns>Decrypted text, null when a DPAPI value belongs to another user or machine</returns>
-        public static string Decrypt(this string encryptedText)
+        public static string Decrypt(this string encryptedText, byte[] entropy = null)
         {
             if (string.IsNullOrEmpty(encryptedText))
             {
@@ -139,12 +141,12 @@ namespace Greenshot.Base.Core
             try
             {
                 byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText.Substring(DPAPI_PREFIX.Length));
-                byte[] clearTextBytes = ProtectedData.Unprotect(encryptedTextBytes, Entropy, DataProtectionScope.CurrentUser);
+                byte[] clearTextBytes = ProtectedData.Unprotect(encryptedTextBytes, entropy ?? DefaultEntropy, DataProtectionScope.CurrentUser);
                 return Encoding.UTF8.GetString(clearTextBytes);
             }
             catch (Exception ex)
             {
-                LOG.WarnFormat("Unable to decrypt a value, it was stored by another Windows user or on another machine. Error: {0}", ex.Message);
+                LOG.WarnFormat("Unable to decrypt a value, it was stored by another Windows user, on another machine or with another entropy. Error: {0}", ex.Message);
                 return null;
             }
         }
