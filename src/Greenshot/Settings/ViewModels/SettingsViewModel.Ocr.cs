@@ -41,7 +41,6 @@ namespace Greenshot.Settings.ViewModels
     {
         private IWin10Configuration _win10Configuration;
         private IList<OcrLanguage> _ocrLanguages;
-        private bool _preparingOcrEngine;
 
         /// <summary>
         /// The OCR engines: Windows OCR and those of plugins
@@ -67,7 +66,7 @@ namespace Greenshot.Settings.ViewModels
             set
             {
                 string previous = OcrEngineSelector.ConfiguredId;
-                if (Win10Configuration == null || _preparingOcrEngine || string.IsNullOrEmpty(value) || string.Equals(previous, value, StringComparison.OrdinalIgnoreCase))
+                if (Win10Configuration == null || string.IsNullOrEmpty(value) || string.Equals(previous, value, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
@@ -86,9 +85,11 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
+        /// <summary>
+        /// The engine may download for a while (its window can be closed meanwhile); the choice goes back only when it is still this engine
+        /// </summary>
         private async Task PrepareOcrEngineAsync(IOcrEngine engine, string previous)
         {
-            _preparingOcrEngine = true;
             bool ready;
             try
             {
@@ -99,12 +100,8 @@ namespace Greenshot.Settings.ViewModels
                 Log.Warn($"OCR engine {engine.Id} couldn't get ready", ex);
                 ready = false;
             }
-            finally
-            {
-                _preparingOcrEngine = false;
-            }
 
-            if (!ready)
+            if (!ready && string.Equals(OcrEngineSelector.ConfiguredId, engine.Id, StringComparison.OrdinalIgnoreCase))
             {
                 SetOcrEngine(previous);
             }

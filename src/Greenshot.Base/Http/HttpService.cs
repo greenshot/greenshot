@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -163,6 +164,40 @@ namespace Greenshot.Base.Http
             }
 
             return response.Content == null ? Array.Empty<byte>() : await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Send the request (with headers of the caller) and read the content as bytes, reporting how many bytes arrived so far.
+        /// For large downloads which show a progress bar.
+        /// </summary>
+        /// <param name="request">HttpRequestMessage, disposed after sending</param>
+        /// <param name="received">gets the number of bytes received so far, may be null</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <exception cref="HttpRequestException">for an HTTP error</exception>
+        public async Task<byte[]> GetBytesAsync(HttpRequestMessage request, IProgress<long> received, CancellationToken cancellationToken)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (received == null) return await GetBytesAsync(request, cancellationToken).ConfigureAwait(false);
+            using var disposeRequest = request;
+            using var response = await SendCoreAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.ReasonPhrase}");
+            }
+
+            if (response.Content == null) return Array.Empty<byte>();
+            long? length = response.Content.Headers.ContentLength;
+            using var content = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var bytes = length is > 0 and < int.MaxValue ? new MemoryStream((int)length.Value) : new MemoryStream();
+            var buffer = new byte[81920];
+            int read;
+            while ((read = await content.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
+            {
+                await bytes.WriteAsync(buffer, 0, read, cancellationToken).ConfigureAwait(false);
+                received.Report(bytes.Length);
+            }
+
+            return bytes.ToArray();
         }
 
         /// <summary>

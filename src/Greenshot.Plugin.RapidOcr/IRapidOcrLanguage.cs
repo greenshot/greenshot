@@ -37,14 +37,34 @@ namespace Greenshot.Plugin.RapidOcr
         string DownloadButton { get; }
 
         /// <summary>
+        /// The download was cancelled, Windows OCR keeps recognizing text. Choose RapidOCR again in the settings to download it later.
+        /// </summary>
+        string DownloadCancelled { get; }
+
+        /// <summary>
+        /// Close
+        /// </summary>
+        string DownloadClose { get; }
+
+        /// <summary>
         /// RapidOCR couldn't be downloaded ({0}). Windows OCR keeps recognizing text, choose RapidOCR again in the settings to retry.
         /// </summary>
         string DownloadFailed { get; }
 
         /// <summary>
+        /// Inform me when done
+        /// </summary>
+        string DownloadInform { get; }
+
+        /// <summary>
         /// Not now
         /// </summary>
         string DownloadLater { get; }
+
+        /// <summary>
+        /// {0:0.0} MB of {1:0.0} MB
+        /// </summary>
+        string DownloadProgress { get; }
 
         /// <summary>
         /// RapidOCR recognizes text with the PaddleOCR models, it reads small and underlined text (links) better than Windows OCR, in many languages at once. It needs {0:0} MB of files, downloaded once:{1}- onnxruntime.dll from Microsoft (github.com/microsoft/onnxruntime){1}- the PaddleOCR models from RapidAI ({2}){1}{1}They are saved in {3}. Each file is checked before it is used. Download now?
@@ -57,9 +77,9 @@ namespace Greenshot.Plugin.RapidOcr
         string DownloadReady { get; }
 
         /// <summary>
-        /// RapidOCR is being downloaded, Windows OCR recognizes text until it is ready.
+        /// RapidOCR is being downloaded. You can close this window with "Inform me when done": the download goes on and Greenshot tells you when it is ready. Until then Windows OCR recognizes text.
         /// </summary>
-        string DownloadStarted { get; }
+        string DownloadRunning { get; }
 
         /// <summary>
         /// Download RapidOCR

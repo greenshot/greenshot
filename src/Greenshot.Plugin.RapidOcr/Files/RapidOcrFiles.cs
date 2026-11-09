@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,12 +36,13 @@ namespace Greenshot.Plugin.RapidOcr.Files;
 /// </summary>
 internal sealed class RapidOcrFile
 {
-    public RapidOcrFile(string name, string url, string zipEntry, long size, string sha256)
+    public RapidOcrFile(string name, string url, string zipEntry, long size, long transferSize, string sha256)
     {
         Name = name;
         Url = url;
         ZipEntry = zipEntry;
         Size = size;
+        TransferSize = transferSize;
         Sha256 = sha256;
     }
 
@@ -54,7 +56,32 @@ internal sealed class RapidOcrFile
 
     public long Size { get; }
 
+    /// <summary>What is transferred: the compressed size of a zip entry, else the size</summary>
+    public long TransferSize { get; }
+
     public string Sha256 { get; }
+}
+
+/// <summary>
+/// How far a download is: the file which is downloaded now (null at the end) and the bytes of all files
+/// </summary>
+internal sealed class DownloadProgress
+{
+    public DownloadProgress(string file, long received, long total)
+    {
+        File = file;
+        Received = received;
+        Total = total;
+    }
+
+    public string File { get; }
+
+    public long Received { get; }
+
+    public long Total { get; }
+
+    /// <summary>0 to 100</summary>
+    public double Percentage => Total <= 0 ? 100 : 100.0 * Received / Total;
 }
 
 /// <summary>
@@ -76,13 +103,13 @@ internal sealed class RapidOcrFiles
     /// </summary>
     internal static readonly IReadOnlyList<RapidOcrFile> All = new[]
     {
-        new RapidOcrFile(OnnxRuntimeFile, OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/lib/onnxruntime.dll", 17253728,
+        new RapidOcrFile(OnnxRuntimeFile, OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/lib/onnxruntime.dll", 17253728, 6178062,
             "cb2fa518b18356617f6f9f460c012501da2819ec7e5c1d80bd8f5de20492db0c"),
-        new RapidOcrFile("onnxruntime-LICENSE.txt", OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/LICENSE", 1094,
+        new RapidOcrFile("onnxruntime-LICENSE.txt", OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/LICENSE", 1094, 637,
             "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674"),
-        new RapidOcrFile(DetectionFile, ModelBase + "det/" + DetectionFile, null, 9929594,
+        new RapidOcrFile(DetectionFile, ModelBase + "det/" + DetectionFile, null, 9929594, 9929594,
             "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f"),
-        new RapidOcrFile(RecognitionFile, ModelBase + "rec/" + RecognitionFile, null, 21234383,
+        new RapidOcrFile(RecognitionFile, ModelBase + "rec/" + RecognitionFile, null, 21234383, 21234383,
             "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884"),
     };
 
@@ -94,8 +121,8 @@ internal sealed class RapidOcrFiles
     /// <summary>The folder of the files</summary>
     public string Directory { get; }
 
-    /// <summary>What is downloaded, in MB (the size of the zip entries is what is transferred, roughly)</summary>
-    public static double DownloadMegabytes => (6178062 + 637 + 9929594 + 21234383) / 1024.0 / 1024.0;
+    /// <summary>What is downloaded when nothing is there yet, in MB</summary>
+    public static double DownloadMegabytes => All.Sum(file => file.TransferSize) / 1024.0 / 1024.0;
 
     public string PathOf(string name) => Path.Combine(Directory, name);
 
@@ -123,16 +150,29 @@ internal sealed class RapidOcrFiles
     /// Download every file which is missing or not as expected; each is checked before it is saved
     /// </summary>
     /// <exception cref="InvalidDataException">a downloaded file isn't the expected one</exception>
-    public async Task DownloadAsync(HttpService http, CancellationToken cancellationToken)
+    public Task DownloadAsync(HttpService http, CancellationToken cancellationToken) => DownloadAsync(http, null, cancellationToken);
+
+    /// <summary>
+    /// Download every file which is missing or not as expected, reporting the bytes of all of them; each is checked before it is saved
+    /// </summary>
+    /// <exception cref="InvalidDataException">a downloaded file isn't the expected one</exception>
+    public async Task DownloadAsync(HttpService http, IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
     {
         System.IO.Directory.CreateDirectory(Directory);
-        foreach (var file in All)
+        var missing = All.Where(file => !IsValid(file)).ToList();
+        long total = missing.Sum(file => file.TransferSize);
+        long done = 0;
+        foreach (var file in missing)
         {
-            if (IsValid(file)) continue;
+            long before = done;
+            var received = progress == null ? null : new SynchronousProgress<long>(bytes =>
+                progress.Report(new DownloadProgress(file.Name, Math.Min(total, before + bytes), total)));
+            received?.Report(0);
 
             var content = file.ZipEntry == null
-                ? await http.GetBytesAsync(file.Url, cancellationToken).ConfigureAwait(false)
-                : await RemoteZip.ReadEntryAsync(http, file.Url, file.ZipEntry, cancellationToken).ConfigureAwait(false);
+                ? await http.GetBytesAsync(new HttpRequestMessage(HttpMethod.Get, file.Url), received, cancellationToken).ConfigureAwait(false)
+                : await RemoteZip.ReadEntryAsync(http, file.Url, file.ZipEntry, received, cancellationToken).ConfigureAwait(false);
+            done += file.TransferSize;
             string hash;
             using (var stream = new MemoryStream(content, false))
             {
@@ -150,6 +190,21 @@ internal sealed class RapidOcrFiles
             if (File.Exists(path)) File.Delete(path);
             File.Move(temporary, path);
         }
+
+        progress?.Report(new DownloadProgress(null, total, total));
+    }
+
+    /// <summary>
+    /// Calls the action right away, on the thread which reports: the bytes are turned into one report for the caller,
+    /// whose own IProgress then goes to its thread
+    /// </summary>
+    private sealed class SynchronousProgress<T> : IProgress<T>
+    {
+        private readonly Action<T> _action;
+
+        public SynchronousProgress(Action<T> action) => _action = action;
+
+        public void Report(T value) => _action(value);
     }
 
     private static string Hash(Stream stream)

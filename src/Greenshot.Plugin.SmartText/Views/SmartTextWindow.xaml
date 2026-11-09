@@ -50,7 +50,7 @@
                         <DataTemplate>
                             <RadioButton Content="{Binding Text}" GroupName="SmartTextFilter" Style="{StaticResource FilterChipRadioButtonStyle}"
                                          IsChecked="{Binding IsSelected, Mode=OneWay}" Click="Filter_Click"
-                                         AutomationProperties.Name="{Binding Text, FallbackValue=''}"/>
+                                         AutomationProperties.Name="{Binding Text, TargetNullValue=''}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -134,7 +134,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Focusable="False"
-                                              AutomationProperties.Name="{Binding AccessibleName, FallbackValue=''}"/>
+                                              AutomationProperties.Name="{Binding AccessibleName, TargetNullValue=''}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding Number}" MinWidth="20" Margin="4,0,6,0" VerticalAlignment="Center"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -144,7 +144,7 @@
                                     </StackPanel>
                                     <Button Grid.Column="3" Content="{Binding ActionText}" Style="{StaticResource SecondaryTextButtonStyle}" Margin="6,0,0,0"
                                             ToolTip="{Binding ActionTarget}" Click="Action_Click" Focusable="False"
-                                            AutomationProperties.Name="{Binding ActionText, FallbackValue=''}"
+                                            AutomationProperties.Name="{Binding ActionText, TargetNullValue=''}"
                                             Visibility="{Binding HasAction, Converter={StaticResource BoolToVisibility}}"/>
                                 </Grid>
                             </DataTemplate>
@@ -184,7 +184,7 @@
                 <Button DockPanel.Dock="Right" Content="{wpf:Text SmartText.Close}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True" Margin="6,0,0,0"
                         Click="Close_Click"/>
                 <Button DockPanel.Dock="Right" Content="{Binding PrimaryText}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanPick}"
-                        Click="Pick_Click" AutomationProperties.Name="{Binding PrimaryText, FallbackValue=''}"/>
+                        Click="Pick_Click" AutomationProperties.Name="{Binding PrimaryText, TargetNullValue=''}"/>
             </DockPanel>
         </Grid>
     </Border>

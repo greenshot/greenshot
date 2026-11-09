@@ -55,6 +55,39 @@ namespace Greenshot.Tests.RapidOcr
         }
 
         [Fact]
+        public async Task Entry_ReportsTheReceivedBytes()
+        {
+            var content = new byte[300000];
+            new Random(7).NextBytes(content);
+            var zip = CreateZip(("lib/onnxruntime.dll", content));
+            var http = new HttpService(new RangeHandler(zip), TimeSpan.FromSeconds(10));
+            var reports = new System.Collections.Generic.List<long>();
+
+            var read = await RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", "lib/onnxruntime.dll", new ListProgress(reports), TestContext.Current.CancellationToken);
+
+            Assert.Equal(content, read);
+            Assert.NotEmpty(reports);
+            // Growing up to the compressed size of the entry, which is all that was transferred for it
+            Assert.Equal(reports.OrderBy(value => value), reports);
+            Assert.InRange(reports[reports.Count - 1], 1, zip.Length);
+        }
+
+        /// <summary>
+        /// Reports right away on the reporting thread, so the test sees all of them when the read ended
+        /// </summary>
+        private sealed class ListProgress : IProgress<long>
+        {
+            private readonly System.Collections.Generic.List<long> _reports;
+
+            public ListProgress(System.Collections.Generic.List<long> reports) => _reports = reports;
+
+            public void Report(long value)
+            {
+                lock (_reports) _reports.Add(value);
+            }
+        }
+
+        [Fact]
         public async Task MissingEntry_IsRefused()
         {
             var http = new HttpService(new RangeHandler(CreateZip(("readme.txt", new byte[] { 1 }))), TimeSpan.FromSeconds(10));

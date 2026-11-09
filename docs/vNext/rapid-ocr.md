@@ -15,7 +15,7 @@ text of the editor (blur strength, Redact Text).
 
 ## The download
 
-Nothing large is installed. When RapidOCR is chosen the first time, Greenshot asks before it downloads about 35 MB:
+Nothing large is installed. When RapidOCR is chosen the first time, a download window asks before it downloads about 35 MB:
 
 | File | From | Size |
 |---|---|---|
@@ -28,8 +28,11 @@ Nothing large is installed. When RapidOCR is chosen the first time, Greenshot as
   removes the folder.
 - Every file has a fixed size and SHA-256 in the code. A download with another hash is not saved; before the first OCR all files
   are checked again, and a file which changed is never loaded (Windows OCR is used, choosing RapidOCR again downloads it again).
-- Until the download is done, and when it fails or is declined, Windows OCR recognizes the text. A notification says when RapidOCR
-  is ready or why it failed; declining switches the setting back.
+- The same window shows the download: a progress bar, the file and the MB received. *Cancel* stops it, *Inform me when done*
+  closes the window and the download goes on; Greenshot then shows a notification when RapidOCR is ready or why it failed.
+  Closing the window with its title bar does the same. When the window stays open it shows the result itself, without a notification.
+- Until the download is done, and when it fails, is cancelled or declined, Windows OCR recognizes the text; the setting goes back
+  to the engine chosen before (unless another one was chosen meanwhile).
 
 ## How it reads
 
@@ -51,8 +54,9 @@ Windows OCR read `https;L'githumconu'grrensh@/greenshot,'` and `getgceenshQt@gma
   `OcrEngineSelector` (Greenshot) is the `IOcrProvider` everybody uses, it picks the configured engine when it is ready.
 - `Greenshot.Plugin.RapidOcr/Recognition`: `BgrImage` (pixels as the models read them), `TextBoxFinder` (DB post processing),
   `TextModels` (detector, recognizer, CTC), `RapidOcrPipeline`.
-- `Greenshot.Plugin.RapidOcr/Files`: `RapidOcrFiles` (the pinned files, download, check), `RemoteZip` (one entry of a zip on a
-  server by range requests).
+- `Greenshot.Plugin.RapidOcr/Files`: `RapidOcrFiles` (the pinned files, download with progress, check), `RemoteZip` (one entry
+  of a zip on a server by range requests).
+- `Greenshot.Plugin.RapidOcr/Views/RapidOcrDownloadWindow` with `ViewModels/RapidOcrDownloadViewModel`: question, progress, result.
 - Tests: `Greenshot.Tests/RapidOcr`. With `GREENSHOT_RAPIDOCR_MODELS` (folder with `det.onnx` and `rec.onnx`) and
   `GREENSHOT_OCR_SAMPLES` (folder with PNG captures) `Samples_AreRead` writes `<name>.rapidocr.txt` per capture;
   `GREENSHOT_RAPIDOCR_ONLINE` downloads onnxruntime.dll from the release and checks its hash.

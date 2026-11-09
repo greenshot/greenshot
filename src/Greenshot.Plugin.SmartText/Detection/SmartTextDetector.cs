@@ -195,7 +195,9 @@ public sealed class SmartTextDetector
     }
 
     /// <summary>
-    /// The first word of the next line, when it starts about where the line starts (a web address broken by OCR)
+    /// The first word of the next line, when the web address was broken because the line was full: the next line starts about
+    /// where the line starts, the line reaches as far right as the lines around it, and the word can be a part of a web address.
+    /// A list of links (each ending with /) followed by a bullet or the next item is never joined.
     /// </summary>
     private static string Continuation(TextLayout layout, LayoutLine line)
     {
@@ -205,10 +207,24 @@ public sealed class SmartTextDetector
         bool below = next.Bounds.Top >= line.Bounds.Top + height / 2 && next.Bounds.Top <= line.Bounds.Bottom + height;
         bool aligned = Math.Abs(next.Bounds.Left - line.Bounds.Left) <= 2 * height;
         if (!below || !aligned || next.Words.Count == 0) return string.Empty;
+
+        // Text breaks at the end of a full line: a line which ends before its neighbours wasn't broken
+        int right = next.Bounds.Right;
+        if (line.Index > 0) right = Math.Max(right, layout.Lines[line.Index - 1].Bounds.Right);
+        if (line.Bounds.Right < right - 2 * height) return string.Empty;
+
         var first = next.Words[0];
         string word = next.Text.Substring(first.Start, first.Length);
-        return word.IndexOf("://", StringComparison.Ordinal) >= 0 ? string.Empty : word;
+        return IsUrlPart(word) && word.IndexOf("://", StringComparison.Ordinal) < 0 ? word : string.Empty;
     }
+
+    /// <summary>
+    /// Only the characters of a web address (RFC 3986), starting with a letter or digit: not a bullet, a dash of a list or a word with an umlaut
+    /// </summary>
+    private static bool IsUrlPart(string word) =>
+        word.Length > 0 && IsAsciiLetterOrDigit(word[0]) && word.All(c => IsAsciiLetterOrDigit(c) || "-._~:/?#[]@!$&'()*+,;=%".IndexOf(c) >= 0);
+
+    private static bool IsAsciiLetterOrDigit(char c) => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9';
 
     /// <summary>
     /// For every label: the value right of it (in its line, or in the next line on the same row), else below it

@@ -24,10 +24,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
@@ -38,6 +38,8 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RapidOcr.Files;
 using Greenshot.Plugin.RapidOcr.Recognition;
+using Greenshot.Plugin.RapidOcr.ViewModels;
+using Greenshot.Plugin.RapidOcr.Views;
 
 namespace Greenshot.Plugin.RapidOcr;
 
@@ -52,6 +54,8 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     private readonly object _lock = new();
     private RapidOcrPipeline _pipeline;
     private bool _invalid;
+    private Task<bool> _preparing;
+    private Window _window;
 
     public RapidOcrEngine(RapidOcrFiles files)
     {
@@ -69,36 +73,49 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     /// </summary>
     public bool IsReady => !_invalid && _files.AreComplete;
 
-    public async Task<bool> PrepareAsync(IntPtr owner, CancellationToken cancellationToken)
+    /// <summary>
+    /// Asks in the download window and downloads; must be called on the UI thread. While a download runs, its window comes
+    /// to the front (if still open) and the same download is awaited.
+    /// </summary>
+    /// <returns>true when the files are there, false when the user declined or cancelled, or the download failed</returns>
+    public Task<bool> PrepareAsync(IntPtr owner, CancellationToken cancellationToken)
     {
-        if (IsReady) return true;
+        if (IsReady) return Task.FromResult(true);
+        if (_preparing is { IsCompleted: false })
+        {
+            _window?.Activate();
+            return _preparing;
+        }
 
         string question = string.Format(Language.DownloadQuestion, RapidOcrFiles.DownloadMegabytes, Environment.NewLine, "modelscope.cn", _files.Directory);
-        var buttons = new[] { Language.DownloadButton, Language.DownloadLater };
-        int choice = owner != IntPtr.Zero
-            ? ThemedMessageBox.ShowChoice(owner, Language.DownloadTitle, question, MessageBoxImage.Question, buttons, 0, 1)
-            : ThemedMessageBox.ShowChoice(ActiveWindow(), Language.DownloadTitle, question, MessageBoxImage.Question, buttons, 0, 1);
-        if (choice != 0)
+        var viewModel = new RapidOcrDownloadViewModel(Language, question,
+            (progress, token) => _files.DownloadAsync(HttpService.Current, progress, token), Notify, cancellationToken);
+        var window = new RapidOcrDownloadWindow(viewModel);
+        if (owner != IntPtr.Zero)
         {
-            Log.Info("The RapidOCR download was declined");
-            return false;
+            new WindowInteropHelper(window).Owner = owner;
         }
+        else
+        {
+            window.Owner = ActiveWindow();
+            if (window.Owner == null) window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+        window.Closed += (_, _) => _window = null;
+        _window = window;
+        window.Show();
+        _preparing = FinishAsync(viewModel);
+        return _preparing;
+    }
 
-        Notify(NotificationKind.Info, Language.DownloadStarted);
-        try
+    private async Task<bool> FinishAsync(RapidOcrDownloadViewModel viewModel)
+    {
+        bool ready = await viewModel.Completion.ConfigureAwait(false);
+        if (ready)
         {
-            await _files.DownloadAsync(HttpService.Current, cancellationToken).ConfigureAwait(false);
             _invalid = false;
-            Log.InfoFormat("RapidOCR downloaded to {0}", _files.Directory);
-            Notify(NotificationKind.Info, Language.DownloadReady);
-            return true;
+            Log.InfoFormat("RapidOCR is in {0}", _files.Directory);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or TimeoutException or InvalidDataException)
-        {
-            Log.Warn("RapidOCR couldn't be downloaded", ex);
-            Notify(NotificationKind.Error, string.Format(Language.DownloadFailed, ex.Message));
-            return false;
-        }
+        return ready;
     }
 
     public Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null) => DoOcrAsync(surface?.Image, languageTag);

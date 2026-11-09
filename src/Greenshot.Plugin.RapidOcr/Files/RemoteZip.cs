@@ -47,26 +47,33 @@ internal static class RemoteZip
     /// The uncompressed content of the entry
     /// </summary>
     /// <exception cref="InvalidDataException">the zip or the entry isn't as expected</exception>
-    public static async Task<byte[]> ReadEntryAsync(HttpService http, string url, string entryName, CancellationToken cancellationToken)
+    public static Task<byte[]> ReadEntryAsync(HttpService http, string url, string entryName, CancellationToken cancellationToken) =>
+        ReadEntryAsync(http, url, entryName, null, cancellationToken);
+
+    /// <summary>
+    /// The uncompressed content of the entry, received reports the bytes of the (compressed) entry received so far
+    /// </summary>
+    /// <exception cref="InvalidDataException">the zip or the entry isn't as expected</exception>
+    public static async Task<byte[]> ReadEntryAsync(HttpService http, string url, string entryName, IProgress<long> received, CancellationToken cancellationToken)
     {
         // The end of the zip: where the central directory is. Not every server knows suffix ranges, so the size comes first
         long zipSize = await GetSizeAsync(http, url, cancellationToken).ConfigureAwait(false);
         long tailLength = Math.Min(zipSize, TailLength);
-        var tail = await GetRangeAsync(http, url, zipSize - tailLength, tailLength, cancellationToken).ConfigureAwait(false);
+        var tail = await GetRangeAsync(http, url, zipSize - tailLength, tailLength, null, cancellationToken).ConfigureAwait(false);
         int end = LastIndexOf(tail, EndOfCentralDirectory);
         if (end < 0) throw new InvalidDataException("No zip directory found");
         long directorySize = BitConverter.ToUInt32(tail, end + 12);
         long directoryOffset = BitConverter.ToUInt32(tail, end + 16);
         if (directoryOffset == uint.MaxValue || directorySize == uint.MaxValue) throw new InvalidDataException("Zip64 isn't supported");
 
-        var directory = await GetRangeAsync(http, url, directoryOffset, directorySize, cancellationToken).ConfigureAwait(false);
+        var directory = await GetRangeAsync(http, url, directoryOffset, directorySize, null, cancellationToken).ConfigureAwait(false);
         var (method, compressedSize, size, localOffset) = FindEntry(directory, entryName);
 
         // The local header has its own name and extra lengths
-        var header = await GetRangeAsync(http, url, localOffset, 30, cancellationToken).ConfigureAwait(false);
+        var header = await GetRangeAsync(http, url, localOffset, 30, null, cancellationToken).ConfigureAwait(false);
         if (BitConverter.ToUInt32(header, 0) != LocalFileHeader) throw new InvalidDataException("Damaged zip entry");
         long dataOffset = localOffset + 30 + BitConverter.ToUInt16(header, 26) + BitConverter.ToUInt16(header, 28);
-        var compressed = await GetRangeAsync(http, url, dataOffset, compressedSize, cancellationToken).ConfigureAwait(false);
+        var compressed = await GetRangeAsync(http, url, dataOffset, compressedSize, received, cancellationToken).ConfigureAwait(false);
 
         byte[] content;
         switch (method)
@@ -137,11 +144,11 @@ internal static class RemoteZip
     /// <summary>
     /// The bytes from the offset; a server which ignores the range is refused
     /// </summary>
-    private static async Task<byte[]> GetRangeAsync(HttpService http, string url, long offset, long length, CancellationToken cancellationToken)
+    private static async Task<byte[]> GetRangeAsync(HttpService http, string url, long offset, long length, IProgress<long> received, CancellationToken cancellationToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(offset, offset + length - 1);
-        var bytes = await http.GetBytesAsync(request, cancellationToken).ConfigureAwait(false);
+        var bytes = await http.GetBytesAsync(request, received, cancellationToken).ConfigureAwait(false);
         if (bytes.Length != length)
         {
             throw new InvalidDataException("The server doesn't send parts of the file");

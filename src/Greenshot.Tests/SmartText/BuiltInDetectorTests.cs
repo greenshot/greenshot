@@ -73,6 +73,30 @@ namespace Greenshot.Tests.SmartText
         }
 
         [Fact]
+        public void Url_BrokenAtTheEndOfAFullLine_GoesOnInTheNextLine()
+        {
+            Assert.Equal(new[] { "https://example.com/very/long/path/page.html" },
+                Values("Read https://example.com/very/long/\npath/page.html now", BuiltInDetectors.Url));
+        }
+
+        [Fact]
+        public void Url_InAListOfLinks_DoesntTakeTheNextBullet()
+        {
+            // The imprint of getgreenshot.org: every link ends with /, the next line starts with a bullet
+            const string text = "• our GitHub page at https://github.com/greenshot/greenshot/\n" +
+                                "• our SourceForge page at https://sourceforge.net/projects/greenshot/\n" +
+                                "• our Flattr page at https://flattr.com/thing/30384/";
+            Assert.Equal(new[] { "https://github.com/greenshot/greenshot/", "https://sourceforge.net/projects/greenshot/", "https://flattr.com/thing/30384/" },
+                Values(text, BuiltInDetectors.Url));
+        }
+
+        [Fact]
+        public void Url_AtTheEndOfAShortLine_DoesntTakeTheNextWord()
+        {
+            Assert.Equal(new[] { "https://example.com/" }, Values("see https://example.com/\nand then read the rest of this longer line", BuiltInDetectors.Url));
+        }
+
+        [Fact]
         public void Url_HasOpenAction()
         {
             var item = Assert.Single(Scan("https://example.com/x", BuiltInDetectors.Url));
