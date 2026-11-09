@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using Dapplo.Ini;
 using Dapplo.Ini.Configuration;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using static Greenshot.Base.Expressions.VariableTrust;
@@ -283,7 +284,9 @@ namespace Greenshot.Base.Expressions
             {
                 return true;
             }
-            if (!IniConfigRegistry.TryGet("greenshot.ini", out var iniConfig) || iniConfig == null)
+            // greenshot.ini, or the configuration of the defaults when there is none (designer, tests)
+            if ((!IniConfigRegistry.TryGet(IniConfigHelper.NormalConfigName, out var iniConfig) || iniConfig == null)
+                && (!IniConfigRegistry.TryGet(IniConfigHelper.DesignTimeConfigName, out iniConfig) || iniConfig == null))
             {
                 return true;
             }

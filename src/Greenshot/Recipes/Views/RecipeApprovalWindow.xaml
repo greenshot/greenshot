@@ -106,6 +106,10 @@
                                 </Grid>
                                 <TextBlock Text="{wpf:Text Recipe.ApprovalValidationInfo}" 
                                            Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <!-- A recipe from the catalog: a newer version from there may work with this Greenshot -->
+                                <TextBlock Text="{wpf:Text Recipe.ApprovalCatalogUpdateHint}"
+                                           Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
+                                           Visibility="{Binding CatalogUpdateVisibility}"/>
 
                                 <ItemsControl ItemsSource="{Binding ValidationErrors}">
                                     <ItemsControl.ItemTemplate>
@@ -579,6 +583,13 @@
                                 Click="OnCloseClicked"/>
 
                         <!-- Validation Error Actions -->
+                        <Button Content="{wpf:Text Recipe.ApprovalBtnUpdateFromCatalog}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                MinWidth="130" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding CatalogUpdateVisibility}"
+                                Click="OnUpdateFromCatalogClicked"
+                                ToolTip="{wpf:Text Recipe.ApprovalUpdateFromCatalogTooltip}"/>
+
                         <Button Content="{wpf:Text Recipe.ApprovalEditFile}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Width="130" Height="34" Margin="0,0,10,0"

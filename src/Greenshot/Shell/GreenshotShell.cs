@@ -53,6 +53,7 @@ using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Plugin.Win10;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
@@ -178,6 +179,7 @@ namespace Greenshot.Shell
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeCatalog>(new RecipeCatalogService());
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);

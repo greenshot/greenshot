@@ -78,6 +78,23 @@ that didn't come from the catalog (a built-in recipe, or one of your own files) 
 window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
 section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
 
+#### Updating recipes from the catalog
+
+A Greenshot update can change what recipes may contain, so a recipe installed from the catalog can stop loading. Greenshot
+recognizes such a recipe by its file (`Recipes\Catalog\<id>.gsrecipe.json` with an approval), also when the file can't be
+read any more:
+
+- the window with the errors of the recipe offers **Update from the Catalog**: it reads the signed index again and shows the
+  catalog version in the approval window, with what changed. When the catalog has nothing newer than the installed
+  version, Greenshot says so and shows nothing to approve.
+- **Check for Updates** in the recipe manager (shown while recipes from the catalog are installed) compares them with the
+  signed index. It lists the ones with another version in the catalog, and the ones Greenshot couldn't load, each with an
+  **Update** button. A catalog version which needs a newer Greenshot (`minGreenshot`) is listed but can't be installed, and
+  an older catalog version is never offered.
+
+Greenshot doesn't check the catalog on its own: it only goes online when you click one of these buttons. An update is
+approved like an install and replaces only the file in `Recipes\Catalog`.
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes
