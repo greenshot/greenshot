@@ -146,7 +146,7 @@ namespace Greenshot.Recipes.Catalog
             catch (Exception ex) when (ex is HttpRequestException || ex is TimeoutException)
             {
                 Log.Warn($"Couldn't download {url} from the recipe catalog.", ex);
-                throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogUnreachable, ex.Message));
+                throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogUnreachable, ex.Message)) { CanRetry = true };
             }
             if (bytes.Length > MaxFileLength)
             {
@@ -164,5 +164,10 @@ namespace Greenshot.Recipes.Catalog
         public RecipeCatalogException(string message) : base(message)
         {
         }
+
+        /// <summary>
+        /// The catalog couldn't be reached (e.g. a network error or a server timeout): trying again later may work
+        /// </summary>
+        public bool CanRetry { get; set; }
     }
 }

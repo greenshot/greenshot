@@ -535,7 +535,7 @@ namespace Greenshot.Base.Recipes
                     case string text when text.IndexOf("${", StringComparison.Ordinal) >= 0:
                         foreach (var problem in resolver.Validate(text, purpose))
                         {
-                            string message = $"{where}: {problem.Message} in '{text}'.";
+                            string message = $"{where} = '{text}': {problem.Message.TrimEnd('.')}.";
                             if (problem.IsWarning) result.AddWarning(message);
                             else result.AddError(message);
                         }
@@ -557,7 +557,7 @@ namespace Greenshot.Base.Recipes
                 foreach (var pair in node.Parameters)
                 {
                     var purpose = contract?.FindParameter(pair.Key)?.EffectivePurpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
-                    Check($"Node '{node.Id}' {pair.Key}", pair.Value, purpose);
+                    Check($"Node '{node.Id}', parameter {pair.Key}", pair.Value, purpose);
                 }
             }
             if (recipe.Triggers == null) return;
@@ -569,7 +569,7 @@ namespace Greenshot.Base.Recipes
                 if (trigger.Parameters == null) continue;
                 foreach (var pair in trigger.Parameters)
                 {
-                    Check($"Trigger {i + 1} {pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                    Check($"Trigger {i + 1}, parameter {pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
                 }
             }
         }

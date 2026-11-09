@@ -292,6 +292,48 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task Install_WhenTheCatalogTimesOut_OffersToTryAgain()
+        {
+            const string id = "catalog_retry";
+            await WithCatalogAsync(CreateCatalogRecipe(id), (request, cancellationToken) =>
+                Task.FromResult(new ApprovalResult(new RecipeApproval { ApprovedTriggers = new List<string>() }, false)), async (catalog, directory, messages) =>
+            {
+                var previousRetry = RecipeCatalogInstaller.AskRetry;
+                var asked = new List<string>();
+                bool answer = false;
+                try
+                {
+                    RecipeCatalogInstaller.AskRetry = (text, cancellationToken) =>
+                    {
+                        asked.Add(text);
+                        return Task.FromResult(answer);
+                    };
+
+                    // Cancel: nothing installed, and no second message about it
+                    catalog.IndexFailures = 1;
+                    Assert.Equal(RecipeCatalogInstallOutcome.Refused, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.Contains("504", Assert.Single(asked));
+                    Assert.Empty(messages);
+                    Assert.False(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+
+                    // Try again: the second download works
+                    asked.Clear();
+                    answer = true;
+                    catalog.IndexFailures = 1;
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.Single(asked);
+                    Assert.True(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+                }
+                finally
+                {
+                    RecipeCatalogInstaller.AskRetry = previousRetry;
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
+        [Fact]
         public async Task CheckForUpdates_OffersANewerCatalogVersion_AndTheUpdateInstallsIt()
         {
             const string id = "catalog_update";
@@ -574,6 +616,11 @@ namespace Greenshot.Tests.Recipes
                 MinGreenshot = minGreenshot;
             }
 
+            /// <summary>
+            /// How often the index download still fails with a gateway timeout
+            /// </summary>
+            public int IndexFailures { get; set; }
+
             public FakeHttpHandler Handler { get; }
 
             public RecipeCatalogClient Client(TestKey trusted) => new RecipeCatalogClient(new HttpService(Handler, TimeSpan.FromSeconds(10)), new[] { trusted.PublicKey });
@@ -595,6 +642,11 @@ namespace Greenshot.Tests.Recipes
                 string url = request.RequestUri.AbsoluteUri;
                 if (url == RecipeCatalogClient.IndexUrl)
                 {
+                    if (IndexFailures > 0)
+                    {
+                        IndexFailures--;
+                        return FakeHttpHandler.Text(HttpStatusCode.GatewayTimeout, "504 Gateway Time-out");
+                    }
                     return FakeHttpHandler.Bytes(Index());
                 }
                 if (url == RecipeCatalogClient.SignatureUrl)
