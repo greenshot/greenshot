@@ -82,7 +82,7 @@ namespace Greenshot.Recipes.Catalog
         public string Sha256 { get; set; }
 
         /// <summary>
-        /// The recipe file at the commit of the index
+        /// The recipe file at the commit of the index in the catalog repository; Greenshot reads the copy on the website
         /// </summary>
         public string Url { get; set; }
 
