@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using Greenshot.Document;
 using Greenshot.Document.Rendering;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -84,6 +85,31 @@ namespace Greenshot.Tests.Document
             // The shadow offset is on the canvas: still to the right, not below
             Assert.Equal(new Rgba32(0, 0, 0, 255), image[125, 50]);
             Assert.Equal(Of(White), image[100, 95]);
+        }
+
+        [Fact]
+        public void ARectangle_IsDrawnLikeInTheEditor_WithTheEditorsShadow()
+        {
+            var red = new Rgba(220, 30, 40, 255);
+            var box = new RectangleElement(Guid.NewGuid(), new RectD(60, 30, 80, 40))
+            {
+                Style = new Style { Stroke = new StrokeStyle { Width = 3, Color = red }, Fill = FillStyle.Of(Green), Shadow = new ShadowStyle { Enabled = true } }
+            };
+
+            using var image = DocumentRenderer.Render(Page(new Canvas(), White, box));
+            // What the editor's ImageSharp drawing (e.g. for an HDR file) draws for the same rectangle
+            using var editor = new Image<Rgba32>(200, 100, Of(White));
+            Shapes.Rectangle(editor, ImageValues.Srgb, new Rectangle(60, 30, 80, 40), 3, Of(red), Of(Green), true);
+
+            for (int y = 0; y < 100; y++)
+            {
+                for (int x = 0; x < 200; x++)
+                {
+                    Rgba32 expected = editor[x, y], actual = image[x, y];
+                    Assert.True(Math.Abs(expected.R - actual.R) <= 1 && Math.Abs(expected.G - actual.G) <= 1 && Math.Abs(expected.B - actual.B) <= 1,
+                        $"Pixel {x},{y}: expected {expected}, got {actual}");
+                }
+            }
         }
 
         [Fact]

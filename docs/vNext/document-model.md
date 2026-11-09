@@ -46,11 +46,15 @@ Arrows point to the referenced project.
 - **Greenshot.Document.Editor** is the bridge to the current editor. It maps a `Surface` to a document and back, and
   renders a document to a bitmap through a `Surface`.
 - **Greenshot.Document.Rendering** draws a document without the editor (`DocumentRenderer.Render`), with
-  ImageSharp.Drawing, which already ships with Greenshot. It draws what today's editor can't: turned elements, frames
-  with a band or rounded corners, frames along a turned target, labels. Shapes, shadows, arrow heads, highlight and
-  pixelate follow the editor's drawing; pixelate is the editor's algorithm with its noise, copied until both use one.
-  Not drawn the editor's way yet: freehand is a polyline (no curves), emojis are monochrome glyphs, cursors without
-  their mask, underline and strikeout, the shadow of a cut mark; SVG and metafile resources aren't drawn.
+  ImageSharp.Drawing, which already ships with Greenshot. Rectangles, ellipses, text boxes, lines, arrows, speech
+  bubbles, step labels and the lines of highlights and obfuscates are drawn by the editor's own ImageSharp painters
+  (`Greenshot.ImageSharpDrawing`, also used for HDR files), turned when the element is; the editor's shadow (no size,
+  darkness or offset) is theirs too. It draws what today's editor can't: turned elements, frames with a band or rounded
+  corners, frames along a turned target, labels. Pixelate is the editor's algorithm with its noise, copied until both
+  use one. Areas and line widths are rounded to whole pixels like in the editor. Not drawn the editor's way yet:
+  freehand is a polyline (no curves), emojis are monochrome glyphs, cursors without their mask, underline and
+  strikeout, the shadow of a cut mark; a text box ignores the text's `lineHeight`, `outline` and `wrap: false` (labels
+  and emojis still have them); SVG and metafile resources aren't drawn.
 - Only the tests reference these projects. Later, `Greenshot.csproj` references them in Debug builds only, and they
   register through `[assembly: GreenshotModule]`. The installer doesn't list them.
 

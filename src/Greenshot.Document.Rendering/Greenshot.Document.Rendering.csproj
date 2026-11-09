@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    Draws a GreenshotDocument into an image with ImageSharp.Drawing, without the editor, System.Drawing or WinForms.
+    Draws a GreenshotDocument into an image with ImageSharp.Drawing and the editor's ImageSharp painters (Greenshot.ImageSharpDrawing), without the editor, System.Drawing or WinForms.
     Experimental, nothing in a release build uses it yet.
   -->
   <PropertyGroup>
@@ -17,5 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
+    <ProjectReference Include="..\Greenshot.ImageSharpDrawing\Greenshot.ImageSharpDrawing.csproj" />
   </ItemGroup>
 </Project>

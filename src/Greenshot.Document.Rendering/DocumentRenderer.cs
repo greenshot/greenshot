@@ -29,18 +29,25 @@ using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using Greenshot.ImageSharpDrawing;
+using LineHeads = Greenshot.ImageSharpDrawing.ArrowHeads;
 
 namespace Greenshot.Document.Rendering
 {
     /// <summary>
-    /// Draws a document into an image of its canvas, without the editor. Turned elements are drawn turned (R37),
-    /// obfuscate and highlight work on the pixels of the canvas cut to their turned shape (R38), a frame cuts its target,
-    /// draws its band, line and shadow (R22) and follows a turned target (R41).
+    /// Draws a document into an image of its canvas, without the editor. Rectangles, ellipses, text boxes, lines, arrows,
+    /// speech bubbles and step labels are drawn with the painters of the editor's ImageSharp drawing (Greenshot.ImageSharpDrawing),
+    /// so they look like in the editor. Turned elements are drawn turned (R37), obfuscate and highlight work on the pixels of the
+    /// canvas cut to their turned shape (R38), a frame cuts its target, draws its band, line and shadow (R22) and follows a turned
+    /// target (R41).
     /// </summary>
     public sealed class DocumentRenderer : IDisposable
     {
         private static readonly DrawingOptions Replace = new() { GraphicsOptions = new GraphicsOptions { AlphaCompositionMode = PixelAlphaCompositionMode.Src } };
         private static readonly GraphicsOptions ReplaceImage = new() { AlphaCompositionMode = PixelAlphaCompositionMode.Src };
+
+        // The canvas is 8-bit sRGB
+        private static readonly ImageValues Values = ImageValues.Srgb;
 
         private readonly GreenshotDocument _document;
         private readonly RectD _canvas;
@@ -85,11 +92,11 @@ namespace Greenshot.Document.Rendering
             {
                 case HighlightElement highlight:
                     Highlight(canvas, highlight);
-                    canvas.Mutate(context => Stroke(context, Shape(highlight), style.Stroke, false));
+                    FilterBorder(canvas, highlight.Area, highlight.Rotation, style);
                     return;
                 case ObfuscateElement obfuscate:
                     Obfuscate(canvas, obfuscate);
-                    canvas.Mutate(context => Stroke(context, Shape(obfuscate), style.Stroke, false));
+                    FilterBorder(canvas, obfuscate.Area, obfuscate.Rotation, style);
                     return;
                 case CutMarkElement cutMark:
                     CutMark(canvas, cutMark, style);
@@ -110,12 +117,15 @@ namespace Greenshot.Document.Rendering
             }
 
             using var layer = new Image<Rgba32>(_width, _height);
-            layer.Mutate(context => Paint(context, element, style));
-            if (_document.FrameOf(element) is FrameElement framing)
+            var framing = _document.FrameOf(element) as FrameElement;
+            // The editor's shadow (no size, darkness or offset) is drawn by the painters like in the editor, else from the layer
+            bool editorShadow = framing == null && style.Shadow is { Enabled: true, Size: null, Darkness: null, Offset: null };
+            bool shadowDrawn = Paint(layer, element, style, editorShadow);
+            if (framing != null)
             {
                 Frame(layer, canvas, framing, element);
             }
-            else if (style.Shadow is { Enabled: true } shadow)
+            else if (!shadowDrawn && style.Shadow is { Enabled: true } shadow)
             {
                 Shadow(canvas, layer, shadow, false);
             }
@@ -123,56 +133,142 @@ namespace Greenshot.Document.Rendering
             canvas.Mutate(context => context.DrawImage(layer, 1));
         }
 
-        private void Paint(IImageProcessingContext context, Element element, Style style)
+        /// <summary>
+        /// The element on its layer; true when the painter drew the editor's shadow with it
+        /// </summary>
+        private bool Paint(Image<Rgba32> layer, Element element, Style style, bool editorShadow)
         {
+            bool shadowDrawn = false;
             switch (element)
             {
                 case RectangleElement e:
-                    Fill(context, Shape(e), style.Fill);
-                    Stroke(context, Shape(e), style.Stroke, false);
+                    Shapes.Rectangle(layer, Values, Pixels(e.Area, style.Stroke), LineThickness(style.Stroke), LineColor(style.Stroke), FillColor(style.Fill),
+                        editorShadow, Turn(e.Rotation, e.Area));
+                    shadowDrawn = editorShadow;
                     break;
                 case EllipseElement e:
-                    Fill(context, Shape(e), style.Fill);
-                    Stroke(context, Shape(e), style.Stroke, false);
+                    Shapes.Ellipse(layer, Values, Pixels(e.Area, style.Stroke), LineThickness(style.Stroke), LineColor(style.Stroke), FillColor(style.Fill),
+                        editorShadow, Turn(e.Rotation, e.Area));
+                    shadowDrawn = editorShadow;
                     break;
                 case TextElement e:
-                    Fill(context, Shape(e), style.Fill);
-                    Stroke(context, Shape(e), style.Stroke, false);
-                    Text(context, e.Text, style.Text, e.Area.Inflate(-Inset(style.Stroke)), Turn(e.Rotation, e.Area.Center), style.Stroke?.Color);
+                {
+                    // Like the text box of the editor: the box, then the text inside its line, its shadow only without a fill
+                    var turn = Turn(e.Rotation, e.Area);
+                    var fill = FillColor(style.Fill);
+                    Shapes.Rectangle(layer, Values, Pixels(e.Area, style.Stroke), LineThickness(style.Stroke), LineColor(style.Stroke), fill, editorShadow, turn);
+                    BoxText(layer, e.Text, style, Pixels(e.Area), editorShadow && fill.A == 0, turn);
+                    shadowDrawn = editorShadow;
                     break;
+                }
                 case LineElement e:
-                    Line(context, e.Start, e.End, ArrowHeads.None, style.Stroke);
+                    Lines.Line(layer, Values, Canvas(e.Start), Canvas(e.End), LineThickness(style.Stroke), LineColor(style.Stroke), LineHeads.None, editorShadow);
+                    shadowDrawn = editorShadow;
                     break;
                 case ArrowElement e:
-                    Line(context, e.Start, e.End, e.Heads, style.Stroke);
+                    Lines.Line(layer, Values, Canvas(e.Start), Canvas(e.End), LineThickness(style.Stroke), LineColor(style.Stroke), (LineHeads)(int)e.Heads,
+                        editorShadow);
+                    shadowDrawn = editorShadow;
                     break;
                 case FreehandElement e when e.Points.Count > 1 && Width(style.Stroke) is float width:
-                    context.Draw(new SolidPen(new PenOptions(Colour(style.Stroke.Color), width) { JointStyle = JointStyle.Round, EndCapStyle = EndCapStyle.Round }),
-                        new SixLabors.ImageSharp.Drawing.Path(new LinearLineSegment(e.Points.Select(Canvas).ToArray())));
+                    // The editor smooths the points it captured into curves, the document keeps the points: drawn as they are
+                    layer.Mutate(context => context.Draw(new SolidPen(new PenOptions(Colour(style.Stroke.Color), width) { JointStyle = JointStyle.Round, EndCapStyle = EndCapStyle.Round }),
+                        new SixLabors.ImageSharp.Drawing.Path(new LinearLineSegment(e.Points.Select(Canvas).ToArray()))));
                     break;
                 case SpeechBubbleElement e:
-                    Bubble(context, e, style);
+                {
+                    var box = Pixels(e.Area);
+                    var turn = Turn(e.Rotation, e.Area);
+                    // The tail point is on the canvas, the painter turns it with the box: where it is before the turn
+                    var tail = Canvas(e.Tail);
+                    if (turn is Matrix3x2 transform && Matrix3x2.Invert(transform, out var back))
+                    {
+                        tail = Vector2.Transform(tail, back);
+                    }
+
+                    SpeechBubbles.Bubble(layer, Values, box, new Point((int)Math.Round(tail.X), (int)Math.Round(tail.Y)), LineThickness(style.Stroke),
+                        LineColor(style.Stroke), FillColor(style.Fill), editorShadow, turn);
+                    BoxText(layer, e.Text, style, box, false, turn);
+                    shadowDrawn = editorShadow;
                     break;
+                }
                 case StepLabelElement e:
-                    StepLabel(context, e, style);
+                    StepLabel(layer, e, style, editorShadow);
+                    shadowDrawn = editorShadow;
                     break;
                 case ImageElement e:
-                    Picture(context, e.Resource, e.Area, e.Source, e.Scaling, e.Rotation);
+                    layer.Mutate(context => Picture(context, e.Resource, e.Area, e.Source, e.Scaling, e.Rotation));
                     break;
                 case PluginElement { Fallback: Guid fallback } e:
-                    Picture(context, fallback, e.Area, null, ImageScaling.Smooth, e.Rotation);
+                    layer.Mutate(context => Picture(context, fallback, e.Area, null, ImageScaling.Smooth, e.Rotation));
                     break;
                 case CursorElement e:
-                    Picture(context, e.Resource, e.Area, null, ImageScaling.Smooth, 0);
+                    layer.Mutate(context => Picture(context, e.Resource, e.Area, null, ImageScaling.Smooth, 0));
                     break;
                 case EmojiElement e:
                     var emoji = new TextStyle { Family = "Segoe UI Emoji, Noto Color Emoji, Twemoji Mozilla, sans-serif", Size = Math.Min(e.Area.Width, e.Area.Height) * 0.8, Wrap = false };
-                    Text(context, e.Emoji, emoji, e.Area, Turn(e.Rotation, e.Area.Center), new Rgba(0, 0, 0, 255));
+                    layer.Mutate(context => Text(context, e.Emoji, emoji, e.Area, Turn(e.Rotation, e.Area.Center), new Rgba(0, 0, 0, 255)));
                     break;
             }
 
-            Label(context, element, style);
+            layer.Mutate(context => Label(context, element, style));
+            return shadowDrawn;
         }
+
+        /// <summary>
+        /// The line around a highlight or obfuscate, like the editor's, with its shadow when it has the editor's
+        /// </summary>
+        private void FilterBorder(Image<Rgba32> canvas, RectD area, double rotation, Style style) =>
+            Shapes.FilterBorder(canvas, Values, Pixels(area, style.Stroke), LineThickness(style.Stroke), LineColor(style.Stroke),
+                style.Shadow is { Enabled: true, Size: null, Darkness: null, Offset: null }, Turn(rotation, area));
+
+        /// <summary>
+        /// The area in whole canvas pixels, the editor's coordinates; with a line inside or outside the area the box of its middle,
+        /// as the painters draw the line centred (R2)
+        /// </summary>
+        private Rectangle Pixels(RectD area, StrokeStyle stroke = null)
+        {
+            double move = Width(stroke) is float width
+                ? (stroke.Position ?? StrokePosition.Center) switch { StrokePosition.Inside => -width / 2, StrokePosition.Outside => width / 2, _ => 0 }
+                : 0;
+            var box = area.Inflate(move);
+            return new Rectangle((int)Math.Round(box.X - _canvas.X), (int)Math.Round(box.Y - _canvas.Y), (int)Math.Round(box.Width), (int)Math.Round(box.Height));
+        }
+
+        /// <summary>
+        /// The turn of a box-shaped element for the painters: clockwise around the centre of its area in canvas pixels, null when upright
+        /// </summary>
+        private Matrix3x2? Turn(double degrees, RectD area) =>
+            degrees % 360 == 0 ? null : Matrix3x2.CreateRotation((float)(degrees * Math.PI / 180), new Vector2((float)(area.Center.X - _canvas.X), (float)(area.Center.Y - _canvas.Y)));
+
+        private static int LineThickness(StrokeStyle stroke) => Width(stroke) is float width ? Math.Max(1, (int)Math.Round(width)) : 0;
+
+        private static Rgba32 LineColor(StrokeStyle stroke) => stroke?.Color is Rgba c ? new Rgba32(c.R, c.G, c.B, c.A) : default;
+
+        private static Rgba32 FillColor(FillStyle fill) => fill is { Enabled: not false, Color: Rgba c } ? new Rgba32(c.R, c.G, c.B, c.A) : default;
+
+        /// <summary>
+        /// The text of a box like the editor's: in the line colour unless the text has its own, inside the line of the box
+        /// </summary>
+        private static void BoxText(Image<Rgba32> layer, string text, Style style, Rectangle box, bool shadow, Matrix3x2? turn)
+        {
+            var textStyle = style.Text ?? new TextStyle();
+            if (string.IsNullOrEmpty(text) || textStyle.Enabled == false)
+            {
+                return;
+            }
+
+            var color = textStyle.Color ?? style.Stroke?.Color ?? new Rgba(0, 0, 0, 255);
+            Texts.Draw(layer, Values, box, text, TextFontOf(textStyle), new Rgba32(color.R, color.G, color.B, color.A), Placement(textStyle.Horizontal),
+                Placement(textStyle.Vertical), LineThickness(style.Stroke), shadow, turn);
+        }
+
+        private static TextPlacement Placement(TextAlignment? alignment) => alignment switch
+        {
+            TextAlignment.Start => TextPlacement.Near,
+            TextAlignment.End => TextPlacement.Far,
+            _ => TextPlacement.Center
+        };
 
         // Canvas pixels: the canvas starts at its top left corner
         private PointF Canvas(PointD point) => new((float)(point.X - _canvas.X), (float)(point.Y - _canvas.Y));
@@ -190,33 +286,18 @@ namespace Greenshot.Document.Rendering
         private static float? Width(StrokeStyle stroke) =>
             stroke is { Enabled: not false, Width: > 0 and double width, Color: Rgba { A: > 0 } } ? (float)width : null;
 
-        // The text of a box with a line starts inside the line
-        private static double Inset(StrokeStyle stroke) => Width(stroke) is float width ? Math.Ceiling(width / 2) : 0;
-
         /// <summary>
-        /// The turned shape of a box-shaped element in canvas pixels
+        /// The turned shape of a highlight or obfuscate in canvas pixels
         /// </summary>
         private IPath Shape(Element element)
         {
             var area = element switch
             {
-                RectangleElement e => e.Area,
-                EllipseElement e => e.Area,
-                TextElement e => e.Area,
                 HighlightElement e => e.Area,
                 ObfuscateElement e => e.Area,
                 _ => element.Bounds
             };
-            IPath shape = element is EllipseElement ? new EllipsePolygon((float)area.Center.X, (float)area.Center.Y, (float)area.Width, (float)area.Height) : Box(area);
-            return shape.Transform(Turn(element.Rotation, area.Center));
-        }
-
-        private static void Fill(IImageProcessingContext context, IPath shape, FillStyle fill)
-        {
-            if (fill is { Enabled: not false, Color: Rgba { A: > 0 } color })
-            {
-                context.Fill(Colour(color), shape);
-            }
+            return Box(area).Transform(Turn(element.Rotation, area.Center));
         }
 
         /// <summary>
@@ -245,100 +326,17 @@ namespace Greenshot.Document.Rendering
         }
 
         /// <summary>
-        /// A line or arrow: the heads are 4 line widths wide and 6 long with their tip on the end point, as in the editor
+        /// A step label like the editor's: the circle and its number, bold and 0.7 of the size which fits, in the line colour
         /// </summary>
-        private void Line(IImageProcessingContext context, PointD start, PointD end, ArrowHeads heads, StrokeStyle stroke)
-        {
-            if (Width(stroke) is not float width)
-            {
-                return;
-            }
-
-            var color = Colour(stroke.Color);
-            Vector2 from = (Vector2)Canvas(start), to = (Vector2)Canvas(end);
-            float length = Vector2.Distance(from, to);
-            if (length == 0)
-            {
-                return;
-            }
-
-            var direction = (to - from) / length;
-            float headLength = Math.Min(6 * width, length);
-            Vector2 lineStart = from, lineEnd = to;
-            if (heads is ArrowHeads.Start or ArrowHeads.Both)
-            {
-                context.Fill(color, Head(from, -direction, width, headLength));
-                lineStart = from + direction * headLength;
-            }
-
-            if (heads is ArrowHeads.End or ArrowHeads.Both)
-            {
-                context.Fill(color, Head(to, direction, width, headLength));
-                lineEnd = to - direction * headLength;
-            }
-
-            if (Vector2.Distance(lineStart, lineEnd) > 0 && Vector2.Dot(lineEnd - lineStart, direction) > 0)
-            {
-                context.Draw(new SolidPen(new PenOptions(color, width) { EndCapStyle = EndCapStyle.Butt }), new SixLabors.ImageSharp.Drawing.Path(new LinearLineSegment(lineStart, lineEnd)));
-            }
-        }
-
-        private static IPath Head(Vector2 tip, Vector2 direction, float width, float length)
-        {
-            var across = new Vector2(-direction.Y, direction.X) * 2 * width;
-            var head = tip - direction * length;
-            return new Polygon(new LinearLineSegment(tip, head + across, head - across));
-        }
-
-        /// <summary>
-        /// A speech bubble: the box with round corners turns, the tail goes from its centre to the tail point
-        /// </summary>
-        private void Bubble(IImageProcessingContext context, SpeechBubbleElement bubble, Style style)
-        {
-            var area = bubble.Area;
-            double lineWidth = Width(style.Stroke) ?? 0;
-            double radius = Math.Min(30, Math.Min(area.Width, area.Height) / 2 - lineWidth) / 2;
-            IPath body = (radius > 0 ? new Polygon(new LinearLineSegment(Outlines.RoundedBox(area, radius))) : Box(area)).Transform(Turn(bubble.Rotation, area.Center));
-            Vector2 center = (Vector2)Canvas(area.Center), tail = (Vector2)Canvas(bubble.Tail);
-            float tailWidth = (float)Math.Min((area.Width + area.Height) / 20, Math.Min(area.Width, area.Height) / 2);
-            var toTail = tail - center;
-            IPath tailShape = null;
-            if (toTail.Length() > 0)
-            {
-                var across = Vector2.Normalize(new Vector2(-toTail.Y, toTail.X)) * tailWidth;
-                tailShape = new Polygon(new LinearLineSegment(center - across, center + across, tail));
-                context.Clip(Whole.Clip(body), outside => Stroke(outside, tailShape, style.Stroke, false));
-            }
-
-            Fill(context, body, style.Fill);
-            if (tailShape == null)
-            {
-                Stroke(context, body, style.Stroke, false);
-            }
-            else
-            {
-                context.Clip(Whole.Clip(tailShape), outside => Stroke(outside, body, style.Stroke, false));
-                Fill(context, tailShape, style.Fill);
-            }
-
-            Text(context, bubble.Text, style.Text, area.Inflate(-Inset(style.Stroke)), Turn(bubble.Rotation, area.Center), style.Stroke?.Color);
-        }
-
-        /// <summary>
-        /// A step label: the circle and its number, bold and 0.7 of the size which fits
-        /// </summary>
-        private void StepLabel(IImageProcessingContext context, StepLabelElement label, Style style)
+        private void StepLabel(Image<Rgba32> layer, StepLabelElement label, Style style, bool shadow)
         {
             var area = label.Area;
-            IPath circle = new EllipsePolygon((float)(area.Center.X - _canvas.X), (float)(area.Center.Y - _canvas.Y), (float)area.Width, (float)area.Height);
-            Fill(context, circle, style.Fill);
-            Stroke(context, circle, style.Stroke, false);
             string number = _document.LabelOf(label);
             double fits = Math.Min(area.Width, area.Height);
             var measured = TextMeasurer.MeasureSize(number, new TextOptions(FontOf(new TextStyle { Size = fits, Weight = 700 })));
             double size = measured.Width > 0 ? fits * measured.Height / measured.Width * 0.7 : fits * 0.7;
-            var text = new TextStyle { Size = size, Weight = 700, Wrap = false, Horizontal = TextAlignment.Center, Vertical = TextAlignment.Center, Color = style.Text?.Color };
-            Text(context, number, text, area, Turn(0, area.Center), style.Stroke?.Color);
+            Texts.StepLabel(layer, Values, Pixels(area), number, FamilyOf(new TextStyle()), (float)size, false, LineThickness(style.Stroke), LineColor(style.Stroke),
+                FillColor(style.Fill), shadow);
         }
 
         /// <summary>
@@ -406,13 +404,29 @@ namespace Greenshot.Document.Rendering
         };
 
         /// <summary>
+        /// The first family of the list which is installed
+        /// </summary>
+        private static FontFamily InstalledFamily(TextStyle style)
+        {
+            var names = TextStyle.Families(style.Family).SelectMany(name => Generic.TryGetValue(name, out var stand) ? stand : new[] { name }).Concat(Generic[TextStyle.SansSerif]);
+            return names.Select(name => SystemFonts.TryGet(name, out var found) ? (FontFamily?)found : null).FirstOrDefault(found => found != null)
+                   ?? SystemFonts.Families.First();
+        }
+
+        private static string FamilyOf(TextStyle style) => InstalledFamily(style).Name;
+
+        /// <summary>
+        /// The font for the painters: the installed family, the size in canvas pixels
+        /// </summary>
+        private static TextFont TextFontOf(TextStyle style) =>
+            new(FamilyOf(style), (float)Math.Max(1, style.Size ?? 11), (style.Weight ?? 400) >= 600, style.Italic == true);
+
+        /// <summary>
         /// The first family of the list which is installed; a size in canvas pixels
         /// </summary>
         private static Font FontOf(TextStyle style)
         {
-            var names = TextStyle.Families(style.Family).SelectMany(name => Generic.TryGetValue(name, out var stand) ? stand : new[] { name }).Concat(Generic[TextStyle.SansSerif]);
-            var family = names.Select(name => SystemFonts.TryGet(name, out var found) ? (FontFamily?)found : null).FirstOrDefault(found => found != null)
-                         ?? SystemFonts.Families.First();
+            var family = InstalledFamily(style);
             var fontStyle = (style.Weight ?? 400) >= 600 ? style.Italic == true ? FontStyle.BoldItalic : FontStyle.Bold : style.Italic == true ? FontStyle.Italic : FontStyle.Regular;
             // Fonts measures in points at 72 dpi, that is one point per pixel
             return family.CreateFont((float)Math.Max(1, style.Size ?? 11), fontStyle);
