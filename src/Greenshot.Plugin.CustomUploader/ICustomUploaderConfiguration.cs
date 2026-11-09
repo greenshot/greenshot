@@ -30,10 +30,7 @@ namespace Greenshot.Plugin.CustomUploader;
 [Description("Greenshot custom uploader plugin configuration (beta)")]
 public interface ICustomUploaderConfiguration : IIniSection, IAfterLoad
 {
-    [Description("The imported uploaders, each encrypted. Import them again in the settings, they can't be edited here.")]
-    Dictionary<string, string> Uploaders { get; set; }
-
-    [Description("The icons of the services of the uploaders, fetched at the import (base64 PNG).")]
+    [Description("The icons of the services of the uploaders (file names in the Uploaders folder), fetched at the import (base64 PNG).")]
     Dictionary<string, string> UploaderIcons { get; set; }
 
     [Description("The uploaders (ids) which show a reminder with a preview before each upload, their uploads can't be deleted.")]

@@ -32,6 +32,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Plugin.ExternalCommand;
 using Greenshot.Plugin.ExternalCommand.Destinations;
+using Greenshot.Plugin.ExternalCommand.Running;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -49,22 +50,18 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public async Task Export_InTheBackground_FileNameItDoesntAccept_Fails()
         {
-            var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            config.Commands ??= new List<string>();
-            config.CommandlineTemplate ??= new Dictionary<string, string>();
-            config.ArgumentTemplate ??= new Dictionary<string, string>();
-            config.RunInbackground ??= new Dictionary<string, bool>();
-            string command = $"Test_{Guid.NewGuid():N}";
-            config.Commands.Add(command);
             // Never started: the file name is refused before
-            config.CommandlineTemplate[command] = "greenshot-test-command-which-does-not-exist.exe";
-            config.ArgumentTemplate[command] = "\"${export.file}\"";
-            config.RunInbackground[command] = true;
-            try
+            var command = new CommandDefinition
+            {
+                Name = $"Test_{Guid.NewGuid():N}",
+                Program = "greenshot-test-command-which-does-not-exist.exe",
+                File = "LastExport",
+                RunInBackground = true
+            };
             {
                 var capture = new Capture(new Bitmap(8, 8));
-                // A shell metacharacter, which the external command doesn't accept
-                capture.CaptureDetails.Filename = @"C:\Temp\Greenshot & co.png";
+                // cmd.exe would expand it, the external command doesn't accept it
+                capture.CaptureDetails.Filename = @"C:\Temp\Greenshot 100%.png";
                 var payload = new CapturePayload(capture);
                 payload.EnsureSurface();
                 var source = await payload.GetExportSourceAsync(InlineUiDispatcher.Instance, CancellationToken.None);
@@ -72,14 +69,7 @@ namespace Greenshot.Tests.Recipes
                 var result = await DestinationExporter.ExportAsync(new ExternalCommandDestination(command), source, capture.CaptureDetails, false, UserInteraction.Current, CancellationToken.None);
 
                 Assert.Equal(ExportStatus.Failed, result.Status);
-                Assert.Contains("dangerous", result.Error);
-            }
-            finally
-            {
-                config.Commands.Remove(command);
-                config.CommandlineTemplate.Remove(command);
-                config.ArgumentTemplate.Remove(command);
-                config.RunInbackground.Remove(command);
+                Assert.Contains("can't be passed to a command safely", result.Error);
             }
         }
     }

@@ -196,29 +196,12 @@ namespace Greenshot.Tests.Core
         [Fact]
         public async Task IconCache_IconForCommand_ResolvesAppIconForExternalCommand()
         {
-            // The test configures its own external command for an app that is installed on this machine
+            // An external command with the program of an app that is installed on this machine
             var app = InstalledTestApp.Get();
-            var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            Assert.NotNull(config);
-            if (config.Commands == null) config.Commands = new System.Collections.Generic.List<string>();
-            if (config.CommandlineTemplate == null) config.CommandlineTemplate = new System.Collections.Generic.Dictionary<string, string>();
-
-            string cmdName = $"TestApp_{Guid.NewGuid():N}";
-            config.Commands.Add(cmdName);
-            config.CommandlineTemplate[cmdName] = app.ExeName;
-
-            try
-            {
-                var icon = await IconCache.IconForCommandAsync(cmdName);
-                Assert.NotNull(icon);
-                Assert.True(icon.Width > 0);
-                Assert.True(icon.Height > 0);
-            }
-            finally
-            {
-                config.Commands.Remove(cmdName);
-                config.CommandlineTemplate.Remove(cmdName);
-            }
+            var icon = await IconCache.IconForCommandAsync(app.ExeName, $"TestApp_{Guid.NewGuid():N}");
+            Assert.NotNull(icon);
+            Assert.True(icon.Width > 0);
+            Assert.True(icon.Height > 0);
         }
     }
 }

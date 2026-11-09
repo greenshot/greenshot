@@ -283,15 +283,14 @@ namespace Greenshot.Shell
             // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
             if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
             {
-                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                UserQuestions.Enqueue("the plugins which aren't signed", PluginHelper.Instance.AskAboutHeldBackPlugins);
             }
 #endif
 
             if (recipeFilesForTheUser.Count > 0)
             {
-                // Posted: the approval and error windows come after the start, not inside it
-                UiDispatcher.InvokeAsync(() => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser))
-                    .FireAndLog("Load the recipe files which need the user", Log);
+                // The approval and error windows come after the start, not inside it, one at a time with the other questions
+                UserQuestions.Enqueue("the recipe files which need the user", () => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser));
             }
 
             if (startupCommand != null)

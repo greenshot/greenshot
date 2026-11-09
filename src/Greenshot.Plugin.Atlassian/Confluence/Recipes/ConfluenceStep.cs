@@ -49,13 +49,15 @@ namespace Greenshot.Plugin.Atlassian.Confluence.Recipes
     [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
     [StepOutputVariable("Confluence.PageId", ContractDataType.String, "The page the capture was attached to", Conditional = true)]
     [StepOutputVariable("Confluence.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
-    public class ConfluenceStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class ConfluenceStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceStep));
         private static IConfluenceConfiguration Config => IniConfigRegistry.GetSection<IConfluenceConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public IEnumerable<string> UsedDestinations { get; } = new[] { "Confluence" };
 
         /// <summary>
         /// Uploads the capture: the user has to allow network access when approving a recipe with this step

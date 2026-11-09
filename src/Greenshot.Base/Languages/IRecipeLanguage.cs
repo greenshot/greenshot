@@ -1267,6 +1267,16 @@ namespace Greenshot.Base.Languages
         string ApprovalCopyErrorsTooltip { get; }
 
         /// <summary>
+        /// Remove from Greenshot
+        /// </summary>
+        string ApprovalBtnRemoveFile { get; }
+
+        /// <summary>
+        /// Greenshot no longer loads this recipe file; the file itself stays where it is
+        /// </summary>
+        string ApprovalRemoveFileTooltip { get; }
+
+        /// <summary>
         /// Version {1} of the recipe "{0}" in the recipe catalog doesn't work with this Greenshot either, so nothing was installed. Please try again later, or look at the page of the recipe in the catalog. The errors:
         /// </summary>
         string CatalogVersionInvalid { get; }

@@ -25,44 +25,25 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 public static class IconCache
 {
-    private static IExternalCommandConfiguration Config
-    {
-        get
-        {
-            try
-            {
-                return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-    }
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
     /// <summary>
     /// The icon of the command (cached, don't dispose it): the icon of the executable or the logo of the Windows App.
     /// </summary>
-    public static async Task<Image> IconForCommandAsync(string commandName, CancellationToken cancellationToken = default)
+    /// <param name="rawCommandLine">the program of the command, a template</param>
+    /// <param name="commandName">the name of the command</param>
+    /// <param name="cancellationToken">CancellationToken</param>
+    public static async Task<Image> IconForCommandAsync(string rawCommandLine, string commandName, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(commandName))
+        if (string.IsNullOrEmpty(commandName) && string.IsNullOrEmpty(rawCommandLine))
         {
             return null;
-        }
-
-        var configuration = Config;
-        string rawCommandLine = null;
-        if (configuration?.CommandlineTemplate != null && configuration.CommandlineTemplate.TryGetValue(commandName, out var cmdLine))
-        {
-            rawCommandLine = cmdLine;
         }
 
         string expanded = null;
@@ -81,7 +62,8 @@ public static class IconCache
         Image icon = null;
 
         // 1. Try loading from executable if path exists
-        string exePath = expanded;
+        // A Windows App (shell:AppsFolder\<app id>) has no program file, its logo comes from its package
+        string exePath = WindowsAppLauncher.IsAppProgram(expanded) ? null : expanded;
         if (!string.IsNullOrEmpty(exePath) && !File.Exists(exePath))
         {
             exePath = PluginUtils.GetExePath(exePath);
@@ -114,4 +96,4 @@ public static class IconCache
 
         return icon;
     }
-}
+}

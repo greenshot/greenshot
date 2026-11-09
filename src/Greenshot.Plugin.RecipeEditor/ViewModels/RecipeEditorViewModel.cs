@@ -2479,13 +2479,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["Window"] = "Settings";
                     break;
                 case "ExternalCommand":
-                    dict["CommandLine"] = "cmd.exe";
-                    dict["Arguments"] = "/c echo Processing {0}";
+                    dict["Program"] = "cmd.exe";
+                    dict["Arguments"] = "/c echo Processing \"${export.file}\"";
                     dict["Format"] = "png";
-                    dict["RunInBackground"] = false;
-                    dict["OutputToClipboard"] = false;
-                    dict["UriToClipboard"] = false;
-                    dict["ReloadAfterExecution"] = false;
                     break;
                 case "Jira":
                     dict["IssueKey"] = "PROJECT-123";

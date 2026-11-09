@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -51,13 +52,25 @@ namespace Greenshot.Plugin.CustomUploader.Recipes
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Uploader", ContractDataType.Enum, Description = "Name of the imported uploader, empty when there is only one", AllowedValuesProvider = typeof(UploaderNames))]
     [StepOutputVariable("CustomUploader.Url", ContractDataType.String, "Link to the upload", Conditional = true)]
-    public class CustomUploaderStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class CustomUploaderStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CustomUploaderStep));
         private readonly CustomUploaderPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// The destination of the uploader, e.g. "CustomUploader:My server"
+        /// </summary>
+        public IEnumerable<string> UsedDestinations
+        {
+            get
+            {
+                var definition = FindUploader();
+                return definition == null ? Array.Empty<string>() : new[] { DefinitionItemDestination<UploaderDefinition>.DesignationOf(UploaderKind.Instance, definition.Name) };
+            }
+        }
 
         public CustomUploaderStep(RecipeNodeConfig config, CustomUploaderPlugin plugin)
         {

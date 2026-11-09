@@ -693,6 +693,7 @@ namespace Greenshot.Recipes.Views
             RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? Texts.Recipe.ApprovalFailedValidation : recipe.Description;
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
             FilePath = filePath ?? Texts.Recipe.ApprovalUnknownPath;
+            _errorFilePath = filePath;
             FileHash = RecipeTrustStore.ComputeSha256(filePath) ?? Texts.Recipe.ApprovalUnknown;
             // Found by its file, so also when the file can't be read any more
             CatalogRecipeId = RecipeCatalogInstaller.GetUpdatableId(filePath);
@@ -732,16 +733,9 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// The error windows waiting to be shown, one at a time: the file and how to make its window
-        /// </summary>
-        private static readonly Queue<KeyValuePair<string, Func<RecipeApprovalWindow>>> PendingErrorWindows = new Queue<KeyValuePair<string, Func<RecipeApprovalWindow>>>();
-
-        /// <summary>
         /// The files with an error window waiting or open: a file shows one window, also when it is loaded again meanwhile
         /// </summary>
         private static readonly HashSet<string> PendingErrorFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        private static bool _showingErrorWindows;
 
         /// <summary>
         /// The update from the catalog this error window started, the next error window waits for it (and its approval)
@@ -765,47 +759,25 @@ namespace Greenshot.Recipes.Views
                 Log.DebugFormat("The errors of '{0}' are already shown or waiting.", filePath);
                 return;
             }
-            PendingErrorWindows.Enqueue(new KeyValuePair<string, Func<RecipeApprovalWindow>>(filePath, createWindow));
-            if (!_showingErrorWindows)
-            {
-                ShowErrorWindowsAsync().FireAndLog("Show the recipe validation errors");
-            }
-        }
 
-        private static async Task ShowErrorWindowsAsync()
-        {
-            _showingErrorWindows = true;
-            try
+            // One window at a time, also with the other questions of Greenshot (changed files, plugins)
+            UserQuestions.Enqueue($"the errors of the recipe file '{filePath}'", async () =>
             {
-                // The caller (e.g. loading all recipe files) goes on, the windows follow
-                await Task.Yield();
-                while (PendingErrorWindows.Count > 0)
+                try
                 {
-                    var pending = PendingErrorWindows.Dequeue();
-                    try
+                    var window = createWindow();
+                    ShowErrorWindow(window);
+                    if (window._catalogUpdate != null)
                     {
-                        var window = pending.Value();
-                        ShowErrorWindow(window);
-                        if (window._catalogUpdate != null)
-                        {
-                            // The update shows its approval window (or a message), the next errors wait for it
-                            await window._catalogUpdate;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Couldn't show the errors of the recipe file '{pending.Key}'.", ex);
-                    }
-                    finally
-                    {
-                        PendingErrorFiles.Remove(pending.Key);
+                        // The update shows its approval window (or a message), the next question waits for it
+                        await window._catalogUpdate;
                     }
                 }
-            }
-            finally
-            {
-                _showingErrorWindows = false;
-            }
+                finally
+                {
+                    PendingErrorFiles.Remove(filePath);
+                }
+            });
         }
 
         private static void ShowErrorWindow(RecipeApprovalWindow window)
@@ -1049,6 +1021,20 @@ namespace Greenshot.Recipes.Views
                 }
             }
             return report.ToString();
+        }
+
+        /// <summary>
+        /// A recipe file which fails the checks can be removed from Greenshot here: it isn't loaded anymore, the file stays
+        /// </summary>
+        // The file of an error window, null for other windows
+        private readonly string _errorFilePath;
+
+        public Visibility RemoveFileVisibility => IsValidationError && !string.IsNullOrEmpty(_errorFilePath) ? Visibility.Visible : Visibility.Collapsed;
+
+        private void OnRemoveFileClicked(object sender, RoutedEventArgs e)
+        {
+            RecipeManager.Instance.RemoveRecipeFile(_errorFilePath);
+            Close();
         }
 
         private void OnCopyErrorsClicked(object sender, RoutedEventArgs e)

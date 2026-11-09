@@ -552,6 +552,41 @@ namespace Greenshot.Recipes
             }
         }
 
+        /// <summary>
+        /// Greenshot stops loading the recipe file (e.g. one which fails the checks): its recipes go, the file itself stays
+        /// </summary>
+        public void RemoveRecipeFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+            List<string> recipeIds;
+            lock (_recipes)
+            {
+                recipeIds = _recipes.Values.Where(recipe => IsSameFile(recipe.FilePath, filePath)).Select(recipe => recipe.Id).ToList();
+            }
+
+            foreach (string recipeId in recipeIds)
+            {
+                UnregisterRecipe(recipeId);
+            }
+
+            RemoveRecipeFileFromConfig(filePath);
+            Log.InfoFormat("Removed the recipe file '{0}' from Greenshot, the file stays", filePath);
+            NotifyRecipesChanged();
+        }
+
+        private static bool IsSameFile(string first, string second)
+        {
+            if (string.IsNullOrWhiteSpace(first) || string.IsNullOrWhiteSpace(second)) return false;
+            try
+            {
+                return string.Equals(Path.GetFullPath(first), Path.GetFullPath(second), StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+            {
+                return false;
+            }
+        }
+
         private void RemoveRecipeFileFromConfig(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) return;

@@ -78,6 +78,13 @@ that didn't come from the catalog (a built-in recipe, or one of your own files) 
 window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
 section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
 
+#### A recipe which doesn't load
+
+The window with the errors of a recipe file offers *Copy Errors*, *Edit Recipe File* and **Remove from Greenshot**: Greenshot
+stops loading the file (it leaves `RecipeFiles`, the recipes of the file go), the file itself stays where it is and can be
+imported again. Such windows, the approvals of changed recipe files and the other questions Greenshot asks after the start
+(changed command and uploader files, plugins which aren't signed) come one at a time.
+
 #### Updating recipes from the catalog
 
 A Greenshot update can change what recipes may contain, so a recipe installed from the catalog can stop loading. Greenshot
@@ -1227,7 +1234,7 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `OutputVariable`, `ExitCodeVariable` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Runs a program with the capture (as a file, on standard input, or not at all); exit code, output and errors are its results. `Command` uses a command of the settings ([external-commands.md](external-commands.md)). | `Command`, `Program`, `Arguments`, `WorkingDirectory`, `File`, `Format`, `JpegQuality`, `StandardInput`, `StandardInputText`, `Output`, `ResultName`, `CopyToClipboard`, `SuccessExitCodes`, `Timeout`, `Encoding`, `RunInBackground` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
 | `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
@@ -1239,21 +1246,80 @@ The complete, current description of every step type (parameters, variables it r
 
 ### External Command Step In Depth
 
-The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
+The `ExternalCommand` step runs a program: an image editor, a converter (`magick`), a script or an uploader. PNG files don't need an external optimizer: Greenshot writes them optimized itself. Every way into and out of the program has one parameter that says what it carries.
 
-#### Configuration Parameters:
-- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` with trusted values only (e.g. `${user.localappdata}`, `${env.ProgramFiles}`).
-- **`Arguments`**: Arguments string passed to the process. `${export.file}` is the file (quote it yourself: `"${export.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
-- **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
-- **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
-- **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
-- **`Format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
-- **`JpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
-- **`ReloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
-- **`OutputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
-- **`UriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
-- **`OutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
-- **`ExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+#### What the command gets
+
+| Channel | Parameter | Values | What may be in it |
+|---|---|---|---|
+| Program | `Program`, or `Command` (a command of the settings) | a path, e.g. `${user.localappdata}\Programs\tool.exe` | trusted values only |
+| Arguments | `Arguments` | default `"${export.file}"` | trusted values and `${export.file}`; nothing is quoted for you |
+| Working folder | `WorkingDirectory` | default the folder of the file | trusted values only |
+| File | `File` | `New` (default): a new file in `Format`; `LastExport`: the file of the export before this step; `None`: no file | it is `${export.file}` |
+| Standard input | `StandardInput` | `None` (default), `Image` (the image in `Format`, no file needed), `Text` (`StandardInputText`) | the text may use every value, e.g. `${payload.ocr.text}` |
+
+Standard input is the place for values of the capture (title, OCR text, a URL): no command line parser reads it, so they can't change what runs. A program which runs its input (`powershell -Command -`, `cmd`) runs that text, which is why the approval of the recipe shows the program together with the text.
+
+#### What the command gives back
+
+| Channel | Parameter | Values | Where it lands |
+|---|---|---|---|
+| Exit code | `SuccessExitCodes` | default `0`, e.g. `0,1` for a tool which returns 1 for a warning | `${var.command.exitCode}`; any other code fails the export, the notification shows the standard error |
+| Standard output | `Output` | `Text` (default), `Image`, `File`, `None` | Text: `${var.command.output}`, the first URL in it is `${var.command.url}` and the link of the export; Image: the bytes are the new image; File: the image is read again from the file the command changed; None: not read |
+| Standard error | | always read | `${var.command.error}`, logged as a warning |
+
+`command` is the default of `ResultName`: with two commands in a recipe give each its own name. `CopyToClipboard` (`None`, `Output`, `Url`) copies the output or the URL found in it. `Timeout` (seconds, `0`: no limit) stops the command, so does cancelling the recipe; the processes the command started itself keep running. `Encoding` is the encoding of the texts: `utf-8` (default), `oem` (the console code page of Windows, for older console programs) or an encoding name. `RunInBackground` starts the command without waiting for it: `Output` must be `None` then, there are no results.
+
+With `Command` the step uses that command of the settings ([external-commands.md](external-commands.md)): its fields are the defaults, each parameter the step sets wins. A command of the settings reads no output unless it says `Text`; without `Command` the default of `Output` is `Text`. A command converted from Greenshot 1.3 has `File` `LastExport`: in a recipe that needs an export before the step, or `"File": "New"` in the step.
+
+#### Results
+
+| Name | Type | Available | Trusted | Description |
+|---|---|---|---|---|
+| `export.file` | file path | while the step renders its arguments | yes | the file handed to the command |
+| `var.<ResultName>.file` | file path | after the step, `File` not `None` | no | the same file, for later steps |
+| `var.<ResultName>.exitCode` | number | after the step, not in the background | no | exit code of the command |
+| `var.<ResultName>.output` | text | after the step, `Output` `Text` | no | standard output, at most 1 MB |
+| `var.<ResultName>.url` | text | after the step, `Output` `Text` and a URL was found | no | first URL in the output |
+| `var.<ResultName>.error` | text | after the step, not in the background | no | standard error, at most 1 MB |
+
+#### Examples
+
+The OCR text to a translator on standard input, its answer to the clipboard:
+
+```json
+{
+  "id": "translate",
+  "stepType": "ExternalCommand",
+  "parameters": {
+    "Program": "${user.localappdata}\\Programs\\translate\\translate.exe",
+    "Arguments": "--to en",
+    "File": "None",
+    "StandardInput": "Text",
+    "StandardInputText": "${payload.ocr.text}",
+    "ResultName": "translation",
+    "CopyToClipboard": "Output",
+    "Timeout": 30
+  }
+}
+```
+
+A tool which changes the file the File destination just saved, here ImageMagick adding a border:
+
+```json
+{
+  "id": "border",
+  "stepType": "ExternalCommand",
+  "parameters": {
+    "Program": "${machine.programfiles}\\ImageMagick\\magick.exe",
+    "Arguments": "mogrify -bordercolor white -border 20 \"${export.file}\"",
+    "File": "LastExport",
+    "Output": "File"
+  }
+}
+```
+
+A converter which reads the image on standard input and writes the new one to its output: `"Program": "magick.exe"`, `"Arguments": "png:- -resize 50% png:-"`, `"StandardInput": "Image"`, `"File": "None"`, `"Output": "Image"`.
 
 ---
 

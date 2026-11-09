@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -49,13 +50,15 @@ namespace Greenshot.Plugin.Pdf.Recipes;
 [StepParameter("ScalingMode", ContractDataType.Enum, Description = "How to scale the image on a fixed page (default: PDF settings)", AllowedValues = new[] { PdfScalingModes.OnlyShrinkToFit, PdfScalingModes.FitToPage })]
 [StepParameter("ShowSaveDialog", ContractDataType.Boolean, DefaultValue = true, Description = "Show the PDF save dialog")]
 [StepOutputVariable("Pdf.FilePath", ContractDataType.FilePath, "Path of the saved PDF file", Conditional = true)]
-public sealed class PdfStep : ICaptureStep
+public sealed class PdfStep : ICaptureStep, IUsesDestinations
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(PdfStep));
     private readonly IPdfConfiguration _configuration;
 
     public string Name { get; }
     public RecipeNodeConfig NodeConfig { get; }
+
+    public IEnumerable<string> UsedDestinations { get; } = new[] { "Pdf" };
 
     public PdfStep(RecipeNodeConfig config, IPdfConfiguration configuration)
     {

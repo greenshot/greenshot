@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -40,12 +41,17 @@ namespace Greenshot.Plugin.Office.Recipes
     [StepInfo("Office", "Send to Office", "Sends the capture to an Office application (Excel, PowerPoint, Word, OneNote, Outlook).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Application", ContractDataType.Enum, DefaultValue = "Word", Description = "Office application", AllowedValues = new[] { "Excel", "PowerPoint", "Word", "OneNote", "Outlook" })]
-    public class OfficeStep : ICaptureStep
+    public class OfficeStep : ICaptureStep, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(OfficeStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// The destination of the application, e.g. "Word" (the designations ignore case: "PowerPoint" is "Powerpoint")
+        /// </summary>
+        public IEnumerable<string> UsedDestinations => new[] { NodeConfig.GetParameter<string>("Application") ?? "Word" };
 
         public OfficeStep(RecipeNodeConfig config)
         {

@@ -19,13 +19,23 @@
     <StackPanel>
         <TextBlock x:Name="TitleText" Text="{Binding Title, ElementName=Root}" FontWeight="SemiBold" Margin="0,0,0,4"
                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <!-- The rows are read with the ToString of the items (DefinitionListItem) -->
+        <!-- The rows are read with the ToString of the items (DefinitionListItem), the check box has its own name -->
         <ListView ItemsSource="{Binding Items, ElementName=Root}" SelectedItem="{Binding SelectedItem, ElementName=Root, Mode=TwoWay}" SelectionMode="Single"
                   AutomationProperties.LabeledBy="{Binding ElementName=TitleText}"
                   Style="{StaticResource ThemeListView}" ItemContainerStyle="{StaticResource ThemeListViewItem}" MinHeight="80" MaxHeight="180"
                   Visibility="{Binding HasItems, ElementName=Root, Converter={StaticResource BoolToVis}}">
             <ListView.View>
                 <GridView ColumnHeaderContainerStyle="{StaticResource NoColumnHeader}">
+                    <!-- On or off, only for a plugin which supports it (DefinitionListItem.WithOnOff); a change applies at once -->
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsOn, Mode=TwoWay}" VerticalAlignment="Center"
+                                          ToolTip="{Binding OnOffName}" AutomationProperties.Name="{Binding OnOffName, TargetNullValue=''}"
+                                          Visibility="{Binding CanTurnOnOff, Converter={StaticResource BoolToVis}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Width="220">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

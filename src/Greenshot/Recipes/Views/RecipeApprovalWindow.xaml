@@ -590,6 +590,13 @@
                                 Click="OnCopyErrorsClicked"
                                 ToolTip="{wpf:Text Recipe.ApprovalCopyErrorsTooltip}"/>
 
+                        <Button Content="{wpf:Text Recipe.ApprovalBtnRemoveFile}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                MinWidth="110" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding RemoveFileVisibility}"
+                                Click="OnRemoveFileClicked"
+                                ToolTip="{wpf:Text Recipe.ApprovalRemoveFileTooltip}"/>
+
                         <Button Content="{wpf:Text Recipe.ApprovalBtnUpdateFromCatalog}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 MinWidth="130" Height="34" Margin="0,0,10,0" Padding="12,6"
