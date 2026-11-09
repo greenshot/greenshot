@@ -223,6 +223,9 @@ overrides it for an action of its own (the text is edited). So a plugin element 
 Planned with the same contract: the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
 capture at the bottom of the area.
 
+*Copy style* only copies editor fields. A barcode has none: its colors, rounded dots and margin are in its own model, so
+*Copy style* has nothing to copy for it yet.
+
 The plugins use the editor only through panels and sections now: the editor API has no WinForms types for menus or
 windows any more. What is left of WinForms in it is in the element and surface interfaces (`Greenshot.Base.Interfaces`):
 `IDrawableContainer.AddContextMenuItems` (`ContextMenuStrip`, `MouseEventArgs`), `IDrawableContainerList.ShowContextMenu`,
