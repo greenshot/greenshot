@@ -39,7 +39,7 @@ Nothing large is installed. When RapidOCR is chosen the first time, a download w
 Greenshot runs the steps of RapidOCR 3.10 itself (ported to C#, Apache 2.0); RapidOcrNet targets only .NET 8+:
 
 1. The image is kept between 30 and 2000 pixels per side; low or very wide images get black rows above and below.
-2. The detection model gives a probability map of text pixels (the shorter side at least 736 pixels). Areas above 0.3 become the
+2. The detection model gives a probability map of text pixels (at the size of the capture: RapidOCR enlarges the shorter side to 736 pixels for photos, which found the same lines on captures but took up to 40 times longer). Areas above 0.3 become the
    smallest rotated rectangle around them, kept when their mean is above 0.5, grown by area x 1.6 / perimeter.
 3. Each line is cut out upright and read by the recognition model (48 pixels high); greedy CTC decoding gives the characters and
    where each word is, so the word boxes fit the text selection of Greenshot. Lines with a mean probability below 0.5 are dropped.

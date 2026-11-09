@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using log4net;
 
@@ -50,7 +51,19 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>the lines, empty when there is no text or no OCR (e.g. no Windows OCR language installed)</returns>
         public static Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, Image image, string languageTag, CancellationToken cancellationToken) =>
-            GetAsync(captureDetails, image == null ? null : _ => Task.FromResult<(Image, IDisposable)>((image, null)), languageTag, cancellationToken);
+            GetAsync(captureDetails, image, languageTag, null, cancellationToken);
+
+        /// <summary>
+        /// The OCR lines of the capture, recognized now when it has none yet; while that takes longer than a moment a window with
+        /// a progress bar and Cancel says so (when there is somebody to see it)
+        /// </summary>
+        /// <param name="captureDetails">the details of the capture, which keep the lines</param>
+        /// <param name="image">the image for the OCR when the capture has no lines yet; null: no OCR</param>
+        /// <param name="languageTag">the OCR language (e.g. de-DE), null or empty: the OCR language setting</param>
+        /// <param name="userInteraction">shows the progress, null: nothing is shown</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        public static Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, Image image, string languageTag, IUserInteraction userInteraction, CancellationToken cancellationToken) =>
+            GetAsync(captureDetails, image == null ? null : _ => Task.FromResult<(Image, IDisposable)>((image, null)), languageTag, userInteraction, cancellationToken);
 
         /// <summary>
         /// The OCR lines of the exported capture, recognized on the rendered capture (as PNG, no reduced colors) when it has none yet
@@ -59,18 +72,32 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// <param name="source">the capture to render for the OCR; null: no OCR</param>
         /// <param name="languageTag">the OCR language (e.g. de-DE), null or empty: the OCR language setting</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        public static Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, IExportSource source, string languageTag, CancellationToken cancellationToken) =>
+        /// <param name="userInteraction">shows the progress while OCR takes longer than a moment, null: nothing is shown</param>
+        public static Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, IExportSource source, string languageTag, IUserInteraction userInteraction, CancellationToken cancellationToken) =>
             GetAsync(captureDetails, source == null ? null : async token =>
             {
                 var lease = await source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, token).ConfigureAwait(false);
                 return (lease?.Image, lease);
-            }, languageTag, cancellationToken);
+            }, languageTag, userInteraction, cancellationToken);
 
         /// <param name="captureDetails">the details of the capture, which keep the lines</param>
         /// <param name="image">gives the image for the OCR and what to dispose after it (the provider reads the pixels before it returns)</param>
         /// <param name="languageTag">the OCR language</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        private static async Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, Func<CancellationToken, Task<(Image Image, IDisposable Owner)>> image, string languageTag,
+        /// <param name="userInteraction">shows the progress, null: nothing is shown</param>
+        private static Task<List<IOcrLineFeature>> GetAsync(ICaptureDetails captureDetails, Func<CancellationToken, Task<(Image Image, IDisposable Owner)>> image, string languageTag,
+            IUserInteraction userInteraction, CancellationToken cancellationToken)
+        {
+            // The window only shows when it takes longer than a moment, lines the capture already has come without it
+            if (userInteraction?.IsInteractive != true || Find(captureDetails).Count > 0)
+            {
+                return GetCoreAsync(captureDetails, image, languageTag, cancellationToken);
+            }
+
+            return userInteraction.RunWithProgressAsync(Texts.Core.OcrRunning, (_, token) => GetCoreAsync(captureDetails, image, languageTag, token), cancellationToken);
+        }
+
+        private static async Task<List<IOcrLineFeature>> GetCoreAsync(ICaptureDetails captureDetails, Func<CancellationToken, Task<(Image Image, IDisposable Owner)>> image, string languageTag,
             CancellationToken cancellationToken)
         {
             if (captureDetails?.ProcessingTask != null)

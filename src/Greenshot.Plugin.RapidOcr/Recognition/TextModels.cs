@@ -52,7 +52,6 @@ internal sealed class RecognizedLine
 /// </summary>
 internal sealed class TextDetector : IDisposable
 {
-    private const int LimitSideLength = 736;
     private readonly InferenceSession _session;
     private readonly string _inputName;
 
@@ -64,10 +63,11 @@ internal sealed class TextDetector : IDisposable
 
     public List<TextBox> Detect(BgrImage image)
     {
-        // The shorter side becomes at least 736 pixels, both multiples of 32 (limit_type min)
-        double ratio = Math.Min(image.Width, image.Height) < LimitSideLength ? (double)LimitSideLength / Math.Min(image.Width, image.Height) : 1.0;
-        int width = Math.Max(32, (int)Math.Round((int)(image.Width * ratio) / 32.0) * 32);
-        int height = Math.Max(32, (int)Math.Round((int)(image.Height * ratio) / 32.0) * 32);
+        // Both sides multiples of 32. RapidOCR enlarges the shorter side to 736 pixels (limit_type min), made for photos: a capture
+        // has the text in its real size, enlarging found the same lines on the samples but took up to 40 times longer (a line of
+        // text 831 x 121 became 5056 x 736: 2 s instead of 50 ms)
+        int width = Math.Max(32, (int)Math.Round(image.Width / 32.0) * 32);
+        int height = Math.Max(32, (int)Math.Round(image.Height / 32.0) * 32);
         var resized = image.Resize(width, height);
 
         var input = new DenseTensor<float>(new[] { 1, 3, height, width });
@@ -158,13 +158,16 @@ internal sealed class TextRecognizer : IDisposable
             using var outputs = _session.Run(new[] { NamedOnnxValue.CreateFromTensor(_inputName, input) });
             var output = outputs.First().AsTensor<float>();
             int steps = output.Dimensions[1], classes = output.Dimensions[2];
-            var values = output.ToArray();
+            // The output as it is, without a copy (it has steps x classes values per line, about 18000 classes)
+            var values = output is DenseTensor<float> dense ? dense.Buffer : new Memory<float>(output.ToArray());
             for (int b = 0; b < batch.Length; b++)
             {
                 var line = lines[batch[b]];
                 // One step of the output covers this many pixels of the cut out line
                 double stepWidth = (double)imageWidth / steps * line.Width / resizedWidths[b];
-                results[batch[b]] = Decode(values, b * steps * classes, steps, classes, stepWidth);
+                // The steps right of the line only see the padding of the batch
+                int usedSteps = Math.Min(steps, (int)Math.Ceiling((double)resizedWidths[b] * steps / imageWidth) + 1);
+                results[batch[b]] = Decode(values.Span.Slice(b * steps * classes, usedSteps * classes), usedSteps, classes, stepWidth);
             }
         }
 
@@ -174,7 +177,7 @@ internal sealed class TextRecognizer : IDisposable
     /// <summary>
     /// Greedy CTC: the most likely class per step, repeats and blanks removed; words split at spaces
     /// </summary>
-    private RecognizedLine Decode(float[] values, int offset, int steps, int classes, double stepWidth)
+    private RecognizedLine Decode(ReadOnlySpan<float> values, int steps, int classes, double stepWidth)
     {
         var text = new System.Text.StringBuilder();
         var words = new List<(string, double, double)>();
@@ -187,12 +190,12 @@ internal sealed class TextRecognizer : IDisposable
         {
             int best = 0;
             float bestValue = float.MinValue;
-            int row = offset + step * classes;
-            for (int c = 0; c < classes; c++)
+            var row = values.Slice(step * classes, classes);
+            for (int c = 0; c < row.Length; c++)
             {
-                if (values[row + c] > bestValue)
+                if (row[c] > bestValue)
                 {
-                    bestValue = values[row + c];
+                    bestValue = row[c];
                     best = c;
                 }
             }

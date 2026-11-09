@@ -60,7 +60,7 @@ public sealed class SmartTextDestination : DestinationBase
         var image = lease?.Image;
         if (image == null) return ExportResult.Failed(SmartTextPlugin.Language.NoText);
 
-        var lines = await OcrLines.GetAsync(request.Metadata, image, null, cancellationToken).ConfigureAwait(false);
+        var lines = await OcrLines.GetAsync(request.Metadata, image, null, request.Ui, cancellationToken).ConfigureAwait(false);
         var layout = TextLayout.From(lines, new NativeRect(0, 0, image.Width, image.Height));
         var items = SmartTextScanner.Scan(layout, SmartTextDefinitions.Detectors(null, null, out _));
         SmartTextStep.Remember(request.Metadata, items);

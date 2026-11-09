@@ -50,9 +50,8 @@ internal sealed class RapidOcrPipeline : IDisposable
     {
         var options = new SessionOptions
         {
-            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
-            // Leave cores to the rest of the machine
-            IntraOpNumThreads = Math.Max(1, Environment.ProcessorCount / 2)
+            // The threads are left to ONNX Runtime: one per physical core. The user waits for the text, half of them took 1.7 times as long
+            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL
         };
         _detector = new TextDetector(new InferenceSession(detectionModel, options));
         try

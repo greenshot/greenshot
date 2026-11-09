@@ -48,7 +48,7 @@ namespace Greenshot.Destinations
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             // The lines found with the capture, else the OCR runs now on the rendered capture
-            var ocrFeatures = await OcrLines.GetAsync(request.Metadata, request.Source, null, cancellationToken).ConfigureAwait(false);
+            var ocrFeatures = await OcrLines.GetAsync(request.Metadata, request.Source, null, request.Ui, cancellationToken).ConfigureAwait(false);
 
             // Check if we found text
             if (ocrFeatures.Any())

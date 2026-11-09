@@ -139,7 +139,7 @@ namespace Greenshot.Plugin.SmartText.Recipes
 
             context.State = CaptureFlowState.Processing;
             string language = Parameter(LanguageParameter);
-            var lines = await OcrLines.GetAsync(captureDetails, rawCapture.Image, language, cancellationToken).ConfigureAwait(false);
+            var lines = await OcrLines.GetAsync(captureDetails, rawCapture.Image, language, context.UserInteraction, cancellationToken).ConfigureAwait(false);
             var layout = TextLayout.From(lines, new NativeRect(0, 0, rawCapture.Image.Width, rawCapture.Image.Height));
             var items = SmartTextScanner.Scan(layout, detectors);
             Remember(captureDetails, items);

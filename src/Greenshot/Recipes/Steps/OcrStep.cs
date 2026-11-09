@@ -85,7 +85,7 @@ namespace Greenshot.Recipes.Steps
             var captureDetails = rawCapture?.CaptureDetails;
             if (captureDetails == null) return string.Empty;
 
-            var ocrLines = await OcrLines.GetAsync(captureDetails, rawCapture.Image, languageTag, cancellationToken).ConfigureAwait(false);
+            var ocrLines = await OcrLines.GetAsync(captureDetails, rawCapture.Image, languageTag, context.UserInteraction, cancellationToken).ConfigureAwait(false);
             if (ocrLines == null || !ocrLines.Any()) return string.Empty;
 
             var bounds = rawCapture.Image != null
