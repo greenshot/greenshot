@@ -139,7 +139,7 @@ namespace Greenshot.Recipes.Steps
                 string label = choice.Label;
                 if (label != null && label.IndexOf("${", StringComparison.Ordinal) >= 0)
                 {
-                    label = ExpressionEvaluator.Instance.Evaluate<string>(label, context, label);
+                    label = RecipeExpressions.Evaluate<string>(label, context, label);
                 }
                 choices.Add(new PromptChoice(choice.Key, label ?? choice.Key, choice.Style, choice.IsDefault, choice.IsCancel));
             }

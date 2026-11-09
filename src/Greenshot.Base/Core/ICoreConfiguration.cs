@@ -125,8 +125,11 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool ShowNotificationThumbnail { get; set; }
 
-        [Description("Output file path.")]
+        [Description("Output file path of Greenshot 1.3, only read once to fill OutputDirectory; kept for going back to 1.3.")]
         string OutputFilePath { get; set; }
+
+        [Description("The folder for screenshots, a template like ${user.pictures}\\Greenshots or ${user.desktop}\\${payload.time:yyyy-MM}; see docs/vNext/variables.md.")]
+        string OutputDirectory { get; set; }
 
         [Description("Replaced by OutputFileIfExists: False is changed there once to Ask, then this is True again.")]
         [DefaultValue(true)]
@@ -136,9 +139,12 @@ namespace Greenshot.Base.Core
         [DefaultValue("Overwrite")]
         FileExistsAction OutputFileIfExists { get; set; }
 
-        [Description("Filename pattern for screenshot.")]
+        [Description("Filename pattern of Greenshot 1.3, only read once to fill OutputFileNameTemplate; kept for going back to 1.3.")]
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
         string OutputFileFilenamePattern { get; set; }
+
+        [Description("The file name of screenshots without extension, a template like ${payload.time:yyyy-MM-dd HH_mm_ss}-${payload.title}; may hold sub folders and counters (${counter.global}, ${counter.folder:000}); see docs/vNext/variables.md.")]
+        string OutputFileNameTemplate { get; set; }
 
         [Description("Default file type for writing screenshots.")]
         [DefaultValue(WellKnownFileFormats.Png)]
@@ -181,7 +187,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool OutputFilePromptQuality { get; set; }
 
-        [Description("The number for the ${NUM} in the filename pattern, is increased automatically after each save.")]
+        [Description("The last number given out by ${counter.global} (${NUM} in 1.3), goes up after each saved or uploaded file which used it.")]
         [DefaultValue(1)]
         uint OutputFileIncrementingNumber { get; set; }
 
@@ -226,9 +232,12 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool OutputPrintFooter { get; set; }
 
-        [Description("Footer pattern")]
+        [Description("Footer pattern of Greenshot 1.3, only read once to fill OutputPrintFooterTemplate; kept for going back to 1.3.")]
         [DefaultValue("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
         string OutputPrintFooterPattern { get; set; }
+
+        [Description("The footer of printouts, a template like ${payload.time:D} ${payload.time:T} - ${payload.title}; see docs/vNext/variables.md.")]
+        string OutputPrintFooterTemplate { get; set; }
 
         [Description("The wav-file to play when a capture is taken, loaded only once at the Greenshot startup")]
         [DefaultValue("default")]
@@ -365,13 +374,13 @@ namespace Greenshot.Base.Core
         [Description("A list of experimental features, this allows us to test certain features before releasing them.")]
         List<string> ExperimentalFeatures { get; set; }
 
-        [Description("Specify what action is made if the tray icon is left clicked, if a double-click action is specified this action is initiated after a delay (configurable via the windows double-click speed)")]
-        [DefaultValue("SHOW_CONTEXT_MENU")]
-        ClickActions LeftClickAction { get; set; }
+        [Description("The id of the recipe which runs when the tray icon is clicked, empty for nothing. With a double-click recipe it runs after the double-click time of Windows.")]
+        [DefaultValue("recipe_tray_menu")]
+        string TrayClickRecipe { get; set; }
 
-        [Description("Specify what action is made if the tray icon is double clicked")]
-        [DefaultValue("OPEN_LAST_IN_EXPLORER")]
-        ClickActions DoubleClickAction { get; set; }
+        [Description("The id of the recipe which runs when the tray icon is double-clicked, empty for nothing")]
+        [DefaultValue("recipe_open_capture_folder")]
+        string TrayDoubleClickRecipe { get; set; }
 
         [Description("Sets if the zoomer is enabled")]
         [DefaultValue(true)]
@@ -509,14 +518,16 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool AiToolsNotifyOnCapture { get; set; }
 
-        /// <summary>Normalizes <see cref="OutputFilePath"/>; sets the default output folder when none is configured. A configured folder which doesn't exist stays.</summary>
-        void ValidateAndCorrectOutputFilePath();
+        /// <summary>Sets the default output folder when <see cref="OutputDirectory"/> is empty. A configured folder which doesn't exist stays.</summary>
+        void ValidateAndCorrectOutputDirectory();
 
         /// <summary>
-        /// The folder for a new screenshot: <see cref="OutputFilePath"/> with its variables filled in, created when it doesn't exist.
+        /// The folder for a new screenshot: <see cref="OutputDirectory"/> rendered for the capture, created when it doesn't exist.
         /// When it can't be used, the default output folder for this save only, <paramref name="problem"/> tells why.
         /// </summary>
-        string GetOutputDirectory(out string problem);
+        /// <param name="scope">What the template can use, e.g. the time of the capture; null for none</param>
+        /// <param name="problem">Why the configured folder couldn't be used, null when it is used</param>
+        string GetOutputDirectory(Greenshot.Base.Expressions.VariableScope scope, out string problem);
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();

@@ -70,7 +70,7 @@ namespace Greenshot.Tests.Recipes
             using var context = new CaptureFlowContext(recipe);
             context.Properties["SelectedMode"] = selectedMode;
             var branch = recipe.FindNode("text_or_image").GetParameter<List<ConditionalBranch>>("Branches")
-                .First(b => b.Expression == "else" || ExpressionEvaluator.Instance.Evaluate(b.Expression, context, false));
+                .First(b => b.Expression == "else" || RecipeExpressions.IsMet(b.Expression, context));
             var next = recipe.Flow.ConditionalTransitions.Single(t => t.From == "text_or_image" && t.Branch == branch.Key).To;
             Assert.Equal(expectedNext, next);
         }

@@ -86,11 +86,11 @@ namespace Greenshot.Tests.Recipes
                     Parameters = new Dictionary<string, object>
                     {
                         { "sourceType", "File" },
-                        { "filename", "${CustomFilePath}" }
+                        { "filename", "${var.CustomFilePath}" }
                     }
                 };
 
-                // Run through the engine, which resolves "${CustomFilePath}" before the source sees it
+                // Run through the engine, which resolves "${var.CustomFilePath}" before the source sees it
                 ICapturePayload payload = null;
                 await SingleNodeRunner.RunAsync(nodeConfig,
                     cfg => new MockTestStep(cfg.Id, async ctx => payload = await new FileCaptureSource(cfg).AcquireAsync(ctx)),
@@ -129,7 +129,7 @@ namespace Greenshot.Tests.Recipes
                 StepType = WellKnownStepTypes.Stdout,
                 Parameters = new Dictionary<string, object>
                 {
-                    { "text", "Output: ${ResultText}" }
+                    { "text", "Output: ${var.ResultText}" }
                 }
             };
 
@@ -170,11 +170,11 @@ namespace Greenshot.Tests.Recipes
                 "convert",
                 "Convert format",
                 false,
-                "${Destination.Filename}",
+                "${var.Destination.Filename}",
                 args);
 
             Assert.Equal("convert", trigger.Command);
-            Assert.Equal("${Destination.Filename}", trigger.Stdout);
+            Assert.Equal("${var.Destination.Filename}", trigger.Stdout);
             Assert.Equal(2, trigger.Arguments.Count);
             Assert.Equal("file", trigger.Arguments[0].Name);
             Assert.Equal("Filename", trigger.Arguments[0].Variable);
@@ -190,13 +190,13 @@ namespace Greenshot.Tests.Recipes
                 new CommandlineArgument { Name = "barcode_file", Variable = "Filename", Required = true, Description = "File path" }
             };
 
-            var tc = TriggerConfig.CreateCommandline("qr", "Decode QR code", false, "${Barcode.Text}", args);
+            var tc = TriggerConfig.CreateCommandline("qr", "Decode QR code", false, "${var.Barcode.Text}", args);
 
             Assert.Equal(TriggerConfig.TypeCommandline, tc.TriggerType);
             Assert.Equal("qr", tc.GetParameter<string>("Command"));
             Assert.Equal("Decode QR code", tc.GetParameter<string>("Description"));
             Assert.False(tc.GetParameter<bool>("FireAndForget"));
-            Assert.Equal("${Barcode.Text}", tc.GetParameter<string>("Stdout"));
+            Assert.Equal("${var.Barcode.Text}", tc.GetParameter<string>("Stdout"));
 
             var retrievedArgs = tc.GetParameter<List<CommandlineArgument>>("Arguments");
             Assert.NotNull(retrievedArgs);

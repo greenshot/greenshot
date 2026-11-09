@@ -63,6 +63,7 @@ using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
+using Greenshot.Editor.Panels;
 using Greenshot.Editor.Tabs;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
@@ -70,6 +71,7 @@ using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Editor.Forms
 {
@@ -318,6 +320,7 @@ namespace Greenshot.Editor.Forms
             }
 
             propertiesToolStrip.MinimumSize = new Size(150, pixelSize + 10);
+            ApplyPanelDockSize();
             if (pixelSize != _emojiButtonSize)
             {
                 AssignEmojiButtonImageAsync(pixelSize).FireAndLog("Render the emoji button image", Log);
@@ -419,6 +422,7 @@ namespace Greenshot.Editor.Forms
             }
 
             statusLabel.ForeColor = theme.Foreground;
+            ApplyPanelDockTheme();
             if (IsHandleCreated)
             {
                 WindowFrameTheme.Update(Handle);
@@ -562,6 +566,7 @@ namespace Greenshot.Editor.Forms
             CreateOcrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
+            InitializePanels();
             ApplyTheme();
             timing.Mark("InitializeComponent");
             InitializeLanguage();
@@ -1193,6 +1198,7 @@ namespace Greenshot.Editor.Forms
             UpdateDestinationButtons();
             ShowTabState(tab, announce: false);
             RefreshEditorControls();
+            ShowSurfaceInPanels();
         }
 
         /// <summary>
@@ -1230,6 +1236,7 @@ namespace Greenshot.Editor.Forms
             _surface = null;
             panel1.Controls.Remove(surface);
             tabStrip.SelectedTab = null;
+            _panelContext?.SetSurface(null);
         }
 
         private void BindSurface()
@@ -1244,6 +1251,8 @@ namespace Greenshot.Editor.Forms
             _surface.ShadowChanged += ShadowChanged;
             _surface.ImageChanged += SurfaceImageChanged;
             _surface.TextRecognitionChanged += SurfaceTextRecognitionChanged;
+            _surface.ElementsChanged += SurfaceElementsChanged;
+            _surface.PropertiesRequested += SurfacePropertiesRequested;
             _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
             BindFieldControls();
         }
@@ -1260,6 +1269,8 @@ namespace Greenshot.Editor.Forms
             _surface.ShadowChanged -= ShadowChanged;
             _surface.ImageChanged -= SurfaceImageChanged;
             _surface.TextRecognitionChanged -= SurfaceTextRecognitionChanged;
+            _surface.ElementsChanged -= SurfaceElementsChanged;
+            _surface.PropertiesRequested -= SurfacePropertiesRequested;
             _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
             foreach (var binding in _fieldBindings)
             {
@@ -1346,19 +1357,7 @@ namespace Greenshot.Editor.Forms
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
-            try
-            {
-                var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
-                foreach (var plugin in editorPlugins)
-                {
-                    plugin.InitializeEditor(this, pluginToolStripMenuItem, () => _surface);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Error initializing editor plugins", ex);
-            }
-
+            AddPanelMenuItems(pluginToolStripMenuItem);
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
         }
 
@@ -1753,12 +1752,16 @@ namespace Greenshot.Editor.Forms
         private void SurfaceMovingElementChanged(object sender, SurfaceElementEventArgs e)
         {
             RefreshEditorControls();
+            _panelContext?.OnSelectionChanged();
+            _panelHost?.UpdateAutomatic();
         }
 
         private void Surface_DrawingModeChanged(object source, SurfaceDrawingModeEventArgs eventArgs)
         {
             ShowDrawingMode(eventArgs.DrawingMode);
             RefreshEditorControls();
+            _panelContext?.OnDrawingModeChanged();
+            _panelHost?.UpdateAutomatic();
         }
 
         /// <summary>
@@ -2302,9 +2305,10 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
-        /// A text field has the focus: one of a tool bar, or the text of an element on the canvas. Its keys stay with it.
+        /// A text field has the focus: one of a tool bar, the text of an element on the canvas, or the panel area (its lists and fields
+        /// use the plain keys). Its keys stay with it.
         /// </summary>
-        private bool IsTyping => _toolBarFieldFocused || _surface?.KeysLocked == true;
+        private bool IsTyping => _toolBarFieldFocused || _surface?.KeysLocked == true || PanelDockHasFocus;
 
         /// <summary>
         /// The menu, a tool bar or the tabs have the focus, they use the arrow keys, Enter and so on themselves
@@ -2453,6 +2457,12 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private bool LeavesToolBar(Keys keys, Control focused)
         {
+            // Esc in the panel area goes back to the canvas
+            if (keys == Keys.Escape && PanelDockHasFocus)
+            {
+                return true;
+            }
+
             if (keys == Keys.Enter)
             {
                 return _toolBarFieldFocused && FindParent<NumericUpDown>(focused) != null;
@@ -2480,13 +2490,13 @@ namespace Greenshot.Editor.Forms
         }
 
         /// <summary>
-        /// F6 (forward) and Shift+F6 move the keyboard to the next part of the window: menu, tools, properties, destinations, canvas, tabs.
-        /// Parts which can't be used are skipped: the hidden tab strip, an empty properties bar.
+        /// F6 (forward) and Shift+F6 move the keyboard to the next part of the window: menu, tools, properties, destinations, canvas,
+        /// panel area, tabs. Parts which can't be used are skipped: the hidden tab strip or panel area, an empty properties bar.
         /// </summary>
         private void FocusNextPart(bool forward)
         {
             const int canvasIndex = 4;
-            var parts = new Control[] { menuStrip1, toolsToolStrip, propertiesToolStrip, destinationsToolStrip, _surface, tabStrip };
+            var parts = new Control[] { menuStrip1, toolsToolStrip, propertiesToolStrip, destinationsToolStrip, _surface, _panelDock, tabStrip };
             int current = Array.FindIndex(parts, part => part != null && part.ContainsFocus);
             if (current < 0)
             {
@@ -2513,6 +2523,9 @@ namespace Greenshot.Editor.Forms
                         continue;
                     case EditorTabStrip:
                         part.Select();
+                        return;
+                    case EditorPanelDock panelDock:
+                        panelDock.FocusContent();
                         return;
                     default:
                         FocusCanvas(fromKeyboard: true);
@@ -3008,7 +3021,7 @@ namespace Greenshot.Editor.Forms
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
+                FileName = Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails))
             };
             DialogResult dialogResult = saveFileDialog.ShowDialog();
             if (dialogResult.Equals(DialogResult.OK))

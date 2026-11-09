@@ -53,8 +53,18 @@ After the import Greenshot gets the icon of the service once, from the server of
 to, e.g. `example.com` for `api.example.com`), and shows it in the destination menus and in the lists of the plugin's settings. Only the icon is requested, nothing of
 the uploader is sent. A service without an icon gets the generic upload icon, Greenshot tries again after the next start.
 
-The uploader is stored encrypted in greenshot.ini. When a stored uploader can't be read (e.g. greenshot.ini was changed
-by hand), the list shows *Can't be read, import it again*: remove it and import the file again.
+The uploader is stored as an `.sxcu` file in the `Uploaders` folder next to greenshot.ini (in `%APPDATA%\Greenshot`, or next
+to Greenshot.exe for a portable install), one file per uploader, named after it. The file is readable; only the values of
+the parameters, headers and form fields (where the keys are) are encrypted, as `encrypted:...`. A value without that start,
+e.g. a key typed into the file by hand, is used as it is and encrypted the next time the uploader is stored. The folder is
+read once, when Greenshot starts: a file copied into it or changed there while Greenshot runs has no effect. Like recipe
+files, only the files Greenshot wrote (import) are used: a file somebody put into the folder is ignored until you import it.
+An uploader file of Greenshot which was changed outside Greenshot isn't used after the next start (no destination, recipes
+can't use it) until you approve it: Greenshot asks once it has started and shows where it sends the captures, like an
+import. With *Not now* it is listed as *Not approved*, you can select it and choose *Approve...*, and Greenshot asks again
+at the next start. What Greenshot writes itself is approved; the approvals are kept like those of recipes ([destination-definitions.md](destination-definitions.md#approval)).
+Every file is checked like an import. When one can't be read (it doesn't pass the checks, or its keys were encrypted by
+another Windows user), the list shows *Can't be read, import it again*: remove it and import the file again.
 
 ### Upload
 
@@ -129,11 +139,11 @@ Everything is in `src/Greenshot.Plugin.CustomUploader`:
 | `Sxcu/PlaceholderSyntax.cs` | The `{name:parameter\|parameter}` syntax of ShareX 13.7 and later |
 | `Sxcu/UploaderRequest.cs` | The request: url with parameters, headers, multipart or binary body with `HttpContents` |
 | `Sxcu/UploaderResponse.cs` | Link, thumbnail, deletion link and error from the response |
-| `UploaderStore.cs` | The uploaders, their icons and the uploads in `[CustomUploader]`, uploaders and uploads encrypted with `StringExtensions.Encrypt` |
+| `UploaderStore.cs` | `UploaderKind` (uploaders as definitions, see [destination-definitions.md](destination-definitions.md)) and `UploaderStore`: the uploaders and their icons (`DefinitionStore`), the reminders and the uploads in `[CustomUploader]` (uploads encrypted); the uploaders are files of the Uploaders folder with their keys encrypted (`ProtectKeys`/`UnprotectKeys`) |
 | `ServiceIcon.cs`, `Destinations/CustomUploaderIconProvider.cs` | The icon of the service, fetched at the import; the generic `Images/Upload.png` without one |
-| `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader |
+| `Destinations/CustomUploaderDestination.cs` | *Custom uploader* with one dynamic destination per uploader (`DefinitionDestination`) |
 | `Recipes/CustomUploaderStep.cs` | The recipe step, `Uploader` parameter, `CustomUploader.Url` output |
-| `ViewModels/`, `Views/` | The settings page: import (with the confirmation), remove, the uploads |
+| `ViewModels/`, `Views/` | The settings page: the uploaders (`DefinitionListView`), import (`DefinitionImport`, with the confirmation), remove, the uploads |
 
 HTTP goes through `HttpService.Current` like everywhere in Greenshot, see [http.md](http.md): the proxy, the certificate
 rules and the logging rules apply.
@@ -144,11 +154,12 @@ rules and the logging rules apply.
    body of old files, name) and checks it. `UploaderValuesWindow` shows `GetValues` (request url, parameters, headers,
    arguments) for the user to fill in (`UploaderValue.IsSecret` masks keys in a `PasswordBox`, `LooksLikePlaceholder`
    makes the view ask once), `WithValues` puts them into a copy and runs it through `UploaderFile.Read` again.
-   The view asks with `DescribeImport` and `ThemedMessageBox.ShowChoice` (Cancel is
-   the default, the buttons are armed after a second). `UploaderStore.Add` stores the normalized JSON encrypted and saves
-   greenshot.ini at once.
-2. **Read**: `UploaderStore.GetUploaders` decrypts each uploader and runs it through `UploaderFile.Read` again, so a changed
-   entry is checked like a file. One which can't be decrypted or doesn't pass has a null `Definition` and is only listed.
+   The view asks with `DescribeImport` and `DefinitionImport.Confirm` (Cancel is
+   the default, the buttons are armed after a second). `UploaderStore.Add` writes the normalized JSON to the Uploaders folder
+   (`DefinitionFolder`), the keys encrypted (`UploaderStore.ProtectKeys`).
+2. **Read**: `UploaderStore.GetAll` reads each file of the folder, decrypts its keys and runs it through `UploaderFile.Read`
+   again, so a changed file is checked like an import. One whose keys can't be decrypted or which doesn't pass has a null
+   `Definition` and is only listed.
 3. **Upload** (thread pool): with the reminder of the import (`UploaderStore.RemindsBeforeUpload`) and an interactive
    export, `ConfirmUploadAsync` first asks with a `PreviewPromptRequest` (`IUserInteraction.ShowDialogAsync`), the generic
    question with a preview of the capture which Greenshot shows in the window of the recipe step *User prompt*.
@@ -212,10 +223,12 @@ supported cases.
 - **No redirects.** Uploads go through `HttpService.WithoutRedirects`: a redirect would carry the headers of the file to
   another host. A 3xx is a failed upload with its status (`{header:Location}` is readable in `ErrorMessage`).
 - **No questions per upload.** Placeholders which ask the user or pick at random are refused at import.
-- **Encrypted at rest.** Uploaders and uploads in `[CustomUploader]` go through `StringExtensions.Encrypt`/`Decrypt`, the
-  encryption of all Greenshot secrets (the icons are the public favicons, plain base64), never in an export. That
-  encryption keeps ASCII only, so the stored JSON escapes everything else (`AsciiJson`). `Decrypt` gives back what it
-  can't decrypt, the JSON then can't be read: such a value is shown as unreadable, never repaired.
+- **Keys encrypted at rest.** The keys in the uploader files (values of parameters, headers, form fields) and the uploads in
+  `[CustomUploader]` (their deletion links are secrets) go through `StringExtensions.Encrypt`/`Decrypt`, the encryption of
+  all Greenshot secrets: DPAPI for the current Windows user (the icons are the public favicons, plain base64). A key is
+  escaped first and the stored upload JSON escapes everything else (`AsciiJson`), from the time the encryption kept ASCII
+  only. A key which can't be decrypted (another Windows user or computer) makes the uploader unreadable, it is never
+  repaired.
 - **Only web links leave the plugin.** A link from a response is opened in the browser and put on the clipboard only when
   it is an absolute http or https url (`file:`, `javascript:` and others are dropped).
 - **Beta.** `CustomUploaderPlugin.IsEnabled` (`IsBetaTester`) decides at startup: without it there is no destination, no

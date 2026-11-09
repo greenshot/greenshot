@@ -56,13 +56,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Http;
+using Greenshot.ImageSharpDrawing;
 
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// Description of Surface.
     /// </summary>
-    public sealed class Surface : Control, ISurface, INotifyPropertyChanged
+    public sealed partial class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -931,6 +932,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                CancelSelectionBox();
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
                 {
@@ -1153,6 +1155,24 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Elements were changed on the canvas: moved or resized with the mouse or the keys, undo or redo.
+        /// Not raised for every step of a drag, only when it ends.
+        /// </summary>
+        internal event EventHandler ElementsChanged;
+
+        /// <summary>
+        /// An element asks to show its properties, e.g. a double click on an emoji: the editor shows the Selection panel
+        /// </summary>
+        internal event EventHandler PropertiesRequested;
+
+        internal void OnElementsChanged() => ElementsChanged?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
+        /// Show the properties of the selected elements in the Selection panel and move the keyboard there
+        /// </summary>
+        internal void RequestProperties() => PropertiesRequested?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
         /// Undo the last action
         /// </summary>
         public void Undo()
@@ -1164,6 +1184,7 @@ namespace Greenshot.Editor.Drawing
                 _redoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -1179,6 +1200,7 @@ namespace Greenshot.Editor.Drawing
                 _undoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -2588,6 +2610,14 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (e.Button == MouseButtons.Left && DrawingMode == DrawingModes.None
+                && _elements.ClickableElementAt(e.X, e.Y) == null && FindActiveAdorner(surfacePoint) == null)
+            {
+                RemoveDrawnCropContainer();
+                BeginSelectionBox(e.Location, InputState.ModifierKeys);
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
@@ -2633,11 +2663,17 @@ namespace Greenshot.Editor.Drawing
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
+            if (FinishSelectionBox(e))
+            {
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseUp(sender, e);
+                OnElementsChanged();
                 return;
             }
 
@@ -2696,6 +2732,8 @@ namespace Greenshot.Editor.Drawing
             {
                 FinishDrawingElement(currentMouse);
             }
+
+            OnElementsChanged();
         }
 
         /// <summary>
@@ -2987,6 +3025,11 @@ namespace Greenshot.Editor.Drawing
             NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
+            if (MoveSelectionBox(e.Location))
+            {
+                return;
+            }
+
             // Handle Adorners
             var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
@@ -3253,6 +3296,7 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            PaintSelectionBox(targetGraphics);
             PaintFocusFrame(targetGraphics);
         }
 
@@ -4117,6 +4161,10 @@ namespace Greenshot.Editor.Drawing
         /// <returns>false if no keys were processed</returns>
         public bool ProcessCmdKey(Keys k)
         {
+            if (k == Keys.Escape && CancelSelectionBox())
+            {
+                return true;
+            }
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
@@ -4246,6 +4294,7 @@ namespace Greenshot.Editor.Drawing
                 ResizeSelectedElements(resizeX, resizeY);
             }
 
+            OnElementsChanged();
             return true;
 
         }

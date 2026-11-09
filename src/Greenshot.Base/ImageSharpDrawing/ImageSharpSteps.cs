@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 

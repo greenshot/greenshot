@@ -167,9 +167,10 @@ one server per class at a time, so a click which hangs blocks the next one until
 For a service which `ShowsCaptures` (the toasts), the Notification step of a recipe keeps what went to the destinations
 (`NotificationCaptures`, `Greenshot/Notifications`, not in Light): a `.greenshot` file and a thumbnail (364×180) in
 `%LocalAppData%\Greenshot\Notifications`, named by a UUID v7, the `CaptureId` of the notification and the tag of the toast.
-`NotificationCaptures.Initialize` subscribes to `CaptureActivated`: a click offers the capture with the built-in recipe
-`recipe_notification` ("Capture of a notification": a file source which passes the capture on, and the dynamic destination
-flyout).
+`NotificationCaptures.Initialize` subscribes to `CaptureActivated`: a click hands the capture to the first recipe which is on
+and has an active `Notification` trigger, else to the built-in recipe `recipe_notification` ("Handle the capture of a
+notification": a `Notification` trigger, a file source which passes the capture on, and the dynamic destination flyout). The
+trigger says that the capture is handed over, so the recipe is not offered for a click on the tray icon.
 
 Nothing of this delays the toast: the Notification step writes only the thumbnail before the toast is shown, and the `.greenshot`
 file after it. Both come from the export source of the last export (`ExportOutcome.Source`, what went to that destination, also the

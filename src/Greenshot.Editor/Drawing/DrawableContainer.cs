@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Drawing
     public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-        protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        protected static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         
         [NonSerialized]
         private object _tag;
@@ -363,12 +363,13 @@ namespace Greenshot.Editor.Drawing
             return true;
         }
 
+        /// <summary>
+        /// A double click (or Enter) on the selected element: shows its properties in the Selection panel and moves the keyboard
+        /// there. An element with an action of its own overrides it, e.g. the text is edited.
+        /// </summary>
         public virtual void OnDoubleClick()
         {
-            if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler handler)
-            {
-                handler.OnDoubleClick(this);
-            }
+            InternalParent?.RequestProperties();
         }
 
         /// <summary>

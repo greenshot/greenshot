@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes.Pipeline;
@@ -31,7 +32,8 @@ using Greenshot.Plugin.Office.Destinations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Threading;
+using Greenshot.Base.Threading;
+
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Office.Recipes;
 using Greenshot.Plugin.Office.Views;
@@ -92,6 +94,11 @@ namespace Greenshot.Plugin.Office
             var section = new OfficeConfigurationImpl();
             services.AddConfiguration(section);
             _config = section;
+            if (string.IsNullOrEmpty(_config.EmailSubjectTemplate) && !string.IsNullOrEmpty(_config.EmailSubjectPattern))
+            {
+                // The template is filled once from the pattern of 1.3, which stays for going back to 1.3
+                _config.EmailSubjectTemplate = LegacyTemplateConverter.Convert(_config.EmailSubjectPattern, false);
+            }
 
             // The destinations look for the Office installation and read the configuration
             services.AddServices(() => Destinations().ToList());
@@ -116,4 +123,4 @@ namespace Greenshot.Plugin.Office
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     }
-}
+}

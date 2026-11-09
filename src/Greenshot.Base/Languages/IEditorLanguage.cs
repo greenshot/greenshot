@@ -197,9 +197,104 @@ namespace Greenshot.Base.Languages
         string EmojiPicker { get; }
 
         /// <summary>
+        /// Edit text
+        /// </summary>
+        string EditText { get; }
+
+        /// <summary>
         /// History
         /// </summary>
         string EmojiHistory { get; }
+
+        /// <summary>
+        /// Panels
+        /// </summary>
+        string PanelArea { get; }
+
+        /// <summary>
+        /// Close the panel
+        /// </summary>
+        string PanelClose { get; }
+
+        /// <summary>
+        /// Properties
+        /// </summary>
+        string PanelProperties { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string PanelSelection { get; }
+
+        /// <summary>
+        /// Select an element to see its properties
+        /// </summary>
+        string PanelSelectionEmpty { get; }
+
+        /// <summary>
+        /// Size and position
+        /// </summary>
+        string SectionSizeAndPosition { get; }
+
+        /// <summary>
+        /// Emoji
+        /// </summary>
+        string SectionEmoji { get; }
+
+        /// <summary>
+        /// Style and size
+        /// </summary>
+        string SectionStyleAndSize { get; }
+
+        /// <summary>
+        /// Copy style
+        /// </summary>
+        string CopyStyle { get; }
+
+        /// <summary>
+        /// Apply style
+        /// </summary>
+        string ApplyStyle { get; }
+
+        /// <summary>
+        /// Copy size
+        /// </summary>
+        string CopySize { get; }
+
+        /// <summary>
+        /// Apply size
+        /// </summary>
+        string ApplySize { get; }
+
+        /// <summary>
+        /// X (left)
+        /// </summary>
+        string ElementLeft { get; }
+
+        /// <summary>
+        /// Y (top)
+        /// </summary>
+        string ElementTop { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string ElementWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string ElementHeight { get; }
+
+        /// <summary>
+        /// Search emoji
+        /// </summary>
+        string EmojiSearch { get; }
+
+        /// <summary>
+        /// No emoji found
+        /// </summary>
+        string EmojiSearchNoResults { get; }
 
         /// <summary>
         /// New image

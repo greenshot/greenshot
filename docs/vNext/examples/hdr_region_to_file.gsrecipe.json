@@ -89,7 +89,7 @@
       "enabled": true,
       "when": "${option.openInEditor == false}",
       "parameters": {
-        "HdrFormat": "${context.UserChoice.ask == 'Png' ? 'None' : 'Auto'}",
+        "HdrFormat": "${(var.UserChoice.ask == 'Png' ? 'None' : 'Auto')}",
         "Format": "png",
         "AskForFilename": "${option.askForFilename}"
       }

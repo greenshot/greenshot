@@ -34,9 +34,12 @@ namespace Greenshot.Plugin.Office
         [DefaultValue("HTML")]
         EmailFormat OutlookEmailFormat { get; set; }
 
-        [Description("Email subject pattern, works like the OutputFileFilenamePattern")]
+        [Description("Email subject pattern of Greenshot 1.3, only read once to fill EmailSubjectTemplate; kept for going back to 1.3.")]
         [DefaultValue("${title}")]
         string EmailSubjectPattern { get; set; }
+
+        [Description("The subject of new emails, a template like ${payload.title}; see docs/vNext/variables.md.")]
+        string EmailSubjectTemplate { get; set; }
 
         [Description("Default value for the to in emails that are created")]
         [DefaultValue("")]

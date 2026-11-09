@@ -147,7 +147,7 @@ namespace Greenshot.Recipes
                 Key = "text",
                 Type = ContractDataType.String,
                 Format = RecipeOption.FormatTemplate,
-                DefaultValue = "${now:yyyy-MM-dd HH:mm:ss}",
+                DefaultValue = "${time.now:yyyy-MM-dd HH:mm:ss}",
                 Label = "Recipe.extension_caption_text",
                 Description = "Recipe.extension_caption_text_description",
                 EnabledWhen = RecipeExtension.EnabledOptionKey

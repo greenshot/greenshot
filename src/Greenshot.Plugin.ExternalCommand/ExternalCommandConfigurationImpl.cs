@@ -19,80 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 public partial class ExternalCommandConfigurationImpl : IExternalCommandConfiguration
 {
-    private const string MsPaint = "MS Paint";
-    private static readonly string PaintPath;
-    private static readonly bool HasPaint;
-
-    private const string PaintDotNet = "Paint.NET";
-    private static readonly string PaintDotNetPath;
-    private static readonly bool HasPaintDotNet;
-
-    static ExternalCommandConfigurationImpl()
-    {
-        try
-        {
-            PaintPath = PluginUtils.GetExePath("pbrush.exe");
-            HasPaint = !string.IsNullOrEmpty(PaintPath) && File.Exists(PaintPath);
-        }
-        catch
-        {
-            // Ignore
-        }
-
-        try
-        {
-            PaintDotNetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe");
-            HasPaintDotNet = !string.IsNullOrEmpty(PaintDotNetPath) && File.Exists(PaintDotNetPath);
-        }
-        catch
-        {
-            // Ignore
-        }
-    }
-
-    public void Delete(string command)
-    {
-        if (string.IsNullOrEmpty(command))
-        {
-            return;
-        }
-
-        Commands.Remove(command);
-        Commandline.Remove(command);
-        Argument.Remove(command);
-        RunInbackground.Remove(command);
-        OutputFormat.Remove(command);
-        RedirectStandardErrorCommand?.Remove(command);
-        RedirectStandardOutputCommand?.Remove(command);
-        ShowStandardOutputInLogCommand?.Remove(command);
-        ParseOutputForUriCommand?.Remove(command);
-        OutputToClipboardCommand?.Remove(command);
-        UriToClipboardCommand?.Remove(command);
-
-        if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
-        {
-            if (!DeletedBuildInCommands.Contains(command))
-            {
-                DeletedBuildInCommands.Add(command);
-            }
-        }
-        MarkAsDirty();
-    }
-
     public void OnAfterLoad()
     {
         Commands ??= new List<string>();
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();
+        CommandlineTemplate ??= new Dictionary<string, string>();
+        ArgumentTemplate ??= new Dictionary<string, string>();
         RunInbackground ??= new Dictionary<string, bool>();
         OutputFormat ??= new Dictionary<string, string>();
         RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
@@ -102,25 +41,8 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         OutputToClipboardCommand ??= new Dictionary<string, bool>();
         UriToClipboardCommand ??= new Dictionary<string, bool>();
         DeletedBuildInCommands ??= new List<string>();
-
-        // Check if we need to add MsPaint
-        if (HasPaint && !Commands.Contains(MsPaint) && !DeletedBuildInCommands.Contains(MsPaint))
-        {
-            Commands.Add(MsPaint);
-            Commandline.Add(MsPaint, PaintPath);
-            Argument.Add(MsPaint, "\"{0}\"");
-            RunInbackground.Add(MsPaint, true);
-            MarkAsDirty();
-        }
-
-        // Check if we need to add Paint.NET
-        if (HasPaintDotNet && !Commands.Contains(PaintDotNet) && !DeletedBuildInCommands.Contains(PaintDotNet))
-        {
-            Commands.Add(PaintDotNet);
-            Commandline.Add(PaintDotNet, PaintDotNetPath);
-            Argument.Add(PaintDotNet, "\"{0}\"");
-            RunInbackground.Add(PaintDotNet, true);
-            MarkAsDirty();
-        }
+        DisabledCommands ??= new List<string>();
     }
+
+    public void MarkChanged() => MarkAsDirty();
 }

@@ -53,6 +53,7 @@ using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Plugin.Win10;
 using Greenshot.Recipes;
+using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
@@ -178,6 +179,7 @@ namespace Greenshot.Shell
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeCatalog>(new RecipeCatalogService());
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
@@ -283,15 +285,14 @@ namespace Greenshot.Shell
             // Plugins which aren't signed like Greenshot.exe: the question comes after the start, not inside it
             if (PluginHelper.Instance.HeldBackPlugins.Count > 0)
             {
-                _ = UiDispatcher.Dispatcher.BeginInvoke(new Action(PluginHelper.Instance.AskAboutHeldBackPlugins), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                UserQuestions.Enqueue("the plugins which aren't signed", PluginHelper.Instance.AskAboutHeldBackPlugins);
             }
 #endif
 
             if (recipeFilesForTheUser.Count > 0)
             {
-                // Posted: the approval and error windows come after the start, not inside it
-                UiDispatcher.InvokeAsync(() => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser))
-                    .FireAndLog("Load the recipe files which need the user", Log);
+                // The approval and error windows come after the start, not inside it, one at a time with the other questions
+                UserQuestions.Enqueue("the recipe files which need the user", () => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser));
             }
 
             if (startupCommand != null)
@@ -442,6 +443,9 @@ namespace Greenshot.Shell
                 _settingsWindow = null;
             }
         }
+
+        /// <inheritdoc />
+        public void ShowTrayMenu() => _trayIcon?.Menu.Show();
 
         /// <inheritdoc />
         public void ShowAbout()

@@ -151,7 +151,7 @@ namespace Greenshot.Tests.Recipes
             context.Properties["team"] = "Support";
             var node = new RecipeNodeConfig("details", WellKnownStepTypes.SetMetadata)
             {
-                Parameters = new Dictionary<string, object> { ["Author"] = "${team}" }
+                Parameters = new Dictionary<string, object> { ["Author"] = "${var.team}" }
             };
             await SingleNodeRunner.RunAsync(node, config => new SetMetadataStep(config), context);
 

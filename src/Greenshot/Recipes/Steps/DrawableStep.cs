@@ -84,16 +84,11 @@ namespace Greenshot.Recipes.Steps
             int surfaceWidth = surface.Image.Width;
             int surfaceHeight = surface.Image.Height;
 
+            // The size of the surface the annotations are drawn on
             var extraVariables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             {
-                ["payload.width"] = surfaceWidth,
-                ["payload.height"] = surfaceHeight,
-                ["surface.width"] = surfaceWidth,
-                ["surface.height"] = surfaceHeight,
-                ["width"] = surfaceWidth,
-                ["w"] = surfaceWidth,
-                ["height"] = surfaceHeight,
-                ["h"] = surfaceHeight
+                ["payload.width"] = (long)surfaceWidth,
+                ["payload.height"] = (long)surfaceHeight
             };
 
             var annotationConfigs = NodeConfig.GetParameter<List<Dictionary<string, object>>>("Annotations") ?? new List<Dictionary<string, object>>();
@@ -102,7 +97,7 @@ namespace Greenshot.Recipes.Steps
 
             foreach (var rawParams in annotationConfigs)
             {
-                var resolved = ExpressionEvaluator.Instance.ResolveParameters(rawParams, context, extraVariables);
+                var resolved = RecipeExpressions.ResolveParameters(rawParams, context, null, extraVariables);
                 var container = CreateDrawable(surface, resolved, context, extraVariables);
                 if (container != null)
                 {

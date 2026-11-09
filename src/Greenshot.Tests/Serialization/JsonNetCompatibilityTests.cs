@@ -495,20 +495,20 @@ namespace Greenshot.Tests.Serialization
             var uploads = new Dictionary<string, string> { { "u", lines[3] } };
             var store = new UploaderStore(uploaders, uploads, null, text => text, text => text);
 
-            var definition = store.GetUploaders().Single(u => u.Id == "c").Definition;
+            var definition = store.GetAll().Single(u => u.Id == "c").Definition;
             Assert.Equal("Example ShareX export (Ünïcödé)", definition.Name);
             Assert.Equal("PUT", definition.RequestMethod);
             Assert.Equal("3600", definition.Parameters["expires"]);
             Assert.Equal("Bearer YOUR_TOKEN", definition.Headers["Authorization"]);
-            Assert.Equal(3, store.GetUploaders().Count(u => u.Definition != null));
+            Assert.Equal(3, store.GetAll().Count(u => u.Definition != null));
             var upload = store.GetUploads().Single().Value;
             Assert.Equal(new DateTimeOffset(2026, 10, 21, 22, 26, 30, TimeSpan.FromHours(2)), upload.Uploaded);
             Assert.Equal("https://upload.example.com/delete/k3y", upload.DeletionUrl);
 
-            // Stored again: the text is ASCII only
+            // Stored again (the encryption is left out here): the key marked, read back the same
             store.Add(definition);
-            Assert.All(uploaders.Values, json => Assert.True(json.All(c => c < 128), json));
-            AssertSameJson(lines[2], uploaders["c"]);
+            Assert.Contains(UploaderStore.EncryptedPrefix, uploaders["c"]);
+            Assert.Equal("Bearer YOUR_TOKEN", store.Find("Example ShareX export (Ünïcödé)").Definition.Headers["Authorization"]);
         }
 
         [Theory]

@@ -87,6 +87,26 @@ namespace Greenshot.Base.Recipes.Contracts
         /// </summary>
         public bool Translatable { get; set; }
 
+        private Greenshot.Base.Expressions.TemplatePurpose? _purpose;
+
+        /// <summary>
+        /// Where the ${...} of the value is used, which decides what it may use and how it is written (see docs/vNext/variables.md).
+        /// Without it: Folder for FilePath and DirectoryPath, else Value.
+        /// </summary>
+        public Greenshot.Base.Expressions.TemplatePurpose Purpose
+        {
+            get => _purpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
+            set => _purpose = value;
+        }
+
+        internal Greenshot.Base.Expressions.TemplatePurpose? ExplicitPurpose => _purpose;
+
+        /// <summary>
+        /// The step renders the template itself, when it knows more (the folder of a file name, the written file): the engine passes the
+        /// text as it is
+        /// </summary>
+        public bool RenderedByStep { get; set; }
+
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -175,7 +195,9 @@ namespace Greenshot.Base.Recipes.Contracts
                     p.SupportsExpressions)
                 {
                     ValueType = p.ValueType,
-                    Translatable = p.Translatable
+                    Translatable = p.Translatable,
+                    Purpose = p.ExplicitPurpose,
+                    RenderedByStep = p.RenderedByStep
                 };
                 if (p.AllowedValuesProvider != null)
                 {
