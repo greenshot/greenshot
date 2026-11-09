@@ -48,6 +48,7 @@ namespace Greenshot.Capturing.Tools
         private IOcrLineFeature _hoveredLine;
         private Task _pendingOcr;
         private bool _showOcrHint;
+        private NativePoint _ocrHintOffset = new(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
 
         public override CaptureMode Mode => CaptureMode.Text;
 
@@ -253,21 +254,18 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// The hint next to the cursor, where the user looks, kept on the monitor
+        /// The hint next to the cursor, where the user looks: in a corner of the cursor which is on the monitor and not under the zoomer
         /// </summary>
         private void DrawOcrHint(DrawingContext drawingContext)
         {
             var style = Host.ToolStyle;
             var text = style.CreateText(Texts.Core.OcrRunning);
             double padding = style.Scale(6);
-            var size = new Size(text.Width + 2 * padding, text.Height + 2 * padding);
+            var size = new NativeSize((int)Math.Ceiling(text.Width + 2 * padding), (int)Math.Ceiling(text.Height + 2 * padding));
             var cursor = Host.CursorPosition;
-            var monitor = Host.GetMonitorBounds();
-            double offset = style.Scale(20);
-            double x = cursor.X + offset, y = cursor.Y + offset;
-            if (x + size.Width > monitor.Right) x = cursor.X - offset - size.Width;
-            if (y + size.Height > monitor.Bottom) y = cursor.Y - offset - size.Height;
-            var bounds = new Rect(Math.Round(x), Math.Round(y), Math.Ceiling(size.Width), Math.Ceiling(size.Height));
+            var zoomer = Host.ZoomerBounds;
+            _ocrHintOffset = ZoomerPlacement.GetOffset(cursor, _ocrHintOffset, size, Host.GetMonitorBounds(), new[] { zoomer });
+            var bounds = new Rect(cursor.X + _ocrHintOffset.X, cursor.Y + _ocrHintOffset.Y, size.Width, size.Height);
             style.DrawPanel(drawingContext, bounds);
             drawingContext.DrawText(text, new Point(bounds.X + padding, bounds.Y + padding));
         }

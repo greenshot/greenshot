@@ -1694,6 +1694,11 @@ namespace Greenshot.Capturing.Views
         public bool IsSelectionAnimating => _selectionClock != null;
 
         /// <inheritdoc />
+        public NativeRect ZoomerBounds => _zoomerShown && !_zoomerSlotSize.IsEmpty
+            ? new NativeRect(_cursorPos.X + _zoomOffset.X, _cursorPos.Y + _zoomOffset.Y, _zoomerSlotSize.Width, _zoomerSlotSize.Height)
+            : NativeRect.Empty;
+
+        /// <inheritdoc />
         public NativeRect Selection => IsSelectionVisible ? _selectionRect : NativeRect.Empty;
 
         /// <summary>
