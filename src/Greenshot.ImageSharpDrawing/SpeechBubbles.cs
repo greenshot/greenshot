@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -46,12 +47,15 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineColor">The color of the line</param>
         /// <param name="fillColor">The color of the inside, transparent for none</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Bubble(Image image, ImageValues values, Rectangle rect, Point target, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow)
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned box; the target is where the tail points to before
+        /// that; null for none</param>
+        public static void Bubble(Image image, ImageValues values, Rectangle rect, Point target, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow,
+            Matrix3x2? turn = null)
         {
             // The editor draws the line of the tail outside of the box and the line of the box outside of the tail: the line around both together
             var bubble = BoxShape(rect, lineThickness).Clip(new ShapeOptions { ClippingOperation = ClippingOperation.Union }, TailShape(rect, target));
             // The editor's bubble shadow starts one pixel further than that of the other elements
-            Shapes.Draw(image, values, bubble, lineThickness, lineColor, fillColor, shadow, shadowOffset: 1);
+            Shapes.Draw(image, values, bubble, lineThickness, lineColor, fillColor, shadow, shadowOffset: 1, turn: turn);
         }
 
         /// <summary>

@@ -21,6 +21,7 @@
 
 using System;
 using System.Linq;
+using System.Numerics;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
@@ -88,8 +89,9 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="vertical">Where the lines go up and down the box</param>
         /// <param name="lineThickness">The width of the line of the box, the text stays inside it; 0 for none</param>
         /// <param name="shadow">Draw the shadow (the editor's text box only without a fill color)</param>
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
         public static void Draw(Image image, ImageValues values, Rectangle box, string text, TextFont font, Rgba32 color, TextPlacement horizontal,
-            TextPlacement vertical, int lineThickness = 0, bool shadow = false)
+            TextPlacement vertical, int lineThickness = 0, bool shadow = false, Matrix3x2? turn = null)
         {
             if (image == null || string.IsNullOrEmpty(text) || font == null || !(font.Size > 0))
             {
@@ -115,10 +117,18 @@ namespace Greenshot.ImageSharpDrawing
                 {
                     foreach (var (offset, alpha) in Painting.ShadowSteps())
                     {
-                        DrawIn(context, new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height), text, resolved, Painting.Black(alpha), horizontal, vertical);
+                        if (turn is Matrix3x2 transform)
+                        {
+                            // The shadow falls the same way as that of an element which isn't turned
+                            DrawIn(context, box, text, resolved, Painting.Black(alpha), horizontal, vertical, transform * Matrix3x2.CreateTranslation(offset, offset));
+                        }
+                        else
+                        {
+                            DrawIn(context, new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height), text, resolved, Painting.Black(alpha), horizontal, vertical);
+                        }
                     }
                 }
-                DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical);
+                DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical, turn);
             });
         }
 
@@ -136,8 +146,9 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineColor">The color of the line and the number</param>
         /// <param name="fillColor">The color of the inside</param>
         /// <param name="shadow">Draw the shadow of the shape</param>
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
         public static void StepLabel(Image image, ImageValues values, Rectangle rect, string number, string fontFamily, float fontSize, bool asRectangle,
-            int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow)
+            int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow, Matrix3x2? turn = null)
         {
             if (rect.Width == 0 || rect.Height == 0)
             {
@@ -145,20 +156,20 @@ namespace Greenshot.ImageSharpDrawing
             }
             if (asRectangle)
             {
-                Shapes.Rectangle(image, values, rect, lineThickness, lineColor, fillColor, shadow);
+                Shapes.Rectangle(image, values, rect, lineThickness, lineColor, fillColor, shadow, turn);
             }
             else
             {
-                Shapes.Ellipse(image, values, rect, lineThickness, lineColor, fillColor, shadow);
+                Shapes.Ellipse(image, values, rect, lineThickness, lineColor, fillColor, shadow, turn);
             }
-            Draw(image, values, rect, number, new TextFont(fontFamily, fontSize, bold: true), lineColor, TextPlacement.Center, TextPlacement.Center);
+            Draw(image, values, rect, number, new TextFont(fontFamily, fontSize, bold: true), lineColor, TextPlacement.Center, TextPlacement.Center, turn: turn);
         }
 
         /// <summary>
-        /// The text wrapped in the box and placed in it, cut off at the box
+        /// The text wrapped in the box and placed in it, cut off at the box; turned, the letters are cut off at the box, then turned
         /// </summary>
         private static void DrawIn(IImageProcessingContext context, Rectangle box, string text, Font font, Color color, TextPlacement horizontal,
-            TextPlacement vertical)
+            TextPlacement vertical, Matrix3x2? turn = null)
         {
             // The editor (Graphics.DrawString) leaves 1/6 em at both sides of the lines
             float padding = font.Size / 6;
@@ -190,6 +201,14 @@ namespace Greenshot.ImageSharpDrawing
                 }
             };
             var clip = new RectangularPolygon(box.X, box.Y, box.Width, box.Height);
+            if (turn is Matrix3x2 transform)
+            {
+                // Not with Clip and the drawing transform: ImageSharp.Drawing 1.0 draws nothing when the turned clip reaches past the image
+                var inBox = new ShapeOptions { ClippingOperation = ClippingOperation.Intersection };
+                var letters = TextBuilder.GenerateGlyphs(text, options).Select(letter => letter.Clip(inBox, clip).Transform(transform));
+                context.Fill(color, new PathCollection(letters));
+                return;
+            }
             context.Clip(clip, inside => inside.DrawText(options, text, color));
         }
 
