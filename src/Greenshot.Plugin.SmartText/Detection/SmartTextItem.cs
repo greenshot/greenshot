@@ -33,14 +33,14 @@ public sealed class SmartTextItem : IDetectedFeature
 {
     public const string Type = "SmartText";
 
-    public SmartTextItem(string detectorId, string name, string value, string readText, NativeRect bounds, int lineIndex, int start, int length,
+    public SmartTextItem(string detectorId, string name, string value, string readText, OcrBox box, int lineIndex, int start, int length,
         bool isValidated, SmartTextAction action, string actionTarget, bool isOwnPattern)
     {
         DetectorId = detectorId;
         Name = name;
         Value = value;
         ReadText = readText;
-        Bounds = bounds;
+        Box = box;
         LineIndex = lineIndex;
         Start = start;
         Length = length;
@@ -62,7 +62,11 @@ public sealed class SmartTextItem : IDetectedFeature
     /// <summary>The value as OCR read it</summary>
     public string ReadText { get; }
 
-    public NativeRect Bounds { get; private set; }
+    /// <summary>Where the value is, turned with the text</summary>
+    public OcrBox Box { get; private set; }
+
+    /// <summary>The upright rectangle around the value</summary>
+    public NativeRect Bounds => Box.Bounds;
 
     /// <summary>The OCR line, in the order of the text layout</summary>
     public int LineIndex { get; }
@@ -93,7 +97,7 @@ public sealed class SmartTextItem : IDetectedFeature
 
     public void Offset(int x, int y)
     {
-        Bounds = Bounds.Offset(x, y);
+        Box = Box.Offset(x, y);
     }
 
     /// <summary>
@@ -111,7 +115,7 @@ public sealed class SmartTextItem : IDetectedFeature
         };
         // An own web address can't be rendered again here: the corrected value is copy-only
         var action = Action == SmartTextAction.OpenUrl ? SmartTextAction.None : Action;
-        return new SmartTextItem(DetectorId, Name, value, ReadText, Bounds, LineIndex, Start, Length, IsValidated, action, target, IsOwnPattern);
+        return new SmartTextItem(DetectorId, Name, value, ReadText, Box, LineIndex, Start, Length, IsValidated, action, target, IsOwnPattern);
     }
 
     public override string ToString() => ToolTipText;

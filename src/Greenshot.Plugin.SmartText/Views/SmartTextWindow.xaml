@@ -85,7 +85,10 @@
                                 </ItemsControl.ItemContainerStyle>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Cursor="Hand" MouseLeftButtonDown="Box_MouseLeftButtonDown" ToolTip="{Binding AccessibleName}">
+                                        <Grid Cursor="Hand" MouseLeftButtonDown="Box_MouseLeftButtonDown" ToolTip="{Binding AccessibleName}" RenderTransformOrigin="0.5,0.5">
+                                            <Grid.RenderTransform>
+                                                <RotateTransform Angle="{Binding Angle}"/>
+                                            </Grid.RenderTransform>
                                             <Border x:Name="Box" Width="{Binding Width}" Height="{Binding Height}" BorderThickness="2" Margin="-3"
                                                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
                                                     Background="Transparent"/>

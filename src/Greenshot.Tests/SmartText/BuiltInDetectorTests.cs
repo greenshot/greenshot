@@ -60,6 +60,25 @@ namespace Greenshot.Tests.SmartText
             Assert.Equal(new[] { expected }, Values(text, BuiltInDetectors.Url));
         }
 
+        [Fact]
+        public void RotatedText_ItemIsOnTheTurnedWords()
+        {
+            // "Visit https://getgreenshot.org now" at 20 degrees: the item covers only the address, turned with the text
+            var center = new System.Windows.Point(0, 0);
+            Greenshot.Base.Interfaces.Plugin.OcrWordInfo Word(string text, double x, double width) =>
+                new(text, Greenshot.Base.Interfaces.Plugin.OcrBox.FromRect(new System.Windows.Rect(x, 100, width, 20), 20, center));
+            var words = new List<Greenshot.Base.Interfaces.Plugin.OcrWordInfo> { Word("Visit", 0, 50), Word("https://getgreenshot.org", 60, 240), Word("now", 310, 40) };
+            var line = new Greenshot.Base.Core.DetectedOcrLine(default(Greenshot.Base.Interfaces.Plugin.OcrBox), "Visit https://getgreenshot.org now", words);
+            var builtIn = BuiltInDetectors.Find(BuiltInDetectors.Create(English), BuiltInDetectors.Url);
+            var detector = new SmartTextDetector(builtIn.Id, builtIn.Id, builtIn.Pattern, false, English);
+
+            var item = Assert.Single(SmartTextScanner.Scan(TextLayout.From(new[] { line }, Dapplo.Windows.Common.Structs.NativeRect.Empty), new[] { detector }));
+
+            Assert.Equal(20, item.Box.Angle, 6);
+            Assert.Equal(240, item.Box.Width, 6);
+            Assert.Equal(words[1].Box.Center, item.Box.Center);
+        }
+
         [Theory]
         [InlineData("Write to info@example.com")]
         [InlineData("version 1.4.2 of example")]

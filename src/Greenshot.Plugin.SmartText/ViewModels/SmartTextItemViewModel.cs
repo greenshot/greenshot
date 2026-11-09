@@ -125,11 +125,12 @@ public sealed class SmartTextItemViewModel : INotifyPropertyChanged
         _ => Language.ActionOpen
     };
 
-    // The box in the preview, in pixels of the capture
-    public double Left => Item.Bounds.Left;
-    public double Top => Item.Bounds.Top;
-    public double Width => Item.Bounds.Width;
-    public double Height => Item.Bounds.Height;
+    // The box in the preview, in pixels of the capture: the text as if it weren't rotated, turned by Angle around its centre
+    public double Left => Item.Box.Unrotated.Left;
+    public double Top => Item.Box.Unrotated.Top;
+    public double Width => Item.Box.Width;
+    public double Height => Item.Box.Height;
+    public double Angle => Item.Box.Angle;
 
     /// <summary>"Phone number: +49301234567, 1 of 9"</summary>
     public string AccessibleName => string.Format(Language.ItemName, Name, Value, Number, Count);

@@ -109,11 +109,11 @@ public sealed class LayoutLine
 {
     private readonly List<LayoutWord> _words;
 
-    private LayoutLine(int index, string text, NativeRect bounds, List<LayoutWord> words)
+    private LayoutLine(int index, string text, OcrBox box, List<LayoutWord> words)
     {
         Index = index;
         Text = text;
-        Bounds = bounds;
+        Box = box;
         _words = words;
     }
 
@@ -122,7 +122,11 @@ public sealed class LayoutLine
     /// <summary>The words joined by a space (no space for a line OCR read without spaces, Chinese or Japanese)</summary>
     public string Text { get; }
 
-    public NativeRect Bounds { get; }
+    /// <summary>Where the line is, turned with the text</summary>
+    public OcrBox Box { get; }
+
+    /// <summary>The upright rectangle around the line</summary>
+    public NativeRect Bounds => Box.Bounds;
 
     public IReadOnlyList<LayoutWord> Words => _words;
 
@@ -135,8 +139,8 @@ public sealed class LayoutLine
         if (words.Count == 0)
         {
             if (string.IsNullOrWhiteSpace(ocrLine.Text)) return null;
-            layoutWords.Add(new LayoutWord(0, ocrLine.Text.Length, ocrLine.Bounds));
-            return new LayoutLine(index, ocrLine.Text, ocrLine.Bounds, layoutWords);
+            layoutWords.Add(new LayoutWord(0, ocrLine.Text.Length, ocrLine.Box));
+            return new LayoutLine(index, ocrLine.Text, ocrLine.Box, layoutWords);
         }
 
         // Windows OCR puts a space between the words of a Chinese or Japanese line, its line text has none
@@ -144,23 +148,28 @@ public sealed class LayoutLine
         foreach (var word in words)
         {
             if (text.Length > 0) text.Append(separator);
-            layoutWords.Add(new LayoutWord(text.Length, word.Text.Length, word.Bounds));
+            layoutWords.Add(new LayoutWord(text.Length, word.Text.Length, word.Box));
             text.Append(word.Text);
         }
 
-        var bounds = ocrLine.Bounds.IsEmpty ? words.Select(w => w.Bounds).Aggregate((a, b) => a.Union(b)) : ocrLine.Bounds;
-        return new LayoutLine(index, text.ToString(), bounds, layoutWords);
+        var box = ocrLine.Box.IsEmpty ? words.Select(w => w.Box).Aggregate((a, b) => a.Union(b)) : ocrLine.Box;
+        return new LayoutLine(index, text.ToString(), box, layoutWords);
     }
 
     /// <summary>
-    /// The bounds of the words the characters are in
+    /// The box of the words the characters are in, turned with the text
     /// </summary>
-    public NativeRect BoundsOf(int start, int length)
+    public OcrBox BoxOf(int start, int length)
     {
         int end = start + Math.Max(1, length);
-        var covered = _words.Where(w => w.Start < end && w.Start + w.Length > start).Select(w => w.Bounds).Where(b => !b.IsEmpty).ToList();
-        return covered.Count == 0 ? Bounds : covered.Aggregate((a, b) => a.Union(b));
+        var covered = _words.Where(w => w.Start < end && w.Start + w.Length > start).Select(w => w.Box).Where(b => !b.IsEmpty).ToList();
+        return covered.Count == 0 ? Box : covered.Aggregate((a, b) => a.Union(b));
     }
+
+    /// <summary>
+    /// The upright rectangle around the words the characters are in
+    /// </summary>
+    public NativeRect BoundsOf(int start, int length) => BoxOf(start, length).Bounds;
 
     public override string ToString() => Text;
 }
@@ -170,16 +179,24 @@ public sealed class LayoutLine
 /// </summary>
 public sealed class LayoutWord
 {
-    public LayoutWord(int start, int length, NativeRect bounds)
+    public LayoutWord(int start, int length, OcrBox box)
     {
         Start = start;
         Length = length;
-        Bounds = bounds;
+        Box = box;
+    }
+
+    public LayoutWord(int start, int length, NativeRect bounds) : this(start, length, OcrBox.FromRect(bounds))
+    {
     }
 
     public int Start { get; }
 
     public int Length { get; }
 
-    public NativeRect Bounds { get; }
+    /// <summary>Where the word is, turned with the text</summary>
+    public OcrBox Box { get; }
+
+    /// <summary>The upright rectangle around the word</summary>
+    public NativeRect Bounds => Box.Bounds;
 }

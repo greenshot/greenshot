@@ -159,13 +159,13 @@ public sealed class SmartTextDetector
         if ((_definition.MinDigits > 0 && digits < _definition.MinDigits) || (_definition.MaxDigits > 0 && digits > _definition.MaxDigits)) return null;
         if (!SmartTextValidators.IsValid(_definition.Validate, normalized)) return null;
 
-        var bounds = line.BoundsOf(start, length);
-        if (!IsInArea(layout, bounds)) return null;
+        var box = line.BoxOf(start, length);
+        if (!IsInArea(layout, box.Bounds)) return null;
 
         bool validated = !string.IsNullOrEmpty(_definition.Validate) && !SmartTextValidators.Is(_definition.Validate, SmartTextValidate.None)
                          || SmartTextValidators.Is(_definition.Normalize, SmartTextNormalize.Date);
         var (action, target) = ActionOf(normalized);
-        return new SmartTextItem(Id, Name, normalized, readText, bounds, line.Index, start, length, validated, action, target, IsOwnPattern);
+        return new SmartTextItem(Id, Name, normalized, readText, box, line.Index, start, length, validated, action, target, IsOwnPattern);
     }
 
     private (SmartTextAction, string) ActionOf(string value)
