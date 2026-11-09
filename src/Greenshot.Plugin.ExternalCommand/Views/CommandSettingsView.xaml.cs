@@ -79,7 +79,7 @@ public partial class CommandSettingsView : UserControl
         var definition = _viewModel.GetSelectedDefinition();
         if (definition == null) return;
         var buttons = new[] { CommandTexts.ApproveButton, Texts.Core.Cancel };
-        if (DefinitionImport.Confirm(Window.GetWindow(this), CommandTexts.ApproveTitle, CommandSettingsViewModel.DescribeApproval(definition), buttons) == 0)
+        if (DefinitionImport.Confirm(Window.GetWindow(this), CommandSettingsViewModel.DescribeApproval(definition, _viewModel.SelectedCommand?.Id), buttons) == 0)
         {
             _viewModel.ApproveSelected();
         }
@@ -128,7 +128,7 @@ public partial class CommandSettingsView : UserControl
 
         // The gate of the import: Cancel is the default, the buttons only react after a moment, so a double click doesn't import
         var buttons = new[] { CommandTexts.ImportButton, Texts.Core.Cancel };
-        if (DefinitionImport.Confirm(window, CommandTexts.ImportTitle, _viewModel.DescribeImport(definition), buttons) != 0)
+        if (DefinitionImport.Confirm(window, _viewModel.DescribeImport(definition, path), buttons) != 0)
         {
             return;
         }

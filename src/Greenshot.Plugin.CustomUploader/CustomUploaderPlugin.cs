@@ -103,9 +103,9 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         return Task.CompletedTask;
     }
 
-    private static bool ConfirmAtStartup(UploaderDefinition uploader) =>
-        DefinitionImport.Confirm(null, Language.ApproveTitle, CustomUploaderSettingsViewModel.DescribeApproval(uploader),
-            new[] { Language.ApproveButton, Language.ApproveLater }, onTop: true) == 0;
+    private static bool ConfirmAtStartup(StoredDefinition<UploaderDefinition> stored) =>
+        DefinitionImport.Confirm(null, CustomUploaderSettingsViewModel.DescribeApproval(stored.Definition, CreateStore(), stored.Id),
+            new[] { Language.ApproveButton, Language.ApproveLater }) == 0;
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

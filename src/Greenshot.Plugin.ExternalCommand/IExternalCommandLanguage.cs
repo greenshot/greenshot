@@ -77,11 +77,6 @@ namespace Greenshot.Plugin.ExternalCommand
         string ApproveLater { get; }
 
         /// <summary>
-        /// The command {0} was added or changed outside Greenshot. Use it?\n\nGreenshot will run this program with your captures:\n{1}
-        /// </summary>
-        string ApproveQuestion { get; }
-
-        /// <summary>
         /// Approve a command
         /// </summary>
         string ApproveTitle { get; }
@@ -130,6 +125,26 @@ namespace Greenshot.Plugin.ExternalCommand
         /// Configure external commands
         /// </summary>
         string ContextmenuConfigure { get; }
+
+        /// <summary>
+        /// Arguments
+        /// </summary>
+        string DetailArguments { get; }
+
+        /// <summary>
+        /// File
+        /// </summary>
+        string DetailFile { get; }
+
+        /// <summary>
+        /// Text on its input
+        /// </summary>
+        string DetailInputText { get; }
+
+        /// <summary>
+        /// Program
+        /// </summary>
+        string DetailProgram { get; }
 
         /// <summary>
         /// The command can't be saved: {0}
@@ -237,19 +252,9 @@ namespace Greenshot.Plugin.ExternalCommand
         string ImportFileFilter { get; }
 
         /// <summary>
-        /// Import the command {0}?\n\nGreenshot will run this program with your captures:\n{1}
-        /// </summary>
-        string ImportQuestion { get; }
-
-        /// <summary>
         /// It replaces the command with the same name.
         /// </summary>
         string ImportReplaces { get; }
-
-        /// <summary>
-        /// The program also gets this text: {0}
-        /// </summary>
-        string ImportStandardInput { get; }
 
         /// <summary>
         /// Import a command
@@ -260,6 +265,11 @@ namespace Greenshot.Plugin.ExternalCommand
         /// Only import commands from someone you trust: the program runs with your rights.
         /// </summary>
         string ImportTrust { get; }
+
+        /// <summary>
+        /// External command
+        /// </summary>
+        string KindCommand { get; }
 
         /// <summary>
         /// For command-line tools
@@ -390,6 +400,16 @@ namespace Greenshot.Plugin.ExternalCommand
         /// Offer {0} as a destination
         /// </summary>
         string OfferAsDestination { get; }
+
+        /// <summary>
+        /// This command file was changed outside Greenshot. Use it?
+        /// </summary>
+        string QuestionApprove { get; }
+
+        /// <summary>
+        /// Import this command? Greenshot runs this program with your captures.
+        /// </summary>
+        string QuestionImport { get; }
 
         /// <summary>
         /// This command gives back a new image or changes the file, which only a recipe uses. From the menu Greenshot doesn't read what it prints.

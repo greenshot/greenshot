@@ -88,7 +88,7 @@ public partial class CustomUploaderSettingsView : UserControl
         var buttons = offerReminder
             ? new[] { UploaderTexts.ImportWithReminder, UploaderTexts.ImportButton, Texts.Core.Cancel }
             : new[] { UploaderTexts.ImportButton, Texts.Core.Cancel };
-        int choice = DefinitionImport.Confirm(window, UploaderTexts.ImportTitle, _viewModel.DescribeImport(definition), buttons);
+        int choice = DefinitionImport.Confirm(window, _viewModel.DescribeImport(definition, path), buttons);
         if (choice >= 0 && choice < buttons.Length - 1)
         {
             try
@@ -113,7 +113,7 @@ public partial class CustomUploaderSettingsView : UserControl
         var definition = _viewModel.GetSelectedUploader();
         if (definition == null) return;
         var buttons = new[] { UploaderTexts.ApproveButton, Texts.Core.Cancel };
-        if (DefinitionImport.Confirm(Window.GetWindow(this), UploaderTexts.ApproveTitle, CustomUploaderSettingsViewModel.DescribeApproval(definition), buttons) == 0)
+        if (DefinitionImport.Confirm(Window.GetWindow(this), _viewModel.DescribeSelectedApproval(definition), buttons) == 0)
         {
             _viewModel.ApproveSelectedUploader();
         }

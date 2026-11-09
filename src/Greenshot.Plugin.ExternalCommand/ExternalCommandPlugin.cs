@@ -137,11 +137,11 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
         return Task.CompletedTask;
     }
 
-    private static bool ConfirmAtStartup(CommandDefinition command)
+    private static bool ConfirmAtStartup(StoredDefinition<CommandDefinition> stored)
     {
         var language = Texts.Get<IExternalCommandLanguage>();
-        return DefinitionImport.Confirm(null, language.ApproveTitle, CommandSettingsViewModel.DescribeApproval(command),
-            new[] { language.ApproveButton, language.ApproveLater }, onTop: true) == 0;
+        return DefinitionImport.Confirm(null, CommandSettingsViewModel.DescribeApproval(stored.Definition, stored.Id),
+            new[] { language.ApproveButton, language.ApproveLater }) == 0;
     }
 
     /// <summary>

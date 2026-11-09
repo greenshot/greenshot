@@ -360,4 +360,14 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// "{0}" isn't part of Greenshot: it comes from an uploader file you imported, ... ask {1} or whoever made the file, the details help them.
     /// </summary>
     string UploadFailedNote { get; }
+
+    /// <summary>
+    /// Custom uploader
+    /// </summary>
+    string KindUploader { get; }
+
+    /// <summary>
+    /// File
+    /// </summary>
+    string ApprovalFile { get; }
 }

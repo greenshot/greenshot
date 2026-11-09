@@ -78,6 +78,13 @@ that didn't come from the catalog (a built-in recipe, or one of your own files) 
 window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
 section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
 
+#### A recipe which doesn't load
+
+The window with the errors of a recipe file offers *Copy Errors*, *Edit Recipe File* and **Remove from Greenshot**: Greenshot
+stops loading the file (it leaves `RecipeFiles`, the recipes of the file go), the file itself stays where it is and can be
+imported again. Such windows, the approvals of changed recipe files and the other questions Greenshot asks after the start
+(changed command and uploader files, plugins which aren't signed) come one at a time.
+
 #### Updating recipes from the catalog
 
 A Greenshot update can change what recipes may contain, so a recipe installed from the catalog can stop loading. Greenshot

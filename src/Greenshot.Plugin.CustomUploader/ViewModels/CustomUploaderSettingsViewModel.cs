@@ -31,6 +31,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Definitions;
@@ -206,28 +207,51 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     /// What the user confirms before the import: where the captures go, which headers go with them.
     /// The values of the headers and fields aren't shown, they are the keys.
     /// </summary>
-    internal string DescribeImport(UploaderDefinition definition)
+    internal DefinitionApproval DescribeImport(UploaderDefinition definition, string path = null)
     {
-        var text = new StringBuilder(string.Format(Language.ImportQuestion, definition.Name, UploaderFile.DescribeServer(definition)));
-        var headers = definition.Headers?.Keys.ToList();
-        if (headers?.Count > 0)
-        {
-            text.Append("\n\n").Append(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
-        }
-
+        var approval = Describe(definition, Language.ImportTitle, Language.ImportQuestion, path, () => GenericIcon.Value);
         if (HasNoDeletion(definition))
         {
-            text.Append("\n\n").Append(string.Format(Language.ImportNoDeletion, UploaderFile.DescribeServer(definition)));
+            approval.Notes.Add(string.Format(Language.ImportNoDeletion, UploaderFile.DescribeServer(definition)));
         }
 
         if (_store.Find(definition.Name) != null)
         {
-            text.Append("\n\n").Append(Language.ImportReplaces);
+            approval.Notes.Add(Language.ImportReplaces);
         }
 
-        text.Append("\n\n").Append(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
-        text.Append("\n\n").Append(Language.ImportTrust);
-        return text.ToString();
+        AddTrust(approval, definition);
+        return approval;
+    }
+
+    /// <summary>
+    /// The icon, the name, where it sends the captures and with which headers, the file
+    /// </summary>
+    private static DefinitionApproval Describe(UploaderDefinition definition, string title, string questionFormat, string path, Func<ImageSource> icon)
+    {
+        var approval = new DefinitionApproval
+        {
+            Title = title,
+            Name = definition.Name,
+            Kind = Language.KindUploader,
+            Question = string.Format(questionFormat, definition.Name, UploaderFile.DescribeServer(definition)),
+            // Read when the window shows it
+            LoadIcon = () => Task.FromResult(icon())
+        };
+        approval.With(Language.ApprovalFile, path);
+        var headers = definition.Headers?.Keys.ToList();
+        if (headers?.Count > 0)
+        {
+            approval.Notes.Add(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
+        }
+
+        return approval;
+    }
+
+    private static void AddTrust(DefinitionApproval approval, UploaderDefinition definition)
+    {
+        approval.Notes.Add(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
+        approval.Notes.Add(Language.ImportTrust);
     }
 
     /// <summary>
@@ -253,18 +277,18 @@ public sealed class CustomUploaderSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// What the user confirms before an uploader file which was added or changed outside Greenshot is used, like an import
     /// </summary>
-    internal static string DescribeApproval(UploaderDefinition definition)
-    {
-        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, UploaderFile.DescribeServer(definition)));
-        var headers = definition.Headers?.Keys.ToList();
-        if (headers?.Count > 0)
-        {
-            text.Append("\n\n").Append(string.Format(Language.ImportHeaders, string.Join(", ", headers)));
-        }
+    /// <param name="definition">the uploader</param>
+    /// <param name="store">the uploaders, for the icon of the service</param>
+    /// <param name="fileId">the file in the Uploaders folder</param>
+    internal DefinitionApproval DescribeSelectedApproval(UploaderDefinition definition) => DescribeApproval(definition, _store, SelectedUploader?.Id);
 
-        text.Append("\n\n").Append(string.Format(Language.ImportNotGreenshot, definition.Name, UploaderFile.DescribeServer(definition)));
-        text.Append("\n\n").Append(Language.ImportTrust);
-        return text.ToString();
+    internal static DefinitionApproval DescribeApproval(UploaderDefinition definition, UploaderStore store, string fileId)
+    {
+        var approval = Describe(definition, Language.ApproveTitle, Language.ApproveQuestion,
+            fileId == null ? null : Path.Combine(CustomUploaderPlugin.FolderPath, fileId),
+            () => DefinitionListItem.LoadIcon(store?.GetIcon(fileId)) ?? GenericIcon.Value);
+        AddTrust(approval, definition);
+        return approval;
     }
 
     /// <summary>

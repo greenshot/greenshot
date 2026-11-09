@@ -22,7 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Threading;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Base.Definitions;
@@ -46,16 +46,16 @@ public static class DefinitionApprovalAtStartup
     /// Ask about each definition which waits for approval and approve the confirmed ones
     /// </summary>
     /// <param name="store">the definitions of the folder, as read at the start</param>
-    /// <param name="confirm">shows what the definition does, true when the user approves it</param>
+    /// <param name="confirm">shows what the stored definition does (its file is <see cref="StoredDefinition{T}.Id"/> in the folder), true when the user approves it</param>
     /// <param name="approved">called for each approved definition, e.g. to add its destination</param>
     /// <returns>the number of approved definitions</returns>
-    public static int Ask<T>(DefinitionStore<T> store, Func<T, bool> confirm, Action<T> approved = null) where T : class
+    public static int Ask<T>(DefinitionStore<T> store, Func<StoredDefinition<T>, bool> confirm, Action<T> approved = null) where T : class
     {
         if (confirm == null) throw new ArgumentNullException(nameof(confirm));
         int count = 0;
         foreach (var stored in NotApproved(store))
         {
-            if (!confirm(stored.Definition))
+            if (!confirm(stored))
             {
                 Log.InfoFormat("The {0} file {1} was not approved, it stays unused", store.Kind.Designation, stored.Id);
                 continue;
@@ -79,21 +79,12 @@ public static class DefinitionApprovalAtStartup
     /// Nothing is shown when no definition waits for approval.
     /// </summary>
     /// <param name="createStore">the definitions of the folder, read when the question comes</param>
-    /// <param name="confirm">shows what the definition does, true when the user approves it</param>
+    /// <param name="confirm">shows what the stored definition does (its file is <see cref="StoredDefinition{T}.Id"/> in the folder), true when the user approves it</param>
     /// <param name="approved">called for each approved definition</param>
-    public static void AskWhenIdle<T>(Func<DefinitionStore<T>> createStore, Func<T, bool> confirm, Action<T> approved = null) where T : class
+    public static void AskWhenIdle<T>(Func<DefinitionStore<T>> createStore, Func<StoredDefinition<T>, bool> confirm, Action<T> approved = null) where T : class
     {
         if (createStore == null) throw new ArgumentNullException(nameof(createStore));
-        _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
-        {
-            try
-            {
-                Ask(createStore(), confirm, approved);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Asking about the changed definition files failed", ex);
-            }
-        }), DispatcherPriority.ApplicationIdle);
+        // After the other questions (recipes, plugins), one window at a time
+        UserQuestions.Enqueue($"the changed {typeof(T).Name} files", () => Ask(createStore(), confirm, approved));
     }
 }

@@ -120,10 +120,10 @@ namespace Greenshot.Tests.ExternalCommand
                 var store = FolderStore(directory, approvals);
                 var asked = new List<string>();
                 var approved = new List<string>();
-                int count = DefinitionApprovalAtStartup.Ask(store, command =>
+                int count = DefinitionApprovalAtStartup.Ask(store, stored =>
                 {
-                    asked.Add(command.Name);
-                    return command.Name == "Yes";
+                    asked.Add(stored.Name);
+                    return stored.Name == "Yes";
                 }, command => approved.Add(command.Name));
 
                 Assert.Equal(new[] { "No", "Yes" }, asked);

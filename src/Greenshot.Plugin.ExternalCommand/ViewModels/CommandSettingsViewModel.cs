@@ -179,18 +179,50 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
         SelectedCommand == null ? null : _store.GetAll().FirstOrDefault(stored => stored.Id == SelectedCommand.Id)?.Definition?.Clone();
 
     /// <summary>
-    /// What the user confirms before a command file which was added or changed outside Greenshot is used, like an import
+    /// What the user confirms before a command file which was changed outside Greenshot is used, like an import
     /// </summary>
-    internal static string DescribeApproval(CommandDefinition definition)
+    /// <param name="definition">the command</param>
+    /// <param name="fileId">the file in the Commands folder</param>
+    internal static DefinitionApproval DescribeApproval(CommandDefinition definition, string fileId)
     {
-        var text = new StringBuilder(string.Format(Language.ApproveQuestion, definition.Name, CommandKind.Instance.Describe(definition)));
-        if (CommandKind.Is(definition.StandardInput, CommandDefinitions.InputText))
+        var approval = Describe(definition, Language.ApproveTitle, Language.QuestionApprove)
+            .With(Language.DetailFile, fileId == null ? null : Path.Combine(CommandDefinitions.FolderPath, fileId));
+        approval.Notes.Add(Language.ImportTrust);
+        return approval;
+    }
+
+    /// <summary>
+    /// The icon of the program, the name, what it runs and what it gets
+    /// </summary>
+    private static DefinitionApproval Describe(CommandDefinition definition, string title, string question)
+    {
+        var approval = new DefinitionApproval
         {
-            text.Append("\n\n").Append(string.Format(Language.ImportStandardInput, definition.StandardInputText));
+            Title = title,
+            Name = definition.Name,
+            Kind = Language.KindCommand,
+            Question = question,
+            LoadIcon = () => LoadIconAsync(definition)
+        };
+        approval.With(Language.DetailProgram, definition.Program)
+            .With(Language.DetailArguments, definition.Arguments)
+            .With(Language.DetailInputText, CommandKind.Is(definition.StandardInput, CommandDefinitions.InputText) ? definition.StandardInputText : null);
+        return approval;
+    }
+
+    private static async Task<ImageSource> LoadIconAsync(CommandDefinition definition)
+    {
+        var image = await IconCache.IconForCommandAsync(definition.Program, definition.Name).ConfigureAwait(true);
+        if (image == null) return null;
+        ImageSource icon;
+        // The icon cache owns its images
+        lock (image)
+        {
+            icon = image.ToBitmapSource();
         }
 
-        text.Append("\n\n").Append(Language.ImportTrust);
-        return text.ToString();
+        icon?.Freeze();
+        return icon;
     }
 
     /// <summary>
@@ -255,21 +287,16 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     /// <summary>
     /// What the user confirms before the import: the program and its arguments, the text on standard input
     /// </summary>
-    internal string DescribeImport(CommandDefinition definition)
+    internal DefinitionApproval DescribeImport(CommandDefinition definition, string path)
     {
-        var text = new StringBuilder(string.Format(Language.ImportQuestion, definition.Name, _store.Kind.Describe(definition)));
-        if (CommandKind.Is(definition.StandardInput, CommandDefinitions.InputText))
-        {
-            text.Append("\n\n").Append(string.Format(Language.ImportStandardInput, definition.StandardInputText));
-        }
-
+        var approval = Describe(definition, Language.ImportTitle, Language.QuestionImport).With(Language.DetailFile, path);
         if (_store.Find(definition.Name) != null)
         {
-            text.Append("\n\n").Append(Language.ImportReplaces);
+            approval.Notes.Add(Language.ImportReplaces);
         }
 
-        text.Append("\n\n").Append(Language.ImportTrust);
-        return text.ToString();
+        approval.Notes.Add(Language.ImportTrust);
+        return approval;
     }
 
     /// <summary>
