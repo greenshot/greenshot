@@ -33,6 +33,11 @@ namespace Greenshot.Plugin.Zxing.ViewModels
     /// </summary>
     public sealed class BarcodePanelViewModel : INotifyPropertyChanged, IDisposable
     {
+        /// <summary>
+        /// The Selection panel of the editor, it shows the Barcode section of the inserted barcode
+        /// </summary>
+        private const string SelectionPanelId = "Greenshot.Selection";
+
         private readonly IEditorPanelContext _context;
 
         public BarcodePanelViewModel(IEditorPanelContext context)
@@ -53,7 +58,8 @@ namespace Greenshot.Plugin.Zxing.ViewModels
         public bool CanInsert => Editor.IsValid && _context.CurrentSurface != null;
 
         /// <summary>
-        /// Put the barcode into the visible part of the shown capture as one undo step, select it and give the keyboard to the canvas
+        /// Put the barcode into the visible part of the shown capture as one undo step, select it, show it in the Selection panel
+        /// (most captures get one barcode, it's changed there) and give the keyboard to the canvas
         /// </summary>
         /// <returns>the new barcode, null when there is nothing to insert</returns>
         public BarcodeContainer Insert()
@@ -70,6 +76,7 @@ namespace Greenshot.Plugin.Zxing.ViewModels
             barcode.Height = is2D ? 160 : 80;
             barcode.RegenerateBarcode();
             surface.InsertElements(new[] { barcode });
+            _context.ShowPanel(SelectionPanelId, false);
             // The new barcode is selected there, the keys move and size it
             _context.FocusCanvas();
             return barcode;

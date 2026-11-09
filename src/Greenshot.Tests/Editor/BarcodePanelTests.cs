@@ -40,10 +40,10 @@ namespace Greenshot.Tests.Editor
             TestEnvironment.EnsureInitialized();
         }
 
-        private static (EditorPanelContext Context, int[] FocusCount) CreateContext(Surface surface)
+        private static (EditorPanelContext Context, int[] FocusCount) CreateContext(Surface surface, System.Collections.Generic.List<(string, bool)> shownPanels = null)
         {
             var focusCount = new int[1];
-            var context = new EditorPanelContext(null, null, () => focusCount[0]++);
+            var context = new EditorPanelContext(null, (id, activate) => shownPanels?.Add((id, activate)), () => focusCount[0]++);
             context.SetSurface(surface);
             return (context, focusCount);
         }
@@ -91,10 +91,11 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public void Insert_AddsTheBarcodeInTheVisiblePartAsOneUndoStep()
+        public void Insert_AddsTheBarcodeInTheVisiblePartAsOneUndoStep_AndShowsItInTheSelectionPanel()
         {
             using var surface = new Surface(new Bitmap(400, 300));
-            var (context, focusCount) = CreateContext(surface);
+            var shownPanels = new System.Collections.Generic.List<(string, bool)>();
+            var (context, focusCount) = CreateContext(surface, shownPanels);
             using var panel = new BarcodePanelViewModel(context);
             Assert.True(panel.CanInsert);
 
@@ -107,6 +108,8 @@ namespace Greenshot.Tests.Editor
             // A copy: the next change in the panel doesn't change the inserted barcode
             Assert.NotSame(panel.Editor.Model, barcode.Model);
             Assert.True(barcode.Left > 0 && barcode.Top > 0);
+            // The Selection panel with the Barcode section, the keyboard stays on the canvas
+            Assert.Equal(("Greenshot.Selection", false), shownPanels.Single());
             Assert.Equal(1, focusCount[0]);
 
             surface.Undo();

@@ -38,8 +38,9 @@ With nothing selected and no tool which needs it, the panel says so.
 
 The *QR / Barcode* panel (Zxing plugin, *Insert QR / Barcode...* in the *Plugins* menu or the list at the top of the area) has the same
 fields as the section, with a preview. *Insert* puts the barcode in the middle of the visible part of the capture, selected, and gives
-the keyboard back to the capture; Ctrl+Z removes it again. The fields stay as they are for the next barcode while the window is open.
-To change a barcode later, double-click it: the Selection panel shows its *QR / Barcode* section.
+the keyboard back to the capture; Ctrl+Z removes it again. Then the area shows the Selection panel, where the *QR / Barcode*
+section changes the new barcode (most captures get one). The fields of the panel stay as they are for the next barcode while
+the window is open. To change a barcode later, select it with the Selection panel shown, or double-click it.
 
 ### Settings
 
