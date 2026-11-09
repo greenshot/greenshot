@@ -76,14 +76,32 @@ namespace Greenshot.Tests.Editor
         [Fact]
         public void SquareModules_AreLikeTheGdiBitmap()
         {
-            // 4 pixels per module: every edge on a whole pixel (GDI+ anti-aliases them, its pixels have their middle there); where two modules
-            // meet, the two blend their edges a bit differently
+            // 4 pixels per module: every edge on a whole pixel
             var matrix = new MultiFormatWriter().encode("https://getgreenshot.org", BarcodeFormat.QR_CODE, 0, 0,
                 new System.Collections.Generic.Dictionary<EncodeHintType, object> { { EncodeHintType.MARGIN, 1 } });
             var layout = ZxingBarcodeGenerator.Layout(matrix, Color.Black, Color.White, false, BarcodeFormat.QR_CODE, matrix.Width * 4, matrix.Height * 4, 1);
 
             Assert.NotEmpty(layout.Modules);
             int differences = CountDifferences(layout, 16, out string first);
+            Assert.True(differences == 0, $"{differences} pixels differ, first {first}");
+        }
+
+        [Fact]
+        public void SquareModules_OfUnevenSize_TouchWithoutASeam()
+        {
+            // 157 / 23 modules: 6.8 pixels per module, the edges on whole pixels, no anti-aliased line where two modules meet
+            var layout = ZxingBarcodeGenerator.CreateLayout("https://getgreenshot.org", BarcodeFormat.QR_CODE, Color.Black, Color.White, false, 157, 157, 1);
+            using var gdi = ZxingBarcodeGenerator.Render(layout);
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    int red = gdi.GetPixel(x, y).R;
+                    Assert.True(red == 0 || red == 255, $"{x},{y}: {red}");
+                }
+            }
+
+            int differences = CountDifferences(layout, 0, out string first);
             Assert.True(differences == 0, $"{differences} pixels differ, first {first}");
         }
 

@@ -1,473 +1,50 @@
+<!--
+    The window for the barcode options of a recipe step: the barcode fields (BarcodeEditorView) with Apply and Cancel.
+    In the editor the same fields are the Barcode panel and the Barcode section of the Selection panel.
+-->
 <Window x:Class="Greenshot.Plugin.Zxing.Views.ZxingEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
-        Title="{wpf:Text Zxing.EditorTitleInsert}"
-        Width="740"
-        Height="540"
-        MinWidth="680"
-        MinHeight="480"
-        WindowStartupLocation="CenterScreen"
-        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
-        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        xmlns:views="clr-namespace:Greenshot.Plugin.Zxing.Views"
+        Title="{wpf:Text Zxing.EditorTitleEdit}"
+        Width="440"
+        Height="640"
+        MinWidth="360"
+        MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Background="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"
+        Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"
         WindowStyle="None"
         AllowsTransparency="False">
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GroupBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-        <Style TargetType="Label">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
-            <Setter Property="Padding" Value="0,2"/>
-        </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-            BorderThickness="1">
+    <Border BorderThickness="1" BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
 
-            <!-- Main Content Area -->
-            <Grid Grid.Row="1" Margin="14,6,14,14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="380"/>
-                    <ColumnDefinition Width="14"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                <views:BarcodeEditorView x:Name="EditorView" Margin="14,4,14,8"/>
+            </ScrollViewer>
 
-                <!-- Left Column: Barcode format & Category selection & Inputs -->
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Format row -->
-                    <Grid Grid.Row="0" Margin="0,4,0,6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Text Zxing.BarcodeFormat}" Target="{Binding ElementName=CmbFormat}"/>
-                        <ComboBox x:Name="CmbFormat" Grid.Column="1" SelectionChanged="CmbFormat_SelectionChanged"/>
-                    </Grid>
-
-                    <!-- QR Category row -->
-                    <Grid x:Name="RowQrCategory" Grid.Row="1" Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Text Zxing.QrType}" Target="{Binding ElementName=CmbQrCategory}"/>
-                        <ComboBox x:Name="CmbQrCategory" Grid.Column="1" SelectionChanged="CmbQrCategory_SelectionChanged"/>
-                    </Grid>
-
-                    <!-- Dynamic Inputs GroupBox -->
-                    <GroupBox x:Name="GrpInputs" Grid.Row="2" Header="{wpf:Text Zxing.Inputs}" Margin="0,2,0,0">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                            <Grid x:Name="InputPanelsContainer" Margin="4">
-
-                                <!-- Panel 1: Raw Text -->
-                                <StackPanel x:Name="PnlRawText" Visibility="Visible">
-                                    <Label Content="{wpf:Text Zxing.RawText}" Margin="0,0,0,4" Target="{Binding ElementName=TxtRawText}"/>
-                                    <TextBox x:Name="TxtRawText"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
-                                             Height="68"
-                                             MinHeight="48"
-                                             MaxHeight="120"
-                                             Text="https://getgreenshot.org"
-                                             TextChanged="InputControl_Changed"/>
-                                </StackPanel>
-
-                                <!-- Panel 2: WiFi -->
-                                <StackPanel x:Name="PnlWifi" Visibility="Collapsed">
-                                    <Label Content="{wpf:Text Zxing.WifiSsid}" Target="{Binding ElementName=TxtWifiSsid}"/>
-                                    <TextBox x:Name="TxtWifiSsid" Margin="0,2,0,8" TextChanged="InputControl_Changed"/>
-                                    <Label Content="{wpf:Text Zxing.WifiPassword}" Target="{Binding ElementName=TxtWifiPassword}"/>
-                                    <TextBox x:Name="TxtWifiPassword" Margin="0,2,0,8" TextChanged="InputControl_Changed"/>
-                                    <Label Content="{wpf:Text Zxing.WifiEncryption}" Target="{Binding ElementName=CmbWifiEncryption}"/>
-                                    <ComboBox x:Name="CmbWifiEncryption" Margin="0,2,0,4" SelectionChanged="InputControl_Changed"/>
-                                </StackPanel>
-
-                                <!-- Panel 3: vCard Contact -->
-                                <StackPanel x:Name="PnlVcard" Visibility="Collapsed">
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardFirstName}" Target="{Binding ElementName=TxtVcardFirstName}"/>
-                                        <TextBox x:Name="TxtVcardFirstName" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardLastName}" Target="{Binding ElementName=TxtVcardLastName}"/>
-                                        <TextBox x:Name="TxtVcardLastName" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardPhone}" Target="{Binding ElementName=TxtVcardPhone}"/>
-                                        <TextBox x:Name="TxtVcardPhone" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardEmail}" Target="{Binding ElementName=TxtVcardEmail}"/>
-                                        <TextBox x:Name="TxtVcardEmail" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardCompany}" Target="{Binding ElementName=TxtVcardCompany}"/>
-                                        <TextBox x:Name="TxtVcardCompany" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.VcardUrl}" Target="{Binding ElementName=TxtVcardUrl}"/>
-                                        <TextBox x:Name="TxtVcardUrl" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                </StackPanel>
-
-                                <!-- Panel 4: EPC SEPA Transfer -->
-                                <StackPanel x:Name="PnlEpc" Visibility="Collapsed">
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EpcRecipient}" Target="{Binding ElementName=TxtEpcName}"/>
-                                        <TextBox x:Name="TxtEpcName" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EpcIban}" Target="{Binding ElementName=TxtEpcIban}"/>
-                                        <TextBox x:Name="TxtEpcIban" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EpcBic}" Target="{Binding ElementName=TxtEpcBic}"/>
-                                        <TextBox x:Name="TxtEpcBic" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EpcAmount}" Target="{Binding ElementName=TxtEpcAmount}"/>
-                                        <TextBox x:Name="TxtEpcAmount" Grid.Column="1" Text="10.00" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EpcReference}" Target="{Binding ElementName=TxtEpcReference}"/>
-                                        <TextBox x:Name="TxtEpcReference" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.Message}" Target="{Binding ElementName=TxtEpcMessage}"/>
-                                        <TextBox x:Name="TxtEpcMessage" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                </StackPanel>
-
-                                <!-- Panel 5: Email -->
-                                <StackPanel x:Name="PnlEmail" Visibility="Collapsed">
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EmailTo}" Target="{Binding ElementName=TxtEmailTo}"/>
-                                        <TextBox x:Name="TxtEmailTo" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EmailSubject}" Target="{Binding ElementName=TxtEmailSubject}"/>
-                                        <TextBox x:Name="TxtEmailSubject" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Label Content="{wpf:Text Zxing.EmailBody}" Margin="0,2,0,2" Target="{Binding ElementName=TxtEmailBody}"/>
-                                    <TextBox x:Name="TxtEmailBody"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
-                                             Height="70"
-                                             MinHeight="50"
-                                             MaxHeight="100"
-                                             TextChanged="InputControl_Changed"/>
-                                </StackPanel>
-
-                                <!-- Panel 6: Calendar Event -->
-                                <StackPanel x:Name="PnlCalendar" Visibility="Collapsed">
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EventTitle}" Target="{Binding ElementName=TxtEventTitle}"/>
-                                        <TextBox x:Name="TxtEventTitle" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EventLocation}" Target="{Binding ElementName=TxtEventLocation}"/>
-                                        <TextBox x:Name="TxtEventLocation" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EventStart}" Target="{Binding ElementName=TxtEventStart}"/>
-                                        <TextBox x:Name="TxtEventStart" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EventEnd}" Target="{Binding ElementName=TxtEventEnd}"/>
-                                        <TextBox x:Name="TxtEventEnd" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.EventDescription}" Target="{Binding ElementName=TxtEventDescription}"/>
-                                        <TextBox x:Name="TxtEventDescription" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                </StackPanel>
-
-                                <!-- Panel 7: Phone -->
-                                <StackPanel x:Name="PnlPhone" Visibility="Collapsed">
-                                    <Label Content="{wpf:Text Zxing.PhoneNumber}" Target="{Binding ElementName=TxtPhoneNumber}"/>
-                                    <TextBox x:Name="TxtPhoneNumber" Margin="0,4,0,0" TextChanged="InputControl_Changed"/>
-                                </StackPanel>
-
-                                <!-- Panel 8: SMS -->
-                                <StackPanel x:Name="PnlSms" Visibility="Collapsed">
-                                    <Label Content="{wpf:Text Zxing.SmsNumber}" Target="{Binding ElementName=TxtSmsNumber}"/>
-                                    <TextBox x:Name="TxtSmsNumber" Margin="0,2,0,6" TextChanged="InputControl_Changed"/>
-                                    <Label Content="{wpf:Text Zxing.Message}" Target="{Binding ElementName=TxtSmsMessage}"/>
-                                    <TextBox x:Name="TxtSmsMessage"
-                                             AcceptsReturn="True"
-                                             TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"
-                                             Height="70"
-                                             MinHeight="50"
-                                             MaxHeight="100"
-                                             Margin="0,2,0,0"
-                                             TextChanged="InputControl_Changed"/>
-                                </StackPanel>
-
-                                <!-- Panel 9: Geo Location -->
-                                <StackPanel x:Name="PnlGeo" Visibility="Collapsed">
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.GeoLatitude}" Target="{Binding ElementName=TxtLatitude}"/>
-                                        <TextBox x:Name="TxtLatitude" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,2,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{wpf:Text Zxing.GeoLongitude}" Target="{Binding ElementName=TxtLongitude}"/>
-                                        <TextBox x:Name="TxtLongitude" Grid.Column="1" TextChanged="InputControl_Changed"/>
-                                    </Grid>
-                                </StackPanel>
-
-                            </Grid>
-                        </ScrollViewer>
-                    </GroupBox>
-                </Grid>
-
-                <!-- Right Column: Preview, Options, Status & Actions -->
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="220"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Preview GroupBox -->
-                    <GroupBox Grid.Row="0" Header="{wpf:Text Zxing.Preview}" Margin="0,4,0,6">
-                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
-                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4"
-                                SnapsToDevicePixels="True">
-                            <Image x:Name="ImgPreview"
-                                   AutomationProperties.Name="{wpf:Text Zxing.Preview}"
-                                   Stretch="Uniform"
-                                   Margin="8"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                        </Border>
-                    </GroupBox>
-
-                    <!-- Customization Options -->
-                    <StackPanel Grid.Row="1" Margin="0,4,0,4">
-                        <!-- Colors Row -->
-                        <Grid Margin="0,4,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Foreground -->
-                            <Border x:Name="BdrForeColor"
-                                    Grid.Column="0"
-                                    Width="26" Height="26"
-                                    Background="Black"
-                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="3"
-                                    VerticalAlignment="Center"/>
-                            <Button Grid.Column="1"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Content="{wpf:Text Zxing.Foreground}"
-                                    Margin="6,0,0,0"
-                                    Padding="10,4"
-                                    Click="BtnForeColor_Click"/>
-
-                            <!-- Background -->
-                            <Border x:Name="BdrBackColor"
-                                    Grid.Column="3"
-                                    Width="26" Height="26"
-                                    Background="White"
-                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="3"
-                                    VerticalAlignment="Center"/>
-                            <Button Grid.Column="4"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Content="{wpf:Text Zxing.Background}"
-                                    Margin="6,0,0,0"
-                                    Padding="10,4"
-                                    Click="BtnBackColor_Click"/>
-                        </Grid>
-
-                        <!-- Style & Margin Row -->
-                        <Grid Margin="0,2,0,4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <CheckBox x:Name="ChkRoundedDots"
-                                      Grid.Column="0"
-                                      Content="{wpf:Text Zxing.RoundedDots}"
-                                      Checked="InputControl_Changed"
-                                      Unchecked="InputControl_Changed"/>
-
-                            <Label Grid.Column="1" Content="{wpf:Text Zxing.Margin}" Margin="12,0,4,0" Target="{Binding ElementName=CmbMargin}"/>
-                            <ComboBox x:Name="CmbMargin"
-                                      Grid.Column="2"
-                                      Width="60"
-                                      SelectionChanged="InputControl_Changed"/>
-                        </Grid>
-                    </StackPanel>
-
-                    <!-- Status/Error TextBlock -->
-                    <!-- Hints and errors of the input (colors set in code), announced when they change -->
-                    <TextBlock x:Name="TxtStatus"
-                               Grid.Row="2"
-                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"
-                               wpf:LiveRegion.Mode="Polite"
-                               TextWrapping="Wrap"
-                               FontSize="{wpf:FontSize 11}"
-                               Margin="0,4,0,6"
-                               VerticalAlignment="Top"/>
-
-                    <!-- Action Buttons (Insert/Apply and Cancel) -->
-                    <StackPanel Grid.Row="3"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Margin="0,6,0,0">
-                        <Button x:Name="BtnInsert"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Content="{wpf:Text Zxing.Insert}"
-                                Width="100"
-                                Height="34"
-                                FontWeight="SemiBold"
-                                IsDefault="True"
-                                Click="BtnInsert_Click"
-                                Margin="0,0,8,0"/>
-                        <Button x:Name="BtnCancel"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Content="{wpf:Text Core.Cancel}"
-                                Width="90"
-                                Height="34"
-                                IsCancel="True"
-                                Click="BtnCancel_Click"/>
-                    </StackPanel>
-                </Grid>
-            </Grid>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="14,6,14,14">
+                <Button Style="{StaticResource PrimaryButtonStyle}" Content="{wpf:Text Zxing.Apply}" MinWidth="100" Height="34"
+                        IsDefault="True" IsEnabled="{Binding ElementName=EditorView, Path=DataContext.IsValid}" Click="Apply_Click" Margin="0,0,8,0"/>
+                <Button Style="{StaticResource SecondaryButtonStyle}" Content="{wpf:Text Core.Cancel}" MinWidth="90" Height="34"
+                        IsCancel="True"/>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>
