@@ -324,7 +324,7 @@ namespace Greenshot.Base.Expressions
             string problem = IsAllowed(descriptor, purpose);
             if (problem != null)
             {
-                errors.Add(new TemplateError(variable.Position, $"'{variable.Name}' {problem}"));
+                errors.Add(new TemplateError(variable.Position, string.Format(problem, variable.Name)));
                 return;
             }
             if (descriptor.WindowsOnly && Environment.OSVersion.Platform != PlatformID.Win32NT)
@@ -339,7 +339,7 @@ namespace Greenshot.Base.Expressions
             return dot < 0 ? name : name.Substring(dot + 1);
         }
 
-        /// <summary>Why the value can't be used for the purpose, null when it can</summary>
+        /// <summary>Why the value can't be used for the purpose, as a format with {0} for the name; null when it can</summary>
         private static string IsAllowed(VariableDescriptor descriptor, TemplatePurpose purpose)
         {
             if (descriptor.Trust == VariableTrust.Untrusted)
@@ -347,15 +347,18 @@ namespace Greenshot.Base.Expressions
                 switch (purpose)
                 {
                     case TemplatePurpose.Folder:
-                        return "comes from the capture or from outside and can't choose a folder; it can name a file or a sub folder in a file name";
+                        return "${{{0}}} can't be used here: this is a folder or a path, and the value of {0} comes from outside Greenshot " +
+                               "(the capture, an opened file, the command line or a recipe variable), so it could point anywhere. " +
+                               "Such a value may only be part of a file name. Use a fixed folder here, e.g. ${{user.pictures}}";
                     case TemplatePurpose.Command:
                     case TemplatePurpose.Argument:
-                        return "comes from the capture or from outside and can't be part of a command";
+                        return "${{{0}}} can't be used here: this is part of a command, and the value of {0} comes from outside Greenshot " +
+                               "(the capture, an opened file, the command line or a recipe variable), so it could run anything";
                 }
             }
             if (descriptor.IsCounter && purpose != TemplatePurpose.FileName)
             {
-                return "is a counter, counters can only be used in file names";
+                return "${{{0}}} is a counter, and counters can only be used in a file name";
             }
             return null;
         }
