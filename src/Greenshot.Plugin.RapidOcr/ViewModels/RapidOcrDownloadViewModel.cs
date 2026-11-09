@@ -64,14 +64,16 @@ internal sealed class RapidOcrDownloadViewModel : INotifyPropertyChanged
 
     /// <param name="language">the texts</param>
     /// <param name="question">what is asked before anything is downloaded</param>
+    /// <param name="declineText">the button which downloads nothing (Not now, or Use Windows OCR)</param>
     /// <param name="download">downloads the files, reporting the progress</param>
     /// <param name="notify">shows a notification, used when the window was closed before the download ended</param>
     /// <param name="cancellationToken">cancels the download from outside</param>
-    public RapidOcrDownloadViewModel(IRapidOcrLanguage language, string question, Func<IProgress<DownloadProgress>, CancellationToken, Task> download,
+    public RapidOcrDownloadViewModel(IRapidOcrLanguage language, string question, string declineText, Func<IProgress<DownloadProgress>, CancellationToken, Task> download,
         Action<NotificationKind, string> notify, CancellationToken cancellationToken)
     {
         _language = language;
         Question = question;
+        DeclineText = declineText;
         _download = download;
         _notify = notify;
         _cancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -90,6 +92,8 @@ internal sealed class RapidOcrDownloadViewModel : INotifyPropertyChanged
     public Task<bool> Completion => _completion.Task;
 
     public string Question { get; }
+
+    public string DeclineText { get; }
 
     public DownloadStage Stage
     {

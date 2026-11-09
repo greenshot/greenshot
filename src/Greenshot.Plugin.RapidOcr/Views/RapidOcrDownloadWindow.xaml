@@ -30,7 +30,7 @@
                             Visibility="{Binding IsAsking, Converter={StaticResource VisibleWhenTrue}}">
                     <Button x:Name="DownloadButton" Content="{wpf:Text RapidOcr.DownloadButton}" Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="{Binding IsAsking}" Margin="0,0,6,0" Click="Download_Click"/>
-                    <Button Content="{wpf:Text RapidOcr.DownloadLater}" Style="{StaticResource SecondaryButtonStyle}"
+                    <Button Content="{Binding DeclineText}" Style="{StaticResource SecondaryButtonStyle}"
                             IsCancel="{Binding IsAsking}" Click="Later_Click"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"

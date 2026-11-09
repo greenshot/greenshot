@@ -78,7 +78,7 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     /// to the front (if still open) and the same download is awaited.
     /// </summary>
     /// <returns>true when the files are there, false when the user declined or cancelled, or the download failed</returns>
-    public Task<bool> PrepareAsync(IntPtr owner, CancellationToken cancellationToken)
+    public Task<bool> PrepareAsync(IntPtr owner, bool isChosen, CancellationToken cancellationToken)
     {
         if (IsReady) return Task.FromResult(true);
         if (_preparing is { IsCompleted: false })
@@ -87,8 +87,9 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
             return _preparing;
         }
 
-        string question = string.Format(Language.DownloadQuestion, RapidOcrFiles.DownloadMegabytes, Environment.NewLine, "modelscope.cn", _files.Directory);
-        var viewModel = new RapidOcrDownloadViewModel(Language, question,
+        // Chosen but not usable: the files were deleted or changed, the other answer is Windows OCR
+        string question = string.Format(isChosen ? Language.RepairQuestion : Language.DownloadQuestion, RapidOcrFiles.DownloadMegabytes, Environment.NewLine, "modelscope.cn", _files.Directory);
+        var viewModel = new RapidOcrDownloadViewModel(Language, question, isChosen ? Language.UseWindowsOcr : Language.DownloadLater,
             (progress, token) => _files.DownloadAsync(HttpService.Current, progress, token), Notify, cancellationToken);
         var window = new RapidOcrDownloadWindow(viewModel);
         if (owner != IntPtr.Zero)
@@ -155,9 +156,9 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
             var damaged = RapidOcrFiles.All.Where(file => !_files.IsValid(file)).Select(file => file.Name).ToList();
             if (damaged.Count > 0)
             {
+                // Not ready anymore: Greenshot recognizes this capture with Windows OCR and asks to download them again
                 _invalid = true;
                 Log.WarnFormat("RapidOCR files not as expected, not used: {0}", string.Join(", ", damaged));
-                Notify(NotificationKind.Warning, string.Format(Language.FilesInvalid, _files.Directory));
                 return null;
             }
 

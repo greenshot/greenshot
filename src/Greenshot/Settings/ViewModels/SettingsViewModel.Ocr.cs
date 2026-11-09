@@ -93,7 +93,7 @@ namespace Greenshot.Settings.ViewModels
             bool ready;
             try
             {
-                ready = await engine.PrepareAsync(IntPtr.Zero, CancellationToken.None).ConfigureAwait(true);
+                ready = await engine.PrepareAsync(IntPtr.Zero, false, CancellationToken.None).ConfigureAwait(true);
             }
             catch (Exception ex)
             {

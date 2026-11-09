@@ -47,7 +47,7 @@ namespace Greenshot.Tests.RapidOcr
         private static IRapidOcrLanguage Language => Texts.Get<IRapidOcrLanguage>();
 
         private static RapidOcrDownloadViewModel Create(Func<IProgress<DownloadProgress>, CancellationToken, Task> download, List<(NotificationKind Kind, string Text)> notifications) =>
-            new(Language, "question", download, (kind, text) => notifications.Add((kind, text)), CancellationToken.None);
+            new(Language, "question", Language.DownloadLater, download, (kind, text) => notifications.Add((kind, text)), CancellationToken.None);
 
         [Fact]
         public async Task NotNow_DownloadsNothing()

@@ -92,8 +92,13 @@ namespace Greenshot.Plugin.RapidOcr
         string EngineName { get; }
 
         /// <summary>
-        /// The RapidOCR files in {0} aren't the expected ones, Windows OCR recognizes text. Choose RapidOCR again in the settings to download them again.
+        /// RapidOCR is chosen for text recognition, but its files in {3} are missing or not the expected ones. Until they are there, Windows OCR recognizes the text.{1}{1}Download them again ({0:0} MB from github.com/microsoft/onnxruntime and {2}), or use Windows OCR from now on?
         /// </summary>
-        string FilesInvalid { get; }
+        string RepairQuestion { get; }
+
+        /// <summary>
+        /// Use Windows OCR
+        /// </summary>
+        string UseWindowsOcr { get; }
     }
 }

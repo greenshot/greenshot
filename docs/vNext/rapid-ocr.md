@@ -27,7 +27,9 @@ Nothing large is installed. When RapidOCR is chosen the first time, a download w
 - The files go to the folder `RapidOCR` next to greenshot.ini (so the portable Greenshot keeps them next to itself). The uninstaller
   removes the folder.
 - Every file has a fixed size and SHA-256 in the code. A download with another hash is not saved; before the first OCR all files
-  are checked again, and a file which changed is never loaded (Windows OCR is used, choosing RapidOCR again downloads it again).
+  are checked again, and a file which changed is never loaded.
+- When RapidOCR is chosen but its files are missing (e.g. the folder was deleted) or changed, Windows OCR reads that capture and
+  the download window asks once: download them again, or use Windows OCR from now on (the setting changes to Windows OCR).
 - The same window shows the download: a progress bar, the file and the MB received. *Cancel* stops it, *Inform me when done*
   closes the window and the download goes on; Greenshot then shows a notification when RapidOCR is ready or why it failed.
   Closing the window with its title bar does the same. When the window stays open it shows the result itself, without a notification.

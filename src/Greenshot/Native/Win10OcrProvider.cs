@@ -71,7 +71,7 @@ namespace Greenshot.Plugin.Win10
         public bool IsReady => true;
 
         /// <inheritdoc />
-        public Task<bool> PrepareAsync(IntPtr owner, System.Threading.CancellationToken cancellationToken) => Task.FromResult(true);
+        public Task<bool> PrepareAsync(IntPtr owner, bool isChosen, System.Threading.CancellationToken cancellationToken) => Task.FromResult(true);
 
         public Win10OcrProvider()
         {

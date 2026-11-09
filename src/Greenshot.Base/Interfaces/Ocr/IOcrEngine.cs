@@ -46,11 +46,13 @@ namespace Greenshot.Base.Interfaces.Ocr
         bool IsReady { get; }
 
         /// <summary>
-        /// Called when the user picks this engine: get it ready, asking the user first for anything like a download.
+        /// Get it ready, asking the user first for anything like a download. Called when the user picks this engine, and when it
+        /// is the chosen engine but can't recognize text (e.g. its files were deleted): then the question offers Windows OCR instead.
         /// </summary>
         /// <param name="owner">the window handle the questions belong to, 0 for none</param>
+        /// <param name="isChosen">true: it is already the chosen engine and isn't ready, false: the user picks it now</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>false when the user said no or it can't be used: the setting goes back to the engine before</returns>
-        Task<bool> PrepareAsync(System.IntPtr owner, CancellationToken cancellationToken);
+        /// <returns>false when the user said no or it can't be used: the setting goes back to the engine before (Windows OCR when it was the chosen one)</returns>
+        Task<bool> PrepareAsync(System.IntPtr owner, bool isChosen, CancellationToken cancellationToken);
     }
 }
