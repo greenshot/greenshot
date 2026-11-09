@@ -27,7 +27,7 @@ using Greenshot.Base.Interfaces.Plugin;
 namespace Greenshot.Base.Core;
 
 /// <summary>
-/// A line of text found by an OCR engine
+/// A line of text found by an OCR engine, or read from the application through UI Automation
 /// </summary>
 public class DetectedOcrLine : IOcrLineFeature
 {
@@ -53,6 +53,10 @@ public class DetectedOcrLine : IOcrLineFeature
     public OcrBox Box { get; private set; }
     public NativeRect Bounds => Box.Bounds;
     public double? Score { get; }
+
+    /// <summary>The OCR, unless set to UI Automation for text read from the application</summary>
+    public TextSource Source { get; set; } = TextSource.Ocr;
+
     public string FeatureType => "OcrLine";
     public string Text { get; }
     public string ToolTipText => Text;

@@ -61,6 +61,35 @@ namespace Greenshot.Tests.SmartText
         }
 
         [Fact]
+        public void LinkTargets_GiveTheRealAddress_ForTheVisibleText()
+        {
+            // Text read from the application: "Download" links to the downloads, "Write us" to an e-mail address
+            Greenshot.Base.Interfaces.Plugin.OcrWordInfo Word(string text, int x, string target) =>
+                new(text, new Dapplo.Windows.Common.Structs.NativeRect(x, 0, text.Length * 10, 20)) { LinkTarget = target };
+            var words = new List<Greenshot.Base.Interfaces.Plugin.OcrWordInfo>
+            {
+                Word("Download", 0, "https://getgreenshot.org/downloads/"), Word("or", 90, null),
+                Word("Write", 120, "mailto:getgreenshot@gmail.com?subject=Hi"), Word("us", 180, "mailto:getgreenshot@gmail.com?subject=Hi")
+            };
+            var line = new Greenshot.Base.Core.DetectedOcrLine(Dapplo.Windows.Common.Structs.NativeRect.Empty, "Download or Write us", words)
+            {
+                Source = Greenshot.Base.Interfaces.Plugin.TextSource.UiAutomation
+            };
+            var detectors = new[] { BuiltInDetectors.Url, BuiltInDetectors.Email }.Select(id =>
+            {
+                var builtIn = BuiltInDetectors.Find(BuiltInDetectors.Create(English), id);
+                return new SmartTextDetector(builtIn.Id, builtIn.Id, builtIn.Pattern, false, English);
+            }).ToList();
+
+            var items = SmartTextScanner.Scan(TextLayout.From(new[] { line }, Dapplo.Windows.Common.Structs.NativeRect.Empty), detectors);
+
+            Assert.Equal(new[] { "https://getgreenshot.org/downloads/", "getgreenshot@gmail.com" }, items.Select(item => item.Value));
+            Assert.Equal(new[] { "Download", "Write us" }, items.Select(item => item.ReadText));
+            Assert.All(items, item => Assert.True(item.IsValidated));
+            Assert.Equal("mailto:getgreenshot@gmail.com", items[1].ActionTarget);
+        }
+
+        [Fact]
         public void RotatedText_ItemIsOnTheTurnedWords()
         {
             // "Visit https://getgreenshot.org now" at 20 degrees: the item covers only the address, turned with the text

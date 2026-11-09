@@ -148,7 +148,7 @@ public sealed class LayoutLine
         foreach (var word in words)
         {
             if (text.Length > 0) text.Append(separator);
-            layoutWords.Add(new LayoutWord(text.Length, word.Text.Length, word.Box));
+            layoutWords.Add(new LayoutWord(text.Length, word.Text.Length, word.Box, word.LinkTarget));
             text.Append(word.Text);
         }
 
@@ -179,11 +179,12 @@ public sealed class LayoutLine
 /// </summary>
 public sealed class LayoutWord
 {
-    public LayoutWord(int start, int length, OcrBox box)
+    public LayoutWord(int start, int length, OcrBox box, string linkTarget = null)
     {
         Start = start;
         Length = length;
         Box = box;
+        LinkTarget = linkTarget;
     }
 
     public LayoutWord(int start, int length, NativeRect bounds) : this(start, length, OcrBox.FromRect(bounds))
@@ -199,4 +200,7 @@ public sealed class LayoutWord
 
     /// <summary>The upright rectangle around the word</summary>
     public NativeRect Bounds => Box.Bounds;
+
+    /// <summary>Where the link of the word goes, null when it isn't part of a link (only text read from the application knows it)</summary>
+    public string LinkTarget { get; }
 }

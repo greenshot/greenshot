@@ -150,6 +150,18 @@ public sealed class SmartTextDetector
         return group.Success ? group : null;
     }
 
+    /// <summary>
+    /// The item of a link the application gave with its target (e.g. a link "Download" to https://getgreenshot.org/downloads/):
+    /// the visible text is where it is, the target is the value. It is exact, so it counts as checked.
+    /// </summary>
+    internal SmartTextItem FromLink(TextLayout layout, LayoutLine line, int start, int length, string value)
+    {
+        var item = CreateItem(layout, line, start, length, value, line.Text.Substring(start, length));
+        if (item == null) return null;
+        return new SmartTextItem(item.DetectorId, item.Name, item.Value, item.ReadText, item.Box, item.LineIndex, item.Start, item.Length, true,
+            item.Action, item.ActionTarget, item.IsOwnPattern);
+    }
+
     private SmartTextItem CreateItem(TextLayout layout, LayoutLine line, int start, int length, string value, string readText)
     {
         string normalized = SmartTextNormalizers.Normalize(_definition.Normalize, value, _culture);

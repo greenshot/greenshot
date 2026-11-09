@@ -197,29 +197,29 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// Start the OCR when there are no text lines yet, and it isn't running in the background already
+        /// Start the OCR when it didn't run yet: the text read from the applications (UI Automation) leaves parts of the capture
+        /// without text, the OCR adds those
         /// </summary>
         private void EnsureOcr()
         {
-            if (Host.ActiveTool != this || GetOcrLines().Any())
+            if (Host.ActiveTool != this)
             {
                 return;
             }
             var captureDetails = Host.Capture.CaptureDetails;
             var processingTask = captureDetails.ProcessingTask;
-            if (processingTask != null && !processingTask.IsCompleted)
-            {
-                // Already processing in the background, the features changed event redraws when finished
-                ShowOcrHintAsync(processingTask).FireAndLog("Showing the OCR hint");
-                return;
-            }
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider == null)
+            if (ocrProvider == null || !OcrLines.TryStartOcr(captureDetails))
             {
+                if (processingTask != null && !processingTask.IsCompleted)
+                {
+                    // Still reading in the background (the application text, the OCR), the features changed event redraws when finished
+                    ShowOcrHintAsync(processingTask).FireAndLog("Showing the OCR hint");
+                }
                 return;
             }
             // Started on the UI thread: the OCR result is merged and the window redrawn there
-            var ocrTask = RunOcrAsync(ocrProvider);
+            var ocrTask = RunOcrAsync(ocrProvider, processingTask);
             captureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
             ShowOcrHintAsync(ocrTask).FireAndLog("Showing the OCR hint");
         }
@@ -315,15 +315,20 @@ namespace Greenshot.Capturing.Tools
             drawingContext.DrawText(text, new Point(bounds.X + padding + markWidth, bounds.Y + (bounds.Height - text.Height) / 2));
         }
 
-        private async Task RunOcrAsync(IOcrProvider ocrProvider)
+        private async Task RunOcrAsync(IOcrProvider ocrProvider, Task processingTask)
         {
             var capture = Host.Capture;
             var cropAreaWhenFound = capture.CaptureDetails.CropArea;
             var ocrLines = await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(true);
+            if (processingTask != null)
+            {
+                // The application text read in the background decides where the OCR lines are needed; its failures are logged where it runs
+                await Task.WhenAny(processingTask).ConfigureAwait(true);
+            }
             if (ocrLines != null && ocrLines.Any())
             {
                 // Cropped to the selection in the meantime: the lines are moved with it
-                capture.CaptureDetails.AddFeatures(ocrLines, cropAreaWhenFound);
+                OcrLines.AddRecognized(capture.CaptureDetails, ocrLines, cropAreaWhenFound);
 
                 if (capture.CaptureDetails is CaptureDetails concreteDetails)
                 {

@@ -262,6 +262,7 @@ namespace Greenshot.Tests.Core
             public NativeRect Bounds => Box.Bounds;
             public OcrBox Box => OcrBox.FromRect(new NativeRect(0, 0, 10, 10));
             public double? Score => null;
+            public TextSource Source => TextSource.Ocr;
             public string FeatureType => "OcrLine";
             public string Text => text;
             public string ToolTipText => text;

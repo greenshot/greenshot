@@ -46,6 +46,23 @@ public interface IOcrLineFeature : IDetectedFeature
     /// How sure the OCR is about the text, 0 to 1; null when the OCR doesn't say (Windows OCR)
     /// </summary>
     double? Score { get; }
+
+    /// <summary>
+    /// Where the text comes from: the OCR of the pixels, or the application itself through UI Automation
+    /// </summary>
+    TextSource Source { get; }
+}
+
+/// <summary>
+/// Where the text of a line comes from
+/// </summary>
+public enum TextSource
+{
+    /// <summary>Recognized in the pixels of the capture</summary>
+    Ocr,
+
+    /// <summary>Read from the application through UI Automation: the text as the application knows it</summary>
+    UiAutomation
 }
 
 /// <summary>
@@ -89,6 +106,12 @@ public class OcrWordInfo
     /// How sure the OCR is about the word, 0 to 1; null when the OCR doesn't say (Windows OCR)
     /// </summary>
     public double? Score { get; }
+
+    /// <summary>
+    /// Where the link of the word goes (e.g. the web address of a link in a browser), null when the word isn't part of a link;
+    /// only text read through UI Automation knows it
+    /// </summary>
+    public string LinkTarget { get; set; }
 
     /// <summary>
     /// Move the word, e.g. when the capture is cropped

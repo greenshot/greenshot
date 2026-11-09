@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces.Plugin;
@@ -41,6 +42,11 @@ namespace Greenshot.Base.Interfaces.Ocr
     public static class OcrLines
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(OcrLines));
+
+        /// <summary>
+        /// In <see cref="ICaptureDetails.StartedProcessors"/> when the OCR of the capture was started; the OCR adds its lines once
+        /// </summary>
+        public const string OcrProcessor = "OCR";
 
         /// <summary>
         /// The OCR lines of the capture, recognized now when it has none yet
@@ -117,7 +123,8 @@ namespace Greenshot.Base.Interfaces.Ocr
             }
 
             var lines = Find(captureDetails);
-            if (lines.Count > 0 || image == null)
+            // Text read from the application (UI Automation) doesn't cover all of the capture: OCR adds what is outside it
+            if (image == null || (captureDetails != null && !TryStartOcr(captureDetails)) || (captureDetails == null && lines.Count > 0))
             {
                 return lines;
             }
@@ -148,18 +155,24 @@ namespace Greenshot.Base.Interfaces.Ocr
                     return lines;
                 }
 
-                if (captureDetails != null)
+                if (captureDetails == null)
                 {
-                    lock (captureDetails.Features)
-                    {
-                        captureDetails.Features.AddRange(recognized);
-                    }
+                    return recognized;
                 }
 
-                return recognized;
+                AddRecognized(captureDetails, recognized, captureDetails.CropArea);
+                return Find(captureDetails);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                // Cancelled: the next one asking runs the OCR
+                if (captureDetails != null)
+                {
+                    lock (captureDetails.StartedProcessors)
+                    {
+                        captureDetails.StartedProcessors.Remove(OcrProcessor);
+                    }
+                }
                 throw;
             }
             catch (Exception ex)
@@ -167,6 +180,45 @@ namespace Greenshot.Base.Interfaces.Ocr
                 Log.Warn("Failed to run OCR", ex);
                 return lines;
             }
+        }
+
+        /// <summary>
+        /// Note that the OCR of the capture starts, false when it ran already: its lines are there (also those of a capture which was
+        /// loaded or copied, which don't carry the note)
+        /// </summary>
+        public static bool TryStartOcr(ICaptureDetails captureDetails)
+        {
+            if (Find(captureDetails).Any(line => line.Source == TextSource.Ocr))
+            {
+                return false;
+            }
+            lock (captureDetails.StartedProcessors)
+            {
+                return captureDetails.StartedProcessors.Add(OcrProcessor);
+            }
+        }
+
+        /// <summary>
+        /// Add the lines the OCR found, except where the capture has text read from the application: that text is exact, the OCR only
+        /// adds the rest (text in images, a remote desktop, an application without UI Automation text)
+        /// </summary>
+        /// <param name="captureDetails">the details of the capture, which keep the lines</param>
+        /// <param name="recognized">the lines of the OCR</param>
+        /// <param name="cropAreaWhenFound">the crop area of the capture when the OCR read it, see <see cref="ICaptureDetails.AddFeatures"/></param>
+        public static void AddRecognized(ICaptureDetails captureDetails, IEnumerable<IOcrLineFeature> recognized, NativeRect cropAreaWhenFound)
+        {
+            var applicationText = Find(captureDetails).Where(line => line.Source == TextSource.UiAutomation).Select(line => line.Bounds).ToList();
+            // The lines are moved to the crop area of now when they are added
+            int dx = captureDetails.CropArea.X - cropAreaWhenFound.X, dy = captureDetails.CropArea.Y - cropAreaWhenFound.Y;
+            var outside = recognized
+                .Where(line => !applicationText.Any(text => line.Box.Offset(-dx, -dy).IntersectsWith(text)))
+                .Cast<IDetectedFeature>()
+                .ToList();
+            if (applicationText.Count > 0)
+            {
+                Log.Debug($"OCR found {outside.Count} lines outside the {applicationText.Count} lines of application text");
+            }
+            captureDetails.AddFeatures(outside, cropAreaWhenFound);
         }
 
         /// <summary>

@@ -38,7 +38,9 @@ public static class SmartTextScanner
     public static IReadOnlyList<SmartTextItem> Scan(TextLayout layout, IEnumerable<SmartTextDetector> detectors)
     {
         if (layout == null || detectors == null) return Array.Empty<SmartTextItem>();
-        var found = detectors.Where(detector => detector != null).SelectMany(detector => detector.Detect(layout)).ToList();
+        var active = detectors.Where(detector => detector != null).ToList();
+        var found = active.SelectMany(detector => detector.Detect(layout)).ToList();
+        found.AddRange(Links(layout, active));
 
         var accepted = new List<SmartTextItem>();
         foreach (var item in found
@@ -60,5 +62,54 @@ public static class SmartTextScanner
         }
 
         return accepted.OrderBy(item => item.LineIndex).ThenBy(item => item.Start).ToList();
+    }
+
+    /// <summary>
+    /// The links the application gave with their targets: a web address for the web address detector, mailto: for the e-mail detector,
+    /// tel: for the phone detector, when they are on. The words of a link are those next to each other with the same target.
+    /// </summary>
+    private static IEnumerable<SmartTextItem> Links(TextLayout layout, IReadOnlyList<SmartTextDetector> detectors)
+    {
+        foreach (var line in layout.Lines)
+        {
+            var words = line.Words;
+            for (int i = 0; i < words.Count; i++)
+            {
+                string target = words[i].LinkTarget;
+                if (string.IsNullOrWhiteSpace(target)) continue;
+                int last = i;
+                while (last + 1 < words.Count && string.Equals(words[last + 1].LinkTarget, target, StringComparison.Ordinal)) last++;
+                int start = words[i].Start, end = words[last].Start + words[last].Length;
+                i = last;
+
+                var (detectorId, value) = Classify(target.Trim());
+                var detector = detectorId == null ? null : detectors.FirstOrDefault(d => !d.IsOwnPattern && d.Id == detectorId);
+                var item = detector?.FromLink(layout, line, start, end - start, value);
+                if (item != null) yield return item;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The detector and value of a link target, null for other links (e.g. javascript: or a file)
+    /// </summary>
+    internal static (string DetectorId, string Value) Classify(string target)
+    {
+        if (target.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || target.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return (BuiltInDetectors.Url, target);
+        }
+        if (target.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+        {
+            // mailto:a@b.c?subject=... : the address
+            string address = Uri.UnescapeDataString(target.Substring("mailto:".Length).Split('?')[0]).Split(',')[0].Trim();
+            return address.Length == 0 ? (null, null) : (BuiltInDetectors.Email, address);
+        }
+        if (target.StartsWith("tel:", StringComparison.OrdinalIgnoreCase))
+        {
+            string number = Uri.UnescapeDataString(target.Substring("tel:".Length)).Trim();
+            return number.Length == 0 ? (null, null) : (BuiltInDetectors.Phone, number);
+        }
+        return (null, null);
     }
 }
