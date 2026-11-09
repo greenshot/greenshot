@@ -208,6 +208,13 @@ namespace Greenshot.Recipes.Catalog
                     throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogNoNewerVersion, entry.Name ?? entry.Id, entry.Version));
                 }
             }
+            if (!parsed.Validation.IsValid)
+            {
+                // The catalog version itself doesn't pass the checks of this Greenshot: say so, its errors would look like the old ones
+                Log.WarnFormat("The recipe '{0}' {1} from the catalog doesn't work with this Greenshot: {2}", entry.Id, entry.Version, string.Join("; ", parsed.Validation.Errors));
+                throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogVersionInvalid, entry.Name ?? entry.Id, entry.Version) +
+                                                 "\n\n" + string.Join("\n", parsed.Validation.Errors.Select(e => "- " + e)));
+            }
 
             var request = new RecipeApprovalRequest
             {

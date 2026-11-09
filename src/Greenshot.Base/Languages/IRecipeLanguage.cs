@@ -1265,5 +1265,10 @@ namespace Greenshot.Base.Languages
         /// Copies the recipe, its file, the Greenshot version and all errors as text, e.g. for a bug report
         /// </summary>
         string ApprovalCopyErrorsTooltip { get; }
+
+        /// <summary>
+        /// Version {1} of the recipe "{0}" in the recipe catalog doesn't work with this Greenshot either, so nothing was installed. Please try again later, or look at the page of the recipe in the catalog. The errors:
+        /// </summary>
+        string CatalogVersionInvalid { get; }
     }
 }
