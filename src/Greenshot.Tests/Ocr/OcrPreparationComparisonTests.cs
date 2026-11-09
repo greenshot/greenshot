@@ -25,6 +25,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
+using Greenshot.Configuration;
 using Greenshot.Plugin.Win10;
 using Xunit;
 
@@ -52,6 +54,7 @@ namespace Greenshot.Tests.Ocr
 
             var files = Directory.GetFiles(folder, "*.png");
             Assert.NotEmpty(files);
+            IniConfigHelper.EnsureSection<IWin10Configuration>(() => new Win10ConfigurationImpl());
             var provider = new Win10OcrProvider();
             foreach (var file in files)
             {
