@@ -216,7 +216,7 @@ namespace Greenshot.Base.Interfaces.Ocr
                 .ToList();
             if (applicationText.Count > 0)
             {
-                Log.Debug($"OCR found {outside.Count} lines outside the {applicationText.Count} lines of application text");
+                Log.Info($"OCR found {outside.Count} lines outside the {applicationText.Count} lines of application text");
             }
             captureDetails.AddFeatures(outside, cropAreaWhenFound);
         }

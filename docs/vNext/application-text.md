@@ -14,4 +14,6 @@ remote desktops (Citrix, Remote Desktop, Horizon, Hyper-V, VNC only show pixels 
 - Not for AI tool captures: windows excluded from AI tools are only blacked out in the pixels.
 - Smart text takes links with a target: a web address, an e-mail address (`mailto:`) or a phone number (`tel:`) under its visible
   text, e.g. a link "Download" gives the address it opens.
+- In the text selection (T) lines of application text are blue, OCR lines red. The log says per capture how many lines came from
+  the applications (`Read N lines of application text from M windows`) and how many the OCR added.
 - Expert setting `ReadApplicationText` (Core, default true): false uses only OCR, e.g. to find out where a wrong text comes from.

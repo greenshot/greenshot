@@ -19,8 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Windows.Automation;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -28,6 +31,7 @@ using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using Xunit;
 
 namespace Greenshot.Tests.Ocr
@@ -39,6 +43,48 @@ namespace Greenshot.Tests.Ocr
     {
         private static UiAutomationTextLine Line(params UiAutomationTextWord[] words) =>
             new(words.Select(word => word.Bounds).Aggregate((a, b) => a.Union(b)), words);
+
+        /// <summary>
+        /// Dapplo.Windows on a real window: a WPF window with a text and a text box shows on the screen for a moment, its text is read
+        /// through UI Automation. Only with GREENSHOT_UIA_TEST set, as it shows a window.
+        /// </summary>
+        [Fact]
+        public async Task ReadVisibleText_OfAWpfWindow_GivesItsWords()
+        {
+            Assert.SkipWhen(Environment.OSVersion.Platform != PlatformID.Win32NT || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GREENSHOT_UIA_TEST")),
+                "Set GREENSHOT_UIA_TEST on Windows, it shows a window");
+            var shown = new TaskCompletionSource<IntPtr>(TaskCreationOptions.RunContinuationsAsynchronously);
+            System.Windows.Threading.Dispatcher dispatcher = null;
+            var thread = new Thread(() =>
+            {
+                var panel = new System.Windows.Controls.StackPanel();
+                panel.Children.Add(new System.Windows.Controls.TextBlock { Text = "Greenshot reads application text", FontSize = 20 });
+                panel.Children.Add(new System.Windows.Controls.TextBox { Text = "Text in a text box", FontSize = 20 });
+                var window = new System.Windows.Window { Content = panel, Width = 600, Height = 200, Left = 100, Top = 100, Topmost = true, ShowActivated = false };
+                window.ContentRendered += (_, _) => shown.TrySetResult(new System.Windows.Interop.WindowInteropHelper(window).Handle);
+                dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+                window.Show();
+                System.Windows.Threading.Dispatcher.Run();
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+            try
+            {
+                var handle = await shown.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+
+                var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, NativeRect.Empty, null, null, TestContext.Current.CancellationToken);
+
+                var words = snapshot.Words.Select(word => word.Text).ToList();
+                Assert.Contains("application", string.Join(" ", words));
+                Assert.Contains("box", string.Join(" ", words));
+                Assert.All(snapshot.Words, word => Assert.False(word.Bounds.IsEmpty));
+            }
+            finally
+            {
+                dispatcher?.InvokeShutdown();
+            }
+        }
 
         [Fact]
         public void ToLines_MovesIntoTheCapture_KeepsLinkTargets()

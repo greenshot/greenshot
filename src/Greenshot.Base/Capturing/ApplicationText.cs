@@ -123,15 +123,15 @@ namespace Greenshot.Base.Capturing
                 }
                 catch (OperationCanceledException)
                 {
-                    Log.Debug("A window didn't give its text in time, the OCR reads it");
+                    Log.Info("A window didn't give its text in time, the OCR reads it");
                 }
                 catch (Exception ex)
                 {
-                    Log.Debug("A window didn't give its text, the OCR reads it", ex);
+                    Log.Warn("A window didn't give its text, the OCR reads it", ex);
                 }
             }
 
-            Log.Debug($"Read {lines.Count} lines of application text from {reads.Count} windows in {watch.ElapsedMilliseconds} ms");
+            Log.Info($"Read {lines.Count} lines of application text from {reads.Count} windows in {watch.ElapsedMilliseconds} ms");
             if (lines.Count == 0)
             {
                 return;
@@ -150,10 +150,13 @@ namespace Greenshot.Base.Capturing
             var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, area, null, null, cancellationToken).ConfigureAwait(false);
             if (snapshot == null || snapshot.RemoteDisplay != RemoteDisplayKinds.None)
             {
+                Log.Info($"Window {handle} is a remote display ({snapshot?.RemoteDisplay}), the OCR reads it");
                 // A remote desktop only shows pixels here: the OCR reads them
                 return new List<IOcrLineFeature>();
             }
-            return ToLines(snapshot.Lines, captureBounds, windowsAbove);
+            var lines = ToLines(snapshot.Lines, captureBounds, windowsAbove);
+            Log.Debug($"Window {handle}: {snapshot.Lines.Count} lines, {lines.Count} visible in the capture, complete: {snapshot.IsComplete}");
+            return lines;
         }
 
         /// <summary>

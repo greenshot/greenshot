@@ -124,6 +124,9 @@ namespace Greenshot.Capturing.Tools
         {
             var linePen = new Pen((Brush)Host.FindResource("OcrLineBrush"), 1);
             linePen.Freeze();
+            // Text read from the application has its own color, so it's clear where a text comes from
+            var applicationTextPen = new Pen((Brush)Host.FindResource("ApplicationTextLineBrush"), 1);
+            applicationTextPen.Freeze();
             var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
             if (_showOcrHint)
             {
@@ -139,7 +142,8 @@ namespace Greenshot.Capturing.Tools
                 // The outline on the pixel grid for horizontal text, on the text for rotated text
                 var lineRect = lineBox.Unrotated;
                 var outline = lineBox.IsRotated ? lineRect : new Rect(line.Bounds.X + 0.5, line.Bounds.Y + 0.5, line.Bounds.Width, line.Bounds.Height);
-                DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(null, linePen, outline));
+                var pen = line.Source == TextSource.UiAutomation ? applicationTextPen : linePen;
+                DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(null, pen, outline));
                 if (IsSelecting)
                 {
                     // Highlight the words which are selected
