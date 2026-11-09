@@ -385,17 +385,7 @@ namespace Greenshot.Base.Core
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
             }
 
-            ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
-            if (TitleFixMatcher == null || TitleFixMatcher.Count == 0)
-            {
-                SetRawValue("TitleFixMatcher.Firefox", " - Mozilla Firefox.*");
-                SetRawValue("TitleFixMatcher.Chrome", " - Google Chrome.*");
-            }
-            if (TitleFixReplacer == null || TitleFixReplacer.Count == 0)
-            {
-                SetRawValue("TitleFixReplacer.Firefox", string.Empty);
-                SetRawValue("TitleFixReplacer.Chrome", string.Empty);
-            }
+            AddBuiltInTitleFixes();
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
             ExcludePluginNames ??= new List<string>();
@@ -478,6 +468,51 @@ namespace Greenshot.Base.Core
             catch (Exception ex)
             {
                 Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
+        }
+
+        /// <summary>
+        /// The title fixes Greenshot brings, by name: the regular expression and its replacement.
+        /// Edge adds "and 12 more pages" (in its language) and the profile name, see <see cref="EdgeWindowTitle"/>.
+        /// </summary>
+        internal static readonly IReadOnlyList<(string Name, string Matcher, string Replacer)> BuiltInTitleFixes = new[]
+        {
+            ("Firefox", " - Mozilla Firefox.*", string.Empty),
+            ("Chrome", " - Google Chrome.*", string.Empty),
+            ("Edge", EdgeWindowTitle.Matcher, string.Empty),
+        };
+
+        /// <summary>
+        /// Add each built-in title fix whose matcher isn't in the settings yet, also to a file of an earlier version, and switch it on.
+        /// A fix that is taken out of ActiveTitleFixes stays off, as its matcher stays.
+        /// </summary>
+        private void AddBuiltInTitleFixes()
+        {
+            ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
+            TitleFixMatcher ??= new Dictionary<string, string>();
+            TitleFixReplacer ??= new Dictionary<string, string>();
+            bool changed = false;
+            foreach (var (name, matcher, replacer) in BuiltInTitleFixes)
+            {
+                if (TitleFixMatcher.ContainsKey(name))
+                {
+                    continue;
+                }
+                TitleFixMatcher[name] = matcher;
+                if (!TitleFixReplacer.ContainsKey(name))
+                {
+                    TitleFixReplacer[name] = replacer;
+                }
+                if (!ActiveTitleFixes.Contains(name))
+                {
+                    ActiveTitleFixes.Add(name);
+                }
+                changed = true;
+            }
+            if (changed)
+            {
+                // Changed in place, the section doesn't notice that by itself
+                MarkAsDirty();
             }
         }
 
