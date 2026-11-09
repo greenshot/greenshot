@@ -962,6 +962,40 @@ namespace Greenshot.Recipes.Views
             IsJsonViewerVisible = false;
         }
 
+        /// <summary>
+        /// The errors as plain text, to paste into an issue or a search: which recipe, which file, which Greenshot, and every error with its hint
+        /// </summary>
+        internal string BuildErrorReport()
+        {
+            var report = new System.Text.StringBuilder();
+            report.AppendLine(string.IsNullOrEmpty(RecipeVersion) ? $"Recipe: {RecipeName} ({RecipeId})" : $"Recipe: {RecipeName} {RecipeVersion} ({RecipeId})");
+            report.AppendLine($"File: {FilePath}");
+            report.AppendLine($"SHA-256: {FileHash}");
+            report.AppendLine($"Greenshot: {EnvironmentInfo.GetGreenshotVersion()}");
+            report.AppendLine("Errors:");
+            foreach (var error in ValidationErrors)
+            {
+                report.AppendLine($"- {error.ErrorMessage}");
+                if (error.HasHint)
+                {
+                    report.AppendLine($"  {error.DiagnosticHint}");
+                }
+            }
+            return report.ToString();
+        }
+
+        private void OnCopyErrorsClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ClipboardHelper.SetClipboardData(BuildErrorReport());
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Failed to copy the recipe errors to the clipboard.", ex);
+            }
+        }
+
         private void OnCopyJsonClicked(object sender, RoutedEventArgs e)
         {
             try

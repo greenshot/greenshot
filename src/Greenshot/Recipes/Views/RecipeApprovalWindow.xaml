@@ -583,6 +583,13 @@
                                 Click="OnCloseClicked"/>
 
                         <!-- Validation Error Actions -->
+                        <Button Content="{wpf:Text Recipe.ApprovalBtnCopyErrors}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                MinWidth="110" Height="34" Margin="0,0,10,0" Padding="12,6"
+                                Visibility="{Binding ValidationErrorVisibility}"
+                                Click="OnCopyErrorsClicked"
+                                ToolTip="{wpf:Text Recipe.ApprovalCopyErrorsTooltip}"/>
+
                         <Button Content="{wpf:Text Recipe.ApprovalBtnUpdateFromCatalog}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 MinWidth="130" Height="34" Margin="0,0,10,0" Padding="12,6"
