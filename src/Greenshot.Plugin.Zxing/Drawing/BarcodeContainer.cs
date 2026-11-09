@@ -109,7 +109,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 targetH = side;
             }
 
-            var format = Views.ZxingEditorWindow.MapFormatIndex(_model.FormatIndex);
+            var format = ZxingBarcodeGenerator.MapFormatIndex(_model.FormatIndex);
             string payload = _model.GetPayloadString();
             if (string.IsNullOrEmpty(payload))
             {
@@ -167,18 +167,6 @@ namespace Greenshot.Plugin.Zxing.Drawing
         public new ScaleOptions GetScaleOptions()
         {
             return Is2D ? ScaleOptions.Rational : ScaleOptions.Default;
-        }
-
-        public override void OnDoubleClick()
-        {
-            if (_model != null)
-            {
-                _model.OnDoubleClick(this);
-            }
-            else
-            {
-                base.OnDoubleClick();
-            }
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)

@@ -255,6 +255,62 @@ namespace Greenshot.Plugin.Zxing.Processing
         }
 
         /// <summary>
+        /// The barcode format of the index in the format list of the barcode view (<see cref="Drawing.ZxingModel.FormatIndex"/>)
+        /// </summary>
+        public static BarcodeFormat MapFormatIndex(int index)
+        {
+            switch (index)
+            {
+                case 1: return BarcodeFormat.AZTEC;
+                case 2: return BarcodeFormat.DATA_MATRIX;
+                case 3: return BarcodeFormat.PDF_417;
+                case 4: return BarcodeFormat.CODE_128;
+                case 5: return BarcodeFormat.CODE_39;
+                case 6: return BarcodeFormat.CODE_93;
+                case 7: return BarcodeFormat.EAN_13;
+                case 8: return BarcodeFormat.EAN_8;
+                case 9: return BarcodeFormat.UPC_A;
+                case 10: return BarcodeFormat.UPC_E;
+                case 11: return BarcodeFormat.CODABAR;
+                case 12: return BarcodeFormat.ITF;
+                case 13: return BarcodeFormat.MSI;
+                case 14: return BarcodeFormat.PLESSEY;
+                default: return BarcodeFormat.QR_CODE;
+            }
+        }
+
+        /// <summary>
+        /// The index in the format list of the barcode view for the barcode format, see <see cref="MapFormatIndex"/>
+        /// </summary>
+        public static int MapFormatToIndex(BarcodeFormat format)
+        {
+            switch (format)
+            {
+                case BarcodeFormat.AZTEC: return 1;
+                case BarcodeFormat.DATA_MATRIX: return 2;
+                case BarcodeFormat.PDF_417: return 3;
+                case BarcodeFormat.CODE_128: return 4;
+                case BarcodeFormat.CODE_39: return 5;
+                case BarcodeFormat.CODE_93: return 6;
+                case BarcodeFormat.EAN_13: return 7;
+                case BarcodeFormat.EAN_8: return 8;
+                case BarcodeFormat.UPC_A: return 9;
+                case BarcodeFormat.UPC_E: return 10;
+                case BarcodeFormat.CODABAR: return 11;
+                case BarcodeFormat.ITF: return 12;
+                case BarcodeFormat.MSI: return 13;
+                case BarcodeFormat.PLESSEY: return 14;
+                default: return 0;
+            }
+        }
+
+        /// <summary>
+        /// A 2D code (square, may have rounded dots), else a 1D barcode
+        /// </summary>
+        public static bool Is2D(BarcodeFormat format)
+            => format == BarcodeFormat.QR_CODE || format == BarcodeFormat.AZTEC || format == BarcodeFormat.DATA_MATRIX || format == BarcodeFormat.PDF_417;
+
+        /// <summary>
         /// Maps a format name string to a BarcodeFormat enum value.
         /// </summary>
         public static BarcodeFormat MapBarcodeFormat(string name)

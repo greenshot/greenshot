@@ -15,10 +15,10 @@ Plugins can add panels of their own, or sections to the Selection panel.
 
 | What | How |
 |---|---|
-| Show | *Properties* in the context menu of any element, or a double-click on an emoji. The area also opens by itself when a choice is needed: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
+| Show | *Properties* in the context menu of any element, a double-click on an element (a text is edited instead), or Enter on the selected element. The area also opens by itself when a choice is needed: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
 | Hide | The **x** at the top of the area. It never closes by itself: once open, it shows what fits the selection. Closed with the **x**, it opens again the next time a choice is needed (e.g. the emoji tool). |
 | Size | Drag the bar between the capture and the area. The width is remembered. The editor window can't get so small that the capture has less than 300 by 200 pixels (at 100 % scaling), plus the panel area when it's shown; a smaller window grows when the area opens. For a small window with a capture, use the [viewer](viewer.md). |
-| Another panel | When there is more than one panel, the list at the top of the area chooses which one is shown. |
+| Another panel | When there is more than one panel, the list at the top of the area chooses which one is shown. Panels of plugins are also in the *Plugins* menu of the editor, e.g. *Insert QR / Barcode...* for the Barcode panel. |
 | Keyboard | F6 goes from the menu, the tools, the properties, the destinations and the capture to the panel area (and on to the tabs). Esc in the area goes back to the capture. |
 
 ### The Selection panel
@@ -31,7 +31,15 @@ With nothing selected and no tool which needs it, the panel says so.
 |---|---|
 | Size and position | For one selected element: left, top, width and height in pixels of the capture. Type a number and press Enter or leave the field. When the element keeps its aspect ratio (e.g. an emoji or an image), changing the width also changes the height and the other way round. Ctrl+Z undoes it. |
 | Style and size | For every selection: *Copy style* and *Copy size* take them from one selected element, *Apply style* and *Apply size* give them to all selected elements, in one step for Ctrl+Z. The same commands are in the context menu of the elements. See the rules below. |
+| QR / Barcode | For one selected barcode: its format, content (for a QR code by kind: text, WiFi, contact, payment, email, event, phone, SMS, place), colors and margin. A change changes the barcode at once, typing in one field is one step for Ctrl+Z. A value the format can't encode (e.g. letters for EAN-13) isn't taken, the section says why. With several barcodes selected the section isn't shown. |
 | Emoji | Takes the rest of the height of the panel. Picks the emoji: for the emoji tool the next one to place, for selected emojis the emoji of all of them, in one step for Ctrl+Z. *Search* finds emojis by their English name, by group (e.g. "animal") or by the emoji itself; every word must fit. Enter places the first one found, Down goes to the emojis. The tabs show the groups, the first one the emojis used last. An emoji with skin tones shows them in a small list after the click. |
+
+### The Barcode panel
+
+The *QR / Barcode* panel (Zxing plugin, *Insert QR / Barcode...* in the *Plugins* menu or the list at the top of the area) has the same
+fields as the section, with a preview. *Insert* puts the barcode in the middle of the visible part of the capture, selected, and gives
+the keyboard back to the capture; Ctrl+Z removes it again. The fields stay as they are for the next barcode while the window is open.
+To change a barcode later, double-click it: the Selection panel shows its *QR / Barcode* section.
 
 ### Settings
 
@@ -51,8 +59,8 @@ In `[Editor]` of greenshot.ini:
 
 | Part | What it is |
 |---|---|
-| Panel (`IEditorPanel`) | A view in the panel area. One is shown at a time; the user chooses it, or the editor shows it. Examples: Selection (in the editor), Stamps (plugin), later Barcode, Text (OCR). |
-| Section (`IEditorSection`) | A part of the Selection panel. The panel shows all sections which apply to the selection or tool, sorted by `Order`. Examples: Size and position, Emoji, later a barcode section for the barcode element of the Zxing plugin. |
+| Panel (`IEditorPanel`) | A view in the panel area. One is shown at a time; the user chooses it, or the editor shows it. Examples: Selection (in the editor), Stamps and Barcode (plugins), later Text (OCR). |
+| Section (`IEditorSection`) | A part of the Selection panel. The panel shows all sections which apply to the selection or tool, sorted by `Order`. Examples: Size and position, Emoji, the barcode section of the Zxing plugin for its barcode element. |
 | Context (`IEditorPanelContext`) | What a panel or section sees of its editor window: the window, the surface which is shown, events when the surface, the selection, the drawing mode or the elements change, and `ShowPanel` / `FocusCanvas`. |
 
 The contract is in `Greenshot.Base.Interfaces.Editor`. It has no WinForms types and no WPF types: the editor itself is
@@ -69,7 +77,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 |---|---|
 | It opens by itself only when a tool needs a choice before it can be used (`ShowsPanel = true`): the emoji tool and selected emojis, later stamps. It doesn't take the keyboard from the capture. | Built |
 | It never closes by itself, so it doesn't jump while the user clicks around. Closed by the user, it opens again the next time a choice is needed (such a section starts to apply again). | Built |
-| Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | *Properties* built for every element, double-click built for emojis |
+| Otherwise it opens only on request: *Properties* in the context menu of every element, a double-click on an element whose double-click isn't used otherwise (text keeps it for editing). Opened like this it gets the keyboard. F6 goes into an open panel area. | Built: an element without an action of its own (`OnDoubleClick` not overridden) asks for its properties |
 | Once open, it stays open and follows the selection and the tool, until the user closes it. When a choice is needed while another panel is shown (e.g. the emoji tool while Stamps is shown), it switches to Selection, and back to that panel once the choice is done (e.g. the emoji is placed and the selection is gone). Choosing a panel or closing the area in between keeps what the user chose. | Built |
 | A selection of several elements never opens it by itself, except when all of them are emojis. | Built |
 
@@ -95,6 +103,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | Highlight, obfuscate | Size and position, Effect |
 | Image | Size and position |
 | Emoji | Size and position, Emoji (built) |
+| Barcode (Zxing plugin) | Size and position, QR / Barcode (built) |
 
 **Copy and apply style or size** (built)
 
@@ -171,7 +180,8 @@ services.AddServices<IEditorPanel>(() => IsEnabled ? new IEditorPanel[] { _stamp
 ```
 
 Ids are unique; start them with the name of the plugin. The sections of the editor are `Greenshot.SizeAndPosition`
-and `Greenshot.Emoji`, the panel is `Greenshot.Selection`.
+and `Greenshot.Emoji`, the panel is `Greenshot.Selection`. The Zxing plugin has the panel `Greenshot.Barcode` and the section
+`Greenshot.BarcodeSection`, Stamps the panel `Greenshot.Stamps`.
 
 ### Look
 
@@ -201,9 +211,18 @@ The emoji picker (`Controls/Emoji/EmojiPicker`, view model `EmojiPickerViewModel
 drop down button (`EmojiPickerButton`), e.g. in the recipe editor. The English names for the search come from the Unicode
 `emoji-test.txt` file, which the build turns into `emojis.xml` (attribute `N`).
 
+### Double-click
+
+A double-click on an element, or Enter on the one selected element, calls its `OnDoubleClick`. By default it shows the
+Selection panel with the keyboard in it, like *Properties*; the sections which fit the element are there. An element only
+overrides it for an action of its own (the text is edited). So a plugin element needs no code for it: give it a section.
+
 ### Later
 
-Planned with the same contract: a barcode
-section for the Zxing plugin, the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
-capture at the bottom of the area. Then the other WinForms parts of the editor API (`IEditorPlugin` with its menu items
-and form) go away.
+Planned with the same contract: the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
+capture at the bottom of the area.
+
+The plugins use the editor only through panels and sections now: the editor API has no WinForms types for menus or
+windows any more. What is left of WinForms in it is in the element and surface interfaces (`Greenshot.Base.Interfaces`):
+`IDrawableContainer.AddContextMenuItems` (`ContextMenuStrip`, `MouseEventArgs`), `IDrawableContainerList.ShowContextMenu`,
+`IAdorner` (mouse events, `Cursor`) and `ISurface.Controls`. They go away when the canvas itself leaves WinForms.
