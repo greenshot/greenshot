@@ -57,10 +57,6 @@ public static class SmartTextPatternCheck
         {
             problems.Add("The regular expression can't be used: " + patternProblem);
         }
-        else if (!string.IsNullOrWhiteSpace(pattern.ValueGroup) && !HasGroup(pattern.Pattern, pattern.ValueGroup))
-        {
-            problems.Add($"The regular expression has no group '{pattern.ValueGroup}'.");
-        }
 
         if (!string.IsNullOrWhiteSpace(pattern.Label) && RegexProblem(pattern.Label) is { } labelProblem)
         {
@@ -122,12 +118,6 @@ public static class SmartTextPatternCheck
         {
             return ex.Message;
         }
-    }
-
-    private static bool HasGroup(string regex, string group)
-    {
-        var compiled = new Regex(regex, RegexOptions.CultureInvariant, SmartTextDetector.MatchTimeout);
-        return int.TryParse(group, out int number) ? number >= 0 && number < compiled.GetGroupNumbers().Length : compiled.GroupNumberFromName(group) >= 0;
     }
 
     private static bool Contains(IEnumerable<string> values, string value)

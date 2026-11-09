@@ -37,6 +37,9 @@ public sealed class SmartTextPattern
     /// <summary>The format of the pattern files this Greenshot writes and reads</summary>
     public const int CurrentVersion = 1;
 
+    /// <summary>A group of <see cref="Pattern"/> with this name is the value, e.g. "Order (?&lt;value&gt;\d+)"; without it the whole match</summary>
+    public const string ValueGroupName = "value";
+
     /// <summary>"SmartText" in a pattern file, so another JSON file isn't taken for one; not used in recipes</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("kind")]
@@ -55,10 +58,6 @@ public sealed class SmartTextPattern
     [JsonPropertyName("pattern")]
     public string Pattern { get; set; }
 
-    /// <summary>The group of <see cref="Pattern"/> which is the value (a number or a name), null: the whole match</summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("valueGroup")]
-    public string ValueGroup { get; set; }
 
     /// <summary>A .NET regular expression of the label the value is next to, e.g. "Customer (no\.?|number)"; null: everywhere</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

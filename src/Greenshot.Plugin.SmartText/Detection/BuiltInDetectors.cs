@@ -71,9 +71,6 @@ public static class BuiltInDetectors
     public const string CardNumber = "CardNumber";
     public const string Coordinates = "Coordinates";
 
-    /// <summary>The top level domains a domain without https:// or a path is taken with; others would find file names</summary>
-    private const string CommonTopLevelDomains = "com|org|net|edu|gov|info|biz|io|dev|app|eu|de|at|ch|nl|be|fr|it|es|uk|us|ca|au|jp|cn|ru|pl|se|no|dk|fi|cz";
-
     /// <summary>
     /// All built-in detectors, the ones on by default first. The date pattern has the month names of the culture.
     /// </summary>
@@ -84,10 +81,8 @@ public static class BuiltInDetectors
         {
             new BuiltInDetector(Url, true, new SmartTextPattern
             {
-                // With a scheme or www., a domain with a path, or a domain of a common top level domain (getgreenshot.org);
-                // not the domain of an e-mail address, not a file name like readme.txt
-                Pattern = @"(?<![@\w.:/-])(?:https?://[^\s<>""'`]+|www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s<>""'`]*|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}/[^\s<>""'`]*|" +
-                          @"[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:" + CommonTopLevelDomains + @")(?![\w@-]|\.\w))",
+                // Only with https://, http:// or www.: a bare domain (getgreenshot.org) is often just a name in a text
+                Pattern = @"(?<![@\w.:/-])(?:https?://[^\s<>""'`]+|www\.[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s<>""'`]*)",
                 Normalize = SmartTextNormalize.Url
             }),
             new BuiltInDetector(Email, true, new SmartTextPattern

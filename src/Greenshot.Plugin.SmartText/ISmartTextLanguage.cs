@@ -63,6 +63,56 @@ namespace Greenshot.Plugin.SmartText
         string ApproveTitle { get; }
 
         /// <summary>
+        /// Bottom half
+        /// </summary>
+        string AreaBottomHalf { get; }
+
+        /// <summary>
+        /// Bottom left quarter
+        /// </summary>
+        string AreaBottomLeft { get; }
+
+        /// <summary>
+        /// Bottom right quarter
+        /// </summary>
+        string AreaBottomRight { get; }
+
+        /// <summary>
+        /// Custom: {0}
+        /// </summary>
+        string AreaCustom { get; }
+
+        /// <summary>
+        /// Everywhere
+        /// </summary>
+        string AreaEverywhere { get; }
+
+        /// <summary>
+        /// Left half
+        /// </summary>
+        string AreaLeftHalf { get; }
+
+        /// <summary>
+        /// Right half
+        /// </summary>
+        string AreaRightHalf { get; }
+
+        /// <summary>
+        /// Top half
+        /// </summary>
+        string AreaTopHalf { get; }
+
+        /// <summary>
+        /// Top left quarter
+        /// </summary>
+        string AreaTopLeft { get; }
+
+        /// <summary>
+        /// Top right quarter
+        /// </summary>
+        string AreaTopRight { get; }
+
+        /// <summary>
         /// Close
         /// </summary>
         string Close { get; }
@@ -118,7 +168,7 @@ namespace Greenshot.Plugin.SmartText
         string EditHint { get; }
 
         /// <summary>
-        /// Only in this part of the capture: left, top, width, height from 0 to 1 (empty: everywhere)
+        /// Where to look in the capture
         /// </summary>
         string EditorArea { get; }
 
@@ -126,11 +176,6 @@ namespace Greenshot.Plugin.SmartText
         /// In numbers, read O as 0 and l as 1
         /// </summary>
         string EditorDigitLookAlikes { get; }
-
-        /// <summary>
-        /// Digits: fewest, most (0: any)
-        /// </summary>
-        string EditorDigits { get; }
 
         /// <summary>
         /// The pattern can't be saved: {0}
@@ -158,6 +203,16 @@ namespace Greenshot.Plugin.SmartText
         string EditorMatchCase { get; }
 
         /// <summary>
+        /// The value has at most this many digits (empty: any)
+        /// </summary>
+        string EditorMaxDigits { get; }
+
+        /// <summary>
+        /// The value has at least this many digits (empty: any)
+        /// </summary>
+        string EditorMinDigits { get; }
+
+        /// <summary>
         /// Name
         /// </summary>
         string EditorName { get; }
@@ -183,6 +238,11 @@ namespace Greenshot.Plugin.SmartText
         string EditorPattern { get; }
 
         /// <summary>
+        /// Tip: with a label you only need the value itself, e.g. \d{8}. To take only a part of the match, name that part value: Order (?&lt;value&gt;\d+)
+        /// </summary>
+        string EditorPatternHint { get; }
+
+        /// <summary>
         /// Test text
         /// </summary>
         string EditorTest { get; }
@@ -196,11 +256,6 @@ namespace Greenshot.Plugin.SmartText
         /// Check the value
         /// </summary>
         string EditorValidate { get; }
-
-        /// <summary>
-        /// Group of the value (empty: the whole match)
-        /// </summary>
-        string EditorValueGroup { get; }
 
         /// <summary>
         /// The file is too large.

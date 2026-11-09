@@ -57,11 +57,10 @@ Some details of the built-in detectors:
   leading `+`. Numbers with dots (versions, IP addresses) and ISO dates are not phone numbers.
 - Dates become `yyyy-MM-dd`; the order of `9/11/2026` follows the date format of Windows, month names are those of the
   language of Windows.
-- A domain without `https://` or a path (`getgreenshot.org`) is a web address only with a common top level domain
-  (`com`, `org`, `net`, `de`, ...), so file names like `readme.txt` aren't found.
-- Windows OCR misreads underlined text (an underlined `r` becomes `c`, an `o` becomes `Q`) and small screen text. Before the OCR,
-  Greenshot paints over thin horizontal lines (at least 20 pixels long, at most 2 pixels high) in its copy of the capture, and
-  reads captures up to 4 megapixels at double size. This helps every OCR in Greenshot, not only Smart text.
+- A web address starts with `http://`, `https://` or `www.`; a bare domain (`getgreenshot.org`) or a file name (`readme.txt`) is
+  not a web address.
+- Windows OCR misreads underlined text (an underlined `r` becomes `c`, an `o` becomes `Q`, underlined links can become
+  garbage). Greenshot gives Windows OCR the capture as it is.
 - When two detectors find the same text, an own pattern wins, then a checked value (IBAN, date, ...), then the longer one.
 
 ---
@@ -74,13 +73,12 @@ editor; the *Test text* shows at once what the pattern finds.
 | Field | Meaning |
 |---|---|
 | Name | Shown in the window and used by recipes (`Detectors`) |
-| Pattern | A .NET regular expression, e.g. `\b\d{4}-?\d{4}\b`. A pattern which takes longer than 250 ms on a text is stopped |
-| Group of the value | A named group of the pattern which is the value (empty: the whole match) |
+| Pattern | A .NET regular expression, e.g. `\b\d{4}-?\d{4}\b`. A pattern which takes longer than 250 ms on a text is stopped. With a label the pattern only needs the value itself. To take only a part of the match, name that part `value`: `Order #(?<value>\d+)` finds `1234` in `Order #1234` |
 | Label | A regular expression for the label, e.g. `Kunden(nummer\|-?nr\.?)`; empty: no label |
 | Where the value is | Right of the label (same line), below it (the next lines, under the label), right or else below, or anywhere when the label is in the capture |
-| Only in this part | `left; top; width; height` as fractions of the capture, e.g. `0.5; 0; 0.5; 0.3` for the top of the right half |
+| Where to look in the capture | Everywhere, a half (top, bottom, left, right) or a quarter of the capture. A pattern file can have any other area (`area`, fractions of the capture), the editor then shows it as *Custom* |
 | In numbers, read O as 0 and l as 1 | OCR reads `0` as `O` and `1` as `l` or `I`: in tokens which are mostly digits these (and Z, S, B, G) are read as digits |
-| Digits | The fewest and most digits of the value (0: any) |
+| At least / at most this many digits | The value has at least or at most this many digits; empty: any number. E.g. 8 and 8 for a customer number of exactly 8 digits |
 | Change the value | Keep it, remove spaces, dashes and dots, upper or lower case |
 | Check the value | IBAN check digits (mod 97), card number check digit (Luhn), ISBN, EAN |
 | Open with | A web address with `{value}`, e.g. `https://crm.example.com/customer?id={value}`: the window offers *Open* for the value. The value is encoded, it can't change the server of the address |

@@ -81,6 +81,23 @@ namespace Greenshot.Tests.Ocr
         }
 
         [Fact]
+        public void BottomRowOfAWord_IsKept()
+        {
+            // Small text with 1 pixel strokes: the bottom row of "mmm" is a stroke, a gap of 2 pixels, a stroke, ...
+            const int width = 60, height = 10;
+            var pixels = Canvas(width, height);
+            for (int x = 5; x < 55; x += 3)
+            {
+                for (int y = 2; y < 6; y++) pixels[y * width + x] = Black;
+            }
+
+            // The tops of the strokes are joined, like the arches of an m
+            Row(pixels, width, 2, 5, 55, Black);
+            Assert.Equal(0, OcrImagePreparation.RemoveThinLines(pixels, width, height));
+            Assert.Equal(Black, pixels[5 * width + 8]);
+        }
+
+        [Fact]
         public void ThickBar_IsKept()
         {
             const int width = 60, height = 10;

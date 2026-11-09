@@ -92,7 +92,7 @@ namespace Greenshot.Tests.SmartText
         [Fact]
         public void ValueGroup_IsTheValue()
         {
-            var pattern = new SmartTextPattern { Name = "Order", Pattern = @"Order #(?<id>\d+)", ValueGroup = "id" };
+            var pattern = new SmartTextPattern { Name = "Order", Pattern = @"Order #(?<value>\d+)" };
             Assert.Equal(new[] { "1234" }, Scan("Order #1234 shipped", pattern).Select(item => item.Value));
         }
 
@@ -223,42 +223,24 @@ namespace Greenshot.Tests.SmartText
             Assert.False(RecipeParameterTypes.TryRead(unknown, typeof(List<SmartTextPattern>), out _, out _));
         }
 
-        [Theory]
-        [InlineData("0.5; 0; 0.5; 1", 0.5, 0, 0.5, 1)]
-        [InlineData("0.5, 0.25, 0.5, 0.5", 0.5, 0.25, 0.5, 0.5)]
-        public void Editor_ReadsTheArea(string text, double left, double top, double width, double height)
+        [Fact]
+        public void Editor_KnowsTheAreaChoices()
         {
-            using var culture = new CultureScope("en-US");
-            var area = SmartTextPatternViewModel.ParseArea(text);
-            Assert.Equal(new[] { left, top, width, height }, new[] { area.Left, area.Top, area.Width, area.Height });
-        }
-
-        [Theory]
-        [InlineData("1; 2; 3")]
-        [InlineData("0; 0; 2; 1")]
-        [InlineData("0; 0; 0; 1")]
-        public void Editor_WrongArea_IsNull(string text)
-        {
-            using var culture = new CultureScope("en-US");
-            Assert.Null(SmartTextPatternViewModel.ParseArea(text));
+            Assert.Equal(SmartTextPatternViewModel.AreaEverywhere, SmartTextPatternViewModel.AreaKeyOf(null));
+            Assert.Equal(SmartTextPatternViewModel.AreaEverywhere, SmartTextPatternViewModel.AreaKeyOf(new SmartTextArea()));
+            Assert.Equal("TopHalf", SmartTextPatternViewModel.AreaKeyOf(new SmartTextArea { Height = 0.5 }));
+            Assert.Equal("BottomRight", SmartTextPatternViewModel.AreaKeyOf(new SmartTextArea { Left = 0.5, Top = 0.5, Width = 0.5, Height = 0.5 }));
+            Assert.Equal(SmartTextPatternViewModel.AreaCustom, SmartTextPatternViewModel.AreaKeyOf(new SmartTextArea { Left = 0.1, Width = 0.3 }));
         }
 
         [Fact]
         public void Editor_TestText_ShowsWhatIsFound()
         {
             var viewModel = new SmartTextPatternViewModel(CustomerNumber(), null) { TestText = "Kundennummer 4711-0815" };
+            viewModel.RevealProblems();
             Assert.False(viewModel.HasProblems, viewModel.Problems);
             Assert.Contains("47110815", viewModel.TestResult);
         }
 
-        /// <summary>The current culture for a test</summary>
-        private sealed class CultureScope : System.IDisposable
-        {
-            private readonly System.Globalization.CultureInfo _previous = System.Globalization.CultureInfo.CurrentCulture;
-
-            public CultureScope(string name) => System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo(name);
-
-            public void Dispose() => System.Globalization.CultureInfo.CurrentCulture = _previous;
-        }
     }
 }

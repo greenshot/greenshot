@@ -36,20 +36,18 @@
                     <Label Content="{wpf:Text SmartText.EditorName}" Target="{Binding ElementName=NameBox}" Padding="0" Margin="0,0,0,3"/>
                     <TextBox x:Name="NameBox" Margin="0,0,0,10" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="{wpf:Text SmartText.EditorPattern}" Target="{Binding ElementName=PatternBox}" Padding="0" Margin="0,0,0,3"/>
-                    <TextBox x:Name="PatternBox" Margin="0,0,0,10" FontFamily="Consolas" Text="{Binding Pattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label Content="{wpf:Text SmartText.EditorValueGroup}" Target="{Binding ElementName=ValueGroupBox}" Padding="0" Margin="0,0,0,3"/>
-                    <TextBox x:Name="ValueGroupBox" Margin="0,0,0,10" Text="{Binding ValueGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox x:Name="PatternBox" Margin="0,0,0,3" FontFamily="Consolas" Text="{Binding Pattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{wpf:Text SmartText.EditorPatternHint}" TextWrapping="Wrap" Opacity="0.8" Margin="0,0,0,10"/>
                     <Label Content="{wpf:Text SmartText.EditorLabel}" Target="{Binding ElementName=LabelBox}" Padding="0" Margin="0,0,0,3"/>
                     <TextBox x:Name="LabelBox" Margin="0,0,0,10" FontFamily="Consolas" Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="{wpf:Text SmartText.EditorLabelPosition}" Target="{Binding ElementName=LabelPositionBox}" Padding="0" Margin="0,0,0,3"/>
                     <ComboBox x:Name="LabelPositionBox" Margin="0,0,0,10" IsEnabled="{Binding HasLabel}" ItemsSource="{Binding LabelPositions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding LabelPosition, Mode=TwoWay}"/>
                     <Label Content="{wpf:Text SmartText.EditorArea}" Target="{Binding ElementName=AreaBox}" Padding="0" Margin="0,0,0,3"/>
-                    <TextBox x:Name="AreaBox" Margin="0,0,0,10" Text="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label x:Name="DigitsLabel" Content="{wpf:Text SmartText.EditorDigits}" Padding="0" Margin="0,0,0,3"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBox x:Name="MinDigitsBox" Width="80" Text="{Binding MinDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
-                        <TextBox x:Name="MaxDigitsBox" Width="80" Margin="8,0,0,0" Text="{Binding MaxDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
-                    </StackPanel>
+                    <ComboBox x:Name="AreaBox" Margin="0,0,0,10" ItemsSource="{Binding AreaChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Area, Mode=TwoWay}"/>
+                    <Label Content="{wpf:Text SmartText.EditorMinDigits}" Target="{Binding ElementName=MinDigitsBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="MinDigitsBox" Width="100" HorizontalAlignment="Left" Margin="0,0,0,10" Text="{Binding MinDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="{wpf:Text SmartText.EditorMaxDigits}" Target="{Binding ElementName=MaxDigitsBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="MaxDigitsBox" Width="100" HorizontalAlignment="Left" Margin="0,0,0,10" Text="{Binding MaxDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="{wpf:Text SmartText.EditorNormalize}" Target="{Binding ElementName=NormalizeBox}" Padding="0" Margin="0,0,0,3"/>
                     <ComboBox x:Name="NormalizeBox" Margin="0,0,0,10" ItemsSource="{Binding NormalizeChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Normalize, Mode=TwoWay}"/>
                     <Label Content="{wpf:Text SmartText.EditorValidate}" Target="{Binding ElementName=ValidateBox}" Padding="0" Margin="0,0,0,3"/>

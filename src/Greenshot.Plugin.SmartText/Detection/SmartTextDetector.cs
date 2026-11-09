@@ -40,6 +40,8 @@ public sealed class SmartTextDetector
     /// <summary>
     /// The time one regular expression may take on one line: a pattern which takes longer is stopped and skipped for the capture
     /// </summary>
+    private readonly bool _hasValueGroup;
+
     public static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
 
     private readonly Regex _pattern;
@@ -64,6 +66,7 @@ public sealed class SmartTextDetector
         var options = RegexOptions.CultureInvariant | (definition.MatchCase ? RegexOptions.None : RegexOptions.IgnoreCase);
         _pattern = new Regex(definition.Pattern, options, MatchTimeout);
         _label = string.IsNullOrWhiteSpace(definition.Label) ? null : new Regex(definition.Label, options, MatchTimeout);
+        _hasValueGroup = _pattern.GroupNumberFromName(SmartTextPattern.ValueGroupName) >= 0;
     }
 
     public string Id { get; }
@@ -137,11 +140,13 @@ public sealed class SmartTextDetector
         }
     }
 
+    /// <summary>
+    /// The value: the group named "value" when the pattern has one (e.g. "Order (?&lt;value&gt;\d+)"), else the whole match
+    /// </summary>
     private Group ValueGroup(Match match)
     {
-        string valueGroup = _definition.ValueGroup;
-        if (string.IsNullOrWhiteSpace(valueGroup)) return match;
-        var group = int.TryParse(valueGroup, NumberStyles.Integer, CultureInfo.InvariantCulture, out int number) ? match.Groups[number] : match.Groups[valueGroup];
+        if (!_hasValueGroup) return match;
+        var group = match.Groups[SmartTextPattern.ValueGroupName];
         return group.Success ? group : null;
     }
 

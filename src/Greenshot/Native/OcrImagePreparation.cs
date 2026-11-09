@@ -24,9 +24,25 @@ using System;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// Prepares the pixels of a capture for Windows OCR, which reads small screen text and underlined text badly:
-    /// thin horizontal lines (link underlines, separators) are painted over with the color below them, and small captures are
-    /// made larger. Neither changes the capture, only the copy the engine reads.
+    /// What is done to the copy of the capture Windows OCR reads, the capture itself never changes
+    /// </summary>
+    [Flags]
+    internal enum OcrPreparation
+    {
+        /// <summary>The pixels as they are (what Greenshot uses)</summary>
+        None = 0,
+
+        /// <summary>Paint over thin horizontal lines, e.g. the underlines of links</summary>
+        RemoveLines = 1,
+
+        /// <summary>Read small captures at double size</summary>
+        Upscale = 2
+    }
+
+    /// <summary>
+    /// Experiments to help Windows OCR with underlined and small screen text: thin horizontal lines (link underlines) painted over
+    /// with the color below them, small captures read at double size. Not used by default: on a real page both made the OCR worse,
+    /// OcrPreparationComparisonTests compares them on sample captures.
     /// </summary>
     internal static class OcrImagePreparation
     {
@@ -38,6 +54,9 @@ namespace Greenshot.Plugin.Win10
 
         /// <summary>The longest interruption of a line, e.g. by the descender of a g</summary>
         internal const int MaximumGap = 4;
+
+        /// <summary>How many percent of a line must be line pixels: the rest are the descenders crossing it</summary>
+        internal const int MinimumLineCoverage = 85;
 
         /// <summary>Captures up to this many pixels are read at double size; larger ones would make the OCR slow</summary>
         internal const long UpscaleMaximumPixels = 4_000_000;
@@ -113,7 +132,8 @@ namespace Greenshot.Plugin.Win10
 
                     int length = end - start;
                     // Above the line there is mostly something else: else it is the edge of an area of that color
-                    if (length >= MinimumLineLength && clearAbove * 10 >= linePixels * 6)
+                    // An underline is almost unbroken (only descenders cross it), the bottom row of a word has a gap after each stroke
+                    if (length >= MinimumLineLength && linePixels * 100 >= length * MinimumLineCoverage && clearAbove * 10 >= linePixels * 6)
                     {
                         for (int x = start; x < end; x++)
                         {

@@ -95,7 +95,12 @@ namespace Greenshot.Plugin.Win10
         /// <param name="image">Image</param>
         /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>List of IOcrLineFeature, null when there is no OCR language</returns>
-        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null)
+        public Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null) => DoOcrAsync(image, languageTag, OcrPreparation.None);
+
+        /// <summary>
+        /// OCR with a preparation of the image, to compare what helps Windows OCR (see OcrPreparationComparisonTests)
+        /// </summary>
+        internal async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag, OcrPreparation preparation)
         {
             if (image == null)
             {
@@ -108,7 +113,7 @@ namespace Greenshot.Plugin.Win10
                 return null;
             }
 
-            var ocrImage = OcrImage.Create(image);
+            var ocrImage = OcrImage.Create(image, preparation);
             using (ocrImage.Bitmap)
             {
                 var ocrResult = await ocrEngine.RecognizeAsync(ocrImage.Bitmap).AsTask().ConfigureAwait(false);
@@ -233,12 +238,12 @@ namespace Greenshot.Plugin.Win10
                 return new NativeRect(left, top, right - left, bottom - top);
             }
 
-            public static OcrImage Create(Image image)
+            public static OcrImage Create(Image image, OcrPreparation preparation)
             {
                 // The engine doesn't take images larger than MaxImageDimension (e.g. several monitors side by side): scale those down.
                 // Small captures are read at double size, screen text is too small for the engine
                 double maxDimension = OcrEngine.MaxImageDimension;
-                int factor = OcrImagePreparation.UpscaleFactor(image.Width, image.Height, maxDimension);
+                int factor = preparation.HasFlag(OcrPreparation.Upscale) ? OcrImagePreparation.UpscaleFactor(image.Width, image.Height, maxDimension) : 1;
                 double scale = factor > 1 ? factor : Math.Min(1d, Math.Min(maxDimension / image.Width, maxDimension / image.Height));
                 if (scale < 1d)
                 {
@@ -255,7 +260,10 @@ namespace Greenshot.Plugin.Win10
                     graphics.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height));
                 }
 
-                RemoveThinLines(prepared);
+                if (preparation.HasFlag(OcrPreparation.RemoveLines))
+                {
+                    RemoveThinLines(prepared);
+                }
 
                 Bitmap scaled = null;
                 try
