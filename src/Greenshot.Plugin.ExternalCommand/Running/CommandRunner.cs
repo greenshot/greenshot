@@ -213,7 +213,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
                 // Like "Open with": the app gets the file, nothing is read back and Greenshot doesn't wait for it
                 if (string.IsNullOrEmpty(request.File)) throw new ArgumentException("A Windows App needs the file", nameof(request));
                 WindowsAppLauncher.OpenFile(appId, request.File);
-                return new CommandResult { ExitCode = 0 };
+                return new CommandResult { ExitCode = 0, Succeeded = true };
             }
 
             bool readOutput = request.Output == CommandOutput.Text || request.Output == CommandOutput.Image;
