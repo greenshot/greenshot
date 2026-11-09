@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -45,8 +46,10 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineColor">The color of the line</param>
         /// <param name="fillColor">The color of the inside, transparent for none</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Rectangle(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow) =>
-            Draw(image, values, Box(rect), lineThickness, lineColor, fillColor, shadow);
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
+        public static void Rectangle(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow,
+            Matrix3x2? turn = null) =>
+            Draw(image, values, Box(rect), lineThickness, lineColor, fillColor, shadow, turn: turn);
 
         /// <summary>
         /// Like EllipseContainer: the shadow, the fill, then the line
@@ -58,8 +61,10 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineColor">The color of the line</param>
         /// <param name="fillColor">The color of the inside, transparent for none</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Ellipse(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow) =>
-            Draw(image, values, Oval(rect), lineThickness, lineColor, fillColor, shadow);
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
+        public static void Ellipse(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow,
+            Matrix3x2? turn = null) =>
+            Draw(image, values, Oval(rect), lineThickness, lineColor, fillColor, shadow, turn: turn);
 
         /// <summary>
         /// Like FilterContainer, the border of a highlight or obfuscation: the shadow in gray from 1 to 5 pixels away, then the line (anti-aliased, see
@@ -71,13 +76,14 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineThickness">The width of the line</param>
         /// <param name="lineColor">The color of the line</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void FilterBorder(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, bool shadow)
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
+        public static void FilterBorder(Image image, ImageValues values, Rectangle rect, int lineThickness, Rgba32 lineColor, bool shadow, Matrix3x2? turn = null)
         {
             if (lineThickness <= 0 || lineColor.A == 0)
             {
                 return;
             }
-            var box = Box(rect);
+            var box = Painting.Turned(Box(rect), turn);
             image.Mutate(context =>
             {
                 if (shadow)
@@ -96,9 +102,10 @@ namespace Greenshot.ImageSharpDrawing
         /// The shadow (the outline five times), the fill, then the line
         /// </summary>
         internal static void Draw(Image image, ImageValues values, IPath shape, int lineThickness, Rgba32 lineColor, Rgba32 fillColor, bool shadow,
-            int shadowOffset = 0)
+            int shadowOffset = 0, Matrix3x2? turn = null)
         {
             bool lineVisible = lineThickness > 0 && lineColor.A > 0;
+            shape = Painting.Turned(shape, turn);
             image.Mutate(context =>
             {
                 if (shadow && (lineVisible || fillColor.A > 0))
