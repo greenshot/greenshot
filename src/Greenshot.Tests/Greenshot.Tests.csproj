@@ -48,4 +48,9 @@
     <ProjectReference Include="..\Greenshot.Plugin.Stamps\Greenshot.Plugin.Stamps.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RapidOcr\Greenshot.Plugin.RapidOcr.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- ZipArchive, to build test zips for the RapidOCR download -->
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
 </Project>

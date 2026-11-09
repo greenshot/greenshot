@@ -145,6 +145,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🔌 Plugin Improvements
 
+**RapidOCR text recognition**
+- A second OCR engine next to Windows OCR, chosen in the settings: reads small and underlined text (links, e-mail addresses) much better
+- Its files (about 35 MB) are downloaded only when you choose it, after asking
+
 **Windows 10/11 Integration** (#802)
 - Integrated Windows 10 plugin into main codebase
 - Better native Windows integration
