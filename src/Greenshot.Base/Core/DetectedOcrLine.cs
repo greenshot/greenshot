@@ -20,34 +20,50 @@
  */
 
 using System.Collections.Generic;
-using Dapplo.Windows.Common.Extensions;
+using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Core;
 
+/// <summary>
+/// A line of text found by an OCR engine
+/// </summary>
 public class DetectedOcrLine : IOcrLineFeature
 {
-    public NativeRect Bounds { get; private set; }
+    /// <param name="box">where the line is; empty: around its words, at the angle of the first word</param>
+    /// <param name="text">the text of the line</param>
+    /// <param name="words">the words of the line</param>
+    /// <param name="score">how sure the OCR is, 0 to 1, null when it doesn't say</param>
+    public DetectedOcrLine(OcrBox box, string text, List<OcrWordInfo> words, double? score = null)
+    {
+        Text = text;
+        Words = words ?? new List<OcrWordInfo>();
+        Score = score;
+        Box = box.IsEmpty ? Words.Aggregate(default(OcrBox), (line, word) => line.Union(word.Box)) : box;
+    }
+
+    /// <summary>
+    /// A line of horizontal text
+    /// </summary>
+    public DetectedOcrLine(NativeRect bounds, string text, List<OcrWordInfo> words, double? score = null) : this(OcrBox.FromRect(bounds), text, words, score)
+    {
+    }
+
+    public OcrBox Box { get; private set; }
+    public NativeRect Bounds => Box.Bounds;
+    public double? Score { get; }
     public string FeatureType => "OcrLine";
     public string Text { get; }
     public string ToolTipText => Text;
     public List<OcrWordInfo> Words { get; }
 
-    public DetectedOcrLine(NativeRect bounds, string text, List<OcrWordInfo> words)
-    {
-        Bounds = bounds;
-        Text = text;
-        Words = words;
-    }
-
     public void Offset(int x, int y)
     {
-        Bounds = Bounds.Offset(x, y);
-
+        Box = Box.Offset(x, y);
         foreach (var word in Words)
         {
-            word.Bounds = word.Bounds.Offset(x, y);
+            word.Offset(x, y);
         }
     }
 }

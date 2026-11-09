@@ -83,7 +83,16 @@ namespace Greenshot.Capturing.Tools
             {
                 return false;
             }
-            // A click on a single line selects it
+            // A click on a single line selects it. The rectangle around rotated text also covers parts of the lines next to it:
+            // only the clicked line is kept, so its text is what was selected
+            if (clickedLine.Box.IsRotated)
+            {
+                var features = Host.Capture.CaptureDetails.Features;
+                lock (features)
+                {
+                    features.RemoveAll(feature => feature is IOcrLineFeature && feature != clickedLine);
+                }
+            }
             AcceptSelection(clickedLine.Bounds);
             return true;
         }
@@ -104,33 +113,51 @@ namespace Greenshot.Capturing.Tools
             var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
             foreach (var line in GetOcrLines())
             {
-                var lineBounds = line.Bounds;
-                if (lineBounds.IsEmpty)
+                var lineBox = line.Box;
+                if (lineBox.IsEmpty)
                 {
                     continue;
                 }
-                var lineRect = new Rect(lineBounds.X, lineBounds.Y, lineBounds.Width, lineBounds.Height);
-                drawingContext.DrawRectangle(null, linePen, new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
+                // The outline on the pixel grid for horizontal text, on the text for rotated text
+                var lineRect = lineBox.Unrotated;
+                var outline = lineBox.IsRotated ? lineRect : new Rect(line.Bounds.X + 0.5, line.Bounds.Y + 0.5, line.Bounds.Width, line.Bounds.Height);
+                DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(null, linePen, outline));
                 if (IsSelecting)
                 {
                     // Highlight the words which are selected
-                    if (!lineBounds.IntersectsWith(Selection))
+                    if (!lineBox.IntersectsWith(Selection))
                     {
                         continue;
                     }
                     foreach (var word in line.Words)
                     {
-                        if (word.Bounds.IntersectsWith(Selection))
+                        var wordBox = word.Box;
+                        if (wordBox.IntersectsWith(Selection))
                         {
-                            drawingContext.DrawRectangle(highlightBrush, null, new Rect(word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height));
+                            DrawRotated(drawingContext, wordBox, () => drawingContext.DrawRectangle(highlightBrush, null, wordBox.Unrotated));
                         }
                     }
                 }
                 else if (line == _hoveredLine)
                 {
-                    drawingContext.DrawRectangle(highlightBrush, null, lineRect);
+                    DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(highlightBrush, null, lineRect));
                 }
             }
+        }
+
+        /// <summary>
+        /// Draw the unrotated rectangle of the box turned to where the text is
+        /// </summary>
+        private static void DrawRotated(DrawingContext drawingContext, OcrBox box, Action draw)
+        {
+            if (!box.IsRotated)
+            {
+                draw();
+                return;
+            }
+            drawingContext.PushTransform(new RotateTransform(box.Angle, box.Center.X, box.Center.Y));
+            draw();
+            drawingContext.Pop();
         }
 
         private List<IOcrLineFeature> GetOcrLines()
@@ -142,7 +169,14 @@ namespace Greenshot.Capturing.Tools
             }
         }
 
-        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => line.Bounds.Contains(location));
+        /// <summary>
+        /// The line under the pixel: on the rotated text, not only in the rectangle around it
+        /// </summary>
+        private IOcrLineFeature FindOcrLine(NativePoint location)
+        {
+            var center = new Point(location.X + 0.5, location.Y + 0.5);
+            return GetOcrLines().FirstOrDefault(line => line.Box.Contains(center));
+        }
 
         /// <summary>
         /// Start the OCR when there are no text lines yet, and it isn't running in the background already

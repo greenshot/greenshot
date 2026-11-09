@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.RapidOcr.Recognition;
 /// </summary>
 internal sealed class RecognizedLine
 {
-    public RecognizedLine(string text, double score, IReadOnlyList<(string Text, double Start, double End)> words)
+    public RecognizedLine(string text, double score, IReadOnlyList<(string Text, double Start, double End, double Score)> words)
     {
         Text = text;
         Score = score;
@@ -44,7 +44,8 @@ internal sealed class RecognizedLine
     /// <summary>The mean probability of the characters</summary>
     public double Score { get; }
 
-    public IReadOnlyList<(string Text, double Start, double End)> Words { get; }
+    /// <summary>The words, where they start and end along the line and the mean probability of their characters</summary>
+    public IReadOnlyList<(string Text, double Start, double End, double Score)> Words { get; }
 }
 
 /// <summary>
@@ -180,11 +181,11 @@ internal sealed class TextRecognizer : IDisposable
     private RecognizedLine Decode(ReadOnlySpan<float> values, int steps, int classes, double stepWidth)
     {
         var text = new System.Text.StringBuilder();
-        var words = new List<(string, double, double)>();
+        var words = new List<(string, double, double, double)>();
         var word = new System.Text.StringBuilder();
         int wordStart = -1, wordEnd = -1;
-        double sum = 0;
-        int count = 0;
+        double sum = 0, wordSum = 0;
+        int count = 0, wordCount = 0;
         int previous = -1;
         for (int step = 0; step < steps; step++)
         {
@@ -217,6 +218,8 @@ internal sealed class TextRecognizer : IDisposable
             if (wordStart < 0) wordStart = step;
             wordEnd = step;
             word.Append(character);
+            wordSum += bestValue;
+            wordCount++;
         }
 
         AddWord();
@@ -226,8 +229,10 @@ internal sealed class TextRecognizer : IDisposable
         {
             if (word.Length == 0) return;
             // A character is seen around its step: from half a step before the first to one and a half after the last
-            words.Add((word.ToString(), Math.Max(0, (wordStart - 0.5) * stepWidth), (wordEnd + 1.5) * stepWidth));
+            words.Add((word.ToString(), Math.Max(0, (wordStart - 0.5) * stepWidth), (wordEnd + 1.5) * stepWidth, wordSum / wordCount));
             word.Clear();
+            wordSum = 0;
+            wordCount = 0;
             wordStart = -1;
         }
     }

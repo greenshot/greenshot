@@ -47,6 +47,19 @@ Greenshot runs the steps of RapidOCR 3.10 itself (ported to C#, Apache 2.0); Rap
    where each word is, so the word boxes fit the text selection of Greenshot. Lines with a mean probability below 0.5 are dropped.
 4. No orientation model: text on screen isn't upside down.
 
+## What both engines give
+
+Every line and word has a box: a rectangle with the angle of the text (`OcrBox` in `Greenshot.Base/Interfaces/Plugin`: centre,
+width, height, angle in degrees clockwise). RapidOCR gives it per line, the words are cut from it along the text. Windows OCR
+reports the rects deskewed with one angle for the whole capture, turned around the centre of the bitmap it read; Greenshot turns
+them back. `Bounds` is only the upright rectangle around the box, for code that works with rectangles. RapidOCR also gives a
+score per line and word (the mean probability of the characters), Windows OCR none.
+
+- The text tool of the capture window draws the boxes turned, selects the words whose box overlaps the selection and finds the
+  line under the mouse on the turned box. A click on rotated text keeps only that line.
+- The obfuscation strength uses the height of the text itself, not of the rectangle around rotated text. Obfuscations
+  themselves stay upright rectangles (the editor has no rotated elements yet).
+
 On the impressum page of getgreenshot.org with underlined links it reads all five links and the e-mail address exactly, where
 Windows OCR read `https;L'githumconu'grrensh@/greenshot,'` and `getgceenshQt@gmail.com`.
 

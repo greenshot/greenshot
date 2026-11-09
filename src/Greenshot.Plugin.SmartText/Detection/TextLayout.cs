@@ -86,7 +86,7 @@ public sealed class TextLayout
             int x = 0;
             foreach (string word in lineText.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                words.Add(new OcrWordInfo { Text = word, Bounds = new NativeRect(x, y, word.Length * 10, 20) });
+                words.Add(new OcrWordInfo(word, new NativeRect(x, y, word.Length * 10, 20)));
                 x += (word.Length + 1) * 10;
             }
 

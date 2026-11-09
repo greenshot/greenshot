@@ -25,10 +25,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 using Microsoft.ML.OnnxRuntime;
+using Point = System.Windows.Point;
 
 namespace Greenshot.Plugin.RapidOcr.Recognition;
 
@@ -97,17 +97,24 @@ internal sealed class RapidOcrPipeline : IDisposable
         if (boxes.Count == 0) return new List<IOcrLineFeature>();
 
         var crops = new List<BgrImage>(boxes.Count);
-        var widths = new List<double>(boxes.Count);
-        var rotated = new List<bool>(boxes.Count);
+        // The corners in reading direction (top left, top right, bottom left, bottom right) and the length along the text
+        var reading = new List<(PointD TopLeft, PointD TopRight, PointD BottomLeft, PointD BottomRight, double Length)>(boxes.Count);
         foreach (var box in boxes)
         {
             int width = Math.Max(1, (int)Math.Max(box.TopLeft.DistanceTo(box.TopRight), box.BottomRight.DistanceTo(box.BottomLeft)));
             int height = Math.Max(1, (int)Math.Max(box.TopLeft.DistanceTo(box.BottomLeft), box.TopRight.DistanceTo(box.BottomRight)));
             var crop = image.Crop(box.TopLeft, box.TopRight, box.BottomLeft, width, height);
-            bool upright = (double)crop.Height / crop.Width >= 1.5;
-            crops.Add(upright ? crop.RotateCounterClockwise() : crop);
-            widths.Add(width);
-            rotated.Add(upright);
+            if ((double)crop.Height / crop.Width >= 1.5)
+            {
+                // Read turned counter clockwise: the text runs from the top to the bottom of the box, its top is the right edge
+                crops.Add(crop.RotateCounterClockwise());
+                reading.Add((box.TopRight, box.BottomRight, box.TopLeft, box.BottomLeft, height));
+            }
+            else
+            {
+                crops.Add(crop);
+                reading.Add((box.TopLeft, box.TopRight, box.BottomLeft, box.BottomRight, width));
+            }
         }
 
         var recognized = _recognizer.Recognize(crops);
@@ -117,29 +124,21 @@ internal sealed class RapidOcrPipeline : IDisposable
             var line = recognized[i];
             if (string.IsNullOrWhiteSpace(line.Text) || line.Score < TextScore) continue;
 
-            var box = boxes[i];
-            PointD ToOriginal(PointD point) => new PointD(point.X * ratioX, (point.Y - padding) * ratioY);
-            var corners = box.Corners.Select(ToOriginal).ToArray();
-            var lineBounds = Bounds(corners, original.Width, original.Height);
+            var (topLeft, topRight, bottomLeft, bottomRight, length) = reading[i];
+            Point ToOriginal(PointD point) => new Point(point.X * ratioX, (point.Y - padding) * ratioY);
+            PointD Along(PointD a, PointD b, double fraction) => new PointD(a.X + (b.X - a.X) * fraction, a.Y + (b.Y - a.Y) * fraction);
+            var lineBox = OcrBox.FromCorners(ToOriginal(topLeft), ToOriginal(topRight), ToOriginal(bottomLeft));
             var words = new List<OcrWordInfo>();
-            foreach (var (text, start, end) in line.Words)
+            foreach (var (text, start, end, score) in line.Words)
             {
-                NativeRect wordBounds = lineBounds;
-                if (!rotated[i])
-                {
-                    // Along the top and bottom edge of the box
-                    double from = Math.Min(1, start / widths[i]), to = Math.Min(1, end / widths[i]);
-                    PointD Along(PointD a, PointD b, double fraction) => new PointD(a.X + (b.X - a.X) * fraction, a.Y + (b.Y - a.Y) * fraction);
-                    wordBounds = Bounds(new[]
-                    {
-                        ToOriginal(Along(box.TopLeft, box.TopRight, from)), ToOriginal(Along(box.TopLeft, box.TopRight, to)),
-                        ToOriginal(Along(box.BottomLeft, box.BottomRight, from)), ToOriginal(Along(box.BottomLeft, box.BottomRight, to))
-                    }, original.Width, original.Height);
-                }
-                words.Add(new OcrWordInfo { Text = text, Bounds = wordBounds });
+                // Along the top and bottom edge of the box
+                double from = Math.Min(1, start / length), to = Math.Min(1, end / length);
+                var wordBox = OcrBox.FromCorners(ToOriginal(Along(topLeft, topRight, from)), ToOriginal(Along(topLeft, topRight, to)),
+                    ToOriginal(Along(bottomLeft, bottomRight, from)));
+                words.Add(new OcrWordInfo(text, wordBox, score));
             }
 
-            lines.Add(new DetectedOcrLine(lineBounds, string.Join(" ", words.Select(word => word.Text)), words));
+            lines.Add(new DetectedOcrLine(lineBox, string.Join(" ", words.Select(word => word.Text)), words, line.Score));
         }
 
         return lines;
@@ -150,15 +149,6 @@ internal sealed class RapidOcrPipeline : IDisposable
         int width = Math.Max(32, (int)Math.Round((int)(image.Width * ratio) / 32.0) * 32);
         int height = Math.Max(32, (int)Math.Round((int)(image.Height * ratio) / 32.0) * 32);
         return image.Resize(width, height);
-    }
-
-    private static NativeRect Bounds(PointD[] points, int width, int height)
-    {
-        int left = (int)Math.Max(0, Math.Floor(points.Min(point => point.X)));
-        int top = (int)Math.Max(0, Math.Floor(points.Min(point => point.Y)));
-        int right = (int)Math.Min(width, Math.Ceiling(points.Max(point => point.X)));
-        int bottom = (int)Math.Min(height, Math.Ceiling(points.Max(point => point.Y)));
-        return new NativeRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
     }
 
     /// <summary>

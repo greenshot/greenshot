@@ -69,7 +69,7 @@ namespace Greenshot.Tests.Ocr
                     IsReady = false;
                     return Task.FromResult(new List<IOcrLineFeature>());
                 }
-                return Task.FromResult(new List<IOcrLineFeature> { new Greenshot.Base.Core.DetectedOcrLine(default, Id, new List<OcrWordInfo>()) });
+                return Task.FromResult(new List<IOcrLineFeature> { new Greenshot.Base.Core.DetectedOcrLine(Dapplo.Windows.Common.Structs.NativeRect.Empty, Id, new List<OcrWordInfo>()) });
             }
 
             public Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null) => DoOcrAsync((Image)null, languageTag);

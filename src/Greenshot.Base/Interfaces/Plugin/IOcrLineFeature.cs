@@ -19,14 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 using System.Collections.Generic;
 using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Plugin;
 
 /// <summary>
-/// Represents a single line of OCR text detected on a screenshot.
-/// Enables line-based feature mapping while retaining detailed word-level coordinates inside.
+/// A line of text found on a capture, with its words. <see cref="IDetectedFeature.Bounds"/> is the upright rectangle around
+/// <see cref="Box"/>, for code which works with rectangles only.
 /// </summary>
 public interface IOcrLineFeature : IDetectedFeature
 {
@@ -35,20 +36,62 @@ public interface IOcrLineFeature : IDetectedFeature
     /// Used for cursor collision detection and partial text selection.
     /// </summary>
     List<OcrWordInfo> Words { get; }
+
+    /// <summary>
+    /// Where the line is: rotated with the text
+    /// </summary>
+    OcrBox Box { get; }
+
+    /// <summary>
+    /// How sure the OCR is about the text, 0 to 1; null when the OCR doesn't say (Windows OCR)
+    /// </summary>
+    double? Score { get; }
 }
 
 /// <summary>
-/// Represents word-level metadata inside an OCR line feature.
+/// A word of an OCR line
 /// </summary>
 public class OcrWordInfo
 {
+    /// <param name="text">the text of the word</param>
+    /// <param name="box">where the word is, rotated with the text</param>
+    /// <param name="score">how sure the OCR is, 0 to 1, null when it doesn't say</param>
+    public OcrWordInfo(string text, OcrBox box, double? score = null)
+    {
+        Text = text;
+        Box = box;
+        Score = score;
+    }
+
     /// <summary>
-    /// The bounding box of the word in pixel coordinates relative to the captured image.
+    /// A word of horizontal text
     /// </summary>
-    public NativeRect Bounds { get; set; }
+    public OcrWordInfo(string text, NativeRect bounds, double? score = null) : this(text, OcrBox.FromRect(bounds), score)
+    {
+    }
 
     /// <summary>
     /// The text content of the word.
     /// </summary>
-    public string Text { get; set; }
+    public string Text { get; }
+
+    /// <summary>
+    /// Where the word is, rotated with the text, in pixels of the captured image
+    /// </summary>
+    public OcrBox Box { get; private set; }
+
+    /// <summary>
+    /// The upright rectangle around the word, in pixels of the captured image; for rotated text a little larger than the word
+    /// </summary>
+    public NativeRect Bounds => Box.Bounds;
+
+    /// <summary>
+    /// How sure the OCR is about the word, 0 to 1; null when the OCR doesn't say (Windows OCR)
+    /// </summary>
+    public double? Score { get; }
+
+    /// <summary>
+    /// Move the word, e.g. when the capture is cropped
+    /// </summary>
+    public void Offset(int x, int y) => Box = Box.Offset(x, y);
 }

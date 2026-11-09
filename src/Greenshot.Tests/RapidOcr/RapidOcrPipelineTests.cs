@@ -21,6 +21,8 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -90,6 +92,50 @@ namespace Greenshot.Tests.RapidOcr
         }
 
         /// <summary>
+        /// Text drawn rotated: the line has the angle of the text, its box is on the text and its words follow it in reading order
+        /// </summary>
+        [Theory]
+        [InlineData(0f)]
+        [InlineData(15f)]
+        [InlineData(-30f)]
+        [InlineData(90f)]
+        public void RotatedText_BoxFollowsTheText(float angle)
+        {
+            string models = Environment.GetEnvironmentVariable(ModelsVariable);
+            Assert.SkipWhen(string.IsNullOrEmpty(models), $"Set {ModelsVariable}");
+            const int centerX = 300, centerY = 300;
+
+            using var image = new Bitmap(600, 600, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(image))
+            using (var font = new Font("Arial", 28, FontStyle.Bold, GraphicsUnit.Pixel))
+            using (var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+            {
+                graphics.Clear(Color.White);
+                graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                graphics.TranslateTransform(centerX, centerY);
+                // Positive is clockwise on the screen
+                graphics.RotateTransform(angle);
+                graphics.DrawString("Secret jumps over", font, Brushes.Black, 0, 0, format);
+            }
+
+            using var pipeline = new RapidOcrPipeline(Path.Combine(models, "det.onnx"), Path.Combine(models, "rec.onnx"));
+            var line = Assert.Single(pipeline.Read(image));
+
+            Assert.Equal("Secret jumps over", line.Text);
+            Assert.InRange(line.Box.Angle, angle - 3, angle + 3);
+            Assert.True(line.Box.Contains(new System.Windows.Point(centerX, centerY)), $"{line.Box} isn't on the text");
+            Assert.InRange(line.Box.Height, 20, 50);
+            Assert.InRange(line.Score.GetValueOrDefault(), 0.8, 1);
+            Assert.Equal(new[] { "Secret", "jumps", "over" }, line.Words.Select(word => word.Text));
+            Assert.All(line.Words, word => Assert.InRange(word.Box.Angle, angle - 3, angle + 3));
+            Assert.All(line.Words, word => Assert.InRange(word.Score.GetValueOrDefault(), 0.5, 1));
+            // In reading direction: the centre of each word is further along the line than the one before
+            var direction = new System.Windows.Vector(Math.Cos(line.Box.Angle * Math.PI / 180), Math.Sin(line.Box.Angle * Math.PI / 180));
+            var along = line.Words.Select(word => (word.Box.Center - line.Box.Center) * direction).ToList();
+            Assert.Equal(along.OrderBy(value => value), along);
+        }
+
+        /// <summary>
         /// With the models (GREENSHOT_RAPIDOCR_MODELS: a folder with det.onnx and rec.onnx, onnxruntime findable) and captures
         /// (GREENSHOT_OCR_SAMPLES): writes &lt;name&gt;.rapidocr.txt next to each capture
         /// </summary>
@@ -114,7 +160,7 @@ namespace Greenshot.Tests.RapidOcr
                 report.AppendLine($"--- {lines.Count} lines in {watch.ElapsedMilliseconds} ms");
                 foreach (var line in lines)
                 {
-                    report.AppendLine($"{line.Bounds}: " + string.Join(" | ", line.Words.Select(word => $"{word.Text} {word.Bounds}")));
+                    report.AppendLine($"{line.Box} {line.Score:0.00}: " + string.Join(" | ", line.Words.Select(word => $"{word.Text} {word.Box} {word.Score:0.00}")));
                 }
                 File.WriteAllText(Path.ChangeExtension(file, ".rapidocr.txt"), report.ToString(), Encoding.UTF8);
             }
