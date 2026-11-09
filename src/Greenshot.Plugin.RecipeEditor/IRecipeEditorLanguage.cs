@@ -4732,6 +4732,66 @@ namespace Greenshot.Plugin.RecipeEditor
         string ManagerBtnGetMoreTooltip { get; }
 
         /// <summary>
+        /// Check for Updates
+        /// </summary>
+        string ManagerBtnCheckUpdates { get; }
+
+        /// <summary>
+        /// Compares the recipes you installed from the recipe catalog with the catalog
+        /// </summary>
+        string ManagerBtnCheckUpdatesTooltip { get; }
+
+        /// <summary>
+        /// From the recipe catalog
+        /// </summary>
+        string ManagerHeaderCatalogUpdates { get; }
+
+        /// <summary>
+        /// Checking the recipe catalog...
+        /// </summary>
+        string ManagerCatalogChecking { get; }
+
+        /// <summary>
+        /// The recipes from the catalog are up to date.
+        /// </summary>
+        string ManagerCatalogUpToDate { get; }
+
+        /// <summary>
+        /// Installed: {0}, in the catalog: {1}
+        /// </summary>
+        string ManagerCatalogVersions { get; }
+
+        /// <summary>
+        /// Not loaded: this Greenshot can't use the installed version.
+        /// </summary>
+        string ManagerCatalogNotLoaded { get; }
+
+        /// <summary>
+        /// The catalog version needs Greenshot {0} or newer.
+        /// </summary>
+        string ManagerCatalogNeedsNewer { get; }
+
+        /// <summary>
+        /// The catalog has no newer version yet.
+        /// </summary>
+        string ManagerCatalogNoUpdate { get; }
+
+        /// <summary>
+        /// The recipe is no longer in the catalog.
+        /// </summary>
+        string ManagerCatalogRemoved { get; }
+
+        /// <summary>
+        /// Update
+        /// </summary>
+        string ManagerBtnCatalogUpdate { get; }
+
+        /// <summary>
+        /// Shows the catalog version with what changed, it is installed after you approved it
+        /// </summary>
+        string ManagerBtnCatalogUpdateTooltip { get; }
+
+        /// <summary>
         /// ${ } Variables
         /// </summary>
         string ExpressionHelpButton { get; }

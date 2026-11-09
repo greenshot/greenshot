@@ -1235,5 +1235,25 @@ namespace Greenshot.Base.Languages
         /// Greenshot couldn't save the recipe: {0}
         /// </summary>
         string CatalogSaveFailed { get; }
+
+        /// <summary>
+        /// The recipe catalog has no newer version of the recipe "{0}" than {1}, and this Greenshot can't use that one. Please try again later, or look at the page of the recipe in the catalog.
+        /// </summary>
+        string CatalogNoNewerVersion { get; }
+
+        /// <summary>
+        /// Update from the Catalog
+        /// </summary>
+        string ApprovalBtnUpdateFromCatalog { get; }
+
+        /// <summary>
+        /// Shows the newest version of this recipe in the recipe catalog, to install it after you approved it
+        /// </summary>
+        string ApprovalUpdateFromCatalogTooltip { get; }
+
+        /// <summary>
+        /// This recipe is from the recipe catalog. A newer version from there may work with this Greenshot.
+        /// </summary>
+        string ApprovalCatalogUpdateHint { get; }
     }
 }
