@@ -21,11 +21,10 @@
 
 using System;
 using System.Numerics;
-using Greenshot.Base.Effects;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The values of the colors of an image the drawing goes into: 8-bit sRGB colors (as the editor has them) become the values of its pixels.

@@ -24,7 +24,7 @@ using System.Drawing;
 using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Hdr;
-using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Plugin.Zxing.Drawing;

@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using SixLabors.ImageSharp.Drawing;

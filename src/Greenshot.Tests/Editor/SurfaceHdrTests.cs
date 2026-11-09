@@ -32,6 +32,7 @@ using Greenshot.Base.Hdr;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
@@ -1040,7 +1041,7 @@ namespace Greenshot.Tests.Editor
             {
             }
 
-            public Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> CreateHdrDrawing(NativePoint origin)
+            public Action<SixLabors.ImageSharp.Image, Greenshot.ImageSharpDrawing.ImageValues> CreateHdrDrawing(NativePoint origin)
             {
                 var place = new SixLabors.ImageSharp.RectangleF(Left - origin.X, Top - origin.Y, Width, Height);
                 return (image, values) => SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>

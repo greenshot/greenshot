@@ -26,7 +26,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The rectangle and the ellipse of the editor (RectangleContainer, EllipseContainer, the border of FilterContainer) drawn with ImageSharp.
