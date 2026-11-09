@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -48,6 +47,7 @@ namespace Greenshot.Capturing.Tools
         private static readonly TimeSpan OcrHintDelay = TimeSpan.FromMilliseconds(300);
         private IOcrLineFeature _hoveredLine;
         private Task _pendingOcr;
+        private bool _showOcrHint;
 
         public override CaptureMode Mode => CaptureMode.Text;
 
@@ -79,7 +79,8 @@ namespace Greenshot.Capturing.Tools
             base.OnMouseMove();
             var hoveredLine = IsSelecting ? null : FindOcrLine(Host.CursorPosition);
             // While selecting the highlighted words change with every move
-            bool redraw = IsSelecting || hoveredLine != _hoveredLine;
+            // The OCR hint follows the cursor
+            bool redraw = IsSelecting || _showOcrHint || hoveredLine != _hoveredLine;
             _hoveredLine = hoveredLine;
             if (redraw)
             {
@@ -121,6 +122,10 @@ namespace Greenshot.Capturing.Tools
             var linePen = new Pen((Brush)Host.FindResource("OcrLineBrush"), 1);
             linePen.Freeze();
             var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
+            if (_showOcrHint)
+            {
+                DrawOcrHint(drawingContext);
+            }
             foreach (var line in GetOcrLines())
             {
                 var lineBox = line.Box;
@@ -225,7 +230,8 @@ namespace Greenshot.Capturing.Tools
             var delay = Task.Delay(OcrHintDelay);
             if (await Task.WhenAny(ocr, delay).ConfigureAwait(true) == delay && _pendingOcr == ocr && Host?.ActiveTool == this)
             {
-                Host.ShowPanel(this, CreateOcrHint());
+                _showOcrHint = true;
+                Host.Redraw();
             }
             // Failures are handled where the OCR runs, here only its end counts
             await Task.WhenAny(ocr).ConfigureAwait(true);
@@ -238,15 +244,32 @@ namespace Greenshot.Capturing.Tools
         private void HideOcrHint()
         {
             _pendingOcr = null;
-            Host?.HidePanel(this);
+            if (!_showOcrHint)
+            {
+                return;
+            }
+            _showOcrHint = false;
+            Host?.Redraw();
         }
 
-        private static FrameworkElement CreateOcrHint()
+        /// <summary>
+        /// The hint next to the cursor, where the user looks, kept on the monitor
+        /// </summary>
+        private void DrawOcrHint(DrawingContext drawingContext)
         {
-            var panel = new StackPanel();
-            panel.Children.Add(new TextBlock { Text = Texts.Core.OcrRunning });
-            panel.Children.Add(new ProgressBar { IsIndeterminate = true, Height = 4, Margin = new Thickness(0, 6, 0, 0) });
-            return panel;
+            var style = Host.ToolStyle;
+            var text = style.CreateText(Texts.Core.OcrRunning);
+            double padding = style.Scale(6);
+            var size = new Size(text.Width + 2 * padding, text.Height + 2 * padding);
+            var cursor = Host.CursorPosition;
+            var monitor = Host.GetMonitorBounds();
+            double offset = style.Scale(20);
+            double x = cursor.X + offset, y = cursor.Y + offset;
+            if (x + size.Width > monitor.Right) x = cursor.X - offset - size.Width;
+            if (y + size.Height > monitor.Bottom) y = cursor.Y - offset - size.Height;
+            var bounds = new Rect(Math.Round(x), Math.Round(y), Math.Ceiling(size.Width), Math.Ceiling(size.Height));
+            style.DrawPanel(drawingContext, bounds);
+            drawingContext.DrawText(text, new Point(bounds.X + padding, bounds.Y + padding));
         }
 
         private async Task RunOcrAsync(IOcrProvider ocrProvider)
