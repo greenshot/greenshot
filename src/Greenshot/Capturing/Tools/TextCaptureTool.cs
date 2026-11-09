@@ -48,6 +48,8 @@ namespace Greenshot.Capturing.Tools
         private IOcrLineFeature _hoveredLine;
         private Task _pendingOcr;
         private bool _showOcrHint;
+        private readonly System.Diagnostics.Stopwatch _ocrHintTime = new();
+        private DispatcherTimer _ocrHintTimer;
         private NativePoint _ocrHintOffset = new(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
 
         public override CaptureMode Mode => CaptureMode.Text;
@@ -232,7 +234,7 @@ namespace Greenshot.Capturing.Tools
             if (await Task.WhenAny(ocr, delay).ConfigureAwait(true) == delay && _pendingOcr == ocr && Host?.ActiveTool == this)
             {
                 _showOcrHint = true;
-                Host.Redraw();
+                StartOcrHintAnimation();
             }
             // Failures are handled where the OCR runs, here only its end counts
             await Task.WhenAny(ocr).ConfigureAwait(true);
@@ -250,7 +252,31 @@ namespace Greenshot.Capturing.Tools
                 return;
             }
             _showOcrHint = false;
+            _ocrHintTimer?.Stop();
             Host?.Redraw();
+        }
+
+        /// <summary>
+        /// The mark in the hint turns, like the busy mark of the window tool, so it is clear that something happens
+        /// </summary>
+        private void StartOcrHintAnimation()
+        {
+            _ocrHintTime.Restart();
+            if (_ocrHintTimer == null)
+            {
+                _ocrHintTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+                _ocrHintTimer.Tick += (_, _) =>
+                {
+                    if (!_showOcrHint || Host?.ActiveTool != this)
+                    {
+                        _ocrHintTimer.Stop();
+                        return;
+                    }
+                    Host.Redraw();
+                };
+            }
+            _ocrHintTimer.Start();
+            Host.Redraw();
         }
 
         /// <summary>
@@ -259,15 +285,34 @@ namespace Greenshot.Capturing.Tools
         private void DrawOcrHint(DrawingContext drawingContext)
         {
             var style = Host.ToolStyle;
-            var text = style.CreateText(Texts.Core.OcrRunning);
-            double padding = style.Scale(6);
-            var size = new NativeSize((int)Math.Ceiling(text.Width + 2 * padding), (int)Math.Ceiling(text.Height + 2 * padding));
+            var text = style.CreateText(Texts.Core.OcrRunning, 10, bold: true);
+            double padding = style.Scale(8);
+            double radius = style.Scale(7);
+            double markWidth = 2 * radius + padding;
+            var size = new NativeSize((int)Math.Ceiling(markWidth + text.Width + 2 * padding), (int)Math.Ceiling(Math.Max(text.Height, 2 * radius) + 2 * padding));
             var cursor = Host.CursorPosition;
-            var zoomer = Host.ZoomerBounds;
-            _ocrHintOffset = ZoomerPlacement.GetOffset(cursor, _ocrHintOffset, size, Host.GetMonitorBounds(), new[] { zoomer });
+            _ocrHintOffset = ZoomerPlacement.GetOffset(cursor, _ocrHintOffset, size, Host.GetMonitorBounds(), new[] { Host.ZoomerBounds });
             var bounds = new Rect(cursor.X + _ocrHintOffset.X, cursor.Y + _ocrHintOffset.Y, size.Width, size.Height);
             style.DrawPanel(drawingContext, bounds);
-            drawingContext.DrawText(text, new Point(bounds.X + padding, bounds.Y + padding));
+            // An accent border: the hint has to be noticed
+            double border = style.Scale(2);
+            var accentRect = new Rect(bounds.X + border / 2, bounds.Y + border / 2, bounds.Width - border, bounds.Height - border);
+            drawingContext.DrawRoundedRectangle(null, new Pen(style.Accent, border), accentRect, style.PanelCornerRadius, style.PanelCornerRadius);
+
+            // The turning arc, once a second
+            var center = new Point(bounds.X + padding + radius, bounds.Y + bounds.Height / 2);
+            var angle = _ocrHintTime.ElapsedMilliseconds % 1000 * 2 * Math.PI / 1000;
+            Point OnCircle(double a) => new(center.X + radius * Math.Cos(a), center.Y + radius * Math.Sin(a));
+            var arc = new StreamGeometry();
+            using (var context = arc.Open())
+            {
+                context.BeginFigure(OnCircle(angle), false, false);
+                context.ArcTo(OnCircle(angle + 1.5 * Math.PI), new Size(radius, radius), 0, true, SweepDirection.Clockwise, true, false);
+            }
+            arc.Freeze();
+            drawingContext.DrawGeometry(null, new Pen(style.Accent, style.Scale(2.5)), arc);
+
+            drawingContext.DrawText(text, new Point(bounds.X + padding + markWidth, bounds.Y + (bounds.Height - text.Height) / 2));
         }
 
         private async Task RunOcrAsync(IOcrProvider ocrProvider)
