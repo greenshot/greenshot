@@ -48,6 +48,7 @@ public partial class SmartTextPatternWindow : Window
     {
         try
         {
+            _viewModel.RevealProblems();
             if (_viewModel.HasProblems) throw new DefinitionFileException(_viewModel.Problems);
             _save(_viewModel.ToDefinition(), _viewModel.OriginalId);
             DialogResult = true;

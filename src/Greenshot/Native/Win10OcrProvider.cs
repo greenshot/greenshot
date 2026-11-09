@@ -235,31 +235,40 @@ namespace Greenshot.Plugin.Win10
 
             public static OcrImage Create(Image image)
             {
-                // The engine doesn't take images larger than MaxImageDimension (e.g. several monitors side by side): scale those down
+                // The engine doesn't take images larger than MaxImageDimension (e.g. several monitors side by side): scale those down.
+                // Small captures are read at double size, screen text is too small for the engine
                 double maxDimension = OcrEngine.MaxImageDimension;
-                double scale = Math.Min(1d, Math.Min(maxDimension / image.Width, maxDimension / image.Height));
-                Bitmap ownBitmap = null;
+                int factor = OcrImagePreparation.UpscaleFactor(image.Width, image.Height, maxDimension);
+                double scale = factor > 1 ? factor : Math.Min(1d, Math.Min(maxDimension / image.Width, maxDimension / image.Height));
+                if (scale < 1d)
+                {
+                    Log.InfoFormat("Image of {0}x{1} is larger than the OCR supports, scaling it to {2:P0}", image.Width, image.Height, scale);
+                }
+
+                // An own copy: the underlines are painted over in it, the capture stays as it is
+                using var prepared = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppPArgb);
+                using (var graphics = Graphics.FromImage(prepared))
+                {
+                    graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                    graphics.CompositingMode = CompositingMode.SourceCopy;
+                    graphics.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height));
+                }
+
+                RemoveThinLines(prepared);
+
+                Bitmap scaled = null;
                 try
                 {
-                    Bitmap source;
-                    if (scale < 1d)
+                    var source = prepared;
+                    if (Math.Abs(scale - 1d) > double.Epsilon)
                     {
-                        Log.InfoFormat("Image of {0}x{1} is larger than the OCR supports, scaling it to {2:P0}", image.Width, image.Height, scale);
-                        ownBitmap = new Bitmap(Math.Max(1, (int)(image.Width * scale)), Math.Max(1, (int)(image.Height * scale)), PixelFormat.Format32bppPArgb);
-                        using var graphics = Graphics.FromImage(ownBitmap);
+                        scaled = new Bitmap(Math.Max(1, (int)(image.Width * scale)), Math.Max(1, (int)(image.Height * scale)), PixelFormat.Format32bppPArgb);
+                        using var graphics = Graphics.FromImage(scaled);
                         graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        graphics.DrawImage(image, new Rectangle(0, 0, ownBitmap.Width, ownBitmap.Height));
-                        source = ownBitmap;
-                    }
-                    else if (image is Bitmap bitmap)
-                    {
-                        source = bitmap;
-                    }
-                    else
-                    {
-                        // A metafile, LockBits needs a bitmap
-                        source = ownBitmap = new Bitmap(image);
+                        graphics.DrawImage(prepared, new Rectangle(0, 0, scaled.Width, scaled.Height));
+                        source = scaled;
                     }
 
                     int paddingX = Math.Max(0, (MinWidth - source.Width) / 2);
@@ -269,7 +278,35 @@ namespace Greenshot.Plugin.Win10
                 }
                 finally
                 {
-                    ownBitmap?.Dispose();
+                    scaled?.Dispose();
+                }
+            }
+
+            /// <summary>
+            /// Paint over the underlines of links and other thin lines, OCR reads them as parts of the letters (an underlined
+            /// "r" becomes a "c", an "o" a "Q")
+            /// </summary>
+            private static void RemoveThinLines(Bitmap bitmap)
+            {
+                var rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+                BitmapData data = bitmap.LockBits(rectangle, ImageLockMode.ReadWrite, PixelFormat.Format32bppPArgb);
+                try
+                {
+                    var pixels = new int[bitmap.Width * bitmap.Height];
+                    for (int y = 0; y < bitmap.Height; y++)
+                    {
+                        Marshal.Copy(data.Scan0 + y * data.Stride, pixels, y * bitmap.Width, bitmap.Width);
+                    }
+
+                    if (OcrImagePreparation.RemoveThinLines(pixels, bitmap.Width, bitmap.Height) == 0) return;
+                    for (int y = 0; y < bitmap.Height; y++)
+                    {
+                        Marshal.Copy(pixels, y * bitmap.Width, data.Scan0 + y * data.Stride, bitmap.Width);
+                    }
+                }
+                finally
+                {
+                    bitmap.UnlockBits(data);
                 }
             }
 

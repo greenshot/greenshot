@@ -57,6 +57,11 @@ Some details of the built-in detectors:
   leading `+`. Numbers with dots (versions, IP addresses) and ISO dates are not phone numbers.
 - Dates become `yyyy-MM-dd`; the order of `9/11/2026` follows the date format of Windows, month names are those of the
   language of Windows.
+- A domain without `https://` or a path (`getgreenshot.org`) is a web address only with a common top level domain
+  (`com`, `org`, `net`, `de`, ...), so file names like `readme.txt` aren't found.
+- Windows OCR misreads underlined text (an underlined `r` becomes `c`, an `o` becomes `Q`) and small screen text. Before the OCR,
+  Greenshot paints over thin horizontal lines (at least 20 pixels long, at most 2 pixels high) in its copy of the capture, and
+  reads captures up to 4 megapixels at double size. This helps every OCR in Greenshot, not only Smart text.
 - When two detectors find the same text, an own pattern wins, then a checked value (IBAN, date, ...), then the longer one.
 
 ---

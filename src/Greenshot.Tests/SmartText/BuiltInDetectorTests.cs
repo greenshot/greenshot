@@ -56,6 +56,7 @@ namespace Greenshot.Tests.SmartText
         [InlineData("Go to www.example.com.", "https://www.example.com")]
         [InlineData("(see https://example.com/a_(b))", "https://example.com/a_(b)")]
         [InlineData("example.org/path?q=1, then", "https://example.org/path?q=1")]
+        [InlineData("Visit getgreenshot.org.", "https://getgreenshot.org")]
         public void Url_IsFound(string text, string expected)
         {
             Assert.Equal(new[] { expected }, Values(text, BuiltInDetectors.Url));
@@ -65,6 +66,8 @@ namespace Greenshot.Tests.SmartText
         [InlineData("Write to info@example.com")]
         [InlineData("version 1.4.2 of example")]
         [InlineData("ftp://example.com/file")]
+        [InlineData("Open readme.txt and setup.exe")]
+        [InlineData("see example.com.au.xyz")]
         public void Url_NotFound(string text)
         {
             Assert.Empty(Values(text, BuiltInDetectors.Url));

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         Title="{Binding Title}"
-        Width="640" SizeToContent="Height" MaxHeight="820"
+        Width="560" SizeToContent="Height" MaxHeight="860"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -32,62 +32,42 @@
             </StackPanel>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Style="{StaticResource ThemedScrollViewer}" Margin="14,10,14,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Content="{wpf:Text SmartText.EditorName}" Target="{Binding ElementName=NameBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="NameBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,6" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label Grid.Row="1" Content="{wpf:Text SmartText.EditorPattern}" Target="{Binding ElementName=PatternBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="PatternBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,6" FontFamily="Consolas" Text="{Binding Pattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label Grid.Row="2" Content="{wpf:Text SmartText.EditorValueGroup}" Target="{Binding ElementName=ValueGroupBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="ValueGroupBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,6" Text="{Binding ValueGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label Grid.Row="3" Content="{wpf:Text SmartText.EditorLabel}" Target="{Binding ElementName=LabelBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="LabelBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,6" FontFamily="Consolas" Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label Grid.Row="4" Content="{wpf:Text SmartText.EditorLabelPosition}" Target="{Binding ElementName=LabelPositionBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="LabelPositionBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,6" IsEnabled="{Binding HasLabel}" ItemsSource="{Binding LabelPositions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding LabelPosition, Mode=TwoWay}"/>
-                    <Label Grid.Row="5" Content="{wpf:Text SmartText.EditorArea}" Target="{Binding ElementName=AreaBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="AreaBox" Grid.Row="5" Grid.Column="1" Margin="0,0,0,6" Text="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Label x:Name="DigitsLabel" Grid.Row="6" Content="{wpf:Text SmartText.EditorDigits}" Target="{Binding ElementName=MinDigitsBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,6">
-                        <TextBox x:Name="MinDigitsBox" Width="60" Text="{Binding MinDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
-                        <TextBox x:Name="MaxDigitsBox" Width="60" Margin="6,0,0,0" Text="{Binding MaxDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
+                <StackPanel>
+                    <Label Content="{wpf:Text SmartText.EditorName}" Target="{Binding ElementName=NameBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="NameBox" Margin="0,0,0,10" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="{wpf:Text SmartText.EditorPattern}" Target="{Binding ElementName=PatternBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="PatternBox" Margin="0,0,0,10" FontFamily="Consolas" Text="{Binding Pattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="{wpf:Text SmartText.EditorValueGroup}" Target="{Binding ElementName=ValueGroupBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="ValueGroupBox" Margin="0,0,0,10" Text="{Binding ValueGroup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="{wpf:Text SmartText.EditorLabel}" Target="{Binding ElementName=LabelBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="LabelBox" Margin="0,0,0,10" FontFamily="Consolas" Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="{wpf:Text SmartText.EditorLabelPosition}" Target="{Binding ElementName=LabelPositionBox}" Padding="0" Margin="0,0,0,3"/>
+                    <ComboBox x:Name="LabelPositionBox" Margin="0,0,0,10" IsEnabled="{Binding HasLabel}" ItemsSource="{Binding LabelPositions}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding LabelPosition, Mode=TwoWay}"/>
+                    <Label Content="{wpf:Text SmartText.EditorArea}" Target="{Binding ElementName=AreaBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="AreaBox" Margin="0,0,0,10" Text="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label x:Name="DigitsLabel" Content="{wpf:Text SmartText.EditorDigits}" Padding="0" Margin="0,0,0,3"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBox x:Name="MinDigitsBox" Width="80" Text="{Binding MinDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
+                        <TextBox x:Name="MaxDigitsBox" Width="80" Margin="8,0,0,0" Text="{Binding MaxDigits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.LabeledBy="{Binding ElementName=DigitsLabel}"/>
                     </StackPanel>
-                    <Label Grid.Row="7" Content="{wpf:Text SmartText.EditorNormalize}" Target="{Binding ElementName=NormalizeBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="NormalizeBox" Grid.Row="7" Grid.Column="1" Margin="0,0,0,6" ItemsSource="{Binding NormalizeChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Normalize, Mode=TwoWay}"/>
-                    <Label Grid.Row="8" Content="{wpf:Text SmartText.EditorValidate}" Target="{Binding ElementName=ValidateBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="ValidateBox" Grid.Row="8" Grid.Column="1" Margin="0,0,0,6" ItemsSource="{Binding ValidateChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Validate, Mode=TwoWay}"/>
-                    <Label Grid.Row="9" Content="{wpf:Text SmartText.EditorOpenUrl}" Target="{Binding ElementName=OpenUrlBox}" Margin="0,0,12,6" VerticalAlignment="Center"/>
-                    <TextBox x:Name="OpenUrlBox" Grid.Row="9" Grid.Column="1" Margin="0,0,0,6" Text="{Binding OpenUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <StackPanel Grid.Row="10" Grid.Column="1" Margin="0,2,0,6">
-                        <CheckBox Content="{wpf:Text SmartText.EditorMatchCase}" IsChecked="{Binding MatchCase, Mode=TwoWay}" Margin="0,0,0,4"/>
-                        <CheckBox Content="{wpf:Text SmartText.EditorDigitLookAlikes}" IsChecked="{Binding DigitLookAlikes, Mode=TwoWay}"/>
-                    </StackPanel>
-                    <Label Grid.Row="11" Content="{wpf:Text SmartText.EditorTest}" Target="{Binding ElementName=TestBox}" Margin="0,0,12,6" VerticalAlignment="Top"/>
-                    <StackPanel Grid.Row="11" Grid.Column="1">
-                        <TextBox x:Name="TestBox" MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                                 Text="{Binding TestText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="{Binding TestResult}" TextWrapping="Wrap" Margin="0,4,0,0" wpf:LiveRegion.Mode="Polite"/>
-                        <TextBlock Text="{Binding Problems}" TextWrapping="Wrap" Margin="0,4,0,0" wpf:LiveRegion.Mode="Polite"
-                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"
-                                   Visibility="{Binding HasProblems, Converter={StaticResource VisibleWhenTrue}}"/>
-                    </StackPanel>
-                </Grid>
+                    <Label Content="{wpf:Text SmartText.EditorNormalize}" Target="{Binding ElementName=NormalizeBox}" Padding="0" Margin="0,0,0,3"/>
+                    <ComboBox x:Name="NormalizeBox" Margin="0,0,0,10" ItemsSource="{Binding NormalizeChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Normalize, Mode=TwoWay}"/>
+                    <Label Content="{wpf:Text SmartText.EditorValidate}" Target="{Binding ElementName=ValidateBox}" Padding="0" Margin="0,0,0,3"/>
+                    <ComboBox x:Name="ValidateBox" Margin="0,0,0,10" ItemsSource="{Binding ValidateChoices}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Validate, Mode=TwoWay}"/>
+                    <Label Content="{wpf:Text SmartText.EditorOpenUrl}" Target="{Binding ElementName=OpenUrlBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="OpenUrlBox" Margin="0,0,0,10" Text="{Binding OpenUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <CheckBox Content="{wpf:Text SmartText.EditorMatchCase}" IsChecked="{Binding MatchCase, Mode=TwoWay}" Margin="0,0,0,6"/>
+                    <CheckBox IsChecked="{Binding DigitLookAlikes, Mode=TwoWay}" Margin="0,0,0,12">
+                        <TextBlock Text="{wpf:Text SmartText.EditorDigitLookAlikes}" TextWrapping="Wrap"/>
+                    </CheckBox>
+                    <Label Content="{wpf:Text SmartText.EditorTest}" Target="{Binding ElementName=TestBox}" Padding="0" Margin="0,0,0,3"/>
+                    <TextBox x:Name="TestBox" MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             Text="{Binding TestText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding TestResult}" TextWrapping="Wrap" Margin="0,4,0,0" wpf:LiveRegion.Mode="Polite"/>
+                    <TextBlock Text="{Binding Problems}" TextWrapping="Wrap" Margin="0,4,0,0" wpf:LiveRegion.Mode="Polite"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"
+                               Visibility="{Binding ShowProblems, Converter={StaticResource VisibleWhenTrue}}"/>
+                </StackPanel>
             </ScrollViewer>
         </DockPanel>
     </Border>

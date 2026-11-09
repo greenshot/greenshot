@@ -67,6 +67,7 @@ public sealed class SmartTextPatternViewModel : INotifyPropertyChanged
     private string _validate;
     private string _openUrl;
     private string _testText = string.Empty;
+    private bool _showProblems;
 
     public SmartTextPatternViewModel(SmartTextPattern definition, string originalId)
     {
@@ -85,6 +86,8 @@ public sealed class SmartTextPatternViewModel : INotifyPropertyChanged
         _normalize = _original.Normalize ?? SmartTextNormalize.None;
         _validate = _original.Validate ?? SmartTextValidate.None;
         _openUrl = _original.OpenUrl;
+        // A pattern which is changed shows what is wrong with it at once
+        _showProblems = originalId != null;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -161,6 +164,16 @@ public sealed class SmartTextPatternViewModel : INotifyPropertyChanged
 
     public bool HasProblems => Problems.Length > 0;
 
+    /// <summary>The problems are shown once the user typed a pattern or tried to save, not for a new empty pattern</summary>
+    public bool ShowProblems => _showProblems && HasProblems;
+
+    /// <summary>Show the problems from now on, e.g. after Save</summary>
+    public void RevealProblems()
+    {
+        _showProblems = true;
+        OnPropertyChanged(nameof(ShowProblems));
+    }
+
     /// <summary>What the pattern finds in the test text</summary>
     public string TestResult
     {
@@ -234,9 +247,11 @@ public sealed class SmartTextPatternViewModel : INotifyPropertyChanged
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return;
         field = value;
+        if (propertyName == nameof(Pattern)) _showProblems = true;
         OnPropertyChanged(propertyName);
         OnPropertyChanged(nameof(Problems));
         OnPropertyChanged(nameof(HasProblems));
+        OnPropertyChanged(nameof(ShowProblems));
         OnPropertyChanged(nameof(TestResult));
     }
 
