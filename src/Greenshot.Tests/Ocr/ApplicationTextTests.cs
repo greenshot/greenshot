@@ -133,6 +133,19 @@ namespace Greenshot.Tests.Ocr
         }
 
         [Fact]
+        public void AddApplicationText_AfterTheOcr_ReplacesTheOcrLinesUnderIt()
+        {
+            var details = new CaptureDetails();
+            details.Features.Add(new DetectedOcrLine(new NativeRect(2, 2, 190, 18), "exakt toxt", new List<OcrWordInfo>()));
+            details.Features.Add(new DetectedOcrLine(new NativeRect(0, 300, 200, 20), "text in an image", new List<OcrWordInfo>()));
+            var applicationLine = new DetectedOcrLine(new NativeRect(0, 0, 200, 20), "exact text", new List<OcrWordInfo>()) { Source = TextSource.UiAutomation };
+
+            OcrLines.AddApplicationText(details, new IOcrLineFeature[] { applicationLine }, details.CropArea);
+
+            Assert.Equal(new[] { "text in an image", "exact text" }, OcrLines.Find(details).Select(line => line.Text));
+        }
+
+        [Fact]
         public void AddRecognized_KeepsOcrLinesOnlyOutsideTheApplicationText()
         {
             var details = new CaptureDetails();

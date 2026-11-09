@@ -222,6 +222,28 @@ namespace Greenshot.Base.Interfaces.Ocr
         }
 
         /// <summary>
+        /// Add the text read from an application; OCR lines which are already there under it give way (the application was slower than the OCR)
+        /// </summary>
+        /// <param name="captureDetails">the details of the capture, which keep the lines</param>
+        /// <param name="lines">the lines of the application</param>
+        /// <param name="cropAreaWhenFound">the crop area of the capture when the screen was captured, see <see cref="ICaptureDetails.AddFeatures"/></param>
+        public static void AddApplicationText(ICaptureDetails captureDetails, IReadOnlyList<IOcrLineFeature> lines, NativeRect cropAreaWhenFound)
+        {
+            lock (captureDetails.Features)
+            {
+                // The lines are moved to the crop area of now, those outside it aren't added
+                captureDetails.AddFeatures(lines, cropAreaWhenFound);
+                var added = lines.Where(line => captureDetails.Features.Contains(line)).Select(line => line.Bounds).ToList();
+                int replaced = captureDetails.Features.RemoveAll(feature =>
+                    feature is IOcrLineFeature { Source: TextSource.Ocr } ocrLine && added.Any(text => ocrLine.Box.IntersectsWith(text)));
+                if (replaced > 0)
+                {
+                    Log.Info($"Application text replaced {replaced} OCR lines");
+                }
+            }
+        }
+
+        /// <summary>
         /// The OCR lines the capture has now, empty when there are none
         /// </summary>
         public static List<IOcrLineFeature> Find(ICaptureDetails captureDetails)

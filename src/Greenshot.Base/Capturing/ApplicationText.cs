@@ -31,6 +31,7 @@ using Dapplo.Windows.Enums;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
 
@@ -48,8 +49,14 @@ namespace Greenshot.Base.Capturing
         /// <summary>In <see cref="ICaptureDetails.StartedProcessors"/> when the text of the applications is read for the capture</summary>
         public const string Processor = "ApplicationText";
 
-        /// <summary>The longest the applications get together, the OCR waits for them (a hanging application only costs this)</summary>
+        /// <summary>
+        /// The longest the OCR waits for the applications; a window which takes longer (a browser building its accessibility tree on the
+        /// first request) still adds its text when it comes, in place of the OCR lines under it
+        /// </summary>
         public static readonly TimeSpan MaxWait = TimeSpan.FromSeconds(2);
+
+        /// <summary>The longest a window gets for its text, a hanging application only costs this in the background</summary>
+        public static readonly TimeSpan MaxRead = TimeSpan.FromSeconds(15);
 
         /// <summary>The windows read, from the top: below that the windows are mostly covered</summary>
         private const int MaxWindows = 8;
@@ -98,12 +105,10 @@ namespace Greenshot.Base.Capturing
             captureDetails.ProcessingTask = captureDetails.ProcessingTask != null ? Task.WhenAll(captureDetails.ProcessingTask, task) : task;
         }
 
-        private static async Task ReadAsync(ICaptureDetails captureDetails, NativeRect captureBounds, IReadOnlyList<IntPtr> handles,
+        private static Task ReadAsync(ICaptureDetails captureDetails, NativeRect captureBounds, IReadOnlyList<IntPtr> handles,
             IReadOnlyList<NativeRect> windows, NativeRect cropAreaWhenFound)
         {
-            using var timeout = new CancellationTokenSource(MaxWait);
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            var reads = new List<Task<List<IOcrLineFeature>>>();
+            var reads = new List<Task>();
             for (int i = 0; i < windows.Count && reads.Count < MaxWindows; i++)
             {
                 var area = windows[i].Intersect(captureBounds);
@@ -111,52 +116,59 @@ namespace Greenshot.Base.Capturing
                 {
                     continue;
                 }
-                reads.Add(ReadWindowAsync(handles[i], area, captureBounds, windows.Take(i).ToList(), timeout.Token));
+                reads.Add(ReadWindowAsync(captureDetails, handles[i], area, captureBounds, windows.Take(i).ToList(), cropAreaWhenFound));
             }
-
-            var lines = new List<IOcrLineFeature>();
-            foreach (var read in reads)
-            {
-                try
-                {
-                    lines.AddRange(await read.ConfigureAwait(false));
-                }
-                catch (OperationCanceledException)
-                {
-                    Log.Info("A window didn't give its text in time, the OCR reads it");
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("A window didn't give its text, the OCR reads it", ex);
-                }
-            }
-
-            Log.Info($"Read {lines.Count} lines of application text from {reads.Count} windows in {watch.ElapsedMilliseconds} ms");
-            if (lines.Count == 0)
-            {
-                return;
-            }
-            // Cropped to the selection in the meantime: only what is in the selection is added
-            captureDetails.AddFeatures(lines, cropAreaWhenFound);
-            if (captureDetails is CaptureDetails concreteDetails)
-            {
-                concreteDetails.NotifyFeaturesChanged();
-            }
+            Log.Info($"Reading the application text of {reads.Count} windows");
+            // The OCR waits at most MaxWait, the windows which take longer add their text later
+            return Task.WhenAny(Task.WhenAll(reads), Task.Delay(MaxWait));
         }
 
-        private static async Task<List<IOcrLineFeature>> ReadWindowAsync(IntPtr handle, NativeRect area, NativeRect captureBounds,
-            IReadOnlyList<NativeRect> windowsAbove, CancellationToken cancellationToken)
+        private static async Task ReadWindowAsync(ICaptureDetails captureDetails, IntPtr handle, NativeRect area, NativeRect captureBounds,
+            IReadOnlyList<NativeRect> windowsAbove, NativeRect cropAreaWhenFound)
         {
-            var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, area, null, null, cancellationToken).ConfigureAwait(false);
-            if (snapshot == null || snapshot.RemoteDisplay != RemoteDisplayKinds.None)
+            // The program (not the text) says which window is slow or gives nothing
+            string program = handle.ToString();
+            try
             {
-                Log.Info($"Window {handle} is a remote display ({snapshot?.RemoteDisplay}), the OCR reads it");
-                // A remote desktop only shows pixels here: the OCR reads them
-                return new List<IOcrLineFeature>();
+                program = InteropWindowFactory.CreateFor(handle).GetProcessName() ?? program;
             }
-            var lines = ToLines(snapshot.Lines, captureBounds, windowsAbove);
-            Log.Debug($"Window {handle}: {snapshot.Lines.Count} lines, {lines.Count} visible in the capture, complete: {snapshot.IsComplete}");
-            return lines;
+            catch (Exception ex)
+            {
+                Log.Debug("No program name for the window", ex);
+            }
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            using var timeout = new CancellationTokenSource(MaxRead);
+            try
+            {
+                var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, area, null, null, timeout.Token).ConfigureAwait(false);
+                if (snapshot == null || snapshot.RemoteDisplay != RemoteDisplayKinds.None)
+                {
+                    // A remote desktop only shows pixels here: the OCR reads them
+                    Log.Info($"{program}: remote display ({snapshot?.RemoteDisplay}), the OCR reads it");
+                    return;
+                }
+                var lines = ToLines(snapshot.Lines, captureBounds, windowsAbove);
+                Log.Info($"{program}: {lines.Count} lines of application text ({snapshot.Lines.Count} read, complete: {snapshot.IsComplete}) in {watch.ElapsedMilliseconds} ms");
+                if (lines.Count == 0)
+                {
+                    return;
+                }
+                // Cropped to the selection in the meantime: only what is in the selection is added; OCR lines under it give way
+                OcrLines.AddApplicationText(captureDetails, lines, cropAreaWhenFound);
+                if (captureDetails is CaptureDetails concreteDetails)
+                {
+                    concreteDetails.NotifyFeaturesChanged();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Info($"{program}: no application text after {watch.ElapsedMilliseconds} ms, the OCR reads it");
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"{program}: no application text, the OCR reads it", ex);
+            }
         }
 
         /// <summary>
