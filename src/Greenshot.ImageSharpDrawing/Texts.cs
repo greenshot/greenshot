@@ -120,8 +120,7 @@ namespace Greenshot.ImageSharpDrawing
                         if (turn is Matrix3x2 transform)
                         {
                             // The shadow falls the same way as that of an element which isn't turned
-                            context.SetDrawingTransform(transform * Matrix3x2.CreateTranslation(offset, offset));
-                            DrawIn(context, box, text, resolved, Painting.Black(alpha), horizontal, vertical);
+                            DrawIn(context, box, text, resolved, Painting.Black(alpha), horizontal, vertical, transform * Matrix3x2.CreateTranslation(offset, offset));
                         }
                         else
                         {
@@ -129,8 +128,7 @@ namespace Greenshot.ImageSharpDrawing
                         }
                     }
                 }
-                context.SetDrawingTransform(turn ?? Matrix3x2.Identity);
-                DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical);
+                DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical, turn);
             });
         }
 
@@ -168,10 +166,10 @@ namespace Greenshot.ImageSharpDrawing
         }
 
         /// <summary>
-        /// The text wrapped in the box and placed in it, cut off at the box
+        /// The text wrapped in the box and placed in it, cut off at the box; turned, the letters are cut off at the box, then turned
         /// </summary>
         private static void DrawIn(IImageProcessingContext context, Rectangle box, string text, Font font, Color color, TextPlacement horizontal,
-            TextPlacement vertical)
+            TextPlacement vertical, Matrix3x2? turn = null)
         {
             // The editor (Graphics.DrawString) leaves 1/6 em at both sides of the lines
             float padding = font.Size / 6;
@@ -203,6 +201,14 @@ namespace Greenshot.ImageSharpDrawing
                 }
             };
             var clip = new RectangularPolygon(box.X, box.Y, box.Width, box.Height);
+            if (turn is Matrix3x2 transform)
+            {
+                // Not with Clip and the drawing transform: ImageSharp.Drawing 1.0 draws nothing when the turned clip reaches past the image
+                var inBox = new ShapeOptions { ClippingOperation = ClippingOperation.Intersection };
+                var letters = TextBuilder.GenerateGlyphs(text, options).Select(letter => letter.Clip(inBox, clip).Transform(transform));
+                context.Fill(color, new PathCollection(letters));
+                return;
+            }
             context.Clip(clip, inside => inside.DrawText(options, text, color));
         }
 

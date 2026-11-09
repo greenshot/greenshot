@@ -135,5 +135,39 @@ namespace Greenshot.Tests.ImageSharpDrawing
 
             Assert.True(inside > 0);
         }
+
+        [Fact]
+        public void Text_TurnedPastTheEdgeOfTheImage_IsDrawnLikeUpright()
+        {
+            if (!SystemFonts.Families.GetEnumerator().MoveNext())
+            {
+                // No font to draw with
+                return;
+            }
+
+            // The box is wider than the image is high: turned, it reaches past the top and the bottom
+            using var upright = new Image<Rgba32>(60, 60);
+            using var turned = new Image<Rgba32>(60, 60);
+            var box = new Rectangle(-10, 22, 80, 16);
+            Texts.Draw(upright, ImageValues.Srgb, box, "IIII", new TextFont("Arial", 12), Red, TextPlacement.Center, TextPlacement.Center);
+            Texts.Draw(turned, ImageValues.Srgb, box, "IIII", new TextFont("Arial", 12), Red, TextPlacement.Center, TextPlacement.Center, turn: QuarterTurn);
+
+            static int Count(Image<Rgba32> image)
+            {
+                int count = 0;
+                for (int y = 0; y < image.Height; y++)
+                {
+                    for (int x = 0; x < image.Width; x++)
+                    {
+                        count += image[x, y].A > 0 ? 1 : 0;
+                    }
+                }
+
+                return count;
+            }
+
+            Assert.True(Count(upright) > 0);
+            Assert.InRange(Count(turned), Count(upright) * 9 / 10, Count(upright) * 11 / 10);
+        }
     }
 }
