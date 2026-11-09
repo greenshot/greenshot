@@ -41,6 +41,9 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Greenshot.ImageSharpDrawing\Greenshot.ImageSharpDrawing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="Greenshot" />
   </ItemGroup>
   <ItemGroup>

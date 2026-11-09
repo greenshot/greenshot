@@ -25,7 +25,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The pictures of the editor (ImageContainer with its shadow, IconContainer, the bitmaps of SVG, metafile and emoji elements) drawn with ImageSharp

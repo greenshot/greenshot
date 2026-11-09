@@ -25,7 +25,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// How much of each pixel a shape covers, drawn anti-aliased by ImageSharp: the base of drawing a shape into an image of any pixel type

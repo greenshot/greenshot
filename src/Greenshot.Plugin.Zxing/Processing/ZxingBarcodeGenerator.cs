@@ -224,7 +224,7 @@ namespace Greenshot.Plugin.Zxing.Processing
         /// <param name="values">The values of the image (for an HDR image linear light)</param>
         /// <param name="layout">The layout</param>
         /// <param name="place">Where the barcode goes on the image</param>
-        public static void Draw(SixLabors.ImageSharp.Image image, Greenshot.Base.ImageSharpDrawing.ImageValues values, BarcodeLayout layout, SixLabors.ImageSharp.Rectangle place)
+        public static void Draw(SixLabors.ImageSharp.Image image, Greenshot.ImageSharpDrawing.ImageValues values, BarcodeLayout layout, SixLabors.ImageSharp.Rectangle place)
         {
             if (image == null || values == null || layout == null || place.Width <= 0 || place.Height <= 0)
             {
@@ -249,7 +249,7 @@ namespace Greenshot.Plugin.Zxing.Processing
                         : new SixLabors.ImageSharp.Drawing.RectangularPolygon(x, y, width, height);
                     // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the modules are anti-aliased the
                     // same way as in its bitmap
-                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(shape));
+                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, Greenshot.ImageSharpDrawing.Painting.OnPixelCenters(shape));
                 }
             });
         }

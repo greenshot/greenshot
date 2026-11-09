@@ -29,7 +29,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The ends of a line which have an arrow head (ArrowContainer.ArrowHeadCombination)

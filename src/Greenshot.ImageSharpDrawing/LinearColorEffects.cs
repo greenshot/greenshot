@@ -25,7 +25,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.Effects
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The color effects and filters of the editor (grayscale, invert, adjust, remove transparency, highlighter) as ImageSharp processing on

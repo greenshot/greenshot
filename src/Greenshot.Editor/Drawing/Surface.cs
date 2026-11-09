@@ -56,6 +56,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Http;
+using Greenshot.ImageSharpDrawing;
 
 namespace Greenshot.Editor.Drawing
 {

@@ -26,7 +26,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The captured mouse cursor drawn with ImageSharp into an image of any pixel type

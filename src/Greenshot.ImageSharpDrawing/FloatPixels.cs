@@ -26,7 +26,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.Effects
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// ImageSharp processing which mixes pixels (resize, blur) for HDR images: done on float pixels (RgbaVector) with the values as they are.

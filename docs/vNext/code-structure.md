@@ -60,6 +60,7 @@ Also kept as they are: the plugin classes (`…Plugin`, recipe requirements matc
 | `Greenshot/Shell` | Start (`GreenshotApplication`), the shell which composes the services and owns the shutdown (`GreenshotShell`), the tray icon and its WPF menu |
 | `Greenshot.Base/Recipes` | `Pipeline`, `Contracts`, `Sources`, `Triggers`, `Expressions` |
 | `Greenshot.Base/Wpf` | Shared WPF helpers, styles, `Views`, `ViewModels`, the themed menus (`ThemedMenu`) and the destination picker |
+| `Greenshot.ImageSharpDrawing` | Own project (netstandard2.0, ImageSharp only, no System.Drawing or Windows API): drawing the elements on any pixel type, also HDR (shapes, lines, texts, speech bubbles, cursors, pictures, cut and torn edges), and the linear color effects. `Greenshot.Base/ImageSharpDrawing` keeps what needs System.Drawing (`GdiPaths`, `ImageSharpStep`) |
 | `Greenshot.Editor/Views` | WPF windows of the editor (the editor itself is still WinForms in `Forms`) |
 | `Greenshot.Editor/Tabs` | The tabs of the editor window: `EditorTab` (one capture, the `IImageEditor`), the tab strip and dragging tabs between windows |
 | `Greenshot.Plugin.*` | Root: the plugin class, its configuration and language interfaces. `Destinations`, `Recipes` (steps), `Views`, `Api` (the web service client and its entities), `Images`; Jira also `Monitoring`, Zxing `Drawing` (barcode container) and `Processing` (detection, generation), Stamps `Library` (the stamps folder) and `Editor` (its editor menu entry) |
