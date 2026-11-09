@@ -422,6 +422,23 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task Install_OfACatalogVersionThisGreenshotCantUse_ShowsItsErrorsAndNothingToApprove()
+        {
+            const string id = "catalog_invalid";
+            var broken = CreateCatalogRecipe(id).AddNode(new RecipeNodeConfig { Id = "gone", StepType = "NoSuchStepAnyMore" });
+            broken.Flow.AddTransition("clip", "gone");
+            await WithCatalogAsync(broken, (request, cancellationToken) => throw new InvalidOperationException("No approval for a recipe which can't be used"),
+                async (catalog, directory, messages) =>
+                {
+                    Assert.Equal(RecipeCatalogInstallOutcome.Refused, await RecipeCatalogInstaller.InstallAsync(id));
+                    string message = Assert.Single(messages);
+                    Assert.Contains("1.2.0", message);
+                    Assert.Contains("NoSuchStepAnyMore", message);
+                    Assert.False(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+                });
+        }
+
+        [Fact]
         public async Task GetInstalled_OnlyKnowsUsedFilesInTheCatalogDirectory()
         {
             await WithCatalogAsync(CreateCatalogRecipe("catalog_place"), (request, cancellationToken) => Task.FromResult<ApprovalResult>(null), (catalog, directory, messages) =>
