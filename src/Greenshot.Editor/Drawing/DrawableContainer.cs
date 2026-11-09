@@ -363,12 +363,13 @@ namespace Greenshot.Editor.Drawing
             return true;
         }
 
+        /// <summary>
+        /// A double click (or Enter) on the selected element: shows its properties in the Selection panel and moves the keyboard
+        /// there. An element with an action of its own overrides it, e.g. the text is edited.
+        /// </summary>
         public virtual void OnDoubleClick()
         {
-            if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler handler)
-            {
-                handler.OnDoubleClick(this);
-            }
+            InternalParent?.RequestProperties();
         }
 
         /// <summary>

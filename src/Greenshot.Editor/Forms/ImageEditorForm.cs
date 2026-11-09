@@ -1357,19 +1357,6 @@ namespace Greenshot.Editor.Forms
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
-            try
-            {
-                var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
-                foreach (var plugin in editorPlugins)
-                {
-                    plugin.InitializeEditor(this, pluginToolStripMenuItem, () => _surface);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Error initializing editor plugins", ex);
-            }
-
             AddPanelMenuItems(pluginToolStripMenuItem);
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
         }

@@ -175,7 +175,12 @@ namespace Greenshot.Plugin.Zxing.Processing
                     }
                     else
                     {
-                        modules.Add(new BarcodeModule(new RectangleF(px, py, scaleX, scaleY), false));
+                        // Edges on whole pixels, shared with the next module: squares and bars touch without a lighter seam, at every size
+                        float left = (float)Math.Round(px);
+                        float top = (float)Math.Round(py);
+                        float right = (float)Math.Round((x + 1) * scaleX);
+                        float bottom = (float)Math.Round((y + 1) * scaleY);
+                        modules.Add(new BarcodeModule(new RectangleF(left, top, right - left, bottom - top), false));
                     }
                 }
             }
@@ -195,7 +200,6 @@ namespace Greenshot.Plugin.Zxing.Processing
             using (var g = Graphics.FromImage(bmp))
             {
                 g.Clear(layout.Back);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
                 using (var brush = new SolidBrush(layout.Fore))
                 {
@@ -203,10 +207,13 @@ namespace Greenshot.Plugin.Zxing.Processing
                     {
                         if (module.Round)
                         {
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                             g.FillEllipse(brush, module.Area);
                         }
                         else
                         {
+                            // On whole pixels: anti-aliased edges of two touching squares would leave a lighter line between them
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                             g.FillRectangle(brush, module.Area);
                         }
                     }
@@ -240,19 +247,84 @@ namespace Greenshot.Plugin.Zxing.Processing
                     new SixLabors.ImageSharp.Drawing.RectangularPolygon(place.X, place.Y, place.Width, place.Height));
                 foreach (var module in layout.Modules)
                 {
+                    if (!module.Round)
+                    {
+                        // Like the editor: squares and bars on whole pixels, edges shared with the next module, so they touch without a seam
+                        float left = (float)Math.Round(place.X + module.Area.Left * scaleX);
+                        float top = (float)Math.Round(place.Y + module.Area.Top * scaleY);
+                        float right = (float)Math.Round(place.X + module.Area.Right * scaleX);
+                        float bottom = (float)Math.Round(place.Y + module.Area.Bottom * scaleY);
+                        SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore,
+                            new SixLabors.ImageSharp.Drawing.RectangularPolygon(left, top, right - left, bottom - top));
+                        continue;
+                    }
                     float x = place.X + module.Area.X * scaleX;
                     float y = place.Y + module.Area.Y * scaleY;
                     float width = module.Area.Width * scaleX;
                     float height = module.Area.Height * scaleY;
-                    SixLabors.ImageSharp.Drawing.IPath shape = module.Round
-                        ? new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)
-                        : new SixLabors.ImageSharp.Drawing.RectangularPolygon(x, y, width, height);
-                    // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the modules are anti-aliased the
+                    // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the dots are anti-aliased the
                     // same way as in its bitmap
-                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(shape));
+                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore,
+                        Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)));
                 }
             });
         }
+
+        /// <summary>
+        /// The barcode format of the index in the format list of the barcode view (<see cref="Drawing.ZxingModel.FormatIndex"/>)
+        /// </summary>
+        public static BarcodeFormat MapFormatIndex(int index)
+        {
+            switch (index)
+            {
+                case 1: return BarcodeFormat.AZTEC;
+                case 2: return BarcodeFormat.DATA_MATRIX;
+                case 3: return BarcodeFormat.PDF_417;
+                case 4: return BarcodeFormat.CODE_128;
+                case 5: return BarcodeFormat.CODE_39;
+                case 6: return BarcodeFormat.CODE_93;
+                case 7: return BarcodeFormat.EAN_13;
+                case 8: return BarcodeFormat.EAN_8;
+                case 9: return BarcodeFormat.UPC_A;
+                case 10: return BarcodeFormat.UPC_E;
+                case 11: return BarcodeFormat.CODABAR;
+                case 12: return BarcodeFormat.ITF;
+                case 13: return BarcodeFormat.MSI;
+                case 14: return BarcodeFormat.PLESSEY;
+                default: return BarcodeFormat.QR_CODE;
+            }
+        }
+
+        /// <summary>
+        /// The index in the format list of the barcode view for the barcode format, see <see cref="MapFormatIndex"/>
+        /// </summary>
+        public static int MapFormatToIndex(BarcodeFormat format)
+        {
+            switch (format)
+            {
+                case BarcodeFormat.AZTEC: return 1;
+                case BarcodeFormat.DATA_MATRIX: return 2;
+                case BarcodeFormat.PDF_417: return 3;
+                case BarcodeFormat.CODE_128: return 4;
+                case BarcodeFormat.CODE_39: return 5;
+                case BarcodeFormat.CODE_93: return 6;
+                case BarcodeFormat.EAN_13: return 7;
+                case BarcodeFormat.EAN_8: return 8;
+                case BarcodeFormat.UPC_A: return 9;
+                case BarcodeFormat.UPC_E: return 10;
+                case BarcodeFormat.CODABAR: return 11;
+                case BarcodeFormat.ITF: return 12;
+                case BarcodeFormat.MSI: return 13;
+                case BarcodeFormat.PLESSEY: return 14;
+                default: return 0;
+            }
+        }
+
+        /// <summary>
+        /// A 2D code (square, may have rounded dots), else a 1D barcode
+        /// </summary>
+        public static bool Is2D(BarcodeFormat format)
+            => format == BarcodeFormat.QR_CODE || format == BarcodeFormat.AZTEC || format == BarcodeFormat.DATA_MATRIX || format == BarcodeFormat.PDF_417;
 
         /// <summary>
         /// Maps a format name string to a BarcodeFormat enum value.
