@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -32,6 +33,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
@@ -43,7 +45,9 @@ namespace Greenshot.Capturing.Tools
     /// </summary>
     public class TextCaptureTool : RegionCaptureTool
     {
+        private static readonly TimeSpan OcrHintDelay = TimeSpan.FromMilliseconds(300);
         private IOcrLineFeature _hoveredLine;
+        private Task _pendingOcr;
 
         public override CaptureMode Mode => CaptureMode.Text;
 
@@ -62,6 +66,12 @@ namespace Greenshot.Capturing.Tools
             _hoveredLine = null;
             // After the window is shown, the OCR can take a moment
             _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(EnsureOcr), DispatcherPriority.ContextIdle);
+        }
+
+        public override void Deactivate()
+        {
+            HideOcrHint();
+            base.Deactivate();
         }
 
         public override void OnMouseMove()
@@ -192,6 +202,7 @@ namespace Greenshot.Capturing.Tools
             if (processingTask != null && !processingTask.IsCompleted)
             {
                 // Already processing in the background, the features changed event redraws when finished
+                ShowOcrHintAsync(processingTask).FireAndLog("Showing the OCR hint");
                 return;
             }
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
@@ -202,6 +213,40 @@ namespace Greenshot.Capturing.Tools
             // Started on the UI thread: the OCR result is merged and the window redrawn there
             var ocrTask = RunOcrAsync(ocrProvider);
             captureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
+            ShowOcrHintAsync(ocrTask).FireAndLog("Showing the OCR hint");
+        }
+
+        /// <summary>
+        /// When the OCR takes longer than a moment, a panel says that the text is being read, until it is done
+        /// </summary>
+        private async Task ShowOcrHintAsync(Task ocr)
+        {
+            _pendingOcr = ocr;
+            var delay = Task.Delay(OcrHintDelay);
+            if (await Task.WhenAny(ocr, delay).ConfigureAwait(true) == delay && _pendingOcr == ocr && Host?.ActiveTool == this)
+            {
+                Host.ShowPanel(this, CreateOcrHint());
+            }
+            // Failures are handled where the OCR runs, here only its end counts
+            await Task.WhenAny(ocr).ConfigureAwait(true);
+            if (_pendingOcr == ocr)
+            {
+                HideOcrHint();
+            }
+        }
+
+        private void HideOcrHint()
+        {
+            _pendingOcr = null;
+            Host?.HidePanel(this);
+        }
+
+        private static FrameworkElement CreateOcrHint()
+        {
+            var panel = new StackPanel();
+            panel.Children.Add(new TextBlock { Text = Texts.Core.OcrRunning });
+            panel.Children.Add(new ProgressBar { IsIndeterminate = true, Height = 4, Margin = new Thickness(0, 6, 0, 0) });
+            return panel;
         }
 
         private async Task RunOcrAsync(IOcrProvider ocrProvider)
