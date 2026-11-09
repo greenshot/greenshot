@@ -175,7 +175,12 @@ namespace Greenshot.Plugin.Zxing.Processing
                     }
                     else
                     {
-                        modules.Add(new BarcodeModule(new RectangleF(px, py, scaleX, scaleY), false));
+                        // Edges on whole pixels, shared with the next module: squares and bars touch without a lighter seam, at every size
+                        float left = (float)Math.Round(px);
+                        float top = (float)Math.Round(py);
+                        float right = (float)Math.Round((x + 1) * scaleX);
+                        float bottom = (float)Math.Round((y + 1) * scaleY);
+                        modules.Add(new BarcodeModule(new RectangleF(left, top, right - left, bottom - top), false));
                     }
                 }
             }
@@ -195,7 +200,6 @@ namespace Greenshot.Plugin.Zxing.Processing
             using (var g = Graphics.FromImage(bmp))
             {
                 g.Clear(layout.Back);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
                 using (var brush = new SolidBrush(layout.Fore))
                 {
@@ -203,10 +207,13 @@ namespace Greenshot.Plugin.Zxing.Processing
                     {
                         if (module.Round)
                         {
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                             g.FillEllipse(brush, module.Area);
                         }
                         else
                         {
+                            // On whole pixels: anti-aliased edges of two touching squares would leave a lighter line between them
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                             g.FillRectangle(brush, module.Area);
                         }
                     }
@@ -240,16 +247,25 @@ namespace Greenshot.Plugin.Zxing.Processing
                     new SixLabors.ImageSharp.Drawing.RectangularPolygon(place.X, place.Y, place.Width, place.Height));
                 foreach (var module in layout.Modules)
                 {
+                    if (!module.Round)
+                    {
+                        // Like the editor: squares and bars on whole pixels, edges shared with the next module, so they touch without a seam
+                        float left = (float)Math.Round(place.X + module.Area.Left * scaleX);
+                        float top = (float)Math.Round(place.Y + module.Area.Top * scaleY);
+                        float right = (float)Math.Round(place.X + module.Area.Right * scaleX);
+                        float bottom = (float)Math.Round(place.Y + module.Area.Bottom * scaleY);
+                        SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore,
+                            new SixLabors.ImageSharp.Drawing.RectangularPolygon(left, top, right - left, bottom - top));
+                        continue;
+                    }
                     float x = place.X + module.Area.X * scaleX;
                     float y = place.Y + module.Area.Y * scaleY;
                     float width = module.Area.Width * scaleX;
                     float height = module.Area.Height * scaleY;
-                    SixLabors.ImageSharp.Drawing.IPath shape = module.Round
-                        ? new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)
-                        : new SixLabors.ImageSharp.Drawing.RectangularPolygon(x, y, width, height);
-                    // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the modules are anti-aliased the
+                    // Like the editor (GDI+ PixelOffsetMode.None, pixel middles on whole numbers): the edges of the dots are anti-aliased the
                     // same way as in its bitmap
-                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore, Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(shape));
+                    SixLabors.ImageSharp.Drawing.Processing.FillPathExtensions.Fill(context, fore,
+                        Greenshot.Base.ImageSharpDrawing.Painting.OnPixelCenters(new SixLabors.ImageSharp.Drawing.EllipsePolygon(x + width / 2, y + height / 2, width, height)));
                 }
             });
         }
