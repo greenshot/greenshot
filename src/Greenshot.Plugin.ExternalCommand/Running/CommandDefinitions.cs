@@ -60,8 +60,12 @@ namespace Greenshot.Plugin.ExternalCommand.Running
 
         private static readonly Lazy<string> PaintPath = new Lazy<string>(() => ExistingFile(() => PluginUtils.GetExePath("pbrush.exe")));
 
+        // The app id of Paint.NET from the Microsoft Store, which has no command-line name
+        private const string PaintDotNetAppId = "dotPDNLLC.paint.net_h55e3w7q8jbva!dotPDNLLC.paint.net";
+
         private static readonly Lazy<string> PaintDotNetPath = new Lazy<string>(() =>
-            ExistingFile(() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe")));
+            ExistingFile(() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Paint.NET\PaintDotNet.exe"))
+            ?? (WindowsAppLauncher.IsInstalled(PaintDotNetAppId) ? WindowsAppLauncher.ProgramOf(PaintDotNetAppId) : null));
 
         /// <summary>
         /// The configuration section, null when it isn't available (tests without the plugin's settings)
@@ -248,6 +252,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             var request = new CommandRequest
             {
                 Program = OutputTemplates.RenderCommand(definition.Program, scope, out string problem) ?? throw new ArgumentException(problem),
+                File = fullPath,
                 Arguments = RenderArguments(definition.Arguments, fullPath, scope),
                 Output = definition.RunInBackground ? CommandOutput.None : (CommandOutput)Enum.Parse(typeof(CommandOutput), definition.Output ?? nameof(CommandOutput.None), true),
                 ReadError = !definition.RunInBackground,

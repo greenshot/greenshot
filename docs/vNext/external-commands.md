@@ -29,7 +29,7 @@ The main part is what most commands need:
 | Field | What it is | Recipe parameter |
 |---|---|---|
 | Name | The name in the menus and in recipes; unique | `Command` |
-| Program | The program, e.g. `${user.localappdata}\Programs\tool.exe` ([variables.md](variables.md)). *Choose app...* lists the apps which open the image format ("Open with"), the programs Windows knows by name (App Paths) and the command-line names of Windows Apps (App Execution Aliases), with a search; *Browse...* picks any program. A Windows App without a command-line name can't be given a file and isn't listed | `Program` |
+| Program | The program, e.g. `${user.localappdata}\Programs\tool.exe` ([variables.md](variables.md)). *Choose app...* lists the apps which open the image format ("Open with"), the programs Windows knows by name (App Paths) and the command-line names of Windows Apps (App Execution Aliases), with a search; *Browse...* picks any program. A Windows App (Store/MSIX) which opens the image format is listed by its app id, see [Windows Apps](#windows-apps) | `Program` |
 | Arguments | Default `"${export.file}"`; nothing is quoted for you. A picked app gets the arguments of its open command. Greenshot saves the capture to a file only when the arguments (or the working folder, or the text on standard input) use `${export.file}` | `Arguments`, `File` (`New` or `None`) |
 | Image format | The format of the file and of the image on standard input | `Format` |
 | Run in background | Greenshot doesn't wait for the program to close, for an app which stays open like an image editor; what it prints isn't read. A picked app gets it | `RunInBackground` |
@@ -52,10 +52,19 @@ editor doesn't offer it; an imported command which has it keeps it and the edito
 Save checks the command like an imported file and tells what doesn't fit, e.g. a command in the background which should give
 a new image.
 
+## Windows Apps
+
+A Windows App (from the Microsoft Store or an MSIX package) often has no program path which stays the same: its folder
+changes with every update. Such an app is written as `shell:AppsFolder\<app id>`, e.g.
+`shell:AppsFolder\dotPDNLLC.paint.net_h55e3w7q8jbva!dotPDNLLC.paint.net`, the same as a shortcut to the app. Greenshot
+then gives Windows the file and asks it to open the file with that app, as "Open with" does. The app only gets the file:
+the command runs in the background, without standard input, output or exit code, and the arguments aren't used. A
+command file which asks for more can't be imported.
+
 ## Commands which come with Greenshot
 
-MS Paint and Paint.NET are there when they are installed. They can be exported (e.g. to change a copy and import it under
-another name) but not changed or removed. Deleting MS Paint or Paint.NET in Greenshot 1.3 (`DeletedBuildInCommands`) still
+MS Paint and Paint.NET are there when they are installed. Paint.NET from the Microsoft Store is found too. They can be
+exported (e.g. to change a copy and import it under another name) but not changed or removed. Deleting MS Paint or Paint.NET in Greenshot 1.3 (`DeletedBuildInCommands`) still
 hides it.
 
 ## The commands of Greenshot 1.3

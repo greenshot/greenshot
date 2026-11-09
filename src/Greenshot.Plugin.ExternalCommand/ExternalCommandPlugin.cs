@@ -73,6 +73,13 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
             return false;
         }
 
+        if (WindowsAppLauncher.AppIdOf(program) is { } appId)
+        {
+            if (WindowsAppLauncher.IsInstalled(appId)) return true;
+            Log.WarnFormat("The Windows App {0} of the command {1} isn't installed, the command is left out until the next start", appId, command.Name);
+            return false;
+        }
+
         if (!File.Exists(program) && PluginUtils.GetExePath(program) == null)
         {
             Log.WarnFormat("The program {0} of the command {1} isn't found, the command is left out until the next start", command.Program, command.Name);

@@ -28,6 +28,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 using log4net;
 
@@ -55,6 +56,9 @@ namespace Greenshot.Plugin.ExternalCommand.Running
     {
         /// <summary>The program, rendered (Command context)</summary>
         public string Program { get; set; }
+
+        /// <summary>The file of the capture, null when the command gets none; a Windows App gets only this</summary>
+        public string File { get; set; }
 
         /// <summary>The arguments, rendered (Argument context)</summary>
         public string Arguments { get; set; }
@@ -204,6 +208,13 @@ namespace Greenshot.Plugin.ExternalCommand.Running
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             if (string.IsNullOrWhiteSpace(request.Program)) throw new ArgumentException("No program to run", nameof(request));
+            if (WindowsAppLauncher.AppIdOf(request.Program) is { } appId)
+            {
+                // Like "Open with": the app gets the file, nothing is read back and Greenshot doesn't wait for it
+                if (string.IsNullOrEmpty(request.File)) throw new ArgumentException("A Windows App needs the file", nameof(request));
+                WindowsAppLauncher.OpenFile(appId, request.File);
+                return new CommandResult { ExitCode = 0 };
+            }
 
             bool readOutput = request.Output == CommandOutput.Text || request.Output == CommandOutput.Image;
             using var process = new Process();

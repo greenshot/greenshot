@@ -202,6 +202,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string ErrorValue { get; }
 
         /// <summary>
+        /// A Windows App only gets the file: it runs in the background, without input or output.
+        /// </summary>
+        string ErrorWindowsApp { get; }
+
+        /// <summary>
         /// The command couldn't be exported: {0}
         /// </summary>
         string ExportFailed { get; }

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.Base.Definitions;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Trust;
@@ -258,6 +259,48 @@ namespace Greenshot.Tests.ExternalCommand
             var definition = new CommandDefinition { Name = "A", Program = "a.exe", StandardInputText = "secret" };
             CommandKind.Check(definition);
             Assert.Null(definition.StandardInputText);
+        }
+
+        [Theory]
+        [InlineData(@"shell:AppsFolder\dotPDNLLC.paint.net_h55e3w7q8jbva!dotPDNLLC.paint.net", "dotPDNLLC.paint.net_h55e3w7q8jbva!dotPDNLLC.paint.net")]
+        [InlineData(@"SHELL:appsfolder\Family_abc!App", "Family_abc!App")]
+        [InlineData(@"shell:AppsFolder\Family_abc", null)]
+        [InlineData(@"shell:AppsFolder\!App", null)]
+        [InlineData(@"shell:AppsFolder\Family_abc!", null)]
+        [InlineData(@"shell:AppsFolder\Family abc!App", null)]
+        [InlineData(@"shell:AppsFolder\..\x!App", null)]
+        [InlineData(@"C:\Program Files\App\app.exe", null)]
+        [InlineData(null, null)]
+        public void WindowsApp_AppIdOfProgram(string program, string appId)
+        {
+            Assert.Equal(appId, WindowsAppLauncher.AppIdOf(program));
+        }
+
+        [Fact]
+        public void WindowsApp_ProgramOfAppId()
+        {
+            Assert.Equal(@"shell:AppsFolder\Family_abc!App", WindowsAppLauncher.ProgramOf("Family_abc!App"));
+            Assert.Null(WindowsAppLauncher.ProgramOf("Family_abc"));
+            Assert.Null(WindowsAppLauncher.ProgramOf(null));
+        }
+
+        [Fact]
+        public void Check_WindowsApp_RunsInTheBackground()
+        {
+            var definition = new CommandDefinition { Name = "Paint.NET", Program = @"shell:AppsFolder\Family_abc!App" };
+            CommandKind.Check(definition);
+            Assert.True(definition.RunInBackground);
+        }
+
+        [Theory]
+        [InlineData("Text", "None", "New")]
+        [InlineData("Image", "None", "New")]
+        [InlineData("None", "Text", "New")]
+        [InlineData("None", "None", "None")]
+        public void Check_WindowsApp_OnlyGetsTheFile(string standardInput, string output, string file)
+        {
+            var definition = new CommandDefinition { Name = "Paint.NET", Program = @"shell:AppsFolder\Family_abc!App", StandardInput = standardInput, Output = output, File = file };
+            Assert.Throws<DefinitionFileException>(() => CommandKind.Check(definition));
         }
 
         [Fact]

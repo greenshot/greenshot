@@ -26,6 +26,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Greenshot.Base.Core;
 using Greenshot.Base.Definitions;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Languages;
@@ -255,6 +256,17 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             if (!Is(definition.StandardInput, "Text"))
             {
                 definition.StandardInputText = null;
+            }
+
+            if (WindowsAppLauncher.IsAppProgram(definition.Program))
+            {
+                // A Windows App gets the file like "Open with": no input, nothing read back, Greenshot doesn't wait
+                if (!Is(definition.StandardInput, "None") || !Is(definition.Output, nameof(CommandOutput.None)) || Is(definition.File, "None"))
+                {
+                    throw new DefinitionFileException(Language.ErrorWindowsApp);
+                }
+
+                definition.RunInBackground = true;
             }
 
             if (definition.RunInBackground && (Is(definition.Output, nameof(CommandOutput.Image)) || Is(definition.Output, nameof(CommandOutput.File))))

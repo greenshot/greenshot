@@ -242,7 +242,14 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
             Name = app.Name;
         }
 
-        if (!HasRecipeOutput)
+        if (WindowsAppLauncher.IsAppProgram(app.Program))
+        {
+            // A Windows App only gets the file
+            StandardInput = CommandDefinitions.InputNone;
+            Afterwards = AfterNothing;
+            RunInBackground = true;
+        }
+        else if (!HasRecipeOutput)
         {
             Afterwards = AfterNothing;
             RunInBackground = true;

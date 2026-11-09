@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core;
 using Microsoft.Win32;
 
 namespace Greenshot.Plugin.ExternalCommand.Running
@@ -177,6 +178,7 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             {
                 using var key = Registry.ClassesRoot.OpenSubKey(className);
                 if (key == null) return null;
+                if (FromWindowsApp(key) is { } windowsApp) return windowsApp;
                 string command;
                 using (var commandKey = key.OpenSubKey(@"shell\open\command") ?? key.OpenSubKey(@"shell\edit\command"))
                 {
@@ -198,6 +200,19 @@ namespace Greenshot.Plugin.ExternalCommand.Running
                 Log.Debug($"Can't read the app {className}", ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// A Windows App (MSIX/Store) registers a class with its app id and no command string, it starts by its app id
+        /// </summary>
+        private static InstalledApp FromWindowsApp(RegistryKey key)
+        {
+            using var application = key.OpenSubKey("Application");
+            string program = WindowsAppLauncher.ProgramOf(application?.GetValue("AppUserModelID") as string);
+            if (program == null) return null;
+            string appId = WindowsAppLauncher.AppIdOf(program);
+            string name = Readable(application.GetValue("ApplicationName") as string) ?? Readable(key.GetValue(string.Empty) as string) ?? appId.Substring(appId.IndexOf('!') + 1);
+            return new InstalledApp(name, program, CommandDefinition.DefaultArguments);
         }
 
         private static IEnumerable<InstalledApp> AppPaths()
