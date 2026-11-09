@@ -62,7 +62,8 @@ public static class IconCache
         Image icon = null;
 
         // 1. Try loading from executable if path exists
-        string exePath = expanded;
+        // A Windows App (shell:AppsFolder\<app id>) has no program file, its logo comes from its package
+        string exePath = WindowsAppLauncher.IsAppProgram(expanded) ? null : expanded;
         if (!string.IsNullOrEmpty(exePath) && !File.Exists(exePath))
         {
             exePath = PluginUtils.GetExePath(exePath);

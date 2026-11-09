@@ -101,8 +101,16 @@ public static class WindowsAppLauncher
             var manager = (IApplicationActivationManager)new ApplicationActivationManager();
             try
             {
-                // "open": the verb of a file type association of every app
-                Check(manager.ActivateForFile(appId, items, "open", out uint processId), appId);
+                // "open": the verb of a file type association of every app. Only an app with the file activation contract (UWP) takes it
+                int result = manager.ActivateForFile(appId, items, "open", out uint processId);
+                if (result < 0)
+                {
+                    // A packaged desktop app (e.g. Paint.NET) gets the arguments of the activation on its command line, like its "Open with" command ("%1")
+                    Log.DebugFormat("{0} doesn't take the file activation (0x{1:X8}), starting it with the file as argument", appId, result);
+                    int launchResult = manager.ActivateApplication(appId, $"\"{file}\"", 0, out processId);
+                    Check(launchResult < 0 ? result : launchResult, appId);
+                }
+
                 Log.InfoFormat("Opened {0} with the Windows App {1} (process {2})", file, appId, processId);
                 return processId;
             }
