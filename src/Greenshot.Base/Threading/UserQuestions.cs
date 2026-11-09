@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using log4net;
@@ -83,8 +82,9 @@ namespace Greenshot.Base.Threading
         {
             try
             {
-                // The caller (e.g. the start) goes on, the questions follow when the UI thread is idle
-                if (Dispatcher.FromThread(Thread.CurrentThread) is { } dispatcher)
+                // The caller (e.g. the start) goes on, the questions follow when the UI thread is idle. Only the dispatcher of the
+                // application: another thread can have a dispatcher which doesn't run (e.g. one a test made), waiting on it never ends
+                if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && dispatcher.CheckAccess())
                 {
                     await dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
                 }

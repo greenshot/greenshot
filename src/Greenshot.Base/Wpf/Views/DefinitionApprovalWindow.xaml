@@ -55,7 +55,7 @@
                                     <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0"
                                              Background="Transparent" Padding="0" Margin="0,2,0,0"
                                              Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                                             AutomationProperties.Name="{Binding Label, FallbackValue=''}"/>
+                                             AutomationProperties.Name="{Binding Label, TargetNullValue=''}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

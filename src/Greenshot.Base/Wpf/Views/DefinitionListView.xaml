@@ -31,7 +31,7 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsOn, Mode=TwoWay}" VerticalAlignment="Center"
-                                          ToolTip="{Binding OnOffName}" AutomationProperties.Name="{Binding OnOffName, FallbackValue=''}"
+                                          ToolTip="{Binding OnOffName}" AutomationProperties.Name="{Binding OnOffName, TargetNullValue=''}"
                                           Visibility="{Binding CanTurnOnOff, Converter={StaticResource BoolToVis}}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
