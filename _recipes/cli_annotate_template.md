@@ -10,7 +10,7 @@
  "repository": "greenshot/greenshot-recipes",
  "recipe": {
   "id": "cli_annotate_template",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "name": "CLI Apply Template & Annotation",
   "summary": "Stamps a \"REVIEWED\" badge with the date on an image file and saves a copy next to it.",
   "kind": "recipe",
@@ -27,9 +27,9 @@
    "command-line",
    "annotation"
   ],
-  "sha256": "172e3741b156735f639ecc6dc7f747e3e4734eee11b2df4a308e77106e3936fa",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/cli_annotate_template/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/cli_annotate_template/README.md"
+  "sha256": "900f037faa8152abed21a4f1cc635e88b30427043321758b523a8832fdc08f6b",
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/5cbb67e3753556761ba67631168cca04913b6164/recipes/cli_annotate_template/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/5cbb67e3753556761ba67631168cca04913b6164/recipes/cli_annotate_template/README.md"
  }
 }
 ---

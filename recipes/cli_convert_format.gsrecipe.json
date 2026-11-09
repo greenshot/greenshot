@@ -57,8 +57,7 @@
       "name": "Load Source Image",
       "enabled": true,
       "parameters": {
-        "SourceType": "File",
-        "Filename": "${var.Filename}"
+        "SourceType": "File"
       }
     },
     {

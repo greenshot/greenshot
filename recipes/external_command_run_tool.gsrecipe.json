@@ -1,9 +1,9 @@
 {
   "$schema": "https://getgreenshot.org/schemas/recipe.schema.json",
   "version": "2.0",
-  "id": "external_command_optimize",
-  "name": "Region Snip with External Tool Optimization",
-  "description": "Interactive region snip that runs an external command to optimize the image and reloads it into the editor.",
+  "id": "external_command_run_tool",
+  "name": "Region Snip with Your Own Tool",
+  "description": "Interactive region snip that runs a program of your choice on the saved capture, then opens the editor.",
   "authors": [
     {
       "name": "Robin Krom",
@@ -29,9 +29,9 @@
     },
     {
       "triggerType": "ContextMenu",
-      "name": "Optimize and Edit",
+      "name": "Run Tool and Edit",
       "parameters": {
-        "MenuItemText": "Snip & Optimize Image",
+        "MenuItemText": "Snip & Run My Tool",
         "Group": "Recipes"
       }
     }
@@ -52,14 +52,14 @@
       }
     },
     {
-      "id": "optimize_cmd",
+      "id": "run_tool",
       "stepType": "ExternalCommand",
-      "name": "Run Image Optimizer",
+      "name": "Run Your Tool",
       "parameters": {
-        "CommandLine": "cmd.exe",
-        "Arguments": "/c echo Optimizing \"${export.file}\"",
-        "ReloadAfterExecution": false,
-        "OutputVariable": "opt_output"
+        "Program": "cmd.exe",
+        "Arguments": "/c echo Captured \"${export.file}\"",
+        "Output": "Text",
+        "ResultName": "tool"
       }
     },
     {
@@ -91,10 +91,10 @@
       },
       {
         "from": "select",
-        "to": "optimize_cmd"
+        "to": "run_tool"
       },
       {
-        "from": "optimize_cmd",
+        "from": "run_tool",
         "to": "feedback"
       },
       {

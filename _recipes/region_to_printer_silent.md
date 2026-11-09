@@ -28,8 +28,8 @@
    "printer"
   ],
   "sha256": "2a7af1c035aaca975c33b8a9d3eddbd9415ffe69bf41ac626b2b4523ed17a331",
-  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/region_to_printer_silent/recipe.gsrecipe.json",
-  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/d7a6386242af4cde3a261ceb182ceeeed43f3ee4/recipes/region_to_printer_silent/README.md"
+  "url": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/5cbb67e3753556761ba67631168cca04913b6164/recipes/region_to_printer_silent/recipe.gsrecipe.json",
+  "readme": "https://raw.githubusercontent.com/greenshot/greenshot-recipes/5cbb67e3753556761ba67631168cca04913b6164/recipes/region_to_printer_silent/README.md"
  }
 }
 ---
