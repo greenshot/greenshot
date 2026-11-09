@@ -473,13 +473,13 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// The title fixes Greenshot brings, by name: the regular expression and its replacement.
-        /// Edge puts an invisible zero width space between "Microsoft" and " Edge", and adds "and 12 more pages" and the profile name.
+        /// Edge adds "and 12 more pages" (in its language) and the profile name, see <see cref="EdgeWindowTitle"/>.
         /// </summary>
         internal static readonly IReadOnlyList<(string Name, string Matcher, string Replacer)> BuiltInTitleFixes = new[]
         {
             ("Firefox", " - Mozilla Firefox.*", string.Empty),
             ("Chrome", " - Google Chrome.*", string.Empty),
-            ("Edge", @"(?: and \d+ more pages?)?(?: - [^-]+)? - Microsoft\u200B? Edge.*", string.Empty),
+            ("Edge", EdgeWindowTitle.Matcher, string.Empty),
         };
 
         /// <summary>
