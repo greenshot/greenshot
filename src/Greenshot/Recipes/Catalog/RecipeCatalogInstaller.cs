@@ -77,6 +77,11 @@ namespace Greenshot.Recipes.Catalog
         internal static Func<string, CancellationToken, Task> ShowMessage { get; set; } = ShowMessageAsync;
 
         /// <summary>
+        /// Shows why the catalog can't be reached, true when the user wants to try again
+        /// </summary>
+        internal static Func<string, CancellationToken, Task<bool>> AskRetry { get; set; } = AskRetryAsync;
+
+        /// <summary>
         /// The directory of the recipes from the catalog; replaceable for tests
         /// </summary>
         internal static Func<string> DirectoryProvider { get; set; } = GetDefaultDirectory;
@@ -130,7 +135,23 @@ namespace Greenshot.Recipes.Catalog
             }
             try
             {
-                return await InstallCoreAsync(recipeId, cancellationToken).ConfigureAwait(false);
+                while (true)
+                {
+                    try
+                    {
+                        return await InstallCoreAsync(recipeId, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (RecipeCatalogException ex) when (ex.CanRetry)
+                    {
+                        // The catalog may only be away for a moment (e.g. a timeout at GitHub): the user can try again without a restart
+                        Log.WarnFormat("Couldn't reach the recipe catalog for '{0}': {1}", recipeId, ex.Message);
+                        if (!await AskRetry(ex.Message, cancellationToken).ConfigureAwait(false))
+                        {
+                            return RecipeCatalogInstallOutcome.Refused;
+                        }
+                        Log.InfoFormat("Trying again to install '{0}' from the recipe catalog.", recipeId);
+                    }
+                }
             }
             catch (RecipeCatalogException ex)
             {
@@ -558,6 +579,13 @@ namespace Greenshot.Recipes.Catalog
             {
                 ThemedMessageBox.Show(text, Texts.Recipe.CatalogMessageTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             }, cancellationToken);
+        }
+
+        private static Task<bool> AskRetryAsync(string text, CancellationToken cancellationToken)
+        {
+            return UiDispatcher.Current.InvokeAsync(() =>
+                ThemedMessageBox.ShowChoice(IntPtr.Zero, Texts.Recipe.CatalogMessageTitle, text, System.Windows.MessageBoxImage.Warning,
+                    new[] { Texts.Recipe.PickerRetry, Texts.Core.Cancel }, defaultIndex: 0, cancelIndex: 1) == 0, cancellationToken);
         }
 
         private static string GetDefaultDirectory()
