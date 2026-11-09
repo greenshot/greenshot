@@ -70,8 +70,6 @@ public partial class CommandSettingsView : UserControl
 
     private void Approve_Click(object sender, RoutedEventArgs e) => ApproveSelected();
 
-    private void Turn_Click(object sender, RoutedEventArgs e) => _viewModel.TurnSelected(on: _viewModel.CanTurnOnSelected);
-
     /// <summary>
     /// A command file added or changed outside Greenshot is only used after the user saw what it runs, like an import
     /// </summary>

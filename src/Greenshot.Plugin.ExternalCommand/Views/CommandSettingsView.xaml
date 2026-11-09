@@ -25,8 +25,6 @@
             <Button Content="{wpf:Text ExternalCommand.SettingsImport}" Click="Import_Click" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsApprove}" Click="Approve_Click" IsEnabled="{Binding CanApproveSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsEdit}" Click="Edit_Click" IsEnabled="{Binding CanEditSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
-            <!-- One button which says what it does for the selected command, the focus stays on it -->
-            <Button Content="{Binding TurnText}" Click="Turn_Click" IsEnabled="{Binding CanTurnSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsExport}" Click="Export_Click" IsEnabled="{Binding CanExportSelected}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,6,6"/>
             <Button Content="{wpf:Text ExternalCommand.SettingsDelete}" Click="Remove_Click" IsEnabled="{Binding CanRemoveSelected}" Style="{StaticResource LightErrorButtonStyle}" Margin="0,0,0,6"/>
         </WrapPanel>

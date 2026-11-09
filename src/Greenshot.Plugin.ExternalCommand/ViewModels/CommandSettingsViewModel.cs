@@ -74,33 +74,17 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanRemoveSelected));
             OnPropertyChanged(nameof(CanApproveSelected));
             OnPropertyChanged(nameof(BuiltInHint));
-            OnPropertyChanged(nameof(CanTurnOffSelected));
-            OnPropertyChanged(nameof(CanTurnOnSelected));
-            OnPropertyChanged(nameof(CanTurnSelected));
-            OnPropertyChanged(nameof(TurnText));
         }
     }
 
-    /// <summary>A command which can be read and is on, the built-in ones too</summary>
-    public bool CanTurnOffSelected => SelectedCommand?.IsReadable == true && !CommandDefinitions.IsTurnedOff(SelectedCommand.Name);
-
-    /// <summary>A command which was turned off</summary>
-    public bool CanTurnOnSelected => SelectedCommand?.IsReadable == true && CommandDefinitions.IsTurnedOff(SelectedCommand.Name);
-
-    public bool CanTurnSelected => CanTurnOffSelected || CanTurnOnSelected;
-
-    /// <summary>"Turn on" for a command which is off, else "Turn off"</summary>
-    public string TurnText => CanTurnOnSelected ? Language.SettingsTurnOn : Language.SettingsTurnOff;
-
     /// <summary>
-    /// Turn the selected command off or on: off it has no destination (from the menus and the destination settings) and recipes can't
-    /// use it, at once
+    /// The check box of a row: a command which is off has no destination (from the menus and the destination settings) and recipes
+    /// can't use it, at once
     /// </summary>
-    internal void TurnSelected(bool on)
+    private void Turn(DefinitionListItem item, bool on)
     {
-        if (on ? !CanTurnOnSelected : !CanTurnOffSelected) return;
-        string id = SelectedCommand.Id;
-        string name = SelectedCommand.Name;
+        string id = item.Id;
+        string name = item.Name;
         CommandDefinitions.SetTurnedOff(name, !on);
         if (on)
         {
@@ -112,8 +96,6 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
         }
 
         Log.InfoFormat("Turned the external command {0} {1}", name, on ? "on" : "off");
-        Refresh();
-        SelectedCommand = Commands.FirstOrDefault(item => item.Id == id);
     }
 
     /// <summary>A file which was added or changed outside Greenshot and can be read</summary>
@@ -150,13 +132,9 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     private DefinitionListItem ItemOf(StoredDefinition<CommandDefinition> stored, ImageSource icon)
     {
         bool readable = stored.Definition != null;
-        string description = DefinitionListItem.DescriptionOf(_store.Kind, stored, Language.NotApproved);
-        if (readable && CommandDefinitions.IsTurnedOff(stored.Name))
-        {
-            description = string.Format(Language.TurnedOff, description);
-        }
-
-        return new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, description, readable, icon, stored.IsBuiltIn, stored.IsApproved);
+        var item = new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, DefinitionListItem.DescriptionOf(_store.Kind, stored, Language.NotApproved),
+            readable, icon, stored.IsBuiltIn, stored.IsApproved);
+        return readable ? item.WithOnOff(!CommandDefinitions.IsTurnedOff(stored.Name), string.Format(Language.OfferAsDestination, stored.Name), Turn) : item;
     }
 
     /// <summary>

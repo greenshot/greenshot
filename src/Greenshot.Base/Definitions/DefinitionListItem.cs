@@ -31,6 +31,8 @@ namespace Greenshot.Base.Definitions;
 /// </summary>
 public sealed class DefinitionListItem
 {
+    private bool _isOn;
+
     /// <param name="id">the id in the store</param>
     /// <param name="name">the name, or the text for a definition which can't be read</param>
     /// <param name="description">what it does (<see cref="IDefinitionKind{T}.Describe"/>), null when it can't be read</param>
@@ -71,6 +73,46 @@ public sealed class DefinitionListItem
         string description = kind.Describe(stored.Definition);
         return stored.IsApproved ? description : string.Format(notApprovedFormat ?? "{0}", description);
     }
+
+    /// <summary>
+    /// Shows a check box in the row to turn the definition off and on, for a plugin which supports that
+    /// </summary>
+    /// <param name="isOn">the definition is on now</param>
+    /// <param name="checkBoxName">the name of the check box for a screen reader and its tooltip, e.g. "Offer Paint.NET as a destination"</param>
+    /// <param name="turned">called with the new state when the user changes the check box</param>
+    public DefinitionListItem WithOnOff(bool isOn, string checkBoxName, Action<DefinitionListItem, bool> turned)
+    {
+        _isOn = isOn;
+        OnOffName = checkBoxName ?? string.Empty;
+        _turned = turned ?? throw new ArgumentNullException(nameof(turned));
+        return this;
+    }
+
+    private Action<DefinitionListItem, bool> _turned;
+
+    /// <summary>
+    /// The row has a check box to turn the definition off and on
+    /// </summary>
+    public bool CanTurnOnOff => _turned != null;
+
+    /// <summary>
+    /// The definition is on: the check box of the row, a change goes to the plugin at once
+    /// </summary>
+    public bool IsOn
+    {
+        get => _isOn;
+        set
+        {
+            if (_isOn == value || _turned == null) return;
+            _isOn = value;
+            _turned(this, value);
+        }
+    }
+
+    /// <summary>
+    /// The name of the check box for a screen reader, also its tooltip
+    /// </summary>
+    public string OnOffName { get; private set; } = string.Empty;
 
     public string Id { get; }
 

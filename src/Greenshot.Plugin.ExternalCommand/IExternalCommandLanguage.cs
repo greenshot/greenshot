@@ -387,6 +387,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string NotApproved { get; }
 
         /// <summary>
+        /// Offer {0} as a destination
+        /// </summary>
+        string OfferAsDestination { get; }
+
+        /// <summary>
         /// This command gives back a new image or changes the file, which only a recipe uses. From the menu Greenshot doesn't read what it prints.
         /// </summary>
         string RecipeOutputHint { get; }
@@ -442,24 +447,9 @@ namespace Greenshot.Plugin.ExternalCommand
         string SettingsTitle { get; }
 
         /// <summary>
-        /// Turn off
-        /// </summary>
-        string SettingsTurnOff { get; }
-
-        /// <summary>
-        /// Turn on
-        /// </summary>
-        string SettingsTurnOn { get; }
-
-        /// <summary>
         /// A command with this name already exists. Please choose a different name.
         /// </summary>
         string TooltipDuplicateName { get; }
-
-        /// <summary>
-        /// Off, not a destination: {0}
-        /// </summary>
-        string TurnedOff { get; }
 
         /// <summary>
         /// (can't be read)

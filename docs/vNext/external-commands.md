@@ -7,7 +7,9 @@ command is a destination of its own ("External" + its name, like in Greenshot 1.
 ## The settings page
 
 Settings > Plugins > External command lists the commands of the `Commands` folder ([the file](#the-file)) with the program
-and its arguments.
+and its arguments. The check box of a row ("Offer ... as a destination") turns a command off and on, the built-in ones too: a
+command which is off has no destination, it isn't in the menus or in the destination settings, and a recipe step which
+names it fails. This applies at once and is kept in `DisabledCommands` of greenshot.ini.
 
 | Button | What it does |
 |---|---|
@@ -16,7 +18,6 @@ and its arguments.
 | Edit | Opens the editor (also with a double click) |
 | Export | Writes the command to a `.gscommand.json` file, to share it or to keep it |
 | Approve | Only for a command file which was added or changed outside Greenshot: shows the program, its arguments and the text it gets, and uses the command after you confirm (Greenshot asks the same when it starts) |
-| Turn off / Turn on | A command which is off has no destination: it isn't in the menus or in the destination settings, and a recipe step which names it fails. Also for the built-in commands. Kept in `DisabledCommands` of greenshot.ini, applies at once |
 | Delete | Removes the command |
 
 A changed or approved command is used at once. A new or removed command shows up in the menus after Greenshot is restarted. A command
