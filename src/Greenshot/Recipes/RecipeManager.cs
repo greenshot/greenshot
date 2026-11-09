@@ -951,6 +951,7 @@ namespace Greenshot.Recipes
                 byte[] bytes = File.ReadAllBytes(filePath);
                 string content = DecodeRecipeFile(bytes);
                 string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+                Log.InfoFormat("Loading the recipe file '{0}' ({1} bytes, SHA-256 {2}).", filePath, bytes.Length, contentHash);
                 if (IsExtensionContent(content))
                 {
                     // An automatic step: approved and used like a recipe of the file, but it changes other recipes
@@ -966,6 +967,7 @@ namespace Greenshot.Recipes
                     if (!valResult.IsValid)
                     {
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
+                        Log.WarnFormat("The recipe '{0}' {1} from '{2}' fails the checks: {3}", recipe.Id, recipe.Version, filePath, string.Join("; ", valResult.Errors));
                         if (interactiveApproval)
                         {
                             RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);

@@ -182,6 +182,7 @@ namespace Greenshot.Recipes.Catalog
             byte[] bytes = await client.GetRecipeFileAsync(entry, cancellationToken).ConfigureAwait(false);
             string content = RecipeManager.DecodeRecipeFile(bytes);
             string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+            Log.InfoFormat("Downloaded the recipe '{0}' {1} from the catalog ({2} bytes, SHA-256 {3}), checking it.", entry.Id, entry.Version, bytes.Length, contentHash);
             var parsed = Parse(content, entry.Id);
 
             var recipeManager = RecipeManager.Instance;
@@ -207,6 +208,13 @@ namespace Greenshot.Recipes.Catalog
                     // Installed, but this Greenshot can't use it (e.g. after a Greenshot update), and the catalog has nothing newer yet
                     throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogNoNewerVersion, entry.Name ?? entry.Id, entry.Version));
                 }
+            }
+            if (!parsed.Validation.IsValid)
+            {
+                // The catalog version itself doesn't pass the checks of this Greenshot: say so, its errors would look like the old ones
+                Log.WarnFormat("The recipe '{0}' {1} from the catalog doesn't work with this Greenshot: {2}", entry.Id, entry.Version, string.Join("; ", parsed.Validation.Errors));
+                throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogVersionInvalid, entry.Name ?? entry.Id, entry.Version) +
+                                                 "\n\n" + string.Join("\n", parsed.Validation.Errors.Select(e => "- " + e)));
             }
 
             var request = new RecipeApprovalRequest
