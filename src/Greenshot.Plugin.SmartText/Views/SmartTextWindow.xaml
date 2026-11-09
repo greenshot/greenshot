@@ -1,0 +1,191 @@
+<Window x:Class="Greenshot.Plugin.SmartText.Views.SmartTextWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text SmartText.WindowTitle}"
+        Width="980" Height="600"
+        MinWidth="560" MinHeight="360"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="True"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <wpf:ThemedTitleBar Grid.Row="0"/>
+
+            <!-- Filter by text and by kind -->
+            <DockPanel Grid.Row="1" Margin="14,10,14,6" LastChildFill="True">
+                <TextBox x:Name="FilterBox" DockPanel.Dock="Left" Width="200" Margin="0,0,10,0" VerticalAlignment="Center"
+                         Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="{wpf:Text SmartText.FilterAll}"
+                         Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibility}}"/>
+                <ItemsControl ItemsSource="{Binding Filters}" Focusable="False" VerticalAlignment="Center"
+                              Visibility="{Binding ShowFilters, Converter={StaticResource BoolToVisibility}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Content="{Binding Text}" GroupName="SmartTextFilter" Style="{StaticResource FilterChipRadioButtonStyle}"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}" Click="Filter_Click"
+                                         AutomationProperties.Name="{Binding Text, FallbackValue=''}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+
+            <Grid Grid.Row="2" Margin="14,0,14,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="2*" MinWidth="280"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- The capture with a numbered box per item; not a tab stop, the list has the same items -->
+                <Border Grid.Column="0" BorderThickness="1" Focusable="False"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                        AutomationProperties.Name="{wpf:Text SmartText.PreviewName}"
+                        Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibility}}">
+                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <Grid Width="{Binding PreviewWidth}" Height="{Binding PreviewHeight}">
+                            <Image Source="{Binding Preview}" Stretch="Fill"/>
+                            <ItemsControl ItemsSource="{Binding Items}" Focusable="False" IsTabStop="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                        <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Cursor="Hand" MouseLeftButtonDown="Box_MouseLeftButtonDown" ToolTip="{Binding AccessibleName}">
+                                            <Border x:Name="Box" Width="{Binding Width}" Height="{Binding Height}" BorderThickness="2" Margin="-3"
+                                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                                                    Background="Transparent"/>
+                                            <!-- The number: the color isn't the only cue -->
+                                            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-14,-14,0,0" CornerRadius="8" MinWidth="16" Padding="3,0"
+                                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}">
+                                                <TextBlock Text="{Binding Number}" FontSize="{wpf:FontSize 11}" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentForegroundBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                                                <Setter TargetName="Box" Property="BorderThickness" Value="4"/>
+                                                <Setter TargetName="Box" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=WarningBrush}"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Viewbox>
+                </Border>
+
+                <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" Focusable="False"/>
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox x:Name="ItemList" Grid.Row="0" Style="{StaticResource ThemeListBox}" ItemContainerStyle="{StaticResource ThemeListBoxItem}"
+                             ItemsSource="{Binding ItemsView}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                             AutomationProperties.Name="{wpf:Text SmartText.ListName}" HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             KeyDown="ItemList_KeyDown" MouseDoubleClick="ItemList_MouseDoubleClick"
+                             Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibility}}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="2,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" Focusable="False"
+                                              AutomationProperties.Name="{Binding AccessibleName, FallbackValue=''}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Number}" MinWidth="20" Margin="4,0,6,0" VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontSize="{wpf:FontSize 11}"
+                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                        <TextBlock Text="{Binding Value}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Value}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="3" Content="{Binding ActionText}" Style="{StaticResource SecondaryTextButtonStyle}" Margin="6,0,0,0"
+                                            ToolTip="{Binding ActionTarget}" Click="Action_Click" Focusable="False"
+                                            AutomationProperties.Name="{Binding ActionText, FallbackValue=''}"
+                                            Visibility="{Binding HasAction, Converter={StaticResource BoolToVisibility}}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Nothing found: say why, Copy all text stays -->
+                    <TextBlock x:Name="EmptyBlock" Grid.Row="0" Text="{Binding EmptyText}" TextWrapping="Wrap" Margin="0,8,0,0" Focusable="True"
+                               wpf:LiveRegion.Mode="Polite">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasItems}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- The value of the selected item: OCR may have misread it, F2 comes here -->
+                    <DockPanel Grid.Row="1" Margin="0,8,0,0" Visibility="{Binding HasSelectedItem, Converter={StaticResource BoolToVisibility}}">
+                        <Label DockPanel.Dock="Left" Content="{wpf:Text SmartText.ValueLabel}" Target="{Binding ElementName=ValueBox}" Padding="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="ValueBox" Text="{Binding SelectedItem.Value, UpdateSourceTrigger=PropertyChanged, FallbackValue=''}" KeyDown="ValueBox_KeyDown"/>
+                    </DockPanel>
+                    <TextBlock Grid.Row="2" Text="{wpf:Text SmartText.EditHint}" TextWrapping="Wrap" Margin="0,6,0,0" FontSize="{wpf:FontSize 11}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibility}}"/>
+                </Grid>
+            </Grid>
+
+            <DockPanel Grid.Row="3" Margin="14,4,14,14" LastChildFill="False">
+                <Button DockPanel.Dock="Left" Content="{wpf:Text SmartText.CopyAllText}" Style="{StaticResource SecondaryButtonStyle}" Click="CopyAllText_Click"
+                        IsEnabled="{Binding CanCopyAllText}"/>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding Status}" Margin="12,0,0,0" VerticalAlignment="Center" wpf:LiveRegion.Mode="Polite"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                <Button DockPanel.Dock="Right" Content="{wpf:Text SmartText.Close}" Style="{StaticResource SecondaryButtonStyle}" IsCancel="True" Margin="6,0,0,0"
+                        Click="Close_Click"/>
+                <Button DockPanel.Dock="Right" Content="{Binding PrimaryText}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanPick}"
+                        Click="Pick_Click" AutomationProperties.Name="{Binding PrimaryText, FallbackValue=''}"/>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

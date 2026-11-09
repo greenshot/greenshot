@@ -113,6 +113,7 @@ empty text). *Trusted* values may choose a folder or a program (see Where a text
 |---|---|
 | Text | `left(t, n)`, `right(t, n)`, `substring(t, start, length?)`, `replace(t, old, new)`, `lower(t)`, `upper(t)`, `trim(t)`, `padLeft(t, n, c?)`, `padRight(t, n, c?)`, `length(t)`, `contains(t, x)`, `startsWith(t, x)`, `endsWith(t, x)` |
 | Patterns | `match(t, pattern, group?)`, `replaceMatch(t, pattern, new)` (.NET regular expressions, 250 ms limit) |
+| Web addresses | `urlEncode(t)` (for a part of a web address, e.g. `https://crm.example.com/customers/${urlEncode(var.Found)}`) |
 | Paths | `fileName(p)`, `fileNameWithoutExtension(p)`, `extension(p)`, `folder(p)`; they never touch the disk |
 | Numbers | `round(n, digits?)`, `floor(n)`, `ceiling(n)`, `min(a, b)`, `max(a, b)`, `abs(n)` |
 | Date and time | `addDays(d, n)`, `addHours(d, n)`, `addMinutes(d, n)`, `isoWeek(d)`, `date(text, format)` |

@@ -63,6 +63,9 @@ namespace Greenshot.Tests.Recipes
             // Plugins are not services in the tests: register the ones the tests reference
             new Greenshot.Plugin.Zxing.ZxingPlugin().RegisterSteps(registry);
             registry.Register<Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep>(config => new Greenshot.Plugin.ExternalCommand.Recipes.ExternalCommandStep(config));
+            // Smart text registers its step only for beta testers, the tests check its contract always
+            registry.RegisterJsonTypes(Greenshot.Plugin.SmartText.Recipes.SmartTextStep.JsonTypes);
+            registry.Register<Greenshot.Plugin.SmartText.Recipes.SmartTextStep>(config => new Greenshot.Plugin.SmartText.Recipes.SmartTextStep(config));
             return registry;
         }
 

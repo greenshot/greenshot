@@ -33,8 +33,6 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
-using Greenshot.Base.Threading;
-using log4net;
 
 namespace Greenshot.Recipes.Steps
 {
@@ -43,10 +41,14 @@ namespace Greenshot.Recipes.Steps
     /// </summary>
     [StepInfo(WellKnownStepTypes.Ocr, "OCR", "Reads the text of the capture with OCR (Windows OCR). The text lines are kept with the capture, the text goes into the variable OcrText.", "Analysis")]
     [StepPayload(RawCapture = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Created)]
+    [StepParameter(LanguageParameter, ContractDataType.String, Description = "The OCR language, e.g. de-DE (default: the OCR language of the settings); an installed Windows OCR language")]
     [StepOutputVariable("OcrText", ContractDataType.String, "The text of the capture, one line per text line (also in Payload.ExtractedText)")]
     public class OcrStep : ICaptureStep
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(OcrStep));
+        /// <summary>
+        /// The OCR language of the step, also used by the steps which run OCR themselves
+        /// </summary>
+        public const string LanguageParameter = "Language";
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
@@ -66,7 +68,7 @@ namespace Greenshot.Recipes.Steps
             }
 
             context.State = CaptureFlowState.Processing;
-            context.Properties["OcrText"] = await ExtractTextAsync(context, cancellationToken).ConfigureAwait(false);
+            context.Properties["OcrText"] = await ExtractTextAsync(context, cancellationToken, Config.GetParameter<string>(LanguageParameter)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -74,59 +76,16 @@ namespace Greenshot.Recipes.Steps
         /// The lines OCR found while selecting are used, otherwise OCR runs now.
         /// Where the text goes (clipboard, stdout, ...) is up to the following steps.
         /// </summary>
-        internal static async Task<string> ExtractTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
+        /// <param name="context">the flow</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <param name="languageTag">the OCR language when OCR runs now, null: the setting</param>
+        internal static async Task<string> ExtractTextAsync(CaptureFlowContext context, CancellationToken cancellationToken, string languageTag = null)
         {
             var rawCapture = context.Payload?.RawCapture;
             var captureDetails = rawCapture?.CaptureDetails;
             if (captureDetails == null) return string.Empty;
 
-            if (captureDetails.ProcessingTask != null)
-            {
-                try
-                {
-                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Error waiting for the OCR started with the capture", ex);
-                }
-            }
-
-            List<IOcrLineFeature> ocrLines;
-            lock (captureDetails.Features)
-            {
-                ocrLines = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
-            }
-
-            if (!ocrLines.Any())
-            {
-                // OCR is optional (e.g. no Windows OCR language installed): without it there is simply no text
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-                if (ocrProvider != null && rawCapture.Image != null)
-                {
-                    try
-                    {
-                        var lines = await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false);
-                        if (lines != null && lines.Any())
-                        {
-                            lock (captureDetails.Features)
-                            {
-                                captureDetails.Features.AddRange(lines);
-                            }
-                            ocrLines = lines;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Failed to run OCR", ex);
-                    }
-                }
-            }
-
+            var ocrLines = await OcrLines.GetAsync(captureDetails, rawCapture.Image, languageTag, cancellationToken).ConfigureAwait(false);
             if (ocrLines == null || !ocrLines.Any()) return string.Empty;
 
             var bounds = rawCapture.Image != null

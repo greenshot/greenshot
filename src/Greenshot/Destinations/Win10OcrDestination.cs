@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +26,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Threading;
-using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
@@ -37,8 +34,6 @@ namespace Greenshot.Destinations
     /// </summary>
     public class Win10OcrDestination : DestinationBase
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
-
         public override string Designation { get; } = "Windows10OCR";
 
         /// <summary>
@@ -52,54 +47,8 @@ namespace Greenshot.Destinations
         /// </summary>
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var captureDetails = request.Metadata;
-            // Background processing (OCR started with the capture) is awaited, not blocked on
-            if (captureDetails?.ProcessingTask != null)
-            {
-                try
-                {
-                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (System.OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (System.Exception ex)
-                {
-                    Log.Error("Error waiting for background OCR processing in destination", ex);
-                }
-            }
-
-            List<IOcrLineFeature> ocrFeatures = new List<IOcrLineFeature>();
-            if (captureDetails != null)
-            {
-                lock (captureDetails.Features)
-                {
-                    ocrFeatures = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
-                }
-            }
-
-            if (!ocrFeatures.Any())
-            {
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-                if (ocrProvider != null)
-                {
-                    using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
-                    var ocrLines = await ocrProvider.DoOcrAsync(lease.Image).ConfigureAwait(false);
-                    if (ocrLines != null && ocrLines.Any())
-                    {
-                        if (captureDetails != null)
-                        {
-                            lock (captureDetails.Features)
-                            {
-                                captureDetails.Features.AddRange(ocrLines);
-                            }
-                        }
-
-                        ocrFeatures = ocrLines;
-                    }
-                }
-            }
+            // The lines found with the capture, else the OCR runs now on the rendered capture
+            var ocrFeatures = await OcrLines.GetAsync(request.Metadata, request.Source, null, cancellationToken).ConfigureAwait(false);
 
             // Check if we found text
             if (ocrFeatures.Any())

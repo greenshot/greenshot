@@ -46,5 +46,6 @@
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Stamps\Greenshot.Plugin.Stamps.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.SmartText\Greenshot.Plugin.SmartText.csproj" />
   </ItemGroup>
 </Project>

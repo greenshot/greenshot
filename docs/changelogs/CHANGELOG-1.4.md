@@ -186,6 +186,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Renamed OCR feature for clarity
 - By @danrhodes
 
+**Smart text** (beta)
+- Pick web addresses, e-mail addresses, phone numbers, IBANs, dates and your own patterns from the text of a capture, instead of copying all of it
+- Open a web address, write an e-mail or call a number from the window; own patterns can be shared as files
+- Recipes can use the found value, e.g. copy a customer number from a window with one hotkey
+
 **Plugin Start**
 - The tray icon is there before the plugins start, they no longer hold up the start of Greenshot
 - A plugin which fails to start is switched off completely, it no longer leaves destinations behind which don't work
