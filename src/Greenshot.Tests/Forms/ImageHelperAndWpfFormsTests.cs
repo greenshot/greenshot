@@ -417,12 +417,12 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ZxingEditorWindow_InstantiatesAndPopulatesModelCorrectly()
+        public void ZxingEditorWindow_ShowsAndChangesTheModel()
         {
-            Assert.Equal(ZXing.BarcodeFormat.QR_CODE, ZxingEditorWindow.MapFormatIndex(0));
-            Assert.Equal(ZXing.BarcodeFormat.CODE_128, ZxingEditorWindow.MapFormatIndex(4));
-            Assert.Equal(0, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.QR_CODE));
-            Assert.Equal(4, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.CODE_128));
+            Assert.Equal(ZXing.BarcodeFormat.QR_CODE, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatIndex(0));
+            Assert.Equal(ZXing.BarcodeFormat.CODE_128, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatIndex(4));
+            Assert.Equal(0, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatToIndex(ZXing.BarcodeFormat.QR_CODE));
+            Assert.Equal(4, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatToIndex(ZXing.BarcodeFormat.CODE_128));
 
             Exception threadEx = null;
             var thread = new Thread(() =>
@@ -444,17 +444,15 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(window);
                     Assert.Equal("Edit QR / Barcode", window.Title);
 
-                    // Verify payload generation for WiFi
-                    string payload = window.GetPayloadString();
-                    Assert.Contains("WIFI:S:TestWifi;T:WPA;P:SecretPassword;;", payload);
+                    // The fields show the model, the payload is the WiFi one
+                    Assert.Equal("TestWifi", window.ViewModel.WifiSsid);
+                    Assert.True(window.ViewModel.RoundedDots);
+                    Assert.Equal(2, window.ViewModel.Margin);
+                    Assert.Contains("WIFI:S:TestWifi;T:WPA;P:SecretPassword;;", window.ViewModel.Payload);
 
-                    // Test model populate
-                    var updatedModel = new ZxingModel();
-                    window.PopulateModel(updatedModel);
-                    Assert.Equal("TestWifi", updatedModel.WifiSsid);
-                    Assert.Equal("SecretPassword", updatedModel.WifiPassword);
-                    Assert.True(updatedModel.RoundedDots);
-                    Assert.Equal(2, updatedModel.Margin);
+                    // A change of a field is in the model
+                    window.ViewModel.WifiPassword = "Other";
+                    Assert.Equal("Other", model.WifiPassword);
 
                     // Test theme toggle
                     bool initialTheme = WpfThemeHelper.IsDarkMode;

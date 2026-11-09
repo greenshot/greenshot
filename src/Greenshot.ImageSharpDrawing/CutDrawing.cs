@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Greenshot.Base.Effects;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing;
@@ -30,7 +29,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// Cutting parts out of an image, drawn by ImageSharp for any pixel type: the torn edges and cut marks of the editor. The pixels are mixed by

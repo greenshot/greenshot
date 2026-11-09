@@ -82,6 +82,13 @@ namespace Greenshot.Plugin.Zxing.Drawing
         {
         }
 
+        /// <summary>
+        /// No shadow: the barcode is drawn as it is (see Draw), a shadow setting would do nothing
+        /// </summary>
+        protected override void InitializeFields()
+        {
+        }
+
         public void RegenerateBarcode()
         {
             var bmp = ZxingBarcodeGenerator.Render(CreateLayout());
@@ -109,7 +116,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 targetH = side;
             }
 
-            var format = Views.ZxingEditorWindow.MapFormatIndex(_model.FormatIndex);
+            var format = ZxingBarcodeGenerator.MapFormatIndex(_model.FormatIndex);
             string payload = _model.GetPayloadString();
             if (string.IsNullOrEmpty(payload))
             {
@@ -131,7 +138,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
         /// The barcode drawn with ImageSharp (e.g. in an HDR file), from the same layout as the bitmap of the editor (see Draw): filling its
         /// place, a 2D code which isn't as big as its place in the middle of it. Without a model (nothing to lay out) its bitmap as a picture.
         /// </summary>
-        public Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> CreateHdrDrawing(Dapplo.Windows.Common.Structs.NativePoint origin)
+        public Action<SixLabors.ImageSharp.Image, Greenshot.ImageSharpDrawing.ImageValues> CreateHdrDrawing(Dapplo.Windows.Common.Structs.NativePoint origin)
         {
             var layout = CreateLayout();
             if (layout == null)
@@ -155,7 +162,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 return (image, values) =>
                 {
                     using var picture = SixLabors.ImageSharp.Image.LoadPixelData<SixLabors.ImageSharp.PixelFormats.Rgba32>(pixels, pictureWidth, pictureHeight);
-                    Greenshot.Base.ImageSharpDrawing.Pictures.Draw(image, values, picture, bounds, true, false);
+                    Greenshot.ImageSharpDrawing.Pictures.Draw(image, values, picture, bounds, true, false);
                 };
             }
             var place = Is2D && (Width != layout.Width || Height != layout.Height)
@@ -167,18 +174,6 @@ namespace Greenshot.Plugin.Zxing.Drawing
         public new ScaleOptions GetScaleOptions()
         {
             return Is2D ? ScaleOptions.Rational : ScaleOptions.Default;
-        }
-
-        public override void OnDoubleClick()
-        {
-            if (_model != null)
-            {
-                _model.OnDoubleClick(this);
-            }
-            else
-            {
-                base.OnDoubleClick();
-            }
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)

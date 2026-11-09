@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Hdr;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;

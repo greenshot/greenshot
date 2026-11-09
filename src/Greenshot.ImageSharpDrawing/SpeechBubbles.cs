@@ -25,7 +25,7 @@ using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace Greenshot.Base.ImageSharpDrawing
+namespace Greenshot.ImageSharpDrawing
 {
     /// <summary>
     /// The speech bubble of the editor (SpeechbubbleContainer) drawn with ImageSharp into an image of any pixel type: the box with round corners and
