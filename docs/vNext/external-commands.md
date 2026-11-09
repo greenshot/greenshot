@@ -16,6 +16,7 @@ and its arguments.
 | Edit | Opens the editor (also with a double click) |
 | Export | Writes the command to a `.gscommand.json` file, to share it or to keep it |
 | Approve | Only for a command file which was added or changed outside Greenshot: shows the program, its arguments and the text it gets, and uses the command after you confirm (Greenshot asks the same when it starts) |
+| Turn off / Turn on | A command which is off has no destination: it isn't in the menus or in the destination settings, and a recipe step which names it fails. Also for the built-in commands. Kept in `DisabledCommands` of greenshot.ini, applies at once |
 | Delete | Removes the command |
 
 A changed or approved command is used at once. A new or removed command shows up in the menus after Greenshot is restarted. A command
@@ -57,16 +58,18 @@ a new image.
 A Windows App (from the Microsoft Store or an MSIX package) often has no program path which stays the same: its folder
 changes with every update. Such an app is written as `shell:AppsFolder\<app id>`, e.g.
 `shell:AppsFolder\dotPDNLLC.paint.net_h55e3w7q8jbva!dotPDNLLC.paint.net`, the same as a shortcut to the app. Greenshot
-then gives Windows the file and asks it to open the file with that app, as "Open with" does. The app only gets the file:
-the command runs in the background, without standard input, output or exit code, and the arguments aren't used. A
-command file which asks for more can't be imported.
+then asks Windows to open the file with that app, as "Open with" does; a packaged desktop app (like Paint.NET), which
+doesn't take that, is started with the file as its argument. The app only gets the file: Windows starts it, so Greenshot
+has no process to wait for or read from. The command always runs in the background (the editor shows the check box set
+and locked), without standard input, output or exit code, and the arguments aren't used. A command file which asks for
+more can't be imported.
 
 ## Commands which come with Greenshot
 
 MS Paint and Paint.NET are there when they are installed. Paint.NET from the Microsoft Store is found too. As in Greenshot
 1.3 they get the file the capture was saved to, so what is changed in the editor stays; a capture which wasn't saved is
 handed over as a copy, which Greenshot removes later. They can be
-exported (e.g. to change a copy and import it under another name) but not changed or removed. Deleting MS Paint or Paint.NET in Greenshot 1.3 (`DeletedBuildInCommands`) still
+exported (e.g. to change a copy and import it under another name) or turned off, but not changed or removed. Deleting MS Paint or Paint.NET in Greenshot 1.3 (`DeletedBuildInCommands`) still
 hides it.
 
 ## The commands of Greenshot 1.3

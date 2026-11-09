@@ -117,7 +117,33 @@ namespace Greenshot.Plugin.ExternalCommand.Running
         /// <summary>
         /// The definition with the name, null when there is none
         /// </summary>
-        public static CommandDefinition Find(string name) => string.IsNullOrWhiteSpace(name) ? null : CreateStore().Find(name)?.Definition;
+        public static CommandDefinition Find(string name) => string.IsNullOrWhiteSpace(name) || IsTurnedOff(name) ? null : CreateStore().Find(name)?.Definition;
+
+        /// <summary>
+        /// The user turned the command off: it gets no destination and recipes can't use it
+        /// </summary>
+        public static bool IsTurnedOff(string name) =>
+            !string.IsNullOrWhiteSpace(name) && Config?.DisabledCommands?.Contains(name, StringComparer.OrdinalIgnoreCase) == true;
+
+        /// <summary>
+        /// Turn the command off or on, kept in greenshot.ini at once
+        /// </summary>
+        public static void SetTurnedOff(string name, bool turnedOff)
+        {
+            var config = Config;
+            if (config == null || string.IsNullOrWhiteSpace(name)) return;
+            var names = (config.DisabledCommands ?? new List<string>())
+                .Where(entry => !string.IsNullOrWhiteSpace(entry) && !string.Equals(entry, name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (turnedOff)
+            {
+                names.Add(name);
+            }
+
+            config.DisabledCommands = names;
+            config.MarkChanged();
+            IniConfigRegistry.Get()?.Save();
+        }
 
         /// <summary>
         /// MS Paint and Paint.NET, when they are installed and weren't deleted in Greenshot 1.3

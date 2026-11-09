@@ -115,8 +115,28 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
     public string Program
     {
         get => Definition.Program;
-        set => Set(() => Definition.Program = value);
+        set
+        {
+            Set(() => Definition.Program = value, nameof(IsWindowsApp));
+            if (IsWindowsApp && !RunInBackground)
+            {
+                RunInBackground = true;
+            }
+
+            OnPropertyChanged(nameof(CanChangeRunInBackground));
+            OnPropertyChanged(nameof(RunInBackgroundHint));
+        }
     }
+
+    /// <summary>
+    /// The program is a Windows App (shell:AppsFolder\&lt;app id&gt;): Windows starts it with the file, Greenshot gets no process
+    /// to wait for or to read from, so it always runs in the background
+    /// </summary>
+    public bool IsWindowsApp => WindowsAppLauncher.IsAppProgram(Definition.Program);
+
+    public bool CanChangeRunInBackground => !IsWindowsApp;
+
+    public string RunInBackgroundHint => IsWindowsApp ? Language.LabelRunInBackgroundWindowsApp : Language.LabelRunInBackgroundHint;
 
     public string Arguments
     {
@@ -284,6 +304,8 @@ public sealed class CommandEditorViewModel : INotifyPropertyChanged
 
         return definition;
     }
+
+    private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     private void Set(Action change, string alsoChanged = null, [CallerMemberName] string propertyName = null)
     {

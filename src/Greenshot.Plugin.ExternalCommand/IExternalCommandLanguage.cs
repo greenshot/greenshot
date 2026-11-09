@@ -87,7 +87,7 @@ namespace Greenshot.Plugin.ExternalCommand
         string ApproveTitle { get; }
 
         /// <summary>
-        /// {0} comes with Greenshot: it can be exported, but not changed or removed.
+        /// {0} comes with Greenshot: it can be exported or turned off, but not changed or removed.
         /// </summary>
         string BuiltInHint { get; }
 
@@ -195,6 +195,11 @@ namespace Greenshot.Plugin.ExternalCommand
         /// The program can't be used: {0}
         /// </summary>
         string ErrorProgram { get; }
+
+        /// <summary>
+        /// The command {0} is turned off in the external command settings.
+        /// </summary>
+        string ErrorTurnedOff { get; }
 
         /// <summary>
         /// {0} can't be "{1}".
@@ -327,6 +332,11 @@ namespace Greenshot.Plugin.ExternalCommand
         string LabelRunInBackgroundHint { get; }
 
         /// <summary>
+        /// A Windows App always runs in the background: Windows starts it with the file, Greenshot can't wait for it or read what it prints.
+        /// </summary>
+        string LabelRunInBackgroundWindowsApp { get; }
+
+        /// <summary>
         /// Send to the program's input (standard input)
         /// </summary>
         string LabelStandardInput { get; }
@@ -432,9 +442,24 @@ namespace Greenshot.Plugin.ExternalCommand
         string SettingsTitle { get; }
 
         /// <summary>
+        /// Turn off
+        /// </summary>
+        string SettingsTurnOff { get; }
+
+        /// <summary>
+        /// Turn on
+        /// </summary>
+        string SettingsTurnOn { get; }
+
+        /// <summary>
         /// A command with this name already exists. Please choose a different name.
         /// </summary>
         string TooltipDuplicateName { get; }
+
+        /// <summary>
+        /// Off, not a destination: {0}
+        /// </summary>
+        string TurnedOff { get; }
 
         /// <summary>
         /// (can't be read)

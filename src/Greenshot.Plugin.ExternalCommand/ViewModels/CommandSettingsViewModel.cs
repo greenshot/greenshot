@@ -74,7 +74,46 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanRemoveSelected));
             OnPropertyChanged(nameof(CanApproveSelected));
             OnPropertyChanged(nameof(BuiltInHint));
+            OnPropertyChanged(nameof(CanTurnOffSelected));
+            OnPropertyChanged(nameof(CanTurnOnSelected));
+            OnPropertyChanged(nameof(CanTurnSelected));
+            OnPropertyChanged(nameof(TurnText));
         }
+    }
+
+    /// <summary>A command which can be read and is on, the built-in ones too</summary>
+    public bool CanTurnOffSelected => SelectedCommand?.IsReadable == true && !CommandDefinitions.IsTurnedOff(SelectedCommand.Name);
+
+    /// <summary>A command which was turned off</summary>
+    public bool CanTurnOnSelected => SelectedCommand?.IsReadable == true && CommandDefinitions.IsTurnedOff(SelectedCommand.Name);
+
+    public bool CanTurnSelected => CanTurnOffSelected || CanTurnOnSelected;
+
+    /// <summary>"Turn on" for a command which is off, else "Turn off"</summary>
+    public string TurnText => CanTurnOnSelected ? Language.SettingsTurnOn : Language.SettingsTurnOff;
+
+    /// <summary>
+    /// Turn the selected command off or on: off it has no destination (from the menus and the destination settings) and recipes can't
+    /// use it, at once
+    /// </summary>
+    internal void TurnSelected(bool on)
+    {
+        if (on ? !CanTurnOnSelected : !CanTurnOffSelected) return;
+        string id = SelectedCommand.Id;
+        string name = SelectedCommand.Name;
+        CommandDefinitions.SetTurnedOff(name, !on);
+        if (on)
+        {
+            ExternalCommandPlugin.AddDestination(_store.GetAll().FirstOrDefault(stored => stored.Id == id && stored.IsApproved)?.Definition);
+        }
+        else
+        {
+            ExternalCommandPlugin.RemoveDestination(name);
+        }
+
+        Log.InfoFormat("Turned the external command {0} {1}", name, on ? "on" : "off");
+        Refresh();
+        SelectedCommand = Commands.FirstOrDefault(item => item.Id == id);
     }
 
     /// <summary>A file which was added or changed outside Greenshot and can be read</summary>
@@ -111,8 +150,13 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     private DefinitionListItem ItemOf(StoredDefinition<CommandDefinition> stored, ImageSource icon)
     {
         bool readable = stored.Definition != null;
-        return new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, DefinitionListItem.DescriptionOf(_store.Kind, stored, Language.NotApproved),
-            readable, icon, stored.IsBuiltIn, stored.IsApproved);
+        string description = DefinitionListItem.DescriptionOf(_store.Kind, stored, Language.NotApproved);
+        if (readable && CommandDefinitions.IsTurnedOff(stored.Name))
+        {
+            description = string.Format(Language.TurnedOff, description);
+        }
+
+        return new DefinitionListItem(stored.Id, readable ? stored.Name : Language.Unreadable, description, readable, icon, stored.IsBuiltIn, stored.IsApproved);
     }
 
     /// <summary>
@@ -205,6 +249,14 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
             string newId = _store.Add(definition);
             if (originalId != null && originalId != newId)
             {
+                // A renamed command stays turned off
+                string originalName = _store.GetAll().FirstOrDefault(stored => stored.Id == originalId)?.Name;
+                if (CommandDefinitions.IsTurnedOff(originalName))
+                {
+                    CommandDefinitions.SetTurnedOff(originalName, false);
+                    CommandDefinitions.SetTurnedOff(definition.Name, true);
+                }
+
                 _store.Remove(originalId);
             }
 
@@ -276,7 +328,13 @@ public sealed class CommandSettingsViewModel : INotifyPropertyChanged
     {
         if (!CanRemoveSelected) return;
         string id = SelectedCommand.Id;
+        string name = SelectedCommand.IsReadable ? SelectedCommand.Name : null;
         Write(() => _store.Remove(id));
+        if (CommandDefinitions.IsTurnedOff(name))
+        {
+            CommandDefinitions.SetTurnedOff(name, false);
+        }
+
         Refresh();
     }
 

@@ -41,6 +41,7 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         OutputToClipboardCommand ??= new Dictionary<string, bool>();
         UriToClipboardCommand ??= new Dictionary<string, bool>();
         DeletedBuildInCommands ??= new List<string>();
+        DisabledCommands ??= new List<string>();
     }
 
     public void MarkChanged() => MarkAsDirty();

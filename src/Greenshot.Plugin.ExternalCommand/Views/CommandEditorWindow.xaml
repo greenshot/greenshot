@@ -70,8 +70,8 @@
                         <ComboBox x:Name="FormatBox" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding Formats}" DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id" SelectedValue="{Binding Format, Mode=TwoWay}"/>
                         <CheckBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4,0,0"
-                                  IsChecked="{Binding RunInBackground, Mode=TwoWay}" Content="{wpf:Text ExternalCommand.LabelRunInBackground}"/>
-                        <TextBlock Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Text="{wpf:Text ExternalCommand.LabelRunInBackgroundHint}" TextWrapping="Wrap" Margin="0,2,0,8"
+                                  IsChecked="{Binding RunInBackground, Mode=TwoWay}" IsEnabled="{Binding CanChangeRunInBackground}" Content="{wpf:Text ExternalCommand.LabelRunInBackground}"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RunInBackgroundHint}" TextWrapping="Wrap" Margin="0,2,0,8"
                                    FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                         <Label Grid.Row="7" Content="{wpf:Text ExternalCommand.LabelAfterwards}" Target="{Binding ElementName=AfterwardsBox}" Margin="0,0,12,6"/>
                         <ComboBox x:Name="AfterwardsBox" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2"

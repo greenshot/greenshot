@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Greenshot.Plugin.ExternalCommand.Running;
 using Greenshot.Plugin.ExternalCommand.ViewModels;
 using Xunit;
@@ -56,6 +57,40 @@ namespace Greenshot.Tests.ExternalCommand
         public void OpenCommand_WithoutTheFileOrAProgram_IsNotAnApp(string command)
         {
             Assert.False(InstalledApps.TryParseOpenCommand(command, out _, out _));
+        }
+
+        [Fact]
+        public void WindowsApp_AlwaysRunsInTheBackground()
+        {
+            var editor = new CommandEditorViewModel(new CommandDefinition { Name = "A", Program = "a.exe" }, null);
+            Assert.True(editor.CanChangeRunInBackground);
+            editor.RunInBackground = false;
+
+            editor.Program = @"shell:AppsFolder\Family_abc!App";
+            Assert.True(editor.RunInBackground);
+            Assert.False(editor.CanChangeRunInBackground);
+
+            editor.Program = "a.exe";
+            Assert.True(editor.CanChangeRunInBackground);
+        }
+
+        [Fact]
+        public void TurnedOff_CommandIsNotFound()
+        {
+            var config = CommandDefinitions.Config;
+            Assert.NotNull(config);
+            var before = config.DisabledCommands;
+            try
+            {
+                config.DisabledCommands = new List<string> { "Turned Off Test Command" };
+                Assert.True(CommandDefinitions.IsTurnedOff("turned off test command"));
+                Assert.False(CommandDefinitions.IsTurnedOff("Another command"));
+                Assert.Null(CommandDefinitions.Find("Turned Off Test Command"));
+            }
+            finally
+            {
+                config.DisabledCommands = before;
+            }
         }
 
         [Fact]

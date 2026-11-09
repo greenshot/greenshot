@@ -112,7 +112,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     private static IEnumerable<IDestination> CreateDestinations()
     {
         return CommandDefinitions.CreateStore().GetReadable()
-            .Where(CanRun)
+            .Where(command => !CommandDefinitions.IsTurnedOff(command.Name) && CanRun(command))
             .Select(command => (IDestination)new ExternalCommandDestination(command, readsSettings: true))
             .ToList();
     }
@@ -149,10 +149,24 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IConfigurablePlugin, IRec
     /// </summary>
     internal static void AddDestination(CommandDefinition command)
     {
-        if (command != null && CanRun(command))
+        if (command != null && !CommandDefinitions.IsTurnedOff(command.Name) && CanRun(command)
+            && !SimpleServiceProvider.Current.GetAllInstances<IDestination>().Any(destination => destination.Designation == ExternalCommandDestination.DesignationOf(command.Name)))
         {
             SimpleServiceProvider.Current.AddService<IDestination>(new ExternalCommandDestination(command, readsSettings: true));
         }
+    }
+
+    /// <summary>
+    /// A command which was turned off: its destination goes at once, from the menus and the destination settings
+    /// </summary>
+    internal static void RemoveDestination(string name)
+    {
+        string designation = ExternalCommandDestination.DesignationOf(name);
+        var destinations = SimpleServiceProvider.Current.GetAllInstances<IDestination>().OfType<ExternalCommandDestination>()
+            .Where(destination => destination.Designation == designation)
+            .Cast<IDestination>()
+            .ToList();
+        SimpleServiceProvider.Current.RemoveService(destinations);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -34,6 +34,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
@@ -126,6 +127,11 @@ namespace Greenshot.Plugin.ExternalCommand.Recipes
         public CommandDefinition ResolveCommand()
         {
             string commandName = Parameter("Command");
+            if (CommandDefinitions.IsTurnedOff(commandName))
+            {
+                throw new ArgumentException(string.Format(Texts.Get<IExternalCommandLanguage>().ErrorTurnedOff, commandName));
+            }
+
             var named = CommandDefinitions.Find(commandName);
             if (commandName != null && named == null)
             {

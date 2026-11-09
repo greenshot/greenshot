@@ -101,6 +101,9 @@ public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
     [Description("The built-in commands (MS Paint, Paint.NET) which were deleted in Greenshot 1.3: they aren't offered.")]
     List<string> DeletedBuildInCommands { get; set; }
 
+    [Description("The commands (by name, the built-in ones too) which are turned off: they get no destination and recipes can't use them.")]
+    List<string> DisabledCommands { get; set; }
+
     /// <summary>
     /// Mark the section as changed after the dictionaries were changed.
     /// Implemented in <see cref="ExternalCommandConfigurationImpl"/>.
