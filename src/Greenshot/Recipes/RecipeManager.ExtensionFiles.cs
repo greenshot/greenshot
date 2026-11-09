@@ -85,6 +85,7 @@ namespace Greenshot.Recipes
             if (!validation.IsValid)
             {
                 foreach (var error in validation.Errors) result.AddError($"[{extension.Id ?? "unknown"}]: {error}");
+                Log.WarnFormat("The automatic step '{0}' {1} from '{2}' fails the checks: {3}", extension.Id, extension.Version, filePath, string.Join("; ", validation.Errors));
                 if (interactiveApproval)
                 {
                     RecipeApprovalWindow.ShowValidationError(filePath, validation, extension.AsRecipeView());

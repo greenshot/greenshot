@@ -182,6 +182,7 @@ namespace Greenshot.Recipes.Catalog
             byte[] bytes = await client.GetRecipeFileAsync(entry, cancellationToken).ConfigureAwait(false);
             string content = RecipeManager.DecodeRecipeFile(bytes);
             string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+            Log.InfoFormat("Downloaded the recipe '{0}' {1} from the catalog ({2} bytes, SHA-256 {3}), checking it.", entry.Id, entry.Version, bytes.Length, contentHash);
             var parsed = Parse(content, entry.Id);
 
             var recipeManager = RecipeManager.Instance;
