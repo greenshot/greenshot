@@ -63,7 +63,9 @@ command file which asks for more can't be imported.
 
 ## Commands which come with Greenshot
 
-MS Paint and Paint.NET are there when they are installed. Paint.NET from the Microsoft Store is found too. They can be
+MS Paint and Paint.NET are there when they are installed. Paint.NET from the Microsoft Store is found too. As in Greenshot
+1.3 they get the file the capture was saved to, so what is changed in the editor stays; a capture which wasn't saved is
+handed over as a copy, which Greenshot removes later. They can be
 exported (e.g. to change a copy and import it under another name) but not changed or removed. Deleting MS Paint or Paint.NET in Greenshot 1.3 (`DeletedBuildInCommands`) still
 hides it.
 

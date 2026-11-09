@@ -144,6 +144,8 @@ namespace Greenshot.Plugin.ExternalCommand.Running
             Name = name,
             Program = program,
             Arguments = CommandDefinition.DefaultArguments,
+            // An image editor: the file the capture was saved to keeps what is changed in it, as in Greenshot 1.3; else a copy
+            File = FileLastExport,
             RunInBackground = true
         };
 
