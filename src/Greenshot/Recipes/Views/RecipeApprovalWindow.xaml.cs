@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using Greenshot.Base.Core;
@@ -731,48 +732,114 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// Show the validation errors (modal on the UI thread, from another thread it's posted to it)
+        /// The error windows waiting to be shown, one at a time: the file and how to make its window
+        /// </summary>
+        private static readonly Queue<KeyValuePair<string, Func<RecipeApprovalWindow>>> PendingErrorWindows = new Queue<KeyValuePair<string, Func<RecipeApprovalWindow>>>();
+
+        /// <summary>
+        /// The files with an error window waiting or open: a file shows one window, also when it is loaded again meanwhile
+        /// </summary>
+        private static readonly HashSet<string> PendingErrorFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private static bool _showingErrorWindows;
+
+        /// <summary>
+        /// The update from the catalog this error window started, the next error window waits for it (and its approval)
+        /// </summary>
+        private Task _catalogUpdate;
+
+        /// <summary>
+        /// Show the validation errors. One error window at a time (modal), the others wait; a file which already has a window waiting
+        /// or open shows no second one. From another thread it's posted to the UI thread.
         /// </summary>
         public static void ShowValidationError(string filePath, RecipeValidationResult validationResult = null, CaptureRecipe recipe = null, string rawErrorMessage = null)
         {
-            UiDispatcher.Current.RunOnUiAsync(Show).FireAndLog("Show the recipe validation errors");
+            UiDispatcher.Current.RunOnUiAsync(() => EnqueueErrorWindow(filePath ?? string.Empty, () => new RecipeApprovalWindow(filePath, validationResult, recipe, rawErrorMessage)))
+                .FireAndLog("Show the recipe validation errors");
+        }
 
-            void Show()
+        private static void EnqueueErrorWindow(string filePath, Func<RecipeApprovalWindow> createWindow)
+        {
+            if (!PendingErrorFiles.Add(filePath))
             {
-                var window = new RecipeApprovalWindow(filePath, validationResult, recipe, rawErrorMessage)
-                {
-                    Topmost = true,
-                    ShowActivated = true,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
+                Log.DebugFormat("The errors of '{0}' are already shown or waiting.", filePath);
+                return;
+            }
+            PendingErrorWindows.Enqueue(new KeyValuePair<string, Func<RecipeApprovalWindow>>(filePath, createWindow));
+            if (!_showingErrorWindows)
+            {
+                ShowErrorWindowsAsync().FireAndLog("Show the recipe validation errors");
+            }
+        }
 
-                // The active WPF window owns the errors, otherwise they stand alone (topmost)
-                IntPtr ownerHwnd = IntPtr.Zero;
-                if (System.Windows.Application.Current != null)
+        private static async Task ShowErrorWindowsAsync()
+        {
+            _showingErrorWindows = true;
+            try
+            {
+                // The caller (e.g. loading all recipe files) goes on, the windows follow
+                await Task.Yield();
+                while (PendingErrorWindows.Count > 0)
                 {
+                    var pending = PendingErrorWindows.Dequeue();
                     try
                     {
-                        var activeWpfWindow = System.Windows.Application.Current.Windows
-                            .OfType<System.Windows.Window>()
-                            .FirstOrDefault(w => w.IsActive && w != window);
-                        if (activeWpfWindow != null)
+                        var window = pending.Value();
+                        ShowErrorWindow(window);
+                        if (window._catalogUpdate != null)
                         {
-                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                            // The update shows its approval window (or a message), the next errors wait for it
+                            await window._catalogUpdate;
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        ownerHwnd = IntPtr.Zero;
+                        Log.Error($"Couldn't show the errors of the recipe file '{pending.Key}'.", ex);
+                    }
+                    finally
+                    {
+                        PendingErrorFiles.Remove(pending.Key);
                     }
                 }
-
-                if (ownerHwnd != IntPtr.Zero)
-                {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
-                }
-
-                window.ShowDialog();
             }
+            finally
+            {
+                _showingErrorWindows = false;
+            }
+        }
+
+        private static void ShowErrorWindow(RecipeApprovalWindow window)
+        {
+            window.Topmost = true;
+            window.ShowActivated = true;
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            // The active WPF window owns the errors, otherwise they stand alone (topmost)
+            IntPtr ownerHwnd = IntPtr.Zero;
+            if (System.Windows.Application.Current != null)
+            {
+                try
+                {
+                    var activeWpfWindow = System.Windows.Application.Current.Windows
+                        .OfType<System.Windows.Window>()
+                        .FirstOrDefault(w => w.IsActive && w != window);
+                    if (activeWpfWindow != null)
+                    {
+                        ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                    }
+                }
+                catch
+                {
+                    ownerHwnd = IntPtr.Zero;
+                }
+            }
+
+            if (ownerHwnd != IntPtr.Zero)
+            {
+                new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
+            }
+
+            window.ShowDialog();
         }
 
         private void PopulateTriggers(CaptureRecipe recipe)
@@ -1123,7 +1190,8 @@ namespace Greenshot.Recipes.Views
             Close();
             if (recipeId != null)
             {
-                RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog($"Update the recipe '{recipeId}' from the catalog");
+                // Awaited by the error window queue: the next errors are shown after the update
+                _catalogUpdate = RecipeCatalogInstaller.InstallAsync(recipeId);
             }
         }
 
