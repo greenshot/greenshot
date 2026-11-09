@@ -192,8 +192,9 @@ namespace Greenshot.Shell
             NotificationCaptures.Initialize(notificationService);
 #endif
             // Windows specific services
-            // Set this as IOcrProvider
-            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+            // Windows OCR is one OCR engine, plugins may add more; the OCR of Greenshot is the one of the setting OcrEngine
+            SimpleServiceProvider.Current.AddService<IOcrEngine>(new Win10OcrProvider());
+            SimpleServiceProvider.Current.AddService<IOcrProvider>(new OcrEngineSelector());
 
             // Factory for surface objects
             ISurface SurfaceFactory() => new Surface();

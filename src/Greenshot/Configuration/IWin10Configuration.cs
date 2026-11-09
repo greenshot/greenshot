@@ -32,5 +32,9 @@ namespace Greenshot.Configuration
         [Description("Default OCR language tag (e.g. en-US, de-DE). Leave empty for user profile languages.")]
         [DefaultValue("")]
         string OcrLanguage { get; set; }
+
+        [Description("What recognizes text: the id of an OCR engine (Windows, or one of a plugin, e.g. RapidOcr). Empty: Windows OCR.")]
+        [DefaultValue("")]
+        string OcrEngine { get; set; }
     }
 }

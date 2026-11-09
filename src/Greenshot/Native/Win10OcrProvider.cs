@@ -34,6 +34,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Languages;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using BitmapData = System.Drawing.Imaging.BitmapData;
@@ -45,8 +46,13 @@ namespace Greenshot.Plugin.Win10
     /// This uses the Windows OcrEngine to perform OCR on the captured image.
     /// The pixels are copied straight into the SoftwareBitmap the engine reads, there is no encoding to a file format in between.
     /// </summary>
-    public class Win10OcrProvider : IOcrProvider
+    public class Win10OcrProvider : IOcrEngine
     {
+        /// <summary>
+        /// The id of Windows OCR in the setting OcrEngine
+        /// </summary>
+        public const string EngineId = "Windows";
+
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProvider));
         // Very small images are padded to this size, the engine finds no text on them otherwise
         private const int MinWidth = 130;
@@ -55,6 +61,18 @@ namespace Greenshot.Plugin.Win10
         /// <summary>
         /// Constructor, logs the available languages when debug logging is on (the provider is created at startup)
         /// </summary>
+        /// <inheritdoc />
+        public string Id => EngineId;
+
+        /// <inheritdoc />
+        public string DisplayName => Texts.Settings.OcrEngineWindows;
+
+        /// <inheritdoc />
+        public bool IsReady => true;
+
+        /// <inheritdoc />
+        public Task<bool> PrepareAsync(IntPtr owner, System.Threading.CancellationToken cancellationToken) => Task.FromResult(true);
+
         public Win10OcrProvider()
         {
             if (Log.IsDebugEnabled)

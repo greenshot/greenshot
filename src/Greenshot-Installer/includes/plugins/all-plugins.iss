@@ -9,4 +9,5 @@
 #include "recipeeditor.iss"
 #include "smarttext.iss"
 #include "stamps.iss"
+#include "rapidocr.iss"
 #include "zxing.iss"

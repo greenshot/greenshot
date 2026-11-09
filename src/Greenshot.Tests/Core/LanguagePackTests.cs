@@ -63,6 +63,7 @@ namespace Greenshot.Tests.Core
                 typeof(Greenshot.Plugin.RecipeEditor.IRecipeEditorLanguage).Assembly,
                 typeof(Greenshot.Plugin.Stamps.IStampsLanguage).Assembly,
                 typeof(Greenshot.Plugin.SmartText.ISmartTextLanguage).Assembly,
+                typeof(Greenshot.Plugin.RapidOcr.IRapidOcrLanguage).Assembly,
                 typeof(Greenshot.Plugin.Zxing.IZxingLanguage).Assembly
             };
             return assemblies

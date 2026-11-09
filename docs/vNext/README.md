@@ -17,6 +17,7 @@ work differently there, and they can still change before the release. The docume
 | [editor-panels.md](editor-panels.md) | The panel area of the editor: the Selection panel with size, position and the emoji picker |
 | [smart-text.md](smart-text.md) | Smart text: pick web addresses, phone numbers and own patterns from the text of a capture |
 | [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
+| [rapid-ocr.md](rapid-ocr.md) | RapidOCR: a second OCR engine (PaddleOCR models), downloaded when chosen |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
