@@ -128,7 +128,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task Client_RefusesARecipeFileWithAnotherHash_OrFromAnotherPlace()
+        public async Task Client_ReadsTheRecipeFromTheWebsite_AndRefusesAnotherHash()
         {
             var key = TestKey.Create();
             var catalog = new FakeCatalog(key, CreateCatalogRecipe("hashed_recipe"));
@@ -139,8 +139,21 @@ namespace Greenshot.Tests.Recipes
             catalog.RecipeBytes = catalog.RecipeBytes.Concat(Encoding.UTF8.GetBytes(" ")).ToArray();
             await Assert.ThrowsAsync<RecipeCatalogException>(() => client.GetRecipeFileAsync(entry, CancellationToken.None));
 
-            entry.Url = "https://example.com/hashed_recipe.gsrecipe.json";
+            // An id which can't be a file name on the website is never downloaded
+            entry.Id = "../hashed_recipe";
             await Assert.ThrowsAsync<RecipeCatalogException>(() => client.GetRecipeFileAsync(entry, CancellationToken.None));
+            Assert.All(catalog.Handler.Requests, request => Assert.StartsWith(RecipeCatalogClient.CatalogUrl, request.Uri.AbsoluteUri));
+        }
+
+        [Theory]
+        [InlineData("cli_qr_decode", "https://getgreenshot.org/recipes/cli_qr_decode.gsrecipe.json")]
+        [InlineData("Upper", null)]
+        [InlineData("a/b", null)]
+        [InlineData("a.b", null)]
+        [InlineData("", null)]
+        public void GetRecipeFileUrl_OnlyForCatalogIds(string id, string expected)
+        {
+            Assert.Equal(expected, RecipeCatalogClient.GetRecipeFileUrl(new RecipeCatalogEntry { Id = id }));
         }
 
         [Theory]
@@ -587,7 +600,7 @@ namespace Greenshot.Tests.Recipes
         /// </summary>
         private sealed class FakeCatalog
         {
-            private const string RecipeUrl = RecipeCatalogClient.RecipeUrlPrefix + "0123456789abcdef/recipes/{0}/recipe.gsrecipe.json";
+            private const string RecipeUrl = "https://raw.githubusercontent.com/greenshot/greenshot-recipes/0123456789abcdef/recipes/{0}/recipe.gsrecipe.json";
             private readonly TestKey _key;
             private readonly string _recipeId;
 
@@ -653,7 +666,7 @@ namespace Greenshot.Tests.Recipes
                 {
                     return FakeHttpHandler.Bytes(_key.Sign(Index()));
                 }
-                if (url == string.Format(RecipeUrl, _recipeId))
+                if (url == RecipeCatalogClient.CatalogUrl + _recipeId + ".gsrecipe.json")
                 {
                     return FakeHttpHandler.Bytes(RecipeBytes);
                 }

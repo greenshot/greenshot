@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Writes the recipe catalog into a checkout of the website (gh-pages), for GitHub's classic Pages build.
 
-  build_pages.py --index index.json --site <gh-pages checkout>
+  build_pages.py --index index.json --signature index.json.sig --site <gh-pages checkout>
 
 Writes (the workflow commits them to gh-pages):
   _data/recipes.json            the index, for the overview
@@ -25,9 +25,10 @@ Writes (the workflow commits them to gh-pages):
                                 in the index are removed
   _layouts/recipe.html          the layout of a recipe page
   css/recipes.css               the styles of the recipe pages
-  recipes/index.json            the index, byte for byte (Greenshot reads the signed index of the catalog release instead)
-  recipes/<id>.gsrecipe.json    each recipe file, checked against the SHA-256 of the index: the "download the file" link,
-                                served by the website itself, so the browser saves it instead of showing GitHub's raw file
+  recipes/index.json            the index, byte for byte: Greenshot reads the catalog here
+  recipes/index.json.sig        its signature from the same release, byte for byte (Greenshot checks it)
+  recipes/<id>.gsrecipe.json    each recipe file, checked against the SHA-256 of the index: what Greenshot installs, and
+                                the "download the file" link, so the browser saves it instead of showing GitHub's raw file
 and adds the "recipes" collection to _config.yml once. A collection, not pages: pages are listed on /sitemap/.
 """
 import argparse
@@ -85,6 +86,7 @@ def add_collection(config_path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--index", required=True, help="index.json of a greenshot-recipes release")
+    parser.add_argument("--signature", required=True, help="index.json.sig of the same release")
     parser.add_argument("--site", required=True, help="the website checkout")
     arguments = parser.parse_args()
 
@@ -97,6 +99,7 @@ def main():
         os.makedirs(os.path.join(site, folder), exist_ok=True)
     with open(os.path.join(site, "recipes", "index.json"), "wb") as file:
         file.write(index_bytes)
+    shutil.copyfile(arguments.signature, os.path.join(site, "recipes", "index.json.sig"))
     with open(os.path.join(site, "_data", "recipes.json"), "w", encoding="utf-8") as file:
         json.dump(index, file, ensure_ascii=False)
     shutil.copyfile(os.path.join(HERE, "index.html"), os.path.join(site, "_recipes", "index.html"))

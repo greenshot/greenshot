@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Http;
@@ -34,7 +35,8 @@ using log4net;
 namespace Greenshot.Recipes.Catalog
 {
     /// <summary>
-    /// Reads the recipe catalog: the latest index.json of greenshot/greenshot-recipes with its signature, and a recipe file listed in it.
+    /// Reads the recipe catalog from getgreenshot.org: the index.json of the latest greenshot-recipes release with its signature, and a recipe
+    /// file listed in it. The website copies both (and every recipe file, checked against the index) from the catalog release.
     /// Only a recipe in a correctly signed index, with the SHA-256 the index names, comes out of here.
     /// </summary>
     public sealed class RecipeCatalogClient
@@ -42,16 +44,21 @@ namespace Greenshot.Recipes.Catalog
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeCatalogClient));
 
         /// <summary>
-        /// The index of the latest catalog release; GitHub redirects to the file of that release
+        /// The catalog on the website, a copy of the latest greenshot-recipes release (tools/website/recipes/build_pages.py)
         /// </summary>
-        public const string IndexUrl = "https://github.com/greenshot/greenshot-recipes/releases/latest/download/index.json";
+        public const string CatalogUrl = "https://getgreenshot.org/recipes/";
+
+        /// <summary>
+        /// The index of the latest catalog release
+        /// </summary>
+        public const string IndexUrl = CatalogUrl + "index.json";
 
         public const string SignatureUrl = IndexUrl + ".sig";
 
         /// <summary>
-        /// Recipe files are only downloaded from the catalog repository
+        /// The ids of the catalog, also the file names on the website
         /// </summary>
-        public const string RecipeUrlPrefix = "https://raw.githubusercontent.com/greenshot/greenshot-recipes/";
+        private static readonly Regex IdPattern = new Regex("^[a-z][a-z0-9_]*$", RegexOptions.CultureInvariant);
 
         /// <summary>
         /// The largest index and recipe file read
@@ -114,18 +121,27 @@ namespace Greenshot.Recipes.Catalog
         /// <exception cref="RecipeCatalogException">the file can't be read or isn't the one of the index</exception>
         public async Task<byte[]> GetRecipeFileAsync(RecipeCatalogEntry entry, CancellationToken cancellationToken)
         {
-            if (entry?.Url == null || !entry.Url.StartsWith(RecipeUrlPrefix, StringComparison.Ordinal))
+            string url = GetRecipeFileUrl(entry);
+            if (url == null)
             {
                 throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogWrongFile, entry?.Id));
             }
-            byte[] bytes = await DownloadAsync(entry.Url, cancellationToken).ConfigureAwait(false);
+            byte[] bytes = await DownloadAsync(url, cancellationToken).ConfigureAwait(false);
             string hash = RecipeTrustStore.ComputeSha256(bytes);
             if (!string.Equals(hash, entry.Sha256, StringComparison.OrdinalIgnoreCase))
             {
-                Log.WarnFormat("The recipe '{0}' from {1} has the SHA-256 {2}, the catalog index names {3}.", entry.Id, entry.Url, hash, entry.Sha256);
+                Log.WarnFormat("The recipe '{0}' from {1} has the SHA-256 {2}, the catalog index names {3}.", entry.Id, url, hash, entry.Sha256);
                 throw new RecipeCatalogException(string.Format(Texts.Recipe.CatalogWrongFile, entry.Id));
             }
             return bytes;
+        }
+
+        /// <summary>
+        /// Where the website has the recipe file of the entry, null for an id which can't be a file name there
+        /// </summary>
+        internal static string GetRecipeFileUrl(RecipeCatalogEntry entry)
+        {
+            return entry?.Id != null && IdPattern.IsMatch(entry.Id) ? CatalogUrl + entry.Id + ".gsrecipe.json" : null;
         }
 
         /// <summary>
