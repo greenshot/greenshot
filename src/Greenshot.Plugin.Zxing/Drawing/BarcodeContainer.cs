@@ -82,6 +82,13 @@ namespace Greenshot.Plugin.Zxing.Drawing
         {
         }
 
+        /// <summary>
+        /// No shadow: the barcode is drawn as it is (see Draw), a shadow setting would do nothing
+        /// </summary>
+        protected override void InitializeFields()
+        {
+        }
+
         public void RegenerateBarcode()
         {
             var bmp = ZxingBarcodeGenerator.Render(CreateLayout());

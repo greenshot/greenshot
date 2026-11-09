@@ -169,6 +169,16 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
+        public void Barcode_HasNoShadowSetting()
+        {
+            using var surface = new Surface(new Bitmap(100, 100));
+            var barcode = AddBarcode(surface, "text");
+
+            // Draw doesn't draw one
+            Assert.False(barcode.HasField(Greenshot.Editor.Drawing.Fields.FieldType.SHADOW));
+        }
+
+        [Fact]
         public void DoubleClick_OnABarcode_AsksForTheProperties()
         {
             using var surface = new Surface(new Bitmap(400, 300));
