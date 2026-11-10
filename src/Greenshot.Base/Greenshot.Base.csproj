@@ -32,8 +32,10 @@
     <PackageReference Include="Svg" Version="3.4.8" />
     <!-- Newer than the one Dapplo.Windows brings, here so Greenshot and every plugin get the same System.Reactive.dll -->
     <PackageReference Include="System.Reactive" Version="7.0.0" />
-    <PackageReference Include="Dapplo.Ini" Version="1.1.17" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.17" />
+    <PackageReference Include="Dapplo.Ini" Version="2.0.9" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="2.0.9" />
+    <!-- Windows policies (Group Policy, Intune): the attributes for the settings here, the policy sources are only registered by the full Greenshot -->
+    <PackageReference Include="Dapplo.Ini.WindowsPolicies" Version="2.0.9" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2957" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />

@@ -1639,6 +1639,11 @@
                                         Visibility="Collapsed"
                                         Margin="22,18"/>
 
+                <!-- Windows policies, the full Greenshot only: the view is set in the code (Greenshot Light doesn't have it) -->
+                <ContentControl x:Name="PoliciesPanel"
+                                Visibility="Collapsed"
+                                Margin="22,18"/>
+
                 <!-- Section 6 (DEBUG only): Browser Extension & IPC Integration Debugger -->
                 <ScrollViewer x:Name="IntegrationDebugPanel" 
                               VerticalScrollBarVisibility="Auto" 

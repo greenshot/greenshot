@@ -29,6 +29,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Parsing;
+#if !GREENSHOT_LIGHT
+using Dapplo.Ini.WindowsPolicies;
+using Greenshot.Policies;
+#endif
 using Dapplo.Windows.Input.Keyboard;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
@@ -107,6 +111,15 @@ public class GreenshotMain
             return;
         }
 
+#if !GREENSHOT_LIGHT
+        // The release build writes the policy templates with the sections of this installation, nothing else starts
+        if (options.PolicyTemplatesDirectory != null)
+        {
+            Environment.ExitCode = PolicyTemplates.WriteForInstallation(options.PolicyTemplatesDirectory) ? 0 : 1;
+            return;
+        }
+#endif
+
         // Register custom value converters (NativeRect, Color, etc.) before building the registry.
         IniValueConverters.Register();
         Editor.EditorInitialize.RegisterValueConverters();
@@ -159,8 +172,19 @@ public class GreenshotMain
                .EmptyWhenNull()
                .LockFile()
                .EnableMetadata(applicationName: "Greenshot")
+               // greenshot.ini keeps only what the user set, inherited values are written as comments (Dapplo.Ini 2). A file
+               // written before holds every key: once, the values which equal the default become inherited again, so a
+               // changed default (greenshot-defaults.ini or a new version) reaches the user.
+               .ConvertUnchangedValuesToInherited()
                // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
                .AddListener(new IniListener());
+
+#if !GREENSHOT_LIGHT
+        // Windows policies (Group Policy, Intune): HKLM/HKCU\SOFTWARE\Policies\Greenshot\Greenshot\<Section>\<Key> is mandatory (wins over
+        // greenshot-fixed.ini), ...\Recommended\<Section>\<Key> a default the user can change. Changes are picked up while Greenshot runs.
+        // See docs/vNext/policies.md
+        builder.AddWindowsPolicies(PolicyTemplates.Vendor, PolicyTemplates.Product);
+#endif
 
         // No file access yet: greenshot.ini is read (and locked) in GreenshotApplication.Start, only by the instance which really runs.
         // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.

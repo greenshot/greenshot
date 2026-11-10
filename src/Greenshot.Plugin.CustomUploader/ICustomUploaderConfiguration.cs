@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Plugin.CustomUploader;
 
@@ -34,9 +35,11 @@ public interface ICustomUploaderConfiguration : IIniSection, IAfterLoad
     Dictionary<string, string> UploaderIcons { get; set; }
 
     [Description("The uploaders (ids) which show a reminder with a preview before each upload, their uploads can't be deleted.")]
+    [NotAdministrable]
     Dictionary<string, string> UploadReminders { get; set; }
 
     [Description("The uploads with their deletion links, each encrypted.")]
+    [NotAdministrable]
     Dictionary<string, string> UploadHistory { get; set; }
 
     /// <summary>

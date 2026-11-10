@@ -47,10 +47,10 @@ namespace Greenshot.Tests.Forms
 
             Assert.NotNull(vm.Sections);
 #if DEBUG
-            Assert.Equal(7, vm.Sections.Count);
+            Assert.Equal(8, vm.Sections.Count);
             Assert.NotNull(vm.IntegrationDebugSection);
 #else
-            Assert.Equal(6, vm.Sections.Count);
+            Assert.Equal(7, vm.Sections.Count);
 #endif
 
             Assert.NotNull(vm.SystemInfoSection);
@@ -58,6 +58,7 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(vm.FileInfoSection);
             Assert.NotNull(vm.ClipboardSection);
             Assert.NotNull(vm.HotkeySection);
+            Assert.NotNull(vm.PoliciesSection);
             Assert.NotNull(vm.ChecksumSection);
 
             Assert.Equal("system", vm.CurrentSectionId);

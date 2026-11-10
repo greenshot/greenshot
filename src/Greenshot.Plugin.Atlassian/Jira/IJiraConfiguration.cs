@@ -23,6 +23,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Atlassian.Jira;
 
@@ -36,6 +38,7 @@ public interface IJiraConfiguration : IIniSection
     [Description("Base url to Jira system, without anything else")]
     [DefaultValue("https://jira")]
     [Required(ErrorMessage = "Jira URL is required.")]
+    [PolicyCategory(PolicyCategories.Common)]
     string Url { get; set; }
 
     [Description("What file type to use for uploading")]

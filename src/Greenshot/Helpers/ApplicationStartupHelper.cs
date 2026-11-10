@@ -53,22 +53,45 @@ namespace Greenshot.Helpers
         /// Reads the configuration again (--reload) and applies it: language, tray tooltip and hotkeys.
         /// </summary>
         /// <remarks>greenshot.ini is locked while Greenshot runs (only readable for others), so what can change is greenshot-fixed.ini,
-        /// e.g. an administrator who rolls out a new value. greenshot-defaults.ini only fills keys which are missing in greenshot.ini, and
-        /// greenshot.ini holds every key once it was saved, so a changed default rarely shows.</remarks>
+        /// e.g. an administrator who rolls out a new value, and greenshot-defaults.ini for the keys the user didn't set
+        /// (greenshot.ini keeps only the user's own values). A changed Windows policy is picked up without --reload.</remarks>
         public static void ReloadConfig()
         {
             // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
             UiDispatcher.Current.RunOnUiAsync(ReloadConfigOnUi, CancellationToken.None).FireAndLog("Reload the configuration", LOG);
         }
 
+        /// <summary>
+        /// Applies every reload of the configuration (--reload, or a changed Windows policy which Dapplo.Ini reloads in the
+        /// background) to the running Greenshot. Called once, after greenshot.ini was read.
+        /// </summary>
+        /// <param name="iniConfig">The configuration of greenshot.ini</param>
+        public static void ApplyConfigurationOnReload(IniConfig iniConfig)
+        {
+            iniConfig.Reloaded += (_, _) =>
+                UiDispatcher.Current.RunOnUiAsync(ApplyReloadedConfigOnUi, CancellationToken.None).FireAndLog("Apply the reloaded configuration", LOG);
+        }
+
         private static void ReloadConfigOnUi()
+        {
+            try
+            {
+                // Reloaded applies the result, see ApplyConfigurationOnReload
+                IniConfigRegistry.Get().Reload();
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Exception while reloading configuration: ", ex);
+            }
+        }
+
+        private static void ApplyReloadedConfigOnUi()
         {
             try
             {
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
-                IniConfigRegistry.Get().Reload();
-                // The language of the reloaded configuration (e.g. fixed in greenshot-fixed.ini), the texts and open windows follow (LanguageChanged)
+                // The language of the reloaded configuration (e.g. fixed in greenshot-fixed.ini or by a policy), the texts and open windows follow (LanguageChanged)
                 Texts.SetLanguage(IniConfigRegistry.GetSection<ICoreConfiguration>().Language);
                 var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
                 shell?.UpdateUi();
@@ -77,7 +100,7 @@ namespace Greenshot.Helpers
             }
             catch (Exception ex)
             {
-                LOG.Warn("Exception while reloading configuration: ", ex);
+                LOG.Warn("Exception while applying the reloaded configuration: ", ex);
             }
         }
 

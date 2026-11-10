@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -32,6 +33,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 {
     [Description("True when the commands of Greenshot 1.3 (the keys below) were converted into files of the Commands folder; they are only read once and kept for going back to 1.3.")]
+    [NotAdministrable]
     bool DefinitionsConverted { get; set; }
 
     [Description("Greenshot 1.3: the commands that are available.")]
