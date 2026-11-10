@@ -32,6 +32,11 @@ namespace Greenshot.Base.Languages
     public interface ISettingsLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// Save as .reg…
+        /// </summary>
+        string AdministratorSettingsSaveReg { get; }
+
+        /// <summary>
         /// AI tools
         /// </summary>
         string Aitools { get; }
@@ -170,6 +175,11 @@ namespace Greenshot.Base.Languages
         /// Keep the HDR content of HDR displays (for JPEG XR files)
         /// </summary>
         string CaptureHdr { get; }
+
+        /// <summary>
+        /// Some settings are set by your organization (Windows policies) and can't be changed here.
+        /// </summary>
+        string ManagedByOrganization { get; }
 
         /// <summary>
         /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.

@@ -46,6 +46,12 @@ namespace Greenshot.SelfService.ViewModels
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
         public ChecksumSectionViewModel ChecksumSection { get; }
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// The settings Windows policies set (Group Policy, Intune), see docs/vNext/policies.md
+        /// </summary>
+        public Greenshot.Policies.PoliciesSectionViewModel PoliciesSection { get; }
+#endif
 
         /// <summary>
         /// The earlier Imgur uploads, null (no section) when there are none
@@ -120,6 +126,10 @@ namespace Greenshot.SelfService.ViewModels
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
             Sections.Add(ChecksumSection);
+#if !GREENSHOT_LIGHT
+            PoliciesSection = new Greenshot.Policies.PoliciesSectionViewModel();
+            Sections.Add(PoliciesSection);
+#endif
             if (ImgurSectionViewModel.HasUploads)
             {
                 ImgurSection = new ImgurSectionViewModel();

@@ -30,6 +30,8 @@ capture skips it; when none of them is there, the capture opens in the editor.
    A plugin or destination which isn't installed yet can be added there by its name (see [the known names](#known-names)) with
    **Add plugin** or **Add destination**: it is blocked, or allowed with *Allow only what is checked*.
 3. **Copy** the lines into `greenshot-fixed.ini` next to Greenshot.exe, or **Save as…** when there is no such file yet.
+   **Save as .reg…** writes the same lines as mandatory Windows policies instead, for Group Policy or Intune, see
+   [policies.md](policies.md) (not in Greenshot Light).
 
 Greenshot then shows what the administrator blocked as unchecked and locked. Users can still switch off more, unless the
 administrator turned that off.

@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Plugin.Box;
 
@@ -54,6 +55,7 @@ public interface IBoxConfiguration : IIniSection, IAfterLoad
 
     /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
     [Description("Box authorization refresh Token (stored encrypted)")]
+    [NotAdministrable]
     string RefreshToken { get; set; }
 
     /// <summary>Runtime-only token - never written to disk, reset to default on every reload.</summary>

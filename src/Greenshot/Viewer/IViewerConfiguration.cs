@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Viewer
 {
@@ -70,6 +71,7 @@ namespace Greenshot.Viewer
         bool ShowCursor { get; set; }
 
         [Description("Was the hint shown that the viewer doesn't save the capture? Greenshot shows it once, with the first viewer")]
+        [NotAdministrable]
         bool UnsavedHintShown { get; set; }
     }
 }

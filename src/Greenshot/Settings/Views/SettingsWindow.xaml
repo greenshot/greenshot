@@ -85,7 +85,14 @@
         </Grid.RowDefinitions>
         
         <!-- Tab Control -->
-        <TabControl x:Name="SettingsTabControl" Grid.Row="0">
+        <DockPanel Grid.Row="0">
+        <!-- Windows policies lock some settings (their controls are disabled), see docs/vNext/policies.md -->
+        <Border DockPanel.Dock="Top" Margin="0,0,0,8" Padding="10,6" CornerRadius="4" BorderThickness="1"
+                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBackground}" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBorder}"
+                Visibility="{Binding IsManagedByPolicies, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="{wpf:Text Settings.ManagedByOrganization}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningText}"/>
+        </Border>
+        <TabControl x:Name="SettingsTabControl">
             <!-- General Tab -->
             <TabItem Header="{wpf:Text Settings.General}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -1326,6 +1333,7 @@
                 </ScrollViewer>
             </TabItem>
         </TabControl>
+        </DockPanel>
         
         <!-- Buttons -->
         <StackPanel Grid.Row="1" 

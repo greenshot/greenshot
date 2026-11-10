@@ -53,6 +53,12 @@ namespace Greenshot.Helpers
         public string IniDirectory { get; set; }
 
         /// <summary>
+        /// When set, write the administrative templates (ADMX/ADML) for the Windows policies into this directory and exit.
+        /// Used by the release build, see docs/vNext/policies.md.
+        /// </summary>
+        public string PolicyTemplatesDirectory { get; set; }
+
+        /// <summary>
         /// When true, the application was started by the Windows Restart Manager
         /// (e.g. to restore state after a Windows Update reboot).
         /// This option is reserved for the Windows Restart Manager and is NOT intended for manual use.
@@ -98,6 +104,12 @@ namespace Greenshot.Helpers
             Description = "Set the directory where greenshot.ini is stored and read."
         };
 
+        private static readonly Option<string> PolicyTemplatesOption = new Option<string>("--policy-templates")
+        {
+            HelpName = "directory",
+            Description = "Write the administrative templates (greenshot.admx and the .adml files) for Group Policy and Intune into the directory and exit."
+        };
+
         /// <summary>
         /// Reserved for the Windows Restart Manager, which starts Greenshot with the arguments registered via
         /// RegisterApplicationRestart. Not intended to be used manually.
@@ -129,7 +141,7 @@ namespace Greenshot.Helpers
         };
 
         /// <summary>Startup options that take a value.</summary>
-        private static readonly HashSet<string> OptionsWithValue = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--language", "--ini-directory" };
+        private static readonly HashSet<string> OptionsWithValue = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--language", "--ini-directory", "--policy-templates" };
 
         /// <summary>Startup options without a value, including the help options.</summary>
         private static readonly HashSet<string> Flags = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "--no-run", "--restore", "--autostart", "-Embedding", "--help", "-h", "-?" };
@@ -208,6 +220,7 @@ namespace Greenshot.Helpers
                     NoRun = parseResult.GetValue(NoRunOption),
                     Language = parseResult.GetValue(LanguageOption),
                     IniDirectory = parseResult.GetValue(IniDirectoryOption),
+                    PolicyTemplatesDirectory = parseResult.GetValue(PolicyTemplatesOption),
                     Restore = parseResult.GetValue(RestoreOption),
                     Autostart = parseResult.GetValue(AutostartOption),
                     CommandArguments = commandArguments
@@ -267,6 +280,7 @@ namespace Greenshot.Helpers
             rootCommand.Options.Add(NoRunOption);
             rootCommand.Options.Add(LanguageOption);
             rootCommand.Options.Add(IniDirectoryOption);
+            rootCommand.Options.Add(PolicyTemplatesOption);
             rootCommand.Options.Add(RestoreOption);
             rootCommand.Options.Add(AutostartOption);
             rootCommand.Options.Add(EmbeddingOption);
