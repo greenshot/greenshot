@@ -2461,6 +2461,90 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Change the settings of the torn edges as an undo step, e.g. from the Torn edges section. The room for the shadow stays as it is.
+        /// </summary>
+        /// <param name="tornEdges">TornEdgeContainer of this surface</param>
+        /// <param name="settings">TornEdgeEffect with the new settings, its seed decides the edges</param>
+        /// <param name="setting">what is changed, e.g. "ShadowSize": changes of the same setting one after the other (a slider which is dragged)
+        /// are one undo step; null makes every change its own step</param>
+        internal void ChangeTornEdges(TornEdgeContainer tornEdges, TornEdgeEffect settings, string setting = null)
+        {
+            if (tornEdges == null || settings == null)
+            {
+                return;
+            }
+
+            MakeUndoable(new TornEdgeSettingsMemento(tornEdges, setting), setting != null);
+            tornEdges.ApplySettings(settings);
+            tornEdges.SetSeed(settings.Seed);
+            Modified = true;
+            Invalidate();
+            OnElementsChanged();
+        }
+
+        /// <summary>
+        /// The capture as it would look after the effect, the surface stays unchanged. The effect is calculated on the thread pool.
+        /// </summary>
+        /// <param name="effect">IEffect, it is not changed and may be changed after the call</param>
+        /// <param name="elementsOnTop">true: the effect changes only the image, the elements are drawn on top unchanged (e.g. remove
+        /// transparency, like ApplyBitmapEffectAsync leaves them). false: the effect changes the image with its elements (e.g. a border or shadow, which
+        /// move the elements with the image).</param>
+        /// <returns>Bitmap owned by the caller</returns>
+        internal async Task<Bitmap> CreateEffectPreviewAsync(IEffect effect, bool elementsOnTop)
+        {
+            var source = elementsOnTop ? ImageHelper.Clone(_image, PixelFormat.DontCare) : RenderWithElements(_image);
+            var result = await CreateEffectPreviewOnPoolAsync(source, effect);
+            if (elementsOnTop && result != null && !IsDisposed)
+            {
+                using var graphics = Graphics.FromImage(result);
+                _elements.Draw(graphics, result, RenderMode.EXPORT, new Rectangle(Point.Empty, result.Size));
+            }
+
+            return result;
+        }
+
+        private static async Task<Bitmap> CreateEffectPreviewOnPoolAsync(Bitmap source, IEffect effect)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            using var matrix = new Matrix();
+            var result = ImageHelper.ApplyEffect(source, effect, matrix);
+            if (!ReferenceEquals(result, source))
+            {
+                source.Dispose();
+            }
+
+            // Drawing on it needs a Bitmap which isn't indexed
+            if (result is Bitmap bitmap && (bitmap.PixelFormat & PixelFormat.Indexed) == 0)
+            {
+                return bitmap;
+            }
+
+            using (result)
+            {
+                return ImageHelper.Clone(result, PixelFormat.Format32bppArgb);
+            }
+        }
+
+        /// <summary>
+        /// A copy of the image with the elements drawn on it, like the export
+        /// </summary>
+        private Bitmap RenderWithElements(Image image)
+        {
+            IDrawableContainerList elements = _elements;
+            var pixelFormat = elements.Any(element => element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true })
+                ? PixelFormat.Format32bppArgb
+                : PixelFormat.DontCare;
+            Bitmap clone = ImageHelper.Clone(image, pixelFormat);
+            if (elements.Count > 0)
+            {
+                using var graphics = Graphics.FromImage(clone);
+                elements.Draw(graphics, clone, RenderMode.EXPORT, new Rectangle(Point.Empty, clone.Size));
+            }
+
+            return clone;
+        }
+
+        /// <summary>
         /// Draw an element into the image and remove it, e.g. to keep the cut edges or torn edges before drawing on.
         /// Only when the element needs transparency the image gets an alpha channel.
         /// </summary>
