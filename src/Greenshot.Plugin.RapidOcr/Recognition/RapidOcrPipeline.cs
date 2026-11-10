@@ -67,7 +67,11 @@ internal sealed class RapidOcrPipeline : IDisposable
         var options = new SessionOptions
         {
             // The threads are left to ONNX Runtime: one per physical core. The user waits for the text, half of them took 1.7 times as long
-            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL
+            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
+            // ONNX Runtime's memory arena and memory patterns keep the largest working memory of every run (a screen: about 0.6 GB more,
+            // three screens: 1.3 GB) until the session is gone. Without them the memory goes back after each run, OCR takes about 15 % longer
+            EnableCpuMemArena = false,
+            EnableMemoryPattern = false
         };
         _detector = new TextDetector(new InferenceSession(detectionModel, options));
         try
