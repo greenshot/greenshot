@@ -60,7 +60,7 @@ namespace Greenshot.SelfService.Views
 
             UpdateVisiblePanel();
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Loaded += OnWindowLoaded;
             Closed += OnWindowClosed;
             KeyDown += OnWindowKeyDown;
@@ -136,7 +136,7 @@ namespace Greenshot.SelfService.Views
 
         private void OnWindowClosed(object sender, EventArgs e)
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             ViewModel?.Cleanup();
             if (_currentInstance == this)
             {

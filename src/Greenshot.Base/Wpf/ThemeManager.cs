@@ -72,6 +72,11 @@ namespace Greenshot.Base.Wpf
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Raised after <see cref="CurrentPalette"/> changed (light/dark, accent color or high contrast), for code-behind which redraws by hand.
+        /// </summary>
+        public event Action PaletteChanged;
+
         private ThemeManager()
         {
             ComboBoxHelper.Initialize();
@@ -382,8 +387,9 @@ namespace Greenshot.Base.Wpf
             }
 
             OnPropertyChanged(nameof(TaskbarPalette));
-            // The last one: listeners which redraw by hand (see WpfThemeHelper.ThemeChanged) see all new values
+            // The last one: listeners which redraw by hand (see PaletteChanged) see all new values
             OnPropertyChanged(nameof(CurrentPalette));
+            PaletteChanged?.Invoke();
             if (updateWindowFrames)
             {
                 WindowFrameTheme.UpdateAll();

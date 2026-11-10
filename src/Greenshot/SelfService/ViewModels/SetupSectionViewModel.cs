@@ -189,7 +189,7 @@ namespace Greenshot.SelfService.ViewModels
         {
             int issues = (IsOutdated ? 1 : 0) + (IsTrayIconHidden ? 1 : 0) + (IsSnippingToolTakingPrintKey ? 1 : 0) + (IsOneDriveTakingPrintKey ? 1 : 0);
             BadgeText = issues > 0 ? issues.ToString() : null;
-            BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
+            BadgeBrush = issues > 0 ? ThemeManager.Instance.CurrentPalette.WarningBackground : null;
         }
 
         private void OnVersionChanged()
