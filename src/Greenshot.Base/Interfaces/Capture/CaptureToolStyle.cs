@@ -52,6 +52,7 @@ namespace Greenshot.Base.Interfaces.Capture
             Foreground = Frozen(palette.TextPrimary);
             MutedForeground = Frozen(palette.TextSecondary);
             Accent = Frozen(palette.Accent);
+            AccentForeground = Frozen(palette.AccentForegroundBrush);
             KeyCapBackground = Frozen(palette.ControlBackgroundBrush);
             KeyCapBorder = Frozen(palette.BorderBrush);
 
@@ -71,6 +72,7 @@ namespace Greenshot.Base.Interfaces.Capture
         public const string ForegroundKey = "CaptureTool.Foreground";
         public const string MutedForegroundKey = "CaptureTool.MutedForeground";
         public const string AccentKey = "CaptureTool.Accent";
+        public const string AccentForegroundKey = "CaptureTool.AccentForeground";
         public const string KeyCapBackgroundKey = "CaptureTool.KeyCapBackground";
         public const string KeyCapBorderKey = "CaptureTool.KeyCapBorder";
 
@@ -84,6 +86,11 @@ namespace Greenshot.Base.Interfaces.Capture
         public Brush Foreground { get; }
         public Brush MutedForeground { get; }
         public Brush Accent { get; }
+
+        /// <summary>
+        /// Text on the accent color, e.g. the number on a badge
+        /// </summary>
+        public Brush AccentForeground { get; }
         public Brush KeyCapBackground { get; }
         public Brush KeyCapBorder { get; }
 
@@ -154,6 +161,7 @@ namespace Greenshot.Base.Interfaces.Capture
             border.Resources[ForegroundKey] = Foreground;
             border.Resources[MutedForegroundKey] = MutedForeground;
             border.Resources[AccentKey] = Accent;
+            border.Resources[AccentForegroundKey] = AccentForeground;
             border.Resources[KeyCapBackgroundKey] = KeyCapBackground;
             border.Resources[KeyCapBorderKey] = KeyCapBorder;
             TextElement.SetForeground(border, Foreground);

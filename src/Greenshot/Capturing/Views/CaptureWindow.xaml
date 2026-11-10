@@ -104,6 +104,9 @@
         <!-- Drawn by the active capture tool, e.g. the text lines of the OCR -->
         <capture:DrawingLayer x:Name="ToolLayer" />
 
+        <!-- Numbered hotspots of the active tool (e.g. found links in the text tool): their boxes and number badges above the tool -->
+        <capture:DrawingLayer x:Name="NumberedHotspotLayer" IsHitTestVisible="False" />
+
         <!-- The selected region or window -->
         <Path x:Name="SelectionPath" Fill="{DynamicResource SelectionFillBrush}" Stroke="{DynamicResource SelectionBorderBrush}" StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False">
             <Path.Data>
@@ -127,9 +130,10 @@
         </capture:DrawingLayer>
         <capture:DrawingLayer x:Name="CoordinatesLabel" />
 
-        <!-- Panels of tools and overlays, each a DrawingLayer moved by its transform -->
+        <!-- Panels of tools and overlays, each moved by its transform -->
         <!-- Anti-aliased, unlike the pixel exact selection: the panels have rounded corners -->
-        <Canvas x:Name="PanelHost" IsHitTestVisible="False" RenderOptions.EdgeMode="Unspecified" />
+        <!-- Only an interactive panel (the list of numbered hotspots) takes the mouse, the others let it through -->
+        <Canvas x:Name="PanelHost" RenderOptions.EdgeMode="Unspecified" />
 
         <!-- The zoomer: drawn with its top left corner at 0,0, moved next to the cursor and scaled out of it -->
         <Canvas x:Name="Zoomer" IsHitTestVisible="False" RenderOptions.BitmapScalingMode="NearestNeighbor">

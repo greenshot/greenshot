@@ -98,7 +98,7 @@ namespace Greenshot.Capturing
 
         private CaptureKeyBinding FindExact(Key key, ModifierKeys modifiers, ICaptureTool activeTool) =>
             // A tool key before an always active key, there can't be both (conflict) but this keeps the intent clear
-            _bindings.FirstOrDefault(binding => binding.Tool != null && binding.Tool == activeTool && binding.Key == key && binding.Modifiers == modifiers)
+            _bindings.FirstOrDefault(binding => binding.Tool != null && binding.Key == key && binding.Modifiers == modifiers && binding.IsActiveFor(activeTool))
             ?? _bindings.FirstOrDefault(binding => binding.Tool == null && binding.Key == key && binding.Modifiers == modifiers && binding.IsActiveFor(activeTool));
 
         private static bool IsModifierOnly(Key key) =>
