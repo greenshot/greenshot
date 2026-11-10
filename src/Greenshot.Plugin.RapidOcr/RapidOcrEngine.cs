@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using Dapplo.Ini;
 using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
@@ -52,6 +51,7 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     internal const string EngineId = "RapidOcr";
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(RapidOcrEngine));
     private readonly RapidOcrFiles _files;
+    private readonly IRapidOcrConfiguration _configuration;
     private readonly object _lock = new();
     private RapidOcrPipeline _pipeline;
     // The OCR runs using the pipeline right now: it is only unloaded when none uses it
@@ -61,9 +61,10 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     private Task<bool> _preparing;
     private Window _window;
 
-    public RapidOcrEngine(RapidOcrFiles files)
+    public RapidOcrEngine(RapidOcrFiles files, IRapidOcrConfiguration configuration)
     {
         _files = files;
+        _configuration = configuration;
     }
 
     private static IRapidOcrLanguage Language => Texts.Get<IRapidOcrLanguage>();
@@ -174,15 +175,15 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     }
 
     /// <summary>
-    /// With the expert setting MinimizeWorkingSetSize the models (about 80 MB) are unloaded after each use, once no other run uses them;
-    /// the next OCR loads them again
+    /// Unless KeepModelsLoaded is set, the models (about 80 MB) are unloaded after each use, once no other run uses them; the next OCR
+    /// loads them again (about 0.1-0.2 s)
     /// </summary>
     private void Release()
     {
         lock (_lock)
         {
             _users--;
-            if (_users > 0 || _pipeline == null || IniConfigRegistry.GetSection<ICoreConfiguration>()?.MinimizeWorkingSetSize != true) return;
+            if (_users > 0 || _pipeline == null || _configuration.KeepModelsLoaded) return;
             _pipeline.Dispose();
             _pipeline = null;
         }
