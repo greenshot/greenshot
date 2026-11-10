@@ -115,12 +115,7 @@ namespace Greenshot.Plugin.Win10
         /// <param name="image">Image</param>
         /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>List of IOcrLineFeature, null when there is no OCR language</returns>
-        public Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null) => DoOcrAsync(image, languageTag, OcrPreparation.None);
-
-        /// <summary>
-        /// OCR with a preparation of the image, to compare what helps Windows OCR (see OcrPreparationComparisonTests)
-        /// </summary>
-        internal async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag, OcrPreparation preparation)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null)
         {
             if (image == null)
             {
@@ -133,7 +128,7 @@ namespace Greenshot.Plugin.Win10
                 return null;
             }
 
-            var ocrImage = OcrImage.Create(image, preparation);
+            var ocrImage = OcrImage.Create(image);
             using (ocrImage.Bitmap)
             {
                 var ocrResult = await ocrEngine.RecognizeAsync(ocrImage.Bitmap).AsTask().ConfigureAwait(false);
@@ -263,45 +258,33 @@ namespace Greenshot.Plugin.Win10
             /// </summary>
             public WpfPoint RotationCenter => ToImageRotationCenter(Bitmap.PixelWidth, Bitmap.PixelHeight, Scale, PaddingX, PaddingY);
 
-            public static OcrImage Create(Image image, OcrPreparation preparation)
+            public static OcrImage Create(Image image)
             {
-                // The engine doesn't take images larger than MaxImageDimension (e.g. several monitors side by side): scale those down.
-                // Small captures are read at double size, screen text is too small for the engine
+                // The engine doesn't take images larger than MaxImageDimension (e.g. several monitors side by side): scale those down
                 double maxDimension = OcrEngine.MaxImageDimension;
-                int factor = preparation.HasFlag(OcrPreparation.Upscale) ? OcrImagePreparation.UpscaleFactor(image.Width, image.Height, maxDimension) : 1;
-                double scale = factor > 1 ? factor : Math.Min(1d, Math.Min(maxDimension / image.Width, maxDimension / image.Height));
-                if (scale < 1d)
-                {
-                    Log.InfoFormat("Image of {0}x{1} is larger than the OCR supports, scaling it to {2:P0}", image.Width, image.Height, scale);
-                }
-
-                // An own copy: the underlines are painted over in it, the capture stays as it is
-                using var prepared = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppPArgb);
-                using (var graphics = Graphics.FromImage(prepared))
-                {
-                    graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    graphics.PixelOffsetMode = PixelOffsetMode.Half;
-                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                    graphics.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height));
-                }
-
-                if (preparation.HasFlag(OcrPreparation.RemoveLines))
-                {
-                    RemoveThinLines(prepared);
-                }
-
-                Bitmap scaled = null;
+                double scale = Math.Min(1d, Math.Min(maxDimension / image.Width, maxDimension / image.Height));
+                Bitmap ownBitmap = null;
                 try
                 {
-                    var source = prepared;
-                    if (Math.Abs(scale - 1d) > double.Epsilon)
+                    Bitmap source;
+                    if (scale < 1d)
                     {
-                        scaled = new Bitmap(Math.Max(1, (int)(image.Width * scale)), Math.Max(1, (int)(image.Height * scale)), PixelFormat.Format32bppPArgb);
-                        using var graphics = Graphics.FromImage(scaled);
+                        Log.InfoFormat("Image of {0}x{1} is larger than the OCR supports, scaling it to {2:P0}", image.Width, image.Height, scale);
+                        ownBitmap = new Bitmap(Math.Max(1, (int)(image.Width * scale)), Math.Max(1, (int)(image.Height * scale)), PixelFormat.Format32bppPArgb);
+                        using var graphics = Graphics.FromImage(ownBitmap);
                         graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        graphics.DrawImage(prepared, new Rectangle(0, 0, scaled.Width, scaled.Height));
-                        source = scaled;
+                        graphics.DrawImage(image, new Rectangle(0, 0, ownBitmap.Width, ownBitmap.Height));
+                        source = ownBitmap;
+                    }
+                    else if (image is Bitmap bitmap)
+                    {
+                        source = bitmap;
+                    }
+                    else
+                    {
+                        // A metafile, LockBits needs a bitmap
+                        source = ownBitmap = new Bitmap(image);
                     }
 
                     int paddingX = Math.Max(0, (MinWidth - source.Width) / 2);
@@ -311,35 +294,7 @@ namespace Greenshot.Plugin.Win10
                 }
                 finally
                 {
-                    scaled?.Dispose();
-                }
-            }
-
-            /// <summary>
-            /// Paint over the underlines of links and other thin lines, OCR reads them as parts of the letters (an underlined
-            /// "r" becomes a "c", an "o" a "Q")
-            /// </summary>
-            private static void RemoveThinLines(Bitmap bitmap)
-            {
-                var rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-                BitmapData data = bitmap.LockBits(rectangle, ImageLockMode.ReadWrite, PixelFormat.Format32bppPArgb);
-                try
-                {
-                    var pixels = new int[bitmap.Width * bitmap.Height];
-                    for (int y = 0; y < bitmap.Height; y++)
-                    {
-                        Marshal.Copy(data.Scan0 + y * data.Stride, pixels, y * bitmap.Width, bitmap.Width);
-                    }
-
-                    if (OcrImagePreparation.RemoveThinLines(pixels, bitmap.Width, bitmap.Height) == 0) return;
-                    for (int y = 0; y < bitmap.Height; y++)
-                    {
-                        Marshal.Copy(pixels, y * bitmap.Width, data.Scan0 + y * data.Stride, bitmap.Width);
-                    }
-                }
-                finally
-                {
-                    bitmap.UnlockBits(data);
+                    ownBitmap?.Dispose();
                 }
             }
 

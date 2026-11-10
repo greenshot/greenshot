@@ -21,6 +21,7 @@ Nothing large is installed. When RapidOCR is chosen the first time, a download w
 |---|---|---|
 | `onnxruntime.dll` 1.31.1 (MIT) | Microsoft's release `onnxruntime-win-x64-1.31.1.zip` on github.com/microsoft/onnxruntime; only this file is read out of the zip with range requests | 6 MB transferred, 17 MB on disk |
 | `onnxruntime-LICENSE.txt` | the same zip | 1 KB |
+| `onnxruntime-ThirdPartyNotices.txt` | the same zip: the notices of the libraries built into onnxruntime.dll | 32 KB transferred, 340 KB on disk |
 | `PP-OCRv6_det_small.onnx` (Apache 2.0) | the RapidOCR model files | 10 MB |
 | `PP-OCRv6_rec_small.onnx` (Apache 2.0) | the RapidOCR model files | 21 MB |
 
@@ -80,3 +81,24 @@ Windows OCR read `https;L'githumconu'grrensh@/greenshot,'` and `getgceenshQt@gma
 - Tests: `Greenshot.Tests/RapidOcr`. With `GREENSHOT_RAPIDOCR_MODELS` (folder with `det.onnx` and `rec.onnx`) and
   `GREENSHOT_OCR_SAMPLES` (folder with PNG captures) `Samples_AreRead` writes `<name>.rapidocr.txt` per capture;
   `GREENSHOT_RAPIDOCR_ONLINE` downloads onnxruntime.dll from the release and checks its hash.
+
+## Licenses
+
+All parts may be used and passed on with Greenshot (GPL version 3 or later), also commercially:
+
+| Part | License | Copyright |
+|---|---|---|
+| The steps of RapidOCR, ported to C# (`RapidOcrPipeline`, `TextBoxFinder`, `TextModels`) | Apache 2.0 | RapidOCR Authors |
+| PP-OCRv6 small models, as RapidOCR converts them to ONNX | Apache 2.0 | Baidu / PaddleOCR rights holders |
+| ONNX Runtime (`Microsoft.ML.OnnxRuntime.dll`, the downloaded `onnxruntime.dll`) | MIT | Microsoft |
+
+What these licenses ask, and how the plug-in does it:
+
+- The license texts go with the code and the files: the plug-in folder has `Licenses` with `NOTICE.txt`, the Apache license of
+  RapidOCR, RapidOCR's `MODEL_LICENSES.md` and the MIT license of ONNX Runtime; the download adds the license and the third-party
+  notices of `onnxruntime.dll` next to it.
+- Changed files say so: the three ported files have a header with the copyright of the RapidOCR Authors and what Greenshot changed.
+- The models are used unchanged (fixed SHA-256, the same as in RapidOCR's `MODEL_LICENSES.md`). When Greenshot hosts them itself
+  (a Greenshot release), the Apache license and `MODEL_LICENSES.md` are uploaded next to them.
+- The names RapidOCR, PaddleOCR and ONNX Runtime only say where the parts come from; nothing may suggest that their owners endorse
+  Greenshot.

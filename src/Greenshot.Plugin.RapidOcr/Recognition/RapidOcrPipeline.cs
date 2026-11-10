@@ -19,6 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
+ * Parts of this file are ported from RapidOCR (https://github.com/RapidAI/RapidOCR),
+ * Copyright (c) 2021 RapidOCR Authors, licensed under the Apache License, Version 2.0
+ * (see Licenses/RapidOCR-LICENSE.txt and Licenses/NOTICE.txt of this plug-in).
+ * Changed by the Greenshot developers: the steps of RapidOCR 3.10: ported to C#, detection at the size of the capture, lines cut from the capture, tiles for large captures, no orientation model.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;

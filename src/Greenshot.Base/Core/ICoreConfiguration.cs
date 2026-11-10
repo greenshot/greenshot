@@ -394,7 +394,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool IgnoreScreenReader { get; set; }
 
-        [Description("Read the text the applications show in a capture of the screen through UI Automation (exact text and link targets for the text selection, OCR and Smart text); OCR adds the text in the rest of the capture. False uses only OCR.")]
+        [Description("Read the text the applications show in a capture of the screen through UI Automation (exact text and link targets for the text selection, OCR and plugins); OCR adds the text in the rest of the capture. False uses only OCR.")]
         [DefaultValue(true)]
         bool ReadApplicationText { get; set; }
 

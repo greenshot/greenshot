@@ -145,6 +145,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🔌 Plugin Improvements
 
+**Text from applications**
+- Capturing text (T), the OCR destination and the recipes use the exact text the applications show (through UI Automation, e.g. browsers and Explorer); OCR only reads the rest, e.g. text in images
+
 **RapidOCR text recognition**
 - A second OCR engine next to Windows OCR, chosen in the settings: reads small and underlined text (links, e-mail addresses) much better
 - Its files (about 35 MB) are downloaded only when you choose it, after asking

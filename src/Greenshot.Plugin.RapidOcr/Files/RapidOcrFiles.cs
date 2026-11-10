@@ -107,6 +107,9 @@ internal sealed class RapidOcrFiles
             "cb2fa518b18356617f6f9f460c012501da2819ec7e5c1d80bd8f5de20492db0c"),
         new RapidOcrFile("onnxruntime-LICENSE.txt", OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/LICENSE", 1094, 637,
             "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674"),
+        // The notices of the libraries built into onnxruntime.dll, they go with it
+        new RapidOcrFile("onnxruntime-ThirdPartyNotices.txt", OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/ThirdPartyNotices.txt", 344457, 32416,
+            "c53a76501ef60db6f865f20599f220761201ac4057683acefdab37d861b86622"),
         new RapidOcrFile(DetectionFile, ModelBase + "det/" + DetectionFile, null, 9929594, 9929594,
             "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f"),
         new RapidOcrFile(RecognitionFile, ModelBase + "rec/" + RecognitionFile, null, 21234383, 21234383,

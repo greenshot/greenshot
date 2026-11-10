@@ -37,7 +37,7 @@ namespace Greenshot.Base.Interfaces.Ocr
 {
     /// <summary>
     /// The OCR lines of a capture: the ones found while selecting (T mode, the OCR started with the capture), else OCR runs now
-    /// and its lines are kept with the capture. Shared by the OCR step, the OCR destination and Smart text.
+    /// and its lines are kept with the capture. Shared by the OCR step, the OCR destination and plugins.
     /// </summary>
     public static class OcrLines
     {

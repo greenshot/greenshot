@@ -8,6 +8,10 @@
     <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- The licenses of RapidOCR, the models and ONNX Runtime go with the plug-in, see Licenses\NOTICE.txt -->
+    <None Include="Licenses\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
