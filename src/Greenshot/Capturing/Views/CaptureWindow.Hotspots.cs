@@ -261,9 +261,10 @@ namespace Greenshot.Capturing.Views
                 Text = number.ToString(CultureInfo.InvariantCulture),
                 FontSize = 11,
                 FontWeight = FontWeights.SemiBold,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                // The brushes directly: a resource reference is looked up while the row isn't in the panel yet, which logs "Resource not found"
+                Foreground = ToolStyle.AccentForeground
             };
-            numberText.SetResourceReference(TextBlock.ForegroundProperty, CaptureToolStyle.AccentForegroundKey);
             var badge = new Border
             {
                 CornerRadius = new CornerRadius(3),
@@ -271,15 +272,14 @@ namespace Greenshot.Capturing.Views
                 Padding = new Thickness(4, 0, 4, 0),
                 Margin = new Thickness(0, 1, 8, 0),
                 VerticalAlignment = VerticalAlignment.Top,
-                Child = numberText
+                Child = numberText,
+                Background = ToolStyle.Accent
             };
-            badge.SetResourceReference(Border.BackgroundProperty, CaptureToolStyle.AccentKey);
 
             var texts = new StackPanel();
             if (!string.IsNullOrEmpty(hotspot.Text))
             {
-                var label = new TextBlock { Text = hotspot.Text, FontSize = 11, TextTrimming = TextTrimming.CharacterEllipsis };
-                label.SetResourceReference(TextBlock.ForegroundProperty, CaptureToolStyle.MutedForegroundKey);
+                var label = new TextBlock { Text = hotspot.Text, FontSize = 11, TextTrimming = TextTrimming.CharacterEllipsis, Foreground = ToolStyle.MutedForeground };
                 texts.Children.Add(label);
             }
             if (!string.IsNullOrEmpty(hotspot.ToolTipText))
