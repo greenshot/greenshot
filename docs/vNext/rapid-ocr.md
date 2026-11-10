@@ -43,6 +43,9 @@ Greenshot runs the steps of RapidOCR 3.10 itself (ported to C#, Apache 2.0); Rap
 1. The image is kept between 30 and 2000 pixels per side for the detection; low or very wide images get black rows above and below.
    The lines are cut out of the capture itself (RapidOCR cuts them from the shrunk image: on captures over 2000 pixels, e.g. two
    screens, that read `https:/github.com`, `gmall.com`, `Telemedla` where the capture itself is read right).
+   Captures over 4000 pixels per side (several screens) are searched in overlapping tiles of at most 4000 pixels, so the detection
+   never sees text at less than half its size; parts of one line from two tiles become one line. At a quarter of the size the
+   detection found 22 of about 580 lines on three screens of text, in tiles all of them.
 2. The detection model gives a probability map of text pixels (at the size of the capture: RapidOCR enlarges the shorter side to 736 pixels for photos, which found the same lines on captures but took up to 40 times longer). Areas above 0.3 become the
    smallest rotated rectangle around them, kept when their mean is above 0.5, grown by area x 1.6 / perimeter.
 3. Each line is cut out upright and read by the recognition model (48 pixels high); greedy CTC decoding gives the characters and

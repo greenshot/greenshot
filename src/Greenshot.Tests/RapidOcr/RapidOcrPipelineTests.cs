@@ -135,6 +135,66 @@ namespace Greenshot.Tests.RapidOcr
             Assert.Equal(along.OrderBy(value => value), along);
         }
 
+        [Theory]
+        [InlineData(4500, 2000)]
+        [InlineData(7640, 2493)]
+        [InlineData(15360, 8640)]
+        public void Tiles_CoverTheImageAndOverlap(int width, int height)
+        {
+            var tiles = RapidOcrPipeline.Tiles(width, height, 4000, 400).ToList();
+            Assert.All(tiles, tile =>
+            {
+                Assert.InRange(tile.Width, 1, 4000);
+                Assert.InRange(tile.Height, 1, 4000);
+                Assert.True(tile.X >= 0 && tile.Y >= 0 && tile.X + tile.Width <= width && tile.Y + tile.Height <= height);
+            });
+            // Every pixel column and row lies in a tile, neighbours share at least the overlap
+            var columns = tiles.Select(tile => (Start: tile.X, Length: tile.Width)).Distinct().OrderBy(tile => tile.Start).ToList();
+            var rows = tiles.Select(tile => (Start: tile.Y, Length: tile.Height)).Distinct().OrderBy(tile => tile.Start).ToList();
+            Assert.Equal(columns.Count * rows.Count, tiles.Count);
+            foreach (var (list, length) in new[] { (columns, width), (rows, height) })
+            {
+                Assert.Equal(0, list[0].Start);
+                for (int i = 1; i < list.Count; i++)
+                {
+                    Assert.True(list[i - 1].Start + list[i - 1].Length - list[i].Start >= 400);
+                }
+                Assert.Equal(length, list[list.Count - 1].Start + list[list.Count - 1].Length);
+            }
+        }
+
+        [Fact]
+        public void Tiles_SmallImageIsOneTile()
+        {
+            Assert.Equal(new[] { (0, 0, 3000, 2000) }, RapidOcrPipeline.Tiles(3000, 2000, 4000, 400).ToArray());
+        }
+
+        [Fact]
+        public void JoinAcrossTiles_JoinsPartsOfOneLineOnly()
+        {
+            // A line cut by the tile border, found in parts in tile 0 and 1
+            var leftPart = Box(3500, 100, 4000, 120);
+            var rightPart = Box(3990, 101, 4300, 121);
+            // Another line in tile 1 just below: not joined
+            var below = Box(3990, 130, 4300, 150);
+            // Two boxes next to each other in the same tile stay two
+            var first = Box(100, 300, 200, 320);
+            var second = Box(150, 300, 260, 320);
+
+            var joined = RapidOcrPipeline.JoinAcrossTiles(new() { (leftPart, 0), (rightPart, 1), (below, 1), (first, 0), (second, 0) });
+
+            Assert.Equal(4, joined.Count);
+            var line = joined.Single(box => box.TopLeft.X > 3000 && box.TopLeft.Y < 125);
+            Assert.Equal(3500, line.TopLeft.X, 3);
+            Assert.Equal(4300, line.TopRight.X, 3);
+            Assert.Equal(100, line.TopLeft.Y, 3);
+            Assert.Equal(121, line.BottomLeft.Y, 3);
+            Assert.Contains(joined, box => Math.Abs(box.TopLeft.Y - 130) < 0.001);
+        }
+
+        private static TextBox Box(double left, double top, double right, double bottom) =>
+            new(new PointD(left, top), new PointD(right, top), new PointD(right, bottom), new PointD(left, bottom), 1);
+
         /// <summary>
         /// With the models (GREENSHOT_RAPIDOCR_MODELS: a folder with det.onnx and rec.onnx, onnxruntime findable) and captures
         /// (GREENSHOT_OCR_SAMPLES): writes &lt;name&gt;.rapidocr.txt next to each capture
