@@ -122,6 +122,36 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void ToolKeyWithCondition_OnlyWorksAndShowsWhileItHolds()
+    {
+        // The digit keys of the numbered hotspots: only while that number is there
+        var registry = new CaptureKeyRegistry();
+        var text = new FakeTool();
+        bool hasNumber = false;
+        var digit = registry.Register(new CaptureKeyBinding(Window, text, Key.D1, ModifierKeys.None, () => "item", () => { }, tool => hasNumber));
+
+        Assert.Null(registry.Find(Key.D1, ModifierKeys.None, text));
+        Assert.Empty(HelpOverlay.GetRows(registry.Bindings, text));
+        hasNumber = true;
+        Assert.Same(digit, registry.Find(Key.D1, ModifierKeys.None, text));
+        Assert.Same(digit, registry.Find(Key.NumPad1, ModifierKeys.None, text));
+        Assert.Null(registry.Find(Key.D1, ModifierKeys.None, new FakeTool()));
+        Assert.Single(HelpOverlay.GetRows(registry.Bindings, text));
+    }
+
+    [Fact]
+    public void ToolKeyWithCondition_StillConflictsWithTheToolsOwnKey()
+    {
+        // The fixed size tool picks sizes with the digits: the hotspot digits can't be added to it
+        var registry = new CaptureKeyRegistry();
+        var fixedSize = new FakeTool();
+        registry.Register(ForTool(fixedSize, Key.D1));
+
+        Assert.Throws<CaptureKeyConflictException>(() =>
+            registry.Register(new CaptureKeyBinding(Window, fixedSize, Key.D1, ModifierKeys.None, () => "item", () => { }, tool => true)));
+    }
+
+    [Fact]
     public void Find_WithShift_FallsBackToTheKeyWithoutShift()
     {
         var registry = new CaptureKeyRegistry();
