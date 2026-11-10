@@ -63,6 +63,17 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void Unregister_FreesTheKey()
+    {
+        var registry = new CaptureKeyRegistry();
+        var first = registry.Register(Always(Window, Key.M));
+        Assert.True(registry.Unregister(first));
+        Assert.False(registry.Unregister(first));
+        registry.Register(Always(Overlay, Key.M));
+        Assert.Single(registry.Bindings);
+    }
+
+    [Fact]
     public void OtherModifiers_AreAnotherKey()
     {
         var registry = new CaptureKeyRegistry();
