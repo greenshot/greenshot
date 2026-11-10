@@ -44,57 +44,51 @@ internal static class RemoteZip
     private const int TailLength = 22 + 65535;
 
     /// <summary>
-    /// The uncompressed content of the entry
+    /// The uncompressed content of the entry into the target, received reports the bytes of the (compressed) entry received so far.
+    /// The entry passes through a temporary file, never through memory as a whole.
     /// </summary>
     /// <exception cref="InvalidDataException">the zip or the entry isn't as expected</exception>
-    public static Task<byte[]> ReadEntryAsync(HttpService http, string url, string entryName, CancellationToken cancellationToken) =>
-        ReadEntryAsync(http, url, entryName, null, cancellationToken);
-
-    /// <summary>
-    /// The uncompressed content of the entry, received reports the bytes of the (compressed) entry received so far
-    /// </summary>
-    /// <exception cref="InvalidDataException">the zip or the entry isn't as expected</exception>
-    public static async Task<byte[]> ReadEntryAsync(HttpService http, string url, string entryName, IProgress<long> received, CancellationToken cancellationToken)
+    public static async Task ReadEntryAsync(HttpService http, string url, string entryName, Stream target, IProgress<long> received, CancellationToken cancellationToken)
     {
         // The end of the zip: where the central directory is. Not every server knows suffix ranges, so the size comes first
         long zipSize = await GetSizeAsync(http, url, cancellationToken).ConfigureAwait(false);
         long tailLength = Math.Min(zipSize, TailLength);
-        var tail = await GetRangeAsync(http, url, zipSize - tailLength, tailLength, null, cancellationToken).ConfigureAwait(false);
+        var tail = await GetRangeAsync(http, url, zipSize - tailLength, tailLength, cancellationToken).ConfigureAwait(false);
         int end = LastIndexOf(tail, EndOfCentralDirectory);
         if (end < 0) throw new InvalidDataException("No zip directory found");
         long directorySize = BitConverter.ToUInt32(tail, end + 12);
         long directoryOffset = BitConverter.ToUInt32(tail, end + 16);
         if (directoryOffset == uint.MaxValue || directorySize == uint.MaxValue) throw new InvalidDataException("Zip64 isn't supported");
 
-        var directory = await GetRangeAsync(http, url, directoryOffset, directorySize, null, cancellationToken).ConfigureAwait(false);
+        var directory = await GetRangeAsync(http, url, directoryOffset, directorySize, cancellationToken).ConfigureAwait(false);
         var (method, compressedSize, size, localOffset) = FindEntry(directory, entryName);
+        if (method != 0 && method != 8) throw new InvalidDataException($"Unsupported compression {method}");
 
         // The local header has its own name and extra lengths
-        var header = await GetRangeAsync(http, url, localOffset, 30, null, cancellationToken).ConfigureAwait(false);
+        var header = await GetRangeAsync(http, url, localOffset, 30, cancellationToken).ConfigureAwait(false);
         if (BitConverter.ToUInt32(header, 0) != LocalFileHeader) throw new InvalidDataException("Damaged zip entry");
         long dataOffset = localOffset + 30 + BitConverter.ToUInt16(header, 26) + BitConverter.ToUInt16(header, 28);
-        var compressed = await GetRangeAsync(http, url, dataOffset, compressedSize, received, cancellationToken).ConfigureAwait(false);
 
-        byte[] content;
-        switch (method)
+        string temporary = Path.GetTempFileName();
+        using var compressed = new FileStream(temporary, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 81920, FileOptions.DeleteOnClose);
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Range = new RangeHeaderValue(dataOffset, dataOffset + compressedSize - 1);
+        long copied = await http.CopyToAsync(request, compressed, received, cancellationToken).ConfigureAwait(false);
+        if (copied != compressedSize) throw new InvalidDataException("The server doesn't send parts of the file");
+        compressed.Position = 0;
+
+        long start = target.CanSeek ? target.Position : 0;
+        if (method == 0)
         {
-            case 0:
-                content = compressed;
-                break;
-            case 8:
-                using (var input = new DeflateStream(new MemoryStream(compressed), CompressionMode.Decompress))
-                using (var output = new MemoryStream((int)size))
-                {
-                    await input.CopyToAsync(output, 81920, cancellationToken).ConfigureAwait(false);
-                    content = output.ToArray();
-                }
-                break;
-            default:
-                throw new InvalidDataException($"Unsupported compression {method}");
+            await compressed.CopyToAsync(target, 81920, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            using var input = new DeflateStream(compressed, CompressionMode.Decompress, true);
+            await input.CopyToAsync(target, 81920, cancellationToken).ConfigureAwait(false);
         }
 
-        if (content.Length != size) throw new InvalidDataException("The zip entry has the wrong size");
-        return content;
+        if (target.CanSeek && target.Position - start != size) throw new InvalidDataException("The zip entry has the wrong size");
     }
 
     /// <summary>
@@ -142,13 +136,13 @@ internal static class RemoteZip
     }
 
     /// <summary>
-    /// The bytes from the offset; a server which ignores the range is refused
+    /// The bytes from the offset (the small parts of the zip: its end, its directory, a header); a server which ignores the range is refused
     /// </summary>
-    private static async Task<byte[]> GetRangeAsync(HttpService http, string url, long offset, long length, IProgress<long> received, CancellationToken cancellationToken)
+    private static async Task<byte[]> GetRangeAsync(HttpService http, string url, long offset, long length, CancellationToken cancellationToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(offset, offset + length - 1);
-        var bytes = await http.GetBytesAsync(request, received, cancellationToken).ConfigureAwait(false);
+        var bytes = await http.GetBytesAsync(request, cancellationToken).ConfigureAwait(false);
         if (bytes.Length != length)
         {
             throw new InvalidDataException("The server doesn't send parts of the file");

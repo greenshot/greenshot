@@ -53,6 +53,11 @@ Greenshot runs the steps of RapidOCR 3.10 itself (ported to C#, Apache 2.0); Rap
    where each word is, so the word boxes fit the text selection of Greenshot. Lines with a mean probability below 0.5 are dropped.
 4. No orientation model: text on screen isn't upside down.
 
+Memory: the large buffers of a run (the pixels of the capture, the model inputs and outputs, the mask of the detection) are outside
+the managed heap: the pixels and the mask in native memory, the model inputs and outputs as ONNX Runtime values read as spans. So an
+OCR of a large capture puts nothing on the large object heap, which is only freed by a full garbage collection. The download goes
+straight to the disk (the zip entry of onnxruntime.dll through a temporary file), it is never in memory as a whole.
+
 ## What both engines give
 
 Every line and word has a box: a rectangle with the angle of the text (`OcrBox` in `Greenshot.Base/Interfaces/Plugin`: centre,

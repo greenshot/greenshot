@@ -31,7 +31,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Runtime.InteropServices;
+using SixLabors.ImageSharp.PixelFormats;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 using Microsoft.ML.OnnxRuntime;
@@ -84,7 +84,11 @@ internal sealed class RapidOcrPipeline : IDisposable
     /// <summary>
     /// The lines of text with their words, in pixels of the image
     /// </summary>
-    public List<IOcrLineFeature> Read(Bitmap bitmap) => Read(FromBitmap(bitmap));
+    public List<IOcrLineFeature> Read(Bitmap bitmap)
+    {
+        using var image = FromBitmap(bitmap);
+        return Read(image);
+    }
 
     internal List<IOcrLineFeature> Read(BgrImage original)
     {
@@ -104,7 +108,10 @@ internal sealed class RapidOcrPipeline : IDisposable
             if ((double)crop.Height / crop.Width >= 1.5)
             {
                 // Read turned counter clockwise: the text runs from the top to the bottom of the box, its top is the right edge
-                crops.Add(crop.RotateCounterClockwise());
+                using (crop)
+                {
+                    crops.Add(crop.RotateCounterClockwise());
+                }
                 reading.Add((topRight, bottomRight, topLeft, bottomLeft, height));
             }
             else
@@ -114,7 +121,15 @@ internal sealed class RapidOcrPipeline : IDisposable
             }
         }
 
-        var recognized = _recognizer.Recognize(crops);
+        RecognizedLine[] recognized;
+        try
+        {
+            recognized = _recognizer.Recognize(crops);
+        }
+        finally
+        {
+            foreach (var crop in crops) crop.Dispose();
+        }
         var lines = new List<IOcrLineFeature>();
         for (int i = 0; i < boxes.Count; i++)
         {
@@ -147,29 +162,41 @@ internal sealed class RapidOcrPipeline : IDisposable
     /// </summary>
     private List<TextBox> FindBoxes(BgrImage original)
     {
-        var image = original;
-        if (Math.Max(image.Width, image.Height) > MaxSideLength)
+        // The resized and padded images are new ones, the original belongs to the caller
+        var owned = new List<BgrImage>();
+        try
         {
-            image = ResizeTo(image, (double)MaxSideLength / Math.Max(image.Width, image.Height));
-        }
-        if (Math.Min(image.Width, image.Height) < MinSideLength)
-        {
-            image = ResizeTo(image, (double)MinSideLength / Math.Min(image.Width, image.Height));
-        }
-        double ratioX = (double)original.Width / image.Width, ratioY = (double)original.Height / image.Height;
+            var image = original;
+            if (Math.Max(image.Width, image.Height) > MaxSideLength)
+            {
+                image = ResizeTo(image, (double)MaxSideLength / Math.Max(image.Width, image.Height));
+                owned.Add(image);
+            }
+            if (Math.Min(image.Width, image.Height) < MinSideLength)
+            {
+                image = ResizeTo(image, (double)MinSideLength / Math.Min(image.Width, image.Height));
+                owned.Add(image);
+            }
+            double ratioX = (double)original.Width / image.Width, ratioY = (double)original.Height / image.Height;
 
-        int padding = 0;
-        if (image.Height <= MinHeight || (double)image.Width / image.Height > WidthHeightRatio)
-        {
-            int paddedHeight = Math.Max((int)(image.Width / WidthHeightRatio), MinHeight) * 2;
-            padding = Math.Abs(paddedHeight - image.Height) / 2;
-            image = image.PadVertically(padding, padding);
-        }
+            int padding = 0;
+            if (image.Height <= MinHeight || (double)image.Width / image.Height > WidthHeightRatio)
+            {
+                int paddedHeight = Math.Max((int)(image.Width / WidthHeightRatio), MinHeight) * 2;
+                padding = Math.Abs(paddedHeight - image.Height) / 2;
+                image = image.PadVertically(padding, padding);
+                owned.Add(image);
+            }
 
-        PointD ToOriginal(PointD point) => new PointD(point.X * ratioX, (point.Y - padding) * ratioY);
-        return _detector.Detect(image)
-            .Select(box => new TextBox(ToOriginal(box.TopLeft), ToOriginal(box.TopRight), ToOriginal(box.BottomRight), ToOriginal(box.BottomLeft), box.Score))
-            .ToList();
+            PointD ToOriginal(PointD point) => new PointD(point.X * ratioX, (point.Y - padding) * ratioY);
+            return _detector.Detect(image)
+                .Select(box => new TextBox(ToOriginal(box.TopLeft), ToOriginal(box.TopRight), ToOriginal(box.BottomRight), ToOriginal(box.BottomLeft), box.Score))
+                .ToList();
+        }
+        finally
+        {
+            foreach (var image in owned) image.Dispose();
+        }
     }
 
     /// <summary>
@@ -183,7 +210,7 @@ internal sealed class RapidOcrPipeline : IDisposable
         int tile = 0;
         foreach (var (x, y, width, height) in Tiles(original.Width, original.Height, MaxTileSide, TileOverlap))
         {
-            var part = original.Crop(new PointD(x, y), new PointD(x + width, y), new PointD(x, y + height), width, height);
+            using var part = original.Crop(new PointD(x, y), new PointD(x + width, y), new PointD(x, y + height), width, height);
             found.AddRange(FindBoxes(part).Select(box => (Move(box, x, y), tile)));
             tile++;
         }
@@ -301,31 +328,35 @@ internal sealed class RapidOcrPipeline : IDisposable
     /// </summary>
     internal static BgrImage FromBitmap(Bitmap bitmap)
     {
-        int width = bitmap.Width, height = bitmap.Height;
-        var data = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        var result = new BgrImage(bitmap.Width, bitmap.Height);
+        // Premultiplied pixels come as they are, the others are straight alpha (or converted to it by GDI+)
+        bool premultiplied = bitmap.PixelFormat == PixelFormat.Format32bppPArgb;
         try
         {
-            var row = new byte[width * 4];
-            var result = new BgrImage(width, height);
-            for (int y = 0; y < height; y++)
+            BitmapPixels.ProcessPixelRows<Bgra32>(bitmap, pixels =>
             {
-                Marshal.Copy(data.Scan0 + y * data.Stride, row, 0, row.Length);
-                for (int x = 0; x < width; x++)
+                var target = result.Data;
+                for (int y = 0; y < pixels.Height; y++)
                 {
-                    int alpha = row[x * 4 + 3];
-                    int target = (y * width + x) * 3;
-                    for (int c = 0; c < 3; c++)
+                    var row = pixels.GetRowSpan(y);
+                    var targetRow = target.Slice(y * pixels.Width * 3, pixels.Width * 3);
+                    for (int x = 0; x < row.Length; x++)
                     {
-                        result.Data[target + c] = (byte)((row[x * 4 + c] * alpha + 255 * (255 - alpha)) / 255);
+                        var pixel = row[x];
+                        int alpha = pixel.A;
+                        int white = 255 * (255 - alpha);
+                        targetRow[x * 3] = (byte)(premultiplied ? Math.Min(255, pixel.B + 255 - alpha) : (pixel.B * alpha + white) / 255);
+                        targetRow[x * 3 + 1] = (byte)(premultiplied ? Math.Min(255, pixel.G + 255 - alpha) : (pixel.G * alpha + white) / 255);
+                        targetRow[x * 3 + 2] = (byte)(premultiplied ? Math.Min(255, pixel.R + 255 - alpha) : (pixel.R * alpha + white) / 255);
                     }
                 }
-            }
-
+            }, ImageLockMode.ReadOnly);
             return result;
         }
-        finally
+        catch
         {
-            bitmap.UnlockBits(data);
+            result.Dispose();
+            throw;
         }
     }
 

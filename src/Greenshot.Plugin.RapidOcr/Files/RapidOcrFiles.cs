@@ -141,9 +141,10 @@ internal sealed class RapidOcrFiles
     /// <summary>
     /// The file is the expected one: its SHA-256
     /// </summary>
-    public bool IsValid(RapidOcrFile file)
+    public bool IsValid(RapidOcrFile file) => IsValid(file, PathOf(file.Name));
+
+    private static bool IsValid(RapidOcrFile file, string path)
     {
-        string path = PathOf(file.Name);
         if (!File.Exists(path)) return false;
         using var stream = File.OpenRead(path);
         return stream.Length == file.Size && string.Equals(Hash(stream), file.Sha256, StringComparison.OrdinalIgnoreCase);
@@ -172,26 +173,35 @@ internal sealed class RapidOcrFiles
                 progress.Report(new DownloadProgress(file.Name, Math.Min(total, before + bytes), total)));
             received?.Report(0);
 
-            var content = file.ZipEntry == null
-                ? await http.GetBytesAsync(new HttpRequestMessage(HttpMethod.Get, file.Url), received, cancellationToken).ConfigureAwait(false)
-                : await RemoteZip.ReadEntryAsync(http, file.Url, file.ZipEntry, received, cancellationToken).ConfigureAwait(false);
-            done += file.TransferSize;
-            string hash;
-            using (var stream = new MemoryStream(content, false))
-            {
-                hash = Hash(stream);
-            }
-            if (content.Length != file.Size || !string.Equals(hash, file.Sha256, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidDataException($"{file.Name} isn't the expected file");
-            }
-
-            // Written next to it first, so an interrupted download leaves no half file under the name
+            // Written next to it first and checked there, so an interrupted or wrong download leaves no file under the name.
+            // The files go straight to the disk, never into memory as a whole
             string path = PathOf(file.Name);
             string temporary = path + ".download";
-            File.WriteAllBytes(temporary, content);
-            if (File.Exists(path)) File.Delete(path);
-            File.Move(temporary, path);
+            try
+            {
+                using (var stream = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None, 81920))
+                {
+                    if (file.ZipEntry == null)
+                    {
+                        await http.CopyToAsync(new HttpRequestMessage(HttpMethod.Get, file.Url), stream, received, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await RemoteZip.ReadEntryAsync(http, file.Url, file.ZipEntry, stream, received, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                done += file.TransferSize;
+                if (!IsValid(file, temporary))
+                {
+                    throw new InvalidDataException($"{file.Name} isn't the expected file");
+                }
+                if (File.Exists(path)) File.Delete(path);
+                File.Move(temporary, path);
+            }
+            finally
+            {
+                if (File.Exists(temporary)) File.Delete(temporary);
+            }
         }
 
         progress?.Report(new DownloadProgress(null, total, total));

@@ -81,14 +81,24 @@ namespace Greenshot.Tests.RapidOcr
         [Fact]
         public void Crop_IsUprightAndResizeKeepsColors()
         {
-            var image = new BgrImage(4, 2, new byte[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 });
-            var crop = image.Crop(new PointD(0, 0), new PointD(4, 0), new PointD(0, 2), 4, 2);
-            Assert.Equal(image.Data, crop.Data);
-            var resized = image.Resize(8, 4);
-            Assert.All(Enumerable.Range(0, 8 * 4), i => Assert.Equal(new byte[] { 1, 2, 3 }, resized.Data.Skip(i * 3).Take(3).ToArray()));
-            var turned = new BgrImage(2, 1, new byte[] { 10, 10, 10, 20, 20, 20 }).RotateCounterClockwise();
+            using var image = new BgrImage(4, 2, new byte[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 });
+            using var crop = image.Crop(new PointD(0, 0), new PointD(4, 0), new PointD(0, 2), 4, 2);
+            Assert.Equal(image.Data.ToArray(), crop.Data.ToArray());
+            using var resized = image.Resize(8, 4);
+            var resizedData = resized.Data.ToArray();
+            Assert.All(Enumerable.Range(0, 8 * 4), i => Assert.Equal(new byte[] { 1, 2, 3 }, resizedData.Skip(i * 3).Take(3).ToArray()));
+            using var source = new BgrImage(2, 1, new byte[] { 10, 10, 10, 20, 20, 20 });
+            using var turned = source.RotateCounterClockwise();
             Assert.Equal((1, 2), (turned.Width, turned.Height));
             Assert.Equal(20, turned.Data[0]);
+            // Into a model input: the same values as resized, normalized, one plane per channel
+            var tensor = new float[3 * 4 * 8];
+            image.WriteNormalized(tensor, 0, 4 * 8, 8, 8, 4);
+            Assert.All(Enumerable.Range(0, 8 * 4), i =>
+            {
+                Assert.Equal((1 / 255f - 0.5f) / 0.5f, tensor[i]);
+                Assert.Equal((3 / 255f - 0.5f) / 0.5f, tensor[2 * 32 + i]);
+            });
         }
 
         /// <summary>
