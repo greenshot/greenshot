@@ -32,6 +32,8 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
+using Greenshot.Base.Interfaces.Capture;
+using Greenshot.Plugin.SmartText.Capturing;
 using Greenshot.Plugin.SmartText.Destinations;
 using Greenshot.Plugin.SmartText.Detection;
 using Greenshot.Plugin.SmartText.Recipes;
@@ -67,6 +69,9 @@ public class SmartTextPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSte
         // Decided with the loaded configuration: nothing is registered for a user who isn't a beta tester
         services.AddServices<IDestination>(() => IsEnabled ? new IDestination[] { new SmartTextDestination() } : Array.Empty<IDestination>());
         services.AddServices<IBuiltInRecipeProvider>(() => IsEnabled ? new IBuiltInRecipeProvider[] { this } : Array.Empty<IBuiltInRecipeProvider>());
+        // The found items as numbered hotspots of the text tool (T) in the capture window
+        services.AddServices<ICaptureOverlayProvider>(() => IsEnabled ? new ICaptureOverlayProvider[] { new SmartTextCaptureOverlayProvider() } : Array.Empty<ICaptureOverlayProvider>());
+        services.AddServices<IFeatureHotspotTransformer>(() => IsEnabled ? new IFeatureHotspotTransformer[] { new SmartTextHotspotTransformer() } : Array.Empty<IFeatureHotspotTransformer>());
         services.AddRecipeStepProvider(this);
         services.AddSettingsView<SmartTextSettingsViewModel>(viewModel => new SmartTextSettingsView(viewModel));
     }

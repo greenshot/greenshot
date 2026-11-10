@@ -25,6 +25,10 @@ Smart text reads the text with Windows OCR, so a Windows OCR language must be in
   Its hotkey can be set like the one of every built-in recipe.
 - The destination *Smart text* (in the destination picker and the editor), for a capture you already have.
 - A recipe with the *Smart text* step and `Pick` `Ask` (see [In a recipe](#in-a-recipe)).
+- While selecting, in the text mode (T): every item found so far gets a number badge on the screen and a row in a list in a
+  corner, filled in as the text arrives. A click on a badge or a row (or its number key, 1 to 9 and 0) shows *Open* and *Copy*,
+  Ctrl+click (or Ctrl+number) opens it right away, or copies it when it can't be opened. Both end the capture. A click on the
+  text itself still selects text.
 
 ### The window
 
@@ -181,6 +185,9 @@ capturing the screen. The `Notification` step's `Message` tells the user what ha
 - `Detection/`: `TextLayout` (the OCR lines and word boxes as text with positions), `SmartTextDetector` (one pattern: look-alikes,
   label, area, normalize, check, action), `BuiltInDetectors`, `SmartTextScanner` (overlaps, duplicates, order), `SmartTextPatternCheck`
   (the checks of a pattern and of `openUrl`). The items are `SmartTextItem`, an `IDetectedFeature` kept with the capture like a barcode.
+- `Capturing/`: `SmartTextCaptureOverlay` scans the text lines of the capture window while the text tool is active and keeps the
+  `SmartTextItem` features up to date; `SmartTextHotspotTransformer` makes them numbered hotspots of the text tool (see
+  docs/vNext/capture-tools.md, Hotspots).
 - `SmartTextDefinitions`: the pattern files (`DefinitionStore`, approval like the commands) and the on/off setting per detector.
 - Views: `SmartTextWindow` (picker), `SmartTextSettingsView`, `SmartTextPatternWindow`; texts in `Languages/greenshot.smarttext.*.ini`.
 - Tests: `Greenshot.Tests/SmartText`.
