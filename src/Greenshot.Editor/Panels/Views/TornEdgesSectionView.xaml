@@ -1,0 +1,68 @@
+<!--
+    The torn sides and the shadow of the selected torn edges, a change shows at once.
+    The teeth, the color, the line and the shadow on or off are in the properties of the element (toolbar).
+-->
+<UserControl x:Class="Greenshot.Editor.Panels.Views.TornEdgesSectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+            <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                <Setter Property="Padding" Value="0,6,0,2"/>
+                <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+            </Style>
+            <Style x:Key="ValueText" TargetType="TextBlock">
+                <Setter Property="Margin" Value="8,0,0,0"/>
+                <Setter Property="MinWidth" Value="40"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel Margin="0,2,0,0">
+        <WrapPanel>
+            <CheckBox Content="{wpf:Text Editor.TornedgeTop}" IsChecked="{Binding TornTop}" Margin="0,2,12,2"/>
+            <CheckBox Content="{wpf:Text Editor.TornedgeRight}" IsChecked="{Binding TornRight}" Margin="0,2,12,2"/>
+            <CheckBox Content="{wpf:Text Editor.TornedgeBottom}" IsChecked="{Binding TornBottom}" Margin="0,2,12,2"/>
+            <CheckBox Content="{wpf:Text Editor.TornedgeLeft}" IsChecked="{Binding TornLeft}" Margin="0,2,12,2"/>
+        </WrapPanel>
+        <Button Style="{StaticResource SecondaryButtonStyle}" Content="{wpf:Text Editor.CutMarkReseed}" HorizontalAlignment="Left" Margin="0,6,0,0" Padding="10,4"
+                Click="NewEdges_Click"/>
+
+        <!-- The shadow, when it is switched on in the properties of the element -->
+        <StackPanel Visibility="{Binding HasShadow, Converter={StaticResource BoolToVisibility}}">
+            <Label x:Name="DarknessLabel" Content="{wpf:Text Editor.DropshadowDarkness}"/>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DarknessSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                <wpf:ValueSlider x:Name="DarknessSlider" ValueFormat="{}{0:0}" Minimum="1" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
+                                 Value="{Binding ShadowDarkness}" AutomationProperties.LabeledBy="{Binding ElementName=DarknessLabel}"/>
+            </DockPanel>
+            <Label x:Name="ShadowSizeLabel" Content="{wpf:Text Editor.DropshadowThickness}"/>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ShadowSizeSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                <wpf:ValueSlider x:Name="ShadowSizeSlider" ValueFormat="{}{0:0} px" Minimum="1" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
+                                 Value="{Binding ShadowSize}" AutomationProperties.LabeledBy="{Binding ElementName=ShadowSizeLabel}"/>
+            </DockPanel>
+            <Label x:Name="OffsetLabel" Content="{wpf:Text Editor.DropshadowOffset}"/>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="X" Width="14" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetXSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                <wpf:ValueSlider x:Name="OffsetXSlider" ValueFormat="{}{0:0} px" Minimum="-20" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
+                                 Value="{Binding ShadowOffsetX}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetLabel}" AutomationProperties.HelpText="X"/>
+            </DockPanel>
+            <DockPanel Margin="0,4,0,0">
+                <TextBlock DockPanel.Dock="Left" Text="Y" Width="14" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetYSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                <wpf:ValueSlider x:Name="OffsetYSlider" ValueFormat="{}{0:0} px" Minimum="-20" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
+                                 Value="{Binding ShadowOffsetY}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetLabel}" AutomationProperties.HelpText="Y"/>
+            </DockPanel>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

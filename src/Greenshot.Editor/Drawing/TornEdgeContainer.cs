@@ -34,7 +34,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Languages;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
-using Greenshot.Editor.Views;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -218,6 +217,16 @@ namespace Greenshot.Editor.Drawing
         public void NewSeed()
         {
             _seed = CutOutHelper.NewSeed(_seed);
+            ClearShadowCache();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Use the given seed for the edges, e.g. the one the preview of the Effects panel showed
+        /// </summary>
+        internal void SetSeed(int seed)
+        {
+            _seed = seed;
             ClearShadowCache();
             Invalidate();
         }
@@ -534,21 +543,6 @@ namespace Greenshot.Editor.Drawing
                 surface.Invalidate();
             };
             menu.Items.Add(reseedItem);
-
-            var settingsItem = new ToolStripMenuItem(Texts.Editor.TornedgeSettings);
-            settingsItem.Click += (_, _) =>
-            {
-                var settings = GetSettings();
-                var window = new TornEdgeSettingsWindow(settings);
-                if (window.ShowDialog(surface as IWin32Window) != true)
-                {
-                    return;
-                }
-
-                ApplySettings(settings);
-                surface.Invalidate();
-            };
-            menu.Items.Add(settingsItem);
 
             var applyItem = new ToolStripMenuItem(Texts.Editor.ApplyToImage);
             applyItem.Click += (_, _) => InternalParent?.ApplyElementToImage(this);
