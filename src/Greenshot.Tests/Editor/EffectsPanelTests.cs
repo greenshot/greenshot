@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Threading;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Panels;
@@ -34,8 +35,6 @@ namespace Greenshot.Tests.Editor
 {
     /// <summary>
     /// The Effects panel: presets and settings, the preview, and Apply as one undo step. Only the logic, no WPF.
-    /// A Surface is a WinForms control, it puts a WindowsFormsSynchronizationContext on the test thread which nothing pumps:
-    /// what awaits the thread pool starts there (Task.Run, like SurfaceHdrTests), or it never comes back.
     /// </summary>
     public class EffectsPanelTests
     {
@@ -62,7 +61,9 @@ namespace Greenshot.Tests.Editor
                 graphics.Clear(Color.SteelBlue);
             }
 
-            return new Surface(bitmap);
+            // A Surface is a WinForms control: made on the test thread it would put a WinForms context there, which nothing pumps,
+            // and the awaited previews would never come back
+            return WinFormsContextGuard.CreateWithoutContext(() => new Surface(bitmap));
         }
 
         [Fact]
@@ -74,7 +75,7 @@ namespace Greenshot.Tests.Editor
             viewModel.ApplyPreset(viewModel.Presets[2]);
             Assert.Equal(6, viewModel.BorderWidth);
 
-            using (var preview = await Task.Run(() => surface.CreateEffectPreviewAsync(viewModel.CreateEffect(), false)))
+            using (var preview = await surface.CreateEffectPreviewAsync(viewModel.CreateEffect(), false))
             {
                 Assert.Equal(new Size(212, 112), preview.Size);
             }
@@ -103,7 +104,7 @@ namespace Greenshot.Tests.Editor
             viewModel.Show(EffectKind.Grayscale);
             Assert.True(viewModel.HasNoSettings);
 
-            using var preview = await Task.Run(() => surface.CreateEffectPreviewAsync(viewModel.CreateEffect(), true));
+            using var preview = await surface.CreateEffectPreviewAsync(viewModel.CreateEffect(), true);
             // Like the effect: the element stays red, the capture is gray
             var inside = preview.GetPixel(30, 30);
             Assert.True(inside.R > 200 && inside.G < 50, inside.ToString());
@@ -146,7 +147,7 @@ namespace Greenshot.Tests.Editor
             var settings = new TornEdgeEffect { GenerateShadow = true, ShadowSize = 7, ShadowOffset = new Dapplo.Windows.Common.Structs.NativePoint(-1, -1) };
             int margin = TornEdgeContainer.GetShadowMargin(settings);
 
-            using var preview = await Task.Run(() => surface.CreateTornEdgesPreviewAsync(settings));
+            using var preview = await surface.CreateTornEdgesPreviewAsync(settings);
 
             Assert.Equal(new Size(200 + 2 * margin, 100 + 2 * margin), preview.Size);
             Assert.Equal(new Size(200, 100), surface.Image.Size);
@@ -182,7 +183,7 @@ namespace Greenshot.Tests.Editor
         [Fact]
         public void RemoveTransparency_NeedsTransparency()
         {
-            using var surface = new Surface(new Bitmap(20, 20, System.Drawing.Imaging.PixelFormat.Format24bppRgb));
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(new Bitmap(20, 20, System.Drawing.Imaging.PixelFormat.Format24bppRgb)));
             using var viewModel = CreateViewModel(surface);
             viewModel.Show(EffectKind.RemoveTransparency);
             Assert.False(viewModel.CanApply);
