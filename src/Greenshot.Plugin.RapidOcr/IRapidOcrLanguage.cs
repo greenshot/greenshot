@@ -92,6 +92,11 @@ namespace Greenshot.Plugin.RapidOcr
         string EngineName { get; }
 
         /// <summary>
+        /// Keep the models loaded between recognitions (faster OCR, about 80 MB more memory)
+        /// </summary>
+        string KeepModelsLoaded { get; }
+
+        /// <summary>
         /// RapidOCR is chosen for text recognition, but its files in {3} are missing or not the expected ones. Until they are there, Windows OCR recognizes the text.{1}{1}Download them again ({0:0} MB from github.com/microsoft/onnxruntime and {2}), or use Windows OCR from now on?
         /// </summary>
         string RepairQuestion { get; }
