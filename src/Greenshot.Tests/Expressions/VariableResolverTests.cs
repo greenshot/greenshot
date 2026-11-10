@@ -128,6 +128,7 @@ namespace Greenshot.Tests.Expressions
         [InlineData("${match('GS-123', '([A-Z]+)-(?<n>\\d+)', 'n')}", "123")]
         [InlineData("${match('GS-123', '([A-Z]+)-(\\d+)', 1)}", "GS")]
         [InlineData("${replaceMatch('a1b22', '\\d+', '#')}", "a#b#")]
+        [InlineData("${urlEncode('a b/c?d=1&e')}", "a%20b%2Fc%3Fd%3D1%26e")]
         [InlineData("${fileNameWithoutExtension('c:/x/shot.png')}", "shot")]
         [InlineData("${extension('shot.png')}", ".png")]
         [InlineData("${round(2.5)}", "3")]

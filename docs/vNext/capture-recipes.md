@@ -425,6 +425,11 @@ itself and needs no `Ocr` step. The selection step sets the variable `SelectedMo
 selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
 
+A `Source` step which looks for a window (`ProcessName`, `WindowTitlePattern`) captures the active window, else the screen, when
+no window matches. `WhenNoWindow` `Stop` ends the recipe instead, with a message, so a recipe meant for one window never works on
+something else. The `Message` parameter of the `Notification` step shows a text of the recipe (e.g. `Copied ${var.Found}`), also
+when the recipe exported nothing.
+
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
 selecting; the `BarcodeScan` step uses what it found. When the capture is cropped to the selection, only the codes and text
