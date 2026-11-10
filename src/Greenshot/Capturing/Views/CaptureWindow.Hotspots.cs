@@ -80,22 +80,25 @@ namespace Greenshot.Capturing.Views
         {
             foreach (var tool in _tools)
             {
-                try
+                var bindings = new List<CaptureKeyBinding>();
+                for (int index = 0; index < NumberKeyCount; index++)
                 {
-                    for (int index = 0; index < NumberKeyCount; index++)
-                    {
-                        int number = index + 1;
-                        var key = index < 9 ? Key.D1 + index : Key.D0;
-                        bool HasNumber(ICaptureTool activeTool) => _numberedHotspots.Any(entry => entry.Number == number);
-                        _keys.Register(new CaptureKeyBinding(this, tool, key, ModifierKeys.None, () => Texts.Core.CaptureKeyHotspotMenu,
-                            () => ShowNumberedHotspotMenu(number), HasNumber));
-                        _keys.Register(new CaptureKeyBinding(this, tool, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyHotspotDefault,
-                            () => RunNumberedHotspotDefault(number), HasNumber));
-                    }
+                    int number = index + 1;
+                    var key = index < 9 ? Key.D1 + index : Key.D0;
+                    bool HasNumber(ICaptureTool activeTool) => _numberedHotspots.Any(entry => entry.Number == number);
+                    bindings.Add(new CaptureKeyBinding(this, tool, key, ModifierKeys.None, () => Texts.Core.CaptureKeyHotspotMenu,
+                        () => ShowNumberedHotspotMenu(number), HasNumber));
+                    bindings.Add(new CaptureKeyBinding(this, tool, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyHotspotDefault,
+                        () => RunNumberedHotspotDefault(number), HasNumber));
                 }
-                catch (CaptureKeyConflictException ex)
+                // A tool which uses one of the digits itself (the fixed size picks a size with them) picks its numbered hotspots with the mouse
+                if (bindings.Any(binding => _keys.Bindings.Any(binding.ConflictsWith)))
                 {
-                    Log.Debug($"The capture tool {tool.Id} uses the digit keys itself, its numbered hotspots are picked with the mouse", ex);
+                    continue;
+                }
+                foreach (var binding in bindings)
+                {
+                    _keys.Register(binding);
                 }
             }
         }
