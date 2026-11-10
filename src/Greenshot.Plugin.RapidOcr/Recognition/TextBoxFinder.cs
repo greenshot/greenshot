@@ -76,11 +76,18 @@ internal static class TextBoxFinder
     /// <param name="height">height of the map</param>
     /// <param name="imageWidth">width of the image the boxes are for</param>
     /// <param name="imageHeight">height of the image the boxes are for</param>
-    public static List<TextBox> Find(float[] probabilities, int width, int height, int imageWidth, int imageHeight)
+    public static List<TextBox> Find(ReadOnlySpan<float> probabilities, int width, int height, int imageWidth, int imageHeight)
     {
-        var mask = Dilate(probabilities, width, height);
+        List<List<PointD>> hulls;
+        // The mask and the areas outside the managed heap: a full screen map has millions of pixels
+        using (var mask = new NativeBuffer<byte>(width * height))
+        {
+            Dilate(probabilities, width, height, mask.Span);
+            hulls = Areas(mask, width, height, MaxCandidates);
+        }
+
         var boxes = new List<TextBox>();
-        foreach (var hull in Areas(mask, width, height).Take(MaxCandidates))
+        foreach (var hull in hulls)
         {
             var rectangle = RotatedRectangle.Smallest(hull);
             if (rectangle.ShortSide < MinSize) continue;
@@ -122,12 +129,14 @@ internal static class TextBoxFinder
             .Select(entry => entry.box).ToList();
     }
 
+    // The states of a pixel in the mask
+    private const byte Off = 0, On = 1, Seen = 2;
+
     /// <summary>
     /// Above the threshold, dilated with a 2x2 kernel (anchor in its center as OpenCV: a pixel is set when it or its left/top neighbours are)
     /// </summary>
-    private static bool[] Dilate(float[] probabilities, int width, int height)
+    private static void Dilate(ReadOnlySpan<float> probabilities, int width, int height, Span<byte> mask)
     {
-        var mask = new bool[width * height];
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -136,31 +145,33 @@ internal static class TextBoxFinder
                           || x > 0 && probabilities[y * width + x - 1] > Threshold
                           || y > 0 && probabilities[(y - 1) * width + x] > Threshold
                           || x > 0 && y > 0 && probabilities[(y - 1) * width + x - 1] > Threshold;
-                mask[y * width + x] = on;
+                mask[y * width + x] = on ? On : Off;
             }
         }
-
-        return mask;
     }
 
     /// <summary>
-    /// The 8-connected areas of the mask, as the convex hull of their pixel centers
+    /// The 8-connected areas of the mask (at most max), as the convex hull of their pixel centers; the mask marks the pixels it went through
     /// </summary>
-    private static IEnumerable<List<PointD>> Areas(bool[] mask, int width, int height)
+    private static List<List<PointD>> Areas(NativeBuffer<byte> maskBuffer, int width, int height, int max)
     {
-        var seen = new bool[mask.Length];
-        var stack = new Stack<int>();
-        for (int start = 0; start < mask.Length; start++)
+        var hulls = new List<List<PointD>>();
+        // The pixels still to visit, outside the managed heap too: a long line has many thousands
+        using var stackBuffer = new NativeBuffer<int>(4096);
+        var mask = maskBuffer.Span;
+        // Per row the leftmost and rightmost pixel, their hull is the hull of the area
+        var rows = new Dictionary<int, (int Left, int Right)>();
+        for (int start = 0; start < mask.Length && hulls.Count < max; start++)
         {
-            if (!mask[start] || seen[start]) continue;
+            if (mask[start] != On) continue;
 
-            // Per row the leftmost and rightmost pixel, their hull is the hull of the area
-            var rows = new Dictionary<int, (int Left, int Right)>();
-            seen[start] = true;
-            stack.Push(start);
-            while (stack.Count > 0)
+            rows.Clear();
+            int count = 0;
+            mask[start] = Seen;
+            stackBuffer.Span[count++] = start;
+            while (count > 0)
             {
-                int index = stack.Pop();
+                int index = stackBuffer.Span[--count];
                 int x = index % width, y = index / width;
                 rows[y] = rows.TryGetValue(y, out var row) ? (Math.Min(row.Left, x), Math.Max(row.Right, x)) : (x, x);
                 for (int dy = -1; dy <= 1; dy++)
@@ -172,9 +183,10 @@ internal static class TextBoxFinder
                         int nx = x + dx;
                         if (nx < 0 || nx >= width || dx == 0 && dy == 0) continue;
                         int next = ny * width + nx;
-                        if (!mask[next] || seen[next]) continue;
-                        seen[next] = true;
-                        stack.Push(next);
+                        if (mask[next] != On) continue;
+                        mask[next] = Seen;
+                        if (count == stackBuffer.Length) stackBuffer.Grow(stackBuffer.Length * 2);
+                        stackBuffer.Span[count++] = next;
                     }
                 }
             }
@@ -186,8 +198,10 @@ internal static class TextBoxFinder
                 if (row.Value.Right != row.Value.Left) points.Add(new PointD(row.Value.Right, row.Key));
             }
 
-            yield return ConvexHull(points);
+            hulls.Add(ConvexHull(points));
         }
+
+        return hulls;
     }
 
     /// <summary>Monotone chain, counter clockwise</summary>
@@ -219,7 +233,7 @@ internal static class TextBoxFinder
     /// <summary>
     /// The mean probability of the pixels inside the polygon (box_score_fast)
     /// </summary>
-    private static double MeanInside(float[] probabilities, int width, int height, PointD[] polygon)
+    private static double MeanInside(ReadOnlySpan<float> probabilities, int width, int height, PointD[] polygon)
     {
         int xMin = (int)Clamp(Math.Floor(polygon.Min(point => point.X)), 0, width - 1);
         int xMax = (int)Clamp(Math.Ceiling(polygon.Max(point => point.X)), 0, width - 1);

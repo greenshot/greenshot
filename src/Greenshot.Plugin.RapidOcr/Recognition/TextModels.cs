@@ -76,24 +76,16 @@ internal sealed class TextDetector : IDisposable
         // text 831 x 121 became 5056 x 736: 2 s instead of 50 ms)
         int width = Math.Max(32, (int)Math.Round(image.Width / 32.0) * 32);
         int height = Math.Max(32, (int)Math.Round(image.Height / 32.0) * 32);
-        var resized = image.Resize(width, height);
-
-        var input = new DenseTensor<float>(new[] { 1, 3, height, width });
-        var buffer = input.Buffer.Span;
-        int plane = width * height;
-        for (int i = 0; i < plane; i++)
-        {
-            for (int c = 0; c < 3; c++)
-            {
-                buffer[c * plane + i] = (resized.Data[i * 3 + c] / 255f - 0.5f) / 0.5f;
-            }
-        }
-
-        using var results = _session.Run(new[] { NamedOnnxValue.CreateFromTensor(_inputName, input) });
-        var output = results.First().AsTensor<float>();
-        var probabilities = output.ToArray();
-        int mapHeight = output.Dimensions[2], mapWidth = output.Dimensions[3];
-        return TextBoxFinder.Find(probabilities, mapWidth, mapHeight, image.Width, image.Height);
+        // The input and the output stay outside the managed heap (OrtValue in native memory, read as spans): a capture of the screen
+        // is millions of floats
+        using var input = OrtValue.CreateAllocatedTensorValue(OrtAllocator.DefaultInstance, TensorElementType.Float, new long[] { 1, 3, height, width });
+        image.WriteNormalized(input.GetTensorMutableDataAsSpan<float>(), 0, width * height, width, width, height);
+        using var runOptions = new RunOptions();
+        using var outputs = _session.Run(runOptions, new[] { _inputName }, new[] { input }, _session.OutputNames);
+        var output = outputs.First();
+        var shape = output.GetTensorTypeAndShape().Shape;
+        int mapHeight = (int)shape[2], mapWidth = (int)shape[3];
+        return TextBoxFinder.Find(output.GetTensorDataAsSpan<float>(), mapWidth, mapHeight, image.Width, image.Height);
     }
 
     public void Dispose() => _session.Dispose();
@@ -138,8 +130,10 @@ internal sealed class TextRecognizer : IDisposable
             double maxRatio = Math.Max((double)DefaultImageWidth / ImageHeight, batch.Max(index => (double)lines[index].Width / lines[index].Height));
             int imageWidth = (int)(ImageHeight * maxRatio);
 
-            var input = new DenseTensor<float>(new[] { batch.Length, 3, ImageHeight, imageWidth });
-            var buffer = input.Buffer.Span;
+            using var input = OrtValue.CreateAllocatedTensorValue(OrtAllocator.DefaultInstance, TensorElementType.Float, new long[] { batch.Length, 3, ImageHeight, imageWidth });
+            var buffer = input.GetTensorMutableDataAsSpan<float>();
+            // The padding right of the narrower lines of the batch
+            buffer.Clear();
             var resizedWidths = new int[batch.Length];
             int plane = ImageHeight * imageWidth;
             for (int b = 0; b < batch.Length; b++)
@@ -148,26 +142,16 @@ internal sealed class TextRecognizer : IDisposable
                 double ratio = (double)line.Width / line.Height;
                 int resizedWidth = (int)Math.Ceiling(ImageHeight * ratio) > imageWidth ? imageWidth : (int)Math.Ceiling(ImageHeight * ratio);
                 resizedWidths[b] = resizedWidth;
-                var resized = line.Resize(resizedWidth, ImageHeight);
-                int offset = b * 3 * plane;
-                for (int y = 0; y < ImageHeight; y++)
-                {
-                    for (int x = 0; x < resizedWidth; x++)
-                    {
-                        int source = (y * resizedWidth + x) * 3;
-                        for (int c = 0; c < 3; c++)
-                        {
-                            buffer[offset + c * plane + y * imageWidth + x] = (resized.Data[source + c] / 255f - 0.5f) / 0.5f;
-                        }
-                    }
-                }
+                line.WriteNormalized(buffer, b * 3 * plane, plane, imageWidth, resizedWidth, ImageHeight);
             }
 
-            using var outputs = _session.Run(new[] { NamedOnnxValue.CreateFromTensor(_inputName, input) });
-            var output = outputs.First().AsTensor<float>();
-            int steps = output.Dimensions[1], classes = output.Dimensions[2];
-            // The output as it is, without a copy (it has steps x classes values per line, about 18000 classes)
-            var values = output is DenseTensor<float> dense ? dense.Buffer : new Memory<float>(output.ToArray());
+            using var runOptions = new RunOptions();
+            using var outputs = _session.Run(runOptions, new[] { _inputName }, new[] { input }, _session.OutputNames);
+            var output = outputs.First();
+            var shape = output.GetTensorTypeAndShape().Shape;
+            int steps = (int)shape[1], classes = (int)shape[2];
+            // The output as it is, in native memory (steps x classes values per line, about 18000 classes)
+            var values = output.GetTensorDataAsSpan<float>();
             for (int b = 0; b < batch.Length; b++)
             {
                 var line = lines[batch[b]];
@@ -175,7 +159,7 @@ internal sealed class TextRecognizer : IDisposable
                 double stepWidth = (double)imageWidth / steps * line.Width / resizedWidths[b];
                 // The steps right of the line only see the padding of the batch
                 int usedSteps = Math.Min(steps, (int)Math.Ceiling((double)resizedWidths[b] * steps / imageWidth) + 1);
-                results[batch[b]] = Decode(values.Span.Slice(b * steps * classes, usedSteps * classes), usedSteps, classes, stepWidth);
+                results[batch[b]] = Decode(values.Slice(b * steps * classes, usedSteps * classes), usedSteps, classes, stepWidth);
             }
         }
 

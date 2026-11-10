@@ -133,8 +133,11 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
 #pragma warning disable RS0030 // R10: documented parallel branch
         return Task.Run(() =>
         {
-            var pipeline = Pipeline();
-            return pipeline == null ? new List<IOcrLineFeature>() : pipeline.Read(pixels);
+            using (pixels)
+            {
+                var pipeline = Pipeline();
+                return pipeline == null ? new List<IOcrLineFeature>() : pipeline.Read(pixels);
+            }
         });
 #pragma warning restore RS0030
     }

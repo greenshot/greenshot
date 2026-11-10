@@ -47,7 +47,7 @@ namespace Greenshot.Tests.RapidOcr
             var handler = new RangeHandler(zip);
             var http = new HttpService(handler, TimeSpan.FromSeconds(10));
 
-            var read = await RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", "lib/onnxruntime.dll", TestContext.Current.CancellationToken);
+            var read = await ReadAsync(http, "lib/onnxruntime.dll", null);
 
             Assert.Equal(content, read);
             // Never the whole zip
@@ -63,13 +63,20 @@ namespace Greenshot.Tests.RapidOcr
             var http = new HttpService(new RangeHandler(zip), TimeSpan.FromSeconds(10));
             var reports = new System.Collections.Generic.List<long>();
 
-            var read = await RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", "lib/onnxruntime.dll", new ListProgress(reports), TestContext.Current.CancellationToken);
+            var read = await ReadAsync(http, "lib/onnxruntime.dll", new ListProgress(reports));
 
             Assert.Equal(content, read);
             Assert.NotEmpty(reports);
             // Growing up to the compressed size of the entry, which is all that was transferred for it
             Assert.Equal(reports.OrderBy(value => value), reports);
             Assert.InRange(reports[reports.Count - 1], 1, zip.Length);
+        }
+
+        private static async Task<byte[]> ReadAsync(HttpService http, string entry, IProgress<long> progress)
+        {
+            using var target = new MemoryStream();
+            await RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", entry, target, progress, TestContext.Current.CancellationToken);
+            return target.ToArray();
         }
 
         /// <summary>
@@ -91,14 +98,14 @@ namespace Greenshot.Tests.RapidOcr
         public async Task MissingEntry_IsRefused()
         {
             var http = new HttpService(new RangeHandler(CreateZip(("readme.txt", new byte[] { 1 }))), TimeSpan.FromSeconds(10));
-            await Assert.ThrowsAsync<InvalidDataException>(() => RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", "onnxruntime.dll", TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(() => ReadAsync(http, "onnxruntime.dll", null));
         }
 
         [Fact]
         public async Task ServerWithoutRanges_IsRefused()
         {
             var http = new HttpService(new RangeHandler(CreateZip(("a.txt", new byte[] { 1 })), ignoreRanges: true), TimeSpan.FromSeconds(10));
-            await Assert.ThrowsAsync<InvalidDataException>(() => RemoteZip.ReadEntryAsync(http, "https://example.com/release.zip", "a.txt", TestContext.Current.CancellationToken));
+            await Assert.ThrowsAsync<InvalidDataException>(() => ReadAsync(http, "a.txt", null));
         }
 
         /// <summary>
@@ -115,9 +122,11 @@ namespace Greenshot.Tests.RapidOcr
             {
                 foreach (var file in runtime)
                 {
-                    var content = await RemoteZip.ReadEntryAsync(HttpService.Current, file.Url, file.ZipEntry, TestContext.Current.CancellationToken);
                     Directory.CreateDirectory(directory);
-                    File.WriteAllBytes(files.PathOf(file.Name), content);
+                    using (var stream = File.Create(files.PathOf(file.Name)))
+                    {
+                        await RemoteZip.ReadEntryAsync(HttpService.Current, file.Url, file.ZipEntry, stream, null, TestContext.Current.CancellationToken);
+                    }
                     Assert.True(files.IsValid(file), file.Name);
                 }
             }
