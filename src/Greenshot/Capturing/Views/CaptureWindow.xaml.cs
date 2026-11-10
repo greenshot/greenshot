@@ -603,7 +603,6 @@ namespace Greenshot.Capturing.Views
             // The window's keys first, then the built-in tools, then plugins: the built-in keys win a conflict
             RegisterWindowKeys();
             AttachTools();
-            RegisterHotspotKeys();
             _activeTool.Activate(this);
             CreateOverlays();
 

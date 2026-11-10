@@ -725,8 +725,10 @@ only how the capture window shows it.
 A **numbered hotspot** is for many small things on a page, e.g. the links the text tool shows. Only its badge and its row in the
 list are clicked, the area stays with the tool, so the text tool still selects the text below it. The window gives the numbers in
 reading order; a hotspot keeps its number while the window is open (the same tool, area, `Text` and `ToolTipText`), new ones get the
-next numbers. The digit keys 1 to 9 and 0 show the menu of the first ten, Ctrl plus the digit runs the default action. They only work
-while that number is there, and only in tools which don't use the digits themselves (the fixed size tool picks a size with them).
+next numbers. The digit keys 1 to 9 and 0 show the menu of the first ten, Ctrl plus the digit runs the default action. The window
+registers them for the active tool while it shows numbered hotspots and removes them when the hotspots are gone or another tool is
+active, so they never get in the way of other keys. Each digit only works while that number is there. A tool which uses the digits
+itself (the fixed size tool picks a size with them) would get no digit keys for its hotspots, they are picked with the mouse there.
 The list is a panel which takes the mouse: it is placed away from the cursor once and stays there, it gets see-through while a
 selection is below it, and a press on it never reaches the tool.
 
