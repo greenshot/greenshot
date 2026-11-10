@@ -58,9 +58,10 @@ the managed heap: the pixels and the mask in native memory, the model inputs and
 OCR of a large capture puts nothing on the large object heap, which is only freed by a full garbage collection. The download goes
 straight to the disk (the zip entry of onnxruntime.dll through a temporary file), it is never in memory as a whole.
 
-ONNX Runtime runs without its memory arena and memory patterns: with them it keeps the largest working memory of every run until
-Greenshot exits (one 2560x1440 screen about 0.9 GB in all, three screens 1.7 GB). Without them the memory goes back after each run
-(0.3 and 0.4 GB), and OCR takes about 15 % longer.
+ONNX Runtime's memory arena gives its memory back at the end of each run (the run option `memory.enable_memory_arena_shrinkage`),
+and memory patterns are off (they are planned per input shape, and every capture has another one). Before, the arena kept the
+largest working memory of all runs until Greenshot exited: one 2560x1440 screen about 0.9 GB in all, three screens 1.7 GB. The
+models themselves take about 80 MB while RapidOCR is loaded.
 
 ## What both engines give
 
