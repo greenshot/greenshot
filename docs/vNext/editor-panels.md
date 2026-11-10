@@ -15,7 +15,7 @@ Plugins can add panels of their own, or sections to the Selection panel.
 
 | What | How |
 |---|---|
-| Show | *Properties* in the context menu of any element, a double-click on an element (a text is edited instead), or Enter on the selected element. The area also opens by itself when a choice is needed: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
+| Show | An effect in the *Effects* menu (or its key, e.g. Ctrl+B) or *Resize* (Z) shows the Effects panel. *Properties* in the context menu of any element, a double-click on an element (a text is edited instead), or Enter on the selected element. The area also opens by itself when a choice is needed: picking the emoji tool or selecting an emoji shows the Selection panel, without taking the keyboard away from the capture. |
 | Hide | The **x** at the top of the area. It never closes by itself: once open, it shows what fits the selection. Closed with the **x**, it opens again the next time a choice is needed (e.g. the emoji tool). |
 | Size | Drag the bar between the capture and the area. The width is remembered. The editor window can't get so small that the capture has less than 300 by 200 pixels (at 100 % scaling), plus the panel area when it's shown; a smaller window grows when the area opens. For a small window with a capture, use the [viewer](viewer.md). |
 | Another panel | When there is more than one panel, the list at the top of the area chooses which one is shown. Panels of plugins are also in the *Plugins* menu of the editor, e.g. *Insert QR / Barcode...* for the Barcode panel. |
@@ -42,6 +42,22 @@ the keyboard back to the capture; Ctrl+Z removes it again. Then the area shows t
 section changes the new barcode (most captures get one). The fields of the panel stay as they are for the next barcode while
 the window is open. To change a barcode later, select it with the Selection panel shown, or double-click it.
 
+### The Effects panel
+
+The *Effects* menu of the editor (border, drop shadow, torn edges, grayscale, invert, remove transparency) and *Resize* show
+the *Effects* panel with that effect; the list at the top of the panel picks another one. The capture doesn't change yet:
+
+| Part | What it does |
+|---|---|
+| Preview | The whole capture as it will look, with the elements on it. For border, drop shadow and torn edges also the bottom right corner at 100 %, where a thin border or a small shadow shows. It follows every change at once. |
+| Presets | A click sets the settings below to the preset, e.g. *Wide* for a border or *Bottom only* for torn edges; they can be changed afterwards. For torn edges a preset only picks the sides, the teeth and the shadow stay. For resize the presets are percentages of the capture. |
+| Settings | The settings of the effect: width and color of the border; darkness, size and offset of a shadow; the sides, teeth, background and shadow of torn edges (*New random edge* tears them differently); the color for transparent parts; the new width and height. Grayscale and invert have no settings. |
+| Apply | Applies the effect to the capture as one step for Ctrl+Z. The panel stays, its preview now starts from the changed capture. |
+
+Torn edges are an element, there is one per capture: when the capture has torn edges, the panel shows their settings and *Change the torn edges*
+changes them (one step for Ctrl+Z); *Torn edges settings* in their context menu shows them in the panel too. The settings of the drop shadow
+and the torn edges are kept in greenshot.ini for the next time (as before), the border and the color for transparent parts until Greenshot ends.
+
 ### Settings
 
 In `[Editor]` of greenshot.ini:
@@ -50,6 +66,7 @@ In `[Editor]` of greenshot.ini:
 |---|---|
 | `EditorPanelWidth` | The width of the panel area, in pixels at 100 % scaling (200 to 1200, default 320) |
 | `SelectedEditorPanel` | The panel which is shown when the area opens (default `Greenshot.Selection`) |
+| `DropShadowEffectSettings`, `TornEdgeEffectSettings` | The last settings of the drop shadow and of the torn edges in the Effects panel |
 | `CollapsedEditorSections` | The sections of the Selection panel which are closed, separated by `|` |
 
 ---
@@ -181,7 +198,7 @@ services.AddServices<IEditorPanel>(() => IsEnabled ? new IEditorPanel[] { _stamp
 ```
 
 Ids are unique; start them with the name of the plugin. The sections of the editor are `Greenshot.SizeAndPosition`
-and `Greenshot.Emoji`, the panel is `Greenshot.Selection`. The Zxing plugin has the panel `Greenshot.Barcode` and the section
+and `Greenshot.Emoji`, the panels are `Greenshot.Selection` and `Greenshot.Effects`. The Zxing plugin has the panel `Greenshot.Barcode` and the section
 `Greenshot.BarcodeSection`, Stamps the panel `Greenshot.Stamps`.
 
 ### Look
@@ -206,6 +223,7 @@ Texts come from the language files, as everywhere ([ui-how-to.md](ui-how-to.md))
 | `Panels/EditorPanelDock` | The WinForms control right of the canvas: one `ElementHost` with the WPF `PanelDockView`. The only WinForms part. |
 | `Panels/SelectionPanel`, `ViewModels/SelectionPanelViewModel` | The Selection panel: the sections which apply, their collapsed state. |
 | `Panels/Sections/*` | The sections of the editor. |
+| `Panels/Effects/*` | The Effects panel: `EffectsPanelViewModel` (effect, presets, settings, preview, Apply; no UI toolkit, tested in `EffectsPanelTests`) and `EffectsPanelView`. The preview comes from `Surface.CreateEffectPreviewAsync` and `CreateTornEdgesPreviewAsync`: the effect on a copy, on the thread pool, the surface stays unchanged. A color effect (grayscale, invert, remove transparency) changes only the image and the elements are drawn on top, like Apply leaves them; the others work on the image with its elements. Torn edges are drawn by a torn edges element which isn't on the surface, with the seed Apply uses, so the preview shows the same teeth. |
 | `Forms/ImageEditorForm.Panels.cs` | Connects form, surface and panels: tabs, selection, drawing mode, DPI, theme, F6. |
 
 The emoji picker (`Controls/Emoji/EmojiPicker`, view model `EmojiPickerViewModel`) is also used outside the panel, in a
@@ -220,8 +238,8 @@ overrides it for an action of its own (the text is edited). So a plugin element 
 
 ### Later
 
-Planned with the same contract: the effects as sections instead of dialogs, a Text panel for OCR and an overview of the
-capture at the bottom of the area.
+Planned with the same contract: a Text panel for OCR and an overview of the capture at the bottom of the area. The settings of a
+cut mark (*Cut edge settings...* in its context menu) are still a window.
 
 *Copy style* only copies editor fields. A barcode has none: its colors, rounded dots and margin are in its own model, so
 *Copy style* has nothing to copy for it yet.

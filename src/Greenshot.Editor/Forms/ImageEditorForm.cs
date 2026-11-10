@@ -64,6 +64,7 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Panels;
+using Greenshot.Editor.Panels.Effects;
 using Greenshot.Editor.Tabs;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
@@ -1253,6 +1254,7 @@ namespace Greenshot.Editor.Forms
             _surface.TextRecognitionChanged += SurfaceTextRecognitionChanged;
             _surface.ElementsChanged += SurfaceElementsChanged;
             _surface.PropertiesRequested += SurfacePropertiesRequested;
+            _surface.TornEdgeSettingsRequested += SurfaceTornEdgeSettingsRequested;
             _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
             BindFieldControls();
         }
@@ -1271,6 +1273,7 @@ namespace Greenshot.Editor.Forms
             _surface.TextRecognitionChanged -= SurfaceTextRecognitionChanged;
             _surface.ElementsChanged -= SurfaceElementsChanged;
             _surface.PropertiesRequested -= SurfacePropertiesRequested;
+            _surface.TornEdgeSettingsRequested -= SurfaceTornEdgeSettingsRequested;
             _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
             foreach (var binding in _fieldBindings)
             {
@@ -2221,13 +2224,13 @@ namespace Greenshot.Editor.Forms
                         RedoToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.Q: // Dropshadow Ctrl + Q
-                        AddDropshadowToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+                        AddDropshadowToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.B: // Border Ctrl + B
                         AddBorderToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.T: // Torn edge Ctrl + T
-                        TornEdgesToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+                        TornEdgesToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.I: // Invert Ctrl + I
                         InvertToolStripMenuItemClick(sender, e);
@@ -3323,10 +3326,7 @@ namespace Greenshot.Editor.Forms
             }, $"Apply {effect.GetType().Name}");
         }
 
-        private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ApplyEffect(new BorderEffect());
-        }
+        private void AddBorderToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Border);
 
         /// <summary>
         /// Added for FEATURE-919, increasing the canvas by 25 pixels in every direction.
@@ -3358,85 +3358,13 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        /// <summary>
-        /// This is used when the dropshadow button is used
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">MouseEventArgs</param>
-        private void AddDropshadowToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
-        {
-            var dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
-            bool apply;
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    apply = true;
-                    break;
-                case MouseButtons.Right:
-                    var result = new DropShadowSettingsWindow(dropShadowEffect).ShowDialog(this);
-                    apply = result == true;
-                    break;
-                default:
-                    return;
-            }
+        private void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.DropShadow);
 
-            if (apply)
-            {
-                ApplyEffect(dropShadowEffect);
-            }
-        }
+        private void BtnResizeClick(object sender, EventArgs e) => ShowEffect(EffectKind.Resize);
 
+        private void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.TornEdges);
 
-        /// <summary>
-        /// Open the resize settings from, and resize if ok was pressed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnResizeClick(object sender, EventArgs e)
-        {
-            var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
-            var result = new ResizeSettingsWindow(resizeEffect).ShowDialog(this);
-            if (result == true)
-            {
-                ApplyEffect(resizeEffect);
-            }
-        }
-
-        /// <summary>
-        /// This is used when the torn-edge button is used
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">MouseEventArgs</param>
-        private void TornEdgesToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
-        {
-            var tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
-            bool apply;
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    apply = true;
-                    break;
-                case MouseButtons.Right:
-                    var result = new TornEdgeSettingsWindow(tornEdgeEffect).ShowDialog(this);
-                    apply = result == true;
-                    break;
-                default:
-                    return;
-            }
-
-            if (apply)
-            {
-                // The torn edges are an element, so they can be changed or removed later
-                _surface.AddTornEdges(tornEdgeEffect);
-                UpdateUndoRedoSurfaceDependencies();
-                RefreshFieldControls();
-            }
-        }
-
-        private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ApplyEffect(new GrayscaleEffect());
-        }
+        private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Grayscale);
 
         private void ClearToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -3454,32 +3382,9 @@ namespace Greenshot.Editor.Forms
             ApplyEffect(new RotateEffect(270));
         }
 
-        private void InvertToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ApplyEffect(new InvertEffect());
-        }
+        private void InvertToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Invert);
 
-        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            var colorPickerWindow = new ColorPickerWindow
-            {
-                SelectedColor = Color.White
-            };
-
-            new WindowInteropHelper(colorPickerWindow)
-            {
-                Owner = Handle
-            };
-
-            if (colorPickerWindow.ShowDialog() == true)
-            {
-                var removeTransparencyEffect = new RemoveTransparencyEffect
-                {
-                    Color = colorPickerWindow.SelectedColor
-                };
-                ApplyEffect(removeTransparencyEffect);
-            }
-        }
+        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.RemoveTransparency);
 
         private void ImageEditorFormResize(object sender, EventArgs e)
         {

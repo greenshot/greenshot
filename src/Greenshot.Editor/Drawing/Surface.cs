@@ -1168,6 +1168,16 @@ namespace Greenshot.Editor.Drawing
         internal void OnElementsChanged() => ElementsChanged?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
+        /// The settings of the torn edges are asked for (context menu of the torn edges): the editor shows them in the Effects panel
+        /// </summary>
+        internal event EventHandler TornEdgeSettingsRequested;
+
+        /// <summary>
+        /// Show the settings of the torn edges in the Effects panel
+        /// </summary>
+        internal void RequestTornEdgeSettings() => TornEdgeSettingsRequested?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
         /// Show the properties of the selected elements in the Selection panel and move the keyboard there
         /// </summary>
         internal void RequestProperties() => PropertiesRequested?.Invoke(this, EventArgs.Empty);
@@ -2458,6 +2468,150 @@ namespace Greenshot.Editor.Drawing
 
             SelectElement(tornEdges);
             return tornEdges;
+        }
+
+        /// <summary>
+        /// Change the settings of the torn edges as one undo step, e.g. from the Effects panel. The room for the shadow stays as it is.
+        /// </summary>
+        /// <param name="tornEdges">TornEdgeContainer of this surface</param>
+        /// <param name="settings">TornEdgeEffect with the new settings, its seed decides the edges</param>
+        internal void ChangeTornEdges(TornEdgeContainer tornEdges, TornEdgeEffect settings)
+        {
+            if (tornEdges == null || settings == null)
+            {
+                return;
+            }
+
+            MakeUndoable(new TornEdgeSettingsMemento(tornEdges), false);
+            tornEdges.ApplySettings(settings);
+            tornEdges.SetSeed(settings.Seed);
+            Modified = true;
+            Invalidate();
+            OnElementsChanged();
+        }
+
+        /// <summary>
+        /// The torn edges of the capture, null when there are none
+        /// </summary>
+        internal TornEdgeContainer TornEdges => _elements.OfType<TornEdgeContainer>().FirstOrDefault();
+
+        /// <summary>
+        /// The capture as it would look after the effect, the surface stays unchanged. The effect is calculated on the thread pool.
+        /// </summary>
+        /// <param name="effect">IEffect, it is not changed and may be changed after the call</param>
+        /// <param name="elementsOnTop">true: the effect changes only the image, the elements are drawn on top unchanged (e.g. grayscale,
+        /// like ApplyBitmapEffectAsync leaves them). false: the effect changes the image with its elements (e.g. a border or shadow, which
+        /// move the elements with the image).</param>
+        /// <returns>Bitmap owned by the caller</returns>
+        internal async Task<Bitmap> CreateEffectPreviewAsync(IEffect effect, bool elementsOnTop)
+        {
+            var source = elementsOnTop ? ImageHelper.Clone(_image, PixelFormat.DontCare) : RenderWithElements(_image, null);
+            var result = await CreateEffectPreviewOnPoolAsync(source, effect);
+            if (elementsOnTop && result != null && !IsDisposed)
+            {
+                using var graphics = Graphics.FromImage(result);
+                _elements.Draw(graphics, result, RenderMode.EXPORT, new Rectangle(Point.Empty, result.Size));
+            }
+
+            return result;
+        }
+
+        private static async Task<Bitmap> CreateEffectPreviewOnPoolAsync(Bitmap source, IEffect effect)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            using var matrix = new Matrix();
+            var result = ImageHelper.ApplyEffect(source, effect, matrix);
+            if (!ReferenceEquals(result, source))
+            {
+                source.Dispose();
+            }
+
+            // Drawing on it needs a Bitmap which isn't indexed
+            if (result is Bitmap bitmap && (bitmap.PixelFormat & PixelFormat.Indexed) == 0)
+            {
+                return bitmap;
+            }
+
+            using (result)
+            {
+                return ImageHelper.Clone(result, PixelFormat.Format32bppArgb);
+            }
+        }
+
+        /// <summary>
+        /// The capture as it would look with torn edges of these settings, drawn like the torn edges element: new torn edges get room
+        /// for their shadow (like <see cref="AddTornEdges"/>), the torn edges which are there are replaced and keep their room.
+        /// </summary>
+        /// <param name="settings">TornEdgeEffect, it is copied</param>
+        /// <returns>Bitmap owned by the caller</returns>
+        internal async Task<Bitmap> CreateTornEdgesPreviewAsync(TornEdgeEffect settings)
+        {
+            var existing = TornEdges;
+            int[] margins = existing?.Margins ?? Enumerable.Repeat(TornEdgeContainer.GetShadowMargin(settings), 4).ToArray();
+            using var source = RenderWithElements(_image, existing);
+            // The image of the surface is expanded first, the edges are drawn on it
+            var expanded = existing == null && margins.Any(margin => margin > 0)
+                ? ExpandImage(source, settings.BackgroundColor, margins)
+                : ImageHelper.Clone(source, PixelFormat.Format32bppArgb);
+            var preview = new TornEdgeContainer(null, CopyTornEdgeSettings(settings), margins, CutMarkStyle.Torn)
+            {
+                Left = 0,
+                Top = 0,
+                Width = expanded.Width,
+                Height = expanded.Height
+            };
+            preview.SetSeed(settings.Seed);
+            return await DrawTornEdgesPreviewOnPoolAsync(expanded, preview);
+        }
+
+        private static async Task<Bitmap> DrawTornEdgesPreviewOnPoolAsync(Bitmap image, TornEdgeContainer tornEdges)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            using (tornEdges)
+            {
+                if (!Image.IsAlphaPixelFormat(image.PixelFormat))
+                {
+                    using var opaque = image;
+                    image = ImageHelper.Clone(opaque, PixelFormat.Format32bppArgb);
+                }
+
+                using var graphics = Graphics.FromImage(image);
+                tornEdges.Draw(graphics, RenderMode.EXPORT);
+                return image;
+            }
+        }
+
+        private static TornEdgeEffect CopyTornEdgeSettings(TornEdgeEffect settings) => new()
+        {
+            Edges = (bool[])settings.Edges?.Clone(),
+            ToothHeight = settings.ToothHeight,
+            HorizontalToothRange = settings.HorizontalToothRange,
+            VerticalToothRange = settings.VerticalToothRange,
+            Darkness = settings.Darkness,
+            ShadowSize = settings.ShadowSize,
+            ShadowOffset = settings.ShadowOffset,
+            GenerateShadow = settings.GenerateShadow,
+            BackgroundColor = settings.BackgroundColor,
+            Seed = settings.Seed
+        };
+
+        /// <summary>
+        /// A copy of the image with the elements drawn on it, like the export, optionally without one element
+        /// </summary>
+        private Bitmap RenderWithElements(Image image, IDrawableContainer without)
+        {
+            IDrawableContainerList elements = without == null ? _elements : new DrawableContainerList(_elements.Where(element => !ReferenceEquals(element, without)));
+            var pixelFormat = elements.Any(element => element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true })
+                ? PixelFormat.Format32bppArgb
+                : PixelFormat.DontCare;
+            Bitmap clone = ImageHelper.Clone(image, pixelFormat);
+            if (elements.Count > 0)
+            {
+                using var graphics = Graphics.FromImage(clone);
+                elements.Draw(graphics, clone, RenderMode.EXPORT, new Rectangle(Point.Empty, clone.Size));
+            }
+
+            return clone;
         }
 
         /// <summary>

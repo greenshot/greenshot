@@ -247,6 +247,141 @@ namespace Greenshot.Base.Languages
         string SectionStyleAndSize { get; }
 
         /// <summary>
+        /// Effect
+        /// </summary>
+        string EffectsEffect { get; }
+
+        /// <summary>
+        /// Presets
+        /// </summary>
+        string EffectsPresets { get; }
+
+        /// <summary>
+        /// Preview
+        /// </summary>
+        string EffectsPreview { get; }
+
+        /// <summary>
+        /// Bottom right corner at 100 %
+        /// </summary>
+        string EffectsPreviewDetail { get; }
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        string EffectsApply { get; }
+
+        /// <summary>
+        /// Change the torn edges
+        /// </summary>
+        string EffectsChangeTornEdges { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string EffectsBorderWidth { get; }
+
+        /// <summary>
+        /// Color
+        /// </summary>
+        string EffectsColor { get; }
+
+        /// <summary>
+        /// Tooth width
+        /// </summary>
+        string EffectsToothRange { get; }
+
+        /// <summary>
+        /// Resize
+        /// </summary>
+        string EffectsResize { get; }
+
+        /// <summary>
+        /// The new size is {0} × {1} pixels.
+        /// </summary>
+        string EffectsNewSize { get; }
+
+        /// <summary>
+        /// Width and height must be whole numbers from 1 to {0}.
+        /// </summary>
+        string EffectsResizeInvalid { get; }
+
+        /// <summary>
+        /// The capture has no transparent parts.
+        /// </summary>
+        string EffectsNoTransparency { get; }
+
+        /// <summary>
+        /// This effect has no settings.
+        /// </summary>
+        string EffectsNoSettings { get; }
+
+        /// <summary>
+        /// Default
+        /// </summary>
+        string EffectsPresetDefault { get; }
+
+        /// <summary>
+        /// Thin
+        /// </summary>
+        string EffectsPresetThin { get; }
+
+        /// <summary>
+        /// Wide
+        /// </summary>
+        string EffectsPresetWide { get; }
+
+        /// <summary>
+        /// White frame
+        /// </summary>
+        string EffectsPresetWhiteFrame { get; }
+
+        /// <summary>
+        /// Soft
+        /// </summary>
+        string EffectsPresetSoft { get; }
+
+        /// <summary>
+        /// Strong
+        /// </summary>
+        string EffectsPresetStrong { get; }
+
+        /// <summary>
+        /// Floating
+        /// </summary>
+        string EffectsPresetFloating { get; }
+
+        /// <summary>
+        /// All sides
+        /// </summary>
+        string EffectsPresetAllSides { get; }
+
+        /// <summary>
+        /// Bottom only
+        /// </summary>
+        string EffectsPresetBottom { get; }
+
+        /// <summary>
+        /// Bottom and right
+        /// </summary>
+        string EffectsPresetBottomRight { get; }
+
+        /// <summary>
+        /// Top and bottom
+        /// </summary>
+        string EffectsPresetTopBottom { get; }
+
+        /// <summary>
+        /// White
+        /// </summary>
+        string EffectsPresetWhite { get; }
+
+        /// <summary>
+        /// Black
+        /// </summary>
+        string EffectsPresetBlack { get; }
+
+        /// <summary>
         /// Copy style
         /// </summary>
         string CopyStyle { get; }
@@ -500,11 +635,6 @@ namespace Greenshot.Base.Languages
         /// Shadow offset
         /// </summary>
         string DropshadowOffset { get; }
-
-        /// <summary>
-        /// Dropshadow settings
-        /// </summary>
-        string DropshadowSettings { get; }
 
         /// <summary>
         /// Shadow thickness
@@ -846,20 +976,7 @@ namespace Greenshot.Base.Languages
         /// </summary>
         string ResizeHeight { get; }
 
-        /// <summary>
-        /// Percent
-        /// </summary>
-        string ResizePercent { get; }
 
-        /// <summary>
-        /// Pixels
-        /// </summary>
-        string ResizePixel { get; }
-
-        /// <summary>
-        /// Resize settings
-        /// </summary>
-        string ResizeSettings { get; }
 
         /// <summary>
         /// Width
