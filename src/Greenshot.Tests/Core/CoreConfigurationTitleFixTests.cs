@@ -118,5 +118,14 @@ namespace Greenshot.Tests.Core
             }
             Assert.Equal(expected, title);
         }
+
+        [Fact]
+        public void TitleFix_GivesTheTitleTheCaptureGets()
+        {
+            // The info panel of the capture window shows this, the selection step applies the same once
+            Assert.Equal("Report", Greenshot.Capturing.TitleFix.Fix(" Report - Personal - Microsoft\u200B Edge "));
+            Assert.Equal("Notepad", Greenshot.Capturing.TitleFix.Fix("Notepad"));
+            Assert.Equal(string.Empty, Greenshot.Capturing.TitleFix.Fix(null));
+        }
     }
 }
