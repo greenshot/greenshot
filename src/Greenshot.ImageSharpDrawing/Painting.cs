@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -68,5 +69,14 @@ namespace Greenshot.ImageSharpDrawing
         /// </summary>
         public static Pen Pen(Color color, float width, JointStyle join = JointStyle.Miter, EndCapStyle cap = EndCapStyle.Butt) =>
             new SolidPen(new PenOptions(color, width) { JointStyle = join, EndCapStyle = cap });
+
+        /// <summary>
+        /// The shape turned (moved, scaled) by the transform, in the editor's coordinates: turned before <see cref="OnPixelCenters(IPath)"/> and before
+        /// the offset of a shadow, so the shadow falls the same way as that of an element which isn't turned
+        /// </summary>
+        public static IPath Turned(IPath shape, Matrix3x2? turn) => turn is Matrix3x2 transform ? shape.Transform(transform) : shape;
+
+        /// <inheritdoc cref="Turned(IPath, Matrix3x2?)"/>
+        public static IPathCollection Turned(IPathCollection shapes, Matrix3x2? turn) => turn is Matrix3x2 transform ? shapes.Transform(transform) : shapes;
     }
 }

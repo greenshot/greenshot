@@ -64,13 +64,15 @@ namespace Greenshot.ImageSharpDrawing
         /// <param name="lineColor">The color of the line</param>
         /// <param name="heads">The ends with an arrow head</param>
         /// <param name="shadow">Draw the shadow</param>
-        public static void Line(Image image, ImageValues values, PointF start, PointF end, int lineThickness, Rgba32 lineColor, ArrowHeads heads, bool shadow)
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
+        public static void Line(Image image, ImageValues values, PointF start, PointF end, int lineThickness, Rgba32 lineColor, ArrowHeads heads, bool shadow,
+            Matrix3x2? turn = null)
         {
             if (lineThickness <= 0)
             {
                 return;
             }
-            var line = Painting.OnPixelCenters(LineShape(start, end, lineThickness, heads));
+            var line = Painting.OnPixelCenters(Painting.Turned(LineShape(start, end, lineThickness, heads), turn));
             image.Mutate(context =>
             {
                 if (shadow)
@@ -93,7 +95,8 @@ namespace Greenshot.ImageSharpDrawing
         /// two points for a straight line; the editor draws them with PixelOffsetMode.HighQuality, so they are ImageSharp's coordinates as they are</param>
         /// <param name="lineThickness">The width of the line</param>
         /// <param name="lineColor">The color of the line</param>
-        public static void Freehand(Image image, ImageValues values, IReadOnlyList<PointF> points, int lineThickness, Rgba32 lineColor)
+        /// <param name="turn">Turns (moves, scales) the drawing, e.g. around the centre of a turned element; null for none</param>
+        public static void Freehand(Image image, ImageValues values, IReadOnlyList<PointF> points, int lineThickness, Rgba32 lineColor, Matrix3x2? turn = null)
         {
             if (points == null || points.Count < 2 || lineThickness <= 0)
             {
@@ -114,7 +117,7 @@ namespace Greenshot.ImageSharpDrawing
             }
             // Filled as an outline: ImageSharp's pens move lines half a pixel to whole coordinates, the editor's freehand points already are on pixel
             // centres (PixelOffsetMode.HighQuality)
-            var outline = new Path(segment).GenerateOutline(lineThickness, JointStyle.Round, EndCapStyle.Round);
+            var outline = Painting.Turned(new Path(segment).GenerateOutline(lineThickness, JointStyle.Round, EndCapStyle.Round), turn);
             image.Mutate(context => context.Fill(values.ColorOf(lineColor), outline));
         }
 
