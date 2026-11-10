@@ -35,9 +35,10 @@ namespace Greenshot.Plugin.RapidOcr;
 /// Adds the OCR engine RapidOcr, chosen in the settings next to the OCR language. Nothing is downloaded before the user agrees.
 /// See docs/vNext/rapid-ocr.md.
 /// </summary>
-public class RapidOcrPlugin : IGreenshotPlugin
+public class RapidOcrPlugin : IGreenshotPlugin, IConfigurablePlugin
 {
     private RapidOcrEngine _engine;
+    private IRapidOcrConfiguration _configuration;
 
     public string Name => "RapidOcr";
 
@@ -61,9 +62,15 @@ public class RapidOcrPlugin : IGreenshotPlugin
     public void ConfigureServices(IPluginServices services)
     {
         Texts.Register<IRapidOcrLanguage>(new RapidOcrLanguageImpl());
-        _engine = new RapidOcrEngine(new RapidOcrFiles(FilesDirectory));
+        var configuration = new RapidOcrConfigurationImpl();
+        services.AddConfiguration(configuration);
+        _configuration = configuration;
+        _engine = new RapidOcrEngine(new RapidOcrFiles(FilesDirectory), configuration);
         services.AddService<IOcrEngine>(_engine);
+        services.AddSettingsView<IRapidOcrConfiguration>(settings => new Views.RapidOcrConfigurationView(settings));
     }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _configuration;
 
     public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
 

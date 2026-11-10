@@ -51,15 +51,20 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     internal const string EngineId = "RapidOcr";
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(RapidOcrEngine));
     private readonly RapidOcrFiles _files;
+    private readonly IRapidOcrConfiguration _configuration;
     private readonly object _lock = new();
     private RapidOcrPipeline _pipeline;
+    // The OCR runs using the pipeline right now: it is only unloaded when none uses it
+    private int _users;
+    private bool _filesChecked;
     private bool _invalid;
     private Task<bool> _preparing;
     private Window _window;
 
-    public RapidOcrEngine(RapidOcrFiles files)
+    public RapidOcrEngine(RapidOcrFiles files, IRapidOcrConfiguration configuration)
     {
         _files = files;
+        _configuration = configuration;
     }
 
     private static IRapidOcrLanguage Language => Texts.Get<IRapidOcrLanguage>();
@@ -114,6 +119,7 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
         if (ready)
         {
             _invalid = false;
+            _filesChecked = false;
             Log.InfoFormat("RapidOCR is in {0}", _files.Directory);
         }
         return ready;
@@ -135,8 +141,16 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
         {
             using (pixels)
             {
-                var pipeline = Pipeline();
-                return pipeline == null ? new List<IOcrLineFeature>() : pipeline.Read(pixels);
+                var pipeline = Acquire();
+                if (pipeline == null) return new List<IOcrLineFeature>();
+                try
+                {
+                    return pipeline.Read(pixels);
+                }
+                finally
+                {
+                    Release();
+                }
             }
         });
 #pragma warning restore RS0030
@@ -148,38 +162,74 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
     public IList<OcrLanguage> GetAvailableLanguages() => new List<OcrLanguage>();
 
     /// <summary>
-    /// The models, loaded the first time: every file checked against its SHA-256 before ONNX Runtime and the models are loaded
+    /// The pipeline for one OCR run, given back with Release
     /// </summary>
-    private RapidOcrPipeline Pipeline()
+    private RapidOcrPipeline Acquire()
     {
         lock (_lock)
         {
-            if (_pipeline != null || _invalid) return _pipeline;
-
-            var damaged = RapidOcrFiles.All.Where(file => !_files.IsValid(file)).Select(file => file.Name).ToList();
-            if (damaged.Count > 0)
-            {
-                // Not ready anymore: Greenshot recognizes this capture with Windows OCR and asks to download them again
-                _invalid = true;
-                Log.WarnFormat("RapidOCR files not as expected, not used: {0}", string.Join(", ", damaged));
-                return null;
-            }
-
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                // Loaded with its full path; ONNX Runtime's own lookup of "onnxruntime" then finds this module
-                string native = _files.PathOf(RapidOcrFiles.OnnxRuntimeFile);
-                if (Kernel32Api.LoadLibrary(native) == IntPtr.Zero)
-                {
-                    _invalid = true;
-                    Log.WarnFormat("Couldn't load {0}", native);
-                    return null;
-                }
-            }
-
-            _pipeline = new RapidOcrPipeline(_files.PathOf(RapidOcrFiles.DetectionFile), _files.PathOf(RapidOcrFiles.RecognitionFile));
-            return _pipeline;
+            var pipeline = Pipeline();
+            if (pipeline != null) _users++;
+            return pipeline;
         }
+    }
+
+    /// <summary>
+    /// Unless KeepModelsLoaded is set, the models (about 80 MB) are unloaded after each use, once no other run uses them; the next OCR
+    /// loads them again (about 0.1-0.2 s)
+    /// </summary>
+    private void Release()
+    {
+        lock (_lock)
+        {
+            _users--;
+            if (_users > 0 || _pipeline == null || _configuration.KeepModelsLoaded) return;
+            _pipeline.Dispose();
+            _pipeline = null;
+        }
+    }
+
+    /// <summary>
+    /// The models, loaded when needed: every file checked against its SHA-256 before ONNX Runtime and the models are loaded. Called
+    /// under the lock
+    /// </summary>
+    private RapidOcrPipeline Pipeline()
+    {
+        if (_pipeline != null || _invalid) return _pipeline;
+        if (!_filesChecked && !CheckFiles()) return null;
+
+        _pipeline = new RapidOcrPipeline(_files.PathOf(RapidOcrFiles.DetectionFile), _files.PathOf(RapidOcrFiles.RecognitionFile));
+        return _pipeline;
+    }
+
+    /// <summary>
+    /// Once per run of Greenshot, before the first load: the SHA-256 of every file, and onnxruntime.dll loaded from its full path
+    /// </summary>
+    private bool CheckFiles()
+    {
+        var damaged = RapidOcrFiles.All.Where(file => !_files.IsValid(file)).Select(file => file.Name).ToList();
+        if (damaged.Count > 0)
+        {
+            // Not ready anymore: Greenshot recognizes this capture with Windows OCR and asks to download them again
+            _invalid = true;
+            Log.WarnFormat("RapidOCR files not as expected, not used: {0}", string.Join(", ", damaged));
+            return false;
+        }
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            // Loaded with its full path; ONNX Runtime's own lookup of "onnxruntime" then finds this module
+            string native = _files.PathOf(RapidOcrFiles.OnnxRuntimeFile);
+            if (Kernel32Api.LoadLibrary(native) == IntPtr.Zero)
+            {
+                _invalid = true;
+                Log.WarnFormat("Couldn't load {0}", native);
+                return false;
+            }
+        }
+
+        _filesChecked = true;
+        return true;
     }
 
     private static Window ActiveWindow() =>

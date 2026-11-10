@@ -53,9 +53,10 @@ namespace Greenshot.Settings.ViewModels
         public bool HasOcrEngineChoice => OcrEngineSelector.Engines.Count > 1;
 
         /// <summary>
-        /// The language choice only for an engine which has languages (Windows OCR)
+        /// The language choice only while Windows OCR is the chosen engine: it is the only one with languages, the others read all
+        /// their languages at once and ignore it (also while another engine still downloads and Windows OCR reads meanwhile)
         /// </summary>
-        public bool HasOcrLanguageChoice => OcrLanguages.Count > 1 || string.Equals(OcrEngineSelector.ConfiguredId, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase);
+        public bool HasOcrLanguageChoice => string.Equals(OcrEngineSelector.ConfiguredId, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// The id of the OCR engine. An engine which isn't ready (e.g. needs a download) gets ready first, asking the user; when that is declined the choice goes back.

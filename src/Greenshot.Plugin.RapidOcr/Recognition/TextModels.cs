@@ -56,6 +56,23 @@ internal sealed class RecognizedLine
 }
 
 /// <summary>
+/// One run of a model
+/// </summary>
+internal static class TextModels
+{
+    /// <summary>
+    /// The model on one input. The memory arena gives its memory back at the end of the run ("memory.enable_memory_arena_shrinkage"),
+    /// else it keeps the largest working memory of every run until Greenshot exits; within the run it still reuses its memory
+    /// </summary>
+    public static IDisposableReadOnlyCollection<OrtValue> Run(InferenceSession session, string inputName, OrtValue input)
+    {
+        using var runOptions = new RunOptions();
+        runOptions.AddRunConfigEntry("memory.enable_memory_arena_shrinkage", "cpu:0");
+        return session.Run(runOptions, new[] { inputName }, new[] { input }, session.OutputNames);
+    }
+}
+
+/// <summary>
 /// The text detection model: a probability map of text pixels, as the TextDetector of RapidOCR (Apache 2.0)
 /// </summary>
 internal sealed class TextDetector : IDisposable
@@ -80,8 +97,7 @@ internal sealed class TextDetector : IDisposable
         // is millions of floats
         using var input = OrtValue.CreateAllocatedTensorValue(OrtAllocator.DefaultInstance, TensorElementType.Float, new long[] { 1, 3, height, width });
         image.WriteNormalized(input.GetTensorMutableDataAsSpan<float>(), 0, width * height, width, width, height);
-        using var runOptions = new RunOptions();
-        using var outputs = _session.Run(runOptions, new[] { _inputName }, new[] { input }, _session.OutputNames);
+        using var outputs = TextModels.Run(_session, _inputName, input);
         var output = outputs.First();
         var shape = output.GetTensorTypeAndShape().Shape;
         int mapHeight = (int)shape[2], mapWidth = (int)shape[3];
@@ -145,8 +161,7 @@ internal sealed class TextRecognizer : IDisposable
                 line.WriteNormalized(buffer, b * 3 * plane, plane, imageWidth, resizedWidth, ImageHeight);
             }
 
-            using var runOptions = new RunOptions();
-            using var outputs = _session.Run(runOptions, new[] { _inputName }, new[] { input }, _session.OutputNames);
+            using var outputs = TextModels.Run(_session, _inputName, input);
             var output = outputs.First();
             var shape = output.GetTensorTypeAndShape().Shape;
             int steps = (int)shape[1], classes = (int)shape[2];
