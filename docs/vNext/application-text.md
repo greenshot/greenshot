@@ -6,7 +6,8 @@ address of a link in a browser, `mailto:` and `tel:` links). OCR only adds text 
 remote desktops (Citrix, Remote Desktop, Horizon, Hyper-V, VNC only show pixels here), applications without UI Automation text.
 
 - Read in the background right after the capture of the screen (`Greenshot.Base/Capturing/ApplicationText.cs`). The OCR waits at most 2 seconds
-  for it; a window which takes longer (up to 15 s) adds its text later, in place of the OCR lines under it. The log has one line per
+  for it; a window which takes longer adds its text later, in place of the OCR lines under it. After 15 s a window stops reading and
+  gives what it has read so far (the OCR keeps the rest). The log has one line per
   window with the program, the lines and the time.
 - The lines are kept with the capture like OCR lines (`IOcrLineFeature.Source` is `UiAutomation`, `OcrWordInfo.LinkTarget` the link),
   so the text selection (T), the OCR step and destination, obfuscation and Smart text all use them.

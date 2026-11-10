@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Automation;
 using Dapplo.Windows.Common.Extensions;
@@ -55,7 +54,9 @@ namespace Greenshot.Base.Capturing
         /// </summary>
         public static readonly TimeSpan MaxWait = TimeSpan.FromSeconds(2);
 
-        /// <summary>The longest a window gets for its text, a hanging application only costs this in the background</summary>
+        /// <summary>
+        /// The longest a window reads its text, a hanging application only costs this in the background; what was read until then is used
+        /// </summary>
         public static readonly TimeSpan MaxRead = TimeSpan.FromSeconds(15);
 
         /// <summary>The windows read, from the top: below that the windows are mostly covered</summary>
@@ -138,10 +139,9 @@ namespace Greenshot.Base.Capturing
             }
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            using var timeout = new CancellationTokenSource(MaxRead);
             try
             {
-                var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, area, null, null, timeout.Token).ConfigureAwait(false);
+                var snapshot = await UiAutomationText.ReadVisibleTextAsync(handle, area, maxDuration: MaxRead).ConfigureAwait(false);
                 if (snapshot == null || snapshot.RemoteDisplay != RemoteDisplayKinds.None)
                 {
                     // A remote desktop only shows pixels here: the OCR reads them
@@ -149,7 +149,7 @@ namespace Greenshot.Base.Capturing
                     return;
                 }
                 var lines = ToLines(snapshot.Lines, captureBounds, windowsAbove);
-                Log.Info($"{program}: {lines.Count} lines of application text ({snapshot.Lines.Count} read, complete: {snapshot.IsComplete}) in {watch.ElapsedMilliseconds} ms");
+                Log.Info($"{program}: {lines.Count} lines of application text ({snapshot.Lines.Count} read, complete: {snapshot.IsComplete}, timed out: {snapshot.TimedOut}) in {watch.ElapsedMilliseconds} ms");
                 if (lines.Count == 0)
                 {
                     return;
@@ -160,10 +160,6 @@ namespace Greenshot.Base.Capturing
                 {
                     concreteDetails.NotifyFeaturesChanged();
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                Log.Info($"{program}: no application text after {watch.ElapsedMilliseconds} ms, the OCR reads it");
             }
             catch (Exception ex)
             {
