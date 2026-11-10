@@ -58,6 +58,10 @@ the managed heap: the pixels and the mask in native memory, the model inputs and
 OCR of a large capture puts nothing on the large object heap, which is only freed by a full garbage collection. The download goes
 straight to the disk (the zip entry of onnxruntime.dll through a temporary file), it is never in memory as a whole.
 
+ONNX Runtime runs without its memory arena and memory patterns: with them it keeps the largest working memory of every run until
+Greenshot exits (one 2560x1440 screen about 0.9 GB in all, three screens 1.7 GB). Without them the memory goes back after each run
+(0.3 and 0.4 GB), and OCR takes about 15 % longer.
+
 ## What both engines give
 
 Every line and word has a box: a rectangle with the angle of the text (`OcrBox` in `Greenshot.Base/Interfaces/Plugin`: centre,
