@@ -19,7 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Plugin.SmartText.Detection;
 
@@ -53,6 +55,14 @@ public sealed class SmartTextItemViewModel : INotifyPropertyChanged
     public int Number { get; }
 
     public string Name => Item.Name;
+
+    /// <summary>
+    /// The text the item was found under when it isn't just the value written differently: the link text "FAQ" of a web address, null otherwise
+    /// </summary>
+    public string FoundUnder => FoundUnderOf(Item.ReadText, Item.Value);
+
+    /// <summary>The name with the text it was found under, "Web address for "FAQ""</summary>
+    public string Label => FoundUnder == null ? Name : string.Format(Language.ItemFoundUnder, Name, FoundUnder);
 
     /// <summary>The value, changed by the user when OCR misread it</summary>
     public string Value
@@ -133,7 +143,27 @@ public sealed class SmartTextItemViewModel : INotifyPropertyChanged
     public double Angle => Item.Box.Angle;
 
     /// <summary>"Phone number: +49301234567, 1 of 9"</summary>
-    public string AccessibleName => string.Format(Language.ItemName, Name, Value, Number, Count);
+    public string AccessibleName => FoundUnder == null
+        ? string.Format(Language.ItemName, Name, Value, Number, Count)
+        : string.Format(Language.ItemNameFoundUnder, Name, Value, Number, Count, FoundUnder);
+
+    /// <summary>
+    /// The read text, unless it is the value apart from case, spaces, the scheme (https://, mailto:, tel:), "www." and a closing slash
+    /// </summary>
+    internal static string FoundUnderOf(string readText, string value)
+    {
+        if (string.IsNullOrWhiteSpace(readText)) return null;
+        static string Plain(string text)
+        {
+            string plain = new string((text ?? string.Empty).Where(c => !char.IsWhiteSpace(c)).ToArray()).ToLowerInvariant();
+            foreach (var prefix in new[] { "https://", "http://", "mailto:", "tel:", "www." })
+            {
+                if (plain.StartsWith(prefix, StringComparison.Ordinal)) plain = plain.Substring(prefix.Length);
+            }
+            return plain.TrimEnd('/');
+        }
+        return Plain(readText) == Plain(value) ? null : readText.Trim();
+    }
 
     public override string ToString() => AccessibleName;
 

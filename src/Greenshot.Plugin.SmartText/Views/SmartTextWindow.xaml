@@ -141,7 +141,7 @@
                                     <TextBlock Grid.Column="1" Text="{Binding Number}" MinWidth="20" Margin="4,0,6,0" VerticalAlignment="Center"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" FontSize="{wpf:FontSize 11}"
+                                        <TextBlock Text="{Binding Label}" FontSize="{wpf:FontSize 11}" TextTrimming="CharacterEllipsis"
                                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                                         <TextBlock Text="{Binding Value}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Value}"/>
                                     </StackPanel>

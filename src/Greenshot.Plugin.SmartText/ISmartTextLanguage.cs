@@ -323,6 +323,16 @@ namespace Greenshot.Plugin.SmartText
         string ItemName { get; }
 
         /// <summary>
+        /// {0} for "{1}": the kind of item and the text it was found under, when that isn't the value itself (a link "FAQ" with its address)
+        /// </summary>
+        string ItemFoundUnder { get; }
+
+        /// <summary>
+        /// {0} for "{4}": {1}, {2} of {3}
+        /// </summary>
+        string ItemNameFoundUnder { get; }
+
+        /// <summary>
         /// Smart text pattern
         /// </summary>
         string KindPattern { get; }
