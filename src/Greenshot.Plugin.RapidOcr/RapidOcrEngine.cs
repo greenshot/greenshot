@@ -88,7 +88,7 @@ internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
         }
 
         // Chosen but not usable: the files were deleted or changed, the other answer is Windows OCR
-        string question = string.Format(isChosen ? Language.RepairQuestion : Language.DownloadQuestion, RapidOcrFiles.DownloadMegabytes, Environment.NewLine, "modelscope.cn", _files.Directory);
+        string question = string.Format(isChosen ? Language.RepairQuestion : Language.DownloadQuestion, RapidOcrFiles.DownloadMegabytes, Environment.NewLine, RapidOcrFiles.ModelHost, _files.Directory);
         var viewModel = new RapidOcrDownloadViewModel(Language, question, isChosen ? Language.UseWindowsOcr : Language.DownloadLater,
             (progress, token) => _files.DownloadAsync(HttpService.Current, progress, token), Notify, cancellationToken);
         var window = new RapidOcrDownloadWindow(viewModel);

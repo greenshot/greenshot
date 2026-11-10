@@ -22,8 +22,8 @@ Nothing large is installed. When RapidOCR is chosen the first time, a download w
 | `onnxruntime.dll` 1.31.1 (MIT) | Microsoft's release `onnxruntime-win-x64-1.31.1.zip` on github.com/microsoft/onnxruntime; only this file is read out of the zip with range requests | 6 MB transferred, 17 MB on disk |
 | `onnxruntime-LICENSE.txt` | the same zip | 1 KB |
 | `onnxruntime-ThirdPartyNotices.txt` | the same zip: the notices of the libraries built into onnxruntime.dll | 32 KB transferred, 340 KB on disk |
-| `PP-OCRv6_det_small.onnx` (Apache 2.0) | the RapidOCR model files | 10 MB |
-| `PP-OCRv6_rec_small.onnx` (Apache 2.0) | the RapidOCR model files | 21 MB |
+| `PP-OCRv6_det_small.onnx` (Apache 2.0) | the Greenshot release `rapidocr-models-1` on github.com/greenshot/greenshot: unchanged copies of the RapidOCR model files, with their licenses | 10 MB |
+| `PP-OCRv6_rec_small.onnx` (Apache 2.0) | the Greenshot release `rapidocr-models-1` on github.com/greenshot/greenshot: unchanged copies of the RapidOCR model files, with their licenses | 21 MB |
 
 - The files go to the folder `RapidOCR` next to greenshot.ini (so the portable Greenshot keeps them next to itself). The uninstaller
   removes the folder.

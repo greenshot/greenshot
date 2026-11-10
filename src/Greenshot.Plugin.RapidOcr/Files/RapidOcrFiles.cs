@@ -91,8 +91,9 @@ internal sealed class RapidOcrFiles
 {
     internal const string OnnxRuntimeVersion = "1.31.1";
     private const string OnnxRuntimeZip = "https://github.com/microsoft/onnxruntime/releases/download/v" + OnnxRuntimeVersion + "/onnxruntime-win-x64-" + OnnxRuntimeVersion + ".zip";
-    // The models as RapidOCR 3.10 publishes them (PP-OCRv6 small, Apache 2.0)
-    private const string ModelBase = "https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/";
+    // Unchanged copies of the models RapidOCR 3.10 publishes (PP-OCRv6 small, Apache 2.0), with their licenses next to them
+    internal const string ModelHost = "github.com/greenshot/greenshot";
+    private const string ModelBase = "https://" + ModelHost + "/releases/download/rapidocr-models-1/";
 
     internal const string OnnxRuntimeFile = "onnxruntime.dll";
     internal const string DetectionFile = "PP-OCRv6_det_small.onnx";
@@ -110,9 +111,9 @@ internal sealed class RapidOcrFiles
         // The notices of the libraries built into onnxruntime.dll, they go with it
         new RapidOcrFile("onnxruntime-ThirdPartyNotices.txt", OnnxRuntimeZip, $"onnxruntime-win-x64-{OnnxRuntimeVersion}/ThirdPartyNotices.txt", 344457, 32416,
             "c53a76501ef60db6f865f20599f220761201ac4057683acefdab37d861b86622"),
-        new RapidOcrFile(DetectionFile, ModelBase + "det/" + DetectionFile, null, 9929594, 9929594,
+        new RapidOcrFile(DetectionFile, ModelBase + DetectionFile, null, 9929594, 9929594,
             "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f"),
-        new RapidOcrFile(RecognitionFile, ModelBase + "rec/" + RecognitionFile, null, 21234383, 21234383,
+        new RapidOcrFile(RecognitionFile, ModelBase + RecognitionFile, null, 21234383, 21234383,
             "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884"),
     };
 
