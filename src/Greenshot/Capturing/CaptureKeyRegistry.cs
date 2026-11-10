@@ -66,6 +66,12 @@ namespace Greenshot.Capturing
         }
 
         /// <summary>
+        /// Remove a binding, for keys which only exist for a while
+        /// </summary>
+        /// <returns>true when it was registered</returns>
+        public bool Unregister(CaptureKeyBinding binding) => _bindings.Remove(binding);
+
+        /// <summary>
         /// The binding for a pressed key while the given tool is active, null when there is none.
         /// When Shift is held and nothing has the key with Shift, the key without Shift is used: Shift keeps the selection
         /// to one direction, which should also work with the arrow keys.

@@ -54,6 +54,8 @@ namespace Greenshot.Capturing.Views
         // The list of the numbered hotspots is a panel of its own
         private readonly object _hotspotListOwner = new object();
         private ScrollViewer _hotspotList;
+        // The digit keys while the active tool shows numbered hotspots
+        private readonly List<CaptureKeyBinding> _hotspotKeys = new List<CaptureKeyBinding>();
         private StackPanel _hotspotRows;
 
         /// <summary>
@@ -69,34 +71,49 @@ namespace Greenshot.Capturing.Views
         private void UpdateNumberedHotspots()
         {
             _numberedHotspots = _hotspotNumbering.Number(_hotspots, _activeTool?.Id);
+            UpdateHotspotKeys();
             UpdateHotspotList();
         }
 
         /// <summary>
-        /// The digit keys for the numbered hotspots, as keys of every tool which doesn't use them itself (the fixed size picks a size with them).
-        /// They only work, and are only in the key help, while that number is there.
+        /// The digit keys for the numbered hotspots: registered for the active tool while it shows numbered hotspots, removed when they are gone
+        /// or another tool is active. A tool which uses a digit itself (the fixed size picks a size with them) picks its hotspots with the mouse.
+        /// Each digit only works, and is only in the key help, while that number is there.
         /// </summary>
-        private void RegisterHotspotKeys()
+        private void UpdateHotspotKeys()
         {
-            foreach (var tool in _tools)
+            var tool = _numberedHotspots.Count > 0 ? _activeTool : null;
+            if (tool != null && _hotspotKeys.Count > 0 && _hotspotKeys[0].Tool == tool)
             {
-                try
-                {
-                    for (int index = 0; index < NumberKeyCount; index++)
-                    {
-                        int number = index + 1;
-                        var key = index < 9 ? Key.D1 + index : Key.D0;
-                        bool HasNumber(ICaptureTool activeTool) => _numberedHotspots.Any(entry => entry.Number == number);
-                        _keys.Register(new CaptureKeyBinding(this, tool, key, ModifierKeys.None, () => Texts.Core.CaptureKeyHotspotMenu,
-                            () => ShowNumberedHotspotMenu(number), HasNumber));
-                        _keys.Register(new CaptureKeyBinding(this, tool, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyHotspotDefault,
-                            () => RunNumberedHotspotDefault(number), HasNumber));
-                    }
-                }
-                catch (CaptureKeyConflictException ex)
-                {
-                    Log.Debug($"The capture tool {tool.Id} uses the digit keys itself, its numbered hotspots are picked with the mouse", ex);
-                }
+                return;
+            }
+            foreach (var binding in _hotspotKeys)
+            {
+                _keys.Unregister(binding);
+            }
+            _hotspotKeys.Clear();
+            if (tool == null)
+            {
+                return;
+            }
+            var bindings = new List<CaptureKeyBinding>();
+            for (int index = 0; index < NumberKeyCount; index++)
+            {
+                int number = index + 1;
+                var key = index < 9 ? Key.D1 + index : Key.D0;
+                bool HasNumber(ICaptureTool activeTool) => _numberedHotspots.Any(entry => entry.Number == number);
+                bindings.Add(new CaptureKeyBinding(this, tool, key, ModifierKeys.None, () => Texts.Core.CaptureKeyHotspotMenu,
+                    () => ShowNumberedHotspotMenu(number), HasNumber));
+                bindings.Add(new CaptureKeyBinding(this, tool, key, ModifierKeys.Control, () => Texts.Core.CaptureKeyHotspotDefault,
+                    () => RunNumberedHotspotDefault(number), HasNumber));
+            }
+            if (bindings.Any(binding => _keys.Bindings.Any(binding.ConflictsWith)))
+            {
+                return;
+            }
+            foreach (var binding in bindings)
+            {
+                _hotspotKeys.Add(_keys.Register(binding));
             }
         }
 
