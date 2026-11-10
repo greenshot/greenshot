@@ -37,6 +37,8 @@
         <SolidColorBrush x:Key="HotspotBrush" Color="#0078D7" />
         <SolidColorBrush x:Key="HotspotHoverBrush" Color="#280078D7" />
         <SolidColorBrush x:Key="OcrLineBrush" Color="Red" />
+        <!-- Text read from the application (UI Automation) -->
+        <SolidColorBrush x:Key="ApplicationTextLineBrush" Color="DodgerBlue" />
         <SolidColorBrush x:Key="OcrHighlightBrush" Color="#80FFFF00" />
         <FontFamily x:Key="LabelFontFamily">Microsoft Sans Serif, Segoe UI</FontFamily>
 

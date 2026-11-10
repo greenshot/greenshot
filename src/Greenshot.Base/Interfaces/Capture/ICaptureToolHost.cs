@@ -166,6 +166,11 @@ namespace Greenshot.Base.Interfaces.Capture
         bool IsSelectionAnimating { get; }
 
         /// <summary>
+        /// Where the zoomer is (or moves to), empty when it isn't shown: a tool drawing next to the cursor keeps away from it
+        /// </summary>
+        NativeRect ZoomerBounds { get; }
+
+        /// <summary>
         /// Where the selection rectangle is (the end of an animation), empty when it is not shown
         /// </summary>
         NativeRect Selection { get; }

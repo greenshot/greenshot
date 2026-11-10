@@ -31,6 +31,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
@@ -275,7 +276,7 @@ namespace Greenshot.Recipes.Steps
                 }
                 if (fromScreen && acquired.RawCapture != null)
                 {
-                    ProcessScreenCapture(acquired.RawCapture);
+                    ProcessScreenCapture(context, acquired.RawCapture);
                 }
                 // Without joining the HDR parts of a frozen screen: that waits for the selection
                 if (context.CaptureHdrRequested)
@@ -374,12 +375,17 @@ namespace Greenshot.Recipes.Steps
         /// (the QR code scan) start in the background, so what they find shows up while selecting.
         /// A live selection has no image yet, it gets no processors.
         /// </summary>
-        private static void ProcessScreenCapture(ICapture capture)
+        private static void ProcessScreenCapture(CaptureFlowContext context, ICapture capture)
         {
             TitleFix.Apply(capture.CaptureDetails);
             if (capture.Image == null)
             {
                 return;
+            }
+            if (CoreConfig.ReadApplicationText && !IsAiToolRun(context))
+            {
+                // The text of the applications, an AI tool doesn't get it: windows excluded from AI tools are only blacked out in the pixels
+                ApplicationText.Start(capture);
             }
             foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>().Where(p => p.isActive))
             {
@@ -521,6 +527,15 @@ namespace Greenshot.Recipes.Steps
                 return false;
             }
             return true;
+        }
+
+        private static bool IsAiToolRun(CaptureFlowContext context)
+        {
+#if !GREENSHOT_LIGHT
+            return AiToolCapture.IsAiToolRun(context);
+#else
+            return false;
+#endif
         }
 
         private static bool HasInteractiveSelection(CaptureFlowContext context) =>

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Languages\greenshot*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- The licenses of RapidOCR, the models and ONNX Runtime go with the plug-in, see Licenses\NOTICE.txt -->
+    <None Include="Licenses\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapplo.Ini" Version="1.1.17" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.17" />
+    <!-- Only the managed part: onnxruntime.dll and the models are downloaded when the user agrees, see docs/vNext/rapid-ocr.md -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.31.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+  </ItemGroup>
+</Project>
