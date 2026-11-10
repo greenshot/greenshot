@@ -50,6 +50,7 @@ namespace Greenshot.Base.Recipes.Pipeline
         /// <param name="visibleWindows">Visible windows for window snapping.</param>
         /// <param name="initialMode">Initial selection mode (Region, Window, Text).</param>
         /// <param name="initialTool">Id of the tool to start with (e.g. one of a plugin), null or unknown: the tool of the initial mode.</param>
+        /// <param name="fixedCaptureArea">A size like 64x64: the fixed size capture starts with only this size (e.g. the screen of a device), null for the sizes of the settings.</param>
         /// <param name="cancellationToken">Cancelling closes the overlay and throws an OperationCanceledException.</param>
         /// <returns>The selection, or null when the user declined (Esc) or another selection is already open.</returns>
         Task<SelectionResult> SelectAsync(
@@ -57,6 +58,7 @@ namespace Greenshot.Base.Recipes.Pipeline
             IReadOnlyList<IInteropWindow> visibleWindows,
             CaptureMode initialMode,
             string initialTool,
+            string fixedCaptureArea,
             CancellationToken cancellationToken = default);
     }
 }

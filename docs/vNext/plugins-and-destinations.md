@@ -63,6 +63,7 @@ plugin is only available while the plugin is loaded, blocking the plugin blocks 
 | `Atlassian` | `Jira`, `Confluence` |
 | `Box` | `Box` |
 | `CustomUploader` | `CustomUploader`, and `CustomUploader:<name>` per uploader file |
+| `Divoom` | `Divoom` |
 | `Dropbox` | `Dropbox` |
 | `ExternalCommand` | `External <name>` per command, e.g. `External MS Paint` |
 | `Office` | `Outlook`, `Word`, `Excel`, `Powerpoint`, `OneNote` |

@@ -212,7 +212,7 @@ namespace Greenshot.Tests.Recipes
             {
             }
 
-            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default) =>
+            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, string fixedCaptureArea, CancellationToken cancellationToken = default) =>
                 throw new InvalidOperationException("Not expected");
         }
 

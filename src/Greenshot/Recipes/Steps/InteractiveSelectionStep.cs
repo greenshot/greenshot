@@ -52,6 +52,7 @@ namespace Greenshot.Recipes.Steps
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
     [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
     [StepParameter("SelectionTool", ContractDataType.String, Description = "Id of the capture tool to start with, e.g. one of a plugin; when it is not there, the tool of the SelectionMode")]
+    [StepParameter("FixedCaptureArea", ContractDataType.String, Description = "A size like 64x64 (e.g. the screen of a device): the fixed size capture starts with only this size, the capture is not added to its recent sizes")]
     [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
     [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
@@ -143,8 +144,17 @@ namespace Greenshot.Recipes.Steps
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
             string initialTool = Config.GetParameter<string>("SelectionTool");
+            string fixedCaptureArea = Config.GetParameter<string>("FixedCaptureArea");
+            if (string.IsNullOrWhiteSpace(fixedCaptureArea))
+            {
+                fixedCaptureArea = null;
+            }
+            else if (string.IsNullOrWhiteSpace(initialTool))
+            {
+                initialTool = FixedSizeCaptureTool.ToolId;
+            }
 
-            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, initialTool, cancellationToken).ConfigureAwait(false);
+            var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, initialTool, fixedCaptureArea, cancellationToken).ConfigureAwait(false);
 
             if (selection == null)
             {

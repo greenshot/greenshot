@@ -67,7 +67,7 @@ namespace Greenshot.Tests.Recipes
             {
             }
 
-            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default)
+            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, string fixedCaptureArea, CancellationToken cancellationToken = default)
             {
                 Capture = fullscreenCapture;
                 return Task.FromResult(new SelectionResult { SelectedRegion = _region, FinalMode = initialMode });

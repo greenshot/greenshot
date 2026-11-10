@@ -391,6 +391,10 @@
               "default": true,
               "description": "Used by 'InteractiveSelection' step: Whether to snap selection rect to windows under the cursor."
             },
+            "FixedCaptureArea": {
+              "type": "string",
+              "description": "Used by 'InteractiveSelection' step: a size like '64x64' (e.g. the screen of a device): the fixed size capture starts with only this size, the capture is not added to its recent sizes."
+            },
             "Width": {
               "description": "Used by 'Effect' step: border width (Border) or new width (Resize, instead of Percentage).",
               "oneOf": [

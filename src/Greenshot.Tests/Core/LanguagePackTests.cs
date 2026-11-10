@@ -56,6 +56,7 @@ namespace Greenshot.Tests.Core
                 typeof(Greenshot.Plugin.Atlassian.AtlassianPlugin).Assembly,
                 typeof(Greenshot.Plugin.Box.IBoxLanguage).Assembly,
                 typeof(Greenshot.Plugin.CustomUploader.ICustomUploaderLanguage).Assembly,
+                typeof(Greenshot.Plugin.Divoom.IDivoomLanguage).Assembly,
                 typeof(Greenshot.Plugin.Dropbox.IDropboxLanguage).Assembly,
                 typeof(Greenshot.Plugin.ExternalCommand.IExternalCommandLanguage).Assembly,
                 typeof(Greenshot.Plugin.Office.IOfficeLanguage).Assembly,
