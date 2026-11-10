@@ -68,9 +68,8 @@ internal sealed class RapidOcrPipeline : IDisposable
         {
             // The threads are left to ONNX Runtime: one per physical core. The user waits for the text, half of them took 1.7 times as long
             GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
-            // ONNX Runtime's memory arena and memory patterns keep the largest working memory of every run (a screen: about 0.6 GB more,
-            // three screens: 1.3 GB) until the session is gone. Without them the memory goes back after each run, OCR takes about 15 % longer
-            EnableCpuMemArena = false,
+            // Memory patterns are planned per input shape, and every capture has another one; the memory arena stays, but each run
+            // gives it back at its end (TextModels.Run), else it keeps the largest working memory of all runs (three screens: 1.5 GB)
             EnableMemoryPattern = false
         };
         _detector = new TextDetector(new InferenceSession(detectionModel, options));
