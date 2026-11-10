@@ -60,7 +60,8 @@ namespace Greenshot.Editor.Forms
             {
                 new SizeAndPositionSection(),
                 new StyleAndSizeSection(),
-                new EmojiSection(EditorConfiguration)
+                new EmojiSection(EditorConfiguration),
+                new TornEdgesSection(EditorConfiguration)
             };
             var panels = new List<IEditorPanel>();
             try
@@ -285,7 +286,14 @@ namespace Greenshot.Editor.Forms
             _panelHost?.UpdateAutomatic();
         }
 
-        private void SurfaceElementsChanged(object sender, EventArgs e) => _panelContext?.OnElementsChanged();
+        /// <summary>
+        /// The elements changed, e.g. in a section of the Selection panel: that can be undone now
+        /// </summary>
+        private void SurfaceElementsChanged(object sender, EventArgs e)
+        {
+            UpdateUndoRedoSurfaceDependencies();
+            _panelContext?.OnElementsChanged();
+        }
 
         /// <summary>
         /// An element asked for its properties (a double click on an emoji): show the Selection panel with the keyboard
@@ -306,10 +314,5 @@ namespace Greenshot.Editor.Forms
             _effectsPanel.Request(effect);
             _panelHost.Show(EffectsPanel.PanelId, activate: true);
         }
-
-        /// <summary>
-        /// The context menu of the torn edges asked for their settings
-        /// </summary>
-        private void SurfaceTornEdgeSettingsRequested(object sender, EventArgs e) => ShowEffect(EffectKind.TornEdges);
     }
 }

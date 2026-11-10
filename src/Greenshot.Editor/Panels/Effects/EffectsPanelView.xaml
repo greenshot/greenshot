@@ -7,6 +7,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             xmlns:local="clr-namespace:Greenshot.Editor.Panels.Effects"
              Foreground="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -44,24 +45,21 @@
             <Label Content="{wpf:Text Editor.EffectsEffect}" Target="{Binding ElementName=EffectBox}"/>
             <ComboBox x:Name="EffectBox" ItemsSource="{Binding Effects}" DisplayMemberPath="Title" SelectedIndex="{Binding EffectIndex}"/>
 
-            <!-- The preview: the whole capture, for the effects on the edges also the bottom right corner at 100 % -->
+            <!-- The preview: the capture with the effect in its full size, zoomed to fit; the wheel zooms, dragging moves it -->
             <TextBlock Text="{wpf:Text Editor.EffectsPreview}" Style="{StaticResource SectionHeader}"/>
-            <Border BorderThickness="1" CornerRadius="4" SnapsToDevicePixels="True"
-                    Background="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"
-                    BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}">
-                <Image x:Name="PreviewImage" AutomationProperties.Name="{wpf:Text Editor.EffectsPreview}" Stretch="Uniform" StretchDirection="DownOnly"
-                       MaxHeight="220" Margin="6" RenderOptions.BitmapScalingMode="HighQuality"/>
-            </Border>
-            <StackPanel Visibility="{Binding ShowsDetail, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{wpf:Text Editor.EffectsPreviewDetail}" FontSize="{wpf:FontSize 11}" Margin="0,8,0,2"
+            <local:ZoomPanImage x:Name="PreviewImage" Height="260" BorderThickness="1" CornerRadius="4" Padding="2" SnapsToDevicePixels="True"
+                                AutomationProperties.Name="{wpf:Text Editor.EffectsPreview}" AutomationProperties.HelpText="{wpf:Text Editor.EffectsPreviewHint}"
+                                ToolTip="{wpf:Text Editor.EffectsPreviewHint}"
+                                Background="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"
+                                BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
+            <DockPanel Margin="0,4,0,0">
+                <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButtonStyle}" Content="1:1" Padding="10,2" Margin="6,0,0,0"
+                        AutomationProperties.Name="{wpf:Text Core.ViewerActualSize}" ToolTip="{wpf:Text Core.ViewerActualSize}" Click="ActualSize_Click"/>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButtonStyle}" Content="{wpf:Text Editor.EffectsPreviewFit}" Padding="10,2"
+                        Click="ShowAll_Click"/>
+                <TextBlock x:Name="ZoomText" VerticalAlignment="Center" FontSize="{wpf:FontSize 11}"
                            Foreground="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"/>
-                <Border BorderThickness="1" CornerRadius="4" SnapsToDevicePixels="True" HorizontalAlignment="Left"
-                        Background="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"
-                        BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}">
-                    <Image x:Name="PreviewDetailImage" AutomationProperties.Name="{wpf:Text Editor.EffectsPreviewDetail}" Stretch="Uniform" StretchDirection="DownOnly"
-                           Margin="6" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                </Border>
-            </StackPanel>
+            </DockPanel>
 
             <!-- Presets: a click sets the settings below, which can be changed afterwards -->
             <StackPanel Visibility="{Binding HasPresets, Converter={StaticResource BoolToVisibility}}">
@@ -96,37 +94,7 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- Torn edges -->
-            <StackPanel Visibility="{Binding ShowsTornEdges, Converter={StaticResource BoolToVisibility}}">
-                <WrapPanel Margin="0,8,0,0">
-                    <CheckBox Content="{wpf:Text Editor.TornedgeTop}" IsChecked="{Binding TornTop}" Margin="0,2,12,2"/>
-                    <CheckBox Content="{wpf:Text Editor.TornedgeRight}" IsChecked="{Binding TornRight}" Margin="0,2,12,2"/>
-                    <CheckBox Content="{wpf:Text Editor.TornedgeBottom}" IsChecked="{Binding TornBottom}" Margin="0,2,12,2"/>
-                    <CheckBox Content="{wpf:Text Editor.TornedgeLeft}" IsChecked="{Binding TornLeft}" Margin="0,2,12,2"/>
-                </WrapPanel>
-                <Label x:Name="ToothHeightLabel" Content="{wpf:Text Editor.TornedgeToothsize}"/>
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ToothHeightSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
-                    <wpf:ValueSlider x:Name="ToothHeightSlider" ValueFormat="{}{0:0} px" Minimum="1" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
-                                     Value="{Binding ToothHeight}" AutomationProperties.LabeledBy="{Binding ElementName=ToothHeightLabel}"/>
-                </DockPanel>
-                <Label x:Name="ToothRangeLabel" Content="{wpf:Text Editor.EffectsToothRange}"/>
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ToothRangeSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
-                    <wpf:ValueSlider x:Name="ToothRangeSlider" ValueFormat="{}{0:0} px" Minimum="2" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
-                                     Value="{Binding ToothRange}" AutomationProperties.LabeledBy="{Binding ElementName=ToothRangeLabel}"/>
-                </DockPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <Border x:Name="TornBackgroundSwatch" Style="{StaticResource Swatch}"/>
-                    <Button Style="{StaticResource SecondaryButtonStyle}" Content="{wpf:Text Editor.TornedgeBackgroundColor}" Margin="6,0,0,0" Padding="10,4"
-                            Click="TornBackground_Click"/>
-                </StackPanel>
-                <Button Style="{StaticResource SecondaryButtonStyle}" Content="{wpf:Text Editor.CutMarkReseed}" HorizontalAlignment="Left" Margin="0,8,0,0" Padding="10,4"
-                        Click="NewEdges_Click"/>
-                <CheckBox Content="{wpf:Text Editor.TornedgeShadow}" IsChecked="{Binding TornShadow}" Margin="0,10,0,0"/>
-            </StackPanel>
-
-            <!-- Shadow of the drop shadow or of the torn edges -->
+            <!-- Drop shadow -->
             <StackPanel Visibility="{Binding ShowsShadow, Converter={StaticResource BoolToVisibility}}">
                 <Label x:Name="DarknessLabel" Content="{wpf:Text Editor.DropshadowDarkness}"/>
                 <DockPanel>
@@ -200,7 +168,7 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <Button Style="{StaticResource PrimaryButtonStyle}" Content="{Binding ApplyText}" HorizontalAlignment="Right" MinWidth="100" Margin="0,10,0,0"
+            <Button Style="{StaticResource PrimaryButtonStyle}" Content="{wpf:Text Editor.EffectsApply}" HorizontalAlignment="Right" MinWidth="100" Margin="0,10,0,0"
                     IsEnabled="{Binding CanApply}" Click="Apply_Click"/>
 
         </StackPanel>

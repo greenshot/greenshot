@@ -1254,7 +1254,6 @@ namespace Greenshot.Editor.Forms
             _surface.TextRecognitionChanged += SurfaceTextRecognitionChanged;
             _surface.ElementsChanged += SurfaceElementsChanged;
             _surface.PropertiesRequested += SurfacePropertiesRequested;
-            _surface.TornEdgeSettingsRequested += SurfaceTornEdgeSettingsRequested;
             _surface.FieldAggregator.FieldChanged += FieldAggregatorFieldChanged;
             BindFieldControls();
         }
@@ -1273,7 +1272,6 @@ namespace Greenshot.Editor.Forms
             _surface.TextRecognitionChanged -= SurfaceTextRecognitionChanged;
             _surface.ElementsChanged -= SurfaceElementsChanged;
             _surface.PropertiesRequested -= SurfacePropertiesRequested;
-            _surface.TornEdgeSettingsRequested -= SurfaceTornEdgeSettingsRequested;
             _surface.FieldAggregator.FieldChanged -= FieldAggregatorFieldChanged;
             foreach (var binding in _fieldBindings)
             {
@@ -3362,9 +3360,23 @@ namespace Greenshot.Editor.Forms
 
         private void BtnResizeClick(object sender, EventArgs e) => ShowEffect(EffectKind.Resize);
 
-        private void TornEdgesToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.TornEdges);
+        /// <summary>
+        /// Tear the edges with the last settings, as an element: the sides and the shadow are changed in the Selection panel,
+        /// the teeth, the color and the line in the properties of the tool
+        /// </summary>
+        private void TornEdgesToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            // When there are torn edges already, these are selected
+            _surface.AddTornEdges(EditorConfiguration.TornEdgeEffectSettings);
+            UpdateUndoRedoSurfaceDependencies();
+            RefreshFieldControls();
+            _panelHost?.Show(SelectionPanel.PanelId, activate: false);
+        }
 
-        private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Grayscale);
+        private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            ApplyEffect(new GrayscaleEffect());
+        }
 
         private void ClearToolStripMenuItemClick(object sender, EventArgs e)
         {
@@ -3382,7 +3394,10 @@ namespace Greenshot.Editor.Forms
             ApplyEffect(new RotateEffect(270));
         }
 
-        private void InvertToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Invert);
+        private void InvertToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            ApplyEffect(new InvertEffect());
+        }
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.RemoveTransparency);
 

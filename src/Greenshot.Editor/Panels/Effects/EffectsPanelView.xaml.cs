@@ -21,6 +21,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,7 +36,7 @@ namespace Greenshot.Editor.Panels.Effects
 {
     /// <summary>
     /// The view of the Effects panel, for an <see cref="EffectsPanelViewModel"/>. Here only what needs WPF: the color swatches,
-    /// the preview images, the color picker and the mouse wheel on the size fields.
+    /// the zoomed preview, the color picker and the mouse wheel on the size fields.
     /// </summary>
     public partial class EffectsPanelView
     {
@@ -44,6 +45,7 @@ namespace Greenshot.Editor.Panels.Effects
         public EffectsPanelView()
         {
             InitializeComponent();
+            PreviewImage.ZoomChanged += (_, _) => UpdateZoomText();
             DataContextChanged += OnDataContextChanged;
             // The preview is only made while the panel is shown
             IsVisibleChanged += (_, _) => UpdateShown();
@@ -80,8 +82,7 @@ namespace Greenshot.Editor.Panels.Effects
 
         private void OnViewModelChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName is nameof(EffectsPanelViewModel.BorderColor) or nameof(EffectsPanelViewModel.TornBackgroundColor)
-                or nameof(EffectsPanelViewModel.TransparencyColor))
+            if (e.PropertyName is nameof(EffectsPanelViewModel.BorderColor) or nameof(EffectsPanelViewModel.TransparencyColor))
             {
                 UpdateSwatches();
             }
@@ -90,8 +91,16 @@ namespace Greenshot.Editor.Panels.Effects
         private void OnPreviewChanged(object sender, EventArgs e)
         {
             PreviewImage.Source = _viewModel?.Preview?.ToBitmapSource();
-            PreviewDetailImage.Source = _viewModel?.PreviewDetail?.ToBitmapSource();
         }
+
+        private void UpdateZoomText()
+        {
+            ZoomText.Text = PreviewImage.Source == null ? string.Empty : string.Format(CultureInfo.CurrentCulture, "{0:0} %", PreviewImage.Zoom * 100);
+        }
+
+        private void ShowAll_Click(object sender, RoutedEventArgs e) => PreviewImage.ShowAll();
+
+        private void ActualSize_Click(object sender, RoutedEventArgs e) => PreviewImage.ShowActualSize();
 
         private void UpdateSwatches()
         {
@@ -101,7 +110,6 @@ namespace Greenshot.Editor.Panels.Effects
             }
 
             BorderColorSwatch.Background = ToBrush(_viewModel.BorderColor);
-            TornBackgroundSwatch.Background = ToBrush(_viewModel.TornBackgroundColor);
             TransparencySwatch.Background = ToBrush(_viewModel.TransparencyColor);
         }
 
@@ -117,11 +125,7 @@ namespace Greenshot.Editor.Panels.Effects
 
         private void BorderColor_Click(object sender, RoutedEventArgs e) => PickColor(_viewModel?.BorderColor, color => _viewModel.BorderColor = color);
 
-        private void TornBackground_Click(object sender, RoutedEventArgs e) => PickColor(_viewModel?.TornBackgroundColor, color => _viewModel.TornBackgroundColor = color);
-
         private void TransparencyColor_Click(object sender, RoutedEventArgs e) => PickColor(_viewModel?.TransparencyColor, color => _viewModel.TransparencyColor = color);
-
-        private void NewEdges_Click(object sender, RoutedEventArgs e) => _viewModel?.NewEdges();
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {

@@ -28,9 +28,6 @@ namespace Greenshot.Editor.Panels.Effects
     {
         Border,
         DropShadow,
-        TornEdges,
-        Grayscale,
-        Invert,
         RemoveTransparency,
         Resize
     }

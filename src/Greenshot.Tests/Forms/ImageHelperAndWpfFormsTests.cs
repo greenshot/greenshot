@@ -234,6 +234,9 @@ namespace Greenshot.Tests.Forms
                     var effectsPanelView = new Greenshot.Editor.Panels.Effects.EffectsPanelView();
                     Assert.NotNull(effectsPanelView);
 
+                    var tornEdgesSectionView = new Greenshot.Editor.Panels.Views.TornEdgesSectionView();
+                    Assert.NotNull(tornEdgesSectionView);
+
                     var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
                 }

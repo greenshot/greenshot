@@ -44,19 +44,25 @@ the window is open. To change a barcode later, select it with the Selection pane
 
 ### The Effects panel
 
-The *Effects* menu of the editor (border, drop shadow, torn edges, grayscale, invert, remove transparency) and *Resize* show
+The effects with settings in the *Effects* menu of the editor (border, drop shadow, remove transparency) and *Resize* show
 the *Effects* panel with that effect; the list at the top of the panel picks another one. The capture doesn't change yet:
 
 | Part | What it does |
 |---|---|
-| Preview | The whole capture as it will look, with the elements on it. For border, drop shadow and torn edges also the bottom right corner at 100 %, where a thin border or a small shadow shows. It follows every change at once. |
-| Presets | A click sets the settings below to the preset, e.g. *Wide* for a border or *Bottom only* for torn edges; they can be changed afterwards. For torn edges a preset only picks the sides, the teeth and the shadow stay. For resize the presets are percentages of the capture. |
-| Settings | The settings of the effect: width and color of the border; darkness, size and offset of a shadow; the sides, teeth, background and shadow of torn edges (*New random edge* tears them differently); the color for transparent parts; the new width and height. Grayscale and invert have no settings. |
+| Preview | The capture as it will look, with the elements on it, in its full size. It starts zoomed to fit; the mouse wheel or + and − zoom at the mouse, dragging or the arrow keys move it, a double-click (or 0 and 1, *Fit* and *1:1*) switches between all of it and the real size. A change of a setting keeps the zoom and the place, so the details can be compared. It follows every change at once. |
+| Presets | A click sets the settings below to the preset, e.g. *Wide* for a border; they can be changed afterwards. For resize the presets are percentages of the capture. |
+| Settings | The settings of the effect: width and color of the border; darkness, size and offset of the shadow; the color for transparent parts; the new width and height. |
 | Apply | Applies the effect to the capture as one step for Ctrl+Z. The panel stays, its preview now starts from the changed capture. |
 
-Torn edges are an element, there is one per capture: when the capture has torn edges, the panel shows their settings and *Change the torn edges*
-changes them (one step for Ctrl+Z); *Torn edges settings* in their context menu shows them in the panel too. The settings of the drop shadow
-and the torn edges are kept in greenshot.ini for the next time (as before), the border and the color for transparent parts until Greenshot ends.
+Grayscale and invert have no settings: they apply at once, as before. A resize to more than 40 million pixels shows the capture as it is
+in the preview, the new size is in the text below the settings.
+
+Torn edges are an element, there is one per capture: *Torn edges* (Ctrl+T) tears the edges at once with the last settings (or selects the
+torn edges which are there) and shows the Selection panel. Its *Torn edges* section changes the torn sides and the shadow (darkness, size,
+offset) and makes a new random edge, each change at once and one step for Ctrl+Z (dragging a slider is one step). The teeth (size and
+width), the color of the torn off parts, the line and the shadow on or off are properties of the element in the tool bar, like for the
+other elements. The settings of the drop shadow and the torn edges are kept in greenshot.ini for the next time (as before), the border
+and the color for transparent parts until Greenshot ends.
 
 ### Settings
 
@@ -66,7 +72,7 @@ In `[Editor]` of greenshot.ini:
 |---|---|
 | `EditorPanelWidth` | The width of the panel area, in pixels at 100 % scaling (200 to 1200, default 320) |
 | `SelectedEditorPanel` | The panel which is shown when the area opens (default `Greenshot.Selection`) |
-| `DropShadowEffectSettings`, `TornEdgeEffectSettings` | The last settings of the drop shadow and of the torn edges in the Effects panel |
+| `DropShadowEffectSettings`, `TornEdgeEffectSettings` | The last settings of the drop shadow in the Effects panel, and of the torn edges |
 | `CollapsedEditorSections` | The sections of the Selection panel which are closed, separated by `|` |
 
 ---
@@ -120,6 +126,7 @@ These rules decide when the panel area shows and what the Selection panel shows.
 | Step label | Size and position, Line and fill, Number |
 | Highlight, obfuscate | Size and position, Effect |
 | Image | Size and position |
+| Torn edges | Size and position, Torn edges (sides and shadow, built) |
 | Emoji | Size and position, Emoji (built) |
 | Barcode (Zxing plugin) | Size and position, QR / Barcode (built) |
 
@@ -197,8 +204,8 @@ services.AddServices<IEditorSection>(() => new IEditorSection[] { new BarcodeSec
 services.AddServices<IEditorPanel>(() => IsEnabled ? new IEditorPanel[] { _stampsPanel } : Array.Empty<IEditorPanel>());
 ```
 
-Ids are unique; start them with the name of the plugin. The sections of the editor are `Greenshot.SizeAndPosition`
-and `Greenshot.Emoji`, the panels are `Greenshot.Selection` and `Greenshot.Effects`. The Zxing plugin has the panel `Greenshot.Barcode` and the section
+Ids are unique; start them with the name of the plugin. The sections of the editor are `Greenshot.SizeAndPosition`,
+`Greenshot.Emoji` and `Greenshot.TornEdges`, the panels are `Greenshot.Selection` and `Greenshot.Effects`. The Zxing plugin has the panel `Greenshot.Barcode` and the section
 `Greenshot.BarcodeSection`, Stamps the panel `Greenshot.Stamps`.
 
 ### Look
@@ -223,7 +230,8 @@ Texts come from the language files, as everywhere ([ui-how-to.md](ui-how-to.md))
 | `Panels/EditorPanelDock` | The WinForms control right of the canvas: one `ElementHost` with the WPF `PanelDockView`. The only WinForms part. |
 | `Panels/SelectionPanel`, `ViewModels/SelectionPanelViewModel` | The Selection panel: the sections which apply, their collapsed state. |
 | `Panels/Sections/*` | The sections of the editor. |
-| `Panels/Effects/*` | The Effects panel: `EffectsPanelViewModel` (effect, presets, settings, preview, Apply; no UI toolkit, tested in `EffectsPanelTests`) and `EffectsPanelView`. The preview comes from `Surface.CreateEffectPreviewAsync` and `CreateTornEdgesPreviewAsync`: the effect on a copy, on the thread pool, the surface stays unchanged. A color effect (grayscale, invert, remove transparency) changes only the image and the elements are drawn on top, like Apply leaves them; the others work on the image with its elements. Torn edges are drawn by a torn edges element which isn't on the surface, with the seed Apply uses, so the preview shows the same teeth. |
+| `Panels/Effects/*` | The Effects panel: `EffectsPanelViewModel` (effect, presets, settings, preview, Apply; no UI toolkit, tested in `EffectsPanelTests`), `EffectsPanelView` and `ZoomPanImage` (the zoomed and moved preview). The preview comes from `Surface.CreateEffectPreviewAsync`: the effect on a copy in the full size, on the thread pool, the surface stays unchanged. Remove transparency changes only the image and the elements are drawn on top, like Apply leaves them; the others work on the image with its elements. |
+| `Panels/Sections/TornEdgesSection`, `ViewModels/TornEdgesSectionViewModel`, `Views/TornEdgesSectionView` | The sides and shadow of the selected torn edges, changed with `Surface.ChangeTornEdges` and `TornEdgeSettingsMemento` (changes of one slider merge into one undo step). |
 | `Forms/ImageEditorForm.Panels.cs` | Connects form, surface and panels: tabs, selection, drawing mode, DPI, theme, F6. |
 
 The emoji picker (`Controls/Emoji/EmojiPicker`, view model `EmojiPickerViewModel`) is also used outside the panel, in a

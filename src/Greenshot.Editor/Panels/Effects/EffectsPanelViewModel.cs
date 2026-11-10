@@ -23,8 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -42,7 +40,8 @@ namespace Greenshot.Editor.Panels.Effects
 {
     /// <summary>
     /// The Effects panel of one editor window: the effect, its presets and settings, a preview of the capture with the effect,
-    /// and Apply, which applies it as one undo step. No UI toolkit here, the preview is a System.Drawing bitmap like the capture.
+    /// and Apply, which applies it as one undo step. No UI toolkit here, the preview is a System.Drawing bitmap like the capture,
+    /// in its full size: the view zooms and pans it.
     /// </summary>
     public sealed class EffectsPanelViewModel : INotifyPropertyChanged, IDisposable
     {
@@ -54,16 +53,9 @@ namespace Greenshot.Editor.Panels.Effects
         public const int MaximumDimension = 30_000;
 
         /// <summary>
-        /// The size of the overview, the panel scales it down further
+        /// A resize to more pixels isn't previewed, the preview would need too much memory (it is in the full size)
         /// </summary>
-        private const int OverviewMaximumWidth = 640;
-        private const int OverviewMaximumHeight = 480;
-
-        /// <summary>
-        /// The size of the corner which is shown at 100 %
-        /// </summary>
-        private const int DetailWidth = 280;
-        private const int DetailHeight = 160;
+        private const long MaximumResizePreviewPixels = 40_000_000;
 
         // A border has no settings in greenshot.ini, the last one is kept until Greenshot ends (like the copied style)
         private static int _lastBorderWidth = 2;
@@ -81,12 +73,10 @@ namespace Greenshot.Editor.Panels.Effects
         private bool _applying;
         private bool _disposed;
         private Bitmap _preview;
-        private Bitmap _previewDetail;
 
         private int _borderWidth = _lastBorderWidth;
         private Color _borderColor = _lastBorderColor;
         private readonly DropShadowEffect _dropShadow;
-        private TornEdgeEffect _tornEdges;
         private Color _transparencyColor = _lastTransparencyColor;
         private string _resizeWidth = string.Empty;
         private string _resizeHeight = string.Empty;
@@ -96,7 +86,7 @@ namespace Greenshot.Editor.Panels.Effects
         private bool _updatingSize;
 
         /// <param name="context">IEditorPanelContext of the editor window</param>
-        /// <param name="configuration">IEditorConfiguration with the last settings of the drop shadow and the torn edges</param>
+        /// <param name="configuration">IEditorConfiguration with the last settings of the drop shadow</param>
         /// <param name="applied">called after an effect was applied, e.g. to update the undo button of the window</param>
         public EffectsPanelViewModel(IEditorPanelContext context, IEditorConfiguration configuration, Action applied = null)
         {
@@ -104,8 +94,6 @@ namespace Greenshot.Editor.Panels.Effects
             _configuration = configuration;
             _applied = applied;
             _dropShadow = Copy(configuration?.DropShadowEffectSettings ?? new DropShadowEffect());
-            _tornEdges = Copy(configuration?.TornEdgeEffectSettings ?? new TornEdgeEffect());
-            _tornEdges.Reseed();
             Effects = Enum.GetValues(typeof(EffectKind)).Cast<EffectKind>().Select(kind => new EffectEntry(kind, GetTitle(kind))).ToList();
             _context.CurrentSurfaceChanged += OnCurrentSurfaceChanged;
             _context.ElementsChanged += OnElementsChanged;
@@ -145,11 +133,7 @@ namespace Greenshot.Editor.Panels.Effects
                 }
 
                 _effect = value;
-                if (value == EffectKind.TornEdges)
-                {
-                    TakeTornEdgesOfSurface();
-                }
-                else if (value == EffectKind.Resize)
+                if (value == EffectKind.Resize)
                 {
                     ResetResize();
                 }
@@ -166,35 +150,22 @@ namespace Greenshot.Editor.Panels.Effects
             OnPropertyChanged(nameof(HasPresets));
             OnPropertyChanged(nameof(ShowsBorder));
             OnPropertyChanged(nameof(ShowsShadow));
-            OnPropertyChanged(nameof(ShowsTornEdges));
             OnPropertyChanged(nameof(ShowsTransparency));
             OnPropertyChanged(nameof(ShowsResize));
-            OnPropertyChanged(nameof(HasNoSettings));
-            OnPropertyChanged(nameof(ShowsDetail));
             OnPropertyChanged(nameof(BorderWidth));
             OnPropertyChanged(nameof(BorderColor));
             OnPropertyChanged(nameof(TransparencyColor));
             OnShadowChanged();
-            OnTornEdgesChanged();
             OnStateChanged();
         }
 
         public bool ShowsBorder => _effect == EffectKind.Border;
 
-        public bool ShowsShadow => _effect == EffectKind.DropShadow || _effect == EffectKind.TornEdges && _tornEdges.GenerateShadow;
-
-        public bool ShowsTornEdges => _effect == EffectKind.TornEdges;
+        public bool ShowsShadow => _effect == EffectKind.DropShadow;
 
         public bool ShowsTransparency => _effect == EffectKind.RemoveTransparency;
 
         public bool ShowsResize => _effect == EffectKind.Resize;
-
-        public bool HasNoSettings => _effect is EffectKind.Grayscale or EffectKind.Invert;
-
-        /// <summary>
-        /// The effect changes the edges: the bottom right corner is shown at 100 %, the overview is too small for them
-        /// </summary>
-        public bool ShowsDetail => _effect is EffectKind.Border or EffectKind.DropShadow or EffectKind.TornEdges;
 
         /// <summary>
         /// The presets of the effect
@@ -234,9 +205,9 @@ namespace Greenshot.Editor.Panels.Effects
 
         #endregion
 
-        #region Shadow, of the drop shadow or of the torn edges
+        #region Drop shadow
 
-        private DropShadowEffect CurrentShadow => _effect == EffectKind.TornEdges ? _tornEdges : _dropShadow;
+        private DropShadowEffect CurrentShadow => _dropShadow;
 
         /// <summary>
         /// 1 to 40, like the slider: 40 is black
@@ -291,133 +262,6 @@ namespace Greenshot.Editor.Panels.Effects
 
         #endregion
 
-        #region Torn edges
-
-        /// <summary>
-        /// The capture has torn edges already: Apply changes them, there is only one torn edge element
-        /// </summary>
-        public bool ChangesTornEdges => _surface?.TornEdges != null;
-
-        public bool TornTop
-        {
-            get => GetEdge(0);
-            set => SetEdge(0, value);
-        }
-
-        public bool TornRight
-        {
-            get => GetEdge(1);
-            set => SetEdge(1, value);
-        }
-
-        public bool TornBottom
-        {
-            get => GetEdge(2);
-            set => SetEdge(2, value);
-        }
-
-        public bool TornLeft
-        {
-            get => GetEdge(3);
-            set => SetEdge(3, value);
-        }
-
-        public int ToothHeight
-        {
-            get => Math.Max(1, Math.Min(40, _tornEdges.ToothHeight));
-            set
-            {
-                _tornEdges.ToothHeight = Math.Max(1, Math.Min(40, value));
-                OnSettingChanged();
-            }
-        }
-
-        /// <summary>
-        /// How wide a tooth is, the torn edges element uses one range for all sides
-        /// </summary>
-        public int ToothRange
-        {
-            get => Math.Max(2, Math.Min(40, _tornEdges.HorizontalToothRange));
-            set
-            {
-                int range = Math.Max(2, Math.Min(40, value));
-                _tornEdges.HorizontalToothRange = range;
-                _tornEdges.VerticalToothRange = range;
-                OnSettingChanged();
-            }
-        }
-
-        public bool TornShadow
-        {
-            get => _tornEdges.GenerateShadow;
-            set
-            {
-                _tornEdges.GenerateShadow = value;
-                OnPropertyChanged(nameof(ShowsShadow));
-                OnSettingChanged();
-            }
-        }
-
-        /// <summary>
-        /// The color of the torn off parts, transparent by default
-        /// </summary>
-        public Color TornBackgroundColor
-        {
-            get => _tornEdges.BackgroundColor;
-            set
-            {
-                _tornEdges.BackgroundColor = value;
-                OnSettingChanged();
-            }
-        }
-
-        /// <summary>
-        /// Other random edges, with the same settings
-        /// </summary>
-        public void NewEdges()
-        {
-            _tornEdges.Reseed();
-            OnSettingChanged();
-        }
-
-        private bool GetEdge(int index) => _tornEdges.Edges is { Length: 4 } edges && edges[index];
-
-        private void SetEdge(int index, bool value)
-        {
-            var edges = _tornEdges.Edges is { Length: 4 } current ? (bool[])current.Clone() : new[] { true, true, true, true };
-            edges[index] = value;
-            _tornEdges.Edges = edges;
-            OnSettingChanged();
-        }
-
-        private void OnTornEdgesChanged()
-        {
-            OnPropertyChanged(nameof(ChangesTornEdges));
-            OnPropertyChanged(nameof(ApplyText));
-            OnPropertyChanged(nameof(TornTop));
-            OnPropertyChanged(nameof(TornRight));
-            OnPropertyChanged(nameof(TornBottom));
-            OnPropertyChanged(nameof(TornLeft));
-            OnPropertyChanged(nameof(ToothHeight));
-            OnPropertyChanged(nameof(ToothRange));
-            OnPropertyChanged(nameof(TornShadow));
-            OnPropertyChanged(nameof(TornBackgroundColor));
-            OnPropertyChanged(nameof(ShowsShadow));
-        }
-
-        /// <summary>
-        /// Torn edges which are there are shown with their settings, a change replaces them
-        /// </summary>
-        private void TakeTornEdgesOfSurface()
-        {
-            if (_surface?.TornEdges is { } tornEdges)
-            {
-                _tornEdges = tornEdges.GetSettings();
-            }
-        }
-
-        #endregion
-
         #region Remove transparency
 
         public Color TransparencyColor
@@ -462,7 +306,7 @@ namespace Greenshot.Editor.Panels.Effects
                 }
                 else
                 {
-                    OnStateChanged();
+                    OnSettingChanged();
                 }
             }
         }
@@ -505,7 +349,7 @@ namespace Greenshot.Editor.Panels.Effects
 
             OnPropertyChanged(nameof(ResizeWidth));
             OnPropertyChanged(nameof(ResizeHeight));
-            OnStateChanged();
+            OnSettingChanged();
         }
 
         private void SetResizeText(string text, bool isWidth)
@@ -548,23 +392,17 @@ namespace Greenshot.Editor.Panels.Effects
             }
 
             OnPropertyChanged(isWidth ? nameof(ResizeWidth) : nameof(ResizeHeight));
-            OnStateChanged();
+            OnSettingChanged();
         }
 
         #endregion
 
         #region State, apply
 
-        /// <summary>
-        /// The text of the button: Apply, or the change of the torn edges which are there
-        /// </summary>
-        public string ApplyText => _effect == EffectKind.TornEdges && ChangesTornEdges ? Texts.Editor.EffectsChangeTornEdges : Texts.Editor.EffectsApply;
-
         public bool CanApply => _surface != null && !_applying && _effect switch
         {
             EffectKind.RemoveTransparency => HasTransparency,
             EffectKind.Resize => IsResizeValid && (_resizedWidth != ImageSize.Width || _resizedHeight != ImageSize.Height),
-            EffectKind.TornEdges => _tornEdges.Edges?.Any(edge => edge) == true,
             _ => true
         };
 
@@ -576,7 +414,6 @@ namespace Greenshot.Editor.Panels.Effects
             EffectKind.RemoveTransparency when _surface != null && !HasTransparency => Texts.Editor.EffectsNoTransparency,
             EffectKind.Resize when !IsResizeValid => string.Format(Texts.Editor.EffectsResizeInvalid, MaximumDimension),
             EffectKind.Resize => string.Format(Texts.Editor.EffectsNewSize, _resizedWidth, _resizedHeight),
-            EffectKind.Grayscale or EffectKind.Invert => Texts.Editor.EffectsNoSettings,
             _ => string.Empty
         };
 
@@ -587,7 +424,6 @@ namespace Greenshot.Editor.Panels.Effects
             OnPropertyChanged(nameof(CanApply));
             OnPropertyChanged(nameof(StatusText));
             OnPropertyChanged(nameof(StatusIsError));
-            OnPropertyChanged(nameof(ApplyText));
         }
 
         /// <summary>
@@ -597,17 +433,14 @@ namespace Greenshot.Editor.Panels.Effects
         {
             EffectKind.Border => new BorderEffect { Width = _borderWidth, Color = _borderColor },
             EffectKind.DropShadow => Copy(_dropShadow),
-            EffectKind.TornEdges => Copy(_tornEdges),
-            EffectKind.Grayscale => new GrayscaleEffect(),
-            EffectKind.Invert => new InvertEffect(),
             EffectKind.RemoveTransparency => new RemoveTransparencyEffect { Color = _transparencyColor },
             EffectKind.Resize => new ResizeEffect(_resizedWidth, _resizedHeight, false),
             _ => null
         };
 
         /// <summary>
-        /// Apply the effect to the shown capture as one undo step. The torn edges are an element which can be changed later.
-        /// The settings are kept for the next time, the drop shadow and the torn edges in greenshot.ini.
+        /// Apply the effect to the shown capture as one undo step.
+        /// The settings are kept for the next time, the drop shadow in greenshot.ini.
         /// </summary>
         public async Task ApplyAsync()
         {
@@ -622,26 +455,7 @@ namespace Greenshot.Editor.Panels.Effects
             try
             {
                 Remember();
-                switch (_effect)
-                {
-                    case EffectKind.TornEdges:
-                        var settings = Copy(_tornEdges);
-                        if (surface.TornEdges is { } tornEdges)
-                        {
-                            surface.ChangeTornEdges(tornEdges, settings);
-                        }
-                        else
-                        {
-                            var added = surface.AddTornEdges(settings);
-                            // The edges of the preview
-                            added.SetSeed(settings.Seed);
-                        }
-
-                        break;
-                    default:
-                        await surface.ApplyBitmapEffectAsync(CreateEffect());
-                        break;
-                }
+                await surface.ApplyBitmapEffectAsync(CreateEffect());
             }
             finally
             {
@@ -654,7 +468,6 @@ namespace Greenshot.Editor.Panels.Effects
                 ResetResize();
             }
 
-            OnTornEdgesChanged();
             OnStateChanged();
             RequestPreview();
         }
@@ -673,9 +486,6 @@ namespace Greenshot.Editor.Panels.Effects
                 case EffectKind.DropShadow when _configuration != null:
                     _configuration.DropShadowEffectSettings = Copy(_dropShadow);
                     break;
-                case EffectKind.TornEdges when _configuration != null:
-                    _configuration.TornEdgeEffectSettings = Copy(_tornEdges);
-                    break;
             }
         }
 
@@ -684,14 +494,9 @@ namespace Greenshot.Editor.Panels.Effects
         #region Preview
 
         /// <summary>
-        /// The whole capture with the effect, scaled down; null while there is none
+        /// The whole capture with the effect in its full size, the view zooms and pans it; null while there is none
         /// </summary>
         public Bitmap Preview => _preview;
-
-        /// <summary>
-        /// The bottom right corner of the capture with the effect at 100 %, only for the effects on the edges
-        /// </summary>
-        public Bitmap PreviewDetail => _previewDetail;
 
         /// <summary>
         /// The panel is shown: only then the preview is made
@@ -720,14 +525,6 @@ namespace Greenshot.Editor.Panels.Effects
         public void Show(EffectKind effect)
         {
             Effect = effect;
-            if (effect == EffectKind.TornEdges)
-            {
-                // Torn edges which were added since are shown with their settings
-                TakeTornEdgesOfSurface();
-                OnTornEdgesChanged();
-                OnStateChanged();
-            }
-
             RequestPreview();
         }
 
@@ -754,38 +551,24 @@ namespace Greenshot.Editor.Panels.Effects
                 {
                     _previewDirty = false;
                     var surface = _surface;
-                    bool detail = ShowsDetail;
-                    Bitmap full = null;
+                    Bitmap preview = null;
                     try
                     {
-                        full = await CreatePreviewAsync(surface);
+                        preview = await CreatePreviewAsync(surface);
                     }
                     catch (Exception ex)
                     {
                         Log.Warn("Couldn't make the preview of the effect", ex);
                     }
 
-                    if (full == null || _disposed)
-                    {
-                        full?.Dispose();
-                        if (!_disposed)
-                        {
-                            SetPreview(null, null);
-                        }
-
-                        continue;
-                    }
-
-                    var (overview, corner) = await ScalePreviewAsync(full, detail);
                     if (_disposed || _previewDirty || !ReferenceEquals(surface, _surface))
                     {
                         // Already old, the next one follows
-                        overview.Dispose();
-                        corner?.Dispose();
+                        preview?.Dispose();
                         continue;
                     }
 
-                    SetPreview(overview, corner);
+                    SetPreview(preview);
                 }
             }
             finally
@@ -798,13 +581,9 @@ namespace Greenshot.Editor.Panels.Effects
         {
             switch (_effect)
             {
-                case EffectKind.TornEdges:
-                    return surface.CreateTornEdgesPreviewAsync(Copy(_tornEdges));
-                case EffectKind.Resize:
-                    // The capture as it is: the preview is scaled anyway, the new size is in the status text
+                case EffectKind.Resize when !IsResizeValid || (long)_resizedWidth * _resizedHeight > MaximumResizePreviewPixels:
+                    // The capture as it is, the new size is in the status text
                     return surface.CreateEffectPreviewAsync(new ResizeEffect(ImageSize.Width, ImageSize.Height, false), false);
-                case EffectKind.Grayscale:
-                case EffectKind.Invert:
                 case EffectKind.RemoveTransparency:
                     return surface.CreateEffectPreviewAsync(CreateEffect(), true);
                 default:
@@ -812,50 +591,12 @@ namespace Greenshot.Editor.Panels.Effects
             }
         }
 
-        /// <summary>
-        /// The overview and the corner, made on the thread pool; the full image is disposed
-        /// </summary>
-        internal static async Task<(Bitmap Overview, Bitmap Detail)> ScalePreviewAsync(Bitmap full, bool withDetail)
-        {
-            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-            using (full)
-            {
-                double scale = Math.Min(1.0, Math.Min((double)OverviewMaximumWidth / full.Width, (double)OverviewMaximumHeight / full.Height));
-                int width = Math.Max(1, (int)Math.Round(full.Width * scale));
-                int height = Math.Max(1, (int)Math.Round(full.Height * scale));
-                var overview = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                overview.SetResolution(full.HorizontalResolution, full.VerticalResolution);
-                using (var graphics = Graphics.FromImage(overview))
-                {
-                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                    graphics.DrawImage(full, new Rectangle(0, 0, width, height), 0, 0, full.Width, full.Height, GraphicsUnit.Pixel);
-                }
-
-                Bitmap detail = null;
-                if (withDetail)
-                {
-                    var corner = new Rectangle(Math.Max(0, full.Width - DetailWidth), Math.Max(0, full.Height - DetailHeight),
-                        Math.Min(DetailWidth, full.Width), Math.Min(DetailHeight, full.Height));
-                    detail = full.Clone(corner, PixelFormat.Format32bppArgb);
-                    // One pixel of the capture is one pixel of the panel at 100 % scaling
-                    detail.SetResolution(96, 96);
-                }
-
-                return (overview, detail);
-            }
-        }
-
-        private void SetPreview(Bitmap overview, Bitmap detail)
+        private void SetPreview(Bitmap preview)
         {
             var oldPreview = _preview;
-            var oldDetail = _previewDetail;
-            _preview = overview;
-            _previewDetail = detail;
+            _preview = preview;
             PreviewChanged?.Invoke(this, EventArgs.Empty);
             oldPreview?.Dispose();
-            oldDetail?.Dispose();
         }
 
         #endregion
@@ -882,14 +623,6 @@ namespace Greenshot.Editor.Panels.Effects
                         new EffectPreset(texts.EffectsPresetSoft, vm => vm.SetShadow(vm._dropShadow, 0.3f, 12, 0, 0)),
                         new EffectPreset(texts.EffectsPresetStrong, vm => vm.SetShadow(vm._dropShadow, 0.9f, 5, 3, 3)),
                         new EffectPreset(texts.EffectsPresetFloating, vm => vm.SetShadow(vm._dropShadow, 0.5f, 18, 6, 8))
-                    };
-                case EffectKind.TornEdges:
-                    return new[]
-                    {
-                        new EffectPreset(texts.EffectsPresetAllSides, vm => vm.SetTornEdges(true, true, true, true)),
-                        new EffectPreset(texts.EffectsPresetBottom, vm => vm.SetTornEdges(false, false, true, false)),
-                        new EffectPreset(texts.EffectsPresetBottomRight, vm => vm.SetTornEdges(false, true, true, false)),
-                        new EffectPreset(texts.EffectsPresetTopBottom, vm => vm.SetTornEdges(true, false, true, false))
                     };
                 case EffectKind.RemoveTransparency:
                     return new[]
@@ -921,14 +654,6 @@ namespace Greenshot.Editor.Panels.Effects
             shadow.ShadowOffset = new NativePoint(offsetX, offsetY);
         }
 
-        /// <summary>
-        /// The sides to tear, the other settings stay: a preset for the sides is combined with the teeth and shadow chosen
-        /// </summary>
-        private void SetTornEdges(bool top, bool right, bool bottom, bool left)
-        {
-            _tornEdges.Edges = new[] { top, right, bottom, left };
-        }
-
         #endregion
 
         #region Helpers
@@ -937,9 +662,6 @@ namespace Greenshot.Editor.Panels.Effects
         {
             EffectKind.Border => Texts.Editor.Border,
             EffectKind.DropShadow => Texts.Editor.ImageShadow,
-            EffectKind.TornEdges => Texts.Editor.TornEdge,
-            EffectKind.Grayscale => Texts.Editor.Grayscale,
-            EffectKind.Invert => Texts.Editor.Invert,
             EffectKind.RemoveTransparency => Texts.Editor.RemoveTransparency,
             EffectKind.Resize => Texts.Editor.EffectsResize,
             _ => effect.ToString()
@@ -950,20 +672,6 @@ namespace Greenshot.Editor.Panels.Effects
             Darkness = effect.Darkness,
             ShadowSize = effect.ShadowSize,
             ShadowOffset = effect.ShadowOffset
-        };
-
-        internal static TornEdgeEffect Copy(TornEdgeEffect effect) => new()
-        {
-            Edges = effect.Edges is { Length: 4 } edges ? (bool[])edges.Clone() : new[] { true, true, true, true },
-            ToothHeight = effect.ToothHeight,
-            HorizontalToothRange = effect.HorizontalToothRange,
-            VerticalToothRange = effect.VerticalToothRange,
-            Darkness = effect.Darkness,
-            ShadowSize = effect.ShadowSize,
-            ShadowOffset = effect.ShadowOffset,
-            GenerateShadow = effect.GenerateShadow,
-            BackgroundColor = effect.BackgroundColor,
-            Seed = effect.Seed
         };
 
         private void SetSetting<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
@@ -1015,7 +723,6 @@ namespace Greenshot.Editor.Panels.Effects
                 ResetResize();
             }
 
-            OnTornEdgesChanged();
             OnStateChanged();
             RequestPreview();
         }
@@ -1027,7 +734,7 @@ namespace Greenshot.Editor.Panels.Effects
             _context.ElementsChanged -= OnElementsChanged;
             AttachSurface(null);
             _isShown = false;
-            SetPreview(null, null);
+            SetPreview(null);
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

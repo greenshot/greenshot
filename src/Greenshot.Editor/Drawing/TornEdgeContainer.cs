@@ -544,11 +544,6 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(reseedItem);
 
-            // The settings are changed in the Effects panel, with a preview
-            var settingsItem = new ToolStripMenuItem(Texts.Editor.TornedgeSettings);
-            settingsItem.Click += (_, _) => InternalParent?.RequestTornEdgeSettings();
-            menu.Items.Add(settingsItem);
-
             var applyItem = new ToolStripMenuItem(Texts.Editor.ApplyToImage);
             applyItem.Click += (_, _) => InternalParent?.ApplyElementToImage(this);
             menu.Items.Add(applyItem);

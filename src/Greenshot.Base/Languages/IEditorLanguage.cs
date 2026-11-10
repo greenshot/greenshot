@@ -262,19 +262,19 @@ namespace Greenshot.Base.Languages
         string EffectsPreview { get; }
 
         /// <summary>
-        /// Bottom right corner at 100 %
+        /// Fit
         /// </summary>
-        string EffectsPreviewDetail { get; }
+        string EffectsPreviewFit { get; }
+
+        /// <summary>
+        /// Zoom with the mouse wheel or + and −, move with the mouse or the arrow keys. A double-click switches between fit and 1:1.
+        /// </summary>
+        string EffectsPreviewHint { get; }
 
         /// <summary>
         /// Apply
         /// </summary>
         string EffectsApply { get; }
-
-        /// <summary>
-        /// Change the torn edges
-        /// </summary>
-        string EffectsChangeTornEdges { get; }
 
         /// <summary>
         /// Width
@@ -285,11 +285,6 @@ namespace Greenshot.Base.Languages
         /// Color
         /// </summary>
         string EffectsColor { get; }
-
-        /// <summary>
-        /// Tooth width
-        /// </summary>
-        string EffectsToothRange { get; }
 
         /// <summary>
         /// Resize
@@ -310,11 +305,6 @@ namespace Greenshot.Base.Languages
         /// The capture has no transparent parts.
         /// </summary>
         string EffectsNoTransparency { get; }
-
-        /// <summary>
-        /// This effect has no settings.
-        /// </summary>
-        string EffectsNoSettings { get; }
 
         /// <summary>
         /// Default
@@ -350,26 +340,6 @@ namespace Greenshot.Base.Languages
         /// Floating
         /// </summary>
         string EffectsPresetFloating { get; }
-
-        /// <summary>
-        /// All sides
-        /// </summary>
-        string EffectsPresetAllSides { get; }
-
-        /// <summary>
-        /// Bottom only
-        /// </summary>
-        string EffectsPresetBottom { get; }
-
-        /// <summary>
-        /// Bottom and right
-        /// </summary>
-        string EffectsPresetBottomRight { get; }
-
-        /// <summary>
-        /// Top and bottom
-        /// </summary>
-        string EffectsPresetTopBottom { get; }
 
         /// <summary>
         /// White

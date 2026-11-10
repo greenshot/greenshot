@@ -27,14 +27,18 @@ using Greenshot.Base.Effects;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Panels;
 using Greenshot.Editor.Panels.Effects;
+using Greenshot.Editor.Panels.Sections;
+using Greenshot.Editor.Panels.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Editor
 {
     /// <summary>
-    /// The Effects panel: presets and settings, the preview, and Apply as one undo step. Only the logic, no WPF.
+    /// The Effects panel: presets and settings, the preview, and Apply as one undo step; and the Torn edges section of the
+    /// Selection panel. Only the logic, no WPF.
     /// </summary>
     public class EffectsPanelTests
     {
@@ -93,18 +97,15 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public async Task Grayscale_LeavesTheElementsInThePreview()
+        public async Task PreviewWithElementsOnTop_LeavesTheElementsUnchanged()
         {
             using var surface = CreateSurface();
             var rectangle = new RectangleContainer(surface) { Left = 10, Top = 10, Width = 40, Height = 40 };
-            rectangle.SetFieldValue(Greenshot.Editor.Drawing.Fields.FieldType.FILL_COLOR, Color.Red);
-            rectangle.SetFieldValue(Greenshot.Editor.Drawing.Fields.FieldType.SHADOW, false);
+            rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.Red);
+            rectangle.SetFieldValue(FieldType.SHADOW, false);
             surface.AddElement(rectangle, false, false);
-            using var viewModel = CreateViewModel(surface);
-            viewModel.Show(EffectKind.Grayscale);
-            Assert.True(viewModel.HasNoSettings);
 
-            using var preview = await surface.CreateEffectPreviewAsync(viewModel.CreateEffect(), true);
+            using var preview = await surface.CreateEffectPreviewAsync(new GrayscaleEffect(), true);
             // Like the effect: the element stays red, the capture is gray
             var inside = preview.GetPixel(30, 30);
             Assert.True(inside.R > 200 && inside.G < 50, inside.ToString());
@@ -113,44 +114,55 @@ namespace Greenshot.Tests.Editor
         }
 
         [Fact]
-        public async Task TornEdges_AreAnElementWithTheEdgesOfThePreview_AndCanBeChanged()
+        public void Panel_HasOnlyTheEffectsWithSettings()
         {
             using var surface = CreateSurface();
             using var viewModel = CreateViewModel(surface);
-            viewModel.Show(EffectKind.TornEdges);
-            viewModel.TornShadow = false;
-            viewModel.ApplyPreset(viewModel.Presets.First(preset => preset.Name == Greenshot.Base.Languages.Texts.Editor.EffectsPresetBottom));
-            Assert.False(viewModel.ChangesTornEdges);
-            int seed = ((TornEdgeEffect)viewModel.CreateEffect()).Seed;
-
-            // Torn edges are added without the thread pool, like the elements are
-            await viewModel.ApplyAsync();
-            var tornEdges = surface.Elements.OfType<TornEdgeContainer>().Single();
-            Assert.Equal(seed, tornEdges.Seed);
-            Assert.Equal(new[] { false, false, true, false }, tornEdges.Edges);
-            Assert.True(viewModel.ChangesTornEdges);
-
-            // Torn edges which are there are changed, not added again
-            viewModel.TornTop = true;
-            await viewModel.ApplyAsync();
-            Assert.Single(surface.Elements.OfType<TornEdgeContainer>());
-            Assert.Equal(new[] { true, false, true, false }, tornEdges.Edges);
-
-            surface.Undo();
-            Assert.Equal(new[] { false, false, true, false }, tornEdges.Edges);
+            Assert.Equal(new[] { EffectKind.Border, EffectKind.DropShadow, EffectKind.RemoveTransparency, EffectKind.Resize },
+                viewModel.Effects.Select(entry => entry.Kind).ToArray());
         }
 
         [Fact]
-        public async Task TornEdgesPreview_HasTheRoomForTheShadow()
+        public void TornEdgesSection_ChangesTheSidesAndTheShadow_AsUndoSteps()
         {
             using var surface = CreateSurface();
-            var settings = new TornEdgeEffect { GenerateShadow = true, ShadowSize = 7, ShadowOffset = new Dapplo.Windows.Common.Structs.NativePoint(-1, -1) };
-            int margin = TornEdgeContainer.GetShadowMargin(settings);
+            // Without a shadow there is no room made for it, which keeps the capture as it is
+            var tornEdges = surface.AddTornEdges(new TornEdgeEffect { GenerateShadow = false, Edges = new[] { false, false, true, false } });
+            var context = new EditorPanelContext(null, (_, _) => { }, null);
+            context.SetSurface(surface);
+            var section = new TornEdgesSection(null);
+            Assert.True(section.AppliesTo(context));
+            using var viewModel = (TornEdgesSectionViewModel)section.CreateViewModel(context);
+            Assert.True(viewModel.TornBottom);
+            Assert.False(viewModel.TornTop);
+            Assert.False(viewModel.HasShadow);
+            // The shadow on or off is a property of the element
+            tornEdges.SetFieldValue(FieldType.SHADOW, true);
+            Assert.True(viewModel.HasShadow);
 
-            using var preview = await surface.CreateTornEdgesPreviewAsync(settings);
+            viewModel.TornTop = true;
+            Assert.Equal(new[] { true, false, true, false }, tornEdges.Edges);
 
-            Assert.Equal(new Size(200 + 2 * margin, 100 + 2 * margin), preview.Size);
-            Assert.Equal(new Size(200, 100), surface.Image.Size);
+            // Dragging a slider is one undo step
+            int size = viewModel.ShadowSize;
+            viewModel.ShadowSize = size + 1;
+            viewModel.ShadowSize = size + 2;
+            viewModel.ShadowSize = size + 3;
+            Assert.Equal(size + 3, tornEdges.GetSettings().ShadowSize);
+
+            int seed = tornEdges.Seed;
+            viewModel.NewEdges();
+            Assert.NotEqual(seed, tornEdges.Seed);
+
+            surface.Undo();
+            Assert.Equal(seed, tornEdges.Seed);
+            surface.Undo();
+            // All of the drag at once, the side stays
+            Assert.Equal(size, viewModel.ShadowSize);
+            Assert.True(viewModel.TornTop);
+            surface.Undo();
+            Assert.False(viewModel.TornTop);
+            Assert.Single(surface.Elements.OfType<TornEdgeContainer>());
         }
 
         [Fact]

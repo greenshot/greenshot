@@ -26,19 +26,23 @@ using Greenshot.Editor.Drawing;
 namespace Greenshot.Editor.Memento
 {
     /// <summary>
-    /// Undo and redo of a change of the settings of the torn edges, e.g. in the Effects panel
+    /// Undo and redo of a change of the settings of the torn edges, e.g. in the Torn edges section of the Selection panel
     /// </summary>
     public sealed class TornEdgeSettingsMemento : IMemento
     {
+        private readonly string _setting;
         private TornEdgeContainer _tornEdges;
         private TornEdgeEffect _settings;
 
         /// <summary>
         /// Remember the settings of the torn edges before they change
         /// </summary>
-        public TornEdgeSettingsMemento(TornEdgeContainer tornEdges)
+        /// <param name="tornEdges">TornEdgeContainer</param>
+        /// <param name="setting">what changes, e.g. "ShadowSize"; null when the change is always its own undo step</param>
+        public TornEdgeSettingsMemento(TornEdgeContainer tornEdges, string setting = null)
         {
             _tornEdges = tornEdges;
+            _setting = setting;
             _settings = tornEdges.GetSettings();
         }
 
@@ -49,9 +53,11 @@ namespace Greenshot.Editor.Memento
         }
 
         /// <summary>
-        /// Every change is its own undo step
+        /// The next change of the same setting of the same torn edges (a slider which is dragged) is part of this undo step:
+        /// this memento keeps the settings before the first change
         /// </summary>
-        public bool Merge(IMemento otherMemento) => false;
+        public bool Merge(IMemento otherMemento) =>
+            _setting != null && otherMemento is TornEdgeSettingsMemento other && ReferenceEquals(other._tornEdges, _tornEdges) && other._setting == _setting;
 
         public IMemento Restore()
         {
