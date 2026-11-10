@@ -97,23 +97,27 @@ internal sealed class RapidOcrPipeline : IDisposable
         if (boxes.Count == 0) return new List<IOcrLineFeature>();
 
         var crops = new List<BgrImage>(boxes.Count);
-        // The corners in reading direction (top left, top right, bottom left, bottom right) and the length along the text
+        // The corners in reading direction (top left, top right, bottom left, bottom right) and the length along the text, in pixels of
+        // the capture: the lines are cut out of the capture itself, not of the image the detection read, which is smaller for captures
+        // over MaxSideLength (several screens): reading the smaller pixels makes errors (8ithub.com, gmailcom)
+        PointD ToOriginal(PointD point) => new PointD(point.X * ratioX, (point.Y - padding) * ratioY);
         var reading = new List<(PointD TopLeft, PointD TopRight, PointD BottomLeft, PointD BottomRight, double Length)>(boxes.Count);
         foreach (var box in boxes)
         {
-            int width = Math.Max(1, (int)Math.Max(box.TopLeft.DistanceTo(box.TopRight), box.BottomRight.DistanceTo(box.BottomLeft)));
-            int height = Math.Max(1, (int)Math.Max(box.TopLeft.DistanceTo(box.BottomLeft), box.TopRight.DistanceTo(box.BottomRight)));
-            var crop = image.Crop(box.TopLeft, box.TopRight, box.BottomLeft, width, height);
+            PointD topLeft = ToOriginal(box.TopLeft), topRight = ToOriginal(box.TopRight), bottomRight = ToOriginal(box.BottomRight), bottomLeft = ToOriginal(box.BottomLeft);
+            int width = Math.Max(1, (int)Math.Max(topLeft.DistanceTo(topRight), bottomRight.DistanceTo(bottomLeft)));
+            int height = Math.Max(1, (int)Math.Max(topLeft.DistanceTo(bottomLeft), topRight.DistanceTo(bottomRight)));
+            var crop = original.Crop(topLeft, topRight, bottomLeft, width, height);
             if ((double)crop.Height / crop.Width >= 1.5)
             {
                 // Read turned counter clockwise: the text runs from the top to the bottom of the box, its top is the right edge
                 crops.Add(crop.RotateCounterClockwise());
-                reading.Add((box.TopRight, box.BottomRight, box.TopLeft, box.BottomLeft, height));
+                reading.Add((topRight, bottomRight, topLeft, bottomLeft, height));
             }
             else
             {
                 crops.Add(crop);
-                reading.Add((box.TopLeft, box.TopRight, box.BottomLeft, box.BottomRight, width));
+                reading.Add((topLeft, topRight, bottomLeft, bottomRight, width));
             }
         }
 
@@ -125,16 +129,16 @@ internal sealed class RapidOcrPipeline : IDisposable
             if (string.IsNullOrWhiteSpace(line.Text) || line.Score < TextScore) continue;
 
             var (topLeft, topRight, bottomLeft, bottomRight, length) = reading[i];
-            Point ToOriginal(PointD point) => new Point(point.X * ratioX, (point.Y - padding) * ratioY);
+            Point ToPoint(PointD point) => new Point(point.X, point.Y);
             PointD Along(PointD a, PointD b, double fraction) => new PointD(a.X + (b.X - a.X) * fraction, a.Y + (b.Y - a.Y) * fraction);
-            var lineBox = OcrBox.FromCorners(ToOriginal(topLeft), ToOriginal(topRight), ToOriginal(bottomLeft));
+            var lineBox = OcrBox.FromCorners(ToPoint(topLeft), ToPoint(topRight), ToPoint(bottomLeft));
             var words = new List<OcrWordInfo>();
             foreach (var (text, start, end, score) in line.Words)
             {
                 // Along the top and bottom edge of the box
                 double from = Math.Min(1, start / length), to = Math.Min(1, end / length);
-                var wordBox = OcrBox.FromCorners(ToOriginal(Along(topLeft, topRight, from)), ToOriginal(Along(topLeft, topRight, to)),
-                    ToOriginal(Along(bottomLeft, bottomRight, from)));
+                var wordBox = OcrBox.FromCorners(ToPoint(Along(topLeft, topRight, from)), ToPoint(Along(topLeft, topRight, to)),
+                    ToPoint(Along(bottomLeft, bottomRight, from)));
                 words.Add(new OcrWordInfo(text, wordBox, score));
             }
 
