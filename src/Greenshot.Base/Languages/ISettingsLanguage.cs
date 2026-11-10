@@ -587,6 +587,16 @@ namespace Greenshot.Base.Languages
         string Ocr { get; }
 
         /// <summary>
+        /// Recognized by
+        /// </summary>
+        string OcrEngine { get; }
+
+        /// <summary>
+        /// Windows OCR
+        /// </summary>
+        string OcrEngineWindows { get; }
+
+        /// <summary>
         /// Language of the text
         /// </summary>
         string OcrLanguage { get; }
@@ -947,6 +957,11 @@ namespace Greenshot.Base.Languages
         /// The language Windows recognizes text in, for capturing text and the OCR destination. More languages can be added in the Windows settings (Time and language, Language and region).
         /// </summary>
         string TooltipOcrLanguage { get; }
+
+        /// <summary>
+        /// What recognizes text, for capturing text, the OCR destination and the recipes. Windows OCR is built into Windows; a plugin can add another one.
+        /// </summary>
+        string TooltipOcrEngine { get; }
 
         /// <summary>
         /// Image format used by default

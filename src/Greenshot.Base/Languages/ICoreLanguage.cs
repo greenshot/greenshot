@@ -1057,6 +1057,11 @@ namespace Greenshot.Base.Languages
         string JpegqualitydialogChoosejpegquality { get; }
 
         /// <summary>
+        /// Reading the text of the capture...
+        /// </summary>
+        string OcrRunning { get; }
+
+        /// <summary>
         /// OK
         /// </summary>
         string Ok { get; }

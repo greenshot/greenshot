@@ -258,7 +258,7 @@ namespace Greenshot.Recipes.Steps
                     if (string.IsNullOrEmpty(line?.Text)) continue;
                     if (regexes.Any(r => r.IsMatch(line.Text)))
                     {
-                        results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Bounds.Height));
+                        results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Box.PixelHeight));
                     }
                 }
                 return results;
@@ -274,7 +274,7 @@ namespace Greenshot.Recipes.Steps
                         if (string.IsNullOrEmpty(word?.Text)) continue;
                         if (regexes.Any(r => r.IsMatch(word.Text)))
                         {
-                            results.Add((ApplyPadding(word.Bounds, padH, padV, offH, offV), line.Bounds.Height));
+                            results.Add((ApplyPadding(word.Bounds, padH, padV, offH, offV), line.Box.PixelHeight));
                         }
                     }
                 }
@@ -326,11 +326,11 @@ namespace Greenshot.Recipes.Steps
                             int right = overlapping.Max(w => w.Bounds.Right);
                             int bottom = overlapping.Max(w => w.Bounds.Bottom);
                             var union = new NativeRect(left, top, right - left, bottom - top);
-                            results.Add((ApplyPadding(union, padH, padV, offH, offV), line.Bounds.Height));
+                            results.Add((ApplyPadding(union, padH, padV, offH, offV), line.Box.PixelHeight));
                         }
                         else
                         {
-                            results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Bounds.Height));
+                            results.Add((ApplyPadding(line.Bounds, padH, padV, offH, offV), line.Box.PixelHeight));
                         }
                     }
                 }

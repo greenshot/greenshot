@@ -424,6 +424,8 @@ itself and needs no `Ocr` step. The selection step sets the variable `SelectedMo
 `Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
 selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the OCR language when OCR runs in the step; without it the OCR
+language of the settings is used.
 
 A `Source` step which looks for a window (`ProcessName`, `WindowTitlePattern`) captures the active window, else the screen, when
 no window matches. `WhenNoWindow` `Stop` ends the recipe instead, with a message, so a recipe meant for one window never works on
