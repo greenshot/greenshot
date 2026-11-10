@@ -52,7 +52,7 @@ the *Effects* panel with that effect; the list at the top of the panel picks ano
 | Preview | The capture as it will look, with the elements on it, in its full size. It starts zoomed to fit; the mouse wheel or + and − zoom at the mouse, dragging or the arrow keys move it, a double-click (or 0 and 1, *Fit* and *1:1*) switches between all of it and the real size. A change of a setting keeps the zoom and the place, so the details can be compared. It follows every change at once. |
 | Presets | A click sets the settings below to the preset, e.g. *Wide* for a border; they can be changed afterwards. For resize the presets are percentages of the capture. |
 | Settings | The settings of the effect: width and color of the border; darkness, size and offset of the shadow; the color for transparent parts; the new width and height. |
-| Apply | Applies the effect to the capture as one step for Ctrl+Z. The panel stays, its preview now starts from the changed capture. |
+| Apply | Applies the effect to the capture as one step for Ctrl+Z and closes the panel area, the keyboard goes back to the capture. |
 
 Grayscale and invert have no settings: they apply at once, as before. A resize to more than 40 million pixels shows the capture as it is
 in the preview, the new size is in the text below the settings.

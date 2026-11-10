@@ -79,6 +79,9 @@ namespace Greenshot.Editor.Forms
             {
                 UpdateUndoRedoSurfaceDependencies();
                 RefreshFieldControls();
+                // The effect is done: the panel has no use any more, the work goes on on the capture
+                _panelHost?.Close();
+                FocusCanvas(fromKeyboard: false);
             });
             panels.Insert(1, _effectsPanel);
             _panelContext = new EditorPanelContext(this, (panelId, activate) => _panelHost.Show(panelId, activate), () => FocusCanvas(fromKeyboard: false));
