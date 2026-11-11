@@ -1,0 +1,69 @@
+<!--
+    The settings of the Divoom plugin: the device (its address, or one found in the network), the size of its screen and a test picture.
+-->
+<UserControl x:Class="Greenshot.Plugin.Divoom.Views.DivoomSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="HintText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                <Setter Property="Margin" Value="0,2,0,8"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel Margin="8">
+        <TextBlock Text="{wpf:Text Divoom.SettingsIntro}" Margin="0,0,0,12"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- The device -->
+            <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text Divoom.DeviceAddress}" Target="{Binding ElementName=AddressBox}" Margin="0,0,12,0"/>
+            <TextBox x:Name="AddressBox" Grid.Row="0" Grid.Column="1" Text="{Binding DeviceAddress, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Grid.Row="0" Grid.Column="2" Content="{wpf:Text Divoom.FindDevices}" Command="{Binding FindDevicesCommand}"
+                    ToolTip="{wpf:Text Divoom.FindDevicesHint}" Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{wpf:Text Divoom.DeviceAddressHint}" Style="{StaticResource HintText}"/>
+
+            <!-- The devices found in the network, one becomes the device -->
+            <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text Divoom.FoundDevices}" Target="{Binding ElementName=DevicesBox}" Margin="0,0,12,0"
+                   Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}"/>
+            <ComboBox x:Name="DevicesBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,8"
+                      ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice, Mode=TwoWay}" DisplayMemberPath="DisplayText"
+                      Visibility="{Binding HasDevices, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- The size of the screen, the capture has it -->
+            <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Text Divoom.PanelSize}" Target="{Binding ElementName=SizeBox}" Margin="0,0,12,0"/>
+            <ComboBox x:Name="SizeBox" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" MinWidth="160"
+                      ItemsSource="{Binding PanelSizes}" DisplayMemberPath="Text" SelectedValuePath="Size" SelectedValue="{Binding PanelSize, Mode=TwoWay}"/>
+
+            <Button Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="0,12,0,0" Content="{wpf:Text Divoom.SendTest}"
+                    Command="{Binding SendTestCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
+            <!-- What finding the devices or the test picture did -->
+            <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Status}" Style="{StaticResource HintText}" Margin="0,8,0,0"
+                       wpf:LiveRegion.Mode="Polite"/>
+        </Grid>
+    </StackPanel>
+</UserControl>

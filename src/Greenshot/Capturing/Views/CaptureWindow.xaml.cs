@@ -531,7 +531,8 @@ namespace Greenshot.Capturing.Views
         /// <param name="capture">ICapture of the whole screen</param>
         /// <param name="windows">The windows to snap to, in z-order</param>
         /// <param name="initialTool">Id of the tool to start with, null: the tool of the capture mode</param>
-        public void SetCapture(ICapture capture, IList<IInteropWindow> windows, string initialTool = null)
+        /// <param name="fixedCaptureArea">A size like 64x64 the fixed size capture starts with as its only entry, null for the sizes of the settings</param>
+        public void SetCapture(ICapture capture, IList<IInteropWindow> windows, string initialTool = null, string fixedCaptureArea = null)
         {
             if (_capture != null)
             {
@@ -554,6 +555,14 @@ namespace Greenshot.Capturing.Views
             // Not shown yet: the application below has the focus, it gets it back when L switches to the live screen
             _previousForeground = User32Api.GetForegroundWindow();
             _tools = CreateTools();
+            var requestedArea = FixedCaptureArea.Parse(fixedCaptureArea);
+            if (!requestedArea.IsEmpty)
+            {
+                foreach (var fixedSizeTool in _tools.OfType<FixedSizeCaptureTool>())
+                {
+                    fixedSizeTool.RequestedArea = requestedArea;
+                }
+            }
             var initialMode = capture.CaptureDetails.CaptureMode;
             _activeTool = _tools.FirstOrDefault(tool => string.Equals(tool.Id, initialTool, StringComparison.OrdinalIgnoreCase))
                           ?? _tools.FirstOrDefault(tool => tool.Mode == initialMode) ?? _tools[0];

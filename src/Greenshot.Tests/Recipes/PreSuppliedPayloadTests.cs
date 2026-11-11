@@ -56,6 +56,8 @@ namespace Greenshot.Tests.Recipes
 
             public string InitialTool { get; private set; }
 
+            public string FixedCaptureArea { get; private set; }
+
             public ICaptureTool Tool { get; set; }
 
             public bool IsSelecting => false;
@@ -64,10 +66,11 @@ namespace Greenshot.Tests.Recipes
             {
             }
 
-            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken = default)
+            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, string fixedCaptureArea, CancellationToken cancellationToken = default)
             {
                 Calls++;
                 InitialTool = initialTool;
+                FixedCaptureArea = fixedCaptureArea;
                 return Task.FromResult(new SelectionResult { SelectedRegion = new NativeRect(0, 0, 10, 10), FinalMode = initialMode, Tool = Tool });
             }
         }
@@ -161,6 +164,20 @@ namespace Greenshot.Tests.Recipes
             Assert.False(context.IsAborted);
             Assert.Equal(30, context.Payload.RawCapture.Image.Width);
             Assert.False(context.Payload.RawCapture.CursorVisible);
+        }
+
+        [Fact]
+        public async Task Selection_WithFixedCaptureArea_StartsTheFixedSizeCaptureWithIt()
+        {
+            var selector = new RecordingSelector();
+            using var context = CreateContext("Screen", preSupplied: false);
+            var config = RecipeStepConfig.CreateSelection("select", CaptureMode.Region, allowWindowSnapping: false);
+            config.Set("FixedCaptureArea", "64x64");
+
+            await new InteractiveSelectionStep(config, selector).ExecuteAsync(context);
+
+            Assert.Equal("64x64", selector.FixedCaptureArea);
+            Assert.Equal("FixedSize", selector.InitialTool);
         }
 
         [Fact]

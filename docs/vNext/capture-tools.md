@@ -54,6 +54,8 @@ information or a shortcut to whatever the user is doing, without changing how th
    (`src/Greenshot.Base/Interfaces/CaptureMode.cs`); a plugin uses an existing value, e.g. `Region` when it accepts a rectangle.
    To start with your tool, a recipe sets the `SelectionTool` parameter of its interactive selection step to the tool's `Id`
    (default: the name of its mode, so override it in a plugin tool, e.g. `"ColorPicker"`). Without a tool of that id the mode decides.
+   The `FixedCaptureArea` parameter (e.g. `"64x64"`) starts the fixed size tool with only that size, e.g. for the screen of a device
+   (the Divoom plugin uses it, see [divoom.md](divoom.md)); that capture doesn't change the last fixed size or the recent captures.
 3. Register its keys in `Attach`, see Keys: `Host.RegisterToolKey` for keys which only work while the tool is active (e.g. Enter),
    and optionally `Host.RegisterKey` for a key which switches to the tool (`Host.ActivateTool(this)`), like T for the text tool.
 4. Make the window use it:
