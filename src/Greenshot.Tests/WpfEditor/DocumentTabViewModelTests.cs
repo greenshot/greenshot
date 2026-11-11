@@ -216,5 +216,40 @@ namespace Greenshot.Tests.WpfEditor
                 Assert.Equal(400, area.Height);
             });
         }
+
+        [Fact]
+        public void WhileDragging_TheElementIsDrawnAloneInTheOverlay_UntilItIsDropped()
+        {
+            RunOnSta(() =>
+            {
+                var filled = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 40, 40)) { Style = new Style { Fill = FillStyle.Of(new Rgba(0, 0, 255, 255)) } };
+                using var tab = new DocumentTabViewModel(DocumentEdits.Add(NewDocument(), new[] { filled }), "test");
+                tab.Tool.Down(At(30, 30));
+                tab.Tool.Move(At(130, 80));
+
+                Assert.NotNull(tab.Bitmap.Overlay);
+                var moved = new RectD(110, 60, 40, 40);
+                var overlay = tab.Bitmap.OverlayArea;
+                Assert.True(overlay.X <= moved.X && overlay.Y <= moved.Y && overlay.Right >= moved.Right && overlay.Bottom >= moved.Bottom, overlay.ToString());
+
+                tab.Tool.Up(At(130, 80));
+                Assert.Null(tab.Bitmap.Overlay);
+            });
+        }
+
+        [Fact]
+        public void AnObfuscation_IsNeverDrawnAlone_ItChangesThePixelsBelowIt()
+        {
+            var obfuscate = new ObfuscateElement(Guid.NewGuid(), new RectD(10, 10, 40, 40), ObfuscateMode.Pixelate, 10);
+            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(100, 10, 40, 40));
+            var document = DocumentEdits.Add(NewDocument(), new Element[] { obfuscate, rectangle });
+
+            var movedRectangle = DocumentEdits.Replace(document, rectangle with { Area = new RectD(120, 10, 40, 40) });
+            var movedObfuscate = DocumentEdits.Replace(document, obfuscate with { Area = new RectD(30, 10, 40, 40) });
+
+            Assert.Equal(new[] { rectangle.Id }, Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, movedRectangle));
+            Assert.Empty(Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, movedObfuscate));
+            Assert.Empty(Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, document));
+        }
     }
 }

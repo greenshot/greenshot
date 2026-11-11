@@ -22,17 +22,23 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Document;
 
 namespace Greenshot.WpfEditor
 {
     /// <summary>
-    /// What Greenshot gives the editor: its destinations, which work on the document as a whole (upload, e-mail, Office, ...).
-    /// The editor itself only saves, copies and prints.
+    /// What Greenshot gives the editor: its destinations, which work on the document as a whole (upload, e-mail, Office, ...),
+    /// and where settings are kept. The editor itself only saves, copies and prints.
     /// </summary>
     public interface IWpfEditorHost
     {
         IReadOnlyList<EditorDestination> Destinations { get; }
+
+        /// <summary>
+        /// The emoji picked last, shared with the other editor
+        /// </summary>
+        IEmojiHistory EmojiHistory { get; }
     }
 
     /// <summary>

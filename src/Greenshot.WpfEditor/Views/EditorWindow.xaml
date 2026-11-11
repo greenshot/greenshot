@@ -6,6 +6,7 @@
 <Window x:Class="Greenshot.WpfEditor.Views.EditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:emoji="clr-namespace:Greenshot.Base.Wpf.Emoji;assembly=Greenshot.Base"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         xmlns:controls="clr-namespace:Greenshot.WpfEditor.Controls"
         xmlns:vm="clr-namespace:Greenshot.WpfEditor.ViewModels"
@@ -383,16 +384,12 @@
                                 </ComboBox>
                             </Grid>
 
-                            <!-- Emoji -->
-                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsEmoji, Converter={StaticResource VisibleWhen}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Label x:Name="EmojiLabel" Content="{wpf:Text WpfEditor.Emoji}" Target="{Binding ElementName=EmojiBox}"/>
-                                <TextBox x:Name="EmojiBox" Grid.Column="1" Text="{Binding Emoji, UpdateSourceTrigger=PropertyChanged}" ToolTip="{wpf:Text WpfEditor.EmojiHint}"
-                                         FontSize="{wpf:FontSize 16}" AutomationProperties.LabeledBy="{Binding ElementName=EmojiLabel}"/>
-                            </Grid>
+                            <!-- Emoji: the picker of the other editor -->
+                            <StackPanel Visibility="{Binding IsEmoji, Converter={StaticResource VisibleWhen}}">
+                                <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Emoji}"/>
+                                <emoji:EmojiPicker DataContext="{Binding EmojiPicker}" Height="320" Margin="0,2,0,6"
+                                                   AutomationProperties.Name="{wpf:Text WpfEditor.Emoji}"/>
+                            </StackPanel>
 
                             <!-- Text -->
                             <StackPanel Visibility="{Binding HasText, Converter={StaticResource VisibleWhen}}">

@@ -24,6 +24,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Dapplo.Ini;
 using Greenshot.Base.Wpf;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Editor.Configuration;
 
 namespace Greenshot.Editor.Controls.Emoji
@@ -60,7 +61,7 @@ namespace Greenshot.Editor.Controls.Emoji
         {
             if (_picker == null)
             {
-                _picker = new EmojiPickerViewModel(IniConfigRegistry.GetSection<IEditorConfiguration>());
+                _picker = new EmojiPickerViewModel(new EditorEmojiHistory(IniConfigRegistry.GetSection<IEditorConfiguration>()));
                 _picker.Picked += (_, args) =>
                 {
                     Selection = args.Emoji;

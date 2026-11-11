@@ -22,7 +22,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Greenshot.Editor.Controls.Emoji;
+namespace Greenshot.Base.Wpf.Emoji;
 
 /// <summary>
 /// This seems to enumerate multiple IEnumerables.

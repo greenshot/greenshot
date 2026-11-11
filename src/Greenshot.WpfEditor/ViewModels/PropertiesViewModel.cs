@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
 using Greenshot.WpfEditor.Editing;
@@ -126,6 +127,25 @@ namespace Greenshot.WpfEditor.ViewModels
         public bool IsCutMark => Sample is CutMarkElement;
 
         public bool IsEmoji => Sample is EmojiElement;
+
+        private EmojiPickerViewModel _emojiPicker;
+
+        /// <summary>
+        /// The emoji picker of the other editor (history, categories, search), made when the emoji section is first shown
+        /// </summary>
+        public EmojiPickerViewModel EmojiPicker
+        {
+            get
+            {
+                if (_emojiPicker == null)
+                {
+                    _emojiPicker = new EmojiPickerViewModel(EditorSession.Current.Host?.EmojiHistory ?? new SessionEmojiHistory()) { CurrentEmoji = Emoji };
+                    _emojiPicker.Picked += (_, args) => Emoji = args.Emoji;
+                }
+
+                return _emojiPicker;
+            }
+        }
 
         public string Emoji
         {
@@ -450,6 +470,10 @@ namespace Greenshot.WpfEditor.ViewModels
             try
             {
                 OnPropertyChanged(string.Empty);
+                if (_emojiPicker != null)
+                {
+                    _emojiPicker.CurrentEmoji = Emoji;
+                }
             }
             finally
             {

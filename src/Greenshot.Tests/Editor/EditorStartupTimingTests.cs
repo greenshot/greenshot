@@ -127,7 +127,7 @@ namespace Greenshot.Tests.Editor
             RunOnSta(() =>
             {
                 var editorAssembly = typeof(ImageEditorForm).Assembly;
-                var emojiData = editorAssembly.GetType("Greenshot.Editor.Controls.Emoji.EmojiData", true);
+                var emojiData = typeof(Greenshot.Base.Wpf.Emoji.EmojiData);
                 var emojiRenderer = editorAssembly.GetType("Greenshot.Editor.Drawing.Emoji.EmojiRenderer", true);
                 var getBitmap = emojiRenderer.GetMethod("GetBitmap", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 var load = emojiData.GetMethod("Load", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);

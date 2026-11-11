@@ -262,6 +262,15 @@ namespace Greenshot.WpfEditor.Controls
             dc.DrawRectangle(ShadowBrush, null, new Rect(page.X + 2, page.Y + 2, page.Width + 2, page.Height + 2));
             dc.DrawRectangle(Checkerboard, null, page);
             dc.DrawImage(bitmap, page);
+            if (Tab.Bitmap.Overlay is { } overlay)
+            {
+                // The dragged or drawn elements, in step with the handles
+                var live = Tab.Bitmap.OverlayArea;
+                dc.PushClip(new RectangleGeometry(page));
+                dc.DrawImage(overlay, new Rect(origin.X + (live.X - area.X) * Zoom, origin.Y + (live.Y - area.Y) * Zoom, live.Width * Zoom, live.Height * Zoom));
+                dc.Pop();
+            }
+
             DrawAdorners(dc);
         }
 

@@ -710,10 +710,6 @@ namespace Greenshot.WpfEditor
         /// </summary>
         string Emoji { get; }
 
-        /// <summary>
-        /// The emoji new emoji elements show
-        /// </summary>
-        string EmojiHint { get; }
 
         /// <summary>
         /// Color (#RRGGBB or #AARRGGBB)

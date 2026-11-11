@@ -382,7 +382,8 @@ namespace Greenshot.WpfEditor.ViewModels
                 return;
             }
 
-            Bitmap.Update(document, DocumentChanges.ChangedArea(before, document));
+            // What differs from the committed document is being dragged or drawn: drawn alone, at once
+            Bitmap.Update(document, DocumentChanges.ChangedArea(before, document), DocumentChanges.LiveElements(_committed, document));
             if (_selection.Any(id => DocumentEdits.Find(document, id) == null))
             {
                 _selection = new HashSet<Guid>(_selection.Where(id => DocumentEdits.Find(document, id) != null));

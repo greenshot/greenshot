@@ -46,12 +46,7 @@ namespace Greenshot.WpfEditor.Rendering
             RectD? changed = null;
             void Add(GreenshotDocument document, Element element)
             {
-                var bounds = document.VisualBounds(element);
-                if (document.FrameOf(element) is FrameElement frame)
-                {
-                    bounds = RectD.Union(bounds, document.VisualBounds(frame));
-                }
-
+                var bounds = DrawnArea(document, element);
                 changed = changed is RectD known ? RectD.Union(known, bounds) : bounds;
             }
 
@@ -97,6 +92,58 @@ namespace Greenshot.WpfEditor.Rendering
             }
 
             return changed;
+        }
+
+        /// <summary>
+        /// Where the element (and its frame) changes pixels: its visual bounds with the margin the renderer gives them too, for the
+        /// soft edges and the editor's shadow
+        /// </summary>
+        public static RectD DrawnArea(GreenshotDocument document, Element element)
+        {
+            var bounds = document.VisualBounds(element);
+            if (document.FrameOf(element) is FrameElement frame)
+            {
+                bounds = RectD.Union(bounds, document.VisualBounds(frame));
+            }
+
+            return bounds.Inflate(8);
+        }
+
+        /// <summary>
+        /// The elements which changed from before to after and can be drawn alone (they don't change the pixels below them,
+        /// have no frame, and nothing else changed): the dragged or drawn ones. Empty when that isn't so.
+        /// </summary>
+        public static ISet<Guid> LiveElements(GreenshotDocument before, GreenshotDocument after)
+        {
+            var live = new HashSet<Guid>();
+            if (ReferenceEquals(before, after) || ChangedArea(before, after) == null)
+            {
+                return live;
+            }
+
+            var old = before.Layers.SelectMany(layer => layer.Elements).ToDictionary(element => element.Id);
+            int kept = 0;
+            foreach (var element in after.Layers.SelectMany(layer => layer.Elements))
+            {
+                if (old.TryGetValue(element.Id, out var original))
+                {
+                    kept++;
+                    if (ReferenceEquals(original, element))
+                    {
+                        continue;
+                    }
+                }
+
+                if (element is HighlightElement or ObfuscateElement or FrameElement or StepLabelElement || after.FrameOf(element) != null)
+                {
+                    return new HashSet<Guid>();
+                }
+
+                live.Add(element.Id);
+            }
+
+            // A removed element isn't drawn anywhere
+            return kept == old.Count ? live : new HashSet<Guid>();
         }
 
         private static bool HasWholeCanvasEffect(Layer layer) =>

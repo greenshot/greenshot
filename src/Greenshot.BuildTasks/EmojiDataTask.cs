@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Greenshot.Editor.Controls.Emoji;
+using Greenshot.Base.Wpf.Emoji;
 using Task = Microsoft.Build.Utilities.Task;
 using System.Text;
 using System.Xml;

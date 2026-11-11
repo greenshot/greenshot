@@ -29,7 +29,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Editor.Configuration;
-using Greenshot.Editor.Controls.Emoji;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Forms;

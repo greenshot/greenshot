@@ -16,6 +16,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The emoji font, EmojiDrawing loads it from the folder of this assembly -->
+    <ContentWithTargetPath Include="Twemoji.Mozilla.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Twemoji.Mozilla.ttf</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
   </ItemGroup>
 </Project>

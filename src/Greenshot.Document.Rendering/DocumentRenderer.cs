@@ -246,8 +246,9 @@ namespace Greenshot.Document.Rendering
                     layer.Mutate(context => Picture(context, e.Resource, e.Area, null, ImageScaling.Smooth, 0));
                     break;
                 case EmojiElement e:
-                    var emoji = new TextStyle { Family = "Segoe UI Emoji, Noto Color Emoji, Twemoji Mozilla, sans-serif", Size = Math.Min(e.Area.Width, e.Area.Height) * 0.8, Wrap = false };
-                    layer.Mutate(context => Text(context, e.Emoji, emoji, e.Area, Turn(e.Rotation, e.Area.Center), new Rgba(0, 0, 0, 255)));
+                    // The Twemoji font of Greenshot, in color, as the editor draws it
+                    layer.Mutate(context => EmojiDrawing.Draw(context.SetDrawingTransform(Turn(e.Rotation, e.Area.Center)), e.Emoji,
+                        new PointF((float)e.Area.Center.X, (float)e.Area.Center.Y), (float)Math.Min(e.Area.Width, e.Area.Height)));
                     break;
             }
 

@@ -23,12 +23,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Document;
 using Greenshot.Document.Editor;
+using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.WpfEditor;
 
 namespace Greenshot.DocumentModel
@@ -56,6 +60,8 @@ namespace Greenshot.DocumentModel
                 .ThenBy(destination => destination.Descriptor.DisplayName, StringComparer.CurrentCultureIgnoreCase)
                 .Select(destination => new EditorDestination(destination.Descriptor.DisplayName, (document, title) => ExportAsync(destination, document, title)))
                 .ToList();
+
+        public IEmojiHistory EmojiHistory { get; } = new EditorEmojiHistory(IniConfigRegistry.GetSection<IEditorConfiguration>());
 
         private static async Task ExportAsync(IDestination destination, GreenshotDocument document, string title)
         {
