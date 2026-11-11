@@ -376,7 +376,7 @@ namespace Greenshot.Document.Editor
         internal static IEnumerable<IDetectedFeature> ToFeatures(ImageAnalysis analysis) =>
             (analysis.Ocr?.Lines ?? Array.Empty<OcrLine>())
             .Select(line => (IDetectedFeature)new DetectedOcrLine(ToNativeRect(line.Bounds), line.Text,
-                (line.Words ?? Array.Empty<OcrWord>()).Select(word => new OcrWordInfo { Bounds = ToNativeRect(word.Bounds), Text = word.Text }).ToList()))
+                (line.Words ?? Array.Empty<OcrWord>()).Select(word => new OcrWordInfo(word.Text, ToNativeRect(word.Bounds))).ToList()))
             .Concat((analysis.Barcodes ?? Array.Empty<BarcodeResult>()).Select(barcode => new KeptBarcode(ToNativeRect(barcode.Bounds), barcode.Format, barcode.Text)));
 
         private static NativeRect ToNativeRect(RectD rect) => new(Round(rect.X), Round(rect.Y), Round(rect.Width), Round(rect.Height));
