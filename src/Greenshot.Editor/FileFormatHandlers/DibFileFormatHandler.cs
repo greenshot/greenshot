@@ -61,7 +61,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 return false;
             }
 
-            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
+            using var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
             var dibBytes = DibImage.CreateDib(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha);
             destination.Write(dibBytes, 0, dibBytes.Length);
             return true;
