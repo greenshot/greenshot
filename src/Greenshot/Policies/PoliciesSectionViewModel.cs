@@ -84,7 +84,7 @@ namespace Greenshot.Policies
             OnPropertyChanged(nameof(HasPolicies));
             OnPropertyChanged(nameof(HasNoPolicies));
             BadgeText = HasPolicies ? string.Format(Texts.SelfService.PoliciesCount, Policies.Count) : null;
-            BadgeBrush = HasPolicies ? WpfThemeHelper.Accent : null;
+            BadgeBrush = HasPolicies ? ThemeManager.Instance.CurrentPalette.Accent : null;
         }
 
         /// <summary>
