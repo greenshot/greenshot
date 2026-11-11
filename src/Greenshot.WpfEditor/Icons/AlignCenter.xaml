@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.AlignCenter: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.AlignCenter">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M1,1 H15 V3 H1 Z M3,4 H13 V6 H3 Z M1,7 H15 V9 H1 Z M3,10 H13 V12 H3 Z M1,13 H15 V15 H1 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4DFFFFFF" Thickness="1.3" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#454545" Geometry="M1,1 H15 V3 H1 Z M3,4 H13 V6 H3 Z M1,7 H15 V9 H1 Z M3,10 H13 V12 H3 Z M1,13 H15 V15 H1 Z" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

@@ -1,0 +1,592 @@
+<!--
+    The editor on the document model: a command bar, the tabs of the open documents, the tool rail on the left, the canvas
+    (zoom and pan) in the middle and the panel with the properties, the canvas and the layers on the right.
+    All colors come from ThemeManager / ThemeScope, the icons from Icons/*.xaml.
+-->
+<Window x:Class="Greenshot.WpfEditor.Views.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        xmlns:controls="clr-namespace:Greenshot.WpfEditor.Controls"
+        xmlns:vm="clr-namespace:Greenshot.WpfEditor.ViewModels"
+        xmlns:document="clr-namespace:Greenshot.Document;assembly=Greenshot.Document"
+        xmlns:editing="clr-namespace:Greenshot.Document.Editing;assembly=Greenshot.Document"
+        xmlns:tools="clr-namespace:Greenshot.WpfEditor.Tools"
+        Title="{Binding WindowTitle}"
+        Width="1280" Height="820"
+        MinWidth="720" MinHeight="460"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowDrop="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/TabStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/MenuStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.WpfEditor;component/Icons/Icons.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <controls:EnumNameConverter x:Key="EnumName"/>
+            <controls:EnumEqualsConverter x:Key="EnumEquals"/>
+            <controls:VisibleWhenConverter x:Key="VisibleWhen"/>
+
+            <!-- The icons are 16x16, shown at 20 so they are crisp at 125 % -->
+            <Style x:Key="EditorIcon" TargetType="Image">
+                <Setter Property="Width" Value="20"/>
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="Stretch" Value="Uniform"/>
+            </Style>
+            <Style x:Key="PanelHeading" TargetType="TextBlock">
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
+                <Setter Property="Margin" Value="0,10,0,4"/>
+            </Style>
+            <Style x:Key="PanelRow" TargetType="Grid">
+                <Setter Property="Margin" Value="0,2"/>
+            </Style>
+            <Style x:Key="Separator" TargetType="Rectangle">
+                <Setter Property="Width" Value="1"/>
+                <Setter Property="Margin" Value="6,6"/>
+                <Setter Property="Fill" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"/>
+        <KeyBinding Key="C" Modifiers="Control+Shift" Command="{Binding CopyImageCommand}"/>
+        <KeyBinding Key="P" Modifiers="Control" Command="{Binding PrintCommand}"/>
+        <KeyBinding Key="W" Modifiers="Control" Command="{Binding CloseTabCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}"/>
+        <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Control+Shift" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="D" Modifiers="Control" Command="{Binding DuplicateCommand}"/>
+        <KeyBinding Key="A" Modifiers="Control" Command="{Binding SelectAllCommand}"/>
+        <KeyBinding Key="OemPeriod" Modifiers="Control" Command="{Binding TurnClockwiseCommand}"/>
+        <KeyBinding Key="OemComma" Modifiers="Control" Command="{Binding TurnCounterClockwiseCommand}"/>
+        <KeyBinding Key="OemPlus" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}"/>
+        <KeyBinding Key="Add" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}"/>
+        <KeyBinding Key="OemMinus" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}"/>
+        <KeyBinding Key="Subtract" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}"/>
+        <KeyBinding Key="D9" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.BestFit}"/>
+        <KeyBinding Key="D0" Modifiers="Control" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.ActualSize}"/>
+    </Window.InputBindings>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <wpf:ThemedTitleBar Grid.Row="0" ShowThemeToggle="True"/>
+
+            <!-- The command bar -->
+            <Border Grid.Row="1" Padding="6,2" BorderThickness="0,0,0,1"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                        <Button x:Name="FileButton" Style="{StaticResource SecondaryButtonStyle}" Margin="2,2,6,2" Padding="12,4"
+                                Content="{wpf:Text WpfEditor.File}" Click="File_Click"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding OpenCommand}" ToolTip="{wpf:Text WpfEditor.Open}" AutomationProperties.Name="{wpf:Text WpfEditor.Open}">
+                            <Image Source="{StaticResource Icon.Open}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding SaveCommand}" ToolTip="{wpf:Text WpfEditor.Save}" AutomationProperties.Name="{wpf:Text WpfEditor.Save}">
+                            <Image Source="{StaticResource Icon.Save}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding CopyImageCommand}" ToolTip="{wpf:Text WpfEditor.CopyImage}" AutomationProperties.Name="{wpf:Text WpfEditor.CopyImage}">
+                            <Image Source="{StaticResource Icon.CopyImage}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding PrintCommand}" ToolTip="{wpf:Text WpfEditor.Print}" AutomationProperties.Name="{wpf:Text WpfEditor.Print}">
+                            <Image Source="{StaticResource Icon.Print}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button x:Name="SendToButton" Style="{StaticResource SecondaryButtonStyle}" Margin="4,2" Padding="10,4"
+                                Content="{wpf:Text WpfEditor.SendTo}" Click="SendTo_Click"
+                                Visibility="{Binding HasDestinations, Converter={StaticResource VisibleWhen}}"/>
+                        <Rectangle Style="{StaticResource Separator}"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding UndoCommand}" ToolTip="{Binding UndoText}" AutomationProperties.Name="{Binding UndoText, TargetNullValue=''}">
+                            <Image Source="{StaticResource Icon.Undo}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding RedoCommand}" ToolTip="{Binding RedoText}" AutomationProperties.Name="{Binding RedoText, TargetNullValue=''}">
+                            <Image Source="{StaticResource Icon.Redo}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Rectangle Style="{StaticResource Separator}"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding CutCommand}" ToolTip="{wpf:Text WpfEditor.Cut}" AutomationProperties.Name="{wpf:Text WpfEditor.Cut}">
+                            <Image Source="{StaticResource Icon.Cut}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding CopyCommand}" ToolTip="{wpf:Text WpfEditor.Copy}" AutomationProperties.Name="{wpf:Text WpfEditor.Copy}">
+                            <Image Source="{StaticResource Icon.Copy}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding PasteCommand}" ToolTip="{wpf:Text WpfEditor.Paste}" AutomationProperties.Name="{wpf:Text WpfEditor.Paste}">
+                            <Image Source="{StaticResource Icon.Paste}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding DeleteCommand}" ToolTip="{wpf:Text WpfEditor.Delete}" AutomationProperties.Name="{wpf:Text WpfEditor.Delete}">
+                            <Image Source="{StaticResource Icon.Delete}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Rectangle Style="{StaticResource Separator}"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static editing:Arrangement.ToFront}" ToolTip="{wpf:Text WpfEditor.BringToFront}" AutomationProperties.Name="{wpf:Text WpfEditor.BringToFront}">
+                            <Image Source="{StaticResource Icon.BringToFront}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static editing:Arrangement.Forward}" ToolTip="{wpf:Text WpfEditor.BringForward}" AutomationProperties.Name="{wpf:Text WpfEditor.BringForward}">
+                            <Image Source="{StaticResource Icon.BringForward}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static editing:Arrangement.Backward}" ToolTip="{wpf:Text WpfEditor.SendBackward}" AutomationProperties.Name="{wpf:Text WpfEditor.SendBackward}">
+                            <Image Source="{StaticResource Icon.SendBackward}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static editing:Arrangement.ToBack}" ToolTip="{wpf:Text WpfEditor.SendToBack}" AutomationProperties.Name="{wpf:Text WpfEditor.SendToBack}">
+                            <Image Source="{StaticResource Icon.SendToBack}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Rectangle Style="{StaticResource Separator}"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding TurnCounterClockwiseCommand}" ToolTip="{wpf:Text WpfEditor.TurnCounterClockwise}" AutomationProperties.Name="{wpf:Text WpfEditor.TurnCounterClockwise}">
+                            <Image Source="{StaticResource Icon.RotateCounterClockwise}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding TurnClockwiseCommand}" ToolTip="{wpf:Text WpfEditor.TurnClockwise}" AutomationProperties.Name="{wpf:Text WpfEditor.TurnClockwise}">
+                            <Image Source="{StaticResource Icon.RotateClockwise}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding AutoCropCommand}" ToolTip="{wpf:Text WpfEditor.AutoCrop}" AutomationProperties.Name="{wpf:Text WpfEditor.AutoCrop}">
+                            <Image Source="{StaticResource Icon.AutoCrop}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding InsertImageCommand}" ToolTip="{wpf:Text WpfEditor.InsertImage}" AutomationProperties.Name="{wpf:Text WpfEditor.InsertImage}">
+                            <Image Source="{StaticResource Icon.NewTab}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}" ToolTip="{wpf:Text WpfEditor.ZoomOut}" AutomationProperties.Name="{wpf:Text WpfEditor.ZoomOut}">
+                            <Image Source="{StaticResource Icon.ZoomOut}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <TextBlock Text="{Binding ZoomText}" MinWidth="48" TextAlignment="Center" VerticalAlignment="Center" wpf:LiveRegion.Mode="Polite"/>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}" ToolTip="{wpf:Text WpfEditor.ZoomIn}" AutomationProperties.Name="{wpf:Text WpfEditor.ZoomIn}">
+                            <Image Source="{StaticResource Icon.ZoomIn}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.BestFit}" ToolTip="{wpf:Text WpfEditor.ZoomBestFit}" AutomationProperties.Name="{wpf:Text WpfEditor.ZoomBestFit}">
+                            <Image Source="{StaticResource Icon.ZoomBestFit}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.ActualSize}" ToolTip="{wpf:Text WpfEditor.ZoomActualSize}" AutomationProperties.Name="{wpf:Text WpfEditor.ZoomActualSize}">
+                            <Image Source="{StaticResource Icon.ZoomActualSize}" Style="{StaticResource EditorIcon}"/>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- The open documents -->
+            <TabControl x:Name="DocumentTabs" Grid.Row="2" Margin="6,4,6,0" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}"
+                        AutomationProperties.Name="{wpf:Text WpfEditor.Tabs}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:DocumentTabViewModel}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding DisplayTitle}" MaxWidth="220" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                            <Button Style="{StaticResource IconButtonStyle}" MinWidth="20" MinHeight="20" Padding="2" Margin="6,0,0,0"
+                                    Command="{Binding DataContext.CloseTabCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                    ToolTip="{wpf:Text WpfEditor.CloseTab}" AutomationProperties.Name="{wpf:Text WpfEditor.CloseTab}">
+                                <Image Source="{StaticResource Icon.Close}" Width="12" Height="12"/>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate/>
+                </TabControl.ContentTemplate>
+            </TabControl>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="290" MinWidth="200"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- The tools -->
+                <Border Grid.Column="0" Padding="4" BorderThickness="0,1,1,0"
+                        BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                    <ItemsControl ItemsSource="{Binding Tools}" AutomationProperties.Name="{wpf:Text WpfEditor.Tools}" KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Cycle">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ToolViewModel}">
+                                <RadioButton GroupName="EditorTools" Style="{StaticResource IconToggleButtonStyle}" Margin="0,1"
+                                             IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                             ToolTip="{Binding ToolTip}" AutomationProperties.Name="{Binding Name, TargetNullValue=''}">
+                                    <Image Source="{Binding Icon}" Style="{StaticResource EditorIcon}"/>
+                                </RadioButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <!-- The canvas -->
+                <Grid Grid.Column="1">
+                    <ScrollViewer x:Name="CanvasScroller" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                  Focusable="False">
+                        <controls:DocumentCanvas x:Name="Canvas" Tab="{Binding SelectedTab}" AutomationProperties.Name="{wpf:Text WpfEditor.CanvasName}"
+                                                 MouseRightButtonUp="Canvas_MouseRightButtonUp"/>
+                    </ScrollViewer>
+                    <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" Padding="6" CornerRadius="6" BorderThickness="1"
+                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CardBackground}"
+                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CardBorder}"
+                            Visibility="{Binding IsCropping, Converter={StaticResource VisibleWhen}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource PrimaryButtonStyle}" Margin="2" Content="{wpf:Text WpfEditor.ApplyCrop}" Command="{Binding ApplyCropCommand}"/>
+                            <Button Style="{StaticResource SecondaryButtonStyle}" Margin="2" Content="{wpf:Text WpfEditor.CancelCrop}" Command="{Binding CancelCropCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <GridSplitter Grid.Column="2" Width="4" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Focusable="False"
+                              Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+
+                <!-- The panel: properties, canvas and layers -->
+                <ScrollViewer Grid.Column="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" DataContext="{Binding}">
+                    <StackPanel Margin="12,4,12,12">
+                        <StackPanel DataContext="{Binding Properties}" Visibility="{Binding IsVisible, Converter={StaticResource VisibleWhen}}">
+                            <TextBlock Style="{StaticResource PanelHeading}" Text="{Binding Heading}" FontSize="{wpf:FontSize 14}"/>
+
+                            <!-- Line -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding HasStroke, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="LineColorLabel" Content="{wpf:Text WpfEditor.LineColor}" Target="{Binding ElementName=LineColorButton}"/>
+                                <controls:ColorButton x:Name="LineColorButton" Grid.Column="1" SelectedColor="{Binding LineColor}" AutomationProperties.LabeledBy="{Binding ElementName=LineColorLabel}"/>
+                            </Grid>
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding HasStroke, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="44"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="LineWidthLabel" Content="{wpf:Text WpfEditor.LineWidth}" Target="{Binding ElementName=LineWidthSlider}"/>
+                                <wpf:ValueSlider x:Name="LineWidthSlider" Grid.Column="1" ValueFormat="{}{0:0} px" Minimum="0" Maximum="20" SmallChange="1" LargeChange="2" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                 Value="{Binding LineWidth}" VerticalAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=LineWidthLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding ElementName=LineWidthSlider, Path=ValueText}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Fill -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding HasFill, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="FillColorLabel" Content="{wpf:Text WpfEditor.FillColor}" Target="{Binding ElementName=FillColorButton}"/>
+                                <controls:ColorButton x:Name="FillColorButton" Grid.Column="1" SelectedColor="{Binding FillColor}" AutomationProperties.LabeledBy="{Binding ElementName=FillColorLabel}"/>
+                            </Grid>
+
+                            <CheckBox Margin="0,4" Content="{wpf:Text WpfEditor.Shadow}" IsChecked="{Binding Shadow}" Visibility="{Binding HasShadow, Converter={StaticResource VisibleWhen}}"/>
+
+                            <!-- Arrow heads -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding HasArrowHeads, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="ArrowHeadsLabel" Content="{wpf:Text WpfEditor.ArrowHeads}" Target="{Binding ElementName=ArrowHeadsBox}"/>
+                                <ComboBox x:Name="ArrowHeadsBox" Grid.Column="1" ItemsSource="{Binding AllArrowHeads}" SelectedItem="{Binding ArrowHeads}" AutomationProperties.LabeledBy="{Binding ElementName=ArrowHeadsLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+
+                            <!-- Highlight -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsHighlight, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="HighlightModeLabel" Content="{wpf:Text WpfEditor.HighlightMode}" Target="{Binding ElementName=HighlightModeBox}"/>
+                                <ComboBox x:Name="HighlightModeBox" Grid.Column="1" ItemsSource="{Binding AllHighlightModes}" SelectedItem="{Binding HighlightMode}" AutomationProperties.LabeledBy="{Binding ElementName=HighlightModeLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsHighlight, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="HighlightColorLabel" Content="{wpf:Text WpfEditor.HighlightColor}" Target="{Binding ElementName=HighlightColorButton}"/>
+                                <controls:ColorButton x:Name="HighlightColorButton" Grid.Column="1" SelectedColor="{Binding HighlightColor}" AutomationProperties.LabeledBy="{Binding ElementName=HighlightColorLabel}"/>
+                            </Grid>
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsHighlight, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="44"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="MagnificationLabel" Content="{wpf:Text WpfEditor.Magnification}" Target="{Binding ElementName=MagnificationSlider}"/>
+                                <wpf:ValueSlider x:Name="MagnificationSlider" Grid.Column="1" ValueFormat="{}{0:0}x" Minimum="1" Maximum="8" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                 Value="{Binding Magnification}" VerticalAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=MagnificationLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding ElementName=MagnificationSlider, Path=ValueText}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Obfuscate -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsObfuscate, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="ObfuscateModeLabel" Content="{wpf:Text WpfEditor.ObfuscateMode}" Target="{Binding ElementName=ObfuscateModeBox}"/>
+                                <ComboBox x:Name="ObfuscateModeBox" Grid.Column="1" ItemsSource="{Binding AllObfuscateModes}" SelectedItem="{Binding ObfuscateMode}" AutomationProperties.LabeledBy="{Binding ElementName=ObfuscateModeLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsObfuscate, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="44"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="ObfuscateSizeLabel" Content="{wpf:Text WpfEditor.ObfuscateSize}" Target="{Binding ElementName=ObfuscateSizeSlider}"/>
+                                <wpf:ValueSlider x:Name="ObfuscateSizeSlider" Grid.Column="1" ValueFormat="{}{0:0} px" Minimum="1" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                 Value="{Binding ObfuscateSize}" VerticalAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=ObfuscateSizeLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding ElementName=ObfuscateSizeSlider, Path=ValueText}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Cut mark -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsCutMark, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="CutMarkLabel" Content="{wpf:Text WpfEditor.EdgeShape}" Target="{Binding ElementName=CutMarkBox}"/>
+                                <ComboBox x:Name="CutMarkBox" Grid.Column="1" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding CutMarkShape}" AutomationProperties.LabeledBy="{Binding ElementName=CutMarkLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+
+                            <!-- Emoji -->
+                            <Grid Style="{StaticResource PanelRow}" Visibility="{Binding IsEmoji, Converter={StaticResource VisibleWhen}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="EmojiLabel" Content="{wpf:Text WpfEditor.Emoji}" Target="{Binding ElementName=EmojiBox}"/>
+                                <TextBox x:Name="EmojiBox" Grid.Column="1" Text="{Binding Emoji, UpdateSourceTrigger=PropertyChanged}" ToolTip="{wpf:Text WpfEditor.EmojiHint}"
+                                         FontSize="{wpf:FontSize 16}" AutomationProperties.LabeledBy="{Binding ElementName=EmojiLabel}"/>
+                            </Grid>
+
+                            <!-- Text -->
+                            <StackPanel Visibility="{Binding HasText, Converter={StaticResource VisibleWhen}}">
+                                <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Font}"/>
+                                <ComboBox x:Name="FontBox" IsEditable="True" ItemsSource="{Binding FontFamilies}" Text="{Binding FontFamily, UpdateSourceTrigger=LostFocus}"
+                                          AutomationProperties.Name="{wpf:Text WpfEditor.Font}"/>
+                                <Grid Style="{StaticResource PanelRow}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="44"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="FontSizeLabel" Content="{wpf:Text WpfEditor.FontSize}" Target="{Binding ElementName=FontSizeSlider}"/>
+                                    <wpf:ValueSlider x:Name="FontSizeSlider" Grid.Column="1" ValueFormat="{}{0:0} px" Minimum="6" Maximum="120" SmallChange="1" LargeChange="4" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                     Value="{Binding FontSize}" VerticalAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=FontSizeLabel}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding ElementName=FontSizeSlider, Path=ValueText}" VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                                <Grid Style="{StaticResource PanelRow}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="TextColorLabel" Content="{wpf:Text WpfEditor.TextColor}" Target="{Binding ElementName=TextColorButton}"/>
+                                    <controls:ColorButton x:Name="TextColorButton" Grid.Column="1" SelectedColor="{Binding TextColor}" AutomationProperties.LabeledBy="{Binding ElementName=TextColorLabel}"/>
+                                </Grid>
+                                <WrapPanel Margin="0,4">
+                                    <ToggleButton Style="{StaticResource IconToggleButtonStyle}" IsChecked="{Binding Bold}" ToolTip="{wpf:Text WpfEditor.Bold}" AutomationProperties.Name="{wpf:Text WpfEditor.Bold}">
+                                        <Image Source="{StaticResource Icon.Bold}" Style="{StaticResource EditorIcon}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Style="{StaticResource IconToggleButtonStyle}" IsChecked="{Binding Italic}" ToolTip="{wpf:Text WpfEditor.Italic}" AutomationProperties.Name="{wpf:Text WpfEditor.Italic}">
+                                        <Image Source="{StaticResource Icon.Italic}" Style="{StaticResource EditorIcon}"/>
+                                    </ToggleButton>
+                                    <Rectangle Style="{StaticResource Separator}" Height="20"/>
+                                    <RadioButton GroupName="Horizontal" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignLeft}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignLeft}"
+                                                 IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.Start}}">
+                                        <Image Source="{StaticResource Icon.AlignLeft}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                    <RadioButton GroupName="Horizontal" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignCenter}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignCenter}"
+                                                 IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.Center}}">
+                                        <Image Source="{StaticResource Icon.AlignCenter}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                    <RadioButton GroupName="Horizontal" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignRight}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignRight}"
+                                                 IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.End}}">
+                                        <Image Source="{StaticResource Icon.AlignRight}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                    <Rectangle Style="{StaticResource Separator}" Height="20"/>
+                                    <RadioButton GroupName="Vertical" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignTop}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignTop}"
+                                                 IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.Start}}">
+                                        <Image Source="{StaticResource Icon.AlignTop}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                    <RadioButton GroupName="Vertical" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignMiddle}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignMiddle}"
+                                                 IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.Center}}">
+                                        <Image Source="{StaticResource Icon.AlignMiddle}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                    <RadioButton GroupName="Vertical" Style="{StaticResource IconToggleButtonStyle}" ToolTip="{wpf:Text WpfEditor.AlignBottom}" AutomationProperties.Name="{wpf:Text WpfEditor.AlignBottom}"
+                                                 IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static document:TextAlignment.End}}">
+                                        <Image Source="{StaticResource Icon.AlignBottom}" Style="{StaticResource EditorIcon}"/>
+                                    </RadioButton>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <!-- Position and size of one element -->
+                            <StackPanel Visibility="{Binding HasArea, Converter={StaticResource VisibleWhen}}">
+                                <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Resize}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Text WpfEditor.PositionX}" Target="{Binding ElementName=AreaXBox}"/>
+                                    <TextBox x:Name="AreaXBox" Grid.Row="0" Grid.Column="1" Margin="2" Text="{Binding AreaX, StringFormat={}{0:0.#}, UpdateSourceTrigger=LostFocus}"/>
+                                    <Label Grid.Row="0" Grid.Column="2" Content="{wpf:Text WpfEditor.PositionY}" Target="{Binding ElementName=AreaYBox}"/>
+                                    <TextBox x:Name="AreaYBox" Grid.Row="0" Grid.Column="3" Margin="2" Text="{Binding AreaY, StringFormat={}{0:0.#}, UpdateSourceTrigger=LostFocus}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Text WpfEditor.Width}" Target="{Binding ElementName=AreaWidthBox}"/>
+                                    <TextBox x:Name="AreaWidthBox" Grid.Row="1" Grid.Column="1" Margin="2" Text="{Binding AreaWidth, StringFormat={}{0:0.#}, UpdateSourceTrigger=LostFocus}"/>
+                                    <Label Grid.Row="1" Grid.Column="2" Content="{wpf:Text WpfEditor.Height}" Target="{Binding ElementName=AreaHeightBox}"/>
+                                    <TextBox x:Name="AreaHeightBox" Grid.Row="1" Grid.Column="3" Margin="2" Text="{Binding AreaHeight, StringFormat={}{0:0.#}, UpdateSourceTrigger=LostFocus}"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Text WpfEditor.Rotation}" Target="{Binding ElementName=RotationBox}"
+                                           Visibility="{Binding CanTurn, Converter={StaticResource VisibleWhen}}"/>
+                                    <TextBox x:Name="RotationBox" Grid.Row="2" Grid.Column="1" Margin="2" Text="{Binding Rotation, StringFormat={}{0:0.#}, UpdateSourceTrigger=LostFocus}"
+                                             Visibility="{Binding CanTurn, Converter={StaticResource VisibleWhen}}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- The canvas, with nothing selected -->
+                        <StackPanel Visibility="{Binding Properties.ShowsCanvas, Converter={StaticResource VisibleWhen}}">
+                            <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Canvas}" FontSize="{wpf:FontSize 14}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{wpf:Text WpfEditor.Width}" Target="{Binding ElementName=ResizeWidthBox}"/>
+                                <TextBox x:Name="ResizeWidthBox" Grid.Column="1" Margin="2" Text="{Binding ResizeWidth, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Label Grid.Column="2" Content="{wpf:Text WpfEditor.Height}" Target="{Binding ElementName=ResizeHeightBox}"/>
+                                <TextBox x:Name="ResizeHeightBox" Grid.Column="3" Margin="2" Text="{Binding ResizeHeight, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <DockPanel Margin="0,4">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButtonStyle}" Padding="12,3" Content="{wpf:Text WpfEditor.Apply}" Command="{Binding ResizeCommand}"/>
+                                <CheckBox Content="{wpf:Text WpfEditor.KeepRatio}" IsChecked="{Binding KeepRatio}" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <Grid Style="{StaticResource PanelRow}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="BackgroundLabel" Content="{wpf:Text WpfEditor.Background}" Target="{Binding ElementName=BackgroundButton}"/>
+                                <controls:ColorButton x:Name="BackgroundButton" Grid.Column="1" SelectedColor="{Binding Properties.Background}" AutomationProperties.LabeledBy="{Binding ElementName=BackgroundLabel}"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Frame}"/>
+                            <WrapPanel>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Margin="0,2,4,2" Padding="8,3" Command="{Binding AddBorderCommand}" Content="{wpf:Text WpfEditor.AddBorder}"/>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Margin="0,2,4,2" Padding="8,3" Command="{Binding AddDropShadowCommand}" Content="{wpf:Text WpfEditor.AddDropShadow}"/>
+                                <Button Style="{StaticResource SecondaryButtonStyle}" Margin="0,2,4,2" Padding="8,3" Command="{Binding AddTornEdgesCommand}" Content="{wpf:Text WpfEditor.AddTornEdges}"/>
+                            </WrapPanel>
+                            <StackPanel DataContext="{Binding Properties}" Visibility="{Binding HasFrame, Converter={StaticResource VisibleWhen}}">
+                                <Grid Style="{StaticResource PanelRow}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="FrameShapeLabel" Content="{wpf:Text WpfEditor.EdgeShape}" Target="{Binding ElementName=FrameShapeBox}"/>
+                                    <ComboBox x:Name="FrameShapeBox" Grid.Column="1" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding FrameShape}" AutomationProperties.LabeledBy="{Binding ElementName=FrameShapeLabel}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Style="{StaticResource PanelRow}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="44"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="FrameWidthLabel" Content="{wpf:Text WpfEditor.FrameWidth}" Target="{Binding ElementName=FrameWidthSlider}"/>
+                                    <wpf:ValueSlider x:Name="FrameWidthSlider" Grid.Column="1" ValueFormat="{}{0:0} px" Minimum="0" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                     Value="{Binding FrameWidth}" VerticalAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=FrameWidthLabel}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding ElementName=FrameWidthSlider, Path=ValueText}" VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                                <Grid Style="{StaticResource PanelRow}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label x:Name="FrameColorLabel" Content="{wpf:Text WpfEditor.FrameColor}" Target="{Binding ElementName=FrameColorButton}"/>
+                                    <controls:ColorButton x:Name="FrameColorButton" Grid.Column="1" SelectedColor="{Binding FrameColor}" AutomationProperties.LabeledBy="{Binding ElementName=FrameColorLabel}"/>
+                                </Grid>
+                                <CheckBox Margin="0,4" Content="{wpf:Text WpfEditor.FrameShadow}" IsChecked="{Binding FrameShadow}"/>
+                                <Button Style="{StaticResource LightErrorButtonStyle}" HorizontalAlignment="Left" Padding="10,3" Margin="0,4"
+                                        Content="{wpf:Text WpfEditor.RemoveFrame}" Command="{Binding DataContext.RemoveFrameCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Layers -->
+                        <TextBlock Style="{StaticResource PanelHeading}" Text="{wpf:Text WpfEditor.Layers}" FontSize="{wpf:FontSize 14}" Margin="0,16,0,4"/>
+                        <ItemsControl ItemsSource="{Binding Layers}" AutomationProperties.Name="{wpf:Text WpfEditor.Layers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:LayerViewModel}">
+                                    <DockPanel Margin="0,2">
+                                        <CheckBox DockPanel.Dock="Right" Margin="8,0,0,0" Content="{wpf:Text WpfEditor.LayerLocked}" IsChecked="{Binding Locked}"/>
+                                        <CheckBox DockPanel.Dock="Right" Margin="8,0,0,0" Content="{wpf:Text WpfEditor.LayerVisible}" IsChecked="{Binding Visible}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Status bar -->
+            <Border Grid.Row="4" Padding="10,3" BorderThickness="0,1,0,0"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SizeText}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding SelectionText}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}" wpf:LiveRegion.Mode="Polite"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

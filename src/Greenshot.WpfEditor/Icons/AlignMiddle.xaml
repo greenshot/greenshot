@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.AlignMiddle: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.AlignMiddle">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M1,4 H10 V6 H1 Z M1,7 H8 V9 H1 Z M1,10 H10 V12 H1 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4DFFFFFF" Thickness="1.3" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#454545" Geometry="M1,4 H10 V6 H1 Z M1,7 H8 V9 H1 Z M1,10 H10 V12 H1 Z" />
+        <GeometryDrawing Geometry="M11,8 H16">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2C4EB2" Thickness="1.5" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M13.5,0 V6">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2C4EB2" Thickness="1.4" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#2C4EB2" Geometry="M13.5,6.6 L16,3.4 L11,3.4 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2C4EB2" Thickness="0.6" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M13.5,10 V16">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2C4EB2" Thickness="1.4" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#2C4EB2" Geometry="M13.5,9.4 L16,12.6 L11,12.6 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2C4EB2" Thickness="0.6" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

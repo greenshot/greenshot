@@ -53,13 +53,15 @@ namespace Greenshot.Document.Rendering
         private readonly RectD _canvas;
         private readonly int _width, _height;
         private readonly Dictionary<Guid, Image<Rgba32>> _images = new();
+        private readonly DocumentRenderCache _cache;
 
-        private DocumentRenderer(GreenshotDocument document)
+        private DocumentRenderer(GreenshotDocument document, RectD? area, DocumentRenderCache cache)
         {
             _document = Anchors.Apply(document);
-            _canvas = _document.CanvasArea();
+            _canvas = area ?? _document.CanvasArea();
             _width = Math.Max(1, (int)Math.Ceiling(_canvas.Width));
             _height = Math.Max(1, (int)Math.Ceiling(_canvas.Height));
+            _cache = cache;
         }
 
         /// <summary>
@@ -67,14 +69,52 @@ namespace Greenshot.Document.Rendering
         /// </summary>
         public static Image<Rgba32> Render(GreenshotDocument document)
         {
-            using var renderer = new DocumentRenderer(document);
-            var canvas = new Image<Rgba32>(renderer._width, renderer._height);
-            foreach (var element in renderer._document.Layers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements))
+            using var renderer = new DocumentRenderer(document, null, null);
+            return renderer.Draw(_ => true);
+        }
+
+        /// <summary>
+        /// A part of the document drawn, e.g. what an editor changed: area is in the coordinates of the elements and not cut
+        /// to the canvas. Only the elements which draw into the area are drawn, and of those only the ones include takes (all
+        /// without include). Blur, pixelate and magnify near the edge of the area see only the pixels in the area: draw a
+        /// bigger area and use its middle. The cache keeps the decoded images for the next call.
+        /// </summary>
+        public static Image<Rgba32> Render(GreenshotDocument document, RectD area, DocumentRenderCache cache, Func<Element, bool> include = null)
+        {
+            using var renderer = new DocumentRenderer(document, area, cache);
+            return renderer.Draw(element => (include == null || include(element)) && renderer.DrawsInto(element));
+        }
+
+        private Image<Rgba32> Draw(Func<Element, bool> include)
+        {
+            var canvas = new Image<Rgba32>(_width, _height);
+            foreach (var element in _document.Layers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements).Where(include))
             {
-                renderer.Draw(canvas, element);
+                Draw(canvas, element);
             }
 
             return canvas;
+        }
+
+        /// <summary>
+        /// True when the element can change pixels in the area: what it covers with its line, shadow and label, a highlight
+        /// which changes everything outside of it and a frame without target, which frames all below it
+        /// </summary>
+        private bool DrawsInto(Element element)
+        {
+            if (element is HighlightElement { Mode: HighlightMode.Area or HighlightMode.Grayscale } or FrameElement { Target: null })
+            {
+                return true;
+            }
+
+            // The editor's shadow has no size in the style, it reaches 5 pixels; a frame around its target draws with it
+            var bounds = _document.VisualBounds(element).Inflate(8);
+            if (_document.FrameOf(element) is FrameElement frame)
+            {
+                bounds = RectD.Union(bounds, _document.VisualBounds(frame with { Area = element.Bounds }).Inflate(8));
+            }
+
+            return bounds.X <= _canvas.Right && _canvas.X <= bounds.Right && bounds.Y <= _canvas.Bottom && _canvas.Y <= bounds.Bottom;
         }
 
         public void Dispose()
@@ -464,6 +504,14 @@ namespace Greenshot.Document.Rendering
                 return;
             }
 
+            if (source == null && rotation % 360 == 0 && (int)Math.Round(area.Width) == image.Width && (int)Math.Round(area.Height) == image.Height)
+            {
+                // Shown as it is, e.g. the capture: drawn without a copy
+                var at = Canvas(new PointD(area.X, area.Y));
+                context.DrawImage(image, new Point((int)Math.Round(at.X), (int)Math.Round(at.Y)), 1);
+                return;
+            }
+
             using var shown = image.Clone(picture =>
             {
                 if (source is RectD part)
@@ -500,6 +548,11 @@ namespace Greenshot.Document.Rendering
                 return image;
             }
 
+            if (_cache != null && _cache.TryGet(id, out image))
+            {
+                return image;
+            }
+
             image = null;
             if (_document.Resources.TryGetValue(id, out var resource) && resource.MediaType != null && resource.MediaType.StartsWith("image/", StringComparison.Ordinal) && resource.MediaType != "image/svg+xml")
             {
@@ -514,7 +567,15 @@ namespace Greenshot.Document.Rendering
                 }
             }
 
-            _images[id] = image;
+            if (_cache != null)
+            {
+                _cache.Add(id, image);
+            }
+            else
+            {
+                _images[id] = image;
+            }
+
             return image;
         }
 

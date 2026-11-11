@@ -82,6 +82,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Document.Legacy",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Document.Rendering", "Greenshot.Document.Rendering\Greenshot.Document.Rendering.csproj", "{5B8E3C71-2D94-4F6A-9C1E-8A47D0F3B265}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.WpfEditor", "Greenshot.WpfEditor\Greenshot.WpfEditor.csproj", "{897DAB9D-2DA9-42C7-8015-E418B97F200B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Light|Any CPU = Debug Light|Any CPU
@@ -575,6 +577,24 @@ Global
 		{5B8E3C71-2D94-4F6A-9C1E-8A47D0F3B265}.Release|x64.Build.0 = Release|Any CPU
 		{5B8E3C71-2D94-4F6A-9C1E-8A47D0F3B265}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B8E3C71-2D94-4F6A-9C1E-8A47D0F3B265}.Release|x86.Build.0 = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug Light|Any CPU.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug Light|x64.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug Light|x86.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|x64.Build.0 = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Debug|x86.Build.0 = Debug|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release Light|Any CPU.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release Light|x64.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release Light|x86.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|x64.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|x64.Build.0 = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|x86.ActiveCfg = Release|Any CPU
+		{897DAB9D-2DA9-42C7-8015-E418B97F200B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

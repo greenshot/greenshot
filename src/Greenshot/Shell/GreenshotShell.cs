@@ -376,6 +376,8 @@ namespace Greenshot.Shell
                 new Win10OcrDestination(),
                 new ViewerDestination()
             };
+            // The destinations of the optional parts (see GreenshotModuleAttribute), e.g. the new editor in Debug builds
+            internalDestinations.AddRange(GreenshotModules.Create<IDestination>());
 
             int len = 250;
             var stringBuilder = new StringBuilder(len);

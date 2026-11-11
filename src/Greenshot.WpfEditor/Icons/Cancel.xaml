@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Cancel: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Cancel">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M1.1,8 A6.9,6.9 0 1 1 14.9,8 A6.9,6.9 0 1 1 1.1,8 Z M3.7,8 A4.3,4.3 0 1 1 12.3,8 A4.3,4.3 0 1 1 3.7,8 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Offset="0" Color="#F66E6E" />
+              <GradientStop Offset="0.5" Color="#D02020" />
+              <GradientStop Offset="1" Color="#9C1717" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#7F0000" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M3.68,5.52 L10.48,12.32 L12.32,10.48 L5.52,3.68 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Offset="0" Color="#F06060" />
+              <GradientStop Offset="1" Color="#B01515" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M4.2,5.8 L5.8,4.2">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#7F0000" Thickness="0.8" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M10.2,11.8 L11.8,10.2">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#7F0000" Thickness="0.8" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>
