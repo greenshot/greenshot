@@ -332,11 +332,27 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void ToBgra32_ReadsTheLockedBitsAndUnlocksOnDispose()
+        {
+            using var bitmap = CreateTestBitmap();
+            using (var pixels = ClipboardBitmapConverter.ToBgra32(bitmap))
+            {
+                Assert.Equal(bitmap.Width * 4, pixels.Stride);
+                Assert.Equal(pixels.Stride * bitmap.Height, pixels.Memory.Length);
+                // Pixel 0: opaque red (B, G, R, A)
+                Assert.Equal(new byte[] { 0, 0, 255, 255 }, pixels.Pixels.Slice(0, 4).ToArray());
+            }
+
+            // Unlocked again: GDI+ throws for a locked bitmap
+            Assert.Equal(TestColors[0].ToArgb(), bitmap.GetPixel(0, 0).ToArgb());
+        }
+
+        [Fact]
         public void FlattenOnWhite_MakesTransparentPixelsWhiteAndOpaque()
         {
             using var bitmap = CreateTestBitmap();
-            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
-            var flattened = ClipboardBitmapConverter.FlattenOnWhite(pixels);
+            using var flattenedPixels = ClipboardBitmapConverter.FlattenOnWhite(bitmap);
+            var flattened = flattenedPixels.Pixels.ToArray();
 
             for (int i = 0; i < flattened.Length; i += 4)
             {
@@ -367,14 +383,22 @@ namespace Greenshot.Tests.Core
             AssertSamePixels(bitmap, image, compareAlpha: true);
         }
 
+        /// <summary>
+        /// CF_DIBV5 of the bitmap, straight alpha; the bitmap is unlocked again afterwards
+        /// </summary>
+        private static byte[] CreateDibV5(Bitmap bitmap)
+        {
+            using var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
+            return DibImage.CreateDibV5(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, false);
+        }
+
         [InteractiveDesktopFact]
         public void Read_DibV5WithAlpha()
         {
             using var bitmap = CreateTestBitmap();
-            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
             // Only CF_DIBV5, like applications which place a bitmap with alpha
             ClipboardHelper.SetClipboardData(new ClipboardContents()
-                .AddBytes(DibImage.CreateDibV5(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, false), StandardClipboardFormats.DeviceIndependentBitmapV5));
+                .AddBytes(CreateDibV5(bitmap), StandardClipboardFormats.DeviceIndependentBitmapV5));
 
             using var image = ReadImage();
             AssertSamePixels(bitmap, image, compareAlpha: true);
@@ -386,10 +410,9 @@ namespace Greenshot.Tests.Core
         public void Read_BrokenPng_FallsBackToDibV5()
         {
             using var bitmap = CreateTestBitmap();
-            var pixels = ClipboardBitmapConverter.ToBgra32(bitmap);
             ClipboardHelper.SetClipboardData(new ClipboardContents()
                 .AddBytes(new byte[] { 1, 2, 3, 4 }, "PNG")
-                .AddBytes(DibImage.CreateDibV5(pixels.Pixels, pixels.Width, pixels.Height, pixels.Stride, false), StandardClipboardFormats.DeviceIndependentBitmapV5));
+                .AddBytes(CreateDibV5(bitmap), StandardClipboardFormats.DeviceIndependentBitmapV5));
 
             // The snapshot only has the PNG, the DIBV5 is read when the PNG can't be decoded
             Assert.DoesNotContain(FormatDibV5, ClipboardHelper.SelectImageReadFormats());
