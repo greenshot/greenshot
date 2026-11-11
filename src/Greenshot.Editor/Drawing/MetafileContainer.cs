@@ -43,6 +43,8 @@ namespace Greenshot.Editor.Drawing
             Size = new NativeSize(metafile.Width/4, metafile.Height/4);
         }
         
+        internal Metafile Metafile => _metafile;
+
         protected override Image ComputeBitmap()
         {
             var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
