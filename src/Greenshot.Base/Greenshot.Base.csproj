@@ -10,11 +10,11 @@
 
   <ItemGroup>
     <!-- All JSON: recipes, IPC, uploads; the Jira and Confluence plugin also uses its source generator -->
-    <PackageReference Include="System.Text.Json" Version="10.0.14" />
+    <PackageReference Include="System.Text.Json" Version="11.0.0" />
     <!-- The Range and Required attributes of the configuration -->
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" />
     <PackageReference Include="Dapplo.Windows" Version="3.23.3" />
     <PackageReference Include="Dapplo.Windows.Automation" Version="3.23.3" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="3.23.3" />
