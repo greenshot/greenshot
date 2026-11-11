@@ -19,81 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Greenshot.Document;
 
 namespace Greenshot.WpfEditor.Rendering
 {
     /// <summary>
-    /// What has to be drawn again after a change of the document
+    /// Where elements draw, for the bitmaps of the composition
     /// </summary>
     public static class DocumentChanges
     {
-        /// <summary>
-        /// The area which changed, in canvas pixels; null when everything has to be drawn again (the canvas, the layers, the
-        /// groups or the numbering of step labels changed)
-        /// </summary>
-        public static RectD? ChangedArea(GreenshotDocument before, GreenshotDocument after)
-        {
-            if (before == null || after == null || !Equals(before.Canvas, after.Canvas) || !ReferenceEquals(before.Groups, after.Groups) && !before.Groups.SequenceEqual(after.Groups)
-                || before.Layers.Count != after.Layers.Count || !ReferenceEquals(before.Resources, after.Resources) && before.Resources.Count != after.Resources.Count)
-            {
-                return null;
-            }
-
-            RectD? changed = null;
-            void Add(GreenshotDocument document, Element element)
-            {
-                var bounds = DrawnArea(document, element);
-                changed = changed is RectD known ? RectD.Union(known, bounds) : bounds;
-            }
-
-            for (int i = 0; i < before.Layers.Count; i++)
-            {
-                Layer old = before.Layers[i], now = after.Layers[i];
-                if (ReferenceEquals(old, now))
-                {
-                    continue;
-                }
-
-                if (old.Visible != now.Visible || old.Id != now.Id)
-                {
-                    return null;
-                }
-
-                var oldById = old.Elements.ToDictionary(element => element.Id);
-                var nowById = now.Elements.ToDictionary(element => element.Id);
-                bool orderChanged = !old.Elements.Select(element => element.Id).Where(nowById.ContainsKey).SequenceEqual(now.Elements.Select(element => element.Id).Where(oldById.ContainsKey));
-                bool stepsChanged = old.Elements.OfType<StepLabelElement>().Count() != now.Elements.OfType<StepLabelElement>().Count()
-                                    || orderChanged && now.Elements.OfType<StepLabelElement>().Any();
-                if (stepsChanged || HasWholeCanvasEffect(old) || HasWholeCanvasEffect(now))
-                {
-                    // Numbers of other step labels change, or an effect works on everything
-                    return null;
-                }
-
-                foreach (var element in old.Elements)
-                {
-                    if (!nowById.TryGetValue(element.Id, out var replacement) || !ReferenceEquals(replacement, element) || orderChanged)
-                    {
-                        Add(before, element);
-                    }
-                }
-
-                foreach (var element in now.Elements)
-                {
-                    if (!oldById.TryGetValue(element.Id, out var original) || !ReferenceEquals(original, element) || orderChanged)
-                    {
-                        Add(after, element);
-                    }
-                }
-            }
-
-            return changed;
-        }
-
         /// <summary>
         /// Where the element (and its frame) changes pixels: its visual bounds with the margin the renderer gives them too, for the
         /// soft edges and the editor's shadow
@@ -108,45 +42,5 @@ namespace Greenshot.WpfEditor.Rendering
 
             return bounds.Inflate(8);
         }
-
-        /// <summary>
-        /// The elements which changed from before to after and can be drawn alone (they don't change the pixels below them,
-        /// have no frame, and nothing else changed): the dragged or drawn ones. Empty when that isn't so.
-        /// </summary>
-        public static ISet<Guid> LiveElements(GreenshotDocument before, GreenshotDocument after)
-        {
-            var live = new HashSet<Guid>();
-            if (ReferenceEquals(before, after) || ChangedArea(before, after) == null)
-            {
-                return live;
-            }
-
-            var old = before.Layers.SelectMany(layer => layer.Elements).ToDictionary(element => element.Id);
-            int kept = 0;
-            foreach (var element in after.Layers.SelectMany(layer => layer.Elements))
-            {
-                if (old.TryGetValue(element.Id, out var original))
-                {
-                    kept++;
-                    if (ReferenceEquals(original, element))
-                    {
-                        continue;
-                    }
-                }
-
-                if (element is HighlightElement or ObfuscateElement or FrameElement or StepLabelElement || after.FrameOf(element) != null)
-                {
-                    return new HashSet<Guid>();
-                }
-
-                live.Add(element.Id);
-            }
-
-            // A removed element isn't drawn anywhere
-            return kept == old.Count ? live : new HashSet<Guid>();
-        }
-
-        private static bool HasWholeCanvasEffect(Layer layer) =>
-            layer.Elements.Any(element => element is HighlightElement { Mode: HighlightMode.Area or HighlightMode.Grayscale } or FrameElement { Target: null });
     }
 }

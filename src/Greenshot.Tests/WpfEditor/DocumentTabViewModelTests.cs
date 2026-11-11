@@ -21,6 +21,7 @@
 
 using System;
 using System.Linq;
+using System.Windows.Media.Imaging;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
 using Greenshot.WpfEditor.Tools;
@@ -218,38 +219,44 @@ namespace Greenshot.Tests.WpfEditor
         }
 
         [Fact]
-        public void WhileDragging_TheElementIsDrawnAloneInTheOverlay_UntilItIsDropped()
+        public void AMovedElement_KeepsItsBitmap_OnlyItsPlaceChanges()
         {
             RunOnSta(() =>
             {
                 var filled = new RectangleElement(Guid.NewGuid(), new RectD(10, 10, 40, 40)) { Style = new Style { Fill = FillStyle.Of(new Rgba(0, 0, 255, 255)) } };
                 using var tab = new DocumentTabViewModel(DocumentEdits.Add(NewDocument(), new[] { filled }), "test");
+                var before = tab.Composition.Pieces.Single(piece => piece.Id == filled.Id);
+
                 tab.Tool.Down(At(30, 30));
                 tab.Tool.Move(At(130, 80));
-
-                Assert.NotNull(tab.Bitmap.Overlay);
-                var moved = new RectD(110, 60, 40, 40);
-                var overlay = tab.Bitmap.OverlayArea;
-                Assert.True(overlay.X <= moved.X && overlay.Y <= moved.Y && overlay.Right >= moved.Right && overlay.Bottom >= moved.Bottom, overlay.ToString());
-
+                var dragged = tab.Composition.Pieces.Single(piece => piece.Id == filled.Id);
                 tab.Tool.Up(At(130, 80));
-                Assert.Null(tab.Bitmap.Overlay);
+                var dropped = tab.Composition.Pieces.Single(piece => piece.Id == filled.Id);
+
+                Assert.Same(before.Bitmap, dragged.Bitmap);
+                Assert.Equal(before.Area.Offset(100, 50), dragged.Area);
+                Assert.Same(before.Bitmap, dropped.Bitmap);
             });
         }
 
         [Fact]
-        public void AnObfuscation_IsNeverDrawnAlone_ItChangesThePixelsBelowIt()
+        public void AnObfuscation_IsDrawnAgain_OnlyWhenSomethingBelowItChanges()
         {
-            var obfuscate = new ObfuscateElement(Guid.NewGuid(), new RectD(10, 10, 40, 40), ObfuscateMode.Pixelate, 10);
-            var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(100, 10, 40, 40));
-            var document = DocumentEdits.Add(NewDocument(), new Element[] { obfuscate, rectangle });
+            RunOnSta(() =>
+            {
+                var below = new RectangleElement(Guid.NewGuid(), new RectD(20, 20, 40, 40)) { Style = new Style { Fill = FillStyle.Of(new Rgba(0, 0, 255, 255)) } };
+                var obfuscate = new ObfuscateElement(Guid.NewGuid(), new RectD(10, 10, 80, 80), ObfuscateMode.Pixelate, 10);
+                var above = new RectangleElement(Guid.NewGuid(), new RectD(150, 150, 40, 40));
+                using var tab = new DocumentTabViewModel(DocumentEdits.Add(NewDocument(), new Element[] { below, obfuscate, above }), "test");
+                BitmapSource Obfuscation() => tab.Composition.Pieces.Single(piece => piece.Id == obfuscate.Id).Bitmap;
+                var first = Obfuscation();
 
-            var movedRectangle = DocumentEdits.Replace(document, rectangle with { Area = new RectD(120, 10, 40, 40) });
-            var movedObfuscate = DocumentEdits.Replace(document, obfuscate with { Area = new RectD(30, 10, 40, 40) });
+                tab.Preview(DocumentEdits.Replace(tab.Committed, above with { Area = new RectD(160, 150, 40, 40) }));
+                Assert.Same(first, Obfuscation());
 
-            Assert.Equal(new[] { rectangle.Id }, Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, movedRectangle));
-            Assert.Empty(Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, movedObfuscate));
-            Assert.Empty(Greenshot.WpfEditor.Rendering.DocumentChanges.LiveElements(document, document));
+                tab.Preview(DocumentEdits.Replace(tab.Committed, below with { Area = new RectD(30, 20, 40, 40) }));
+                Assert.NotSame(first, Obfuscation());
+            });
         }
     }
 }

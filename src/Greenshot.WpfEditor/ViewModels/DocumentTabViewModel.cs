@@ -60,13 +60,13 @@ namespace Greenshot.WpfEditor.ViewModels
             _committed = _shown = Anchors.Apply(document ?? throw new ArgumentNullException(nameof(document)));
             _title = title;
             _filePath = filePath;
-            Bitmap.Update(_shown, null);
+            Composition.Update(_shown);
             _tool = new SelectTool(this);
         }
 
         public EditorSession Session => EditorSession.Current;
 
-        public DocumentBitmap Bitmap { get; } = new();
+        public DocumentComposition Composition { get; } = new();
 
         /// <summary>
         /// The document as it is shown, with the change being made
@@ -382,8 +382,7 @@ namespace Greenshot.WpfEditor.ViewModels
                 return;
             }
 
-            // What differs from the committed document is being dragged or drawn: drawn alone, at once
-            Bitmap.Update(document, DocumentChanges.ChangedArea(before, document), DocumentChanges.LiveElements(_committed, document));
+            Composition.Update(document);
             if (_selection.Any(id => DocumentEdits.Find(document, id) == null))
             {
                 _selection = new HashSet<Guid>(_selection.Where(id => DocumentEdits.Find(document, id) != null));
@@ -419,7 +418,7 @@ namespace Greenshot.WpfEditor.ViewModels
         public void Dispose()
         {
             _tool.Cancel();
-            Bitmap.Dispose();
+            Composition.Dispose();
         }
     }
 }

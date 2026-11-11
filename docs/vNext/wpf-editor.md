@@ -17,8 +17,8 @@ Only Debug builds have it: Greenshot.csproj references the project only for Debu
 
 | Part | What it does |
 |---|---|
-| `Rendering/DocumentBitmap` | The pixels of the canvas: a WPF `WriteableBitmap` drawn by `DocumentRenderer`, the same code that exports. After a change only the changed area (`DocumentChanges.ChangedArea`, with a margin for blur and shadows) is drawn again, in the background; changes meanwhile are drawn together afterwards. The elements being dragged or drawn (`DocumentChanges.LiveElements`) are left out of the bitmap and drawn alone into an overlay at once, so they move with the handles; highlights, obfuscations, frames and step labels change what is around them and go the slow way. |
-| `Controls/DocumentCanvas` | Shows the bitmap with zoom and pan, draws the adorners of the tool (handles, outlines, rubber band, crop) with WPF in screen pixels, and shows a text box over an element while its text is typed. |
+| `Rendering/DocumentComposition` | The canvas as a stack of small bitmaps which WPF blends on the graphics card. Every element is drawn alone by `DocumentRenderer` (the code that exports) into a bitmap of its size; a moved element keeps its bitmap and only its place changes, a changed element draws only its own bitmap again. Highlights, obfuscations and frames around everything change the pixels below them: their bitmap holds everything below them with the effect and is drawn again when something below changes. Big bitmaps (the capture) are drawn in the background. |
+| `Controls/DocumentCanvas` | Shows the bitmaps with zoom and pan, draws the adorners of the tool (handles, outlines, rubber band, crop) with WPF in screen pixels, and shows a text box over an element while its text is typed. The overview (`Greenshot.Base/Wpf/ZoomOverview`, shared with the image viewer) shows the whole canvas when not all of it is visible. |
 | `Tools/*` | The tools: they get the mouse and keys in canvas pixels and change the document through `IToolHost`. They don't know WPF, so another UI can use them. |
 | `ViewModels/DocumentTabViewModel` | One document: its undo steps (an undo step is the document before the change, documents are immutable), the selection, the tool, the text being typed. |
 | `ViewModels/PropertiesViewModel` | The panel: the style of the selection, or the style new elements of the tool get. A change of a selected element also becomes the default of its tool. |
@@ -39,12 +39,11 @@ becomes a surface (`DocumentToSurface`) and goes to the destination like an expo
   double-click a text, speech bubble, rectangle or ellipse to type its text (Ctrl+Enter or a click outside ends, Esc cancels).
   The round handle above an element turns it. Arrow keys move by 1 pixel, with Shift by 10.
 - Zoom and pan: Ctrl+wheel zooms at the mouse, the wheel scrolls (Shift+wheel sideways), the middle button or Space with the left
-  button drags the view. Ctrl+0 is 100 %, Ctrl+9 fits the window.
+  button drags the view. Ctrl+0 is 100 %, Ctrl+9 fits the window. The overview at the bottom right moves the visible part with a click or a drag.
 - Crop keeps everything: the canvas becomes the cropped area, what is outside isn't drawn, an undo brings it back.
   A saved `.greenshot` still has the whole capture.
 
 ## Not done yet
 
 - Grayscale and invert of the whole capture: the document model has no element for them yet.
-- While an element is dragged it is drawn on top of all others; it drops back into its place when the mouse is released.
 - Per-destination settings and the destination picker; the editor sends to the destinations which need no menu.

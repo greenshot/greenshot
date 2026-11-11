@@ -802,6 +802,11 @@ namespace Greenshot.WpfEditor
         string Tools { get; }
 
         /// <summary>
+        /// Overview, click or drag to move the visible part
+        /// </summary>
+        string Overview { get; }
+
+        /// <summary>
         /// Document canvas
         /// </summary>
         string CanvasName { get; }

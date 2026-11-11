@@ -55,6 +55,26 @@ namespace Greenshot.WpfEditor.Views
             _viewModel.Attach(this);
             Drop += OnDrop;
             DragOver += OnDragOver;
+            Canvas.ViewChanged += UpdateOverview;
+            Overview.CenterRequested += (_, point) => Canvas.CenterOn(point);
+        }
+
+        /// <summary>
+        /// The overview shows the whole canvas and the visible part, when not all of it is visible and there is room
+        /// </summary>
+        private void UpdateOverview()
+        {
+            bool show = Canvas.CanPan && Canvas.ActualWidth >= ZoomOverview.DefaultSize * 2 && Canvas.ActualHeight >= ZoomOverview.DefaultSize * 1.5;
+            Overview.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (!show || _viewModel.SelectedTab is not { } tab)
+            {
+                return;
+            }
+
+            var area = tab.Composition.Area;
+            Overview.ContentSize = new Size(area.Width, area.Height);
+            Overview.VisibleArea = Canvas.VisibleArea;
+            Overview.Content = Canvas.OverviewBrush;
         }
 
         public EditorWindowViewModel ViewModel => _viewModel;

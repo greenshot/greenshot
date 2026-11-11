@@ -234,6 +234,9 @@
                         <controls:DocumentCanvas x:Name="Canvas" Tab="{Binding SelectedTab}" AutomationProperties.Name="{wpf:Text WpfEditor.CanvasName}"
                                                  MouseRightButtonUp="Canvas_MouseRightButtonUp"/>
                     </ScrollViewer>
+                    <!-- The overview of the whole canvas, click or drag to move the visible part; only when not all is visible -->
+                    <wpf:ZoomOverview x:Name="Overview" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,26,26" Visibility="Collapsed"
+                                      AutomationProperties.Name="{wpf:Text WpfEditor.Overview}"/>
                     <Border HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" Padding="6" CornerRadius="6" BorderThickness="1"
                             Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CardBackground}"
                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CardBorder}"

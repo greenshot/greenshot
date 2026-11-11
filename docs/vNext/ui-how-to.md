@@ -77,6 +77,7 @@ The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.
   contrast, the dark palette in dark) and `EditorTheme.Changed` is raised when they change. Editor controls take their colors from there,
   never from `SystemColors` directly. The capture and its elements are never themed. The title bar follows the editor setting too: a `GreenshotForm` with its own
   theme overrides `IsDarkTitleBar` and calls `WindowFrameTheme.Update(handle)` when it changes.
+- **Zoom and pan overview:** a view which zooms and pans shows `ZoomOverview` (content brush, content size, visible area; `CenterRequested` when clicked or dragged), like the image viewer and the new editor.
 - **Message boxes:** use `ThemedMessageBox.Show` (or `ShowChoice` with own button texts) instead of `MessageBox.Show`, so the message box has the theme too.
 
 ## Reuse the shared styles

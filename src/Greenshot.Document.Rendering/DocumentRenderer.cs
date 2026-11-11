@@ -65,12 +65,25 @@ namespace Greenshot.Document.Rendering
         }
 
         /// <summary>
-        /// The document drawn: the visible layers in drawing order, transparent where nothing is
+        /// The document drawn: the background of the canvas, then the visible layers in drawing order
         /// </summary>
         public static Image<Rgba32> Render(GreenshotDocument document)
         {
             using var renderer = new DocumentRenderer(document, null, null);
-            return renderer.Draw(_ => true);
+            var image = renderer.Draw(_ => true);
+            if (renderer._document.Canvas.Background is { A: > 0 } background)
+            {
+                // Behind everything: what is drawn stays as it is where it covers, the background shows where it doesn't
+                var below = new Image<Rgba32>(image.Width, image.Height, new Rgba32(background.R, background.G, background.B, background.A));
+                using (image)
+                {
+                    below.Mutate(context => context.DrawImage(image, 1));
+                }
+
+                return below;
+            }
+
+            return image;
         }
 
         /// <summary>

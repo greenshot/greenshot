@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,6 +32,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
 using Greenshot.WpfEditor.Editing;
+using Greenshot.WpfEditor.Rendering;
 using Greenshot.WpfEditor.Tools;
 using Greenshot.WpfEditor.ViewModels;
 
@@ -102,8 +104,8 @@ namespace Greenshot.WpfEditor.Controls
                 before.ToolStateChanged -= InvalidateVisual;
                 before.TextEditRequested -= BeginTextEdit;
                 before.PropertyChanged -= TabPropertyChanged;
-                before.Bitmap.BitmapReplaced -= BitmapReplaced;
-                before.Bitmap.Rendered -= InvalidateVisual;
+                before.Composition.AreaChanged -= BitmapReplaced;
+                before.Composition.Changed -= InvalidateVisual;
                 before.ScrollOffset = _offset;
             }
 
@@ -112,8 +114,8 @@ namespace Greenshot.WpfEditor.Controls
                 after.ToolStateChanged += InvalidateVisual;
                 after.TextEditRequested += BeginTextEdit;
                 after.PropertyChanged += TabPropertyChanged;
-                after.Bitmap.BitmapReplaced += BitmapReplaced;
-                after.Bitmap.Rendered += InvalidateVisual;
+                after.Composition.AreaChanged += BitmapReplaced;
+                after.Composition.Changed += InvalidateVisual;
                 _offset = after.ScrollOffset;
                 _fitPending = !after.HasBeenShown;
                 after.HasBeenShown = true;
@@ -147,7 +149,7 @@ namespace Greenshot.WpfEditor.Controls
 
         private double Zoom => Tab?.Zoom ?? 1;
 
-        private RectD Area => Tab?.Bitmap.Area ?? default;
+        private RectD Area => Tab?.Composition.Area ?? default;
 
         /// <summary>
         /// The screen point of the top left of the canvas
@@ -176,6 +178,86 @@ namespace Greenshot.WpfEditor.Controls
             var origin = Origin;
             var area = Area;
             return new PointD((point.X - origin.X) / Zoom + area.X, (point.Y - origin.Y) / Zoom + area.Y);
+        }
+
+        /// <summary>
+        /// Raised after the canvas was drawn: the zoom, the scroll position or the document may have changed
+        /// </summary>
+        public event Action ViewChanged;
+
+        /// <summary>
+        /// The visible part of the canvas, in pixels from its top left corner
+        /// </summary>
+        public Rect VisibleArea
+        {
+            get
+            {
+                var area = Area;
+                var topLeft = ToCanvas(new Point(0, 0));
+                var bottomRight = ToCanvas(new Point(_viewport.Width, _viewport.Height));
+                var visible = new Rect(new Point(topLeft.X - area.X, topLeft.Y - area.Y), new Point(bottomRight.X - area.X, bottomRight.Y - area.Y));
+                visible.Intersect(new Rect(0, 0, area.Width, area.Height));
+                return visible;
+            }
+        }
+
+        /// <summary>
+        /// True when not all of the canvas is visible
+        /// </summary>
+        public bool CanPan => Tab != null && (Area.Width * Zoom + 2 * CanvasMargin > _viewport.Width + 0.5 || Area.Height * Zoom + 2 * CanvasMargin > _viewport.Height + 0.5);
+
+        /// <summary>
+        /// Scrolls so the point (in pixels from the top left corner of the canvas) is in the middle
+        /// </summary>
+        public void CenterOn(Point point)
+        {
+            var area = Area;
+            var screen = ToScreen(new PointD(point.X + area.X, point.Y + area.Y));
+            SetOffset(_offset + (screen - new Point(_viewport.Width / 2, _viewport.Height / 2)));
+        }
+
+        private IReadOnlyList<CompositionPiece> _overviewPieces;
+        private DrawingBrush _overviewBrush;
+
+        /// <summary>
+        /// The bitmaps of the document as one brush, for the overview
+        /// </summary>
+        public Brush OverviewBrush
+        {
+            get
+            {
+                var pieces = Tab?.Composition.Pieces;
+                if (pieces == null)
+                {
+                    return null;
+                }
+
+                if (!ReferenceEquals(pieces, _overviewPieces))
+                {
+                    _overviewPieces = pieces;
+                    var area = Area;
+                    var group = new DrawingGroup();
+                    // The whole canvas, also where nothing is drawn, so the brush has its size
+                    group.Children.Add(new GeometryDrawing(Brushes.Transparent, null, new RectangleGeometry(new Rect(0, 0, area.Width, area.Height))));
+                    if (Tab.Document.Canvas.Background is { A: > 0 } background)
+                    {
+                        group.Children.Add(new GeometryDrawing(new SolidColorBrush(Color.FromArgb(background.A, background.R, background.G, background.B)), null,
+                            new RectangleGeometry(new Rect(0, 0, area.Width, area.Height))));
+                    }
+
+                    foreach (var piece in pieces)
+                    {
+                        group.Children.Add(new ImageDrawing(piece.Bitmap, new Rect(piece.Area.X - area.X, piece.Area.Y - area.Y, piece.Area.Width, piece.Area.Height)));
+                    }
+
+                    group.ClipGeometry = new RectangleGeometry(new Rect(0, 0, area.Width, area.Height));
+                    group.Freeze();
+                    _overviewBrush = new DrawingBrush(group) { Stretch = Stretch.Fill };
+                    _overviewBrush.Freeze();
+                }
+
+                return _overviewBrush;
+            }
         }
 
         /// <summary>
@@ -251,28 +333,34 @@ namespace Greenshot.WpfEditor.Controls
         {
             var theme = ThemeManager.Instance;
             dc.DrawRectangle(theme.ScrollBarTrackBrush, null, new Rect(_viewport));
-            if (Tab?.Bitmap.Bitmap is not { } bitmap)
+            if (Tab == null)
             {
+                ViewChanged?.Invoke();
                 return;
             }
 
             var area = Area;
             var origin = Origin;
             var page = new Rect(origin.X, origin.Y, area.Width * Zoom, area.Height * Zoom);
-            // A soft shadow under the page, then the checkerboard for transparent pixels and the pixels
+            // A soft shadow under the page, then the checkerboard for transparent pixels, the background of the canvas and the
+            // bitmaps of the elements, which WPF blends on the graphics card
             dc.DrawRectangle(ShadowBrush, null, new Rect(page.X + 2, page.Y + 2, page.Width + 2, page.Height + 2));
             dc.DrawRectangle(Checkerboard, null, page);
-            dc.DrawImage(bitmap, page);
-            if (Tab.Bitmap.Overlay is { } overlay)
+            if (Tab.Document.Canvas.Background is { A: > 0 } background)
             {
-                // The dragged or drawn elements, in step with the handles
-                var live = Tab.Bitmap.OverlayArea;
-                dc.PushClip(new RectangleGeometry(page));
-                dc.DrawImage(overlay, new Rect(origin.X + (live.X - area.X) * Zoom, origin.Y + (live.Y - area.Y) * Zoom, live.Width * Zoom, live.Height * Zoom));
-                dc.Pop();
+                dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(background.A, background.R, background.G, background.B)), null, page);
             }
 
+            dc.PushClip(new RectangleGeometry(page));
+            foreach (var piece in Tab.Composition.Pieces)
+            {
+                var at = piece.Area;
+                dc.DrawImage(piece.Bitmap, new Rect(origin.X + (at.X - area.X) * Zoom, origin.Y + (at.Y - area.Y) * Zoom, at.Width * Zoom, at.Height * Zoom));
+            }
+
+            dc.Pop();
             DrawAdorners(dc);
+            ViewChanged?.Invoke();
         }
 
         private static readonly Brush ShadowBrush = Frozen(new SolidColorBrush(Color.FromArgb(48, 0, 0, 0)));
