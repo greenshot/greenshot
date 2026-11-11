@@ -67,7 +67,7 @@ internal static class PdfDocumentWriter
 
         string creator = "Created with Greenshot v" + EnvironmentInfo.GetGreenshotVersion(true);
 
-        using (var pdf = new MemoryStream())
+        using (MemoryStream pdf = RecyclableMemoryStreamFactory.GetStream("PdfDocumentWriter"))
         {
             WriteAscii(pdf, "%PDF-1.4\n");
             WriteBytes(pdf, new byte[] { 37, 0xE2, 0xE3, 0xCF, 0xD3, 10 });
@@ -94,7 +94,7 @@ internal static class PdfDocumentWriter
                 double imageWidthPt = bitmap.Width * PdfPointsPerInch / dpiX;
                 double imageHeightPt = bitmap.Height * PdfPointsPerInch / dpiY;
                 PdfLayout layout = CalculateLayout(configuration, imageWidthPt, imageHeightPt);
-                byte[] imageBytes = EncodeLosslessRgb(bitmap);
+                using MemoryStream image = EncodeLosslessRgb(bitmap);
                 int pageObjectNumber = 3 + i * 3;
                 int imageObjectNumber = pageObjectNumber + 1;
                 int contentObjectNumber = pageObjectNumber + 2;
@@ -103,8 +103,8 @@ internal static class PdfDocumentWriter
                 WriteAscii(pdf, $"{pageObjectNumber} 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 {PdfPageSizes.FormatNumber(layout.PageWidthPt)} {PdfPageSizes.FormatNumber(layout.PageHeightPt)}]/Resources<</XObject<</Img1 {imageObjectNumber} 0 R>>>>/Contents {contentObjectNumber} 0 R>>\nendobj\n");
 
                 offsets[imageObjectNumber] = pdf.Position;
-                WriteAscii(pdf, $"{imageObjectNumber} 0 obj\n<</Type/XObject/Subtype/Image/Width {bitmap.Width}/Height {bitmap.Height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/FlateDecode/Length {imageBytes.Length}>>\nstream\n");
-                WriteBytes(pdf, imageBytes);
+                WriteAscii(pdf, $"{imageObjectNumber} 0 obj\n<</Type/XObject/Subtype/Image/Width {bitmap.Width}/Height {bitmap.Height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/FlateDecode/Length {image.Length}>>\nstream\n");
+                image.WriteTo(pdf);
                 WriteAscii(pdf, "\nendstream\nendobj\n");
 
                 string content = $"q {PdfPageSizes.FormatNumber(layout.ImageWidthPt)} 0 0 {PdfPageSizes.FormatNumber(layout.ImageHeightPt)} {PdfPageSizes.FormatNumber(layout.LeftPt)} {PdfPageSizes.FormatNumber(layout.BottomPt)} cm /Img1 Do Q\n";
@@ -132,8 +132,7 @@ internal static class PdfDocumentWriter
             }
 
             WriteAscii(pdf, $"trailer\n<</Size {offsets.Length}/Root 1 0 R/Info {infoObjectNumber} 0 R>>\nstartxref\n{xrefOffset}\n%%EOF\n");
-            pdf.Position = 0;
-            pdf.CopyTo(destination);
+            pdf.WriteTo(destination);
         }
     }
 
@@ -216,11 +215,40 @@ internal static class PdfDocumentWriter
     }
 
     /// <summary>
+    /// The modulus of Adler-32 (RFC 1950) and zlib's NMAX: the most bytes for which the sums can't overflow a uint
+    /// before the modulo is taken.
+    /// </summary>
+    private const uint AdlerModulus = 65521;
+    private const int AdlerMaxBytesBeforeModulo = 5552;
+
+    /// <summary>
+    /// Adds the bytes to the Adler-32 sums, with the modulo once per <see cref="AdlerMaxBytesBeforeModulo"/> bytes like zlib
+    /// </summary>
+    internal static void UpdateAdler32(byte[] data, ref uint a, ref uint b)
+    {
+        int offset = 0;
+        int remaining = data.Length;
+        while (remaining > 0)
+        {
+            int end = offset + Math.Min(remaining, AdlerMaxBytesBeforeModulo);
+            remaining -= end - offset;
+            for (; offset < end; offset++)
+            {
+                a += data[offset];
+                b += a;
+            }
+
+            a %= AdlerModulus;
+            b %= AdlerModulus;
+        }
+    }
+
+    /// <summary>
     /// Converts the source image to RGB bytes and compresses them for embedding in a PDF image stream.
     /// </summary>
     /// <param name="source">The bitmap to encode.</param>
-    /// <returns>The compressed RGB image data, including its zlib header and checksum.</returns>
-    private static byte[] EncodeLosslessRgb(Bitmap source)
+    /// <returns>A pooled stream with the compressed RGB image data, including its zlib header and checksum; the caller disposes it.</returns>
+    private static MemoryStream EncodeLosslessRgb(Bitmap source)
     {
         using (var bitmap = new Bitmap(source.Width, source.Height, PixelFormat.Format24bppRgb))
         {
@@ -240,7 +268,8 @@ internal static class PdfDocumentWriter
                 uint adlerA = 1;
                 uint adlerB = 0;
 
-                using (var memory = new MemoryStream())
+                MemoryStream memory = RecyclableMemoryStreamFactory.GetStream("PdfDocumentWriter.Image");
+                try
                 {
                     WriteBytes(memory, new byte[] { 0x78, 0x9C });
                     using (var deflate = new DeflateStream(memory, CompressionLevel.Optimal, true))
@@ -257,11 +286,7 @@ internal static class PdfDocumentWriter
                                 rgbRow[pixelOffset + 2] = sourceRow[pixelOffset];
                             }
 
-                            for (int i = 0; i < rgbRow.Length; i++)
-                            {
-                                adlerA = (adlerA + rgbRow[i]) % 65521;
-                                adlerB = (adlerB + adlerA) % 65521;
-                            }
+                            UpdateAdler32(rgbRow, ref adlerA, ref adlerB);
 
                             deflate.Write(rgbRow, 0, rgbRow.Length);
                         }
@@ -275,7 +300,12 @@ internal static class PdfDocumentWriter
                         (byte)((adler32 >> 8) & 0xFF),
                         (byte)(adler32 & 0xFF)
                     });
-                    return memory.ToArray();
+                    return memory;
+                }
+                catch
+                {
+                    memory.Dispose();
+                    throw;
                 }
             }
             finally

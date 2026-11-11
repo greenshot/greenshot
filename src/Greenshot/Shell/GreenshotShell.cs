@@ -146,6 +146,9 @@ namespace Greenshot.Shell
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
+            // Before any image is made: the image pool keeps no more than the memory profile allows
+            PooledMemory.ApplyPoolLimit();
+
             // The background work of the start, MinimizeWorkingSetSize trims the memory when it's done
             var startupWork = new List<Task>();
             void TrackStartupWork(Task work, string description)
@@ -350,7 +353,7 @@ namespace Greenshot.Shell
                 // Already logged by FireAndLog
             }
 
-            PsApi.EmptyWorkingSet();
+            PooledMemory.Trim();
         }
 
         /// <summary>

@@ -378,7 +378,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool PrewarmEditor { get; set; }
 
-        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks, for large buffers and for image buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
         [DefaultValue(0)]
         int BufferPoolLimit { get; set; }
 
