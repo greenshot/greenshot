@@ -146,6 +146,9 @@ namespace Greenshot.Shell
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
+            // Before any image is made: the image pool keeps no more than the memory profile allows
+            PooledMemory.ApplyPoolLimit();
+
             // The background work of the start, MinimizeWorkingSetSize trims the memory when it's done
             var startupWork = new List<Task>();
             void TrackStartupWork(Task work, string description)
@@ -192,8 +195,9 @@ namespace Greenshot.Shell
             NotificationCaptures.Initialize(notificationService);
 #endif
             // Windows specific services
-            // Set this as IOcrProvider
-            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+            // Windows OCR is one OCR engine, plugins may add more; the OCR of Greenshot is the one of the setting OcrEngine
+            SimpleServiceProvider.Current.AddService<IOcrEngine>(new Win10OcrProvider());
+            SimpleServiceProvider.Current.AddService<IOcrProvider>(new OcrEngineSelector());
 
             // Factory for surface objects
             ISurface SurfaceFactory() => new Surface();
@@ -351,7 +355,7 @@ namespace Greenshot.Shell
                 // Already logged by FireAndLog
             }
 
-            PsApi.EmptyWorkingSet();
+            PooledMemory.Trim();
         }
 
         /// <summary>

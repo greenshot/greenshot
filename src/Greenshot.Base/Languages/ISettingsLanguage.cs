@@ -32,6 +32,11 @@ namespace Greenshot.Base.Languages
     public interface ISettingsLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// Save as .reg…
+        /// </summary>
+        string AdministratorSettingsSaveReg { get; }
+
+        /// <summary>
         /// AI tools
         /// </summary>
         string Aitools { get; }
@@ -170,6 +175,11 @@ namespace Greenshot.Base.Languages
         /// Keep the HDR content of HDR displays (for JPEG XR files)
         /// </summary>
         string CaptureHdr { get; }
+
+        /// <summary>
+        /// Some settings are set by your organization (Windows policies) and can't be changed here.
+        /// </summary>
+        string ManagedByOrganization { get; }
 
         /// <summary>
         /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.
@@ -587,6 +597,16 @@ namespace Greenshot.Base.Languages
         string Ocr { get; }
 
         /// <summary>
+        /// Recognized by
+        /// </summary>
+        string OcrEngine { get; }
+
+        /// <summary>
+        /// Windows OCR
+        /// </summary>
+        string OcrEngineWindows { get; }
+
+        /// <summary>
         /// Language of the text
         /// </summary>
         string OcrLanguage { get; }
@@ -947,6 +967,11 @@ namespace Greenshot.Base.Languages
         /// The language Windows recognizes text in, for capturing text and the OCR destination. More languages can be added in the Windows settings (Time and language, Language and region).
         /// </summary>
         string TooltipOcrLanguage { get; }
+
+        /// <summary>
+        /// What recognizes text, for capturing text, the OCR destination and the recipes. Windows OCR is built into Windows; a plugin can add another one.
+        /// </summary>
+        string TooltipOcrEngine { get; }
 
         /// <summary>
         /// Image format used by default

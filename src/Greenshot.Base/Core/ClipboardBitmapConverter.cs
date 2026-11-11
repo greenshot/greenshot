@@ -20,55 +20,94 @@
  */
 
 using System;
+using System.Buffers;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using Dapplo.Windows.Clipboard;
 
 namespace Greenshot.Base.Core
 {
     /// <summary>
     /// Converts between System.Drawing bitmaps and the top-down BGRA32 pixels which Dapplo.Windows.Clipboard reads and writes
-    /// for CF_DIB / CF_DIBV5. Only managed arrays and spans over LockBits with checked sizes are used, no pointer arithmetic on clipboard data.
+    /// for CF_DIB / CF_DIBV5. Only spans over LockBits with checked sizes are used, no pointer arithmetic on clipboard data.
     /// </summary>
     public static class ClipboardBitmapConverter
     {
         /// <summary>
-        /// Top-down BGRA32 pixels of an image, ready for ClipboardContents.AddDib or DibImage.CreateDib(V5)
+        /// Top-down BGRA32 pixels of an image, ready for ClipboardContents.AddDib or DibImage.CreateDib(V5): the locked bits of the bitmap,
+        /// not a copy (an image of a 4K screen would be 33 MB on the large object heap). Dispose unlocks the bitmap.
         /// </summary>
-        public sealed class Bgra32Pixels
+        public sealed class Bgra32Pixels : MemoryManager<byte>
         {
-            internal Bgra32Pixels(byte[] pixels, int width, int height, int stride, bool premultipliedAlpha)
+            private readonly Bitmap _bitmap;
+            private readonly bool _ownsBitmap;
+            private BitmapData _bitmapData;
+
+            internal Bgra32Pixels(Bitmap bitmap, bool ownsBitmap, BitmapData bitmapData, bool premultipliedAlpha)
             {
-                Pixels = pixels;
-                Width = width;
-                Height = height;
-                Stride = stride;
+                _bitmap = bitmap;
+                _ownsBitmap = ownsBitmap;
+                _bitmapData = bitmapData;
                 PremultipliedAlpha = premultipliedAlpha;
             }
 
-            /// <summary>The pixels, top-down, B G R A</summary>
-            public byte[] Pixels { get; }
-
             /// <summary>Width in pixels</summary>
-            public int Width { get; }
+            public int Width => _bitmapData.Width;
 
             /// <summary>Height in pixels</summary>
-            public int Height { get; }
+            public int Height => _bitmapData.Height;
 
             /// <summary>Bytes per row</summary>
-            public int Stride { get; }
+            public int Stride => _bitmapData.Stride;
 
             /// <summary>True when the pixels have premultiplied alpha (source was Format32bppPArgb)</summary>
             public bool PremultipliedAlpha { get; }
+
+            /// <summary>The pixels, top-down, B G R A</summary>
+            public ReadOnlySpan<byte> Pixels => GetSpan();
+
+            public override unsafe Span<byte> GetSpan()
+            {
+                var bitmapData = _bitmapData ?? throw new ObjectDisposedException(nameof(Bgra32Pixels));
+                return new Span<byte>((void*)bitmapData.Scan0, checked(bitmapData.Stride * bitmapData.Height));
+            }
+
+            public override unsafe MemoryHandle Pin(int elementIndex = 0)
+            {
+                var span = GetSpan();
+                if ((uint)elementIndex > (uint)span.Length) throw new ArgumentOutOfRangeException(nameof(elementIndex));
+                // Locked bits don't move
+                return new MemoryHandle((byte*)_bitmapData.Scan0 + elementIndex);
+            }
+
+            public override void Unpin()
+            {
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                var bitmapData = _bitmapData;
+                _bitmapData = null;
+                if (bitmapData == null)
+                {
+                    return;
+                }
+
+                _bitmap.UnlockBits(bitmapData);
+                if (_ownsBitmap)
+                {
+                    _bitmap.Dispose();
+                }
+            }
         }
 
         /// <summary>
-        /// Copy the pixels of the image into a managed top-down BGRA32 array.
-        /// Format32bppPArgb is copied as is and reported as premultiplied, every other format is converted by GDI+ to straight Format32bppArgb.
+        /// The pixels of the image as top-down BGRA32, without copying them when the image is a 32 bpp bitmap:
+        /// Format32bppPArgb is used as is and reported as premultiplied, every other format is converted by GDI+ to straight Format32bppArgb.
+        /// The image stays locked until the result is disposed.
         /// </summary>
         /// <param name="image">Image, not disposed</param>
-        /// <returns>Bgra32Pixels</returns>
+        /// <returns>Bgra32Pixels, dispose it</returns>
         public static Bgra32Pixels ToBgra32(Image image)
         {
             if (image == null)
@@ -76,77 +115,66 @@ namespace Greenshot.Base.Core
                 throw new ArgumentNullException(nameof(image));
             }
 
-            Bitmap bitmap = image as Bitmap;
-            bool disposeBitmap = false;
-            if (bitmap == null)
-            {
-                // e.g. a Metafile: render it first
-                bitmap = new Bitmap(image);
-                disposeBitmap = true;
-            }
-
-            try
+            if (image is Bitmap bitmap)
             {
                 bool premultiplied = bitmap.PixelFormat == PixelFormat.Format32bppPArgb;
                 var lockFormat = premultiplied ? PixelFormat.Format32bppPArgb : PixelFormat.Format32bppArgb;
-                int width = bitmap.Width;
-                int height = bitmap.Height;
-                int stride = checked(width * 4);
-                byte[] pixels = new byte[checked(stride * height)];
-                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, lockFormat);
-                try
+                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, lockFormat);
+                // Top-down rows without padding; else (a bitmap over bottom-up memory) a copy
+                if (bitmapData.Stride == checked(bitmap.Width * 4))
                 {
-                    for (int y = 0; y < height; y++)
-                    {
-                        // Stride can be negative for bottom-up bitmaps, use it per row
-                        var row = IntPtr.Add(bitmapData.Scan0, y * bitmapData.Stride);
-                        Marshal.Copy(row, pixels, y * stride, stride);
-                    }
-                }
-                finally
-                {
-                    bitmap.UnlockBits(bitmapData);
+                    return new Bgra32Pixels(bitmap, false, bitmapData, premultiplied);
                 }
 
-                return new Bgra32Pixels(pixels, width, height, stride, premultiplied);
+                bitmap.UnlockBits(bitmapData);
             }
-            finally
-            {
-                if (disposeBitmap)
-                {
-                    bitmap.Dispose();
-                }
-            }
+
+            // e.g. a Metafile: render it first
+            return LockOwned(new Bitmap(image));
         }
 
         /// <summary>
-        /// Blend the pixels onto white and make them opaque, for CF_DIB which has no defined alpha channel
+        /// The pixels blended onto white and opaque, for CF_DIB which has no defined alpha channel
         /// </summary>
-        /// <param name="pixels">Bgra32Pixels from ToBgra32</param>
-        /// <returns>byte array with opaque pixels, straight alpha, the same stride</returns>
-        public static byte[] FlattenOnWhite(Bgra32Pixels pixels)
+        /// <param name="image">Image, not disposed</param>
+        /// <returns>Bgra32Pixels of a new bitmap, dispose it</returns>
+        public static Bgra32Pixels FlattenOnWhite(Image image)
         {
-            var result = (byte[])pixels.Pixels.Clone();
-            for (int i = 0; i < result.Length; i += 4)
+            if (image == null)
             {
-                int alpha = result[i + 3];
-                if (alpha == 255)
-                {
-                    continue;
-                }
-
-                for (int channel = i; channel < i + 3; channel++)
-                {
-                    // Premultiplied: color + white * (1 - alpha), straight: color * alpha + white * (1 - alpha)
-                    result[channel] = pixels.PremultipliedAlpha
-                        ? (byte)Math.Min(255, result[channel] + 255 - alpha)
-                        : (byte)((result[channel] * alpha + 255 * (255 - alpha) + 127) / 255);
-                }
-
-                result[i + 3] = 255;
+                throw new ArgumentNullException(nameof(image));
             }
 
-            return result;
+            var flattened = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                using (var graphics = Graphics.FromImage(flattened))
+                {
+                    graphics.Clear(Color.White);
+                    graphics.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+                }
+            }
+            catch
+            {
+                flattened.Dispose();
+                throw;
+            }
+
+            return LockOwned(flattened);
+        }
+
+        private static Bgra32Pixels LockOwned(Bitmap bitmap)
+        {
+            try
+            {
+                var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                return new Bgra32Pixels(bitmap, true, bitmapData, false);
+            }
+            catch
+            {
+                bitmap.Dispose();
+                throw;
+            }
         }
 
         /// <summary>

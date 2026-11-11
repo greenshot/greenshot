@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Base.Core
 {
@@ -38,6 +39,7 @@ namespace Greenshot.Base.Core
     public interface ICoreConfiguration : IIniSection, INotifyPropertyChanged, IAfterLoad, IBeforeSave
     {
         [Description("The language in IETF format (e.g. en-US)")]
+        [PolicyCategory(PolicyCategories.Common)]
         string Language { get; set; }
 
         [DataMember(Name = "BetaTester")]
@@ -126,9 +128,11 @@ namespace Greenshot.Base.Core
         bool ShowNotificationThumbnail { get; set; }
 
         [Description("Output file path of Greenshot 1.3, only read once to fill OutputDirectory; kept for going back to 1.3.")]
+        [NotAdministrable]
         string OutputFilePath { get; set; }
 
         [Description("The folder for screenshots, a template like ${user.pictures}\\Greenshots or ${user.desktop}\\${payload.time:yyyy-MM}; see docs/vNext/variables.md.")]
+        [PolicyCategory(PolicyCategories.Common)]
         string OutputDirectory { get; set; }
 
         [Description("Replaced by OutputFileIfExists: False is changed there once to Ask, then this is True again.")]
@@ -141,13 +145,16 @@ namespace Greenshot.Base.Core
 
         [Description("Filename pattern of Greenshot 1.3, only read once to fill OutputFileNameTemplate; kept for going back to 1.3.")]
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
+        [NotAdministrable]
         string OutputFileFilenamePattern { get; set; }
 
         [Description("The file name of screenshots without extension, a template like ${payload.time:yyyy-MM-dd HH_mm_ss}-${payload.title}; may hold sub folders and counters (${counter.global}, ${counter.folder:000}); see docs/vNext/variables.md.")]
+        [PolicyCategory(PolicyCategories.Common)]
         string OutputFileNameTemplate { get; set; }
 
         [Description("Default file type for writing screenshots.")]
         [DefaultValue(WellKnownFileFormats.Png)]
+        [PolicyCategory(PolicyCategories.Common)]
         string OutputFileFormat { get; set; }
 
         [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]
@@ -189,6 +196,7 @@ namespace Greenshot.Base.Core
 
         [Description("The last number given out by ${counter.global} (${NUM} in 1.3), goes up after each saved or uploaded file which used it.")]
         [DefaultValue(1)]
+        [NotAdministrable]
         uint OutputFileIncrementingNumber { get; set; }
 
         [Description("Ask for print options when printing?")]
@@ -234,6 +242,7 @@ namespace Greenshot.Base.Core
 
         [Description("Footer pattern of Greenshot 1.3, only read once to fill OutputPrintFooterTemplate; kept for going back to 1.3.")]
         [DefaultValue("${capturetime:d\"D\"} ${capturetime:d\"T\"} - ${title}")]
+        [NotAdministrable]
         string OutputPrintFooterPattern { get; set; }
 
         [Description("The footer of printouts, a template like ${payload.time:D} ${payload.time:T} - ${payload.title}; see docs/vNext/variables.md.")]
@@ -245,6 +254,7 @@ namespace Greenshot.Base.Core
 
         [Description("Use your global proxy?")]
         [DefaultValue(true)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool UseProxy { get; set; }
 
         [Description("Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!")]
@@ -253,65 +263,83 @@ namespace Greenshot.Base.Core
         int AutoCropDifference { get; set; }
 
         [Description("Replaced by AllowedPluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
+        [NotAdministrable]
         List<string> IncludePlugins { get; set; }
 
         [Description("Replaced by ExcludePluginNames, still applied when set in greenshot-fixed.ini. Plugins by their identifier, e.g. Box Plugin.")]
+        [NotAdministrable]
         List<string> ExcludePlugins { get; set; }
 
         [Description("Plugins the user switched off, by name: Box for Greenshot.Plugin.Box.dll. Set in greenshot-fixed.ini (also empty) the user can't switch plugins off.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> ExcludePluginNames { get; set; }
 
         [Description("Plugins the administrator blocked, names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> BlockedPluginNames { get; set; }
 
         [Description("When set only these plugins are loaded, every other one (also unknown ones) is blocked; set empty in greenshot-fixed.ini no plugin is loaded. Names like ExcludePluginNames. For greenshot-fixed.ini.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> AllowedPluginNames { get; set; }
 
         [Description("Destinations the user switched off. Set in greenshot-fixed.ini (also empty) the user can't switch destinations off.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> ExcludeDestinations { get; set; }
 
         [Description("Destinations the administrator blocked. For greenshot-fixed.ini.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> BlockedDestinations { get; set; }
 
         [Description("When set only these destinations are available, every other one (also unknown ones) is blocked. For greenshot-fixed.ini.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> AllowedDestinations { get; set; }
 
         [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, allowed to load. The user adds them by answering the question, an administrator can list them in greenshot-fixed.ini.")]
+        [PolicyCategory(PolicyCategories.Common)]
         List<string> PluginApprovedHashes { get; set; }
 
         [Description("SHA-256 of plugins which aren't signed like Greenshot.exe, the user chose not to load them.")]
+        [NotAdministrable]
         List<string> PluginRejectedHashes { get; set; }
 
         [Description("SHA-256 of plugins whose signature was checked: valid and of the same signer as Greenshot.exe. Greenshot keeps this list itself.")]
+        [NotAdministrable]
         List<string> PluginVerifiedHashes { get; set; }
 
         [Description("Ask whether to load a plugin which isn't signed like Greenshot.exe. False in greenshot-fixed.ini: such a plugin only loads when PluginApprovedHashes lists it.")]
         [DefaultValue(true)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool AskForUnsignedPlugins { get; set; }
 
         [Description("How many days between every update check? (0=no checks)")]
         [DefaultValue(14)]
         [Range(0, int.MaxValue, ErrorMessage = "UpdateCheckInterval must be non-negative.")]
+        [PolicyCategory(PolicyCategories.Common)]
         int UpdateCheckInterval { get; set; }
 
         [Description("Last update check")]
+        [NotAdministrable]
         DateTime LastUpdateCheck { get; set; }
 
         [Description("Enable/disable the access to the settings, can only be changed manually in this .ini")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool DisableSettings { get; set; }
 
         [Description("Enable/disable the access to the quick settings, can only be changed manually in this .ini")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool DisableQuickSettings { get; set; }
 
         [DataMember(Name = "DisableTrayicon")]
         [Description("Disable the trayicon, can only be changed manually in this .ini")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool HideTrayicon { get; set; }
 
         [Description("Hide expert tab in the settings, can only be changed manually in this .ini")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool HideExpertSettings { get; set; }
 
         [Description("Enable/disable thumbnail previews")]
@@ -350,7 +378,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool PrewarmEditor { get; set; }
 
-        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks and for large buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
+        [Description("The most memory in MB which the reusable buffer pools keep when they're not in use (each, for small blocks, for large buffers and for image buffers). 0 means no limit, otherwise 4 to 1024. Takes effect after a restart.")]
         [DefaultValue(0)]
         int BufferPoolLimit { get; set; }
 
@@ -360,6 +388,7 @@ namespace Greenshot.Base.Core
 
         [Description("Also check for unstable version updates")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool CheckForUnstable { get; set; }
 
         [Description("The fixes that are active.")]
@@ -393,6 +422,10 @@ namespace Greenshot.Base.Core
         [Description("Ignore the screen reader flag of Windows. When false, while the flag is on, the selection starts on the frozen screen and a region capture starts as window capture. Programs can leave the flag on after the screen reader is gone, true then captures as without a screen reader.")]
         [DefaultValue(false)]
         bool IgnoreScreenReader { get; set; }
+
+        [Description("Read the text the applications show in a capture of the screen through UI Automation (exact text and link targets for the text selection, OCR and plugins); OCR adds the text in the rest of the capture. False uses only OCR.")]
+        [DefaultValue(true)]
+        bool ReadApplicationText { get; set; }
 
         [Description("Sets if the keys are shown (help panel) in the interactive capture, F1 shows or hides them")]
         [DefaultValue(true)]
@@ -432,6 +465,7 @@ namespace Greenshot.Base.Core
         string MailApiBCC { get; set; }
 
         [Description("Version of Greenshot which created this .ini")]
+        [NotAdministrable]
         string LastSaveWithVersion { get; }
 
         /// <summary>
@@ -451,12 +485,15 @@ namespace Greenshot.Base.Core
         List<ExportMetadataField> ExportMetadata { get; set; }
 
         [Description("The author written into exported images when ExportMetadata contains Author")]
+        [PolicyCategory(PolicyCategories.Common)]
         string ExportMetadataAuthor { get; set; }
 
         [Description("The copyright notice written into exported images when ExportMetadata contains Author")]
+        [PolicyCategory(PolicyCategories.Common)]
         string ExportMetadataCopyright { get; set; }
 
         [Description("The last used region, for reuse in the capture last region")]
+        [NotAdministrable]
         NativeRect LastCapturedRegion { get; set; }
 
         [Description("The sizes of the fixed size capture (F in the region selection), width x height separated by commas. Optionally with a place: 1280x720+100+200 is 100, 200 from the top left of the main monitor, 1280x720+100+200@1920+0 of the monitor at 1920, 0, 1280x720+10+40@notepad.exe of the content of a window of notepad.exe")]
@@ -464,6 +501,7 @@ namespace Greenshot.Base.Core
         List<string> FixedCaptureSizes { get; set; }
 
         [Description("The sizes and places of the last region captures (e.g. 1280x720+100+200@1920+0), the fixed size capture offers them below its own sizes")]
+        [NotAdministrable]
         List<string> RecentCaptureAreas { get; set; }
 
         [Description("The size and place of the last fixed size capture (e.g. 1280x720+100+200), the fixed size capture starts with it")]
@@ -498,10 +536,12 @@ namespace Greenshot.Base.Core
 
         [Description("Let AI tools use Greenshot through greenshot-mcp (opt-in). When false, every greenshot-mcp request is refused without asking. Lock it with greenshot-fixed.ini.")]
         [DefaultValue(false)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool AiToolsEnabled { get; set; }
 
         [Description("Let allowed AI tools propose new or changed recipes (each one is still shown for approval).")]
         [DefaultValue(true)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool AiToolsAllowRecipeProposals { get; set; }
 
         [Description("Programs (full paths) which the user allowed to list windows, take screenshots and run recipes through greenshot-mcp. Greenshot asks the first time a program connects.")]

@@ -48,6 +48,7 @@ public class RegionCaptureToolTests
         public IReadOnlyList<IInteropWindow> Windows => Array.Empty<IInteropWindow>();
         public bool IsSelectionVisible { get; private set; }
         public bool IsSelectionAnimating => false;
+        public NativeRect ZoomerBounds => NativeRect.Empty;
         public NativeRect Selection { get; private set; }
         public NativeSize LabelSize { get; private set; }
         public NativeSize SelectionSize => LabelSize;

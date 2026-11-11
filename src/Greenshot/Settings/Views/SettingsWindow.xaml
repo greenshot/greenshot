@@ -85,7 +85,14 @@
         </Grid.RowDefinitions>
         
         <!-- Tab Control -->
-        <TabControl x:Name="SettingsTabControl" Grid.Row="0">
+        <DockPanel Grid.Row="0">
+        <!-- Windows policies lock some settings (their controls are disabled), see docs/vNext/policies.md -->
+        <Border DockPanel.Dock="Top" Margin="0,0,0,8" Padding="10,6" CornerRadius="4" BorderThickness="1"
+                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBackground}" BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBorder}"
+                Visibility="{Binding IsManagedByPolicies, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="{wpf:Text Settings.ManagedByOrganization}" TextWrapping="Wrap" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningText}"/>
+        </Border>
+        <TabControl x:Name="SettingsTabControl">
             <!-- General Tab -->
             <TabItem Header="{wpf:Text Settings.General}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -475,26 +482,50 @@
 
                         <GroupBox Header="{wpf:Text Settings.Ocr}"
                                   Visibility="{Binding HasOcr, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="OcrLanguageLabel"
-                                           Text="{wpf:Text Settings.OcrLanguage}"
-                                           TextWrapping="Wrap"
-                                           VerticalAlignment="Center"
-                                           ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"
-                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                <ComboBox Grid.Column="1"
-                                          MinWidth="200"
-                                          ItemsSource="{Binding OcrLanguages}"
-                                          DisplayMemberPath="DisplayName"
-                                          SelectedValuePath="LanguageTag"
-                                          SelectedValue="{Binding SelectedOcrLanguage, Mode=TwoWay}"
-                                          AutomationProperties.LabeledBy="{Binding ElementName=OcrLanguageLabel}"
-                                          ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"/>
-                            </Grid>
+                            <StackPanel>
+                                <Grid Margin="0,5"
+                                      Visibility="{Binding HasOcrEngineChoice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="OcrEngineLabel"
+                                               Text="{wpf:Text Settings.OcrEngine}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               ToolTip="{wpf:Text Settings.TooltipOcrEngine}"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <ComboBox Grid.Column="1"
+                                              MinWidth="200"
+                                              ItemsSource="{Binding OcrEngines}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="Id"
+                                              SelectedValue="{Binding SelectedOcrEngine, Mode=TwoWay}"
+                                              AutomationProperties.LabeledBy="{Binding ElementName=OcrEngineLabel}"
+                                              ToolTip="{wpf:Text Settings.TooltipOcrEngine}"/>
+                                </Grid>
+                                <Grid Margin="0,5"
+                                      Visibility="{Binding HasOcrLanguageChoice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="OcrLanguageLabel"
+                                               Text="{wpf:Text Settings.OcrLanguage}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <ComboBox Grid.Column="1"
+                                              MinWidth="200"
+                                              ItemsSource="{Binding OcrLanguages}"
+                                              DisplayMemberPath="DisplayName"
+                                              SelectedValuePath="LanguageTag"
+                                              SelectedValue="{Binding SelectedOcrLanguage, Mode=TwoWay}"
+                                              AutomationProperties.LabeledBy="{Binding ElementName=OcrLanguageLabel}"
+                                              ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"/>
+                                </Grid>
+                            </StackPanel>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
@@ -1302,6 +1333,7 @@
                 </ScrollViewer>
             </TabItem>
         </TabControl>
+        </DockPanel>
         
         <!-- Buttons -->
         <StackPanel Grid.Row="1" 

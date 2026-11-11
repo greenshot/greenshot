@@ -140,6 +140,7 @@ has no loops and no user-defined functions. Unknown functions and wrong argument
 |---|---|
 | Text | `left(t, n)`, `right(t, n)`, `substring(t, start, length?)`, `replace(t, old, new)`, `lower(t)`, `upper(t)`, `trim(t)`, `padLeft(t, n, c?)`, `padRight(t, n, c?)`, `length(t)`, `contains(t, x)`, `startsWith(t, x)`, `endsWith(t, x)` |
 | Text with patterns | `match(t, pattern, group?)` (first match or a named group, e.g. an issue key from a title), `replaceMatch(t, pattern, new)`; .NET regex with a match timeout (250 ms), so a bad pattern can't hang a capture |
+| Web addresses | `urlEncode(t)`: a value for a part of a web address (path or query) |
 | Paths | `fileName(p)`, `fileNameWithoutExtension(p)`, `extension(p)`, `folder(p)` (all work on a value, they never touch the disk) |
 | Numbers | `round(n, digits?)`, `floor(n)`, `ceiling(n)`, `min(a, b)`, `max(a, b)`, `abs(n)` |
 | Date and time | `addDays(d, n)`, `addHours(d, n)`, `addMinutes(d, n)`, `isoWeek(d)` (not in .NET formats), `date(text, format)` (read a date from a text) |

@@ -28,6 +28,7 @@ using Dapplo.Windows.Dpi;
 using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Panels;
+using Greenshot.Editor.Panels.Effects;
 using Greenshot.Editor.Panels.Sections;
 
 namespace Greenshot.Editor.Forms
@@ -47,6 +48,7 @@ namespace Greenshot.Editor.Forms
         private EditorPanelContext _panelContext;
         private EditorPanelHost _panelHost;
         private EditorPanelDock _panelDock;
+        private EffectsPanel _effectsPanel;
         private Splitter _panelSplitter;
 
         /// <summary>
@@ -58,7 +60,8 @@ namespace Greenshot.Editor.Forms
             {
                 new SizeAndPositionSection(),
                 new StyleAndSizeSection(),
-                new EmojiSection(EditorConfiguration)
+                new EmojiSection(EditorConfiguration),
+                new TornEdgesSection(EditorConfiguration)
             };
             var panels = new List<IEditorPanel>();
             try
@@ -72,6 +75,15 @@ namespace Greenshot.Editor.Forms
             }
 
             panels.Insert(0, new SelectionPanel(sections, EditorConfiguration));
+            _effectsPanel = new EffectsPanel(EditorConfiguration, () =>
+            {
+                UpdateUndoRedoSurfaceDependencies();
+                RefreshFieldControls();
+                // The effect is done: the panel has no use any more, the work goes on on the capture
+                _panelHost?.Close();
+                FocusCanvas(fromKeyboard: false);
+            });
+            panels.Insert(1, _effectsPanel);
             _panelContext = new EditorPanelContext(this, (panelId, activate) => _panelHost.Show(panelId, activate), () => FocusCanvas(fromKeyboard: false));
             _panelHost = new EditorPanelHost(_panelContext, panels, sections, EditorConfiguration.SelectedEditorPanel);
             _panelHost.Changed += (_, activate) => OnPanelHostChanged(activate);
@@ -277,11 +289,33 @@ namespace Greenshot.Editor.Forms
             _panelHost?.UpdateAutomatic();
         }
 
-        private void SurfaceElementsChanged(object sender, EventArgs e) => _panelContext?.OnElementsChanged();
+        /// <summary>
+        /// The elements changed, e.g. in a section of the Selection panel: that can be undone now
+        /// </summary>
+        private void SurfaceElementsChanged(object sender, EventArgs e)
+        {
+            UpdateUndoRedoSurfaceDependencies();
+            _panelContext?.OnElementsChanged();
+        }
 
         /// <summary>
         /// An element asked for its properties (a double click on an emoji): show the Selection panel with the keyboard
         /// </summary>
         private void SurfacePropertiesRequested(object sender, EventArgs e) => _panelHost?.Show(SelectionPanel.PanelId, activate: true);
+
+        /// <summary>
+        /// Show the effect in the Effects panel, with its presets, settings and preview, and move the keyboard there.
+        /// The capture only changes with Apply.
+        /// </summary>
+        private void ShowEffect(EffectKind effect)
+        {
+            if (_panelHost == null || _effectsPanel == null)
+            {
+                return;
+            }
+
+            _effectsPanel.Request(effect);
+            _panelHost.Show(EffectsPanel.PanelId, activate: true);
+        }
     }
 }

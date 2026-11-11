@@ -47,7 +47,7 @@
     <IntermediateOutputPath>obj\$(GreenshotBaseConfiguration)-Light\</IntermediateOutputPath>
   </PropertyGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp), the browser extension, with their settings tabs,
-       and the toasts (Light informs with the balloons of the tray icon) -->
+       the Windows policies, and the toasts (Light informs with the balloons of the tray icon) -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
     <Compile Remove="Ipc\BrowserExtension\**\*.cs" />
     <Compile Remove="Settings\ViewModels\SettingsViewModel.AiTools.cs" />
@@ -56,8 +56,10 @@
     <Compile Remove="Plugins\**\*.cs" />
     <Compile Remove="Notifications\**\*.cs" />
     <Compile Remove="Native\ToastNotificationService.cs" />
+    <Compile Remove="Policies\**\*.cs" />
     <Page Remove="Ai\**\*.xaml" />
     <Page Remove="Plugins\**\*.xaml" />
+    <Page Remove="Policies\**\*.xaml" />
   </ItemGroup>
   <!--
     Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types
@@ -90,7 +92,7 @@
     </Task>
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
-    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts" />
+    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;PolicyTemplates;AddWindowsPolicies;PolicyRegFile" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
@@ -105,7 +107,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.19.3" />
+    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.23.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />

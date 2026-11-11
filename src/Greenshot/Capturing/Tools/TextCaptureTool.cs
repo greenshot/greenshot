@@ -32,6 +32,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Capture;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Threading;
 using CaptureMode = Greenshot.Base.Interfaces.CaptureMode;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
@@ -43,7 +44,13 @@ namespace Greenshot.Capturing.Tools
     /// </summary>
     public class TextCaptureTool : RegionCaptureTool
     {
+        private static readonly TimeSpan OcrHintDelay = TimeSpan.FromMilliseconds(300);
         private IOcrLineFeature _hoveredLine;
+        private Task _pendingOcr;
+        private bool _showOcrHint;
+        private readonly System.Diagnostics.Stopwatch _ocrHintTime = new();
+        private DispatcherTimer _ocrHintTimer;
+        private NativePoint _ocrHintOffset = new(ZoomerPlacement.Distance, ZoomerPlacement.Distance);
 
         public override CaptureMode Mode => CaptureMode.Text;
 
@@ -64,12 +71,19 @@ namespace Greenshot.Capturing.Tools
             _ = Dispatcher.CurrentDispatcher.BeginInvoke(new Action(EnsureOcr), DispatcherPriority.ContextIdle);
         }
 
+        public override void Deactivate()
+        {
+            HideOcrHint();
+            base.Deactivate();
+        }
+
         public override void OnMouseMove()
         {
             base.OnMouseMove();
             var hoveredLine = IsSelecting ? null : FindOcrLine(Host.CursorPosition);
             // While selecting the highlighted words change with every move
-            bool redraw = IsSelecting || hoveredLine != _hoveredLine;
+            // The OCR hint follows the cursor
+            bool redraw = IsSelecting || _showOcrHint || hoveredLine != _hoveredLine;
             _hoveredLine = hoveredLine;
             if (redraw)
             {
@@ -83,7 +97,16 @@ namespace Greenshot.Capturing.Tools
             {
                 return false;
             }
-            // A click on a single line selects it
+            // A click on a single line selects it. The rectangle around rotated text also covers parts of the lines next to it:
+            // only the clicked line is kept, so its text is what was selected
+            if (clickedLine.Box.IsRotated)
+            {
+                var features = Host.Capture.CaptureDetails.Features;
+                lock (features)
+                {
+                    features.RemoveAll(feature => feature is IOcrLineFeature && feature != clickedLine);
+                }
+            }
             AcceptSelection(clickedLine.Bounds);
             return true;
         }
@@ -101,36 +124,62 @@ namespace Greenshot.Capturing.Tools
         {
             var linePen = new Pen((Brush)Host.FindResource("OcrLineBrush"), 1);
             linePen.Freeze();
+            // Text read from the application has its own color, so it's clear where a text comes from
+            var applicationTextPen = new Pen((Brush)Host.FindResource("ApplicationTextLineBrush"), 1);
+            applicationTextPen.Freeze();
             var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
+            if (_showOcrHint)
+            {
+                DrawOcrHint(drawingContext);
+            }
             foreach (var line in GetOcrLines())
             {
-                var lineBounds = line.Bounds;
-                if (lineBounds.IsEmpty)
+                var lineBox = line.Box;
+                if (lineBox.IsEmpty)
                 {
                     continue;
                 }
-                var lineRect = new Rect(lineBounds.X, lineBounds.Y, lineBounds.Width, lineBounds.Height);
-                drawingContext.DrawRectangle(null, linePen, new Rect(lineRect.X + 0.5, lineRect.Y + 0.5, lineRect.Width, lineRect.Height));
+                // The outline on the pixel grid for horizontal text, on the text for rotated text
+                var lineRect = lineBox.Unrotated;
+                var outline = lineBox.IsRotated ? lineRect : new Rect(line.Bounds.X + 0.5, line.Bounds.Y + 0.5, line.Bounds.Width, line.Bounds.Height);
+                var pen = line.Source == TextSource.UiAutomation ? applicationTextPen : linePen;
+                DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(null, pen, outline));
                 if (IsSelecting)
                 {
                     // Highlight the words which are selected
-                    if (!lineBounds.IntersectsWith(Selection))
+                    if (!lineBox.IntersectsWith(Selection))
                     {
                         continue;
                     }
                     foreach (var word in line.Words)
                     {
-                        if (word.Bounds.IntersectsWith(Selection))
+                        var wordBox = word.Box;
+                        if (wordBox.IntersectsWith(Selection))
                         {
-                            drawingContext.DrawRectangle(highlightBrush, null, new Rect(word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height));
+                            DrawRotated(drawingContext, wordBox, () => drawingContext.DrawRectangle(highlightBrush, null, wordBox.Unrotated));
                         }
                     }
                 }
                 else if (line == _hoveredLine)
                 {
-                    drawingContext.DrawRectangle(highlightBrush, null, lineRect);
+                    DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(highlightBrush, null, lineRect));
                 }
             }
+        }
+
+        /// <summary>
+        /// Draw the unrotated rectangle of the box turned to where the text is
+        /// </summary>
+        private static void DrawRotated(DrawingContext drawingContext, OcrBox box, Action draw)
+        {
+            if (!box.IsRotated)
+            {
+                draw();
+                return;
+            }
+            drawingContext.PushTransform(new RotateTransform(box.Angle, box.Center.X, box.Center.Y));
+            draw();
+            drawingContext.Pop();
         }
 
         private List<IOcrLineFeature> GetOcrLines()
@@ -142,43 +191,148 @@ namespace Greenshot.Capturing.Tools
             }
         }
 
-        private IOcrLineFeature FindOcrLine(NativePoint location) => GetOcrLines().FirstOrDefault(line => line.Bounds.Contains(location));
+        /// <summary>
+        /// The line under the pixel: on the rotated text, not only in the rectangle around it
+        /// </summary>
+        private IOcrLineFeature FindOcrLine(NativePoint location)
+        {
+            var center = new Point(location.X + 0.5, location.Y + 0.5);
+            return GetOcrLines().FirstOrDefault(line => line.Box.Contains(center));
+        }
 
         /// <summary>
-        /// Start the OCR when there are no text lines yet, and it isn't running in the background already
+        /// Start the OCR when it didn't run yet: the text read from the applications (UI Automation) leaves parts of the capture
+        /// without text, the OCR adds those
         /// </summary>
         private void EnsureOcr()
         {
-            if (Host.ActiveTool != this || GetOcrLines().Any())
+            if (Host.ActiveTool != this)
             {
                 return;
             }
             var captureDetails = Host.Capture.CaptureDetails;
             var processingTask = captureDetails.ProcessingTask;
-            if (processingTask != null && !processingTask.IsCompleted)
-            {
-                // Already processing in the background, the features changed event redraws when finished
-                return;
-            }
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider == null)
+            if (ocrProvider == null || !OcrLines.TryStartOcr(captureDetails))
             {
+                if (processingTask != null && !processingTask.IsCompleted)
+                {
+                    // Still reading in the background (the application text, the OCR), the features changed event redraws when finished
+                    ShowOcrHintAsync(processingTask).FireAndLog("Showing the OCR hint");
+                }
                 return;
             }
             // Started on the UI thread: the OCR result is merged and the window redrawn there
-            var ocrTask = RunOcrAsync(ocrProvider);
+            var ocrTask = RunOcrAsync(ocrProvider, processingTask);
             captureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
+            ShowOcrHintAsync(ocrTask).FireAndLog("Showing the OCR hint");
         }
 
-        private async Task RunOcrAsync(IOcrProvider ocrProvider)
+        /// <summary>
+        /// When the OCR takes longer than a moment, a panel says that the text is being read, until it is done
+        /// </summary>
+        private async Task ShowOcrHintAsync(Task ocr)
+        {
+            _pendingOcr = ocr;
+            var delay = Task.Delay(OcrHintDelay);
+            if (await Task.WhenAny(ocr, delay).ConfigureAwait(true) == delay && _pendingOcr == ocr && Host?.ActiveTool == this)
+            {
+                _showOcrHint = true;
+                StartOcrHintAnimation();
+            }
+            // Failures are handled where the OCR runs, here only its end counts
+            await Task.WhenAny(ocr).ConfigureAwait(true);
+            if (_pendingOcr == ocr)
+            {
+                HideOcrHint();
+            }
+        }
+
+        private void HideOcrHint()
+        {
+            _pendingOcr = null;
+            if (!_showOcrHint)
+            {
+                return;
+            }
+            _showOcrHint = false;
+            _ocrHintTimer?.Stop();
+            Host?.Redraw();
+        }
+
+        /// <summary>
+        /// The mark in the hint turns, like the busy mark of the window tool, so it is clear that something happens
+        /// </summary>
+        private void StartOcrHintAnimation()
+        {
+            _ocrHintTime.Restart();
+            if (_ocrHintTimer == null)
+            {
+                _ocrHintTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+                _ocrHintTimer.Tick += (_, _) =>
+                {
+                    if (!_showOcrHint || Host?.ActiveTool != this)
+                    {
+                        _ocrHintTimer.Stop();
+                        return;
+                    }
+                    Host.Redraw();
+                };
+            }
+            _ocrHintTimer.Start();
+            Host.Redraw();
+        }
+
+        /// <summary>
+        /// The hint next to the cursor, where the user looks: in a corner of the cursor which is on the monitor and not under the zoomer
+        /// </summary>
+        private void DrawOcrHint(DrawingContext drawingContext)
+        {
+            var style = Host.ToolStyle;
+            var text = style.CreateText(Texts.Core.OcrRunning, 10, bold: true);
+            double padding = style.Scale(8);
+            double radius = style.Scale(7);
+            double markWidth = 2 * radius + padding;
+            var size = new NativeSize((int)Math.Ceiling(markWidth + text.Width + 2 * padding), (int)Math.Ceiling(Math.Max(text.Height, 2 * radius) + 2 * padding));
+            var cursor = Host.CursorPosition;
+            _ocrHintOffset = ZoomerPlacement.GetOffset(cursor, _ocrHintOffset, size, Host.GetMonitorBounds(), new[] { Host.ZoomerBounds });
+            var bounds = new Rect(cursor.X + _ocrHintOffset.X, cursor.Y + _ocrHintOffset.Y, size.Width, size.Height);
+            style.DrawPanel(drawingContext, bounds);
+            // An accent border: the hint has to be noticed
+            double border = style.Scale(2);
+            var accentRect = new Rect(bounds.X + border / 2, bounds.Y + border / 2, bounds.Width - border, bounds.Height - border);
+            drawingContext.DrawRoundedRectangle(null, new Pen(style.Accent, border), accentRect, style.PanelCornerRadius, style.PanelCornerRadius);
+
+            // The turning arc, once a second
+            var center = new Point(bounds.X + padding + radius, bounds.Y + bounds.Height / 2);
+            var angle = _ocrHintTime.ElapsedMilliseconds % 1000 * 2 * Math.PI / 1000;
+            Point OnCircle(double a) => new(center.X + radius * Math.Cos(a), center.Y + radius * Math.Sin(a));
+            var arc = new StreamGeometry();
+            using (var context = arc.Open())
+            {
+                context.BeginFigure(OnCircle(angle), false, false);
+                context.ArcTo(OnCircle(angle + 1.5 * Math.PI), new Size(radius, radius), 0, true, SweepDirection.Clockwise, true, false);
+            }
+            arc.Freeze();
+            drawingContext.DrawGeometry(null, new Pen(style.Accent, style.Scale(2.5)), arc);
+
+            drawingContext.DrawText(text, new Point(bounds.X + padding + markWidth, bounds.Y + (bounds.Height - text.Height) / 2));
+        }
+
+        private async Task RunOcrAsync(IOcrProvider ocrProvider, Task processingTask)
         {
             var capture = Host.Capture;
             var cropAreaWhenFound = capture.CaptureDetails.CropArea;
             var ocrLines = await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(true);
+            if (processingTask != null)
+            {
+                // The application text read in the background decides where the OCR lines are needed; its failures are logged where it runs
+                await Task.WhenAny(processingTask).ConfigureAwait(true);
+            }
             if (ocrLines != null && ocrLines.Any())
             {
                 // Cropped to the selection in the meantime: the lines are moved with it
-                capture.CaptureDetails.AddFeatures(ocrLines, cropAreaWhenFound);
+                OcrLines.AddRecognized(capture.CaptureDetails, ocrLines, cropAreaWhenFound);
 
                 if (capture.CaptureDetails is CaptureDetails concreteDetails)
                 {

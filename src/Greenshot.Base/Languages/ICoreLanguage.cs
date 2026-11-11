@@ -596,6 +596,21 @@ namespace Greenshot.Base.Languages
         string CaptureKeyText { get; }
 
         /// <summary>
+        /// Actions of the numbered item
+        /// </summary>
+        string CaptureKeyHotspotMenu { get; }
+
+        /// <summary>
+        /// First action of the numbered item
+        /// </summary>
+        string CaptureKeyHotspotDefault { get; }
+
+        /// <summary>
+        /// Found items
+        /// </summary>
+        string CaptureHotspotList { get; }
+
+        /// <summary>
         /// Capture a fixed size
         /// </summary>
         string CaptureKeyFixedSize { get; }
@@ -1040,6 +1055,11 @@ namespace Greenshot.Base.Languages
         /// Please choose the JPEG quality for your image.
         /// </summary>
         string JpegqualitydialogChoosejpegquality { get; }
+
+        /// <summary>
+        /// Reading the text of the capture...
+        /// </summary>
+        string OcrRunning { get; }
 
         /// <summary>
         /// OK

@@ -23,6 +23,8 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Atlassian.Confluence;
 
@@ -33,6 +35,7 @@ public interface IConfluenceConfiguration : IIniSection
     [Description("Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).")]
     [DefaultValue("https://confluence")]
     [Required(ErrorMessage = "Confluence URL is required.")]
+    [PolicyCategory(PolicyCategories.Common)]
     string Url { get; set; }
 
     [Description("Session timeout in minutes")]

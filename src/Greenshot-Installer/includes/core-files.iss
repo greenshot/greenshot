@@ -9,6 +9,7 @@ Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greensho
 Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Ini.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Ini.WindowsPolicies.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Log.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.AppRestartManager.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

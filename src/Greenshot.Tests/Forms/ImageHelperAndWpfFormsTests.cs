@@ -228,57 +228,14 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(printOptionsWindow);
 
                     // Greenshot.Editor WPF windows
-                    var dropShadowWindow = new Greenshot.Editor.Views.DropShadowSettingsWindow();
-                    Assert.NotNull(dropShadowWindow);
-
                     var tornEdgeWindow = new Greenshot.Editor.Views.TornEdgeSettingsWindow();
                     Assert.NotNull(tornEdgeWindow);
 
-                    var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
-                    Assert.NotNull(resizeWindow);
+                    var effectsPanelView = new Greenshot.Editor.Panels.Effects.EffectsPanelView();
+                    Assert.NotNull(effectsPanelView);
 
-                    var maximumResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(30_000, 30_000, true));
-                    var maximumOkButton = maximumResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(maximumOkButton);
-                    Assert.True(maximumOkButton.IsEnabled);
-
-                    var overLimitResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
-                    var widthUnitComboBox = overLimitResizeWindow.FindName("WidthUnitComboBox") as System.Windows.Controls.ComboBox;
-                    var widthTextBox = overLimitResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var overLimitOkButton = overLimitResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(widthUnitComboBox);
-                    Assert.NotNull(widthTextBox);
-                    Assert.NotNull(overLimitOkButton);
-                    widthUnitComboBox.SelectedIndex = 1;
-                    widthTextBox.Text = "30001";
-                    Assert.False(overLimitOkButton.IsEnabled);
-
-                    var mouseWheelResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
-                    var mouseWheelWidthTextBox = mouseWheelResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var mouseWheelOkButton = mouseWheelResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(mouseWheelWidthTextBox);
-                    Assert.NotNull(mouseWheelOkButton);
-                    mouseWheelWidthTextBox.Text = "30001";
-                    Assert.False(mouseWheelOkButton.IsEnabled);
-                    mouseWheelWidthTextBox.RaiseEvent(new System.Windows.Input.MouseWheelEventArgs(
-                        System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, -120)
-                    {
-                        RoutedEvent = System.Windows.UIElement.PreviewMouseWheelEvent
-                    });
-                    Assert.Equal("30000", mouseWheelWidthTextBox.Text);
-                    Assert.True(mouseWheelOkButton.IsEnabled);
-
-                    var aspectRatioResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(1, 2, true));
-                    var aspectRatioWidthTextBox = aspectRatioResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var aspectRatioOkButton = aspectRatioResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(aspectRatioWidthTextBox);
-                    Assert.NotNull(aspectRatioOkButton);
-                    aspectRatioWidthTextBox.Text = "15001";
-                    Assert.False(aspectRatioOkButton.IsEnabled);
+                    var tornEdgesSectionView = new Greenshot.Editor.Panels.Views.TornEdgesSectionView();
+                    Assert.NotNull(tornEdgesSectionView);
 
                     var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
@@ -455,10 +412,10 @@ namespace Greenshot.Tests.Forms
                     Assert.Equal("Other", model.WifiPassword);
 
                     // Test theme toggle
-                    bool initialTheme = WpfThemeHelper.IsDarkMode;
-                    WpfThemeHelper.ToggleTheme();
-                    Assert.NotEqual(initialTheme, WpfThemeHelper.IsDarkMode);
-                    WpfThemeHelper.ToggleTheme(); // Toggle back
+                    bool initialTheme = ThemeManager.Instance.IsDarkTheme;
+                    ThemeManager.Instance.ToggleTheme();
+                    Assert.NotEqual(initialTheme, ThemeManager.Instance.IsDarkTheme);
+                    ThemeManager.Instance.ToggleTheme(); // Toggle back
                 }
                 catch (Exception ex)
                 {

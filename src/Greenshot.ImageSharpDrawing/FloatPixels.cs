@@ -21,6 +21,7 @@
 
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -47,28 +48,22 @@ namespace Greenshot.ImageSharpDrawing
                 return Of<HalfVector4>(halfVectors, area);
             }
             area = Rectangle.Intersect(area, new Rectangle(0, 0, source.Width, source.Height));
-            var values = new Vector4[Math.Max(area.Width, 0) * Math.Max(area.Height, 0)];
-            if (values.Length > 0)
-            {
-                // Reads the rows; they are written back unchanged (lossless for HalfVector4 and 8-bit pixels)
-                source.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                    row.CopyTo(values.AsSpan((start.Y - area.Y) * area.Width, area.Width)), area));
-            }
             var floats = new Image<RgbaVector>(Math.Max(area.Width, 1), Math.Max(area.Height, 1));
-            floats.ProcessPixelRows(accessor =>
+            if (area.Width > 0 && area.Height > 0)
             {
-                for (int y = 0; y < area.Height; y++)
-                {
-                    var row = accessor.GetRowSpan(y);
-                    for (int x = 0; x < area.Width; x++)
-                    {
-                        var value = values[y * area.Width + x];
-                        row[x] = new RgbaVector(value.X, value.Y, value.Z, value.W);
-                    }
-                }
-            });
+                // Reads the rows straight into the float pixels, no buffer of the whole area in between; the rows are written back
+                // unchanged (lossless for HalfVector4 and 8-bit pixels)
+                source.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
+                    row.CopyTo(Vectors(floats, start.Y - area.Y).Slice(start.X - area.X, row.Length)), area));
+            }
             return floats;
         }
+
+        /// <summary>
+        /// A row of the float pixels as Vector4: RgbaVector has the layout of Vector4 (R, G, B, A as X, Y, Z, W)
+        /// </summary>
+        public static Span<Vector4> Vectors(Image<RgbaVector> floats, int y) =>
+            MemoryMarshal.Cast<RgbaVector, Vector4>(floats.DangerousGetPixelRowMemory(y).Span);
 
         /// <summary>
         /// An area of the image as float pixels, the values as they are; the image is only read

@@ -223,7 +223,7 @@ namespace Greenshot.Recipes.Pipeline
                 // Clean up working set if enabled
                 if (CoreConfig.MinimizeWorkingSetSize)
                 {
-                    PsApi.EmptyWorkingSet();
+                    PooledMemory.Trim();
                 }
 
                 // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export

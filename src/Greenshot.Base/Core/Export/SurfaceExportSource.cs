@@ -188,13 +188,20 @@ namespace Greenshot.Base.Core.Export
                 byte[] bytes;
                 if (greenshotFormat)
                 {
-                    // The greenshot format serializes the elements of the surface: UI thread
-                    bytes = await _ui.InvokeAsync(() =>
+                    // The greenshot format: only the elements are serialized and the image copied on the UI thread, the PNG is encoded here
+                    var (image, elements, elementsLength) = await _ui.InvokeAsync(() =>
                     {
-                        using var stream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Encode");
-                        ImageIO.SaveToStream(_surface, stream, settings);
-                        return stream.ToArray();
+                        var elementsStream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Elements");
+                        long length = _surface.SaveElementsToStream(elementsStream);
+                        return (ImageHelper.Clone(_surface.Image), elementsStream, length);
                     }, cancellationToken).ConfigureAwait(false);
+                    using (image)
+                    using (elements)
+                    using (var stream = RecyclableMemoryStreamFactory.GetStream("SurfaceExportSource.Encode"))
+                    {
+                        ImageIO.WriteGreenshotFormat(stream, image, elements, elementsLength);
+                        bytes = stream.ToArray();
+                    }
                 }
                 else
                 {

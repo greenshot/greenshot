@@ -66,6 +66,12 @@ namespace Greenshot.Capturing
         }
 
         /// <summary>
+        /// Remove a binding, for keys which only exist for a while
+        /// </summary>
+        /// <returns>true when it was registered</returns>
+        public bool Unregister(CaptureKeyBinding binding) => _bindings.Remove(binding);
+
+        /// <summary>
         /// The binding for a pressed key while the given tool is active, null when there is none.
         /// When Shift is held and nothing has the key with Shift, the key without Shift is used: Shift keeps the selection
         /// to one direction, which should also work with the arrow keys.
@@ -98,7 +104,7 @@ namespace Greenshot.Capturing
 
         private CaptureKeyBinding FindExact(Key key, ModifierKeys modifiers, ICaptureTool activeTool) =>
             // A tool key before an always active key, there can't be both (conflict) but this keeps the intent clear
-            _bindings.FirstOrDefault(binding => binding.Tool != null && binding.Tool == activeTool && binding.Key == key && binding.Modifiers == modifiers)
+            _bindings.FirstOrDefault(binding => binding.Tool != null && binding.Key == key && binding.Modifiers == modifiers && binding.IsActiveFor(activeTool))
             ?? _bindings.FirstOrDefault(binding => binding.Tool == null && binding.Key == key && binding.Modifiers == modifiers && binding.IsActiveFor(activeTool));
 
         private static bool IsModifierOnly(Key key) =>

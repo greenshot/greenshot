@@ -205,6 +205,16 @@ namespace Greenshot.Settings.ViewModels
 
         public bool IsExpertTabVisible => !CoreConfiguration.HideExpertSettings;
 
+        /// <summary>
+        /// A mandatory Windows policy sets at least one setting (the settings window says so), see docs/vNext/policies.md
+        /// </summary>
+        public bool IsManagedByPolicies =>
+#if GREENSHOT_LIGHT
+            false;
+#else
+            Greenshot.Policies.PoliciesSectionViewModel.HasMandatoryPolicies(Dapplo.Ini.IniConfigRegistry.Get().GetSections());
+#endif
+
         public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
         public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode";
 
