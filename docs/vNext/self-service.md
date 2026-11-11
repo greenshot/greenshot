@@ -368,7 +368,7 @@ public class PrinterSectionViewModel : SelfServiceSectionViewModel
         // The checks, then the badge: a number of problems, or nothing
         int issues = ...;
         BadgeText = issues > 0 ? issues.ToString() : null;
-        BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
+        BadgeBrush = issues > 0 ? ThemeManager.Instance.CurrentPalette.WarningBackground : null;
         OnPropertyChanged(nameof(...));
     }
 }
@@ -377,7 +377,7 @@ public class PrinterSectionViewModel : SelfServiceSectionViewModel
 What the base class gives you:
 
 - `BadgeText` / `BadgeBrush`: the badge in the sidebar, shown while `BadgeText` isn't empty. Use
-  `WpfThemeHelper.WarningBackground` for problems, so the badge follows the theme.
+  `ThemeManager.Instance.CurrentPalette.WarningBackground` for problems, so the badge follows the theme.
 - `OnNavigatedTo()` / `OnNavigatedFrom()`: called when the user selects the section or leaves it. Start expensive work
   (network, scanning files) here or later, not in the constructor: every section is created when the window opens.
   `ImgurSectionViewModel` loads its thumbnails only on the first `OnNavigatedTo()`.

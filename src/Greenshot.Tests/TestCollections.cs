@@ -32,7 +32,7 @@ namespace Greenshot.Tests
         /// <summary>Tests that register recipes in the global <c>RecipeManager.Instance</c>.</summary>
         public const string RecipeManager = "RecipeManager";
 
-        /// <summary>Tests that change or depend on the global WPF theme (<c>WpfThemeHelper.IsDarkMode</c>, <c>ThemeManager.Instance</c>).</summary>
+        /// <summary>Tests that change or depend on the global WPF theme (<c>ThemeManager.Instance.IsDarkTheme</c>, <c>ThemeManager.Instance</c>).</summary>
         public const string WpfThemeState = "WpfThemeState";
 
         /// <summary>Tests that change the real Windows clipboard: they run alone, never in parallel with other tests.</summary>

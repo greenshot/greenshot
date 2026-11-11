@@ -179,7 +179,7 @@ namespace Greenshot.SelfService.ViewModels
             // The section shows in the navigation when screenshots probably don't end up where the user expects them
             bool problem = result.Worst >= OutputPathSeverity.Warning;
             BadgeText = problem ? (result.Worst == OutputPathSeverity.Error ? "❌" : "⚠️") : null;
-            BadgeBrush = problem ? WpfThemeHelper.ErrorBackground : null;
+            BadgeBrush = problem ? ThemeManager.Instance.CurrentPalette.ErrorBackground : null;
             Log.Info($"Output folder check: '{result.ConfiguredPath}' -> '{result.ExpandedPath}': {string.Join(", ", result.Items.Select(i => i.Finding + (i.Detail == null ? string.Empty : $" ({i.Detail})")))}");
         }
 

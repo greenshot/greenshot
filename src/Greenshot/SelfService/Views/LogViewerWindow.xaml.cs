@@ -173,15 +173,15 @@ namespace Greenshot.SelfService.Views
         public TextWrapping TextWrappingMode => WrapText ? TextWrapping.Wrap : TextWrapping.NoWrap;
 
         // Theme brushes forwarding
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         // The log viewer opened by greenshot://log links: a link reuses it, so a web page can't open window after window
         private static LogViewerWindow _linkInstance;
@@ -236,7 +236,7 @@ namespace Greenshot.SelfService.Views
 
             LoadLog();
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Loaded += OnWindowLoaded;
             Closed += OnWindowClosed;
             KeyDown += OnWindowKeyDown;
@@ -610,7 +610,7 @@ namespace Greenshot.SelfService.Views
 
         private void OnWindowClosed(object sender, EventArgs e)
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             _searchTimer.Stop();
             _liveTimer?.Stop();
             _liveAppender?.Detach();
@@ -636,7 +636,7 @@ namespace Greenshot.SelfService.Views
                     break;
                 // Not while typing a search text
                 case Key.T when !Equals(e.OriginalSource, SearchTextBox):
-                    WpfThemeHelper.ToggleTheme();
+                    ThemeManager.Instance.ToggleTheme();
                     e.Handled = true;
                     break;
             }

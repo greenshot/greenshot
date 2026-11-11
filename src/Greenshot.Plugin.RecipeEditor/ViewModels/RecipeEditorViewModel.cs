@@ -825,7 +825,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             RemoveTriggerCommand = new RelayCommand(p => RemoveTrigger(p as TriggerItemViewModel));
             AddErrorTransitionCommand = new RelayCommand(AddErrorTransition);
             RemoveErrorTransitionCommand = new RelayCommand(p => DeleteErrorTransition(p as ErrorTransitionItemViewModel));
-            ToggleThemeCommand = new RelayCommand(WpfThemeHelper.ToggleTheme);
+            ToggleThemeCommand = new RelayCommand(ThemeManager.Instance.ToggleTheme);
             OpenRecipeManagerCommand = new RelayCommand(OpenRecipeManager);
             ToggleActiveRecipeEnabledCommand = new RelayCommand(() => IsActiveRecipeEnabled = !IsActiveRecipeEnabled, () => ActiveRecipe != null);
             UnloadActiveRecipeCommand = new RelayCommand(UnloadActiveRecipe, () => CanUnloadActiveRecipe);

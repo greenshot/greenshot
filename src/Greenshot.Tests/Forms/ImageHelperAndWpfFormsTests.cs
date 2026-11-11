@@ -412,10 +412,10 @@ namespace Greenshot.Tests.Forms
                     Assert.Equal("Other", model.WifiPassword);
 
                     // Test theme toggle
-                    bool initialTheme = WpfThemeHelper.IsDarkMode;
-                    WpfThemeHelper.ToggleTheme();
-                    Assert.NotEqual(initialTheme, WpfThemeHelper.IsDarkMode);
-                    WpfThemeHelper.ToggleTheme(); // Toggle back
+                    bool initialTheme = ThemeManager.Instance.IsDarkTheme;
+                    ThemeManager.Instance.ToggleTheme();
+                    Assert.NotEqual(initialTheme, ThemeManager.Instance.IsDarkTheme);
+                    ThemeManager.Instance.ToggleTheme(); // Toggle back
                 }
                 catch (Exception ex)
                 {

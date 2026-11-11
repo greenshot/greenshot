@@ -95,7 +95,7 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void SelfServiceViewModel_ThemeBrushes_FollowWpfThemeHelper()
+        public void SelfServiceViewModel_ThemeBrushes_FollowThemeManager()
         {
             lock (typeof(Greenshot.Base.Wpf.ThemeManager))
             {
@@ -118,12 +118,12 @@ namespace Greenshot.Tests.Forms
                     }
                 };
 
-                bool initial = WpfThemeHelper.IsDarkMode;
-                WpfThemeHelper.IsDarkMode = !initial;
+                bool initial = ThemeManager.Instance.IsDarkTheme;
+                ThemeManager.Instance.IsDarkTheme = !initial;
                 Assert.True(wasNotified);
 
                 // Revert back
-                WpfThemeHelper.IsDarkMode = initial;
+                ThemeManager.Instance.IsDarkTheme = initial;
             }
         }
 
