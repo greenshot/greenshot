@@ -182,7 +182,7 @@ namespace Greenshot.WpfEditor.ViewModels
         public bool CanRedo => _redo.Count > 0;
 
         /// <summary>
-        /// The document or the selection changed, the panels show the new values
+        /// The committed document changed (not a preview while the mouse drags), the panels show the new values
         /// </summary>
         public event Action DocumentChanged;
 
@@ -391,7 +391,12 @@ namespace Greenshot.WpfEditor.ViewModels
                 SelectionChanged?.Invoke();
             }
 
-            DocumentChanged?.Invoke();
+            // The panels and the status show the committed document: a preview (each mouse move of a drag) only draws
+            if (ReferenceEquals(document, _committed))
+            {
+                DocumentChanged?.Invoke();
+            }
+
             ToolChanged();
         }
 

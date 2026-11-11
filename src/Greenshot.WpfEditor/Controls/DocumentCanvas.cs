@@ -26,6 +26,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
@@ -420,6 +421,7 @@ namespace Greenshot.WpfEditor.Controls
             }
 
             EndTextEdit(true);
+            FlushMove();
             _toolDragging = true;
             CaptureMouse();
             Tab.Tool.Down(PointerOf(e, e.ClickCount));
@@ -441,14 +443,42 @@ namespace Greenshot.WpfEditor.Controls
                 return;
             }
 
+            // Only the last position counts: the tool gets it when the input and the drawing of the window are done, so moves
+            // which come in faster than a change can be drawn don't pile up
+            _pendingPointer = PointerOf(e);
+            _pendingPosition = e.GetPosition(this);
+            if (!_moveScheduled)
+            {
+                _moveScheduled = true;
+                _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(FlushMove));
+            }
+        }
+
+        private ToolPointer? _pendingPointer;
+        private Point _pendingPosition;
+        private bool _moveScheduled;
+
+        /// <summary>
+        /// Gives the tool the last position of the mouse, before a button changes too
+        /// </summary>
+        private void FlushMove()
+        {
+            _moveScheduled = false;
+            if (_pendingPointer is not ToolPointer pointer || Tab == null)
+            {
+                _pendingPointer = null;
+                return;
+            }
+
+            _pendingPointer = null;
             if (_toolDragging)
             {
-                Tab.Tool.Move(PointerOf(e));
-                ScrollIntoView(e.GetPosition(this));
+                Tab.Tool.Move(pointer);
+                ScrollIntoView(_pendingPosition);
             }
             else
             {
-                Tab.Tool.Hover(PointerOf(e));
+                Tab.Tool.Hover(pointer);
             }
 
             UpdateCursor();
@@ -467,6 +497,7 @@ namespace Greenshot.WpfEditor.Controls
 
             if (_toolDragging && e.ChangedButton == MouseButton.Left)
             {
+                FlushMove();
                 _toolDragging = false;
                 ReleaseMouseCapture();
                 Tab?.Tool.Up(PointerOf(e));

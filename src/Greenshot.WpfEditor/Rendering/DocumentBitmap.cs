@@ -190,6 +190,7 @@ namespace Greenshot.WpfEditor.Rendering
                     // Drawn with a margin, so effects at the edge see their neighbours, only the middle is used
                     var drawn = new RectD(area.X + left - margin, area.Y + top - margin, width + 2 * margin, height + 2 * margin);
                     Image<Rgba32> image;
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     try
                     {
                         // PARALLEL: the document is immutable and the cache is only used by one render at a time, the UI keeps
@@ -204,6 +205,7 @@ namespace Greenshot.WpfEditor.Rendering
                         continue;
                     }
 
+                    Log.DebugFormat("Drawn in the background {0}x{1} in {2} ms", width, height, watch.ElapsedMilliseconds);
                     using (image)
                     {
                         // The canvas changed size meanwhile: the new bitmap is drawn completely anyway.
@@ -254,8 +256,10 @@ namespace Greenshot.WpfEditor.Rendering
             var drawn = new RectD(area.X + left - Margin, area.Y + top - Margin, width + 2 * Margin, height + 2 * Margin);
             try
             {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 using var image = DocumentRenderer.Render(document, drawn, _liveCache, element => !live.Contains(element.Id));
                 Copy(image, Margin, Margin, left, top, width, height);
+                Log.DebugFormat("Drawn at once {0}x{1} in {2} ms", width, height, watch.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -278,6 +282,7 @@ namespace Greenshot.WpfEditor.Rendering
             var area = new RectD(Math.Floor(visible.X), Math.Floor(visible.Y), Math.Ceiling(visible.Right) - Math.Floor(visible.X), Math.Ceiling(visible.Bottom) - Math.Floor(visible.Y));
             try
             {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 using var image = DocumentRenderer.Render(document, area, _liveCache, element => live.Contains(element.Id));
                 var pixels = new byte[image.Width * image.Height * 4];
                 image.ProcessPixelRows(rows =>
@@ -299,6 +304,7 @@ namespace Greenshot.WpfEditor.Rendering
                 overlay.Freeze();
                 Overlay = overlay;
                 OverlayArea = new RectD(area.X, area.Y, image.Width, image.Height);
+                Log.DebugFormat("Overlay {0}x{1} drawn in {2} ms", image.Width, image.Height, watch.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
