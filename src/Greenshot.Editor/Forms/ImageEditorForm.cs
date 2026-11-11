@@ -1127,7 +1127,7 @@ namespace Greenshot.Editor.Forms
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
                 GC.Collect();
-                PsApi.EmptyWorkingSet();
+                PooledMemory.Trim();
             }
         }
 
