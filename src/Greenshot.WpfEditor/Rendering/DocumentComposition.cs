@@ -38,8 +38,8 @@ namespace Greenshot.WpfEditor.Rendering
     /// One bitmap of the composition: what an element draws, or what an effect makes of everything below it
     /// </summary>
     /// <param name="Id">The element</param>
-    /// <param name="Bitmap">The pixels, frozen</param>
-    /// <param name="Area">Where the bitmap is, in canvas pixels</param>
+    /// <param name="Bitmap">The pixels, transparent right and below of what is drawn when the bitmap is bigger</param>
+    /// <param name="Area">Where the whole bitmap is, in canvas pixels</param>
     public sealed record CompositionPiece(Guid Id, BitmapSource Bitmap, RectD Area);
 
     /// <summary>
@@ -65,6 +65,17 @@ namespace Greenshot.WpfEditor.Rendering
         private readonly Queue<Entry> _backgroundQueue = new();
         private List<Entry> _entries = new();
         private bool _drawingInBackground;
+        private byte[] _row = Array.Empty<byte>();
+
+        /// <summary>
+        /// A WPF bitmap which is kept while its element changes, bigger than needed so a growing element doesn't need a new one
+        /// every time. New WPF bitmaps make WPF force garbage collections (memory pressure of bitmaps), which stops the UI.
+        /// </summary>
+        private sealed class Surface
+        {
+            public WriteableBitmap Bitmap;
+            public int UsedWidth, UsedHeight;
+        }
         private bool _disposed;
 
         /// <summary>
@@ -79,6 +90,10 @@ namespace Greenshot.WpfEditor.Rendering
             public IReadOnlyList<Element> Below;
             public RectD Area;
             public CompositionPiece Piece;
+            // The bitmap the piece shows, written again when the element changes: no new bitmap for each change
+            public Surface Surface;
+            // The area without the cut at the edge of the canvas
+            public RectD Full;
             public GreenshotDocument Document;
             // Drawing it failed (e.g. a broken image): not tried again until it changes
             public bool Failed;
@@ -155,8 +170,10 @@ namespace Greenshot.WpfEditor.Rendering
                     continue;
                 }
 
+                entry.Full = PixelArea(entry.Area);
                 entry.Area = PixelArea(visible);
                 entry.Piece = old.TryGetValue(element.Id, out var before) ? Reuse(before, entry) : null;
+                entry.Surface = before?.Surface;
                 if (before is { Failed: true } && ReferenceEquals(before.Element, element) && before.Area == entry.Area)
                 {
                     entry.Failed = true;
@@ -167,7 +184,7 @@ namespace Greenshot.WpfEditor.Rendering
                     var keep = before?.Piece;
                     if (entry.Area.Width * entry.Area.Height <= DrawAtOnceLimit)
                     {
-                        entry.Piece = Draw(entry, _cache);
+                        entry.Piece = Present(entry, Draw(entry, _cache));
                         entry.Failed = entry.Piece == null;
                     }
                     else
@@ -226,13 +243,17 @@ namespace Greenshot.WpfEditor.Rendering
                 return null;
             }
 
-            var moved = before.Piece.Area.Offset(dx, dy);
             bool sameElement = Equals(ElementShapes.Unanchored(Anchors.Move(before.Element, dx, dy)), ElementShapes.Unanchored(now.Element));
-            // Only when the bitmap wasn't cut by the edge of the canvas, else a part would be missing
-            return sameElement && before.Piece.Area == before.Area && moved == now.Area ? before.Piece with { Area = moved } : null;
+            // Only when the bitmap isn't cut by the edge of the canvas, before and after, else a part would be missing
+            return sameElement && before.Full == before.Area && now.Full == now.Area && before.Area.Offset(dx, dy) == now.Area
+                ? before.Piece with { Area = before.Piece.Area.Offset(dx, dy) }
+                : null;
         }
 
-        private CompositionPiece Draw(Entry entry, DocumentRenderCache cache)
+        /// <summary>
+        /// The element (an effect: with everything below it) drawn into its area with the margin, null when that failed
+        /// </summary>
+        private static (Image<Rgba32> Image, int Margin)? Draw(Entry entry, DocumentRenderCache cache)
         {
             var document = entry.Document;
             var area = entry.Area;
@@ -244,10 +265,9 @@ namespace Greenshot.WpfEditor.Rendering
             try
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                using var image = DocumentRenderer.Render(document, area.Inflate(margin), cache, include);
-                var piece = new CompositionPiece(entry.Id, ToBitmap(image, margin, (int)area.Width, (int)area.Height), area);
+                var image = DocumentRenderer.Render(document, area.Inflate(margin), cache, include);
                 Log.DebugFormat("Drawn {0} {1}x{2} in {3} ms", entry.Element.GetType().Name, (int)area.Width, (int)area.Height, watch.ElapsedMilliseconds);
-                return piece;
+                return (image, margin);
             }
             catch (Exception ex)
             {
@@ -255,6 +275,78 @@ namespace Greenshot.WpfEditor.Rendering
                 return null;
             }
         }
+
+        /// <summary>
+        /// Writes the drawing into the bitmap of the entry (a new one only when it is too small), on the UI thread
+        /// </summary>
+        private CompositionPiece Present(Entry entry, (Image<Rgba32> Image, int Margin)? drawing)
+        {
+            if (drawing is not var (image, margin))
+            {
+                return null;
+            }
+
+            using (image)
+            {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                int width = (int)entry.Area.Width, height = (int)entry.Area.Height;
+                var surface = entry.Surface;
+                if (surface == null || surface.Bitmap.PixelWidth < width || surface.Bitmap.PixelHeight < height)
+                {
+                    // Room to grow, so resizing an element doesn't make a new bitmap for every pixel
+                    surface = new Surface { Bitmap = new WriteableBitmap(Grow(width), Grow(height), 96, 96, System.Windows.Media.PixelFormats.Bgra32, null) };
+                    entry.Surface = surface;
+                }
+
+                var bitmap = surface.Bitmap;
+                int clearWidth = Math.Max(width, surface.UsedWidth), clearHeight = Math.Max(height, surface.UsedHeight);
+                if (_row.Length < clearWidth * 4)
+                {
+                    _row = new byte[clearWidth * 4];
+                }
+
+                bitmap.Lock();
+                try
+                {
+                    var buffer = bitmap.BackBuffer;
+                    int stride = bitmap.BackBufferStride;
+                    image.ProcessPixelRows(rows =>
+                    {
+                        for (int y = 0; y < clearHeight; y++)
+                        {
+                            // What was drawn before right and below of the new drawing becomes transparent
+                            Array.Clear(_row, 0, clearWidth * 4);
+                            if (y < height)
+                            {
+                                var row = rows.GetRowSpan(y + margin).Slice(margin, width);
+                                int offset = 0;
+                                foreach (var pixel in row)
+                                {
+                                    _row[offset++] = pixel.B;
+                                    _row[offset++] = pixel.G;
+                                    _row[offset++] = pixel.R;
+                                    _row[offset++] = pixel.A;
+                                }
+                            }
+
+                            System.Runtime.InteropServices.Marshal.Copy(_row, 0, buffer + y * stride, clearWidth * 4);
+                        }
+                    });
+                    bitmap.AddDirtyRect(new System.Windows.Int32Rect(0, 0, clearWidth, clearHeight));
+                }
+                finally
+                {
+                    bitmap.Unlock();
+                }
+
+                surface.UsedWidth = width;
+                surface.UsedHeight = height;
+                Log.DebugFormat("Shown {0}x{1} in {2} ms, full garbage collections so far: {3}", width, height, watch.ElapsedMilliseconds, GC.CollectionCount(2));
+                return new CompositionPiece(entry.Id, bitmap, new RectD(entry.Area.X, entry.Area.Y, bitmap.PixelWidth, bitmap.PixelHeight));
+            }
+        }
+
+        private static int Grow(int size) => (size + size / 4 + 63) / 64 * 64;
 
         private async Task DrawInBackgroundAsync()
         {
@@ -273,13 +365,16 @@ namespace Greenshot.WpfEditor.Rendering
                     // PARALLEL: the document is immutable and the background cache is only used here, one drawing at a time;
                     // the UI keeps working while a big bitmap (the capture) is drawn
 #pragma warning disable RS0030 // R10: documented parallel branch
-                    var piece = await Task.Run(() => Draw(entry, _backgroundCache));
+                    var drawing = await Task.Run(() => Draw(entry, _backgroundCache));
 #pragma warning restore RS0030
-                    entry.Failed = piece == null;
-                    if (piece == null || !_entries.Contains(entry))
+                    entry.Failed = drawing == null;
+                    if (drawing == null || !_entries.Contains(entry))
                     {
+                        drawing?.Image.Dispose();
                         continue;
                     }
+
+                    var piece = Present(entry, drawing);
 
                     entry.Piece = piece;
                     Pieces = _entries.Where(e => e.Piece != null).Select(e => e.Piece).ToList();
@@ -290,34 +385,6 @@ namespace Greenshot.WpfEditor.Rendering
             {
                 _drawingInBackground = false;
             }
-        }
-
-        /// <summary>
-        /// The middle of the image (without the margin) as WPF bitmap
-        /// </summary>
-        private static BitmapSource ToBitmap(Image<Rgba32> image, int margin, int width, int height)
-        {
-            int stride = width * 4;
-            var pixels = new byte[stride * height];
-            image.ProcessPixelRows(rows =>
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    var row = rows.GetRowSpan(y + margin).Slice(margin, width);
-                    int offset = y * stride;
-                    foreach (var pixel in row)
-                    {
-                        pixels[offset++] = pixel.B;
-                        pixels[offset++] = pixel.G;
-                        pixels[offset++] = pixel.R;
-                        pixels[offset++] = pixel.A;
-                    }
-                }
-            });
-
-            var bitmap = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, stride);
-            bitmap.Freeze();
-            return bitmap;
         }
 
         private static RectD PixelArea(RectD area)

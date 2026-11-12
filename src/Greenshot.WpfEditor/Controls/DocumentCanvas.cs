@@ -250,10 +250,9 @@ namespace Greenshot.WpfEditor.Controls
                         group.Children.Add(new ImageDrawing(piece.Bitmap, new Rect(piece.Area.X - area.X, piece.Area.Y - area.Y, piece.Area.Width, piece.Area.Height)));
                     }
 
+                    // Not frozen: the bitmaps are written again when their elements change
                     group.ClipGeometry = new RectangleGeometry(new Rect(0, 0, area.Width, area.Height));
-                    group.Freeze();
                     _overviewBrush = new DrawingBrush(group) { Stretch = Stretch.Fill };
-                    _overviewBrush.Freeze();
                 }
 
                 return _overviewBrush;

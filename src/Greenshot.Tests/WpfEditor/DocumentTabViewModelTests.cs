@@ -21,7 +21,6 @@
 
 using System;
 using System.Linq;
-using System.Windows.Media.Imaging;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
 using Greenshot.WpfEditor.Tools;
@@ -248,7 +247,8 @@ namespace Greenshot.Tests.WpfEditor
                 var obfuscate = new ObfuscateElement(Guid.NewGuid(), new RectD(10, 10, 80, 80), ObfuscateMode.Pixelate, 10);
                 var above = new RectangleElement(Guid.NewGuid(), new RectD(150, 150, 40, 40));
                 using var tab = new DocumentTabViewModel(DocumentEdits.Add(NewDocument(), new Element[] { below, obfuscate, above }), "test");
-                BitmapSource Obfuscation() => tab.Composition.Pieces.Single(piece => piece.Id == obfuscate.Id).Bitmap;
+                // A drawing again is a new piece (the bitmap itself is kept and written again)
+                Greenshot.WpfEditor.Rendering.CompositionPiece Obfuscation() => tab.Composition.Pieces.Single(piece => piece.Id == obfuscate.Id);
                 var first = Obfuscation();
 
                 tab.Preview(DocumentEdits.Replace(tab.Committed, above with { Area = new RectD(160, 150, 40, 40) }));
