@@ -29,6 +29,8 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
+using Greenshot.Base.ImageSharpDrawing;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Base.Interfaces
@@ -41,6 +43,11 @@ namespace Greenshot.Base.Interfaces
         event SurfaceSizeChangeEventHandler SurfaceSizeChanged;
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
+
+        /// <summary>
+        /// The tool which is picked, e.g. Emoji: the next drag on the canvas draws that element
+        /// </summary>
+        DrawingModes DrawingMode { get; }
         event SurfaceElementEventHandler MovingElementChanged;
         event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
@@ -92,15 +99,16 @@ namespace Greenshot.Base.Interfaces
         Action HdrImagePreparation { get; }
 
         /// <summary>
-        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file): Save as suggests JPEG XR (HdrImage.IsRequested)
+        /// HDR was asked for explicitly (a Source step with Hdr true, an opened HDR file, see HdrImage.IsRequested): Save as suggests JPEG XR
+        /// when the HDR file can be written (HdrState Available). Without HDR content there is no HDR image, also when HDR was asked for.
         /// </summary>
         bool IsHdrRequested { get; }
 
         /// <summary>
-        /// What is drawn on the capture (the elements, the mouse cursor included), to put over the HDR image for an HDR file; null without elements.
-        /// On the UI thread, the caller disposes it.
+        /// What the elements (the mouse cursor included) do to the capture, as ImageSharp steps in their order, e.g. to draw them on the HDR image
+        /// of an HDR file (HdrImage.Compose); empty without elements. On the UI thread: the steps take all they need from the elements now.
         /// </summary>
-        HdrOverlay CreateHdrOverlay();
+        IReadOnlyList<ImageSharpStep> CreateImageSharpSteps();
 
         /// <summary>
         /// Get the current Image from the Editor for Exporting (save/upload etc)

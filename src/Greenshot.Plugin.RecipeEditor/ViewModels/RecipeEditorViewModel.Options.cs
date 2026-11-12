@@ -130,6 +130,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (!Enum.TryParse<ContractDataType>(value, out var type) || type == Option.Type) return;
                 Option.Type = type;
+                // What only an other type uses doesn't stay in the file
+                if (!IsNumber)
+                {
+                    Option.Min = null;
+                    Option.Max = null;
+                }
+                if (!IsEnum)
+                {
+                    Option.Choices = null;
+                }
+                if (!CanBeTemplate)
+                {
+                    Option.Format = null;
+                }
+                if (!CanBeQuickSetting)
+                {
+                    Option.QuickSettings = false;
+                }
                 // The default fits the new type, or it is the type's neutral value
                 if (!Option.TryConvert(Option.DefaultValue, out _))
                 {
@@ -139,8 +157,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DefaultText));
                 OnPropertyChanged(nameof(IsNumber));
+                OnPropertyChanged(nameof(MinText));
+                OnPropertyChanged(nameof(MaxText));
                 OnPropertyChanged(nameof(IsEnum));
+                OnPropertyChanged(nameof(ChoicesText));
                 OnPropertyChanged(nameof(CanBeQuickSetting));
+                OnPropertyChanged(nameof(QuickSettings));
+                OnPropertyChanged(nameof(CanBeTemplate));
+                OnPropertyChanged(nameof(IsTemplate));
             }
         }
 
@@ -149,6 +173,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsEnum => Option.Type == ContractDataType.Enum;
 
         public bool CanBeQuickSetting => RecipeOption.QuickSettingsTypes.Contains(Option.Type);
+
+        /// <summary>
+        /// Only a String option can be a template
+        /// </summary>
+        public bool CanBeTemplate => Option.Type == ContractDataType.String;
 
         /// <summary>
         /// How a step uses it
@@ -161,7 +190,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set
             {
                 // Stored as the type when it fits, as text otherwise (the check reports it).
-                // A folder keeps its %VARIABLES%, the file is used on other PCs.
+                // A folder keeps its ${user.*} values, the file is used on other PCs.
                 Option.DefaultValue = Option.Type != ContractDataType.DirectoryPath && Option.TryConvert(value, out var converted) ? converted : value;
                 OnPropertyChanged();
             }

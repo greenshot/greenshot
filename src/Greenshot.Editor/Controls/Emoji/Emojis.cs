@@ -45,8 +45,6 @@ public class Emojis
         public List<Emoji> Emojis { get; set; } = new();
 
 #if !GREENSHOT_BUILDTASKS
-        public IEnumerable<IEnumerable<Emoji>> EmojiChunkList => new ChunkHelper<Emoji>(EmojiList, 8);
-
         /// <summary>
         /// Shown on the tab instead of the first emoji of the group, e.g. for the history
         /// </summary>
@@ -69,6 +67,12 @@ public class Emojis
     {
         [XmlAttribute(AttributeName = "T")]
         public string Text { get; set; }
+
+        /// <summary>
+        /// The English name from the Unicode data, e.g. "grinning face", used by the search of the picker
+        /// </summary>
+        [XmlAttribute(AttributeName = "N")]
+        public string Name { get; set; }
 
         [XmlArray(ElementName = "V")]
         public List<Emoji> Variations { get; set; } = new();

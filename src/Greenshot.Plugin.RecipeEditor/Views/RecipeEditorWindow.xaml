@@ -28,6 +28,7 @@
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
         <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
         <KeyBinding Key="M" Modifiers="Control" Command="{Binding OpenRecipeManagerCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding ShowExpressionHelpCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -602,6 +603,7 @@
                             <Button Content="{wpf:Text RecipeEditor.BtnAutoLayout}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AutoLayoutCommand}" ToolTip="{wpf:Text RecipeEditor.TipAutoLayout}"/>
                             <Button Content="{}{ } JSON" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleJsonViewCommand}" ToolTip="{wpf:Text RecipeEditor.TipEditJson}"/>
                             <Button Content="🧜 Mermaid" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleMermaidViewCommand}" ToolTip="{wpf:Text RecipeEditor.TipMermaid}"/>
+                            <Button Content="{wpf:Text RecipeEditor.ExpressionHelpButton}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ShowExpressionHelpCommand}" ToolTip="{wpf:Text RecipeEditor.TipExpressionHelp}"/>
                         </StackPanel>
 
                         <!-- Right Action: Test Run -->
@@ -689,6 +691,12 @@
                             </Button>
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepStderr}" Command="{Binding AddStepCommand}" CommandParameter="Stderr">
                                 <TextBlock><Run Text="⛔ "/><Run Text="{wpf:Text RecipeEditor.StepStderr}"/></TextBlock>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepShowInExplorer}" Command="{Binding AddStepCommand}" CommandParameter="ShowInExplorer">
+                                <TextBlock><Run Text="📂 "/><Run Text="{wpf:Text RecipeEditor.StepShowInExplorer}"/></TextBlock>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepOpenWindow}" Command="{Binding AddStepCommand}" CommandParameter="OpenWindow">
+                                <TextBlock><Run Text="🪟 "/><Run Text="{wpf:Text RecipeEditor.StepOpenWindow}"/></TextBlock>
                             </Button>
 
                             <!-- 5. Destinations & Output -->
@@ -1897,7 +1905,7 @@
                                                                                 BorderThickness="1" CornerRadius="3"
                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                 Padding="2" VerticalAlignment="Center">
-                                                                            <emoji:EmojiPicker AutomationProperties.Name="{wpf:Text RecipeEditor.PickEmoji}" Selection="{Binding Emoji, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                                                            <emoji:EmojiPickerButton AutomationProperties.Name="{wpf:Text RecipeEditor.PickEmoji}" Selection="{Binding Emoji, Mode=TwoWay}" VerticalAlignment="Center"/>
                                                                         </Border>
                                                                         <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.EmojiIcon}" Grid.Column="2" Text="{Binding Emoji, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                                  FontSize="{wpf:FontSize 13}" VerticalContentAlignment="Center"
@@ -2471,6 +2479,24 @@
                                                       Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
+                                        <!-- 11b. ShowInExplorer / OpenWindow Step Inspectors -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=ShowInExplorer}">
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowInExplorerPath}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowInExplorerPath}" Text="{Binding SelectedNode.ShowInExplorerPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=OpenWindow}">
+                                            <TextBlock Text="{wpf:Text RecipeEditor.OpenWindowWindow}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.OpenWindowWindow}" SelectedValue="{Binding SelectedNode.OpenWindowWindow, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowTrayMenu}" Tag="TrayMenu"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowSettings}" Tag="Settings"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowAbout}" Tag="About"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowHelp}" Tag="Help"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowEmptyEditor}" Tag="EmptyEditor"/>
+                                            </ComboBox>
+                                        </StackPanel>
+
                                         <!-- PDF Step Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Pdf}">
                                             <TextBlock Text="{wpf:Text Pdf.LabelPageSize}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -2540,12 +2566,13 @@
                                                       Margin="0,0,0,8">
                                             </ComboBox>
 
-                                            <TextBlock Text="{wpf:Text RecipeEditor.AllowOverwrite}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AllowOverwrite}" SelectedValue="{Binding SelectedNode.OutputFileAllowOverwrite, Mode=TwoWay}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.IfFileExists}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.IfFileExists}" SelectedValue="{Binding SelectedNode.OutputFileIfExists, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OverwriteEnabled}" Tag="true"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OverwriteDisabled}" Tag="false"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.IfFileExistsOverwrite}" Tag="Overwrite"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.IfFileExistsAsk}" Tag="Ask"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.IfFileExistsAddNumber}" Tag="AddNumber"/>
                                             </ComboBox>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.QualityPrompt}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -2664,13 +2691,16 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
-                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowPrintDialog}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintDialog}" SelectedValue="{Binding SelectedNode.PrinterShowPrintDialog, Mode=TwoWay}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowPrintOptions}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowPrintOptions}" SelectedValue="{Binding SelectedNode.ShowPrintOptions, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogAlways}" Tag="true"/>
-                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PrintDialogSilent}" Tag="false"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
                                             </ComboBox>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.ShowPrinterDialog}"
+                                                      IsChecked="{Binding SelectedNode.ShowPrinterDialog, Mode=TwoWay}"
+                                                      Margin="0,0,0,8"/>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.AutoRotate}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AutoRotate}" SelectedValue="{Binding SelectedNode.PrinterAllowRotate, Mode=TwoWay}"
@@ -2835,7 +2865,7 @@
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.ConfiguredCommand}" Text="{Binding SelectedNode.ExternalCommandCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="{wpf:Text RecipeEditor.HintConfiguredCommand}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.HintConfiguredCommandDefaults}"
                                                        FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
 
                                             <TextBlock Text="{wpf:Text RecipeEditor.ExecutablePath}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -2851,46 +2881,68 @@
                                                         Command="{Binding SelectedNode.BrowseExternalExecutableCommand}" ToolTip="{wpf:Text RecipeEditor.TipBrowseExecutable}"/>
                                             </Grid>
 
-                                            <TextBlock Text="{wpf:Text RecipeEditor.Arguments}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.Arguments}" Text="{Binding SelectedNode.ExternalCommandArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandArguments}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandArguments}" Text="{Binding SelectedNode.ExternalCommandArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,6"/>
-
-                                            <TextBlock Text="{wpf:Text RecipeEditor.TempImageFormat}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.TempImageFormat}" ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandFile}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandFile}" SelectedValue="{Binding SelectedNode.ExternalCommandFile, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandFileNew}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandFileLastExport}" Tag="LastExport"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandFileNone}" Tag="None"/>
+                                            </ComboBox>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandImageFormat}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandImageFormat}" ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                                       DisplayMemberPath="DisplayNameWithPreferredExtension" ItemContainerStyle="{StaticResource FileFormatComboItemStyle}" SelectedValuePath="Id"
                                                       SelectedValue="{Binding SelectedNode.ExternalCommandFormat, Mode=TwoWay}"
                                                       Margin="0,0,0,6">
                                             </ComboBox>
-
-                                            <TextBlock Text="{wpf:Text RecipeEditor.ShellVerb}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShellVerb}" Text="{Binding SelectedNode.ExternalCommandVerb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-
                                             <TextBlock Text="{wpf:Text RecipeEditor.WorkingDirectory}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.WorkingDirectory}" Text="{Binding SelectedNode.ExternalCommandWorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,6"/>
-
-                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
-                                                <StackPanel>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.RunAsync}" IsChecked="{Binding SelectedNode.ExternalCommandRunInBackground, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.CopyStdout}" IsChecked="{Binding SelectedNode.ExternalCommandOutputToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.CopyDetectedUrl}" IsChecked="{Binding SelectedNode.ExternalCommandUriToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="{wpf:Text RecipeEditor.ReloadImage}" IsChecked="{Binding SelectedNode.ExternalCommandReloadAfterExecution, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                </StackPanel>
-                                            </Border>
-
-                                            <TextBlock Text="{wpf:Text RecipeEditor.StoreOutputVariable}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.StoreOutputVariable}" Text="{Binding SelectedNode.ExternalCommandSetOutputVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandStandardInput}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandStandardInput}" SelectedValue="{Binding SelectedNode.ExternalCommandStandardInput, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandInputNone}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandInputImage}" Tag="Image"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandInputText}" Tag="Text"/>
+                                            </ComboBox>
+                                            <StackPanel Visibility="{Binding SelectedNode.ExternalCommandHasStandardInputText, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="{wpf:Text RecipeEditor.CommandStandardInputText}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandStandardInputText}" Text="{Binding SelectedNode.ExternalCommandStandardInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,6"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandOutput}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandOutput}" SelectedValue="{Binding SelectedNode.ExternalCommandOutput, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandOutputText}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandOutputImage}" Tag="Image"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandOutputFile}" Tag="File"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandOutputNone}" Tag="None"/>
+                                            </ComboBox>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandCopyToClipboard}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandCopyToClipboard}" SelectedValue="{Binding SelectedNode.ExternalCommandCopyToClipboard, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandCopyDefault}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandCopyOutput}" Tag="Output"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.CommandCopyUrl}" Tag="Url"/>
+                                            </ComboBox>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandResultName}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandResultName}" Text="{Binding SelectedNode.ExternalCommandResultName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-
-                                            <TextBlock Text="{wpf:Text RecipeEditor.StoreExitCodeVariable}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.StoreExitCodeVariable}" Text="{Binding SelectedNode.ExternalCommandSetExitCodeVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandSuccessExitCodes}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandSuccessExitCodes}" Text="{Binding SelectedNode.ExternalCommandSuccessExitCodes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandTimeout}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandTimeout}" Text="{Binding SelectedNode.ExternalCommandTimeout, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CommandEncoding}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.CommandEncoding}" Text="{Binding SelectedNode.ExternalCommandEncoding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.RunAsync}" IsChecked="{Binding SelectedNode.ExternalCommandRunInBackground, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,8"/>
                                         </StackPanel>
 
                                         <!-- 21. Jira Inspector -->
@@ -3147,6 +3199,7 @@
                                                                     <CheckBox Content="{wpf:Text RecipeEditor.OptionQuickSettings}" IsChecked="{Binding QuickSettings, Mode=TwoWay}" Margin="0,0,10,0"
                                                                               IsEnabled="{Binding CanBeQuickSetting}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                     <CheckBox Content="{wpf:Text RecipeEditor.OptionExpandPlaceholders}" IsChecked="{Binding IsTemplate, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                              IsEnabled="{Binding CanBeTemplate}"
                                                                               ToolTip="{wpf:Text RecipeEditor.TipOptionExpandPlaceholders}"
                                                                               Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                                     <StackPanel Orientation="Horizontal">
@@ -3244,6 +3297,7 @@
                                         <Button Content="{wpf:Text RecipeEditor.TriggerAddCli}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="{wpf:Text RecipeEditor.TipTriggerAddCli}"/>
                                         <Button Content="{wpf:Text RecipeEditor.TriggerAddOpenWith}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="{wpf:Text RecipeEditor.TipTriggerAddOpenWith}"/>
                                         <Button Content="{wpf:Text RecipeEditor.TriggerAddBrowserExtension}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="{wpf:Text RecipeEditor.TipTriggerAddBrowserExtension}"/>
+                                        <Button Content="{wpf:Text RecipeEditor.TriggerAddNotification}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Notification" Margin="0,0,4,4" ToolTip="{wpf:Text RecipeEditor.TipTriggerAddNotification}"/>
                                         <Button Content="{wpf:Text RecipeEditor.TriggerAddAiTool}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="AiTool" Margin="0,0,4,4" ToolTip="{wpf:Text RecipeEditor.TipTriggerAddAiTool}"/>
                                         <Button Content="{wpf:Text RecipeEditor.TriggerAddManual}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>

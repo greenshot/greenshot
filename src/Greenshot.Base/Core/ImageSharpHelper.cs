@@ -164,16 +164,17 @@ public static class ImageSharpHelper
         // ---------------------------------------------------------------------
         if (image is Image<Rgba32> imgRgba32)
         {
-            // We create a temporary Bgra32 copy. 
-            // This handles the R <-> B swap automatically and efficiently.
-            using (var tempImg = imgRgba32.CloneAs<Bgra32>())
-            {
-                return ConvertToBitmap<Bgra32>(tempImg, PixelFormat.Format32bppArgb);
-            }
+            // Converted row by row into the bitmap, without a Bgra32 copy of the whole image
+            return ConvertToArgbBitmap(imgRgba32);
+        }
+
+        if (image is Image<Rgb24> imgRgb24)
+        {
+            return ConvertToArgbBitmap(imgRgb24);
         }
 
         // ---------------------------------------------------------------------
-        // Case 4: Any other format (L8, Rgb24, etc.)
+        // Case 4: Any other format (L8, HalfVector4, etc.)
         // Fallback: Convert to Bgra32 universal format
         // ---------------------------------------------------------------------
         using (var tempImg = image.CloneAs<Bgra32>())
@@ -232,5 +233,68 @@ public static class ImageSharpHelper
         }
 
         return bmp;
+    }
+
+    /// <summary>
+    /// Convert the ImageSharp Image<TPixel> to a 32bpp ARGB Bitmap, row by row with ImageSharp's pixel conversion (the same as CloneAs<Bgra32>)
+    /// </summary>
+    private static unsafe Bitmap ConvertToArgbBitmap<TPixel>(Image<TPixel> sourceImage) where TPixel : unmanaged, IPixel<TPixel>
+    {
+        int width = sourceImage.Width;
+        int height = sourceImage.Height;
+        Bitmap bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+        BitmapData bmpData = bmp.LockBits(new NativeRect(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            sourceImage.ProcessPixelRows(accessor =>
+            {
+                byte* targetPtr = (byte*)bmpData.Scan0;
+                for (int y = 0; y < height; y++)
+                {
+                    var targetRow = new Span<Bgra32>(targetPtr + (long)y * bmpData.Stride, width);
+                    PixelOperations<TPixel>.Instance.ToBgra32(Configuration.Default, accessor.GetRowSpan(y), targetRow);
+                }
+            });
+        }
+        catch
+        {
+            bmp.UnlockBits(bmpData);
+            bmp.Dispose();
+            throw;
+        }
+
+        bmp.UnlockBits(bmpData);
+        return bmp;
+    }
+
+    /// <summary>
+    /// Uses the pixels of the bitmap as an ImageSharp image, only to read them: 32bpp ARGB and 24bpp RGB without row padding in place,
+    /// other formats as a converted copy
+    /// </summary>
+    public static unsafe void UsePixels(Bitmap bitmap, Action<Image> use)
+    {
+        if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
+        if (use == null) throw new ArgumentNullException(nameof(use));
+        bool isArgb = bitmap.PixelFormat == PixelFormat.Format32bppArgb;
+        bool isRgb = bitmap.PixelFormat == PixelFormat.Format24bppRgb && bitmap.Width * 3 % 4 == 0;
+        if (!isArgb && !isRgb)
+        {
+            using var copy = ConvertToImageSharp(bitmap);
+            use(copy);
+            return;
+        }
+
+        var bitmapData = bitmap.LockBits(new NativeRect(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+        try
+        {
+            using Image image = isArgb
+                ? Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height)
+                : Image.WrapMemory<Bgr24>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height);
+            use(image);
+        }
+        finally
+        {
+            bitmap.UnlockBits(bitmapData);
+        }
     }
 }

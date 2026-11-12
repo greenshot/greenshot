@@ -124,28 +124,28 @@ namespace Greenshot.Recipes.Views
         public string ClickToPreviewTooltip => Texts.Settings.DestinationViewer;
         public string ErrorSubtitleText => Texts.Recipe.PickerErrorChooseAgain;
 
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode 
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme 
             ? Texts.Recipe.PickerThemeLight
             : Texts.Recipe.PickerThemeDark;
 
         // Theme brushes bound to XAML
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
-        public SolidColorBrush ErrorBackgroundBrush => WpfThemeHelper.ErrorBackground;
-        public SolidColorBrush ErrorBorderBrush => WpfThemeHelper.ErrorBorder;
-        public SolidColorBrush ErrorTextBrush => WpfThemeHelper.ErrorText;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
+        public SolidColorBrush ErrorBackgroundBrush => ThemeManager.Instance.CurrentPalette.ErrorBackground;
+        public SolidColorBrush ErrorBorderBrush => ThemeManager.Instance.CurrentPalette.ErrorBorder;
+        public SolidColorBrush ErrorTextBrush => ThemeManager.Instance.CurrentPalette.ErrorText;
 
-        public SolidColorBrush HoverBackgroundBrush => WpfThemeHelper.IsDarkMode
+        public SolidColorBrush HoverBackgroundBrush => ThemeManager.Instance.IsDarkTheme
             ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x24, 0x0A, 0x84, 0xFF))
             : new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x14, 0x00, 0x7A, 0xFF));
 
-        public SolidColorBrush PressedBackgroundBrush => WpfThemeHelper.IsDarkMode
+        public SolidColorBrush PressedBackgroundBrush => ThemeManager.Instance.IsDarkTheme
             ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x38, 0x0A, 0x84, 0xFF))
             : new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x28, 0x00, 0x7A, 0xFF));
 
@@ -227,7 +227,7 @@ namespace Greenshot.Recipes.Views
                 _timer.Start();
             }
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
 
             SourceInitialized += (s, e) => ApplyImmersiveDarkMode();
@@ -241,7 +241,7 @@ namespace Greenshot.Recipes.Views
                 {
                     _capture.Changed -= OnCaptureChanged;
                 }
-                WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+                ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
                 Texts.Config.LanguageChanged -= OnLanguageChanged;
             };
             KeyDown += OnWindowKeyDown;
@@ -535,7 +535,7 @@ namespace Greenshot.Recipes.Views
 
         private void OnThemeToggleClicked(object sender, RoutedEventArgs e)
         {
-            WpfThemeHelper.ToggleTheme();
+            ThemeManager.Instance.ToggleTheme();
         }
 
         #region Preview in the viewer
@@ -610,7 +610,7 @@ namespace Greenshot.Recipes.Views
                     e.Handled = true;
                     break;
                 case Key.T when Keyboard.Modifiers == ModifierKeys.None:
-                    WpfThemeHelper.ToggleTheme();
+                    ThemeManager.Instance.ToggleTheme();
                     e.Handled = true;
                     break;
             }

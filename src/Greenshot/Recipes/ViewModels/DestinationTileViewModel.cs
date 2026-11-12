@@ -63,11 +63,11 @@ namespace Greenshot.Recipes.ViewModels
         public SolidColorBrush BadgeBackgroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerBrush;
         public SolidColorBrush BadgeForegroundBrush { get; set; } = ThemeManager.Instance.CurrentPalette.DangerForegroundBrush;
 
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
 
         public void NotifyThemeChanged()
         {

@@ -20,15 +20,16 @@
  */
 
 using System;
-using System.Numerics;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Base.Effects
 {
     /// <summary>
     /// The filter of an element (e.g. a highlighter, a magnifier) as ImageSharp processing on an area of an image, for any pixel type; used for
-    /// the HDR image of an HDR file (HdrOverlay.Filters, see HdrImage.Compose)
+    /// the HDR image of an HDR file (an ImageSharpStep, see HdrImage.Compose)
     /// </summary>
     public sealed class ImageFilter
     {
@@ -59,13 +60,27 @@ namespace Greenshot.Base.Effects
             {
                 return;
             }
-            // The pixels of the area as Vector4, then into the image: works for every pixel type, lossless for HalfVector4
-            var pixels = new Vector4[area.Width * area.Height];
+            // The pixels of the area as Vector4, then into the image: works for every pixel type, lossless for HalfVector4.
+            // Float pixels (a blurred copy) are read row by row as they are, other sources first become float pixels (pooled, not on the LOH).
             var sourceArea = new Rectangle(area.X - sourceOffset.X, area.Y - sourceOffset.Y, area.Width, area.Height);
-            source.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                row.CopyTo(pixels.AsSpan((start.Y - sourceArea.Y) * area.Width, area.Width)), sourceArea));
-            target.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                pixels.AsSpan((start.Y - area.Y) * area.Width, area.Width).CopyTo(row), area));
+            Image<RgbaVector> converted = null;
+            try
+            {
+                Image<RgbaVector> floats = source as Image<RgbaVector>;
+                Point floatsOffset = new Point(sourceArea.X, sourceArea.Y);
+                if (floats == null)
+                {
+                    floats = converted = FloatPixels.Of(source, sourceArea);
+                    floatsOffset = Point.Empty;
+                }
+                target.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
+                    FloatPixels.Vectors(floats, start.Y - area.Y + floatsOffset.Y)
+                        .Slice(start.X - area.X + floatsOffset.X, row.Length).CopyTo(row), area));
+            }
+            finally
+            {
+                converted?.Dispose();
+            }
         }
     }
 }

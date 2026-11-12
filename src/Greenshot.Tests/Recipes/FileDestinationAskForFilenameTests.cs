@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Hdr;
+using Greenshot.Base.Native;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -83,6 +86,8 @@ namespace Greenshot.Tests.Recipes
                 return Task.CompletedTask;
             }
 
+            public Task<string> PickOpenFileAsync(CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+
             public Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken)
             {
                 Dialogs.Add(request);
@@ -127,7 +132,7 @@ namespace Greenshot.Tests.Recipes
             return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
         }
 
-        private static async Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat, bool manuallyInitiated = false)
+        private static Task<ExportResult> ExportAsync(Surface surface, IUserInteraction ui, string hdrFormat, bool manuallyInitiated = false)
         {
             var options = new FileDestinationOptions
             {
@@ -135,6 +140,11 @@ namespace Greenshot.Tests.Recipes
                 HdrFormat = hdrFormat,
                 CopyPathToClipboard = false
             };
+            return ExportWithOptionsAsync(surface, ui, options, manuallyInitiated);
+        }
+
+        private static async Task<ExportResult> ExportWithOptionsAsync(Surface surface, IUserInteraction ui, FileDestinationOptions options, bool manuallyInitiated = false)
+        {
             // Without a SynchronizationContext, like a flow: nothing may wait for the UI thread of the test
             return await Task.Run(async () =>
             {
@@ -184,7 +194,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task DrawnElement_IsInTheHdrFile_AtTheSdrWhiteLevel_TheRestKeepsTheHighlights()
+        public async Task DrawnElement_IsInTheHdrFile_TheRestKeepsTheHighlights()
         {
             string path = TempFile("jxr");
             try
@@ -200,7 +210,7 @@ namespace Greenshot.Tests.Recipes
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Notifications);
                 var row = ReadHdrRow(path, 4);
-                // The red border at the left: red at the SDR white level, no green
+                // The red border at the left: red, no green
                 Assert.True(row[2 * 4] > 1.5f, $"red {row[2 * 4]}");
                 Assert.True(row[2 * 4 + 1] < 0.5f, $"green {row[2 * 4 + 1]}");
                 // Inside the (unfilled) rectangle and next to it the HDR highlights
@@ -269,7 +279,7 @@ namespace Greenshot.Tests.Recipes
                 Assert.False(HdrExport.CanWriteHdr(surface));
                 var ui = new SaveDialogUserInteraction(path) { ConfirmAnswer = answer };
 
-                var result = await ExportAsync(surface, ui, null, manuallyInitiated);
+                var result = await ExportAsync(surface, ui, (string) null, manuallyInitiated);
 
                 // An 8-bit JPEG XR: the user who saves it is asked first, a flow saves it (the recipe can check payload.hdr); never a notification
                 Assert.Equal(manuallyInitiated ? 1 : 0, ui.Questions.Count);
@@ -389,25 +399,24 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Overlay_HasLayersOnlyWhereSomethingIsDrawn()
+        public void Overlay_DrawsOnlyWhereSomethingIsDrawn()
         {
             using var surface = CreateBrightHdrSurface();
             var rectangle = new RectangleContainer(surface) { Left = 8, Top = 2, Width = 1, Height = 1 };
             surface.AddElement(rectangle, false, false);
-            // Highlighters draw nothing themselves: no layer after them, however many there are
+            // Highlighters draw nothing themselves: only their filters, however many there are
             for (int i = 0; i < 3; i++)
             {
                 var highlight = new HighlightContainer(surface) { Left = 2 * i, Top = 2, Width = 2, Height = 4 };
                 surface.AddElement(highlight, false, false);
             }
 
-            using var overlay = surface.CreateHdrOverlay();
+            var steps = surface.CreateImageSharpSteps();
 
-            Assert.Equal(new[] { true, false, false, false }, overlay.Steps.Select(step => step.Layer != null).ToArray());
-            var layer = overlay.Steps[0];
-            // The layer is only as big as what is drawn into it, at its place
-            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)),
-                new NativeRect(layer.Location, new NativeSize(layer.Layer.Width, layer.Layer.Height)));
+            Assert.Equal(new[] { true, false, false, false }, steps.Select(step => step.Draw != null).ToArray());
+            var drawn = steps[0];
+            // The rectangle is drawn only where it draws, at its place
+            Assert.Equal(rectangle.DrawingBounds.Intersect(new NativeRect(0, 0, 16, 8)), new NativeRect(drawn.Location, drawn.Size));
         }
 
         [Fact]
@@ -421,7 +430,7 @@ namespace Greenshot.Tests.Recipes
                 var ui = new SaveDialogUserInteraction(path);
 
                 // Like the editor's Save as: no HdrFormat, the user picks JPEG XR
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // Away from the rectangle and its shadow: the HDR highlights
@@ -444,7 +453,7 @@ namespace Greenshot.Tests.Recipes
                 await Task.Run(() => surface.ApplyBitmapEffectAsync(new Greenshot.Base.Effects.BorderEffect { Width = 2, Color = Color.Black }));
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Notifications);
@@ -501,11 +510,10 @@ namespace Greenshot.Tests.Recipes
                 using (var hdrDisplay = new HdrImage(4, 4, 240, 400))
                 {
                     hdrDisplay.Pixels[3, 3] = new SixLabors.ImageSharp.PixelFormats.HalfVector4(5, 5, 5, 1);
-                    capture.HdrImage = HdrImage.Combine(8, 4, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
+                    capture.HdrImage = HdrImage.Combine(bitmap, new[] { (hdrDisplay, new Dapplo.Windows.Common.Structs.NativePoint(0, 0)) });
                 }
                 capture.HdrImage.BelongTo(capture.Image);
                 using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
-                Assert.False(surface.HdrImage.IsComplete);
                 var ui = new SaveDialogUserInteraction(path);
 
                 var result = await ExportAsync(surface, ui, HdrOutput.Auto);
@@ -567,9 +575,12 @@ namespace Greenshot.Tests.Recipes
                 var floats = new System.Windows.Media.Imaging.FormatConvertedBitmap(frame, System.Windows.Media.PixelFormats.Rgba128Float, null, 0);
                 var row = new float[8 * 4];
                 floats.CopyPixels(new System.Windows.Int32Rect(0, 1, 8, 1), row, 8 * 16, 0);
-                // Next to the cursor the HDR pixels, under it the red of the cursor at the SDR white level (240 nits is 3.0)
+                // Next to the cursor the HDR pixels, under it the red of the cursor: one of 32 pixels is a highlight of 400 nits, the white of the
+                // tone mapping is a bit brighter than the SDR white of 240 nits, the elements are halfway between both
+                float white = (float)Math.Sqrt(240 * HdrContent.WhiteLevelInNits(240, 400, 400, 1 / 32f)) / 80f;
+                Assert.InRange(white, 3.05f, 3.3f);
                 Assert.Equal(0f, row[0], 2);
-                Assert.Equal(3f, row[2 * 4], 2);
+                Assert.Equal(white, row[2 * 4], 2);
                 Assert.Equal(0f, row[2 * 4 + 1], 2);
             }
             finally
@@ -635,7 +646,7 @@ namespace Greenshot.Tests.Recipes
                 using var surface = CreateSurface(true);
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 // HDR content only by the setting: the configured format, JPEG XR only marked as HDR
@@ -661,7 +672,7 @@ namespace Greenshot.Tests.Recipes
                 surface.HdrImage.IsRequested = true;
                 var ui = new SaveDialogUserInteraction(path);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Equal("jxr", Assert.Single(ui.Dialogs).Format);
@@ -695,7 +706,7 @@ namespace Greenshot.Tests.Recipes
                 surface.CaptureDetails.Filename = path;
                 var ui = new SaveDialogUserInteraction(null, false);
 
-                var result = await ExportAsync(surface, ui, null);
+                var result = await ExportAsync(surface, ui, (string) null);
 
                 Assert.Equal(ExportStatus.Succeeded, result.Status);
                 Assert.Empty(ui.Dialogs);
@@ -704,6 +715,116 @@ namespace Greenshot.Tests.Recipes
             finally
             {
                 File.Delete(path);
+            }
+        }
+
+        /// <summary>
+        /// A folder of its own with a file "capture.png" which exists
+        /// </summary>
+        private static (string Directory, string Existing) CreateFolderWithFile()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), $"exists_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(directory);
+            string existing = Path.Combine(directory, "capture.png");
+            File.WriteAllBytes(existing, new byte[] { 1, 2, 3 });
+            return (directory, existing);
+        }
+
+        [Fact]
+        public async Task AskForFilename_TheDialogSuggestsTheFileOfTheStep()
+        {
+            using var surface = CreateSurface(false);
+            var ui = new SaveDialogUserInteraction(null);
+            string stepFile = Path.Combine(Path.GetTempPath(), "step folder", "step name.jpg");
+
+            await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { AskForFilename = true, FilePath = stepFile, CopyPathToClipboard = false });
+
+            Assert.Equal(stepFile, Assert.Single(ui.Dialogs).SuggestedPath);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task FileExists_AddNumber_SavesTheFirstFreeName(bool interactive)
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, interactive);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.AddNumber, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Empty(ui.Dialogs);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), result.FilePath);
+                Assert.Equal(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Ask_TheDialogSuggestsTheNextFreeName()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Declined, result.Status);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), Assert.Single(ui.Dialogs).SuggestedPath);
+                Assert.Equal(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Ask_Unattended_AddsANumberInsteadOfFailing()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, false);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Ask, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Equal(Path.Combine(directory, "capture (2).png"), result.FilePath);
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
+        [Fact]
+        public async Task FileExists_Overwrite_ReplacesIt()
+        {
+            var (directory, existing) = CreateFolderWithFile();
+            try
+            {
+                using var surface = CreateSurface(false);
+                var ui = new SaveDialogUserInteraction(null, false);
+
+                var result = await ExportWithOptionsAsync(surface, ui, new FileDestinationOptions { FilePath = existing, IfFileExists = FileExistsAction.Overwrite, CopyPathToClipboard = false });
+
+                Assert.Equal(ExportStatus.Succeeded, result.Status);
+                Assert.Equal(existing, result.FilePath);
+                Assert.NotEqual(new byte[] { 1, 2, 3 }, File.ReadAllBytes(existing));
+            }
+            finally
+            {
+                Directory.Delete(directory, true);
             }
         }
     }

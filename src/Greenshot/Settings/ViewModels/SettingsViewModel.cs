@@ -205,6 +205,16 @@ namespace Greenshot.Settings.ViewModels
 
         public bool IsExpertTabVisible => !CoreConfiguration.HideExpertSettings;
 
+        /// <summary>
+        /// A mandatory Windows policy sets at least one setting (the settings window says so), see docs/vNext/policies.md
+        /// </summary>
+        public bool IsManagedByPolicies =>
+#if GREENSHOT_LIGHT
+            false;
+#else
+            Greenshot.Policies.PoliciesSectionViewModel.HasMandatoryPolicies(Dapplo.Ini.IniConfigRegistry.Get().GetSections());
+#endif
+
         public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
         public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode";
 
@@ -455,12 +465,7 @@ namespace Greenshot.Settings.ViewModels
             }
 
             // Names in the settings which aren't registered, e.g. of a plugin which isn't installed
-            foreach (var designation in ConfigurationRestrictions.Names(CoreConfiguration.ExcludeDestinations)
-                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.BlockedDestinations))
-                         .Concat(ConfigurationRestrictions.Names(CoreConfiguration.AllowedDestinations))
-                         .Distinct(StringComparer.OrdinalIgnoreCase)
-                         .Where(designation => designation != nameof(WellKnownDestinations.Picker))
-                         .ToList())
+            foreach (var designation in UnlistedDestinationNames(CoreConfiguration, Destinations.Select(item => item.Designation)))
             {
                 AddUnregisteredDestination(designation);
             }

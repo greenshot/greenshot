@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -396,6 +397,20 @@ namespace Greenshot.Editor.Drawing
         /// Describes the shape, other elements use it to know when their shadow changes
         /// </summary>
         internal string ShapeKey => $"{GetBand()}|{GetFieldValue(FieldType.CUT_MARK_STYLE)}|{_seed}|{ToothHeight}|{ToothRange}";
+
+        /// <summary>
+        /// The lines along the two edges of the gap, in image coordinates; none when nothing is cut out
+        /// </summary>
+        internal IReadOnlyList<PointF[]> EdgeLines()
+        {
+            var band = GetBand();
+            if (GetFieldValue(FieldType.CUT_MARK_STYLE) is not CutMarkStyle style || style == CutMarkStyle.None || band.Width <= 0 || band.Height <= 0)
+            {
+                return Array.Empty<PointF[]>();
+            }
+            CreateEdges(band, style, out var firstEdge, out var secondEdge);
+            return new[] { firstEdge, secondEdge };
+        }
 
         /// <summary>
         /// The gap in image coordinates, this is cut out of the image

@@ -297,6 +297,16 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepStderr { get; }
 
         /// <summary>
+        /// Show in Explorer
+        /// </summary>
+        string StepShowInExplorer { get; }
+
+        /// <summary>
+        /// Open window
+        /// </summary>
+        string StepOpenWindow { get; }
+
+        /// <summary>
         /// OUTPUT &amp; DESTINATIONS
         /// </summary>
         string HeaderOutputDestinations { get; }
@@ -1137,7 +1147,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string DeleteVariable { get; }
 
         /// <summary>
-        /// Available scopes: ${user.username}, ${machine.computername}, ${now:yyyy-MM-dd}, ${payload.width}
+        /// Available scopes: ${user.name}, ${machine.name}, ${time.now:yyyy-MM-dd}, ${payload.width}
         /// </summary>
         string HintVariableScopes { get; }
 
@@ -1802,6 +1812,41 @@ namespace Greenshot.Plugin.RecipeEditor
         string StderrText { get; }
 
         /// <summary>
+        /// File or folder to show (supports ${...}, empty: the last capture)
+        /// </summary>
+        string ShowInExplorerPath { get; }
+
+        /// <summary>
+        /// Window to open
+        /// </summary>
+        string OpenWindowWindow { get; }
+
+        /// <summary>
+        /// Tray menu
+        /// </summary>
+        string OpenWindowTrayMenu { get; }
+
+        /// <summary>
+        /// Settings
+        /// </summary>
+        string OpenWindowSettings { get; }
+
+        /// <summary>
+        /// About Greenshot
+        /// </summary>
+        string OpenWindowAbout { get; }
+
+        /// <summary>
+        /// Help
+        /// </summary>
+        string OpenWindowHelp { get; }
+
+        /// <summary>
+        /// Empty image in the editor
+        /// </summary>
+        string OpenWindowEmptyEditor { get; }
+
+        /// <summary>
         /// Exit Code
         /// </summary>
         string ExitCode { get; }
@@ -1832,19 +1877,24 @@ namespace Greenshot.Plugin.RecipeEditor
         string ImageFormat { get; }
 
         /// <summary>
-        /// Allow Overwrite
+        /// If the File Exists
         /// </summary>
-        string AllowOverwrite { get; }
+        string IfFileExists { get; }
 
         /// <summary>
-        /// Enabled (Overwrite existing)
+        /// Overwrite it
         /// </summary>
-        string OverwriteEnabled { get; }
+        string IfFileExistsOverwrite { get; }
 
         /// <summary>
-        /// Disabled (Auto-number files)
+        /// Ask where to save (unattended: add a number)
         /// </summary>
-        string OverwriteDisabled { get; }
+        string IfFileExistsAsk { get; }
+
+        /// <summary>
+        /// Add a number: name (2)
+        /// </summary>
+        string IfFileExistsAddNumber { get; }
 
         /// <summary>
         /// Quality Prompt
@@ -2067,19 +2117,14 @@ namespace Greenshot.Plugin.RecipeEditor
         string PrinterName { get; }
 
         /// <summary>
-        /// Show Print Dialog
+        /// Show Greenshot's print options window
         /// </summary>
-        string ShowPrintDialog { get; }
+        string ShowPrintOptions { get; }
 
         /// <summary>
-        /// Always Show Print Dialog
+        /// Show the system printer dialog
         /// </summary>
-        string PrintDialogAlways { get; }
-
-        /// <summary>
-        /// Silent (Direct Print)
-        /// </summary>
-        string PrintDialogSilent { get; }
+        string ShowPrinterDialog { get; }
 
         /// <summary>
         /// Auto-Rotate to Fit Page
@@ -2227,11 +2272,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string ConfiguredCommand { get; }
 
         /// <summary>
-        /// When a configured command is set, the executable and arguments below are not used.
-        /// </summary>
-        string HintConfiguredCommand { get; }
-
-        /// <summary>
         /// Executable / Script Path
         /// </summary>
         string ExecutablePath { get; }
@@ -2240,21 +2280,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Browse for executable or script
         /// </summary>
         string TipBrowseExecutable { get; }
-
-        /// <summary>
-        /// Arguments (use {0} for image file)
-        /// </summary>
-        string Arguments { get; }
-
-        /// <summary>
-        /// Temporary Image Format
-        /// </summary>
-        string TempImageFormat { get; }
-
-        /// <summary>
-        /// Shell Verb (Optional, e.g. print; replaces running the executable)
-        /// </summary>
-        string ShellVerb { get; }
 
         /// <summary>
         /// Working Directory (Optional)
@@ -2267,29 +2292,129 @@ namespace Greenshot.Plugin.RecipeEditor
         string RunAsync { get; }
 
         /// <summary>
-        /// Copy standard output to clipboard
+        /// The program, arguments and settings of a configured command are the defaults, what is set below wins.
         /// </summary>
-        string CopyStdout { get; }
+        string HintConfiguredCommandDefaults { get; }
 
         /// <summary>
-        /// Copy detected URL from output to clipboard
+        /// Arguments ("${export.file}" is the file, quote it yourself)
         /// </summary>
-        string CopyDetectedUrl { get; }
+        string CommandArguments { get; }
 
         /// <summary>
-        /// Reload image after execution
+        /// File handed to the command (${export.file})
         /// </summary>
-        string ReloadImage { get; }
+        string CommandFile { get; }
 
         /// <summary>
-        /// Store Output in Variable (Optional)
+        /// A new file in the format below
         /// </summary>
-        string StoreOutputVariable { get; }
+        string CommandFileNew { get; }
 
         /// <summary>
-        /// Store Exit Code in Variable (Optional)
+        /// The file of the export before this step
         /// </summary>
-        string StoreExitCodeVariable { get; }
+        string CommandFileLastExport { get; }
+
+        /// <summary>
+        /// No file
+        /// </summary>
+        string CommandFileNone { get; }
+
+        /// <summary>
+        /// Format of the file and of the image on standard input
+        /// </summary>
+        string CommandImageFormat { get; }
+
+        /// <summary>
+        /// Standard input
+        /// </summary>
+        string CommandStandardInput { get; }
+
+        /// <summary>
+        /// Nothing
+        /// </summary>
+        string CommandInputNone { get; }
+
+        /// <summary>
+        /// The image, in the format above
+        /// </summary>
+        string CommandInputImage { get; }
+
+        /// <summary>
+        /// A text
+        /// </summary>
+        string CommandInputText { get; }
+
+        /// <summary>
+        /// Text on standard input (everything may be used, e.g. ${payload.ocr.text})
+        /// </summary>
+        string CommandStandardInputText { get; }
+
+        /// <summary>
+        /// Standard output
+        /// </summary>
+        string CommandOutput { get; }
+
+        /// <summary>
+        /// Text: the result of the step, a URL in it is the link
+        /// </summary>
+        string CommandOutputText { get; }
+
+        /// <summary>
+        /// An image: replaces the capture
+        /// </summary>
+        string CommandOutputImage { get; }
+
+        /// <summary>
+        /// Not read: the command changed the file, the image is read again from it
+        /// </summary>
+        string CommandOutputFile { get; }
+
+        /// <summary>
+        /// Not read
+        /// </summary>
+        string CommandOutputNone { get; }
+
+        /// <summary>
+        /// Copy to the clipboard
+        /// </summary>
+        string CommandCopyToClipboard { get; }
+
+        /// <summary>
+        /// Nothing (or the setting of the configured command)
+        /// </summary>
+        string CommandCopyDefault { get; }
+
+        /// <summary>
+        /// The output
+        /// </summary>
+        string CommandCopyOutput { get; }
+
+        /// <summary>
+        /// The URL found in the output
+        /// </summary>
+        string CommandCopyUrl { get; }
+
+        /// <summary>
+        /// Name of the results: var.&lt;name&gt;.output, .exitCode, .url, .error, .file (empty: command)
+        /// </summary>
+        string CommandResultName { get; }
+
+        /// <summary>
+        /// Exit codes which mean success, e.g. 0,98,99 (empty: 0)
+        /// </summary>
+        string CommandSuccessExitCodes { get; }
+
+        /// <summary>
+        /// Stop the command after this many seconds (empty: no limit)
+        /// </summary>
+        string CommandTimeout { get; }
+
+        /// <summary>
+        /// Text encoding (empty: utf-8; oem: the console code page)
+        /// </summary>
+        string CommandEncoding { get; }
 
         /// <summary>
         /// Jira Issue Key / ID
@@ -2496,7 +2621,6 @@ namespace Greenshot.Plugin.RecipeEditor
         /// </summary>
         string TipRemoveLanguage { get; }
 
-
         /// <summary>
         /// Key
         /// </summary>
@@ -2558,7 +2682,7 @@ namespace Greenshot.Plugin.RecipeEditor
         string OptionExpandPlaceholders { get; }
 
         /// <summary>
-        /// Text options only: placeholders in the value the user sets are filled in when the step runs, e.g. a caption "Captured ${now:yyyy-MM-dd}" gets the date. Without it the value is used as typed.
+        /// Text options only: placeholders in the value the user sets are filled in when the step runs, e.g. a caption "Captured ${time.now:yyyy-MM-dd}" gets the date. Without it the value is used as typed.
         /// </summary>
         string TipOptionExpandPlaceholders { get; }
 
@@ -2636,6 +2760,16 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Add Browser Extension Trigger
         /// </summary>
         string TipTriggerAddBrowserExtension { get; }
+
+        /// <summary>
+        /// + Clicked notification
+        /// </summary>
+        string TriggerAddNotification { get; }
+
+        /// <summary>
+        /// Run this recipe for the capture of a clicked Greenshot notification
+        /// </summary>
+        string TipTriggerAddNotification { get; }
 
         /// <summary>
         /// + AI Tool
@@ -3251,6 +3385,11 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Browser extension
         /// </summary>
         string TriggerBrowserExtension { get; }
+
+        /// <summary>
+        /// Clicked notification
+        /// </summary>
+        string TriggerNotification { get; }
 
         /// <summary>
         /// Schedule
@@ -4568,6 +4707,21 @@ namespace Greenshot.Plugin.RecipeEditor
         string SummaryStderr { get; }
 
         /// <summary>
+        /// Show in Explorer: {0}
+        /// </summary>
+        string SummaryShowInExplorer { get; }
+
+        /// <summary>
+        /// Show the last capture in the Explorer
+        /// </summary>
+        string SummaryShowInExplorerLast { get; }
+
+        /// <summary>
+        /// Open: {0}
+        /// </summary>
+        string SummaryOpenWindow { get; }
+
+        /// <summary>
         /// Stderr (exit {0}, abort): {1}
         /// </summary>
         string SummaryStderrAbort { get; }
@@ -4656,5 +4810,76 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Opens the recipe catalog on getgreenshot.org, install a recipe there with its Install button
         /// </summary>
         string ManagerBtnGetMoreTooltip { get; }
+
+        /// <summary>
+        /// Check for Updates
+        /// </summary>
+        string ManagerBtnCheckUpdates { get; }
+
+        /// <summary>
+        /// Compares the recipes you installed from the recipe catalog with the catalog
+        /// </summary>
+        string ManagerBtnCheckUpdatesTooltip { get; }
+
+        /// <summary>
+        /// From the recipe catalog
+        /// </summary>
+        string ManagerHeaderCatalogUpdates { get; }
+
+        /// <summary>
+        /// Checking the recipe catalog...
+        /// </summary>
+        string ManagerCatalogChecking { get; }
+
+        /// <summary>
+        /// The recipes from the catalog are up to date.
+        /// </summary>
+        string ManagerCatalogUpToDate { get; }
+
+        /// <summary>
+        /// Installed: {0}, in the catalog: {1}
+        /// </summary>
+        string ManagerCatalogVersions { get; }
+
+        /// <summary>
+        /// Not loaded: this Greenshot can't use the installed version.
+        /// </summary>
+        string ManagerCatalogNotLoaded { get; }
+
+        /// <summary>
+        /// The catalog version needs Greenshot {0} or newer.
+        /// </summary>
+        string ManagerCatalogNeedsNewer { get; }
+
+        /// <summary>
+        /// The catalog has no newer version yet.
+        /// </summary>
+        string ManagerCatalogNoUpdate { get; }
+
+        /// <summary>
+        /// The recipe is no longer in the catalog.
+        /// </summary>
+        string ManagerCatalogRemoved { get; }
+
+        /// <summary>
+        /// Update
+        /// </summary>
+        string ManagerBtnCatalogUpdate { get; }
+
+        /// <summary>
+        /// Shows the catalog version with what changed, it is installed after you approved it
+        /// </summary>
+        string ManagerBtnCatalogUpdateTooltip { get; }
+
+        /// <summary>
+        /// ${ } Variables
+        /// </summary>
+        string ExpressionHelpButton { get; }
+
+        /// <summary>
+        /// Lists the variables and functions this recipe can use (F1)
+        /// </summary>
+        string TipExpressionHelp { get; }
+
     }
 }

@@ -32,8 +32,9 @@ using Greenshot.Base.Threading;
 namespace Greenshot.Base.Recipes.Sources
 {
     /// <summary>
-    /// Captures the currently active desktop window or a targeted window matching title/pattern/process criteria,
-    /// falls back to the whole screen when there is no window to capture.
+    /// Captures the currently active desktop window or a targeted window matching title/pattern/process criteria.
+    /// When no window matches, the Source step parameter WhenNoWindow decides: Screen (the default) captures the active window,
+    /// else the whole screen; Stop ends the flow.
     /// </summary>
     public class ActiveWindowCaptureSource : ICaptureSource
     {
@@ -43,6 +44,32 @@ namespace Greenshot.Base.Recipes.Sources
         private readonly RecipeNodeConfig _config;
 
         public string Name => "ActiveWindowCaptureSource";
+
+        /// <summary>
+        /// The Source step parameter which says what happens when no window matches WindowTitlePattern or ProcessName
+        /// </summary>
+        public const string WhenNoWindowParameter = "WhenNoWindow";
+
+        /// <summary>
+        /// Capture the active window, else the whole screen (the default)
+        /// </summary>
+        public const string WhenNoWindowScreen = "Screen";
+
+        /// <summary>
+        /// End the flow with a message
+        /// </summary>
+        public const string WhenNoWindowStop = "Stop";
+
+        /// <summary>
+        /// Why the flow stopped: which window was looked for
+        /// </summary>
+        public static string NoMatchingWindowMessage(string titlePattern, string processName)
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            if (!string.IsNullOrEmpty(titlePattern)) parts.Add($"title '{titlePattern}'");
+            if (!string.IsNullOrEmpty(processName)) parts.Add($"process '{processName}'");
+            return $"No window matches the {string.Join(" and the ", parts)}.";
+        }
 
         public ActiveWindowCaptureSource(RecipeNodeConfig config = null)
         {
@@ -79,6 +106,13 @@ namespace Greenshot.Base.Recipes.Sources
                 else
                 {
                     Log.WarnFormat("Could not find window matching pattern='{0}', process='{1}'", titlePattern, processName);
+                    // The recipe says what happens then: capture the screen (the active window, else the whole screen) or stop
+                    string whenNoWindow = _config?.GetParameter<string>(WhenNoWindowParameter);
+                    if (string.Equals(whenNoWindow, WhenNoWindowStop, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Fail(NoMatchingWindowMessage(titlePattern, processName));
+                        return null;
+                    }
                 }
             }
 

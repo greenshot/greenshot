@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,7 +99,9 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.UserPrompt,
             WellKnownStepTypes.Stdout,
             WellKnownStepTypes.Stderr,
-            WellKnownStepTypes.Slot
+            WellKnownStepTypes.Slot,
+            WellKnownStepTypes.ShowInExplorer,
+            WellKnownStepTypes.OpenWindow
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -112,7 +115,8 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeCommandline,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeOpenFile,
             Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeExtension,
-            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeAiTool,
+            Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeNotification
         };
 
         /// <summary>
@@ -164,6 +168,7 @@ namespace Greenshot.Base.Recipes
 
             // Validate the options and where the nodes use them
             ValidateOptions(recipe, result);
+            ValidateExpressions(recipe, result);
             ValidateTranslations(recipe, result);
 
             // Validate Flow Definition & DAG acyclicity
@@ -517,6 +522,59 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
+        /// Every ${...} of the nodes and triggers, checked for where it is used (docs/vNext/variables.md): the syntax, unknown
+        /// names and functions, and values which may not be used there (e.g. a window title choosing a folder or a command).
+        /// </summary>
+        private static void ValidateExpressions(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            var resolver = Greenshot.Base.Expressions.VariableResolver.Instance;
+            void Check(string where, object value, Greenshot.Base.Expressions.TemplatePurpose purpose)
+            {
+                switch (value)
+                {
+                    case string text when text.IndexOf("${", StringComparison.Ordinal) >= 0:
+                        foreach (var problem in resolver.Validate(text, purpose))
+                        {
+                            string message = $"{where} = '{text}': {problem.Message.TrimEnd('.')}.";
+                            if (problem.IsWarning) result.AddWarning(message);
+                            else result.AddError(message);
+                        }
+                        break;
+                    case IDictionary<string, object> dictionary:
+                        foreach (var pair in dictionary) Check($"{where}.{pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                    case IEnumerable list when !(value is string):
+                        foreach (var item in list) Check(where, item, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                        break;
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                Check($"Node '{node.Id}' when", node.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (node.Parameters == null) continue;
+                var contract = string.IsNullOrWhiteSpace(node.StepType) ? null : StepRegistry.Instance.GetContract(node.StepType);
+                foreach (var pair in node.Parameters)
+                {
+                    var purpose = contract?.FindParameter(pair.Key)?.EffectivePurpose ?? Greenshot.Base.Expressions.TemplatePurpose.Value;
+                    Check($"Node '{node.Id}', parameter {pair.Key}", pair.Value, purpose);
+                }
+            }
+            if (recipe.Triggers == null) return;
+            for (int i = 0; i < recipe.Triggers.Count; i++)
+            {
+                var trigger = recipe.Triggers[i];
+                if (trigger == null) continue;
+                Check($"Trigger {i + 1} when", trigger.When, Greenshot.Base.Expressions.TemplatePurpose.Condition);
+                if (trigger.Parameters == null) continue;
+                foreach (var pair in trigger.Parameters)
+                {
+                    Check($"Trigger {i + 1}, parameter {pair.Key}", pair.Value, Greenshot.Base.Expressions.TemplatePurpose.Value);
+                }
+            }
+        }
+
+        /// <summary>
         /// The parameters the step declares: written with the declared name, and the value of the declared type. A literal value is
         /// converted once (a whole number for Integer, a double for Decimal), so the step reads the type it declared;
         /// an expression ("${...}") is evaluated when the node runs. A parameter the step doesn't declare is an error.
@@ -703,8 +761,73 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
+            if (string.Equals(node.StepType, ExternalCommandStepType, StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateExternalCommandNode(node, result);
+            }
+
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
+        }
+
+        private const string ExternalCommandStepType = "ExternalCommand";
+
+        /// <summary>
+        /// The channels of an external command fit together: each choice is one of its values, nothing is set which the other choices
+        /// don't use (a text for standard input without StandardInput Text, an output of a command nobody waits for)
+        /// </summary>
+        private static void ValidateExternalCommandNode(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            var contract = StepRegistry.Instance.GetContract(node.StepType);
+            string Value(string name)
+            {
+                string value = node.GetParameter<object>(name)?.ToString();
+                return string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+            bool Is(string name, string expected) => string.Equals(Value(name), expected, StringComparison.OrdinalIgnoreCase);
+
+            foreach (string name in new[] { "File", "StandardInput", "Output", "CopyToClipboard" })
+            {
+                var allowed = contract?.FindParameter(name)?.AllowedValues;
+                string value = Value(name);
+                if (value != null && allowed != null && allowed.Count > 0 && !allowed.Contains(value, StringComparer.OrdinalIgnoreCase))
+                {
+                    result.AddError($"Node '{node.Id}' [ExternalCommand]: '{value}' is not a value of '{name}', use one of {string.Join(", ", allowed)}.");
+                }
+            }
+
+            if (Value("StandardInputText") != null && !Is("StandardInput", "Text"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'StandardInputText' is only used with 'StandardInput' Text.");
+            }
+            if (node.GetParameter<bool?>("RunInBackground") == true && Value("Output") != null && !Is("Output", "None"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: a command in the background gives no output, 'Output' must be None.");
+            }
+            if (Is("Output", "File") && Is("File", "None"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'Output' File reads the file again, but 'File' is None.");
+            }
+            if (Value("CopyToClipboard") != null && !Is("CopyToClipboard", "None") && Value("Output") != null && !Is("Output", "Text"))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'CopyToClipboard' copies the text output, 'Output' must be Text.");
+            }
+            if (Value("SuccessExitCodes") is { } codes &&
+                codes.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries).Any(c => !int.TryParse(c, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _)))
+            {
+                result.AddError($"Node '{node.Id}' [ExternalCommand]: 'SuccessExitCodes' must be numbers like 0,98,99, not '{codes}'.");
+            }
+            if (Value("Encoding") is { } encodingName && !string.Equals(encodingName, "oem", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    _ = System.Text.Encoding.GetEncoding(encodingName);
+                }
+                catch (ArgumentException)
+                {
+                    result.AddError($"Node '{node.Id}' [ExternalCommand]: 'Encoding' '{encodingName}' is not known, use utf-8, oem or an encoding name.");
+                }
+            }
         }
 
         /// <summary>
@@ -965,9 +1088,16 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
                 }
+                if (option.Type != ContractDataType.String && string.Equals(option.Format, RecipeOption.FormatTemplate, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.AddWarning($"Option '{option.Key}': the 'template' format is only used for String options.");
+                }
                 if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
                 {
-                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                    string hint = option.Type == ContractDataType.DirectoryPath
+                        ? @" A folder is a full path, which may use ${user.*} and ${machine.*} values like ${user.pictures}\Greenshot."
+                        : string.Empty;
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.{hint}");
                 }
                 if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
                 {

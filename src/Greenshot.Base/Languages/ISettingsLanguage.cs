@@ -32,6 +32,11 @@ namespace Greenshot.Base.Languages
     public interface ISettingsLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// Save as .reg…
+        /// </summary>
+        string AdministratorSettingsSaveReg { get; }
+
+        /// <summary>
         /// AI tools
         /// </summary>
         string Aitools { get; }
@@ -170,6 +175,11 @@ namespace Greenshot.Base.Languages
         /// Keep the HDR content of HDR displays (for JPEG XR files)
         /// </summary>
         string CaptureHdr { get; }
+
+        /// <summary>
+        /// Some settings are set by your organization (Windows policies) and can't be changed here.
+        /// </summary>
+        string ManagedByOrganization { get; }
 
         /// <summary>
         /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.
@@ -547,30 +557,6 @@ namespace Greenshot.Base.Languages
         string Language { get; }
 
         /// <summary>
-        /// The following placeholders will be replaced automatically in the pattern defined:
-        ///     ${YYYY} year, 4 digits
-        ///     ${MM} month, 2 digits
-        ///     ${DD} day, 2 digits
-        ///     ${hh} hour, 2 digits
-        ///     ${mm} minute, 2 digits
-        ///     ${ss} second, 2 digits
-        ///     ${NUM} incrementing number, 6 digits by default
-        ///     ${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
-        ///     ${RRR...} random alphanumerics, same length as 'R's
-        ///     ${title} Window title
-        ///     ${user} Windows user
-        ///     ${domain} Windows domain
-        ///     ${hostname} PC name
-        ///
-        ///     You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
-        ///     To reset the ${NUM} counter, change its value in Expert settings.
-        ///     Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-        ///     will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
-        ///     time, e.g. 11_58_32 (plus extension defined in the settings)
-        /// </summary>
-        string MessageFilenamepattern { get; }
-
-        /// <summary>
         /// Network and updates
         /// </summary>
         string Network { get; }
@@ -609,6 +595,16 @@ namespace Greenshot.Base.Languages
         /// Text recognition (OCR)
         /// </summary>
         string Ocr { get; }
+
+        /// <summary>
+        /// Recognized by
+        /// </summary>
+        string OcrEngine { get; }
+
+        /// <summary>
+        /// Windows OCR
+        /// </summary>
+        string OcrEngineWindows { get; }
 
         /// <summary>
         /// Language of the text
@@ -973,6 +969,11 @@ namespace Greenshot.Base.Languages
         string TooltipOcrLanguage { get; }
 
         /// <summary>
+        /// What recognizes text, for capturing text, the OCR destination and the recipes. Windows OCR is built into Windows; a plugin can add another one.
+        /// </summary>
+        string TooltipOcrEngine { get; }
+
+        /// <summary>
         /// Image format used by default
         /// </summary>
         string TooltipPrimaryimageformat { get; }
@@ -991,6 +992,36 @@ namespace Greenshot.Base.Languages
         /// Use default system proxy
         /// </summary>
         string Usedefaultproxy { get; }
+
+        /// <summary>
+        /// Tray icon
+        /// </summary>
+        string Trayicon { get; }
+
+        /// <summary>
+        /// Click
+        /// </summary>
+        string TrayiconClick { get; }
+
+        /// <summary>
+        /// Double-click
+        /// </summary>
+        string TrayiconDoubleclick { get; }
+
+        /// <summary>
+        /// Do nothing
+        /// </summary>
+        string TrayiconNothing { get; }
+
+        /// <summary>
+        /// {0} (not available)
+        /// </summary>
+        string TrayiconNotavailable { get; }
+
+        /// <summary>
+        /// The recipe which runs when the Greenshot icon next to the clock is clicked. The list has the recipes which are on and need nothing given to them: no editor, no file and no arguments. Right-clicking the icon always opens the tray menu.
+        /// </summary>
+        string TooltipTrayicon { get; }
 
         /// <summary>
         /// Effects

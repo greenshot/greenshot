@@ -30,6 +30,7 @@ namespace Greenshot.Editor.Configuration
         {
             RecentColors = new List<Color>();
             RecentEmojis = new List<string>();
+            CollapsedEditorSections = new List<string>();
         }
 
         partial void OnRecentColorsGet(ref List<Color> value)
@@ -47,6 +48,16 @@ namespace Greenshot.Editor.Configuration
                 _recentEmojis = value = new List<string>();
             }
         }
+
+        partial void OnCollapsedEditorSectionsGet(ref List<string> value)
+        {
+            if (value == null)
+            {
+                _collapsedEditorSections = value = new List<string>();
+            }
+        }
+
+        partial void OnEditorPanelWidthSet(ref int value) => value = Clamp(value, 200, 1200);
 
         /// <summary>
         /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
@@ -68,6 +79,7 @@ namespace Greenshot.Editor.Configuration
         {
             RecentColors ??= new List<Color>();
             RecentEmojis ??= new List<string>();
+            CollapsedEditorSections ??= new List<string>();
         }
     }
 }

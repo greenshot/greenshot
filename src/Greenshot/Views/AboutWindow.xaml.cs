@@ -50,16 +50,16 @@ namespace Greenshot.Views
         public event PropertyChangedEventHandler PropertyChanged;
 
         // Theme brushes bound to XAML
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
 
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         // Window G Icon Source
         public ImageSource WindowIconSource { get; }
@@ -130,7 +130,7 @@ namespace Greenshot.Views
             // Populate all localized strings from language files
             InitializeLanguage();
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
 
             Loaded += OnWindowLoaded;
@@ -187,7 +187,7 @@ namespace Greenshot.Views
 
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             Texts.Config.LanguageChanged -= OnLanguageChanged;
         }
 
@@ -269,7 +269,7 @@ namespace Greenshot.Views
                     e.Handled = true;
                     break;
                 case Key.T:
-                    WpfThemeHelper.ToggleTheme();
+                    ThemeManager.Instance.ToggleTheme();
                     e.Handled = true;
                     break;
             }

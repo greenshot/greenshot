@@ -63,6 +63,17 @@ public class CaptureKeyRegistryTests
     }
 
     [Fact]
+    public void Unregister_FreesTheKey()
+    {
+        var registry = new CaptureKeyRegistry();
+        var first = registry.Register(Always(Window, Key.M));
+        Assert.True(registry.Unregister(first));
+        Assert.False(registry.Unregister(first));
+        registry.Register(Always(Overlay, Key.M));
+        Assert.Single(registry.Bindings);
+    }
+
+    [Fact]
     public void OtherModifiers_AreAnotherKey()
     {
         var registry = new CaptureKeyRegistry();
@@ -119,6 +130,36 @@ public class CaptureKeyRegistryTests
         Assert.Null(registry.Find(Key.Z, ModifierKeys.None, window));
         Assert.True(zoomer.IsActiveFor(region));
         Assert.False(zoomer.IsActiveFor(window));
+    }
+
+    [Fact]
+    public void ToolKeyWithCondition_OnlyWorksAndShowsWhileItHolds()
+    {
+        // The digit keys of the numbered hotspots: only while that number is there
+        var registry = new CaptureKeyRegistry();
+        var text = new FakeTool();
+        bool hasNumber = false;
+        var digit = registry.Register(new CaptureKeyBinding(Window, text, Key.D1, ModifierKeys.None, () => "item", () => { }, tool => hasNumber));
+
+        Assert.Null(registry.Find(Key.D1, ModifierKeys.None, text));
+        Assert.Empty(HelpOverlay.GetRows(registry.Bindings, text));
+        hasNumber = true;
+        Assert.Same(digit, registry.Find(Key.D1, ModifierKeys.None, text));
+        Assert.Same(digit, registry.Find(Key.NumPad1, ModifierKeys.None, text));
+        Assert.Null(registry.Find(Key.D1, ModifierKeys.None, new FakeTool()));
+        Assert.Single(HelpOverlay.GetRows(registry.Bindings, text));
+    }
+
+    [Fact]
+    public void ToolKeyWithCondition_StillConflictsWithTheToolsOwnKey()
+    {
+        // The fixed size tool picks sizes with the digits: the hotspot digits can't be added to it
+        var registry = new CaptureKeyRegistry();
+        var fixedSize = new FakeTool();
+        registry.Register(ForTool(fixedSize, Key.D1));
+
+        Assert.Throws<CaptureKeyConflictException>(() =>
+            registry.Register(new CaptureKeyBinding(Window, fixedSize, Key.D1, ModifierKeys.None, () => "item", () => { }, tool => true)));
     }
 
     [Fact]

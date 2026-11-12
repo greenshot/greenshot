@@ -53,6 +53,39 @@ The Text Obfuscation dialog includes:
    - Remove all preview highlights
    - Close the dialog without making changes
 
+## How strong blur and pixelate are
+
+A fixed blur radius or pixel size that hides small text leaves large text readable, so the strength follows the text:
+
+- **Redact Text window:** the *Blur radius* and *Pixel size* sliders are a percentage of the height of the OCR line a match is in.
+  Each match gets its own value, so a heading gets a stronger effect than the small print below it.
+  Defaults: blur radius 50 % and pixel size 75 % of the line height (expert settings `BlurRadiusTextHeightPercent` and
+  `PixelSizeTextHeightPercent`).
+- **An obfuscation you draw:** when you draw it, the obfuscation gets the same percentage of the height of the OCR lines it covers
+  (the median, a line counts when at least half its height is inside). When the capture has no OCR lines yet (from the Redact
+  Text window, a recipe OCR step or the text capture), the first obfuscation you draw starts OCR of the image once, in the
+  background. Until it is done, the obfuscation has the last used value of the toolbar; then it gets the value for its text,
+  unless you changed the value meanwhile. The obfuscations drawn after that, and the Redact Text window, use the lines found: OCR
+  runs at most once per image, also when it found nothing or failed. Without an OCR provider, when OCR fails, or without OCR lines
+  under it, the obfuscation keeps the last used value of the toolbar, as before. Afterwards the toolbar changes the value as before.
+- **The OCR badge:** next to the size (and the HDR badge) in the editor's status bar, *OCR* shows whether the text of the capture is
+  known: highlighted when there is text, grey when no text was found, grey and struck through when OCR
+  failed (the tooltip says why). Without OCR lines, before any OCR and while it runs, the badge isn't shown.
+- **Recipes:** the `TextEffect` step takes `BlurRadiusTextHeightPercent` and `PixelSizeTextHeightPercent` (same defaults).
+
+Why these values: from about half the text height on, blurred or pixelated text can't be read by eye; at a quarter (for example
+the old blur radius of 3 on 12 px text) it often still can.
+
+**What blur and pixelate don't protect.** Someone who knows the font, for example of a known application, can render candidate
+texts, apply the same effect and compare. In our tests a blurred 4-digit number was found among 2000 candidates at every
+radius, up to the full text height; pixelate held out from about three quarters of the text height. The noise Greenshot adds
+stops undoing the blur by calculation, not this guessing. For short secrets like PINs, card numbers or passwords, cover the text
+with a filled rectangle (the `Redact` effect of the `TextEffect` recipe step).
+
+**The recognized text still holds what you hid.** The OCR lines stay with the capture, including the text under an
+obfuscation or a filled rectangle. They go with the image when *Text* is chosen for the image metadata (expert setting
+`ExportMetadata`, off by default), and the Windows OCR destination, the AI tool and the recipe `Ocr` step return them too.
+
 ## Implementation Details
 
 ### Files Added

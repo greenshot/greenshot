@@ -209,11 +209,6 @@ namespace Greenshot.Plugin.Stamps
         string Copied { get; }
 
         /// <summary>
-        /// Open a capture in the editor to insert stamps.
-        /// </summary>
-        string NoEditor { get; }
-
-        /// <summary>
         /// Could not add "{0}": {1}
         /// </summary>
         string AddFailed { get; }

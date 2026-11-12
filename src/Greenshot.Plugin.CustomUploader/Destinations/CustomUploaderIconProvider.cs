@@ -20,12 +20,9 @@
  */
 
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces;
+using Greenshot.Base.Definitions;
+using Greenshot.Plugin.CustomUploader.Sxcu;
 
 namespace Greenshot.Plugin.CustomUploader.Destinations;
 
@@ -33,55 +30,22 @@ namespace Greenshot.Plugin.CustomUploader.Destinations;
 /// The icons of the destinations: the icon of the service, fetched at the import, else the generic upload icon.
 /// Key "customuploader:" ("Custom uploader": the icon of the only uploader, else the generic one) or "customuploader:name".
 /// </summary>
-internal sealed class CustomUploaderIconProvider : IIconProvider
+internal sealed class CustomUploaderIconProvider : DefinitionIconProvider<UploaderDefinition>
 {
-    private const string Prefix = "customuploader:";
+    public CustomUploaderIconProvider() : base(UploaderKind.Instance)
+    {
+    }
 
     /// <summary>The generic upload icon</summary>
-    public const string GenericKey = Prefix;
+    public static string GenericKey => DefinitionIcons.GenericKeyFor(UploaderKind.Instance);
 
-    public static string KeyFor(string uploaderName) => Prefix + uploaderName;
+    protected override DefinitionStore<UploaderDefinition> CreateStore() => CustomUploaderPlugin.CreateStore();
 
-    public bool CanProvide(string iconKey) => iconKey != null && iconKey.StartsWith(Prefix, System.StringComparison.Ordinal);
-
-    public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
-    {
-        string name = iconKey.Substring(Prefix.Length);
-        var store = CustomUploaderPlugin.CreateStore();
-        // "Custom uploader" itself: with one uploader that is what it uploads with, so it gets its icon
-        var uploader = name.Length > 0 ? store.Find(name) : SingleUploader(store);
-        byte[] png = store.GetIcon(uploader?.Id);
-        if (png == null && uploader?.Definition != null)
-        {
-            // Shown later, the menus ask again the next time
-            ServiceIcon.FetchInBackground(store, uploader.Id, uploader.Definition);
-        }
-
-        return Task.FromResult(png == null ? GenericIcon() : FromPng(png) ?? GenericIcon());
-    }
-
-    private static StoredUploader SingleUploader(UploaderStore store)
-    {
-        var uploaders = store.GetUploaders().Where(uploader => uploader.Definition != null).ToList();
-        return uploaders.Count == 1 ? uploaders[0] : null;
-    }
-
-    private static Image GenericIcon() => EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload");
+    protected override Image CreateGenericIcon() => EmbeddedResources.GetImage(typeof(CustomUploaderPlugin), "Upload");
 
     /// <summary>
-    /// A new bitmap, the stream isn't kept (an Image from a stream needs it as long as it lives)
+    /// Fetched in the background, shown later: the menus ask again the next time
     /// </summary>
-    private static Image FromPng(byte[] png)
-    {
-        try
-        {
-            using var stream = new MemoryStream(png);
-            using var image = Image.FromStream(stream);
-            return new Bitmap(image);
-        }
-        catch (System.ArgumentException)
-        {
-            return null;
-        }
-    }
+    protected override void OnIconMissing(DefinitionStore<UploaderDefinition> store, StoredDefinition<UploaderDefinition> stored) =>
+        ServiceIcon.FetchInBackground(store, stored.Id, stored.Definition);
 }

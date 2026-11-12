@@ -112,11 +112,6 @@ namespace Greenshot.Base.Languages
         string AutocropNotPossible { get; }
 
         /// <summary>
-        /// HDR
-        /// </summary>
-        string HdrBadge { get; }
-
-        /// <summary>
         /// This capture has HDR content: Save as JPEG XR keeps its highlights, with what you drew on top
         /// </summary>
         string HdrBadgeTooltip { get; }
@@ -125,6 +120,21 @@ namespace Greenshot.Base.Languages
         /// This capture had HDR content, but its image was changed (e.g. by an effect): it is saved without HDR
         /// </summary>
         string HdrBadgeLostTooltip { get; }
+
+        /// <summary>
+        /// The text of this capture is recognized: ...
+        /// </summary>
+        string OcrBadgeFoundTooltip { get; }
+
+        /// <summary>
+        /// No text was recognized in this capture: ...
+        /// </summary>
+        string OcrBadgeNoTextTooltip { get; }
+
+        /// <summary>
+        /// Text recognition failed ({0}): ...
+        /// </summary>
+        string OcrBadgeFailedTooltip { get; }
 
         /// <summary>
         /// Fill color (0-9)
@@ -187,9 +197,209 @@ namespace Greenshot.Base.Languages
         string EmojiPicker { get; }
 
         /// <summary>
+        /// Edit text
+        /// </summary>
+        string EditText { get; }
+
+        /// <summary>
         /// History
         /// </summary>
         string EmojiHistory { get; }
+
+        /// <summary>
+        /// Panels
+        /// </summary>
+        string PanelArea { get; }
+
+        /// <summary>
+        /// Close the panel
+        /// </summary>
+        string PanelClose { get; }
+
+        /// <summary>
+        /// Properties
+        /// </summary>
+        string PanelProperties { get; }
+
+        /// <summary>
+        /// Selection
+        /// </summary>
+        string PanelSelection { get; }
+
+        /// <summary>
+        /// Select an element to see its properties
+        /// </summary>
+        string PanelSelectionEmpty { get; }
+
+        /// <summary>
+        /// Size and position
+        /// </summary>
+        string SectionSizeAndPosition { get; }
+
+        /// <summary>
+        /// Emoji
+        /// </summary>
+        string SectionEmoji { get; }
+
+        /// <summary>
+        /// Style and size
+        /// </summary>
+        string SectionStyleAndSize { get; }
+
+        /// <summary>
+        /// Effect
+        /// </summary>
+        string EffectsEffect { get; }
+
+        /// <summary>
+        /// Presets
+        /// </summary>
+        string EffectsPresets { get; }
+
+        /// <summary>
+        /// Preview
+        /// </summary>
+        string EffectsPreview { get; }
+
+        /// <summary>
+        /// Fit
+        /// </summary>
+        string EffectsPreviewFit { get; }
+
+        /// <summary>
+        /// Zoom with the mouse wheel or + and −, move with the mouse or the arrow keys. A double-click switches between fit and 1:1.
+        /// </summary>
+        string EffectsPreviewHint { get; }
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        string EffectsApply { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string EffectsBorderWidth { get; }
+
+        /// <summary>
+        /// Color
+        /// </summary>
+        string EffectsColor { get; }
+
+        /// <summary>
+        /// Resize
+        /// </summary>
+        string EffectsResize { get; }
+
+        /// <summary>
+        /// The new size is {0} × {1} pixels.
+        /// </summary>
+        string EffectsNewSize { get; }
+
+        /// <summary>
+        /// Width and height must be whole numbers from 1 to {0}.
+        /// </summary>
+        string EffectsResizeInvalid { get; }
+
+        /// <summary>
+        /// The capture has no transparent parts.
+        /// </summary>
+        string EffectsNoTransparency { get; }
+
+        /// <summary>
+        /// Default
+        /// </summary>
+        string EffectsPresetDefault { get; }
+
+        /// <summary>
+        /// Thin
+        /// </summary>
+        string EffectsPresetThin { get; }
+
+        /// <summary>
+        /// Wide
+        /// </summary>
+        string EffectsPresetWide { get; }
+
+        /// <summary>
+        /// White frame
+        /// </summary>
+        string EffectsPresetWhiteFrame { get; }
+
+        /// <summary>
+        /// Soft
+        /// </summary>
+        string EffectsPresetSoft { get; }
+
+        /// <summary>
+        /// Strong
+        /// </summary>
+        string EffectsPresetStrong { get; }
+
+        /// <summary>
+        /// Floating
+        /// </summary>
+        string EffectsPresetFloating { get; }
+
+        /// <summary>
+        /// White
+        /// </summary>
+        string EffectsPresetWhite { get; }
+
+        /// <summary>
+        /// Black
+        /// </summary>
+        string EffectsPresetBlack { get; }
+
+        /// <summary>
+        /// Copy style
+        /// </summary>
+        string CopyStyle { get; }
+
+        /// <summary>
+        /// Apply style
+        /// </summary>
+        string ApplyStyle { get; }
+
+        /// <summary>
+        /// Copy size
+        /// </summary>
+        string CopySize { get; }
+
+        /// <summary>
+        /// Apply size
+        /// </summary>
+        string ApplySize { get; }
+
+        /// <summary>
+        /// X (left)
+        /// </summary>
+        string ElementLeft { get; }
+
+        /// <summary>
+        /// Y (top)
+        /// </summary>
+        string ElementTop { get; }
+
+        /// <summary>
+        /// Width
+        /// </summary>
+        string ElementWidth { get; }
+
+        /// <summary>
+        /// Height
+        /// </summary>
+        string ElementHeight { get; }
+
+        /// <summary>
+        /// Search emoji
+        /// </summary>
+        string EmojiSearch { get; }
+
+        /// <summary>
+        /// No emoji found
+        /// </summary>
+        string EmojiSearchNoResults { get; }
 
         /// <summary>
         /// New image
@@ -402,11 +612,6 @@ namespace Greenshot.Base.Languages
         string DropshadowOffset { get; }
 
         /// <summary>
-        /// Dropshadow settings
-        /// </summary>
-        string DropshadowSettings { get; }
-
-        /// <summary>
         /// Shadow thickness
         /// </summary>
         string DropshadowThickness { get; }
@@ -557,14 +762,14 @@ namespace Greenshot.Base.Languages
         string ObfuscateTextEffect { get; }
 
         /// <summary>
-        /// Pixel size:
+        /// Pixel size (% of text height):
         /// </summary>
-        string ObfuscateTextPixelSize { get; }
+        string ObfuscateTextPixelSizeTextHeight { get; }
 
         /// <summary>
-        /// Blur radius:
+        /// Blur radius (% of text height):
         /// </summary>
-        string ObfuscateTextBlurRadius { get; }
+        string ObfuscateTextBlurRadiusTextHeight { get; }
 
         /// <summary>
         /// Color:
@@ -707,11 +912,6 @@ namespace Greenshot.Base.Languages
         string PixelSize { get; }
 
         /// <summary>
-        /// Preview quality
-        /// </summary>
-        string PreviewQuality { get; }
-
-        /// <summary>
         /// Print
         /// </summary>
         string Print { get; }
@@ -751,20 +951,7 @@ namespace Greenshot.Base.Languages
         /// </summary>
         string ResizeHeight { get; }
 
-        /// <summary>
-        /// Percent
-        /// </summary>
-        string ResizePercent { get; }
 
-        /// <summary>
-        /// Pixels
-        /// </summary>
-        string ResizePixel { get; }
-
-        /// <summary>
-        /// Resize settings
-        /// </summary>
-        string ResizeSettings { get; }
 
         /// <summary>
         /// Width

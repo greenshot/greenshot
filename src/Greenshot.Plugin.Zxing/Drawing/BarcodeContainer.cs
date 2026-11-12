@@ -35,7 +35,7 @@ namespace Greenshot.Plugin.Zxing.Drawing
     /// locking aspect ratio for 2D matrix formats (e.g. QR codes).
     /// </summary>
     [Serializable]
-    public class BarcodeContainer : ImageContainer, IHaveScaleOptions
+    public class BarcodeContainer : ImageContainer, IHaveScaleOptions, IHdrDrawable
     {
         private ZxingModel _model;
         private int _margin = 1;
@@ -82,9 +82,28 @@ namespace Greenshot.Plugin.Zxing.Drawing
         {
         }
 
+        /// <summary>
+        /// No shadow: the barcode is drawn as it is (see Draw), a shadow setting would do nothing
+        /// </summary>
+        protected override void InitializeFields()
+        {
+        }
+
         public void RegenerateBarcode()
         {
-            if (_model == null) return;
+            var bmp = ZxingBarcodeGenerator.Render(CreateLayout());
+            if (bmp != null)
+            {
+                Image = bmp;
+            }
+        }
+
+        /// <summary>
+        /// The layout of the barcode at the current size of the element, null without a model
+        /// </summary>
+        private BarcodeLayout CreateLayout()
+        {
+            if (_model == null) return null;
 
             int targetW = Math.Max(1, Width);
             int targetH = Math.Max(1, Height);
@@ -97,14 +116,14 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 targetH = side;
             }
 
-            var format = Views.ZxingEditorWindow.MapFormatIndex(_model.FormatIndex);
+            var format = ZxingBarcodeGenerator.MapFormatIndex(_model.FormatIndex);
             string payload = _model.GetPayloadString();
             if (string.IsNullOrEmpty(payload))
             {
                 payload = _model.RawText ?? "https://getgreenshot.org";
             }
 
-            var bmp = ZxingBarcodeGenerator.Generate(
+            return ZxingBarcodeGenerator.CreateLayout(
                 payload,
                 format,
                 _model.ForeColor,
@@ -113,28 +132,48 @@ namespace Greenshot.Plugin.Zxing.Drawing
                 targetW,
                 targetH,
                 _margin);
+        }
 
-            if (bmp != null)
+        /// <summary>
+        /// The barcode drawn with ImageSharp (e.g. in an HDR file), from the same layout as the bitmap of the editor (see Draw): filling its
+        /// place, a 2D code which isn't as big as its place in the middle of it. Without a model (nothing to lay out) its bitmap as a picture.
+        /// </summary>
+        public Action<SixLabors.ImageSharp.Image, Greenshot.ImageSharpDrawing.ImageValues> CreateHdrDrawing(Dapplo.Windows.Common.Structs.NativePoint origin)
+        {
+            var layout = CreateLayout();
+            if (layout == null)
             {
-                Image = bmp;
+                if (Image is not Bitmap bitmap)
+                {
+                    return null;
+                }
+                // The pixels as a managed copy (taken now, the bitmap may change): the picture is only made while it is drawn, and disposed then
+                SixLabors.ImageSharp.PixelFormats.Rgba32[] pixels;
+                int pictureWidth, pictureHeight;
+                using (var converted = Greenshot.Base.Core.ImageSharpHelper.ConvertToImageSharp(bitmap))
+                using (var rgba = converted.CloneAs<SixLabors.ImageSharp.PixelFormats.Rgba32>())
+                {
+                    pictureWidth = rgba.Width;
+                    pictureHeight = rgba.Height;
+                    pixels = new SixLabors.ImageSharp.PixelFormats.Rgba32[pictureWidth * pictureHeight];
+                    rgba.CopyPixelDataTo(pixels);
+                }
+                var bounds = new SixLabors.ImageSharp.Rectangle(Left - origin.X, Top - origin.Y, Width, Height);
+                return (image, values) =>
+                {
+                    using var picture = SixLabors.ImageSharp.Image.LoadPixelData<SixLabors.ImageSharp.PixelFormats.Rgba32>(pixels, pictureWidth, pictureHeight);
+                    Greenshot.ImageSharpDrawing.Pictures.Draw(image, values, picture, bounds, true, false);
+                };
             }
+            var place = Is2D && (Width != layout.Width || Height != layout.Height)
+                ? new SixLabors.ImageSharp.Rectangle(Left + (Width - layout.Width) / 2 - origin.X, Top + (Height - layout.Height) / 2 - origin.Y, layout.Width, layout.Height)
+                : new SixLabors.ImageSharp.Rectangle(Left - origin.X, Top - origin.Y, Width, Height);
+            return (image, values) => ZxingBarcodeGenerator.Draw(image, values, layout, place);
         }
 
         public new ScaleOptions GetScaleOptions()
         {
             return Is2D ? ScaleOptions.Rational : ScaleOptions.Default;
-        }
-
-        public override void OnDoubleClick()
-        {
-            if (_model != null)
-            {
-                _model.OnDoubleClick(this);
-            }
-            else
-            {
-                base.OnDoubleClick();
-            }
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)

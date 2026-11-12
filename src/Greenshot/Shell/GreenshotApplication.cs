@@ -175,6 +175,8 @@ namespace Greenshot.Shell
                 // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
+                // A changed Windows policy reloads the configuration in the background, --reload does it on request: both are applied
+                ApplicationStartupHelper.ApplyConfigurationOnReload(IniConfigRegistry.Get());
 
                 // After the configuration is loaded: where it was loaded from tells whether this is the .zip (LeavesNoTraces)
                 StartJitProfile();

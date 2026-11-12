@@ -77,7 +77,7 @@ The badge counts the problems: an outdated version, a hidden icon, the Snipping 
 ### Files & Configuration
 
 - **Screenshot Folder (where Greenshot saves)**: the folder from the settings, the folder that is really used (with
-  variables like `${YYYY}` filled in), and the name the next file gets, e.g. with the filename pattern. Below that the
+  variables like `${payload.time:yyyy}` filled in), and the name the next file gets, e.g. with the filename pattern. Below that the
   checks, each with ✓, ⚠️ or ❌:
 
   | Check | What it means |
@@ -189,6 +189,19 @@ deleted.
 When the last upload is deleted or forgotten, the section is gone the next time the window opens. The welcome window shows
 the same list as a step when there are uploads.
 
+### Windows policies
+
+The settings your organization sets with Group Policy or Intune (see [policies.md](policies.md)): each one with its value and
+whether it is *mandatory* (you can't change it in the settings) or *recommended* (only the default), for the computer or for
+you as a user.
+
+- *Reload* reads the policies again, e.g. right after `gpupdate /force`. Greenshot also picks up changes by itself.
+- *Copy* copies the list, for your administrator or for support.
+- *Save policy templates…* writes `greenshot.admx` and `en-US\greenshot.adml` for this Greenshot and its plugins, for the
+  Group Policy editor or Intune.
+
+The section isn't in Greenshot Light, which doesn't read policies.
+
 ### Keys
 
 | Key | Does |
@@ -196,7 +209,7 @@ the same list as a step when there are uploads.
 | `Esc` | Closes the window |
 | `F5` | Checks the selected section again |
 | `T` | Switches between the dark and the light theme |
-| `1` to `9` (also on the number pad) | The section at that place in the sidebar: `1` System & Hardware, `2` Your setup, `3` Files & Configuration, `4` Clipboard Diagnostics, `5` Hotkeys & Conflicts, `6` Installation Integrity, then *Delete old Imgur uploads* when it is there |
+| `1` to `9` (also on the number pad) | The section at that place in the sidebar: `1` System & Hardware, `2` Your setup, `3` Files & Configuration, `4` Clipboard Diagnostics, `5` Hotkeys & Conflicts, `6` Installation Integrity, `7` Windows policies (not in Greenshot Light), then *Delete old Imgur uploads* when it is there |
 | `E` | System & Hardware |
 | `F`, `L` or `I` | Files & Configuration |
 | `C` | Clipboard Diagnostics |
@@ -207,7 +220,7 @@ The keys don't work while you type in a text box (e.g. the search of *Installati
 
 ### Light edition and portable version
 
-Greenshot Light and the portable version have the same Self-Service. The difference: they don't register `greenshot:`
+Greenshot Light and the portable version have the same Self-Service, Greenshot Light without *Windows policies*. The difference: they don't register `greenshot:`
 links, so [greenshot://self-service](greenshot://self-service) and [greenshot://log](greenshot://log) don't open
 anything there. Open Self-Service from the About window instead.
 
@@ -355,7 +368,7 @@ public class PrinterSectionViewModel : SelfServiceSectionViewModel
         // The checks, then the badge: a number of problems, or nothing
         int issues = ...;
         BadgeText = issues > 0 ? issues.ToString() : null;
-        BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
+        BadgeBrush = issues > 0 ? ThemeManager.Instance.CurrentPalette.WarningBackground : null;
         OnPropertyChanged(nameof(...));
     }
 }
@@ -364,7 +377,7 @@ public class PrinterSectionViewModel : SelfServiceSectionViewModel
 What the base class gives you:
 
 - `BadgeText` / `BadgeBrush`: the badge in the sidebar, shown while `BadgeText` isn't empty. Use
-  `WpfThemeHelper.WarningBackground` for problems, so the badge follows the theme.
+  `ThemeManager.Instance.CurrentPalette.WarningBackground` for problems, so the badge follows the theme.
 - `OnNavigatedTo()` / `OnNavigatedFrom()`: called when the user selects the section or leaves it. Start expensive work
   (network, scanning files) here or later, not in the constructor: every section is created when the window opens.
   `ImgurSectionViewModel` loads its thumbnails only on the first `OnNavigatedTo()`.

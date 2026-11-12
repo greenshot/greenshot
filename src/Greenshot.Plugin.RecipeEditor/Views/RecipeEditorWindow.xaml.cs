@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
                 ViewModel.Detach();
             };
 
-            WpfThemeHelper.ThemeChanged += ApplyImmersiveDarkMode;
+            ThemeManager.Instance.PaletteChanged += ApplyImmersiveDarkMode;
             Loaded += (s, e) =>
             {
                 ApplyImmersiveDarkMode();

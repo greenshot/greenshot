@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 
 namespace Greenshot.Base.Capturing
 {
@@ -35,19 +36,19 @@ namespace Greenshot.Base.Capturing
     public interface IHdrScreenCaptureBackend
     {
         /// <summary>
-        /// Capture the area of the virtual screen with its HDR image
+        /// Capture the area of the virtual screen with the HDR images of its HDR displays, not joined yet (see HdrParts)
         /// </summary>
         /// <param name="captureBounds">Screen coordinates</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image (null without an HDR display in the area)</returns>
-        Task<(Bitmap Image, HdrImage HdrImage)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default);
+        /// <returns>The pixels (null when the backend couldn't take them) and the HDR parts (null without an HDR display in the area)</returns>
+        Task<(Bitmap Image, HdrParts HdrParts)> CaptureRectangleWithHdrAsync(NativeRect captureBounds, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Capture the window with its HDR image, a minimized window is restored first
         /// </summary>
         /// <param name="window">IInteropWindow</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image (null when the window isn't on an HDR display)</returns>
-        Task<(Bitmap Image, HdrImage HdrImage)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
+        /// <returns>The pixels (null when the backend couldn't take them) and the HDR image as HDR parts (see HdrParts.Of; null when the window isn't on an HDR display)</returns>
+        Task<(Bitmap Image, HdrParts HdrParts)> CaptureWindowWithHdrAsync(IInteropWindow window, CancellationToken cancellationToken = default);
     }
 }

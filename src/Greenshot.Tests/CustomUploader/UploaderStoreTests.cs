@@ -47,7 +47,7 @@ namespace Greenshot.Tests.CustomUploader
             UploaderFile.Read(UploaderFileTests.File($@"""Name"": ""{name}"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://{host}/upload"", ""FileFormName"": ""file"", ""Headers"": {{ ""Authorization"": ""Bearer s3cret"" }}"));
 
         [Fact]
-        public void Add_StoresTheUploaderEncrypted()
+        public void Add_StoresTheUploaderReadable_TheKeysEncrypted()
         {
             var store = CreateStore();
 
@@ -55,8 +55,10 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Equal(1, _changes);
             Assert.DoesNotContain("s3cret", _uploaders[id]);
-            Assert.DoesNotContain("example.com", _uploaders[id]);
-            var uploader = Assert.Single(CreateStore().GetUploaders());
+            // The rest of the file stays readable
+            Assert.Contains("\"RequestURL\": \"https://example.com/upload\"", _uploaders[id]);
+            Assert.Contains("\"Authorization\": \"" + UploaderStore.EncryptedPrefix, _uploaders[id]);
+            var uploader = Assert.Single(CreateStore().GetAll());
             Assert.Equal("Mine", uploader.Name);
             Assert.Equal("Bearer s3cret", uploader.Definition.Headers["Authorization"]);
         }
@@ -70,7 +72,7 @@ namespace Greenshot.Tests.CustomUploader
             string again = store.Add(Uploader("mine", "other.example.com"));
 
             Assert.Equal(id, again);
-            Assert.Equal(new Uri("https://other.example.com"), UploaderFile.GetServer(Assert.Single(store.GetUploaders()).Definition));
+            Assert.Equal(new Uri("https://other.example.com"), UploaderFile.GetServer(Assert.Single(store.GetAll()).Definition));
         }
 
         [Fact]
@@ -127,18 +129,29 @@ namespace Greenshot.Tests.CustomUploader
         }
 
         [Fact]
-        public void GetUploaders_SortedByName_UnreadableLast()
+        public void GetAll_SortedByName_UnreadableLast()
         {
             var store = CreateStore();
             store.Add(Uploader("b"));
             store.Add(Uploader("a"));
             _uploaders["broken"] = "not encrypted";
 
-            var uploaders = store.GetUploaders();
+            var uploaders = store.GetAll();
 
             Assert.Equal(new[] { "a", "b", null }, uploaders.Select(u => u.Name));
             Assert.Null(uploaders[2].Definition);
             Assert.Null(store.Find("broken"));
+        }
+
+        [Fact]
+        public void GetAll_KeyWrittenByHand_IsUsedAsItIs_KeyOfAnotherUser_IsNotReadable()
+        {
+            var store = new UploaderStore(_uploaders, _uploads, null, text => "x" + text, text => text.StartsWith("x") ? text.Substring(1) : null);
+            _uploaders["hand.sxcu"] = UploaderFileTests.File(@"""Name"": ""Hand"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://example.com/upload"", ""FileFormName"": ""file"", ""Headers"": { ""Authorization"": ""Bearer typed"" }");
+            _uploaders["other.sxcu"] = UploaderFileTests.File(@"""Name"": ""Other"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://example.com/upload"", ""FileFormName"": ""file"", ""Headers"": { ""Authorization"": ""encrypted:yBearer"" }");
+
+            Assert.Equal("Bearer typed", store.Find("Hand").Definition.Headers["Authorization"]);
+            Assert.Null(store.Find("Other"));
         }
 
         [Fact]
@@ -150,18 +163,18 @@ namespace Greenshot.Tests.CustomUploader
             store.Remove(id);
             store.Remove("unknown");
 
-            Assert.Empty(store.GetUploaders());
+            Assert.Empty(store.GetAll());
             Assert.Equal(2, _changes);
         }
 
         [Fact]
-        public void GetUploaders_ChangedToAnUnsafeUploader_IsNotReadable()
+        public void GetAll_ChangedToAnUnsafeUploader_IsNotReadable()
         {
             // Checked again when read: what is sent stays what the user approved when importing
             var store = new UploaderStore(_uploaders, _uploads, null, text => text, text => text);
             _uploaders["changed"] = UploaderFileTests.File(@"""DestinationType"": ""ImageUploader"", ""RequestURL"": ""http://example.com/upload"", ""FileFormName"": ""file""");
 
-            Assert.Null(Assert.Single(store.GetUploaders()).Definition);
+            Assert.Null(Assert.Single(store.GetAll()).Definition);
         }
 
         [Fact]
@@ -188,12 +201,12 @@ namespace Greenshot.Tests.CustomUploader
         [Fact]
         public void Add_NonAsciiText_SurvivesTheEncryption()
         {
-            // StringExtensions.Encrypt keeps ASCII only, the stored JSON escapes the rest
+            // The stored JSON escapes non-ASCII text, StringExtensions.Encrypt keeps UTF-8 as well
             var store = CreateStore();
             store.Add(Uploader("Grün – 画像"));
             store.AddUpload(new UploadRecord { Uploader = "Grün – 画像", Url = "https://i.example.com/ü.png", Uploaded = DateTimeOffset.Now });
 
-            Assert.Equal("Grün – 画像", Assert.Single(CreateStore().GetUploaders()).Name);
+            Assert.Equal("Grün – 画像", Assert.Single(CreateStore().GetAll()).Name);
             Assert.Equal("https://i.example.com/ü.png", Assert.Single(CreateStore().GetUploads()).Value.Url);
         }
 
@@ -206,7 +219,7 @@ namespace Greenshot.Tests.CustomUploader
             _uploaders[id] = Convert.ToBase64String(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
             _uploads["broken"] = "not encrypted";
 
-            Assert.Null(Assert.Single(store.GetUploaders()).Definition);
+            Assert.Null(Assert.Single(store.GetAll()).Definition);
             Assert.Empty(store.GetUploads());
         }
     }

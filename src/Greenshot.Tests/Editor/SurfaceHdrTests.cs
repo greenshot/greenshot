@@ -28,9 +28,11 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
@@ -83,7 +85,7 @@ namespace Greenshot.Tests.Editor
             Assert.True(HdrExport.CanWriteHdr(surface));
             Assert.Equal(2, surface.HdrImage.Width);
             // Two tiles (before and after the band), together they cover it
-            using (var composed = surface.HdrImage.Compose((Bitmap)surface.Image))
+            using (var composed = surface.HdrImage.Compose())
             {
                 Assert.Equal((0f, 1f), Get(composed, 0, 1));
                 Assert.Equal((3f, 1f), Get(composed, 1, 1));
@@ -174,9 +176,8 @@ namespace Greenshot.Tests.Editor
             Assert.Same(made, surface.HdrImage);
             Assert.Equal(8, made.Width);
             Assert.Equal(6, made.Height);
-            // The capture inside the border, the border itself comes from the 8-bit image
-            Assert.False(made.IsComplete);
-            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(made.TileAreas));
+            // The capture inside the border, the border itself is from the 8-bit image: complete
+            Assert.Equal(1f, made.Pixels[3, 3].ToVector4().W, 2);
 
             surface.Undo();
             surface.Undo();
@@ -296,8 +297,8 @@ namespace Greenshot.Tests.Editor
 
         private static (int Highlights, int FromSdr) CountRow(Surface surface, int y, int fromX, int toX, bool withElements = false)
         {
-            using var overlay = withElements ? surface.CreateHdrOverlay() : null;
-            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            var steps = withElements ? surface.CreateImageSharpSteps() : null;
+            using var composed = surface.HdrImage.Compose(steps);
             int highlights = 0, fromSdr = 0;
             for (int x = fromX; x < toX; x++)
             {
@@ -315,8 +316,91 @@ namespace Greenshot.Tests.Editor
             return (highlights, fromSdr);
         }
 
+        /// <summary>
+        /// Like <see cref="CreateBrightSurface"/>, but only the left half was on an HDR display: the right half is in the 8-bit image only
+        /// </summary>
+        private static Surface CreateHalfBrightSurface()
+        {
+            var bitmap = new Bitmap(100, 100, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.White);
+            }
+            var capture = new Capture(bitmap);
+            using var left = new HdrImage(50, 100, 240, 400);
+            left.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(5, 5, 5, 1));
+                }
+            });
+            var hdrImage = HdrImage.Combine(bitmap, new[] { (left, new NativePoint(0, 0)) });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            return WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+        }
+
+        /// <summary>
+        /// The HDR file of the surface as it would be written now
+        /// </summary>
+        private static (NativeRect[] TileAreas, System.Numerics.Vector4[,] Pixels) ComposeTiles(Surface surface)
+        {
+            var steps = surface.CreateImageSharpSteps();
+            using var composed = surface.HdrImage.Compose(steps);
+            var pixels = new System.Numerics.Vector4[composed.Width, composed.Height];
+            for (int y = 0; y < composed.Height; y++)
+            {
+                for (int x = 0; x < composed.Width; x++)
+                {
+                    pixels[x, y] = composed.Pixels[x, y].ToVector4();
+                }
+            }
+            return (new[] { new NativeRect(0, 0, composed.Width, composed.Height) }, pixels);
+        }
+
+        /// <summary>
+        /// Drawing the element into the image gives the HDR file which the element gives while it is on the surface: it is drawn on the HDR
+        /// pixels the same way, nothing comes from the 8-bit image
+        /// </summary>
+        private static void AssertApplyingKeepsTheHdrFile(Surface surface, DrawableContainer element)
+        {
+            var (tilesBefore, before) = ComposeTiles(surface);
+
+            Assert.True(surface.ApplyElementToImage(element));
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Empty(surface.Elements);
+            var (tilesAfter, after) = ComposeTiles(surface);
+            Assert.Equal(tilesBefore, tilesAfter);
+            int changed = 0;
+            foreach (var area in tilesAfter)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                {
+                    for (int x = area.Left; x < area.Right; x++)
+                    {
+                        var expected = before[x, y];
+                        var actual = after[x, y];
+                        Assert.True(Math.Abs(expected.W - actual.W) < 0.02f, $"alpha at {x},{y}: {expected.W} instead of {actual.W}");
+                        if (expected.W > 0.02f)
+                        {
+                            Assert.True(System.Numerics.Vector3.Distance(new System.Numerics.Vector3(expected.X, expected.Y, expected.Z),
+                                new System.Numerics.Vector3(actual.X, actual.Y, actual.Z)) < 0.05f, $"color at {x},{y}: {expected} instead of {actual}");
+                        }
+                        if (expected.W < 0.99f || expected.X < 4.9f)
+                        {
+                            changed++;
+                        }
+                    }
+                }
+            }
+            // The element did something to the HDR pixels
+            Assert.True(changed > 0, "pixels changed by the element");
+        }
+
         [Fact]
-        public void TornEdgesWithShadow_MoveTheHdrImageIntoTheRoom_DrawnIntoTheImage_OnlyTheTeethComeFromThe8BitImage()
+        public void TornEdgesWithShadow_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
         {
             using var surface = CreateBrightSurface();
             var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
@@ -325,19 +409,63 @@ namespace Greenshot.Tests.Editor
             var tornEdges = surface.AddTornEdges(settings);
 
             Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.Equal(new NativeRect(margin, margin, 100, 100), Assert.Single(surface.HdrImage.TileAreas));
-
-            Assert.True(surface.ApplyElementToImage(tornEdges));
-
-            Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.True(surface.HdrImage.HasClearedPixels);
-            // In the middle of the band of the top teeth: the teeth come from the 8-bit image, between them the highlights stay
-            // The element chooses its own teeth: over the rows of the band some pixels are torn off, some keep the highlight
-            var (highlights, fromSdr) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
+            // The room for the shadow is from the 8-bit image: the HDR image stays complete
+            AssertApplyingKeepsTheHdrFile(surface, tornEdges);
+            // Still one complete image: the teeth are drawn in it
+            Assert.Equal(100 + 2 * margin, surface.HdrImage.Width);
+            // Between the teeth the highlights stay, below the band all of it keeps them
+            var (highlights, tornOff) = CountBand(surface, margin + 1, margin + 12, margin + 12, margin + 88);
             Assert.True(highlights > 0, "highlights between the teeth");
-            Assert.True(fromSdr > 0, "torn off teeth");
-            // Below the band all of it keeps its HDR content
+            Assert.True(tornOff > 0, "torn off teeth");
             Assert.Equal((76, 0), CountRow(surface, margin + 20, margin + 12, margin + 88));
+        }
+
+        [Fact]
+        public void TornEdges_DrawnIntoTheImage_OverAnHdrAndAnSdrDisplay_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateHalfBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1, GenerateShadow = false };
+
+            var tornEdges = surface.AddTornEdges(settings);
+
+            // Also on the side of the SDR display the element is drawn on the HDR pixels, like the element when it is saved: no step at the edge
+            AssertApplyingKeepsTheHdrFile(surface, tornEdges);
+        }
+
+        [Fact]
+        public void CaptureOverAnHdrAndAnSdrDisplay_InTheEditor_IsOneCompleteHdrImage_TheSdrPartAtSdrWhite()
+        {
+            using var surface = CreateHalfBrightSurface();
+
+            var hdrImage = surface.HdrImage;
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            Assert.Equal(5f, hdrImage.Pixels[10, 50].ToVector4().X, 1);
+            // White of the SDR display at the SDR white level: 240 nits are 3.0
+            Assert.Equal(3f, hdrImage.Pixels[90, 50].ToVector4().X, 2);
+        }
+
+        [Fact]
+        public void CutMark_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 30, 100), CropContainer.CropModes.Vertical, CutMarkStyle.Torn, settings));
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+
+            AssertApplyingKeepsTheHdrFile(surface, cutMark);
+        }
+
+        [Fact]
+        public void CutMarkWithATransparentGap_DrawnIntoTheImage_TheHdrFileIsAsWithTheElement()
+        {
+            using var surface = CreateHalfBrightSurface();
+            var settings = new TornEdgeEffect { ToothHeight = 12, HorizontalToothRange = 20, VerticalToothRange = 20, Seed = 1 };
+            Assert.True(surface.ApplyCutOut(new NativeRect(30, 0, 10, 100), CropContainer.CropModes.Vertical, CutMarkStyle.Torn, settings));
+            var cutMark = Assert.Single(surface.Elements.OfType<CutMarkContainer>());
+            cutMark.SetFieldValue(FieldType.FILL_COLOR, Color.Transparent);
+            Assert.True(cutMark.HasTransparentGap);
+
+            AssertApplyingKeepsTheHdrFile(surface, cutMark);
         }
 
         [Fact]
@@ -391,8 +519,8 @@ namespace Greenshot.Tests.Editor
         /// </summary>
         private static System.Collections.Generic.List<System.Numerics.Vector4> EdgePixels(Surface surface, int fromY, int toY)
         {
-            using var overlay = surface.CreateHdrOverlay();
-            using var composed = surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            var steps = surface.CreateImageSharpSteps();
+            using var composed = surface.HdrImage.Compose(steps);
             var edge = new System.Collections.Generic.List<System.Numerics.Vector4>();
             for (int y = fromY; y < toY; y++)
             {
@@ -417,7 +545,6 @@ namespace Greenshot.Tests.Editor
             await Task.Run(() => surface.ApplyBitmapEffectAsync(settings));
 
             // One HDR image of all of it, drawn by ImageSharp
-            Assert.True(surface.HdrImage.IsComplete);
             var edge = EdgePixels(surface, 0, 12);
             Assert.NotEmpty(edge);
             // Anti-aliased: partly transparent, with the color of the HDR image (not the tone mapped 8-bit image)
@@ -479,7 +606,8 @@ namespace Greenshot.Tests.Editor
 
             Assert.False(surface.CanUndo);
             Assert.Equal(HdrState.Available, surface.HdrState);
-            Assert.Equal(new NativeRect(2, 2, 4, 2), Assert.Single(surface.HdrImage.TileAreas));
+            // The border is from the 8-bit image: the editor's HDR image stays complete
+            Assert.Equal(8, surface.HdrImage.Width);
         }
 
         [Fact]
@@ -504,10 +632,80 @@ namespace Greenshot.Tests.Editor
                 surface.AddElement(new HighlightContainer(surface) { Left = 10 + i * 20, Top = 10, Width = 10, Height = 10 }, false, false);
             }
 
-            using var overlay = surface.CreateHdrOverlay();
+            var steps = surface.CreateImageSharpSteps();
 
-            Assert.Equal(3, overlay.Steps.Count(step => step.Filter != null));
-            Assert.Empty(overlay.Steps.Where(step => step.Layer != null));
+            Assert.Equal(3, steps.Count(step => step.Filter != null));
+            Assert.All(steps, step => Assert.NotNull(step.Filter));
+        }
+
+        [Fact]
+        public void Elements_AreDrawnOnTheHdrPixels_InTheirOrder_WithoutLayers()
+        {
+            using var surface = CreateBrightSurface();
+            RectangleContainer AddRectangle(int left)
+            {
+                var rectangle = new RectangleContainer(surface) { Left = left, Top = 40, Width = 20, Height = 20 };
+                rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.Red);
+                rectangle.SetFieldValue(FieldType.SHADOW, false);
+                surface.AddElement(rectangle, false, false);
+                return rectangle;
+            }
+            AddRectangle(10);
+            // Grayscale works outside of the element: on the first rectangle, not on the second one which is drawn after it
+            var grayscale = new HighlightContainer(surface) { Left = 0, Top = 0, Width = 5, Height = 5 };
+            grayscale.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.GRAYSCALE);
+            surface.AddElement(grayscale, false, false);
+            AddRectangle(60);
+            var arrow = new ArrowContainer(surface) { Left = 10, Top = 80, Width = 60, Height = 0 };
+            surface.AddElement(arrow, false, false);
+
+            using var composed = Compose(surface);
+
+            // The first rectangle is drawn (darker than the highlights around it) and then grayed
+            var grayed = composed.Pixels[20, 50].ToVector4();
+            Assert.True(grayed.X < 2f, $"grayed: {grayed}");
+            Assert.Equal(grayed.X, grayed.Y, 2);
+            var red = composed.Pixels[70, 50].ToVector4();
+            Assert.True(red.X > 1f && red.Y < 0.1f, $"red: {red}");
+            // Around the elements the highlights stay
+            Assert.Equal(5f, composed.Pixels[50, 20].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void Elements_AreWhite_HalfwayBetweenSdrWhite_AndTheWhiteOfTheCaptureInTheEditor()
+        {
+            // All of the capture is a highlight of 400 nits (5.0): the editor shows it as white; the SDR white is 240 nits (3.0)
+            using var surface = CreateBrightSurface();
+            var rectangle = new RectangleContainer(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
+            rectangle.SetFieldValue(FieldType.FILL_COLOR, Color.White);
+            rectangle.SetFieldValue(FieldType.SHADOW, false);
+            surface.AddElement(rectangle, false, false);
+
+            using var composed = Compose(surface);
+
+            Assert.Equal((float)Math.Sqrt(3f * 5f), composed.Pixels[50, 50].ToVector4().X, 2);
+        }
+
+        [Fact]
+        public void Magnifier_PartlyOutsideTheImage_MagnifiesTheHdrPixels()
+        {
+            using var surface = CreateBrightSurface();
+            // A brighter column at x 95: the magnifier (x 80 to 120, 2 times) shows x 90 to 110 of the image, 95 lands at 90 and 91
+            for (int y = 0; y < 100; y++)
+            {
+                surface.HdrImage.Pixels[95, y] = new HalfVector4(8, 8, 8, 1);
+            }
+            var magnifier = new HighlightContainer(surface) { Left = 80, Top = 40, Width = 40, Height = 20 };
+            magnifier.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
+            surface.AddElement(magnifier, false, false);
+
+            using var composed = Compose(surface);
+
+            Assert.Equal(8f, composed.Pixels[90, 50].ToVector4().X, 1);
+            Assert.Equal(8f, composed.Pixels[91, 50].ToVector4().X, 1);
+            Assert.Equal(5f, composed.Pixels[95, 50].ToVector4().X, 1);
+            // Outside the magnifier the column stays
+            Assert.Equal(8f, composed.Pixels[95, 20].ToVector4().X, 1);
         }
 
         [Fact]
@@ -538,8 +736,8 @@ namespace Greenshot.Tests.Editor
 
         private static HdrImage Compose(Surface surface)
         {
-            using var overlay = surface.CreateHdrOverlay();
-            return surface.HdrImage.Compose((Bitmap)surface.Image, overlay);
+            var steps = surface.CreateImageSharpSteps();
+            return surface.HdrImage.Compose(steps);
         }
 
         [Theory]
@@ -608,10 +806,11 @@ namespace Greenshot.Tests.Editor
 
             using var composed = Compose(surface);
 
+            // The blur adds its noise: up to 3 levels of the 8-bit image (relative to the SDR white of 3), about 2%
             var pixel = composed.Pixels[20, 20].ToVector4();
-            Assert.Equal(5f, pixel.X, 1);
-            Assert.Equal(5f, pixel.Y, 1);
-            Assert.Equal(5f, pixel.Z, 1);
+            Assert.InRange(pixel.X, 4.85f, 5.15f);
+            Assert.InRange(pixel.Y, 4.85f, 5.15f);
+            Assert.InRange(pixel.Z, 4.85f, 5.15f);
         }
 
         [Theory]
@@ -649,9 +848,12 @@ namespace Greenshot.Tests.Editor
             using var composed = Compose(surface);
 
             var values = Enumerable.Range(0, 200).Select(x => (double)composed.Pixels[x, 10].ToVector4().X).ToArray();
-            double sum = values.Sum();
-            double mean = values.Select((value, x) => x * value).Sum() / sum;
-            double sigma = Math.Sqrt(values.Select((value, x) => (x - mean) * (x - mean) * value).Sum() / sum);
+            // Only 3 sigma of the editor around the line: further away there is only the noise of the blur, which isn't the blur's strength
+            int window = (int)Math.Ceiling(3 * editorSigma);
+            var near = Enumerable.Range(100 - window, 2 * window + 1).ToList();
+            double sum = near.Sum(x => values[x]);
+            double mean = near.Sum(x => x * values[x]) / sum;
+            double sigma = Math.Sqrt(near.Sum(x => (x - mean) * (x - mean) * values[x]) / sum);
             Assert.True(sigma >= editorSigma, $"sigma {sigma:F2}, the editor {editorSigma}");
             // Each value is one of the levels of the 8-bit image (relative to the SDR white of 3)
             Assert.All(values, value =>
@@ -659,6 +861,54 @@ namespace Greenshot.Tests.Editor
                 float level = LinearColorEffects.Encode((float)value / 3f) * 255;
                 Assert.Equal(Math.Round(level), level, 1);
             });
+        }
+
+        [Fact]
+        public void ObfuscateBlur_HasTheNoiseOfTheEditor()
+        {
+            // Gray 128 in both images (the HDR one relative to its SDR white of 3), one highlight far away so it has HDR content
+            var bitmap = new Bitmap(60, 40, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.Clear(Color.FromArgb(128, 128, 128));
+            }
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(60, 40, 240, 400);
+            float gray = 3f * LinearColorEffects.Decode(128 / 255f);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 40; y++)
+                {
+                    accessor.GetRowSpan(y).Fill(new HalfVector4(gray, gray, gray, 1));
+                }
+                accessor.GetRowSpan(39)[59] = new HalfVector4(5, 5, 5, 1);
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 10, Top = 10, Width = 30, Height = 20 };
+            obfuscate.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
+            surface.AddElement(obfuscate, false, false);
+
+            using var exported = (Bitmap)surface.GetImageForExport();
+            using var composed = Compose(surface);
+
+            // The blur of the same gray is the gray, what differs is the noise: in the HDR file the same levels as in the editor
+            var levels = new System.Collections.Generic.HashSet<int>();
+            for (int y = 10; y < 30; y++)
+            {
+                for (int x = 10; x < 40; x++)
+                {
+                    var editor = exported.GetPixel(x, y);
+                    var hdr = composed.Pixels[x, y].ToVector4();
+                    Assert.Equal(editor.R, (int)Math.Round(LinearColorEffects.Encode(hdr.X / 3f) * 255));
+                    Assert.Equal(editor.G, (int)Math.Round(LinearColorEffects.Encode(hdr.Y / 3f) * 255));
+                    Assert.Equal(editor.B, (int)Math.Round(LinearColorEffects.Encode(hdr.Z / 3f) * 255));
+                    levels.Add(editor.R);
+                }
+            }
+            Assert.True(levels.Count > 3, "the blurred area has noise");
+            Assert.All(levels, level => Assert.InRange(level, 125, 131));
         }
 
         [Fact]
@@ -701,6 +951,155 @@ namespace Greenshot.Tests.Editor
             var values = Enumerable.Range(0, 21).Select(x => composed.Pixels[x, 20].ToVector4().X).ToArray();
             Assert.All(values, value => Assert.InRange(value, 1.2f, 5f));
             Assert.InRange(values.Average(), 2.2f, 3.8f);
+        }
+
+        [Fact]
+        public void Pixelate_WithoutA8BitBitmap_CantBeDoneOnTheHdrPixels_NeverLeftOutSilently()
+        {
+            // Pixelate takes its blocks from the 8-bit bitmap: on another kind of image (a metafile) it can't be done, the state is Lost then,
+            // instead of an HDR file which shows what the element hides
+            using var surface = CreateBrightSurface();
+            var obfuscate = new ObfuscateContainer(surface) { Left = 10, Top = 10, Width = 20, Height = 20 };
+            Assert.Contains(obfuscate.Filters, filter => filter is Greenshot.Editor.Drawing.Filters.PixelizationFilter);
+            using var reference = new Bitmap(1, 1);
+            using var graphics = Graphics.FromImage(reference);
+            var hdc = graphics.GetHdc();
+            System.Drawing.Imaging.Metafile metafile;
+            try
+            {
+                metafile = new System.Drawing.Imaging.Metafile(hdc, System.Drawing.Imaging.EmfType.EmfPlusOnly);
+            }
+            finally
+            {
+                graphics.ReleaseHdc(hdc);
+            }
+            using (metafile)
+            {
+                Assert.False(Greenshot.Editor.Drawing.Filters.ElementImageFilters.Supports(obfuscate, metafile));
+            }
+            Assert.True(Greenshot.Editor.Drawing.Filters.ElementImageFilters.Supports(obfuscate, surface.Image));
+        }
+
+        [Fact]
+        public void InvertedPixelate_IsDoneOnTheHdrPixels_AroundTheElement()
+        {
+            // Stripes of 1 pixel: black and a highlight of 6
+            var bitmap = new Bitmap(60, 60, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var capture = new Capture(bitmap);
+            var hdrImage = new HdrImage(60, 60, 240, 400);
+            hdrImage.Pixels.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < 60; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < 60; x++)
+                    {
+                        row[x] = x % 2 == 0 ? new HalfVector4(0, 0, 0, 1) : new HalfVector4(6, 6, 6, 1);
+                    }
+                }
+            });
+            hdrImage.BelongTo(capture.Image);
+            capture.HdrImage = hdrImage;
+            using var surface = WinFormsContextGuard.CreateWithoutContext(() => new Surface(capture));
+            var obfuscate = new ObfuscateContainer(surface) { Left = 20, Top = 20, Width = 20, Height = 20 };
+            var pixelate = obfuscate.Filters.OfType<Greenshot.Editor.Drawing.Filters.PixelizationFilter>().Single();
+            pixelate.SetFieldValue(FieldType.PIXEL_SIZE, 10);
+            pixelate.Invert = true;
+            surface.AddElement(obfuscate, false, false);
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            using var composed = Compose(surface);
+
+            // Inside the element the stripes stay, around it they are pixelated (the average of the HDR pixels, with the editor's noise)
+            Assert.Equal(0f, composed.Pixels[30, 30].ToVector4().X, 2);
+            Assert.Equal(6f, composed.Pixels[31, 30].ToVector4().X, 1);
+            var around = Enumerable.Range(0, 15).Select(x => composed.Pixels[x, 5].ToVector4().X).ToArray();
+            Assert.All(around, value => Assert.InRange(value, 1.2f, 5f));
+        }
+
+        /// <summary>
+        /// A picture element of its own kind (e.g. of a plugin) which only draws itself with GDI+: there is no HDR drawing for it
+        /// </summary>
+        private sealed class OwnPicture : ImageContainer
+        {
+            public OwnPicture(Surface surface) : base(surface)
+            {
+            }
+
+            public override void Draw(Graphics graphics, Greenshot.Base.Interfaces.Drawing.RenderMode rm)
+            {
+                graphics.FillRectangle(Brushes.Black, Bounds);
+            }
+        }
+
+        /// <summary>
+        /// An element of its own kind which draws itself with ImageSharp too (like the barcode of the Zxing plugin): a black square in its place
+        /// </summary>
+        private sealed class OwnHdrDrawing : ImageContainer, Greenshot.Base.Interfaces.Drawing.IHdrDrawable
+        {
+            public OwnHdrDrawing(Surface surface) : base(surface)
+            {
+            }
+
+            public Action<SixLabors.ImageSharp.Image, Greenshot.ImageSharpDrawing.ImageValues> CreateHdrDrawing(NativePoint origin)
+            {
+                var place = new SixLabors.ImageSharp.RectangleF(Left - origin.X, Top - origin.Y, Width, Height);
+                return (image, values) => SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
+                    SixLabors.ImageSharp.Drawing.Processing.FillRectangleExtensions.Fill(context, values.ColorOf(new Rgba32(0, 0, 0, 255)), place));
+            }
+        }
+
+        /// <summary>
+        /// A rectangle element of its own kind, e.g. of a plugin: it may draw differently, there is no HDR drawing for it
+        /// </summary>
+        private sealed class OwnRectangle : RectangleContainer
+        {
+            public OwnRectangle(Surface surface) : base(surface)
+            {
+            }
+        }
+
+        [Fact]
+        public void PictureOfItsOwnKind_WithoutAnHdrDrawing_TheHdrContentIsLost()
+        {
+            using var surface = CreateBrightSurface();
+            surface.AddElement(new OwnPicture(surface) { Left = 40, Top = 40, Width = 20, Height = 20 }, false, false);
+
+            // Its GDI+ drawing isn't used for the HDR file
+            Assert.Equal(HdrState.Lost, surface.HdrState);
+        }
+
+        [Fact]
+        public void ElementWhichDrawsItselfWithImageSharp_IsDrawnOnTheHdrPixels()
+        {
+            using var surface = CreateBrightSurface();
+            var element = new OwnHdrDrawing(surface);
+            element.Left = 40;
+            element.Top = 40;
+            element.Width = 20;
+            element.Height = 20;
+            surface.AddElement(element, false, false);
+
+            Assert.Equal(HdrState.Available, surface.HdrState);
+            using var composed = Compose(surface);
+
+            // Black where it draws, the highlights around it stay
+            Assert.Equal(0f, composed.Pixels[50, 50].ToVector4().X, 2);
+            Assert.Equal(5f, composed.Pixels[20, 20].ToVector4().X, 1);
+        }
+
+        [Fact]
+        public void ElementWithoutAnHdrDrawing_TheHdrContentIsLost()
+        {
+            using var surface = CreateBrightSurface();
+            var element = new OwnRectangle(surface) { Left = 40, Top = 40, Width = 20, Height = 20 };
+            surface.AddElement(element, false, false);
+
+            Assert.Equal(HdrState.Lost, surface.HdrState);
+            Assert.False(HdrExport.CanWriteHdr(surface));
+
+            surface.RemoveElement(element, false);
+            Assert.Equal(HdrState.Available, surface.HdrState);
         }
 
         private static bool Covers(NativeRect area, int x, int y) => x >= area.Left && x < area.Right && y >= area.Top && y < area.Bottom;

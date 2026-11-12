@@ -77,6 +77,12 @@
 
   <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')" />
 
+  <!-- The generated file doesn't exist yet when a fresh clone is evaluated, so the default globbing misses it and the first build fails.
+       It is left out of the globbing and added by ProcessTemplates after it is written, in every build. -->
+  <ItemGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
+    <Compile Remove="$(ProjectName).Credentials.cs" />
+  </ItemGroup>
+
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/>
 
@@ -91,7 +97,12 @@
     <WriteLinesToFile
       File="$(ProjectDir)$(ProjectName).Credentials.cs"
       Lines="@(ProcessedLines)"
-      Overwrite="true" />
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <Compile Include="$(ProjectDir)$(ProjectName).Credentials.cs" />
+    </ItemGroup>
   </Target>
 </Project>
 

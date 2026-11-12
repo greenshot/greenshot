@@ -128,7 +128,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task Client_RefusesARecipeFileWithAnotherHash_OrFromAnotherPlace()
+        public async Task Client_ReadsTheRecipeFromTheWebsite_AndRefusesAnotherHash()
         {
             var key = TestKey.Create();
             var catalog = new FakeCatalog(key, CreateCatalogRecipe("hashed_recipe"));
@@ -139,8 +139,21 @@ namespace Greenshot.Tests.Recipes
             catalog.RecipeBytes = catalog.RecipeBytes.Concat(Encoding.UTF8.GetBytes(" ")).ToArray();
             await Assert.ThrowsAsync<RecipeCatalogException>(() => client.GetRecipeFileAsync(entry, CancellationToken.None));
 
-            entry.Url = "https://example.com/hashed_recipe.gsrecipe.json";
+            // An id which can't be a file name on the website is never downloaded
+            entry.Id = "../hashed_recipe";
             await Assert.ThrowsAsync<RecipeCatalogException>(() => client.GetRecipeFileAsync(entry, CancellationToken.None));
+            Assert.All(catalog.Handler.Requests, request => Assert.StartsWith(RecipeCatalogClient.CatalogUrl, request.Uri.AbsoluteUri));
+        }
+
+        [Theory]
+        [InlineData("cli_qr_decode", "https://getgreenshot.org/recipes/cli_qr_decode.gsrecipe.json")]
+        [InlineData("Upper", null)]
+        [InlineData("a/b", null)]
+        [InlineData("a.b", null)]
+        [InlineData("", null)]
+        public void GetRecipeFileUrl_OnlyForCatalogIds(string id, string expected)
+        {
+            Assert.Equal(expected, RecipeCatalogClient.GetRecipeFileUrl(new RecipeCatalogEntry { Id = id }));
         }
 
         [Theory]
@@ -292,6 +305,223 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task Install_WhenTheCatalogTimesOut_OffersToTryAgain()
+        {
+            const string id = "catalog_retry";
+            await WithCatalogAsync(CreateCatalogRecipe(id), (request, cancellationToken) =>
+                Task.FromResult(new ApprovalResult(new RecipeApproval { ApprovedTriggers = new List<string>() }, false)), async (catalog, directory, messages) =>
+            {
+                var previousRetry = RecipeCatalogInstaller.AskRetry;
+                var asked = new List<string>();
+                bool answer = false;
+                try
+                {
+                    RecipeCatalogInstaller.AskRetry = (text, cancellationToken) =>
+                    {
+                        asked.Add(text);
+                        return Task.FromResult(answer);
+                    };
+
+                    // Cancel: nothing installed, and no second message about it
+                    catalog.IndexFailures = 1;
+                    Assert.Equal(RecipeCatalogInstallOutcome.Refused, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.Contains("504", Assert.Single(asked));
+                    Assert.Empty(messages);
+                    Assert.False(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+
+                    // Try again: the second download works
+                    asked.Clear();
+                    answer = true;
+                    catalog.IndexFailures = 1;
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.Single(asked);
+                    Assert.True(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+                }
+                finally
+                {
+                    RecipeCatalogInstaller.AskRetry = previousRetry;
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
+        [Fact]
+        public async Task CheckForUpdates_OffersANewerCatalogVersion_AndTheUpdateInstallsIt()
+        {
+            const string id = "catalog_update";
+            ApprovalResult Approve(RecipeApprovalRequest request, CancellationToken cancellationToken) =>
+                new ApprovalResult(new RecipeApproval { ApprovedTriggers = new List<string>() }, false);
+            var shown = new List<RecipeApprovalRequest>();
+            await WithCatalogAsync(CreateCatalogRecipe(id), (request, cancellationToken) =>
+            {
+                shown.Add(request);
+                return Task.FromResult(Approve(request, cancellationToken));
+            }, async (catalog, directory, messages) =>
+            {
+                try
+                {
+                    Assert.Empty((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+                    string file = Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension);
+                    Assert.Equal(id, RecipeCatalogInstaller.GetUpdatableId(file));
+                    Assert.True(RecipeCatalogInstaller.CanCheckForUpdates());
+
+                    // Up to date
+                    var check = await RecipeCatalogInstaller.CheckForUpdatesAsync();
+                    Assert.Null(check.Error);
+                    Assert.Empty(check.Recipes);
+
+                    // A new version in the catalog
+                    var changed = CreateCatalogRecipe(id);
+                    changed.Description = "Changed";
+                    catalog.Publish(changed, "1.3.0");
+                    var status = Assert.Single((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.Equal("1.2.0", status.InstalledVersion);
+                    Assert.Equal("1.3.0", status.CatalogVersion);
+                    Assert.True(status.IsLoaded);
+                    Assert.True(status.CanUpdate);
+
+                    // The update shows what changed against the installed version, and is saved like an install
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.NotNull(shown.Last().PreviousRecord);
+                    Assert.Equal($"catalog:{id}@1.3.0", RecipeTrustStore.GetTrustRecord(file).Origin);
+                    Assert.Equal("Changed", RecipeManager.Instance.GetRecipeById(id).Description);
+                    Assert.Empty((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.Empty(messages);
+                }
+                finally
+                {
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
+        [Fact]
+        public async Task CheckForUpdates_DoesNotOfferAVersionWhichNeedsANewerGreenshot_OrAnOlderOne()
+        {
+            const string id = "catalog_update_too_new";
+            await WithCatalogAsync(CreateCatalogRecipe(id), (request, cancellationToken) =>
+                Task.FromResult(new ApprovalResult(new RecipeApproval { ApprovedTriggers = new List<string>() }, false)), async (catalog, directory, messages) =>
+            {
+                try
+                {
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+
+                    var changed = CreateCatalogRecipe(id);
+                    changed.Description = "Needs a newer Greenshot";
+                    catalog.Publish(changed, "1.3.0", "1.5.0");
+                    var status = Assert.Single((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.True(status.HasUpdate);
+                    Assert.True(status.NeedsNewerGreenshot);
+                    Assert.False(status.CanUpdate);
+                    Assert.Equal("1.5.0", status.MinGreenshot);
+
+                    // An older version (the catalog went back) is no update
+                    catalog.Publish(changed, "1.1.0");
+                    Assert.Empty((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                }
+                finally
+                {
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
+        [Fact]
+        public async Task ARecipeThisGreenshotCantLoad_IsRecognized_AndUpdatedOnlyWithANewerVersion()
+        {
+            const string id = "catalog_broken";
+            // A step this Greenshot doesn't know: what an installed recipe looks like after a Greenshot update changed the steps
+            var broken = CreateCatalogRecipe(id).AddNode(new RecipeNodeConfig { Id = "gone", StepType = "NoSuchStepAnyMore" });
+            broken.Flow.AddTransition("clip", "gone");
+            await WithCatalogAsync(broken, (request, cancellationToken) =>
+                Task.FromResult(new ApprovalResult(new RecipeApproval { ApprovedTriggers = new List<string>() }, false)), async (catalog, directory, messages) =>
+            {
+                try
+                {
+                    // Installed earlier, when it still worked: the file and its approval for exactly these bytes
+                    string file = Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension);
+                    Directory.CreateDirectory(directory);
+                    File.WriteAllBytes(file, catalog.RecipeBytes);
+                    RecipeTrustStore.RecordApproval(file, RecipeTrustStore.ComputeSha256(catalog.RecipeBytes), new RecipeApproval { RecipeId = id },
+                        origin: $"catalog:{id}@1.2.0", recipeName: id, recipeVersion: "1.2.0");
+                    Assert.False(RecipeManager.Instance.LoadRecipeFromFile(file, interactiveApproval: false).IsValid);
+
+                    // Recognized by its file although it can't be loaded
+                    Assert.Equal(id, RecipeCatalogInstaller.GetUpdatableId(file));
+                    var status = Assert.Single((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.False(status.IsLoaded);
+                    Assert.False(status.HasUpdate);
+
+                    // The catalog has nothing newer: the user is told so, nothing is shown to approve
+                    Assert.Equal(RecipeCatalogInstallOutcome.Refused, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.Contains("1.2.0", Assert.Single(messages));
+
+                    // A fixed version in the catalog is offered and installed
+                    catalog.Publish(CreateCatalogRecipe(id), "1.2.1");
+                    status = Assert.Single((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                    Assert.True(status.CanUpdate);
+                    Assert.Equal(RecipeCatalogInstallOutcome.Installed, await RecipeCatalogInstaller.InstallAsync(id));
+                    Assert.NotNull(RecipeManager.Instance.GetRecipeById(id));
+                    Assert.Empty((await RecipeCatalogInstaller.CheckForUpdatesAsync()).Recipes);
+                }
+                finally
+                {
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
+        [Fact]
+        public async Task Install_OfACatalogVersionThisGreenshotCantUse_ShowsItsErrorsAndNothingToApprove()
+        {
+            const string id = "catalog_invalid";
+            var broken = CreateCatalogRecipe(id).AddNode(new RecipeNodeConfig { Id = "gone", StepType = "NoSuchStepAnyMore" });
+            broken.Flow.AddTransition("clip", "gone");
+            await WithCatalogAsync(broken, (request, cancellationToken) => throw new InvalidOperationException("No approval for a recipe which can't be used"),
+                async (catalog, directory, messages) =>
+                {
+                    Assert.Equal(RecipeCatalogInstallOutcome.Refused, await RecipeCatalogInstaller.InstallAsync(id));
+                    string message = Assert.Single(messages);
+                    Assert.Contains("1.2.0", message);
+                    Assert.Contains("NoSuchStepAnyMore", message);
+                    Assert.False(File.Exists(Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension)));
+                });
+        }
+
+        [Fact]
+        public async Task GetInstalled_OnlyKnowsUsedFilesInTheCatalogDirectory()
+        {
+            await WithCatalogAsync(CreateCatalogRecipe("catalog_place"), (request, cancellationToken) => Task.FromResult<ApprovalResult>(null), (catalog, directory, messages) =>
+            {
+                Directory.CreateDirectory(directory);
+                string inCatalog = Path.Combine(directory, "catalog_place" + RecipeSerializer.RecipeFileExtension);
+                string elsewhere = Path.Combine(Path.GetDirectoryName(directory), "catalog_place" + RecipeSerializer.RecipeFileExtension);
+                foreach (var file in new[] { inCatalog, elsewhere })
+                {
+                    File.WriteAllBytes(file, catalog.RecipeBytes);
+                }
+                // Without an approval Greenshot doesn't use the file
+                Assert.Null(RecipeCatalogInstaller.GetInstalled(inCatalog));
+                foreach (var file in new[] { inCatalog, elsewhere })
+                {
+                    RecipeTrustStore.RecordApproval(file, RecipeTrustStore.ComputeSha256(catalog.RecipeBytes), new RecipeApproval { RecipeId = "catalog_place" }, recipeVersion: "0.9");
+                }
+                var installed = RecipeCatalogInstaller.GetInstalled(inCatalog);
+                Assert.Equal("catalog_place", installed.Id);
+                // Approved outside the catalog (a change made by hand): the version of the file
+                Assert.Equal("0.9", installed.Version);
+                Assert.Null(RecipeCatalogInstaller.GetInstalled(elsewhere));
+                Assert.Null(RecipeCatalogInstaller.GetInstalled(null));
+                return Task.CompletedTask;
+            });
+        }
+
+        [Fact]
         public void InstallRecipe_IsAllowedFromAWebPage()
         {
             Assert.True(Greenshot.Ipc.IpcSecurityDispatcher.IsCommandAllowedForSource("INSTALL_RECIPE", "url_scheme"));
@@ -370,7 +600,7 @@ namespace Greenshot.Tests.Recipes
         /// </summary>
         private sealed class FakeCatalog
         {
-            private const string RecipeUrl = RecipeCatalogClient.RecipeUrlPrefix + "0123456789abcdef/recipes/{0}/recipe.gsrecipe.json";
+            private const string RecipeUrl = "https://raw.githubusercontent.com/greenshot/greenshot-recipes/0123456789abcdef/recipes/{0}/recipe.gsrecipe.json";
             private readonly TestKey _key;
             private readonly string _recipeId;
 
@@ -384,6 +614,26 @@ namespace Greenshot.Tests.Recipes
 
             public byte[] RecipeBytes { get; set; }
 
+            public string Version { get; private set; } = "1.2.0";
+
+            public string MinGreenshot { get; private set; } = "1.4.0";
+
+            /// <summary>
+            /// A new release of the catalog with this version of the recipe
+            /// </summary>
+            public void Publish(CaptureRecipe recipe, string version, string minGreenshot = "1.4.0")
+            {
+                RecipeBytes = new UTF8Encoding(false).GetBytes(RecipeSerializer.Serialize(recipe));
+                _publishedHash = null;
+                Version = version;
+                MinGreenshot = minGreenshot;
+            }
+
+            /// <summary>
+            /// How often the index download still fails with a gateway timeout
+            /// </summary>
+            public int IndexFailures { get; set; }
+
             public FakeHttpHandler Handler { get; }
 
             public RecipeCatalogClient Client(TestKey trusted) => new RecipeCatalogClient(new HttpService(Handler, TimeSpan.FromSeconds(10)), new[] { trusted.PublicKey });
@@ -392,8 +642,8 @@ namespace Greenshot.Tests.Recipes
             {
                 // The hash of the recipe as it was published, later changes of RecipeBytes are what an attacker serves
                 string json = "{\"indexVersion\":1,\"repository\":\"greenshot/greenshot-recipes\",\"commit\":\"0123456789abcdef\",\"recipes\":[{" +
-                              $"\"id\":\"{_recipeId}\",\"version\":\"1.2.0\",\"name\":\"{_recipeId}\",\"summary\":\"A test\",\"kind\":\"recipe\"," +
-                              "\"authors\":[{\"name\":\"Test\",\"github\":\"test\"}],\"license\":\"MIT\",\"minGreenshot\":\"1.4.0\",\"tags\":[]," +
+                              $"\"id\":\"{_recipeId}\",\"version\":\"{Version}\",\"name\":\"{_recipeId}\",\"summary\":\"A test\",\"kind\":\"recipe\"," +
+                              $"\"authors\":[{{\"name\":\"Test\",\"github\":\"test\"}}],\"license\":\"MIT\",\"minGreenshot\":\"{MinGreenshot}\",\"tags\":[]," +
                               $"\"sha256\":\"{_publishedHash ??= RecipeTrustStore.ComputeSha256(RecipeBytes)}\",\"url\":\"{string.Format(RecipeUrl, _recipeId)}\"}}]}}\n";
                 return Encoding.UTF8.GetBytes(json);
             }
@@ -405,13 +655,18 @@ namespace Greenshot.Tests.Recipes
                 string url = request.RequestUri.AbsoluteUri;
                 if (url == RecipeCatalogClient.IndexUrl)
                 {
+                    if (IndexFailures > 0)
+                    {
+                        IndexFailures--;
+                        return FakeHttpHandler.Text(HttpStatusCode.GatewayTimeout, "504 Gateway Time-out");
+                    }
                     return FakeHttpHandler.Bytes(Index());
                 }
                 if (url == RecipeCatalogClient.SignatureUrl)
                 {
                     return FakeHttpHandler.Bytes(_key.Sign(Index()));
                 }
-                if (url == string.Format(RecipeUrl, _recipeId))
+                if (url == RecipeCatalogClient.CatalogUrl + _recipeId + ".gsrecipe.json")
                 {
                     return FakeHttpHandler.Bytes(RecipeBytes);
                 }

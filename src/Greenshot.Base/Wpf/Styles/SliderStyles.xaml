@@ -17,7 +17,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
-                    <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                    <Border Background="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"
                             Height="4" CornerRadius="2" VerticalAlignment="Center"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -39,7 +39,7 @@
 
     <Style TargetType="Slider">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="MinHeight" Value="20"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -47,7 +47,7 @@
                 <ControlTemplate TargetType="Slider">
                     <Grid Background="Transparent" SnapsToDevicePixels="True">
                         <Border Height="4" CornerRadius="2" VerticalAlignment="Center" Margin="8,0"
-                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
+                                Background="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
                         <Track x:Name="PART_Track" VerticalAlignment="Center" Margin="8,0">
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource GreenshotSliderFillRepeatButtonStyle}" Command="Slider.DecreaseLarge"/>
@@ -60,15 +60,15 @@
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
                                             <Ellipse x:Name="ThumbEllipse"
-                                                     Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
-                                                     Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"
+                                                     Fill="{Binding Path=(wpf:ThemeScope.Theme).ControlBackgroundBrush, RelativeSource={RelativeSource Self}}"
+                                                     Stroke="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"
                                                      StrokeThickness="2"/>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                                                 </Trigger>
                                                 <Trigger Property="IsDragging" Value="True">
-                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                                                    <Setter TargetName="ThumbEllipse" Property="Fill" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonPressedBrush, RelativeSource={RelativeSource Self}}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>

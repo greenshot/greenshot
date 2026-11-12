@@ -27,15 +27,18 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
     /// <summary>
     /// The filters of an element as ImageFilters (ImageSharp, any pixel type, in linear light), used on the HDR pixels for an HDR file (see
-    /// HdrOverlay.Filters): the highlighter, the area highlight (brightness and blur outside), grayscale, the magnifier and the blur and pixelate of
+    /// ImageSharpStep.Filter): the highlighter, the area highlight (brightness and blur outside), grayscale, the magnifier and the blur and pixelate of
     /// the obfuscate element, like on the 8-bit image. The pixelate uses the blocks and noise of the editor.
     /// </summary>
     internal static class ElementImageFilters
@@ -138,13 +141,15 @@ namespace Greenshot.Editor.Drawing.Filters
                             context.LinearGrayscale(area);
                         }
                     }));
-                case BlurFilter:
+                case BlurFilter blur:
                     // Like the editor (BlurFilter): from radius 20 on the blur of GDI+, a Gaussian (measured: sigma 0.42-0.43 x the radius), here a bit
                     // stronger, so the HDR file never shows more than the editor; below a box of the (odd) radius as width, twice (ImageHelper.ApplyBoxBlur)
                     int blurRadius = filter.GetFieldValueAsInt(FieldType.BLUR_RADIUS);
                     bool gaussian = Dapplo.Windows.Gdi32.GdiPlusApi.IsBlurPossible(blurRadius);
                     int range = blurRadius | 1;
                     int radius = gaussian ? (int)Math.Ceiling(3 * GdiBlurSigma * blurRadius) : range / 2;
+                    // The noise of the editor's blur, in the same levels
+                    var (noiseArea, noise) = blur.Noise(bounds);
                     return new ImageFilter(gaussian ? $"Gaussian blur {blurRadius}" : $"Blur {range}", (pixels, white) =>
                     {
                         if (radius < 1 || areas.Count == 0)
@@ -167,13 +172,25 @@ namespace Greenshot.Editor.Drawing.Filters
                             {
                                 context.BoxBlur(radius).BoxBlur(radius);
                             }
-                            // Not finer than the 8-bit image: finer values would make it easier to undo the blur
-                            context.ProcessPixelRowsAsVector4(row =>
+                            // Not finer than the 8-bit image, with its noise: finer values or no noise would make it easier to undo the blur
+                            context.ProcessPixelRowsAsVector4((row, start) =>
                             {
+                                int noiseY = around.Y + start.Y - noiseArea.Y;
                                 for (int x = 0; x < row.Length; x++)
                                 {
-                                    row[x] = new Vector4(ToSdrSteps(row[x].X, white), ToSdrSteps(row[x].Y, white), ToSdrSteps(row[x].Z, white),
-                                        (float)Math.Round(row[x].W * 255) / 255);
+                                    int noiseX = around.X + start.X + x - noiseArea.X;
+                                    var pixel = row[x];
+                                    float alpha = (float)Math.Round(pixel.W * 255) / 255;
+                                    if (alpha > 0 && noiseX >= 0 && noiseX < noiseArea.Width && noiseY >= 0 && noiseY < noiseArea.Height)
+                                    {
+                                        int index = (noiseY * noiseArea.Width + noiseX) * 3;
+                                        row[x] = new Vector4(ToSdrSteps(pixel.X, white, noise[index]), ToSdrSteps(pixel.Y, white, noise[index + 1]),
+                                            ToSdrSteps(pixel.Z, white, noise[index + 2]), alpha);
+                                    }
+                                    else
+                                    {
+                                        row[x] = new Vector4(ToSdrSteps(pixel.X, white, 0), ToSdrSteps(pixel.Y, white, 0), ToSdrSteps(pixel.Z, white, 0), alpha);
+                                    }
                                 }
                             });
                         });
@@ -185,30 +202,52 @@ namespace Greenshot.Editor.Drawing.Filters
                 case MagnifierFilter:
                     if (filter.Invert)
                     {
+                        // No editor preset makes an inverted magnifier (only area highlight and grayscale invert their filters), one from a
+                        // .greenshot file comes from the 8-bit image instead of being magnified the wrong way
                         return null;
                     }
                     int factor = Math.Max(filter.GetFieldValueAsInt(FieldType.MAGNIFICATION_FACTOR), 1);
                     // Like the magnifier filter: the middle of the element, enlarged to all of it (nearest neighbor)
                     var source = new NativeRect(elementBounds.X + elementBounds.Width / 2 - elementBounds.Width / factor / 2,
                         elementBounds.Y + elementBounds.Height / 2 - elementBounds.Height / factor / 2, elementBounds.Width / factor, elementBounds.Height / factor);
-                    if (source.Width <= 0 || source.Height <= 0 || !source.Intersect(bounds).Equals(source) || !elementBounds.Intersect(bounds).Equals(elementBounds))
+                    var visible = elementBounds.Intersect(bounds);
+                    var sourceInside = source.Intersect(bounds);
+                    if (source.Width <= 0 || source.Height <= 0 || visible.Width <= 0 || visible.Height <= 0 || sourceInside.Width <= 0 || sourceInside.Height <= 0)
                     {
-                        // Partly outside the image: the 8-bit image shows what GDI+ does there
-                        return null;
+                        return new ImageFilter("Magnify nothing", (_, _) => { });
                     }
                     return new ImageFilter($"Magnify {factor}x", (pixels, _) =>
                     {
-                        using var magnified = FloatPixels.Of(pixels, ToRectangle(source));
+                        // Outside the image there is nothing to magnify (transparent), what is magnified goes over the pixels
+                        using var magnified = new Image<RgbaVector>(source.Width, source.Height);
+                        using (var inside = FloatPixels.Of(pixels, ToRectangle(sourceInside)))
+                        {
+                            magnified.Mutate(context => context.DrawImage(inside, new Point(sourceInside.X - source.X, sourceInside.Y - source.Y), 1f));
+                        }
                         FloatPixels.Mutate(magnified, context => context.Resize(elementBounds.Width, elementBounds.Height, KnownResamplers.NearestNeighbor));
-                        ImageFilter.CopyArea(pixels, magnified, new Point(elementBounds.X, elementBounds.Y), ToRectangle(elementBounds));
+                        using var result = FloatPixels.Of(pixels, ToRectangle(visible));
+                        result.Mutate(context => context.DrawImage(magnified, new Point(elementBounds.X - visible.X, elementBounds.Y - visible.Y), 1f));
+                        ImageFilter.CopyArea(pixels, result, new Point(visible.X, visible.Y), ToRectangle(visible));
                     });
                 case PixelizationFilter pixelization:
-                    return Pixelate(pixelization, elementBounds, bounds, sdrImage);
+                    return Pixelate(pixelization, elementBounds, areas, bounds, sdrImage);
                 default:
                     // A filter of a plugin
                     return null;
             }
         }
+
+        /// <summary>
+        /// True when all filters of the element can be done on the HDR pixels (see <see cref="Create(DrawableContainer, NativeRect, IReadOnlyList{NativeRect}, DrawableContainer, System.Drawing.Bitmap)"/>):
+        /// the filters of the editor; not an inverted magnifier (no preset makes one, only an old .greenshot file) or a filter of another kind.
+        /// Pixelate takes its blocks from the 8-bit image (see Pixelate), so it needs that as a bitmap.
+        /// </summary>
+        /// <param name="element">The element with filters</param>
+        /// <param name="sdrImage">The 8-bit image of the surface</param>
+        public static bool Supports(DrawableContainer element, System.Drawing.Image sdrImage) =>
+            element.Filters.All(filter => filter is HighlightFilter or BrightnessFilter or GrayscaleFilter or BlurFilter
+                                          || filter is PixelizationFilter && sdrImage is System.Drawing.Bitmap
+                                          || filter is MagnifierFilter { Invert: false });
 
         private static Rectangle ToRectangle(NativeRect rect) => new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
 
@@ -218,21 +257,21 @@ namespace Greenshot.Editor.Drawing.Filters
         private const float GdiBlurSigma = 0.45f;
 
         /// <summary>
-        /// The linear value rounded to the steps of the 8-bit image: the sRGB levels of the white, continued above it
+        /// The linear value rounded to the steps of the 8-bit image (the sRGB levels of the white, continued above it), moved by the levels of
+        /// the noise
         /// </summary>
-        private static float ToSdrSteps(float linear, float white) =>
-            LinearColorEffects.Decode((float)Math.Round(LinearColorEffects.Encode(linear / white) * 255) / 255) * white;
+        private static float ToSdrSteps(float linear, float white, int noiseLevels) =>
+            LinearColorEffects.Decode(Math.Max((float)Math.Round(LinearColorEffects.Encode(linear / white) * 255) + noiseLevels, 0f) / 255) * white;
 
         /// <summary>
         /// Pixelate the HDR pixels in the blocks and with the noise of the editor (PixelizationFilter.Pixelate of the 8-bit image): each block
         /// gets the average of its HDR pixels, each pixel the noise of the editor's pixel as factor (in linear light). Taking the area from the
         /// 8-bit image would put it in at most as bright as SDR white, darker than the HDR pixels around it.
         /// </summary>
-        private static ImageFilter Pixelate(PixelizationFilter filter, NativeRect elementBounds, NativeRect bounds, System.Drawing.Bitmap sdrImage)
+        private static ImageFilter Pixelate(PixelizationFilter filter, NativeRect elementBounds, IReadOnlyList<Rectangle> areas, NativeRect bounds, System.Drawing.Bitmap sdrImage)
         {
-            if (filter.Invert || sdrImage == null || sdrImage.Width < bounds.Width || sdrImage.Height < bounds.Height)
+            if (sdrImage == null || sdrImage.Width < bounds.Width || sdrImage.Height < bounds.Height)
             {
-                // Inverted, the editor pixelates around the element: from the 8-bit image
                 return null;
             }
             var blocks = new List<System.Drawing.Rectangle>();
@@ -249,31 +288,39 @@ namespace Greenshot.Editor.Drawing.Filters
             }
             return new ImageFilter($"Pixelate {blocks.Count} blocks like the 8-bit image", (pixels, _) =>
             {
-                var values = new Vector4[area.Width * area.Height];
-                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                    row.CopyTo(values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length)), area));
+                // The area as float pixels (pooled, not one Vector4 array on the LOH), the blocks are averaged row by row
+                using var values = FloatPixels.Of(pixels, area);
                 foreach (var block in blocks)
                 {
                     var sum = Vector4.Zero;
                     for (int y = block.Top; y < block.Bottom; y++)
                     {
+                        var row = FloatPixels.Vectors(values, y);
                         for (int x = block.Left; x < block.Right; x++)
                         {
-                            sum += values[y * area.Width + x];
+                            sum += row[x];
                         }
                     }
                     var average = sum / (block.Width * block.Height);
                     for (int y = block.Top; y < block.Bottom; y++)
                     {
+                        var row = FloatPixels.Vectors(values, y);
                         for (int x = block.Left; x < block.Right; x++)
                         {
-                            int index = y * area.Width + x;
-                            values[index] = new Vector4(average.X * noise[index].X, average.Y * noise[index].Y, average.Z * noise[index].Z, average.W);
+                            var factor = noise[y * area.Width + x];
+                            row[x] = new Vector4(average.X * factor.X, average.Y * factor.Y, average.Z * factor.Z, average.W);
                         }
                     }
                 }
-                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                    values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length).CopyTo(row), area));
+                // Only into the areas of the filter: inverted, the blocks cover the image, but the elements are holes in it
+                pixels.Mutate(context =>
+                {
+                    foreach (var target in areas.Select(part => Rectangle.Intersect(part, area)).Where(part => part.Width > 0 && part.Height > 0))
+                    {
+                        context.ProcessPixelRowsAsVector4((row, start) =>
+                            FloatPixels.Vectors(values, start.Y - area.Y).Slice(start.X - area.X, row.Length).CopyTo(row), target);
+                    }
+                });
             });
         }
 

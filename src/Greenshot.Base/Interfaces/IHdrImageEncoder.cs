@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Core;
+using Greenshot.Base.Hdr;
 
 namespace Greenshot.Base.Interfaces
 {

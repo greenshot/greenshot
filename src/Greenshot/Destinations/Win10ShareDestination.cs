@@ -61,7 +61,7 @@ namespace Greenshot.Destinations
         /// Icon for the App-share, the icon was found via: https://help4windows.com/windows_8_shell32_dll.shtml
         /// </summary>
         public override DestinationDescriptor Descriptor { get; } =
-            new DestinationDescriptor("Windows share", 3, DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238));
+            new DestinationDescriptor("Windows share", 3, DestinationIcons.Exe(Path.Combine(Environment.SystemDirectory, "shell32.dll"), 238));
 
         /// <summary>
         /// Share the screenshot with a windows app

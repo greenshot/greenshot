@@ -705,6 +705,33 @@ Points to note:
 - **As a tool instead:** derive from `CaptureTool`, register a key which switches to it and copy the color in `OnMouseUp`. Then it is a mode the
   user switches to, and a click picks the color, but it can't show the color during a region selection.
 
+## Hotspots
+
+A hotspot is something on the capture the user can click while selecting, e.g. a QR code. It isn't found by the window:
+a plugin adds what it found as a feature (`IDetectedFeature`, e.g. `DetectedBarcode`) to `Capture.CaptureDetails.Features`, and an
+`IFeatureHotspotTransformer` it registers turns a feature into a `CaptureFormHotspot`. The window asks the transformers again every
+time the features change. A feature is the data, which stays with the capture (the editor and the recipes can use it); a hotspot is
+only how the capture window shows it.
+
+| Property | What it does |
+| --- | --- |
+| `Bounds` | The area, in pixels of the capture: hit test and drawing (a dashed box) |
+| `Text`, `ToolTipText` | Title of the menu and the tooltip; for a numbered hotspot the label and the value of its row in the list |
+| `Actions` | The menu. Choosing one closes the window without a capture and runs it. The first one is the default: Ctrl+click runs it |
+| `ToolId` | Only in this tool (`ICaptureTool.Id`, e.g. `"Text"`), null for every tool |
+| `Outline` | The four corners of a turned area (top left first), drawn instead of `Bounds` |
+| `IsNumbered` | With a `ToolId`: a box and a number badge, and a row in a list of the found items |
+
+A **numbered hotspot** is for many small things on a page, e.g. the links the text tool shows. Only its badge and its row in the
+list are clicked, the area stays with the tool, so the text tool still selects the text below it. The window gives the numbers in
+reading order; a hotspot keeps its number while the window is open (the same tool, area, `Text` and `ToolTipText`), new ones get the
+next numbers. The digit keys 1 to 9 and 0 show the menu of the first ten, Ctrl plus the digit runs the default action. The window
+registers them for the active tool while it shows numbered hotspots and removes them when the hotspots are gone or another tool is
+active, so they never get in the way of other keys. Each digit only works while that number is there. A tool which uses the digits
+itself (the fixed size tool picks a size with them) would get no digit keys for its hotspots, they are picked with the mouse there.
+The list is a panel which takes the mouse: it is placed away from the cursor once and stays there, it gets see-through while a
+selection is below it, and a press on it never reaches the tool.
+
 ## What is possible
 
 - Any number of tools, each with its own drawing, keys and mouse handling.
@@ -730,12 +757,12 @@ Points to note:
   `FinalMode`). The flow crops the capture to the rectangle and, for `Text`, extracts the text. A tool with another kind of result
   (a color, a list of rectangles) either does its work itself and calls `Cancel()`, or needs an extension of `SelectionResult`,
   `ICaptureToolHost.Accept` and `InteractiveSelectionStep` so a recipe can use the result.
-- **One layer per tool or overlay.** `Draw` redraws the whole layer; the layers are below the selection and its labels and above the hotspots.
+- **One layer per tool or overlay.** `Draw` redraws the whole layer; the layers are below the selection and its labels and above the hotspots (the numbered hotspots are above the tool's layer).
   A large static drawing which should not be redrawn on every move would need a second layer (a change in the window).
 - **One selection rectangle and one set of labels**, shared by all tools.
 - **Keys only through registration,** and the built-in keys can't be taken (see Keys). There is no key up and no key repeat
   control: a binding is called for every key down, also when the key repeats.
-- **Hotspots come first:** a press on a hotspot (e.g. a QR code) opens its menu and never reaches the tool.
+- **Hotspots come first:** a press on a hotspot (e.g. a QR code) or on the badge of a numbered one opens its menu and never reaches the tool.
 - **The UI thread:** everything is called on the UI thread of the window. Don't block in a handler, run longer work as a task and
   call `Host.Redraw()` (on the UI thread) when it finished. Use `Host.ActiveTool == this` to check you are still active.
 - **Coordinates:** everything is in pixels of the capture, 0,0 is the top left of the virtual screen. One unit in `Draw` is one

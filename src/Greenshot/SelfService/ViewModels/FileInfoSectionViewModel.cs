@@ -32,6 +32,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.SelfService.Views;
 using log4net;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.SelfService.ViewModels
 {
@@ -170,7 +171,7 @@ namespace Greenshot.SelfService.ViewModels
         /// </summary>
         public void CheckOutputPath()
         {
-            var result = OutputPathCheck.Run(CoreConfig.OutputFilePath, CoreConfig.OutputFileFilenamePattern, CoreConfig.OutputFileFormat);
+            var result = OutputPathCheck.Run(CoreConfig.OutputDirectory, CoreConfig.OutputFileNameTemplate, CoreConfig.OutputFileFormat);
             OutputConfiguredPath = result.ConfiguredPath;
             OutputExpandedPath = result.ExpandedPath ?? string.Empty;
             OutputExampleFile = result.ExampleFile;
@@ -178,7 +179,7 @@ namespace Greenshot.SelfService.ViewModels
             // The section shows in the navigation when screenshots probably don't end up where the user expects them
             bool problem = result.Worst >= OutputPathSeverity.Warning;
             BadgeText = problem ? (result.Worst == OutputPathSeverity.Error ? "❌" : "⚠️") : null;
-            BadgeBrush = problem ? WpfThemeHelper.ErrorBackground : null;
+            BadgeBrush = problem ? ThemeManager.Instance.CurrentPalette.ErrorBackground : null;
             Log.Info($"Output folder check: '{result.ConfiguredPath}' -> '{result.ExpandedPath}': {string.Join(", ", result.Items.Select(i => i.Finding + (i.Detail == null ? string.Empty : $" ({i.Detail})")))}");
         }
 
@@ -197,12 +198,12 @@ namespace Greenshot.SelfService.ViewModels
         /// </summary>
         public void ResetOutputPath()
         {
-            string previous = CoreConfig.OutputFilePath;
-            CoreConfig.OutputFilePath = null;
-            CoreConfig.ValidateAndCorrectOutputFilePath();
-            Log.Info($"The user reset the screenshot folder in Self-Service: '{previous}' -> '{CoreConfig.OutputFilePath}'");
+            string previous = CoreConfig.OutputDirectory;
+            CoreConfig.OutputDirectory = null;
+            CoreConfig.ValidateAndCorrectOutputDirectory();
+            Log.Info($"The user reset the screenshot folder in Self-Service: '{previous}' -> '{CoreConfig.OutputDirectory}'");
             CheckOutputPath();
-            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, CoreConfig.OutputFilePath);
+            StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, CoreConfig.OutputDirectory);
         }
 
         /// <summary>
@@ -210,10 +211,9 @@ namespace Greenshot.SelfService.ViewModels
         /// </summary>
         public void ResetFilenamePattern()
         {
-            string previous = CoreConfig.OutputFileFilenamePattern;
-            string defaultPattern = typeof(ICoreConfiguration).GetProperty(nameof(ICoreConfiguration.OutputFileFilenamePattern))?
-                .GetCustomAttributes(typeof(DefaultValueAttribute), false).OfType<DefaultValueAttribute>().FirstOrDefault()?.Value as string;
-            CoreConfig.OutputFileFilenamePattern = defaultPattern;
+            string previous = CoreConfig.OutputFileNameTemplate;
+            string defaultPattern = OutputTemplates.DefaultFileName;
+            CoreConfig.OutputFileNameTemplate = defaultPattern;
             Log.Info($"The user reset the filename pattern in Self-Service: '{previous}' -> '{defaultPattern}'");
             CheckOutputPath();
             StatusMessage = string.Format(Texts.SelfService.FilesOutputResetDone, defaultPattern);

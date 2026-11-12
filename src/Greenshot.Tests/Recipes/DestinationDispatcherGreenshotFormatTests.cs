@@ -116,6 +116,7 @@ namespace Greenshot.Tests.Recipes
             public Task NotifyAsync(Notification notification) => Task.CompletedTask;
 
             public Task<string> PickSaveFileAsync(SaveFileRequest request, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
+            public Task<string> PickOpenFileAsync(CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
 
             public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken) => throw new InvalidOperationException("Not expected");
 

@@ -127,6 +127,11 @@ namespace Greenshot.Base.Recipes.Contracts
                     inputs["Capture"] = new VariableContract("Capture", ContractDataType.Object, true, "The capture imported from the browser (also the payload)");
                     inputs["Browser"] = new VariableContract("Browser", ContractDataType.String, false, "The browser that sent the capture") { Conditional = true };
                 }
+                else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeNotification, StringComparison.OrdinalIgnoreCase))
+                {
+                    // The capture of the clicked notification is the payload
+                    providesPayload = true;
+                }
                 else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
                 {
                     inputs["EditorForm"] = new VariableContract("EditorForm", ContractDataType.Object, true, "The editor that triggered the recipe");
@@ -299,8 +304,8 @@ namespace Greenshot.Base.Recipes.Contracts
                         string produced = FindProducible(name, producible);
                         if (produced == null || covered[node.Id].Contains(produced)) continue;
                         _warnings.Add(possible[node.Id].Contains(produced)
-                            ? $"Node '{node.Id}' ({node.StepType}) uses ${{{produced}}}, which is not set on every path to it (it is only set in some branches)."
-                            : $"Node '{node.Id}' ({node.StepType}) uses ${{{produced}}}, which is only set by nodes that do not run before it.");
+                            ? $"Node '{node.Id}' ({node.StepType}) uses ${{var.{produced}}}, which is not set on every path to it (it is only set in some branches)."
+                            : $"Node '{node.Id}' ({node.StepType}) uses ${{var.{produced}}}, which is only set by nodes that do not run before it.");
                     }
                 }
 
@@ -590,7 +595,9 @@ namespace Greenshot.Base.Recipes.Contracts
                         case string text:
                             foreach (Match match in VariableReference.Matches(text))
                             {
-                                names.Add(match.Groups[1].Value.TrimEnd('.'));
+                                // The values of the running recipe are var.<name>; the other namespaces aren't produced by steps
+                                string name = match.Groups[1].Value.TrimEnd('.');
+                                if (name.StartsWith("var.", StringComparison.OrdinalIgnoreCase)) names.Add(name.Substring(4));
                             }
                             return;
                         case IDictionary dictionary:

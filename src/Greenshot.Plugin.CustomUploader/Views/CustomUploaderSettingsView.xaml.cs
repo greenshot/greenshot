@@ -24,13 +24,13 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using Greenshot.Plugin.CustomUploader.ViewModels;
 using log4net;
-using Microsoft.Win32;
 
 namespace Greenshot.Plugin.CustomUploader.Views;
 
@@ -41,7 +41,6 @@ namespace Greenshot.Plugin.CustomUploader.Views;
 public partial class CustomUploaderSettingsView : UserControl
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(CustomUploaderSettingsView));
-    private static readonly TimeSpan ImportArmDelay = TimeSpan.FromSeconds(1);
     private readonly CustomUploaderSettingsViewModel _viewModel;
 
     internal CustomUploaderSettingsView(CustomUploaderSettingsViewModel viewModel)
@@ -63,26 +62,21 @@ public partial class CustomUploaderSettingsView : UserControl
 
     private void Import_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog
-        {
-            Filter = UploaderTexts.ImportFileFilter,
-            CheckFileExists = true,
-            Multiselect = false
-        };
         var window = Window.GetWindow(this);
-        if ((window != null ? dialog.ShowDialog(window) : dialog.ShowDialog()) != true)
+        string path = DefinitionImport.PickFile(window, UploaderTexts.ImportFileFilter);
+        if (path == null)
         {
             return;
         }
 
-        var definition = CustomUploaderSettingsViewModel.ReadFile(dialog.FileName, out string error);
+        var definition = CustomUploaderSettingsViewModel.ReadFile(path, out string error);
         if (definition == null)
         {
-            ThemedMessageBox.Show(window, string.Format(UploaderTexts.ImportFailed, Path.GetFileName(dialog.FileName), error), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            ThemedMessageBox.Show(window, string.Format(UploaderTexts.ImportFailed, Path.GetFileName(path), error), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
-        definition = AskForValues(window, definition, Path.GetFileName(dialog.FileName));
+        definition = AskForValues(window, definition, Path.GetFileName(path));
         if (definition == null)
         {
             return;
@@ -94,12 +88,34 @@ public partial class CustomUploaderSettingsView : UserControl
         var buttons = offerReminder
             ? new[] { UploaderTexts.ImportWithReminder, UploaderTexts.ImportButton, Texts.Core.Cancel }
             : new[] { UploaderTexts.ImportButton, Texts.Core.Cancel };
-        int cancel = buttons.Length - 1;
-        int choice = ThemedMessageBox.ShowChoice(window, UploaderTexts.ImportTitle, _viewModel.DescribeImport(definition), MessageBoxImage.Warning,
-            buttons, defaultIndex: cancel, cancelIndex: cancel, armDelay: ImportArmDelay);
-        if (choice >= 0 && choice < cancel)
+        int choice = DefinitionImport.Confirm(window, _viewModel.DescribeImport(definition, path), buttons);
+        if (choice >= 0 && choice < buttons.Length - 1)
         {
-            _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
+            try
+            {
+                _viewModel.Import(definition, remindBeforeUpload: offerReminder && choice == 0);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // The Uploaders folder can't be written
+                Log.Warn("Can't write the uploader file", ex);
+                ThemedMessageBox.Show(window, string.Format(UploaderTexts.ImportFailed, Path.GetFileName(path), ex.Message), UploaderTexts.ImportTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    /// <summary>
+    /// An uploader file added or changed outside Greenshot is only used after the user saw where it sends the captures, like an import
+    /// </summary>
+    private void Approve_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_viewModel.CanApproveSelectedUploader) return;
+        var definition = _viewModel.GetSelectedUploader();
+        if (definition == null) return;
+        var buttons = new[] { UploaderTexts.ApproveButton, Texts.Core.Cancel };
+        if (DefinitionImport.Confirm(Window.GetWindow(this), _viewModel.DescribeSelectedApproval(definition), buttons) == 0)
+        {
+            _viewModel.ApproveSelectedUploader();
         }
     }
 
@@ -140,9 +156,19 @@ public partial class CustomUploaderSettingsView : UserControl
     {
         var uploader = _viewModel.SelectedUploader;
         if (uploader == null) return;
-        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.RemoveQuestion, uploader.Name), UploaderTexts.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (ThemedMessageBox.Show(Window.GetWindow(this), string.Format(UploaderTexts.RemoveQuestion, uploader.Name), UploaderTexts.UploadersTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
         {
             _viewModel.RemoveSelectedUploader();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn("Can't delete the uploader file", ex);
+            ThemedMessageBox.Show(Window.GetWindow(this), ex.Message, UploaderTexts.UploadersTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

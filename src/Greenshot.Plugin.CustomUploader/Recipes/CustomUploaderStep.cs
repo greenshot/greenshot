@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -51,13 +52,25 @@ namespace Greenshot.Plugin.CustomUploader.Recipes
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepParameter("Uploader", ContractDataType.Enum, Description = "Name of the imported uploader, empty when there is only one", AllowedValuesProvider = typeof(UploaderNames))]
     [StepOutputVariable("CustomUploader.Url", ContractDataType.String, "Link to the upload", Conditional = true)]
-    public class CustomUploaderStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class CustomUploaderStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CustomUploaderStep));
         private readonly CustomUploaderPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// The destination of the uploader, e.g. "CustomUploader:My server"
+        /// </summary>
+        public IEnumerable<string> UsedDestinations
+        {
+            get
+            {
+                var definition = FindUploader();
+                return definition == null ? Array.Empty<string>() : new[] { DefinitionItemDestination<UploaderDefinition>.DesignationOf(UploaderKind.Instance, definition.Name) };
+            }
+        }
 
         public CustomUploaderStep(RecipeNodeConfig config, CustomUploaderPlugin plugin)
         {
@@ -73,24 +86,14 @@ namespace Greenshot.Plugin.CustomUploader.Recipes
         {
             var definition = FindUploader();
             yield return definition != null
-                ? CustomUploaderPlugin.CreateGatedAction(definition)
+                ? UploaderKind.Instance.CreateGatedAction(definition)
                 : new RecipeGatedAction(RecipeGateType.NetworkAccess, NodeConfig.GetParameter<string>("Uploader") ?? CustomUploaderDestination.DesignationName);
         }
 
         /// <summary>
         /// The uploader with the name of the parameter, or the only one when the parameter is empty
         /// </summary>
-        private UploaderDefinition FindUploader()
-        {
-            string name = NodeConfig.GetParameter<string>("Uploader");
-            var uploaders = CustomUploaderPlugin.GetUploaders();
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return uploaders.Length == 1 ? uploaders[0] : null;
-            }
-
-            return uploaders.FirstOrDefault(definition => string.Equals(definition.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
+        private UploaderDefinition FindUploader() => CustomUploaderPlugin.CreateStore().FindOrOnly(NodeConfig.GetParameter<string>("Uploader"));
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {

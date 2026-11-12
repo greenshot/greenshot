@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Native;
 using Greenshot.Base.Native.DirectX;
 using Xunit;

@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Editor.Controls;
 
 namespace Greenshot.Editor.Tabs
 {
@@ -52,7 +53,7 @@ namespace Greenshot.Editor.Tabs
             StartPosition = FormStartPosition.Manual;
             AutoScaleMode = AutoScaleMode.None;
             Opacity = 0.85;
-            BackColor = SystemColors.Window;
+            BackColor = EditorTheme.Current.Window;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         }
 
@@ -121,7 +122,7 @@ namespace Greenshot.Editor.Tabs
         protected override void OnPaint(PaintEventArgs e)
         {
             var graphics = e.Graphics;
-            graphics.Clear(_showsPreview ? SystemColors.Control : SystemColors.Window);
+            graphics.Clear(_showsPreview ? EditorTheme.Current.Background : EditorTheme.Current.Window);
             if (_strip == null)
             {
                 return;

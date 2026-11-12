@@ -36,6 +36,7 @@ using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Plugin.Atlassian.Confluence.Api;
 using Greenshot.Plugin.Atlassian.Confluence.Api.Entities;
 using Greenshot.Base.Languages;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Atlassian.Confluence.Destinations;
 
@@ -138,7 +139,7 @@ public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorizati
         var connector = AtlassianPlugin.ConfluenceConnector;
         Page selectedPage;
         bool openPage = ConfluenceConfig.OpenPageAfterUpload;
-        string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, request.Metadata);
+        string filename = Path.GetFileName(OutputTemplates.PreviewFileName(request.Metadata));
         try
         {
             // force password check to take place before the pages load
@@ -289,7 +290,7 @@ public sealed class ConfluenceAttachmentExistsRequest : IDialogViewModel<Conflue
     {
         PageTitle = pageTitle;
         Filename = filename;
-        OtherName = AttachmentNames.Next(filename);
+        OtherName = NumberedFileNames.Next(filename);
     }
 
     public string PageTitle { get; }

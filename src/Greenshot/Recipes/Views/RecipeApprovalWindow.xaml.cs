@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using Greenshot.Base.Core;
@@ -190,6 +191,13 @@ namespace Greenshot.Recipes.Views
 
         public Visibility ValidationErrorVisibility => IsValidationError ? Visibility.Visible : Visibility.Collapsed;
 
+        /// <summary>
+        /// The id of the recipe from the catalog which failed, null for any other recipe: the errors then offer its newest catalog version
+        /// </summary>
+        public string CatalogRecipeId { get; private set; }
+
+        public Visibility CatalogUpdateVisibility => IsValidationError && CatalogRecipeId != null ? Visibility.Visible : Visibility.Collapsed;
+
         public string WindowTitleSubtitle { get; private set; }
         public string WindowFullTitle => $"Greenshot{WindowTitleSubtitle}";
         public string HeaderIcon { get; private set; }
@@ -258,19 +266,19 @@ namespace Greenshot.Recipes.Views
         public bool OpenInEditor { get; private set; }
 
         // Theme brushes for WPF binding
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush WarningBackgroundBrush => WpfThemeHelper.WarningBackground;
-        public SolidColorBrush WarningBorderBrush => WpfThemeHelper.WarningBorder;
-        public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
-        public SolidColorBrush ErrorBackgroundBrush => WpfThemeHelper.ErrorBackground;
-        public SolidColorBrush ErrorBorderBrush => WpfThemeHelper.ErrorBorder;
-        public SolidColorBrush ErrorTextBrush => WpfThemeHelper.ErrorText;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush WarningBackgroundBrush => ThemeManager.Instance.CurrentPalette.WarningBackground;
+        public SolidColorBrush WarningBorderBrush => ThemeManager.Instance.CurrentPalette.WarningBorder;
+        public SolidColorBrush WarningTextBrush => ThemeManager.Instance.CurrentPalette.WarningText;
+        public SolidColorBrush ErrorBackgroundBrush => ThemeManager.Instance.CurrentPalette.ErrorBackground;
+        public SolidColorBrush ErrorBorderBrush => ThemeManager.Instance.CurrentPalette.ErrorBorder;
+        public SolidColorBrush ErrorTextBrush => ThemeManager.Instance.CurrentPalette.ErrorText;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
 
         public RecipeApprovalWindow(RecipeApprovalRequest request)
         {
@@ -685,7 +693,10 @@ namespace Greenshot.Recipes.Views
             RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? Texts.Recipe.ApprovalFailedValidation : recipe.Description;
             RecipeId = recipe?.Id ?? Texts.Recipe.ApprovalUnknown;
             FilePath = filePath ?? Texts.Recipe.ApprovalUnknownPath;
+            _errorFilePath = filePath;
             FileHash = RecipeTrustStore.ComputeSha256(filePath) ?? Texts.Recipe.ApprovalUnknown;
+            // Found by its file, so also when the file can't be read any more
+            CatalogRecipeId = RecipeCatalogInstaller.GetUpdatableId(filePath);
 
             WindowTitleSubtitle = " — " + Texts.Recipe.ApprovalValidationFailed;
             HeaderIcon = "❌";
@@ -722,48 +733,85 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// Show the validation errors (modal on the UI thread, from another thread it's posted to it)
+        /// The files with an error window waiting or open: a file shows one window, also when it is loaded again meanwhile
+        /// </summary>
+        private static readonly HashSet<string> PendingErrorFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The update from the catalog this error window started, the next error window waits for it (and its approval)
+        /// </summary>
+        private Task _catalogUpdate;
+
+        /// <summary>
+        /// Show the validation errors. One error window at a time (modal), the others wait; a file which already has a window waiting
+        /// or open shows no second one. From another thread it's posted to the UI thread.
         /// </summary>
         public static void ShowValidationError(string filePath, RecipeValidationResult validationResult = null, CaptureRecipe recipe = null, string rawErrorMessage = null)
         {
-            UiDispatcher.Current.RunOnUiAsync(Show).FireAndLog("Show the recipe validation errors");
+            UiDispatcher.Current.RunOnUiAsync(() => EnqueueErrorWindow(filePath ?? string.Empty, () => new RecipeApprovalWindow(filePath, validationResult, recipe, rawErrorMessage)))
+                .FireAndLog("Show the recipe validation errors");
+        }
 
-            void Show()
+        private static void EnqueueErrorWindow(string filePath, Func<RecipeApprovalWindow> createWindow)
+        {
+            if (!PendingErrorFiles.Add(filePath))
             {
-                var window = new RecipeApprovalWindow(filePath, validationResult, recipe, rawErrorMessage)
-                {
-                    Topmost = true,
-                    ShowActivated = true,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
-
-                // The active WPF window owns the errors, otherwise they stand alone (topmost)
-                IntPtr ownerHwnd = IntPtr.Zero;
-                if (System.Windows.Application.Current != null)
-                {
-                    try
-                    {
-                        var activeWpfWindow = System.Windows.Application.Current.Windows
-                            .OfType<System.Windows.Window>()
-                            .FirstOrDefault(w => w.IsActive && w != window);
-                        if (activeWpfWindow != null)
-                        {
-                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
-                        }
-                    }
-                    catch
-                    {
-                        ownerHwnd = IntPtr.Zero;
-                    }
-                }
-
-                if (ownerHwnd != IntPtr.Zero)
-                {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
-                }
-
-                window.ShowDialog();
+                Log.DebugFormat("The errors of '{0}' are already shown or waiting.", filePath);
+                return;
             }
+
+            // One window at a time, also with the other questions of Greenshot (changed files, plugins)
+            UserQuestions.Enqueue($"the errors of the recipe file '{filePath}'", async () =>
+            {
+                try
+                {
+                    var window = createWindow();
+                    ShowErrorWindow(window);
+                    if (window._catalogUpdate != null)
+                    {
+                        // The update shows its approval window (or a message), the next question waits for it
+                        await window._catalogUpdate;
+                    }
+                }
+                finally
+                {
+                    PendingErrorFiles.Remove(filePath);
+                }
+            });
+        }
+
+        private static void ShowErrorWindow(RecipeApprovalWindow window)
+        {
+            window.Topmost = true;
+            window.ShowActivated = true;
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            // The active WPF window owns the errors, otherwise they stand alone (topmost)
+            IntPtr ownerHwnd = IntPtr.Zero;
+            if (System.Windows.Application.Current != null)
+            {
+                try
+                {
+                    var activeWpfWindow = System.Windows.Application.Current.Windows
+                        .OfType<System.Windows.Window>()
+                        .FirstOrDefault(w => w.IsActive && w != window);
+                    if (activeWpfWindow != null)
+                    {
+                        ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                    }
+                }
+                catch
+                {
+                    ownerHwnd = IntPtr.Zero;
+                }
+            }
+
+            if (ownerHwnd != IntPtr.Zero)
+            {
+                new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
+            }
+
+            window.ShowDialog();
         }
 
         private void PopulateTriggers(CaptureRecipe recipe)
@@ -953,6 +1001,54 @@ namespace Greenshot.Recipes.Views
             IsJsonViewerVisible = false;
         }
 
+        /// <summary>
+        /// The errors as plain text, to paste into an issue or a search: which recipe, which file, which Greenshot, and every error with its hint
+        /// </summary>
+        internal string BuildErrorReport()
+        {
+            var report = new System.Text.StringBuilder();
+            report.AppendLine(string.IsNullOrEmpty(RecipeVersion) ? $"Recipe: {RecipeName} ({RecipeId})" : $"Recipe: {RecipeName} {RecipeVersion} ({RecipeId})");
+            report.AppendLine($"File: {FilePath}");
+            report.AppendLine($"SHA-256: {FileHash}");
+            report.AppendLine($"Greenshot: {EnvironmentInfo.GetGreenshotVersion()}");
+            report.AppendLine("Errors:");
+            foreach (var error in ValidationErrors)
+            {
+                report.AppendLine($"- {error.ErrorMessage}");
+                if (error.HasHint)
+                {
+                    report.AppendLine($"  {error.DiagnosticHint}");
+                }
+            }
+            return report.ToString();
+        }
+
+        /// <summary>
+        /// A recipe file which fails the checks can be removed from Greenshot here: it isn't loaded anymore, the file stays
+        /// </summary>
+        // The file of an error window, null for other windows
+        private readonly string _errorFilePath;
+
+        public Visibility RemoveFileVisibility => IsValidationError && !string.IsNullOrEmpty(_errorFilePath) ? Visibility.Visible : Visibility.Collapsed;
+
+        private void OnRemoveFileClicked(object sender, RoutedEventArgs e)
+        {
+            RecipeManager.Instance.RemoveRecipeFile(_errorFilePath);
+            Close();
+        }
+
+        private void OnCopyErrorsClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ClipboardHelper.SetClipboardData(BuildErrorReport());
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Failed to copy the recipe errors to the clipboard.", ex);
+            }
+        }
+
         private void OnCopyJsonClicked(object sender, RoutedEventArgs e)
         {
             try
@@ -1066,6 +1162,22 @@ namespace Greenshot.Recipes.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to open recipe file in editor: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Closes the errors and installs the version of the catalog, which shows its approval window (or tells why nothing was installed)
+        /// </summary>
+        private void OnUpdateFromCatalogClicked(object sender, RoutedEventArgs e)
+        {
+            string recipeId = CatalogRecipeId;
+            IsApproved = false;
+            DialogResult = false;
+            Close();
+            if (recipeId != null)
+            {
+                // Awaited by the error window queue: the next errors are shown after the update
+                _catalogUpdate = RecipeCatalogInstaller.InstallAsync(recipeId);
             }
         }
 

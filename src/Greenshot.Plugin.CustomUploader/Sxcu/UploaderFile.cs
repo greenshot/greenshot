@@ -40,6 +40,11 @@ internal static class UploaderFile
     /// </summary>
     public const int MaximumLength = 256 * 1024;
 
+    /// <summary>
+    /// The extension of uploader files, also of those in the Uploaders folder
+    /// </summary>
+    public const string FileExtension = ".sxcu";
+
     private const string MultipartFormData = "MultipartFormData";
     private const string Binary = "Binary";
 

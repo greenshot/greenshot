@@ -25,9 +25,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Base.Core.Export
 {
@@ -157,14 +160,10 @@ namespace Greenshot.Base.Core.Export
         /// </summary>
         public static async Task<string> SaveNamedTmpFileAsync(IExportSource source, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings, CancellationToken cancellationToken)
         {
-            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            string pattern = coreConfig.OutputFileFilenamePattern;
-            if (string.IsNullOrEmpty(pattern?.Trim()))
-            {
-                pattern = "greenshot ${capturetime}";
-            }
-
-            string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
+            // A temporary file isn't a use of the counters: they stay
+            var scope = VariableScope.ForCapture(captureDetails);
+            scope.Preview = true;
+            string filename = OutputTemplates.RenderFileName(null, FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format), scope).Name;
             // Prevent problems with "other characters", which causes a problem in e.g. Outlook 2007 or break our HTML
             filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
             // Remove multiple "_"

@@ -35,6 +35,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
+using Greenshot.ImageSharpDrawing;
 using log4net;
 using SixLabors.ImageSharp.PixelFormats;
 using Brush = System.Drawing.Brush;

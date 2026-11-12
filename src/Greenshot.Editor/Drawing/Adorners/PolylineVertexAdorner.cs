@@ -50,7 +50,7 @@ namespace Greenshot.Editor.Drawing.Adorners
             // Handles are painted at a fixed screen size, independently of image zoom.
             return Owner.Parent == null
                 ? base.HitTest(point)
-                : BoundsOnSurface.Inflate(3, 3).Contains(Owner.Parent.ToSurfaceCoordinates(point));
+                : BoundsOnSurface.Inflate(3, 3).Contains(point);
         }
 
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)

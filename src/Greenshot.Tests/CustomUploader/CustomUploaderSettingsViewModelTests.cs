@@ -52,8 +52,8 @@ namespace Greenshot.Tests.CustomUploader
             var viewModel = new CustomUploaderSettingsViewModel(CreateStore());
             string noDeletion = string.Format(Language.ImportNoDeletion, "example.com");
 
-            Assert.Contains(noDeletion, viewModel.DescribeImport(Uploader()));
-            Assert.DoesNotContain(noDeletion, viewModel.DescribeImport(Uploader("{json:delete}")));
+            Assert.Contains(noDeletion, viewModel.DescribeImport(Uploader()).ToString());
+            Assert.DoesNotContain(noDeletion, viewModel.DescribeImport(Uploader("{json:delete}")).ToString());
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace Greenshot.Tests.CustomUploader
         {
             var viewModel = new CustomUploaderSettingsViewModel(CreateStore());
 
-            Assert.Contains(string.Format(Language.ImportNotGreenshot, "Mine", "example.com"), viewModel.DescribeImport(Uploader()));
+            Assert.Contains(string.Format(Language.ImportNotGreenshot, "Mine", "example.com"), viewModel.DescribeImport(Uploader()).ToString());
         }
 
         [Fact]

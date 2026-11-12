@@ -23,7 +23,7 @@
 ### Prerequisites
 - **Operating System**: Windows (Linux/Mac not supported for building)
 - **Build Tools**: Visual Studio 2026 with the Desktop development with C++ workload, MSVC v145 x64/x86 build tools, Windows 10 SDK, and the .NET Framework 4.8 Developer Pack
-- **.NET SDK**: .NET SDK 10.0.100 or newer (the MCP server targets .NET 10)
+- **.NET SDK**: .NET SDK 10.0.114 or newer (the MCP server targets .NET 10; older SDKs bring a vulnerable ILCompiler, GHSA-p3jp-9v83-76w9)
 - **Target Frameworks**: Most projects target .NET Framework 4.8 (`net480`); `Greenshot.Mcp` targets `net10.0-windows`
 - **Git Clone**: MUST use full clone with history (NOT shallow clone) due to Nerdbank.GitVersioning requirements
 

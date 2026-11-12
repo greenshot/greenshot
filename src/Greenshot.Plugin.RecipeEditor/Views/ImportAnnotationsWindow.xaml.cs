@@ -108,8 +108,8 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             if (AppendCard != null && ReplaceCard != null)
             {
                 bool isAppend = AppendRadio.IsChecked == true;
-                AppendCard.BorderBrush = isAppend ? WpfThemeHelper.Accent : WpfThemeHelper.CardBorder;
-                ReplaceCard.BorderBrush = !isAppend ? WpfThemeHelper.Accent : WpfThemeHelper.CardBorder;
+                AppendCard.BorderBrush = isAppend ? ThemeManager.Instance.CurrentPalette.Accent : ThemeManager.Instance.CurrentPalette.CardBorder;
+                ReplaceCard.BorderBrush = !isAppend ? ThemeManager.Instance.CurrentPalette.Accent : ThemeManager.Instance.CurrentPalette.CardBorder;
             }
         }
 

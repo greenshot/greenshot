@@ -41,8 +41,8 @@ namespace Greenshot.Base.Wpf
             window.ResizeMode = ResizeMode.NoResize;
             window.SizeToContent = SizeToContent.WidthAndHeight;
             window.ShowInTaskbar = false;
-            window.Background = WpfThemeHelper.CardBackground;
-            window.BorderBrush = WpfThemeHelper.CardBorder;
+            window.Background = ThemeManager.Instance.CurrentPalette.CardBackground;
+            window.BorderBrush = ThemeManager.Instance.CurrentPalette.CardBorder;
             window.BorderThickness = new Thickness(1);
             // Windows 11 rounds windows with a title bar by itself, this one has none
             window.SourceInitialized += (s, e) => WindowFrameTheme.SetRoundedCorners(window);
@@ -58,7 +58,7 @@ namespace Greenshot.Base.Wpf
                 Text = text ?? "Greenshot",
                 FontWeight = FontWeights.SemiBold,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 Margin = new Thickness(0, 0, 0, 10)
             };
             header.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(14));
@@ -80,9 +80,9 @@ namespace Greenshot.Base.Wpf
                 Margin = new Thickness(8, 0, 0, 0),
                 IsDefault = isDefault,
                 IsCancel = isCancel,
-                Foreground = isDefault ? palette.AccentForegroundBrush : WpfThemeHelper.TextPrimary,
-                Background = isDefault ? WpfThemeHelper.Accent : palette.ButtonBackgroundBrush,
-                BorderBrush = isDefault ? WpfThemeHelper.Accent : WpfThemeHelper.CardBorder,
+                Foreground = isDefault ? palette.AccentForegroundBrush : ThemeManager.Instance.CurrentPalette.TextPrimary,
+                Background = isDefault ? ThemeManager.Instance.CurrentPalette.Accent : palette.ButtonBackgroundBrush,
+                BorderBrush = isDefault ? ThemeManager.Instance.CurrentPalette.Accent : ThemeManager.Instance.CurrentPalette.CardBorder,
                 BorderThickness = new Thickness(1),
                 Cursor = Cursors.Hand,
                 Template = CreateButtonTemplate()
@@ -126,7 +126,7 @@ namespace Greenshot.Base.Wpf
             {
                 Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, MaxWidth = 340 },
                 IsChecked = isChecked,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 4, 0, 4)
             };

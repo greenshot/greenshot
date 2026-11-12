@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Helpers;
 using Greenshot.Notifications;
 
@@ -40,8 +41,9 @@ namespace Greenshot.Notifications
         {
             var notificationRecipe = new CaptureRecipe(
                 RecipeIdNotification,
-                "Capture of a notification",
+                "Handle the capture of a notification",
                 "Offer the capture of a clicked notification in the destination flyout")
+                .AddTrigger(TriggerConfig.CreateNotification())
                 // The click hands over the kept capture, the source passes it on (it reads the variable Filename otherwise)
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
                 .AddNode(RecipeStepConfig.CreateDynamicDestination("export"));

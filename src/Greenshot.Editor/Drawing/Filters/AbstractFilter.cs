@@ -111,6 +111,11 @@ namespace Greenshot.Editor.Drawing.Filters
         protected virtual int ClipMargin => 0;
 
         /// <summary>
+        /// How many pixels around the repainted area the filter reads, for the surface to repaint them first
+        /// </summary>
+        internal int ReadMargin => ClipMargin;
+
+        /// <summary>
         /// Executes the given render action within a clipped region for the specified rectangles.
         /// Handles graphics state saving and restoring, bounding rectangle calculation,
         /// and clipping (including multi-rectangle inverted exclusion).

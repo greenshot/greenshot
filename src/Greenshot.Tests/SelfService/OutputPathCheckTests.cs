@@ -33,7 +33,7 @@ namespace Greenshot.Tests.SelfService
     /// </summary>
     public sealed class OutputPathCheckTests : IDisposable
     {
-        private const string Pattern = "greenshot ${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}";
+        private const string Pattern = "greenshot ${payload.time:yyyy-MM-dd HH_mm_ss}";
         private static readonly string[] NoOneDrive = Array.Empty<string>();
         private readonly string _folder;
 
@@ -90,7 +90,7 @@ namespace Greenshot.Tests.SelfService
         [Fact]
         public void FolderWithVariables_IsInformation_AndShowsTheFilledInFolder()
         {
-            var result = OutputPathCheck.Run(Path.Combine(_folder, "${YYYY}"), Pattern, "png", NoOneDrive);
+            var result = OutputPathCheck.Run(Path.Combine(_folder, "${time.now:yyyy}"), Pattern, "png", NoOneDrive);
 
             Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.ContainsVariables && i.Severity == OutputPathSeverity.Info);
             Assert.Equal(Path.Combine(_folder, DateTime.Now.Year.ToString()), result.ExpandedPath);
@@ -100,23 +100,23 @@ namespace Greenshot.Tests.SelfService
         public void GetOutputDirectory_FolderWithVariables_IsFilledInAndCreated_TheSettingStays()
         {
             // A configuration of its own: the tests don't touch the user's greenshot.ini
-            var configuration = new CoreConfigurationImpl { OutputFilePath = Path.Combine(_folder, "${YYYY}") };
+            var configuration = new CoreConfigurationImpl { OutputDirectory = Path.Combine(_folder, "${time.now:yyyy}") };
 
-            string directory = configuration.GetOutputDirectory(out string problem);
+            string directory = configuration.GetOutputDirectory(null, out string problem);
 
             Assert.Null(problem);
             Assert.Equal(Path.Combine(_folder, DateTime.Now.Year.ToString()), directory);
             Assert.True(Directory.Exists(directory));
-            Assert.Equal(Path.Combine(_folder, "${YYYY}"), configuration.OutputFilePath);
+            Assert.Equal(Path.Combine(_folder, "${time.now:yyyy}"), configuration.OutputDirectory);
         }
 
         [Fact]
         public void GetOutputDirectory_MissingFolder_IsCreated()
         {
             string folder = Path.Combine(_folder, "deleted", "Screenshots");
-            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+            var configuration = new CoreConfigurationImpl { OutputDirectory = folder };
 
-            Assert.Equal(folder, configuration.GetOutputDirectory(out string problem));
+            Assert.Equal(folder, configuration.GetOutputDirectory(null, out string problem));
             Assert.Null(problem);
             Assert.True(Directory.Exists(folder));
         }
@@ -125,29 +125,61 @@ namespace Greenshot.Tests.SelfService
         public void GetOutputDirectory_MissingDrive_UsesTheDefaultFolderOnce_TheSettingStays()
         {
             string folder = GetUnusedDrive() + "Screenshots";
-            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+            var configuration = new CoreConfigurationImpl { OutputDirectory = folder };
 
-            string directory = configuration.GetOutputDirectory(out string problem);
+            string directory = configuration.GetOutputDirectory(null, out string problem);
 
             Assert.NotNull(problem);
             Assert.NotEqual(folder, directory);
             Assert.True(Directory.Exists(directory));
             // The next save tries the configured folder again, e.g. when the network drive is back
-            Assert.Equal(folder, configuration.OutputFilePath);
+            Assert.Equal(folder, configuration.OutputDirectory);
         }
 
         [Fact]
-        public void ValidateAndCorrectOutputFilePath_KeepsAMissingFolder_SetsTheDefaultWhenEmpty()
+        public void ValidateAndCorrectOutputDirectory_KeepsAMissingFolder_SetsTheDefaultWhenEmpty()
         {
             string folder = GetUnusedDrive() + "Screenshots";
-            var configuration = new CoreConfigurationImpl { OutputFilePath = folder };
+            var configuration = new CoreConfigurationImpl { OutputDirectory = folder };
 
-            configuration.ValidateAndCorrectOutputFilePath();
-            Assert.Equal(folder, configuration.OutputFilePath);
+            configuration.ValidateAndCorrectOutputDirectory();
+            Assert.Equal(folder, configuration.OutputDirectory);
 
-            configuration.OutputFilePath = null;
-            configuration.ValidateAndCorrectOutputFilePath();
-            Assert.False(string.IsNullOrEmpty(configuration.OutputFilePath));
+            configuration.OutputDirectory = null;
+            configuration.ValidateAndCorrectOutputDirectory();
+            Assert.False(string.IsNullOrEmpty(configuration.OutputDirectory));
+        }
+
+        [Fact]
+        public void FolderWithAValueOfTheCapture_IsAnError()
+        {
+            var result = OutputPathCheck.Run(Path.Combine(_folder, "${payload.title}"), Pattern, "png", NoOneDrive);
+
+            Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.ContainsVariables && i.Severity == OutputPathSeverity.Error);
+        }
+
+        [Fact]
+        public void Settings_Of13_AreConvertedOnce_AndStay()
+        {
+            var configuration = new CoreConfigurationImpl
+            {
+                OutputFilePath = @"C:\Shots\${YYYY}",
+                OutputFileFilenamePattern = "${capturetime:d\"yyyy-MM-dd\"} ${title} ${NUM}",
+                OutputPrintFooterPattern = "${title}"
+            };
+
+            configuration.OnAfterLoad();
+
+            Assert.Equal(@"C:\Shots\${payload.time:yyyy}", configuration.OutputDirectory);
+            Assert.Equal("${payload.time:yyyy-MM-dd} ${payload.title} ${counter.global:000000}", configuration.OutputFileNameTemplate);
+            Assert.Equal("${payload.title}", configuration.OutputPrintFooterTemplate);
+            // For going back to 1.3
+            Assert.Equal("${title}", configuration.OutputPrintFooterPattern);
+
+            // A template set in 1.4 stays
+            configuration.OutputFileNameTemplate = "${payload.title}";
+            configuration.OnAfterLoad();
+            Assert.Equal("${payload.title}", configuration.OutputFileNameTemplate);
         }
 
         /// <summary>
@@ -212,7 +244,7 @@ namespace Greenshot.Tests.SelfService
         [Fact]
         public void PatternWithSubfolder_IsInformation()
         {
-            var result = OutputPathCheck.Run(_folder, @"${YYYY}\capture", "png", NoOneDrive);
+            var result = OutputPathCheck.Run(_folder, @"${payload.time:yyyy}\capture", "png", NoOneDrive);
 
             Assert.Contains(result.Items, i => i.Finding == OutputPathFinding.PatternCreatesFolders);
         }

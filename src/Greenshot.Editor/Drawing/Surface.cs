@@ -36,11 +36,14 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
+using Greenshot.Base.Hdr;
 using Greenshot.Base.ImageSharpDrawing;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
+using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Adorners;
 using Greenshot.Editor.Drawing.Emoji;
@@ -53,13 +56,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Http;
+using Greenshot.ImageSharpDrawing;
 
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// Description of Surface.
     /// </summary>
-    public sealed class Surface : Control, ISurface, INotifyPropertyChanged
+    public sealed partial class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
         private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -453,6 +457,11 @@ namespace Greenshot.Editor.Drawing
                 {
                     return HdrState.None;
                 }
+                // An element which can't be drawn on the HDR pixels (of another kind, e.g. a subclass): the HDR file would miss it
+                if (_elements != null && _elements.OfType<DrawableContainer>().Any(element => element.Parent != null && !CanDrawOnHdr(element)))
+                {
+                    return HdrState.Lost;
+                }
                 if (_hdrImage.BelongsTo(_image))
                 {
                     return HdrState.Available;
@@ -654,33 +663,29 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <inheritdoc />
-        public HdrOverlay CreateHdrOverlay()
+        public IReadOnlyList<ImageSharpStep> CreateImageSharpSteps()
         {
             if (_image == null || _elements == null || _elements.Count == 0)
             {
-                return null;
+                return Array.Empty<ImageSharpStep>();
             }
             var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
 
-            // In the order of the elements: what they draw goes into layers. The filters which can be done on the HDR pixels (ElementImageFilters:
-            // highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut marks) are steps between the layers, so they work
-            // on what is drawn before them, like in the editor. Other elements which change the pixels under them (e.g. an inverted
-            // pixelate, a filter of a plugin) can't be drawn on their own: their areas are taken from the export as it is. An inverted filter changes everything around it.
-            var replacedAreas = new List<NativeRect>();
-            var changedAreas = new List<NativeRect>();
+            // In the order of the elements: what they draw is drawn with ImageSharp on the HDR pixels (ElementDrawing), their filters are done on
+            // the HDR pixels (ElementImageFilters: highlighter, area highlight, grayscale, magnifier, blur, pixelate; the cut of torn edges and cut
+            // marks) as steps between them, so they work on what is drawn before them, like in the editor. An inverted filter changes everything
+            // around it. Nothing comes from the 8-bit image: an element which can't be drawn this way makes the HDR state Lost (see CanDrawOnHdr).
             var invertedGroupsDone = new HashSet<string>();
-
-            // First the plan: the filters, and between them the elements which are drawn into the same layer
-            var plan = new List<(IReadOnlyList<ImageFilter> Filters, List<DrawableContainer> Drawn)>();
-            List<DrawableContainer> drawn = null;
+            var steps = new List<ImageSharpStep>();
             void AddDrawn(DrawableContainer element)
             {
-                if (drawn == null)
+                var area = element.DrawingBounds.Intersect(bounds);
+                var draw = area.Width > 0 && area.Height > 0 ? ElementDrawing.Of(element, area.Location) : null;
+                // Null: it draws nothing (e.g. an icon without its icon)
+                if (draw != null)
                 {
-                    drawn = new List<DrawableContainer>();
-                    plan.Add((null, drawn));
+                    steps.Add(ImageSharpStep.Of(area, draw));
                 }
-                drawn.Add(element);
             }
             foreach (var element in _elements.OfType<DrawableContainer>())
             {
@@ -688,17 +693,16 @@ namespace Greenshot.Editor.Drawing
                 {
                     continue;
                 }
+                if (!CanDrawOnHdr(element))
+                {
+                    throw new InvalidOperationException($"The element {element.GetType().Name} can't be drawn on the HDR pixels.");
+                }
                 if (ChangesPixels(element))
                 {
-                    var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone);
-                    if (elementFilters == null)
-                    {
-                        AddReplacedAreas(element, bounds, replacedAreas, changedAreas);
-                        continue;
-                    }
-                    // The filters work on what is drawn so far, the next elements go into a new layer
-                    drawn = null;
-                    plan.Add((elementFilters, null));
+                    // Never without its filters: an obfuscation left out would show what it hides (CanDrawOnHdr makes the state Lost before)
+                    var elementFilters = CreateImageFilters(element, bounds, invertedGroupsDone)
+                        ?? throw new InvalidOperationException($"The filters of the element {element.GetType().Name} can't be done on the HDR pixels.");
+                    steps.AddRange(elementFilters.Select(ImageSharpStep.Of));
                     // What the element draws itself (a border; the fill, shadow and edge lines of torn edges) is over its filter
                     if (DrawsItself(element))
                     {
@@ -711,79 +715,21 @@ namespace Greenshot.Editor.Drawing
                     AddDrawn(element);
                 }
             }
-
-            // Then the layers, each only as big as what is drawn into it
-            var steps = new List<HdrOverlayStep>();
-            Bitmap rendered = null;
-            try
-            {
-                foreach (var (filters, elements) in plan)
-                {
-                    if (filters != null)
-                    {
-                        steps.AddRange(filters.Select(HdrOverlayStep.Of));
-                        continue;
-                    }
-                    var area = elements.Select(element => element.DrawingBounds.Intersect(bounds)).Where(part => part.Width > 0 && part.Height > 0)
-                        .DefaultIfEmpty(NativeRect.Empty).Aggregate((all, part) => all.IsEmpty ? part : all.Union(part));
-                    if (area.Width <= 0 || area.Height <= 0)
-                    {
-                        continue;
-                    }
-                    var layer = new Bitmap(area.Width, area.Height, PixelFormat.Format32bppArgb);
-                    steps.Add(HdrOverlayStep.Of(layer, area.Location));
-                    using var graphics = Graphics.FromImage(layer);
-                    graphics.TranslateTransform(-area.X, -area.Y);
-                    foreach (var element in elements)
-                    {
-                        if (ChangesPixels(element))
-                        {
-                            element.Draw(graphics, RenderMode.EXPORT);
-                            continue;
-                        }
-                        if (element is CursorContainer cursorContainer)
-                        {
-                            // A mask cursor (e.g. the I-beam) inverts the image under it
-                            using var cursorLayer = HdrImage.CreateCursorLayer(_image as Bitmap, cursorContainer.Cursor, cursorContainer.Bounds);
-                            if (cursorLayer != null)
-                            {
-                                graphics.DrawImage(cursorLayer, new Rectangle(cursorContainer.Bounds.X, cursorContainer.Bounds.Y, cursorLayer.Width, cursorLayer.Height));
-                            }
-                            continue;
-                        }
-                        element.DrawContent(graphics, layer, RenderMode.EXPORT, bounds);
-                    }
-                }
-
-                if (replacedAreas.Count > 0 || changedAreas.Count > 0)
-                {
-                    rendered = (Bitmap)GetImage(RenderMode.EXPORT);
-                    // The replaced areas are the export as it is, also what is drawn over them
-                    using var clear = new SolidBrush(Color.Transparent);
-                    foreach (var step in steps.Where(step => step.Layer != null))
-                    {
-                        using var layerGraphics = Graphics.FromImage(step.Layer);
-                        layerGraphics.CompositingMode = CompositingMode.SourceCopy;
-                        layerGraphics.TranslateTransform(-step.Location.X, -step.Location.Y);
-                        foreach (var area in replacedAreas.Concat(changedAreas))
-                        {
-                            layerGraphics.FillRectangle(clear, area.X, area.Y, area.Width, area.Height);
-                        }
-                    }
-                }
-                return new HdrOverlay(steps, rendered, replacedAreas, changedAreas);
-            }
-            catch
-            {
-                foreach (var step in steps)
-                {
-                    step.Layer?.Dispose();
-                }
-                rendered?.Dispose();
-                throw;
-            }
+            return steps;
         }
 
+        /// <summary>
+        /// True when the element can be drawn on the HDR pixels: its filters (see ElementImageFilters.Supports) and its drawing (see
+        /// ElementDrawing.Supports)
+        /// </summary>
+        private bool CanDrawOnHdr(DrawableContainer element)
+        {
+            if (element.HasFilters && !ElementImageFilters.Supports(element, _image))
+            {
+                return false;
+            }
+            return element.HasFilters && !DrawsItself(element) || ElementDrawing.Supports(element);
+        }
         /// <summary>
         /// The filters of the element which can be done on the HDR pixels (see ElementImageFilters, CreateCutAway), null when it can't
         /// </summary>
@@ -811,40 +757,40 @@ namespace Greenshot.Editor.Drawing
             string.Join(",", element.Filters.Where(filter => filter.Invert).Select(filter => filter.GetType().FullName).OrderBy(name => name));
 
         /// <summary>
-        /// The areas of an element whose effect can't be drawn on the HDR pixels: from the export as it is (replaced), or only the pixels which it
-        /// changed (changed: torn edges and cut marks, when their cut can't be drawn)
+        /// What the element does to the HDR pixels when it is drawn into the image for good (see ApplyElementToImage), like in an HDR file (see
+        /// CreateImageSharpSteps()): the cut of torn edges and cut marks, then what the element draws, with ImageSharp. Null when it can't be done
+        /// on the HDR pixels (a filter which mixes pixels, an element without an ImageSharp drawing, e.g. of a plugin): the image loses its HDR
+        /// content then.
         /// </summary>
-        private static void AddReplacedAreas(DrawableContainer element, NativeRect bounds, List<NativeRect> replacedAreas, List<NativeRect> changedAreas)
+        private IReadOnlyList<ImageSharpStep> CreateImageSharpSteps(DrawableContainer element)
         {
-            IEnumerable<NativeRect> areas;
-            var target = replacedAreas;
-            if (element is TornEdgeContainer tornEdges)
+            var bounds = new NativeRect(0, 0, _image.Width, _image.Height);
+            var area = element.DrawingBounds.Intersect(bounds);
+            var steps = new List<ImageSharpStep>();
+            if (ChangesPixels(element))
             {
-                // Only the bands of the torn edges, and in them only the pixels of the teeth: the rest keeps its HDR content
-                areas = tornEdges.EdgeAreas();
-                target = changedAreas;
-            }
-            else if (element.HasFilters)
-            {
-                // A filter changes its Bounds, with its border and shadow when it has them (DrawingBounds has a margin for the handles)
-                int lineThickness = element.HasField(FieldType.LINE_THICKNESS) ? element.GetFieldValueAsInt(FieldType.LINE_THICKNESS) : 0;
-                int shadow = element.HasField(FieldType.SHADOW) && element.GetFieldValueAsBool(FieldType.SHADOW) ? 10 : 0;
-                int margin = lineThickness > 0 || shadow > 0 ? lineThickness + shadow : 0;
-                areas = new[] { element.Filters.Any(filter => filter.Invert) ? bounds : element.Bounds.Normalize().Inflate(margin, margin) };
-            }
-            else
-            {
-                // A cut mark: the pixels it draws
-                areas = new[] { element.DrawingBounds };
-                target = changedAreas;
-            }
-            foreach (var area in areas.Select(area => area.Intersect(bounds)))
-            {
-                if (area.Width > 0 && area.Height > 0)
+                var cutAway = element.HasFilters ? null : CreateCutAway(element);
+                if (cutAway == null)
                 {
-                    target.Add(area);
+                    return null;
+                }
+                steps.Add(ImageSharpStep.Of(cutAway));
+                if (!DrawsItself(element))
+                {
+                    return steps;
                 }
             }
+            if (area.Width <= 0 || area.Height <= 0)
+            {
+                return steps;
+            }
+            var draw = ElementDrawing.Of(element, area.Location);
+            if (draw == null)
+            {
+                return null;
+            }
+            steps.Add(ImageSharpStep.Of(area, draw));
+            return steps;
         }
 
         /// <summary>
@@ -912,6 +858,8 @@ namespace Greenshot.Editor.Drawing
                 _zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
                 _inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
                 UpdateSize();
+                // A size change repaints, the same size (a small image) does not
+                Invalidate();
             }
         }
 
@@ -989,6 +937,7 @@ namespace Greenshot.Editor.Drawing
             get => _drawingMode;
             set
             {
+                CancelSelectionBox();
                 FinishDrawing(select: false);
                 _drawingMode = value;
                 if (_drawingModeChanged != null)
@@ -1035,6 +984,9 @@ namespace Greenshot.Editor.Drawing
             {
                 element.AdjustToDpi(dpi);
             }
+
+            // The adorners changed their size
+            Invalidate();
 
             // The framework's automatic DPI-driven control scaling resizes this control along with
             // every other control on the form, which is wrong here: the canvas size must always be
@@ -1122,7 +1074,8 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            // The HDR image comes along with the image, the surface owns both now
+            // The HDR image comes along with the image, the surface owns both now: of all of the capture when it wasn't cropped
+            capture.JoinHdrParts();
             _hdrImage = capture.HdrImage;
 
             // Make sure the image is NOT disposed, we took the reference directly into ourselves
@@ -1208,6 +1161,24 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Elements were changed on the canvas: moved or resized with the mouse or the keys, undo or redo.
+        /// Not raised for every step of a drag, only when it ends.
+        /// </summary>
+        internal event EventHandler ElementsChanged;
+
+        /// <summary>
+        /// An element asks to show its properties, e.g. a double click on an emoji: the editor shows the Selection panel
+        /// </summary>
+        internal event EventHandler PropertiesRequested;
+
+        internal void OnElementsChanged() => ElementsChanged?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
+        /// Show the properties of the selected elements in the Selection panel and move the keyboard there
+        /// </summary>
+        internal void RequestProperties() => PropertiesRequested?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
         /// Undo the last action
         /// </summary>
         public void Undo()
@@ -1225,6 +1196,7 @@ namespace Greenshot.Editor.Drawing
                 _redoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -1241,6 +1213,7 @@ namespace Greenshot.Editor.Drawing
                 _undoStack.Push(top.Restore());
                 _inUndoRedo = false;
                 PruneHdrVersions(false);
+                OnElementsChanged();
             }
         }
 
@@ -2265,8 +2238,9 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var offset = new NativePoint(margins[3] - cropRectangle.Left, margins[0] - cropRectangle.Top);
             // Make undoable, the memento takes the current image
-            // The HDR image is cropped the same way, the room for torn edges is from the image (like what is drawn)
-            DeriveHdrImage(Image, newImage, ImageEdits.Place(cropRectangle, new NativeSize(newImage.Width, newImage.Height), new NativePoint(margins[3], margins[0])));
+            // The HDR image is cropped the same way, on the room for the torn edges like ExpandImage makes it
+            DeriveHdrImage(Image, newImage, ImageEdits.PlaceOnBackground(cropRectangle, new NativeSize(newImage.Width, newImage.Height), new NativePoint(margins[3], margins[0]),
+                settings?.BackgroundColor ?? Color.Transparent));
             MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-offset.X, -offset.Y), removedElements, addedElements, edgeLayouts), false);
 
             // Do not dispose otherwise we can't undo the image!
@@ -2493,8 +2467,9 @@ namespace Greenshot.Editor.Drawing
                 var movedElements = _elements.ToList();
                 var addedElements = new DrawableContainerList(ID) { tornEdges };
                 var offset = new NativePoint(margin, margin);
-                // The HDR image moves into the room, the torn edges are an element (their bands come from the 8-bit image when saved)
-                DeriveHdrImage(Image, newImage, ImageEdits.Place(new NativeRect(0, 0, Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), offset));
+                // The HDR image moves into the room, on the background like ExpandImage makes it. The torn edges are an element.
+                DeriveHdrImage(Image, newImage, ImageEdits.PlaceOnBackground(new NativeRect(0, 0, Image.Width, Image.Height), new NativeSize(newImage.Width, newImage.Height), offset,
+                    settings.BackgroundColor));
                 MakeUndoable(new SurfaceCutOutMemento(this, Image, movedElements, new NativePoint(-margin, -margin), new DrawableContainerList(ID), addedElements), false);
                 ApplyCutOutState(newImage, movedElements, offset, addedElements, new DrawableContainerList(ID));
                 // It was created for the old image size, this makes it cover the new one
@@ -2503,6 +2478,90 @@ namespace Greenshot.Editor.Drawing
 
             SelectElement(tornEdges);
             return tornEdges;
+        }
+
+        /// <summary>
+        /// Change the settings of the torn edges as an undo step, e.g. from the Torn edges section. The room for the shadow stays as it is.
+        /// </summary>
+        /// <param name="tornEdges">TornEdgeContainer of this surface</param>
+        /// <param name="settings">TornEdgeEffect with the new settings, its seed decides the edges</param>
+        /// <param name="setting">what is changed, e.g. "ShadowSize": changes of the same setting one after the other (a slider which is dragged)
+        /// are one undo step; null makes every change its own step</param>
+        internal void ChangeTornEdges(TornEdgeContainer tornEdges, TornEdgeEffect settings, string setting = null)
+        {
+            if (tornEdges == null || settings == null)
+            {
+                return;
+            }
+
+            MakeUndoable(new TornEdgeSettingsMemento(tornEdges, setting), setting != null);
+            tornEdges.ApplySettings(settings);
+            tornEdges.SetSeed(settings.Seed);
+            Modified = true;
+            Invalidate();
+            OnElementsChanged();
+        }
+
+        /// <summary>
+        /// The capture as it would look after the effect, the surface stays unchanged. The effect is calculated on the thread pool.
+        /// </summary>
+        /// <param name="effect">IEffect, it is not changed and may be changed after the call</param>
+        /// <param name="elementsOnTop">true: the effect changes only the image, the elements are drawn on top unchanged (e.g. remove
+        /// transparency, like ApplyBitmapEffectAsync leaves them). false: the effect changes the image with its elements (e.g. a border or shadow, which
+        /// move the elements with the image).</param>
+        /// <returns>Bitmap owned by the caller</returns>
+        internal async Task<Bitmap> CreateEffectPreviewAsync(IEffect effect, bool elementsOnTop)
+        {
+            var source = elementsOnTop ? ImageHelper.Clone(_image, PixelFormat.DontCare) : RenderWithElements(_image);
+            var result = await CreateEffectPreviewOnPoolAsync(source, effect);
+            if (elementsOnTop && result != null && !IsDisposed)
+            {
+                using var graphics = Graphics.FromImage(result);
+                _elements.Draw(graphics, result, RenderMode.EXPORT, new Rectangle(Point.Empty, result.Size));
+            }
+
+            return result;
+        }
+
+        private static async Task<Bitmap> CreateEffectPreviewOnPoolAsync(Bitmap source, IEffect effect)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            using var matrix = new Matrix();
+            var result = ImageHelper.ApplyEffect(source, effect, matrix);
+            if (!ReferenceEquals(result, source))
+            {
+                source.Dispose();
+            }
+
+            // Drawing on it needs a Bitmap which isn't indexed
+            if (result is Bitmap bitmap && (bitmap.PixelFormat & PixelFormat.Indexed) == 0)
+            {
+                return bitmap;
+            }
+
+            using (result)
+            {
+                return ImageHelper.Clone(result, PixelFormat.Format32bppArgb);
+            }
+        }
+
+        /// <summary>
+        /// A copy of the image with the elements drawn on it, like the export
+        /// </summary>
+        private Bitmap RenderWithElements(Image image)
+        {
+            IDrawableContainerList elements = _elements;
+            var pixelFormat = elements.Any(element => element is CutMarkContainer { HasTransparentGap: true } or TornEdgeContainer { HasTransparentEdge: true })
+                ? PixelFormat.Format32bppArgb
+                : PixelFormat.DontCare;
+            Bitmap clone = ImageHelper.Clone(image, pixelFormat);
+            if (elements.Count > 0)
+            {
+                using var graphics = Graphics.FromImage(clone);
+                elements.Draw(graphics, clone, RenderMode.EXPORT, new Rectangle(Point.Empty, clone.Size));
+            }
+
+            return clone;
         }
 
         /// <summary>
@@ -2528,11 +2587,8 @@ namespace Greenshot.Editor.Drawing
             DeselectAllElements();
             var removedElements = new DrawableContainerList(ID) { element };
             var noElements = new List<IDrawableContainer>();
-            // What the element covers is in the 8-bit image now, the HDR image takes it from there (of torn edges only their bands)
-            var bounds = new NativeRect(0, 0, Image.Width, Image.Height);
-            var drawnAreas = (element is TornEdgeContainer tornEdges ? tornEdges.EdgeAreas() : new[] { drawableContainer.DrawingBounds }.AsEnumerable())
-                .Select(area => area.Intersect(bounds)).Where(area => area.Width > 0 && area.Height > 0).ToList();
-            DeriveHdrImage(Image, newImage, () => ImageEdits.ClearChanged(ImageEdits.ChangedPixels(Image, newImage, new NativePoint(0, 0), drawnAreas)));
+            // The HDR image gets the same: the element is drawn on its pixels, as it is now (it is still on the surface, its cut knows the others)
+            DeriveHdrImage(Image, newImage, () => CreateImageSharpSteps(drawableContainer) is { } steps ? ImageEdits.Draw(element.GetType().Name, steps) : null);
             MakeUndoable(new SurfaceCutOutMemento(this, Image, noElements, NativePoint.Empty, removedElements, new DrawableContainerList(ID)), false);
             ApplyCutOutState(newImage, noElements, NativePoint.Empty, new DrawableContainerList(ID), removedElements);
             return true;
@@ -2600,14 +2656,14 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// Check if an adorner was "hit", and change the cursor if so
         /// </summary>
-        /// <param name="mouseEventArgs">MouseEventArgs</param>
+        /// <param name="surfacePoint">The mouse location in surface coordinates, the adorners have the same size at every zoom</param>
         /// <returns>IAdorner</returns>
-        private IAdorner FindActiveAdorner(MouseEventArgs mouseEventArgs)
+        private IAdorner FindActiveAdorner(NativePoint surfacePoint)
         {
             // Keep the dragged handle even when the pointer crosses another handle.
             var adorners = selectedElements.SelectMany(container => container.Adorners);
             IAdorner adorner = adorners.FirstOrDefault(candidate => candidate.IsActive)
-                ?? adorners.FirstOrDefault(candidate => candidate.HitTest(mouseEventArgs.Location));
+                ?? adorners.FirstOrDefault(candidate => candidate.HitTest(surfacePoint));
             if (adorner?.Cursor != null)
             {
                 Cursor = adorner.Cursor;
@@ -2629,6 +2685,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseDown(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // An element drawn with clicks takes the next click, a double click or right click finishes it
@@ -2666,8 +2723,16 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (e.Button == MouseButtons.Left && DrawingMode == DrawingModes.None
+                && _elements.ClickableElementAt(e.X, e.Y) == null && FindActiveAdorner(surfacePoint) == null)
+            {
+                RemoveDrawnCropContainer();
+                BeginSelectionBox(e.Location, InputState.ModifierKeys);
+                return;
+            }
+
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseDown(sender, e);
@@ -2708,6 +2773,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseUp(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // An element drawn with clicks waits for the next click, unless the click completed it, e.g. closed a polyline
@@ -2722,11 +2788,17 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (FinishSelectionBox(e))
+            {
+                return;
+            }
+
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseUp(sender, e);
+                OnElementsChanged();
                 return;
             }
 
@@ -2785,6 +2857,8 @@ namespace Greenshot.Editor.Drawing
             {
                 FinishDrawingElement(currentMouse);
             }
+
+            OnElementsChanged();
         }
 
         /// <summary>
@@ -2866,11 +2940,212 @@ namespace Greenshot.Editor.Drawing
                     _drawingElement.Height = 25;
                 }
 
+                if (_drawingElement is ObfuscateContainer obfuscateContainer)
+                {
+                    FitObfuscationToText(obfuscateContainer);
+                }
+
                 SelectElement(_drawingElement);
                 _drawingElement.Selected = true;
             }
 
             _drawingElement = null;
+        }
+
+        // The OCR of the image, once per image, for drawn obfuscations and the Redact Text window
+        private Task<List<IOcrLineFeature>> _ocrTask;
+        private Image _ocrImage;
+        private TextRecognitionState _ocrState;
+        private string _ocrError;
+
+        /// <summary>
+        /// The OCR provider, tests set their own; null uses the registered one
+        /// </summary>
+        internal IOcrProvider OcrProvider { get; set; }
+
+        /// <summary>
+        /// Whether the text of the image is known: from the capture (recipes, text capture) or from the OCR started here
+        /// </summary>
+        public TextRecognitionState TextRecognitionState
+        {
+            get
+            {
+                if (OcrLinesOfCapture().Count > 0)
+                {
+                    return TextRecognitionState.Found;
+                }
+                return Image != null && ReferenceEquals(_ocrImage, Image) ? _ocrState : TextRecognitionState.None;
+            }
+        }
+
+        /// <summary>
+        /// Why the text recognition failed, when TextRecognitionState is Failed
+        /// </summary>
+        public string TextRecognitionError => TextRecognitionState == TextRecognitionState.Failed ? _ocrError : null;
+
+        /// <summary>
+        /// The text recognition started, ended or failed
+        /// </summary>
+        public event EventHandler TextRecognitionChanged;
+
+        /// <summary>
+        /// A new obfuscation over OCR lines gets the strength for that text.
+        /// When the capture has no OCR lines yet, OCR runs once in the background and the obfuscation is fitted when it is done.
+        /// Without OCR lines under it, it keeps the last used value of the toolbar.
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer)
+        {
+            // With known lines the task is done and the obfuscation is fitted right away
+            _ = FitObfuscationToTextAfterOcrAsync(obfuscateContainer, RecognizeTextAsync());
+        }
+
+        private List<IOcrLineFeature> OcrLinesOfCapture()
+        {
+            if (CaptureDetails?.Features == null)
+            {
+                return new List<IOcrLineFeature>();
+            }
+            lock (CaptureDetails.Features)
+            {
+                return CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+        }
+
+        /// <summary>
+        /// The OCR lines of the capture. When it has none, OCR of the image starts, once per image: a later call gets the same result,
+        /// also when it found nothing or failed.
+        /// </summary>
+        /// <returns>The lines, empty when there is no text, null when there is no OCR provider; it fails when the OCR failed</returns>
+        internal Task<List<IOcrLineFeature>> RecognizeTextAsync()
+        {
+            var ocrLines = OcrLinesOfCapture();
+            var image = Image;
+            if (ocrLines.Count > 0 || image == null || CaptureDetails?.Features == null)
+            {
+                return Task.FromResult(ocrLines);
+            }
+            if (_ocrTask != null && ReferenceEquals(_ocrImage, image))
+            {
+                return _ocrTask;
+            }
+
+            var ocrProvider = OcrProvider ?? SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+            if (ocrProvider == null)
+            {
+                return Task.FromResult<List<IOcrLineFeature>>(null);
+            }
+
+            _ocrImage = image;
+            SetTextRecognitionState(image, TextRecognitionState.Running, null);
+            _ocrTask = RunOcrAsync(ocrProvider, image);
+            return _ocrTask;
+        }
+
+        private void SetTextRecognitionState(Image image, TextRecognitionState state, string error)
+        {
+            if (!ReferenceEquals(_ocrImage, image))
+            {
+                return;
+            }
+            _ocrState = state;
+            _ocrError = error;
+            TextRecognitionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task<List<IOcrLineFeature>> RunOcrAsync(IOcrProvider ocrProvider, Image image)
+        {
+            var captureDetails = CaptureDetails;
+            try
+            {
+                try
+                {
+                    // The capture processing might be finding the text already
+                    var processingTask = captureDetails.ProcessingTask;
+                    if (processingTask != null && !processingTask.IsCompleted)
+                    {
+                        await processingTask;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Background processing of the capture failed", ex);
+                }
+
+                if (OcrLinesOfCapture().Count == 0)
+                {
+                    var detectedLines = await ocrProvider.DoOcrAsync(this);
+                    // When the image changed meanwhile, the lines are no longer where the text is
+                    if (detectedLines != null && detectedLines.Count > 0 && ReferenceEquals(image, Image))
+                    {
+                        lock (captureDetails.Features)
+                        {
+                            // Something else might have added OCR lines meanwhile
+                            if (!captureDetails.Features.OfType<IOcrLineFeature>().Any())
+                            {
+                                captureDetails.Features.AddRange(detectedLines);
+                            }
+                        }
+                    }
+                }
+
+                var ocrLines = OcrLinesOfCapture();
+                SetTextRecognitionState(image, ocrLines.Count > 0 ? TextRecognitionState.Found : TextRecognitionState.NoText, null);
+                return ocrLines;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Text recognition failed", ex);
+                SetTextRecognitionState(image, TextRecognitionState.Failed, ex.Message);
+                throw;
+            }
+        }
+
+        private async Task FitObfuscationToTextAfterOcrAsync(ObfuscateContainer obfuscateContainer, Task<List<IOcrLineFeature>> recognition)
+        {
+            // What the obfuscation has now, when this changed meanwhile the user chose another value
+            var effect = obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE);
+            int? strength = ObfuscationStrength.Strength(obfuscateContainer);
+            try
+            {
+                var ocrLines = await recognition;
+                if (ocrLines == null
+                    || !_elements.Contains(obfuscateContainer)
+                    || !Equals(effect, obfuscateContainer.GetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE))
+                    || strength != ObfuscationStrength.Strength(obfuscateContainer))
+                {
+                    return;
+                }
+                FitObfuscationToText(obfuscateContainer, ocrLines);
+            }
+            catch (Exception ex)
+            {
+                // Logged by RunOcrAsync, the OCR badge of the editor shows it
+                LOG.Debug("The obfuscation keeps its value, text recognition failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Fit the obfuscation to the OCR lines it covers, without covered lines it keeps its value
+        /// </summary>
+        private void FitObfuscationToText(ObfuscateContainer obfuscateContainer, List<IOcrLineFeature> ocrLines)
+        {
+            int? textHeight = ObfuscationStrength.CoveredTextHeight(ocrLines, obfuscateContainer.Bounds);
+            if (!textHeight.HasValue)
+            {
+                return;
+            }
+            var editorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+            ObfuscationStrength.FitToText(obfuscateContainer, textHeight.Value,
+                editorConfig?.BlurRadiusTextHeightPercent ?? ObfuscationStrength.DefaultBlurRadiusPercent,
+                editorConfig?.PixelSizeTextHeightPercent ?? ObfuscationStrength.DefaultPixelSizePercent);
+
+            // The toolbar shows the new values
+            FieldAggregator.UnbindElement(obfuscateContainer);
+            if (selectedElements.Contains(obfuscateContainer))
+            {
+                FieldAggregator.BindElement(obfuscateContainer);
+            }
+            obfuscateContainer.Invalidate();
         }
 
         /// <summary>
@@ -2922,6 +3197,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="e"></param>
         private void SurfaceMouseMove(object sender, MouseEventArgs e)
         {
+            NativePoint surfacePoint = e.Location;
             e = InverseZoomMouseCoordinates(e);
 
             // An element drawn with clicks shows where the next click goes
@@ -2932,8 +3208,13 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            if (MoveSelectionBox(e.Location))
+            {
+                return;
+            }
+
             // Handle Adorners
-            var adorner = FindActiveAdorner(e);
+            var adorner = FindActiveAdorner(surfacePoint);
             if (adorner != null)
             {
                 adorner.MouseMove(sender, e);
@@ -2978,7 +3259,9 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 _mouseStart = currentMouse;
+                // Repaint where they are now: all selected elements moved, not only the dragged one
                 _mouseDownElement.Invalidate();
+                selectedElements.Invalidate();
                 _modified = true;
             }
             else if (_drawingElement != null)
@@ -3051,8 +3334,21 @@ namespace Greenshot.Editor.Drawing
             return rc.Inflate(inflateAmount, inflateAmount);
         }
 
+        /// <summary>
+        /// The margin around an element for its adorners at 96 DPI, in screen pixels: half the adorner, its outline and a safety pixel
+        /// </summary>
+        private const int AdornerMarginAt96Dpi = AbstractAdorner.DefaultSizeAt96Dpi / 2 + 3;
+
+        /// <summary>
+        /// Repaint the area of an element, in image coordinates. The adorners around it are drawn in screen pixels, whatever the zoom,
+        /// so their margin is added after zooming (in image coordinates they would leave traces at a zoom below 100%).
+        /// </summary>
+        /// <param name="rc">NativeRect in image coordinates</param>
         public void InvalidateElements(NativeRect rc)
-            => Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1));
+        {
+            int adornerMargin = AdornerMarginAt96Dpi * CurrentDpi / 96;
+            Invalidate(ZoomClipRectangle(rc, _zoomFactor, 1).Inflate(adornerMargin, adornerMargin));
+        }
 
         /// <summary>
         /// This is the event handler for the Paint Event, try to draw as little as possible!
@@ -3109,7 +3405,9 @@ namespace Greenshot.Editor.Drawing
                     LOG.DebugFormat("Created buffer with size: {0}x{1}", Image.Width, Image.Height);
                 }
 
-                // Elements might need the bitmap, so we copy the part we need
+                // Elements might need the bitmap, so we copy the part we need. The filters read more than the clip rectangle (their
+                // element, the pixels around it), that is repainted too, so they don't read the result of an earlier paint.
+                var bufferRectangle = _elements.FilterReadArea(imageClipRectangle, new NativeRect(0, 0, Image.Width, Image.Height));
                 using (Graphics graphics = Graphics.FromImage(_buffer))
                 {
                     // do not set the following, the containers need to decide this themselves!
@@ -3117,10 +3415,15 @@ namespace Greenshot.Editor.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     //graphics.CompositingQuality = CompositingQuality.HighQuality;
                     //graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    DrawBackground(graphics, imageClipRectangle);
-                    graphics.DrawImage(Image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
-                    graphics.SetClip(ZoomClipRectangle(Rectangle.Round(targetGraphics.ClipBounds), _zoomFactor.Inverse(), 2));
-                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, imageClipRectangle);
+                    // The image covers the buffer area, only a transparent image needs the background behind it
+                    if (Image.IsAlphaPixelFormat(Image.PixelFormat))
+                    {
+                        DrawBackground(graphics, bufferRectangle);
+                    }
+
+                    graphics.DrawImage(Image, bufferRectangle, bufferRectangle, GraphicsUnit.Pixel);
+                    graphics.SetClip(bufferRectangle);
+                    _elements.Draw(graphics, _buffer, RenderMode.EDIT, bufferRectangle);
                 }
 
                 if (_zoomFactor == Fraction.Identity)
@@ -3144,6 +3447,12 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
+                // No filter left and no zoom over 100%: the buffer isn't needed anymore (e.g. 66 MB for 7680x2160)
+                if (_buffer != null && !AnyElementHasFilters())
+                {
+                    ReleasePaintBuffer();
+                }
+
                 DrawBackground(targetGraphics, targetClipRectangle);
                 if (_zoomFactor == Fraction.Identity)
                 {
@@ -3170,6 +3479,7 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            PaintSelectionBox(targetGraphics);
             PaintFocusFrame(targetGraphics);
         }
 
@@ -3295,8 +3605,49 @@ namespace Greenshot.Editor.Drawing
             {
                 _parentWithResize.Resize += OnParentResize;
             }
+            else
+            {
+                // A hidden tab isn't painted, its paint buffer (a copy of the whole image) is made again when it's shown
+                ReleasePaintBuffer();
+            }
 
             base.OnParentChanged(e);
+        }
+
+        /// <summary>
+        /// True while the paint keeps its buffer (a copy of the whole image), for the tests
+        /// </summary>
+        internal bool HasPaintBuffer => _buffer != null;
+
+        /// <summary>
+        /// Free the paint buffer, a copy of the whole image. The paint makes it again when filters or a zoom over 100% need it.
+        /// </summary>
+        private void ReleasePaintBuffer()
+        {
+            if (_buffer == null)
+            {
+                return;
+            }
+
+            _buffer.Dispose();
+            _buffer = null;
+            LOG.Debug("Released the paint buffer");
+        }
+
+        /// <summary>
+        /// True when an element has a filter, the paint buffer is still needed then
+        /// </summary>
+        private bool AnyElementHasFilters()
+        {
+            foreach (var element in _elements)
+            {
+                if (element.HasFilters)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void OnParentResize(object sender, EventArgs e) => InvalidateFocusFrame();
@@ -3309,7 +3660,12 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
             targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
 
-            targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
+            // The filter reads pixels outside the repainted part: without mirroring at the edge it blends in transparent pixels,
+            // which shows as faint lines between repainted parts when zoomed out
+            using var edgeMirrorAttributes = new ImageAttributes();
+            edgeMirrorAttributes.SetWrapMode(WrapMode.TileFlipXY);
+            targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle.X, imageClipRectangle.Y, imageClipRectangle.Width, imageClipRectangle.Height,
+                GraphicsUnit.Pixel, edgeMirrorAttributes);
 
             targetGraphics.Restore(state);
         }
@@ -3320,7 +3676,9 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.SmoothingMode = SmoothingMode.None;
             targetGraphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
-            targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+            // With None, GDI+ centers every image pixel on its zoomed position, which shifts the zoomed image by half an image pixel
+            // up and left: the pixel under the mouse is then not the one the mouse coordinates point to
+            targetGraphics.PixelOffsetMode = PixelOffsetMode.Half;
 
             targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
 
@@ -3336,7 +3694,9 @@ namespace Greenshot.Editor.Drawing
             }
             else
             {
-                targetGraphics.Clear(BackColor);
+                // Only the clip rectangle: Graphics.Clear fills everything outside a clip, a whole image sized buffer on every paint
+                using var backgroundBrush = new SolidBrush(BackColor);
+                targetGraphics.FillRectangle(backgroundBrush, clipRectangle);
             }
         }
 
@@ -3363,6 +3723,8 @@ namespace Greenshot.Editor.Drawing
             }
 
             element.Parent = this;
+            // Elements which were loaded, pasted or created without the surface have adorners for 96 DPI
+            element.AdjustToDpi(CurrentDpi);
             if (element.Status == EditStatus.UNDRAWN)
             {
                 element.Status = EditStatus.IDLE;
@@ -3989,6 +4351,10 @@ namespace Greenshot.Editor.Drawing
                 return true;
             }
 
+            if (k == Keys.Escape && CancelSelectionBox())
+            {
+                return true;
+            }
             if (selectedElements.Count <= 0 && k != Keys.Escape) return false;
 
             bool shiftModifier = (k & Keys.Shift) == Keys.Shift;
@@ -4118,6 +4484,7 @@ namespace Greenshot.Editor.Drawing
                 ResizeSelectedElements(resizeX, resizeY);
             }
 
+            OnElementsChanged();
             return true;
 
         }

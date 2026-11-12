@@ -73,7 +73,7 @@ namespace Greenshot.Base.Wpf.Views
             {
                 Text = Texts.Core.JpegqualitydialogChoosejpegquality,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 Margin = new Thickness(0, 10, 0, 4)
             };
             _qualitySlider = new Slider
@@ -92,7 +92,7 @@ namespace Greenshot.Base.Wpf.Views
             {
                 Width = 36,
                 TextAlignment = TextAlignment.Right,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center,
                 Text = settings.JPGQuality.ToString()
             };

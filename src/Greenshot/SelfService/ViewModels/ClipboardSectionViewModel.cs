@@ -54,7 +54,7 @@ namespace Greenshot.SelfService.ViewModels
         public bool IsBlocked { get; set; }
         public string Message { get; set; }
         public string ProcessDetails { get; set; }
-        public Brush StatusBrush => IsBlocked ? WpfThemeHelper.ErrorText : WpfThemeHelper.Accent;
+        public Brush StatusBrush => IsBlocked ? ThemeManager.Instance.CurrentPalette.ErrorText : ThemeManager.Instance.CurrentPalette.Accent;
     }
 
     public class ClipboardSectionViewModel : SelfServiceSectionViewModel, IDisposable
@@ -337,10 +337,10 @@ namespace Greenshot.SelfService.ViewModels
 
                         StatusHeader = string.Format(string.IsNullOrEmpty(blockedTemplate) ? "Clipboard is BLOCKED by {0} (PID: {1})" : blockedTemplate, procName, pid);
                         StatusDetails = $"{string.Format(string.IsNullOrEmpty(winLabel) ? "Window: \"{0}\"" : winLabel, title)}\n{string.Format(string.IsNullOrEmpty(exeLabel) ? "Executable: {0}" : exeLabel, path)}";
-                        StatusBrush = WpfThemeHelper.ErrorText;
+                        StatusBrush = ThemeManager.Instance.CurrentPalette.ErrorText;
                         string badge = Texts.SelfService.ClipboardBadgeBlocked;
                         BadgeText = string.IsNullOrEmpty(badge) ? "BLOCKED" : badge;
-                        BadgeBrush = WpfThemeHelper.ErrorBackground;
+                        BadgeBrush = ThemeManager.Instance.CurrentPalette.ErrorBackground;
 
                         if (logToMonitor)
                         {
@@ -372,7 +372,7 @@ namespace Greenshot.SelfService.ViewModels
 
                         StatusHeader = string.IsNullOrEmpty(accessibleText) ? "Clipboard is Accessible (Unlocked)" : accessibleText;
                         StatusDetails = string.Format(string.IsNullOrEmpty(lastOwnerTemplate) ? "Last data set by: {0}" : lastOwnerTemplate, CurrentOwnerInfo);
-                        StatusBrush = WpfThemeHelper.Accent;
+                        StatusBrush = ThemeManager.Instance.CurrentPalette.Accent;
                         BadgeText = null;
                         BadgeBrush = null;
 
@@ -397,7 +397,7 @@ namespace Greenshot.SelfService.ViewModels
                     Log.Error("Error checking clipboard status", ex);
                     StatusHeader = Texts.SelfService.ClipboardStatusError;
                     StatusDetails = ex.Message;
-                    StatusBrush = WpfThemeHelper.WarningText;
+                    StatusBrush = ThemeManager.Instance.CurrentPalette.WarningText;
                 }
             });
         }

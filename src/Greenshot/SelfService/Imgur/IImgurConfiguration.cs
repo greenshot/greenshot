@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.SelfService.Imgur
 {
@@ -30,6 +31,8 @@ namespace Greenshot.SelfService.Imgur
     /// What is left of the Imgur plugin's configuration: the anonymous uploads, so the user can delete them.
     /// </summary>
     [IniSection("Imgur")]
+    // The delete keys of earlier uploads, nothing an administrator sets
+    [NotAdministrable]
     [Description("Your earlier anonymous Imgur uploads, Greenshot no longer uploads to Imgur")]
     public interface IImgurConfiguration : IIniSection
     {
