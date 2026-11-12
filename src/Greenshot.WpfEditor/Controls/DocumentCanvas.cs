@@ -35,6 +35,7 @@ using Greenshot.WpfEditor.Editing;
 using Greenshot.WpfEditor.Rendering;
 using Greenshot.WpfEditor.Tools;
 using Greenshot.WpfEditor.ViewModels;
+using log4net;
 
 namespace Greenshot.WpfEditor.Controls
 {
@@ -46,6 +47,8 @@ namespace Greenshot.WpfEditor.Controls
     /// </summary>
     public sealed class DocumentCanvas : FrameworkElement, IScrollInfo
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentCanvas));
+        private static bool _tierLogged;
         // Room around the canvas, in screen pixels, so handles at the edge can be grabbed
         private const double CanvasMargin = 48;
         private const double HandleSize = 8;
@@ -232,7 +235,8 @@ namespace Greenshot.WpfEditor.Controls
                     return null;
                 }
 
-                if (!ReferenceEquals(pieces, _overviewPieces))
+                // While a tool drags, the overview keeps what it showed: it follows when the change is done
+                if (!ReferenceEquals(pieces, _overviewPieces) && (!_toolDragging || _overviewBrush == null))
                 {
                     _overviewPieces = pieces;
                     var area = Area;
@@ -509,6 +513,8 @@ namespace Greenshot.WpfEditor.Controls
 
             EndTextEdit(true);
             FlushMove();
+            LogRenderingTier();
+            _lastMove = 0;
             _toolDragging = true;
             CaptureMouse();
             Tab.Tool.Down(PointerOf(e, e.ClickCount));
@@ -536,21 +542,31 @@ namespace Greenshot.WpfEditor.Controls
             _pendingPosition = e.GetPosition(this);
             if (!_moveScheduled)
             {
+                // Once per frame of WPF, right before it draws: a dispatcher priority below input starves while a fast mouse
+                // keeps sending moves
                 _moveScheduled = true;
-                _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(FlushMove));
+                CompositionTarget.Rendering += OnFrame;
             }
         }
 
         private ToolPointer? _pendingPointer;
         private Point _pendingPosition;
         private bool _moveScheduled;
+        private long _lastMove;
+
+        private void OnFrame(object sender, EventArgs e) => FlushMove();
 
         /// <summary>
         /// Gives the tool the last position of the mouse, before a button changes too
         /// </summary>
         private void FlushMove()
         {
-            _moveScheduled = false;
+            if (_moveScheduled)
+            {
+                _moveScheduled = false;
+                CompositionTarget.Rendering -= OnFrame;
+            }
+
             if (_pendingPointer is not ToolPointer pointer || Tab == null)
             {
                 _pendingPointer = null;
@@ -560,8 +576,17 @@ namespace Greenshot.WpfEditor.Controls
             _pendingPointer = null;
             if (_toolDragging)
             {
+                long start = System.Diagnostics.Stopwatch.GetTimestamp();
                 Tab.Tool.Move(pointer);
                 ScrollIntoView(_pendingPosition);
+                if (Log.IsDebugEnabled)
+                {
+                    long end = System.Diagnostics.Stopwatch.GetTimestamp();
+                    Log.DebugFormat("Move {0} ms after the last one, handled in {1} ms", _lastMove == 0 ? 0 : (start - _lastMove) * 1000 / System.Diagnostics.Stopwatch.Frequency,
+                        (end - start) * 1000 / System.Diagnostics.Stopwatch.Frequency);
+                }
+
+                _lastMove = start;
             }
             else
             {
@@ -569,6 +594,18 @@ namespace Greenshot.WpfEditor.Controls
             }
 
             UpdateCursor();
+        }
+
+        /// <summary>
+        /// Once: tier 2 means WPF draws on the graphics card, 0 means all in software
+        /// </summary>
+        private static void LogRenderingTier()
+        {
+            if (!_tierLogged)
+            {
+                _tierLogged = true;
+                Log.DebugFormat("WPF rendering tier {0}", RenderCapability.Tier >> 16);
+            }
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -588,6 +625,8 @@ namespace Greenshot.WpfEditor.Controls
                 _toolDragging = false;
                 ReleaseMouseCapture();
                 Tab?.Tool.Up(PointerOf(e));
+                // The overview catches up with the change
+                InvalidateVisual();
                 UpdateCursor();
                 e.Handled = true;
             }
