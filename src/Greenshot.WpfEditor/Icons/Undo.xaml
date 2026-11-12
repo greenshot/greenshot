@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Undo: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Undo">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M3.56,10.67 A4.9,4.9 0 1 0 6.16,4.06">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#1A5FA0" Thickness="4.4" StartLineCap="Round" EndLineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#1A5FA0" Geometry="M2.83,5.41 L5.37,0.49 L8.07,7.17 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#1A5FA0" Thickness="1.4" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M3.56,10.67 A4.9,4.9 0 1 0 6.16,4.06">
+          <GeometryDrawing.Pen>
+            <Pen Thickness="2.4" StartLineCap="Round" EndLineCap="Round">
+              <Pen.Brush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientStop Offset="0" Color="#9ADFFE" />
+                  <GradientStop Offset="0.5" Color="#4FA6EC" />
+                  <GradientStop Offset="1" Color="#257AC5" />
+                </LinearGradientBrush>
+              </Pen.Brush>
+            </Pen>
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M2.83,5.41 L5.37,0.49 L8.07,7.17 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Offset="0" Color="#9ADFFE" />
+              <GradientStop Offset="1" Color="#2F89D4" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

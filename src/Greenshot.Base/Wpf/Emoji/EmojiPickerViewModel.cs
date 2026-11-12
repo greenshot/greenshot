@@ -26,9 +26,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Greenshot.Base.Languages;
-using Greenshot.Editor.Configuration;
 
-namespace Greenshot.Editor.Controls.Emoji
+namespace Greenshot.Base.Wpf.Emoji
 {
     /// <summary>
     /// The emoji picker: history, categories and search, used by the Selection panel and by the recipe editor.
@@ -46,7 +45,7 @@ namespace Greenshot.Editor.Controls.Emoji
         /// </summary>
         public const int MaxSearchResults = 240;
 
-        private readonly IEditorConfiguration _configuration;
+        private readonly IEmojiHistory _recent;
         private readonly IReadOnlyList<Emojis.Group> _categories;
         private readonly EmojiGroupViewModel _history;
         private readonly IReadOnlyList<EmojiGroupViewModel> _groups;
@@ -56,11 +55,11 @@ namespace Greenshot.Editor.Controls.Emoji
         private string _currentEmoji;
         private IReadOnlyList<IEnumerable<Emojis.Emoji>> _searchRows = Array.Empty<IEnumerable<Emojis.Emoji>>();
 
-        /// <param name="configuration">The history and the last emoji are stored there</param>
+        /// <param name="recent">Where the emoji picked last are stored</param>
         /// <param name="categories">The emoji, null for the Unicode emoji list (emojis.xml)</param>
-        public EmojiPickerViewModel(IEditorConfiguration configuration, IReadOnlyList<Emojis.Group> categories = null)
+        public EmojiPickerViewModel(IEmojiHistory recent, IReadOnlyList<Emojis.Group> categories = null)
         {
-            _configuration = configuration;
+            _recent = recent;
             _categories = categories ?? EmojiData.Data.Groups;
             _history = new EmojiGroupViewModel(Texts.Editor.EmojiHistory, "🕒", HistoryEmojis(), _columns);
             _groups = new[] { _history }
@@ -187,14 +186,14 @@ namespace Greenshot.Editor.Controls.Emoji
                 return;
             }
 
-            _configuration.RecentEmojis = _configuration.RecentEmojis.Where(e => e != emoji).Prepend(emoji).Take(HistorySize).ToList();
+            _recent.RecentEmojis = _recent.RecentEmojis.Where(e => e != emoji).Prepend(emoji).Take(HistorySize).ToList();
             _history.SetEmojis(HistoryEmojis());
             CurrentEmoji = emoji;
             Picked?.Invoke(this, new EmojiPickedEventArgs(emoji, fromKeyboard));
         }
 
         private IReadOnlyList<Emojis.Emoji> HistoryEmojis()
-            => _configuration.RecentEmojis.Take(HistorySize).Select(text => new Emojis.Emoji { Text = text }).ToList();
+            => _recent.RecentEmojis.Take(HistorySize).Select(text => new Emojis.Emoji { Text = text }).ToList();
 
         /// <summary>
         /// Every word of the search is in the name of the emoji or of its category or sub category, or the emoji itself was typed

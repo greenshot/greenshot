@@ -12,7 +12,7 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Greenshot.Editor\Controls\Emoji\Emojis.cs">
+    <Compile Include="..\Greenshot.Base\Wpf\Emoji\Emojis.cs">
       <Link>Emojis.cs</Link>
     </Compile>
   </ItemGroup>

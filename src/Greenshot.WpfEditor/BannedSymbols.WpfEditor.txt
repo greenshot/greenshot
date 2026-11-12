@@ -1,0 +1,4 @@
+# The WPF editor is built on the document model only, see the comment in Greenshot.WpfEditor.csproj
+N:System.Drawing;the WPF editor draws with ImageSharp and shows with WPF
+N:System.Windows.Forms;the WPF editor is WPF only
+T:Greenshot.Base.Interfaces.ISurface;the WPF editor edits a GreenshotDocument, the host bridges to surfaces

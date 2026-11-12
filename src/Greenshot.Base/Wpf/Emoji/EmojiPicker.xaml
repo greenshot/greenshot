@@ -2,11 +2,11 @@
     The emoji picker of the Selection panel: a search field, the history and the categories as tabs, the emoji in rows which fit the
     width of the panel. An emoji with variations (skin tones) opens them in a small popup. Based on Emoji.Wpf by Sam Hocevar (WTFPL).
 -->
-<UserControl x:Class="Greenshot.Editor.Controls.Emoji.EmojiPicker"
+<UserControl x:Class="Greenshot.Base.Wpf.Emoji.EmojiPicker"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
-             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             xmlns:emoji="clr-namespace:Greenshot.Base.Wpf.Emoji"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf"
              SizeChanged="OnSizeChanged">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>

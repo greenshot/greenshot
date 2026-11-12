@@ -4,7 +4,7 @@
 <UserControl x:Class="Greenshot.Editor.Controls.Emoji.EmojiPickerButton"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji"
+             xmlns:emoji="clr-namespace:Greenshot.Base.Wpf.Emoji;assembly=Greenshot.Base"
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              x:Name="Root">
     <Grid>

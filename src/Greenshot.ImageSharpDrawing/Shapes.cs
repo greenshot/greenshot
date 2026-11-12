@@ -88,11 +88,8 @@ namespace Greenshot.ImageSharpDrawing
             {
                 if (shadow)
                 {
-                    foreach (var (offset, alpha) in Painting.ShadowSteps())
-                    {
-                        var gray = values.ColorOf(new Rgba32(100, 100, 100, (byte)Math.Round(alpha * 255)));
-                        context.Draw(Painting.Pen(gray, lineThickness), box.Translate(offset + 1, offset + 1));
-                    }
+                    Painting.Shadow(context, values.ColorOf(new Rgba32(100, 100, 100)), 1,
+                        (target, color, offset) => target.Draw(Painting.Pen(color, lineThickness), box.Translate(offset, offset)));
                 }
                 context.Draw(Painting.Pen(values.ColorOf(lineColor), lineThickness), box);
             });
@@ -110,10 +107,8 @@ namespace Greenshot.ImageSharpDrawing
             {
                 if (shadow && (lineVisible || fillColor.A > 0))
                 {
-                    foreach (var (offset, alpha) in Painting.ShadowSteps())
-                    {
-                        context.Draw(Painting.Pen(Painting.Black(alpha), Painting.PenWidth(lineThickness)), shape.Translate(offset + shadowOffset, offset + shadowOffset));
-                    }
+                    Painting.Shadow(context, Color.Black, shadowOffset,
+                        (target, color, offset) => target.Draw(Painting.Pen(color, Painting.PenWidth(lineThickness)), shape.Translate(offset, offset)));
                 }
                 if (fillColor.A > 0)
                 {

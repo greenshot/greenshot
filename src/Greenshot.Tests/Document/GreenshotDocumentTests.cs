@@ -52,12 +52,15 @@ namespace Greenshot.Tests.Document
             var line = new Style { Stroke = StrokeStyle.Of(new Rgba(255, 0, 0, 255), 10) with { Position = position }, Shadow = new ShadowStyle { Enabled = false } };
             var rectangle = new RectangleElement(Guid.NewGuid(), new RectD(0, 0, 100, 100)) { Style = line };
             // A line has no inside or outside, its line is always centred
-            var arrow = new ArrowElement(Guid.NewGuid(), new PointD(0, 0), new PointD(100, 0)) { Style = line };
+            var arrow = new ArrowElement(Guid.NewGuid(), new PointD(0, 0), new PointD(100, 0), ArrowHeads.None) { Style = line };
+            // An arrow head is four line widths wide
+            var withHead = arrow with { Heads = ArrowHeads.End };
             var document = new GreenshotDocument(Guid.NewGuid(), new Canvas(), new List<Layer>(), new Dictionary<Guid, Resource>());
 
             Assert.Equal(new RectD(start, start, size, size), document.VisualBounds(rectangle));
             Assert.Equal(new RectD(0, 0, 100, 100), rectangle.Bounds);
             Assert.Equal(new RectD(-5, -5, 110, 10), document.VisualBounds(arrow));
+            Assert.Equal(new RectD(-20, -20, 140, 40), document.VisualBounds(withHead));
         }
 
         [Theory]

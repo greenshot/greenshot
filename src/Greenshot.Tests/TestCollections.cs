@@ -40,6 +40,14 @@ namespace Greenshot.Tests
 
         /// <summary>Tests that replace the held keys or mouse buttons of <c>InputState</c>: they run alone, the editor tests read it.</summary>
         public const string InputState = "InputState";
+
+        /// <summary>Tests that use the shared tool styles and options of the new editor (<c>EditorSession.Current</c>).</summary>
+        public const string WpfEditorSession = "WpfEditorSession";
+    }
+
+    [CollectionDefinition(TestCollections.WpfEditorSession)]
+    public class WpfEditorSessionCollection
+    {
     }
 
     [CollectionDefinition(TestCollections.InputState, DisableParallelization = true)]

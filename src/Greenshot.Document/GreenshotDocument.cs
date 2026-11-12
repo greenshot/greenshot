@@ -224,7 +224,10 @@ namespace Greenshot.Document
             if (style.Stroke is { Enabled: not false, Width: > 0 and double width } stroke)
             {
                 var position = element is LineElement or ArrowElement or FreehandElement ? StrokePosition.Center : stroke.Position ?? StrokePosition.Center;
-                bounds = bounds.Inflate(position switch { StrokePosition.Outside => width, StrokePosition.Inside => 0, _ => width / 2 });
+                // An arrow head is four line widths wide, two on each side of the line
+                double outside = element is ArrowElement { Heads: not ArrowHeads.None } ? width * 2
+                    : position switch { StrokePosition.Outside => width, StrokePosition.Inside => 0, _ => width / 2 };
+                bounds = bounds.Inflate(outside);
             }
 
             if (style.Shadow is { Enabled: true } shadow)

@@ -21,7 +21,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Greenshot.Base.Threading;
 
-namespace Greenshot.Editor.Controls.Emoji;
+namespace Greenshot.Base.Wpf.Emoji;
 
 /// <summary>
 /// The emoji picker, its data and the pick are in <see cref="EmojiPickerViewModel"/>

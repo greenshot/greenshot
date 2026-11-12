@@ -108,29 +108,13 @@
             </Canvas>
 
             <!-- The overview: the whole capture with the visible part marked, only when not all of it is visible -->
-            <Border x:Name="Overview"
-                    Grid.Row="1"
-                    Margin="8"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Visibility="Collapsed"
-                    Cursor="Hand"
-                    BorderThickness="1"
-                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
-                    AutomationProperties.Name="{wpf:Text Core.ViewerOverview}"
-                    MouseLeftButtonDown="OverviewMouseLeftButtonDown"
-                    MouseMove="OverviewMouseMove"
-                    MouseLeftButtonUp="OverviewMouseLeftButtonUp">
-                <Grid>
-                    <Image x:Name="OverviewImage" Source="{Binding Image}" Stretch="Fill"/>
-                    <Canvas>
-                        <Rectangle x:Name="OverviewFrame"
-                                   StrokeThickness="2"
-                                   Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                    </Canvas>
-                </Grid>
-            </Border>
+            <wpf:ZoomOverview x:Name="Overview"
+                              Grid.Row="1"
+                              Margin="8"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Visibility="Collapsed"
+                              AutomationProperties.Name="{wpf:Text Core.ViewerOverview}"/>
 
             <!-- The help with the keys, H shows and hides it -->
             <Border x:Name="HelpPanel"

@@ -53,28 +53,83 @@ namespace Greenshot.Document.Rendering
         private readonly RectD _canvas;
         private readonly int _width, _height;
         private readonly Dictionary<Guid, Image<Rgba32>> _images = new();
+        private readonly DocumentRenderCache _cache;
 
-        private DocumentRenderer(GreenshotDocument document)
+        private DocumentRenderer(GreenshotDocument document, RectD? area, DocumentRenderCache cache)
         {
             _document = Anchors.Apply(document);
-            _canvas = _document.CanvasArea();
+            _canvas = area ?? _document.CanvasArea();
             _width = Math.Max(1, (int)Math.Ceiling(_canvas.Width));
             _height = Math.Max(1, (int)Math.Ceiling(_canvas.Height));
+            _cache = cache;
         }
 
         /// <summary>
-        /// The document drawn: the visible layers in drawing order, transparent where nothing is
+        /// The document drawn: the background of the canvas, then the visible layers in drawing order
         /// </summary>
         public static Image<Rgba32> Render(GreenshotDocument document)
         {
-            using var renderer = new DocumentRenderer(document);
-            var canvas = new Image<Rgba32>(renderer._width, renderer._height);
-            foreach (var element in renderer._document.Layers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements))
+            using var renderer = new DocumentRenderer(document, null, null);
+            var image = renderer.Draw(_ => true);
+            if (renderer._document.Canvas.Background is { A: > 0 } background)
             {
-                renderer.Draw(canvas, element);
+                // Behind everything: what is drawn stays as it is where it covers, the background shows where it doesn't
+                var below = new Image<Rgba32>(image.Width, image.Height, new Rgba32(background.R, background.G, background.B, background.A));
+                using (image)
+                {
+                    below.Mutate(context => context.DrawImage(image, 1));
+                }
+
+                return below;
+            }
+
+            return image;
+        }
+
+        /// <summary>
+        /// A part of the document drawn, e.g. what an editor changed: area is in the coordinates of the elements and not cut
+        /// to the canvas. Only the elements which draw into the area are drawn, and of those only the ones include takes (all
+        /// without include). Blur, pixelate and magnify near the edge of the area see only the pixels in the area: draw a
+        /// bigger area and use its middle. The cache keeps the decoded images for the next call.
+        /// </summary>
+        public static Image<Rgba32> Render(GreenshotDocument document, RectD area, DocumentRenderCache cache, Func<Element, bool> include = null)
+        {
+            using var renderer = new DocumentRenderer(document, area, cache);
+            return renderer.Draw(element => (include == null || include(element)) && renderer.DrawsInto(element));
+        }
+
+        private Image<Rgba32> Draw(Func<Element, bool> include)
+        {
+            var canvas = new Image<Rgba32>(_width, _height);
+            bool empty = true;
+            foreach (var element in _document.Layers.Where(layer => layer.Visible).SelectMany(layer => layer.Elements).Where(include))
+            {
+                Draw(canvas, element, empty);
+                empty = false;
             }
 
             return canvas;
+        }
+
+        /// <summary>
+        /// True when the element can change pixels in the area: what it covers with its line, shadow and label, a highlight
+        /// which changes everything outside of it and a frame without target, which frames all below it
+        /// </summary>
+        private bool DrawsInto(Element element)
+        {
+            if (element is HighlightElement { Mode: HighlightMode.Area or HighlightMode.Grayscale } or FrameElement { Target: null })
+            {
+                return true;
+            }
+
+            // The editor's shadow has no size in the style, it reaches 5 pixels; a frame around its target draws with it
+            var bounds = _document.VisualBounds(element).Inflate(8);
+            if (_document.FrameOf(element) is FrameElement frame)
+            {
+                bounds = RectD.Union(bounds, _document.VisualBounds(frame with { Area = element.Bounds }).Inflate(8));
+            }
+
+            return bounds.X <= _canvas.Right && _canvas.X <= bounds.Right && bounds.Y <= _canvas.Bottom && _canvas.Y <= bounds.Bottom;
         }
 
         public void Dispose()
@@ -85,7 +140,10 @@ namespace Greenshot.Document.Rendering
             }
         }
 
-        private void Draw(Image<Rgba32> canvas, Element element)
+        /// <param name="canvas">What is drawn so far</param>
+        /// <param name="element">The element to draw</param>
+        /// <param name="empty">Nothing is drawn yet: an element which needs no layer of its own paints on the canvas</param>
+        private void Draw(Image<Rgba32> canvas, Element element, bool empty)
         {
             var style = _document.StyleOf(element);
             switch (element)
@@ -116,10 +174,24 @@ namespace Greenshot.Document.Rendering
                     return;
             }
 
-            using var layer = new Image<Rgba32>(_width, _height);
             var framing = _document.FrameOf(element) as FrameElement;
             // The editor's shadow (no size, darkness or offset) is drawn by the painters like in the editor, else from the layer
             bool editorShadow = framing == null && style.Shadow is { Enabled: true, Size: null, Darkness: null, Offset: null };
+            if (empty && framing == null)
+            {
+                // Nothing is below: the canvas is the layer, it saves a copy of the whole area
+                if (!Paint(canvas, element, style, editorShadow) && style.Shadow is { Enabled: true } own)
+                {
+                    using var painted = canvas.Clone();
+                    canvas.Mutate(context => context.Clear(Color.Transparent));
+                    Shadow(canvas, painted, own, false);
+                    canvas.Mutate(context => context.DrawImage(painted, 1));
+                }
+
+                return;
+            }
+
+            using var layer = new Image<Rgba32>(_width, _height);
             bool shadowDrawn = Paint(layer, element, style, editorShadow);
             if (framing != null)
             {
@@ -206,8 +278,9 @@ namespace Greenshot.Document.Rendering
                     layer.Mutate(context => Picture(context, e.Resource, e.Area, null, ImageScaling.Smooth, 0));
                     break;
                 case EmojiElement e:
-                    var emoji = new TextStyle { Family = "Segoe UI Emoji, Noto Color Emoji, Twemoji Mozilla, sans-serif", Size = Math.Min(e.Area.Width, e.Area.Height) * 0.8, Wrap = false };
-                    layer.Mutate(context => Text(context, e.Emoji, emoji, e.Area, Turn(e.Rotation, e.Area.Center), new Rgba(0, 0, 0, 255)));
+                    // The Twemoji font of Greenshot, in color, as the editor draws it
+                    layer.Mutate(context => EmojiDrawing.Draw(context.SetDrawingTransform(Turn(e.Rotation, e.Area.Center)), e.Emoji,
+                        new PointF((float)e.Area.Center.X, (float)e.Area.Center.Y), (float)Math.Min(e.Area.Width, e.Area.Height)));
                     break;
             }
 
@@ -464,6 +537,14 @@ namespace Greenshot.Document.Rendering
                 return;
             }
 
+            if (source == null && rotation % 360 == 0 && (int)Math.Round(area.Width) == image.Width && (int)Math.Round(area.Height) == image.Height)
+            {
+                // Shown as it is, e.g. the capture: drawn without a copy
+                var at = Canvas(new PointD(area.X, area.Y));
+                context.DrawImage(image, new Point((int)Math.Round(at.X), (int)Math.Round(at.Y)), 1);
+                return;
+            }
+
             using var shown = image.Clone(picture =>
             {
                 if (source is RectD part)
@@ -500,6 +581,11 @@ namespace Greenshot.Document.Rendering
                 return image;
             }
 
+            if (_cache != null && _cache.TryGet(id, out image))
+            {
+                return image;
+            }
+
             image = null;
             if (_document.Resources.TryGetValue(id, out var resource) && resource.MediaType != null && resource.MediaType.StartsWith("image/", StringComparison.Ordinal) && resource.MediaType != "image/svg+xml")
             {
@@ -514,7 +600,15 @@ namespace Greenshot.Document.Rendering
                 }
             }
 
-            _images[id] = image;
+            if (_cache != null)
+            {
+                _cache.Add(id, image);
+            }
+            else
+            {
+                _images[id] = image;
+            }
+
             return image;
         }
 

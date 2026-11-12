@@ -115,18 +115,18 @@ namespace Greenshot.ImageSharpDrawing
             {
                 if (shadow)
                 {
-                    foreach (var (offset, alpha) in Painting.ShadowSteps())
+                    Painting.Shadow(context, Color.Black, 0, (target, color, offset) =>
                     {
                         if (turn is Matrix3x2 transform)
                         {
                             // The shadow falls the same way as that of an element which isn't turned
-                            DrawIn(context, box, text, resolved, Painting.Black(alpha), horizontal, vertical, transform * Matrix3x2.CreateTranslation(offset, offset));
+                            DrawIn(target, box, text, resolved, color, horizontal, vertical, transform * Matrix3x2.CreateTranslation(offset, offset));
                         }
                         else
                         {
-                            DrawIn(context, new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height), text, resolved, Painting.Black(alpha), horizontal, vertical);
+                            DrawIn(target, new Rectangle(box.X + offset, box.Y + offset, box.Width, box.Height), text, resolved, color, horizontal, vertical);
                         }
-                    }
+                    });
                 }
                 DrawIn(context, box, text, resolved, values.ColorOf(color), horizontal, vertical, turn);
             });

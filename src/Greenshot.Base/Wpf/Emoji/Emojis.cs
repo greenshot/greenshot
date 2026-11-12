@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace Greenshot.Editor.Controls.Emoji;
+namespace Greenshot.Base.Wpf.Emoji;
 
 [XmlRoot("Es")]
 public class Emojis

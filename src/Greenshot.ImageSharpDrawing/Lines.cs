@@ -77,10 +77,7 @@ namespace Greenshot.ImageSharpDrawing
             {
                 if (shadow)
                 {
-                    foreach (var (offset, alpha) in Painting.ShadowSteps())
-                    {
-                        context.Fill(Painting.Black(alpha), line.Translate(offset, offset));
-                    }
+                    Painting.Shadow(context, Color.Black, 0, (target, color, offset) => target.Fill(color, line.Translate(offset, offset)));
                 }
                 context.Fill(values.ColorOf(lineColor), line);
             });

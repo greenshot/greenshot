@@ -68,6 +68,16 @@ namespace Greenshot.Tests.Document
         private static Rgba32 Of(Rgba color) => new(color.R, color.G, color.B, color.A);
 
         [Fact]
+        public void TheBackgroundOfTheCanvas_ShowsWhereNothingIsDrawn()
+        {
+            using var image = DocumentRenderer.Render(Page(new Canvas { Fit = CanvasFit.Content, Padding = 10, Background = Black }, Green));
+
+            Assert.Equal(220, image.Width);
+            Assert.Equal(Of(Black), image[2, 2]);
+            Assert.Equal(Of(Green), image[110, 60]);
+        }
+
+        [Fact]
         public void ATurnedElement_IsDrawnTurned_ItsShadowFallsTheSameWay()
         {
             var box = new RectangleElement(Guid.NewGuid(), new RectD(60, 30, 80, 40))

@@ -25,7 +25,7 @@ using System.Xml.Linq;
 using Greenshot.Base.Core;
 using log4net;
 
-namespace Greenshot.Editor.Controls.Emoji
+namespace Greenshot.Base.Wpf.Emoji
 {
     /// <summary>
     /// This class processes the emoji-test.txt extract, as was generated in a build task, so it can show a list of possible emoji depending on skin tone and hairstyle.

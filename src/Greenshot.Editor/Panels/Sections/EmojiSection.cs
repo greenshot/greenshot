@@ -26,7 +26,7 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Base.Languages;
 using Greenshot.Editor.Configuration;
-using Greenshot.Editor.Controls.Emoji;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Editor.Panels.ViewModels;
 
 namespace Greenshot.Editor.Panels.Sections

@@ -26,6 +26,7 @@ using System.Linq;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Editor.Configuration;
+using Greenshot.Base.Wpf.Emoji;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Memento;
 
@@ -44,7 +45,7 @@ namespace Greenshot.Editor.Panels.ViewModels
         {
             _context = context;
             _configuration = configuration;
-            Picker = new EmojiPickerViewModel(configuration, categories);
+            Picker = new EmojiPickerViewModel(new EditorEmojiHistory(configuration), categories);
             Picker.Picked += OnPicked;
             UpdateCurrentEmoji();
             _context.SelectionChanged += OnSelectionChanged;

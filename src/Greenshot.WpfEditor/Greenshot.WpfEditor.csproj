@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <!--
+    The editor on the document model (docs/vNext/wpf-editor.md): WPF for the window, ImageSharp (Greenshot.Document.Rendering)
+    for the drawing, GreenshotDocument as the model. On purpose without System.Drawing, WinForms, ISurface or the old editor,
+    BannedSymbols.WpfEditor.txt keeps it that way. Experimental: only Debug builds of Greenshot.exe reference it.
+  -->
+  <PropertyGroup>
+    <UseWindowsForms>false</UseWindowsForms>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Languages\greenshot*.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <AdditionalFiles Include="BannedSymbols.WpfEditor.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapplo.Ini" Version="2.0.13" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="2.0.13" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
+    <ProjectReference Include="..\Greenshot.Document.Legacy\Greenshot.Document.Legacy.csproj" />
+    <ProjectReference Include="..\Greenshot.Document.Rendering\Greenshot.Document.Rendering.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Greenshot.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

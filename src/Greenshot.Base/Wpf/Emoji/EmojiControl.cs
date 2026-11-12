@@ -20,13 +20,20 @@
  */
 
 using System.Windows;
-using System.Windows.Controls;
+using System;
 using System.Windows.Media;
-using Greenshot.Editor.Drawing.Emoji;
+using System.Windows.Media.Imaging;
+using Greenshot.ImageSharpDrawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
-namespace Greenshot.Editor.Controls.Emoji
+namespace Greenshot.Base.Wpf.Emoji
 {
-    internal class EmojiControl : Image
+    /// <summary>
+    /// Shows an emoji with the Twemoji font, as the editors draw it
+    /// </summary>
+    public class EmojiControl : System.Windows.Controls.Image
     {
         public static readonly DependencyProperty EmojiProperty = DependencyProperty.Register("Emoji", typeof(string), typeof(EmojiControl), new PropertyMetadata(default(string), OnEmojiPropertyChanged));
 
@@ -45,10 +52,27 @@ namespace Greenshot.Editor.Controls.Emoji
         {
             if (Source == null && !string.IsNullOrEmpty(Emoji))
             {
-                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48);
+                Source = BitmapSourceOf(Emoji, 48);
             }
 
             base.OnRender(dc);
+        }
+
+        /// <summary>
+        /// The emoji as frozen bitmap of size x size pixels
+        /// </summary>
+        public static BitmapSource BitmapSourceOf(string emoji, int size)
+        {
+            int stride = size * 4;
+            var pixels = new byte[stride * size];
+            using (var image = SixLabors.ImageSharp.Image.WrapMemory<Bgra32>(pixels.AsMemory(), size, size))
+            {
+                image.Mutate(context => EmojiDrawing.Draw(context, emoji, new PointF(size / 2f, size / 2f), size));
+            }
+
+            var source = BitmapSource.Create(size, size, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, pixels, stride);
+            source.Freeze();
+            return source;
         }
     }
 }

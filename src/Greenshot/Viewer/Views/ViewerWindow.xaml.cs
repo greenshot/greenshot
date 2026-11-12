@@ -60,7 +60,7 @@ namespace Greenshot.Viewer.Views
         private const int MinimumPixels = 50;
         private const double MaximumZoom = 16;
         private const double ZoomStep = 1.25;
-        private const double OverviewSize = 160;
+        private const double OverviewSize = ZoomOverview.DefaultSize;
         private const int WmSizing = 0x0214;
         private const double BorderWidth = 2;
 
@@ -73,14 +73,13 @@ namespace Greenshot.Viewer.Views
         private Point? _panStart;
         private double _panStartOffsetX;
         private double _panStartOffsetY;
-        private bool _overviewDragging;
-        private double _overviewScale;
 
         public ViewerWindow(ViewerViewModel viewModel)
         {
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             DataContext = viewModel;
             InitializeComponent();
+            Overview.CenterRequested += (_, point) => MoveToOverviewPoint(point);
             HelpKeys.ItemsSource = CreateHelpEntries(viewModel.CanExport);
             UpdateChrome();
             viewModel.PropertyChanged += ViewModelPropertyChanged;
@@ -341,16 +340,14 @@ namespace Greenshot.Viewer.Views
                 return;
             }
 
-            // In device independent pixels: the capture in the overview size
-            _overviewScale = Math.Min(OverviewSize / CaptureWidth, OverviewSize / CaptureHeight);
-            OverviewImage.Width = CaptureWidth * _overviewScale;
-            OverviewImage.Height = CaptureHeight * _overviewScale;
-            // The visible part, the overview scale is per pixel of the capture
-            double frameScale = _overviewScale / _zoom;
-            OverviewFrame.Width = Math.Min(viewport.Width, width) * frameScale;
-            OverviewFrame.Height = Math.Min(viewport.Height, height) * frameScale;
-            Canvas.SetLeft(OverviewFrame, _offsetX * frameScale);
-            Canvas.SetTop(OverviewFrame, _offsetY * frameScale);
+            if (Overview.Content is not ImageBrush brush || !ReferenceEquals(brush.ImageSource, _viewModel.Image))
+            {
+                Overview.Content = new ImageBrush(_viewModel.Image);
+            }
+
+            // The visible part in pixels of the capture
+            Overview.ContentSize = new Size(CaptureWidth, CaptureHeight);
+            Overview.VisibleArea = new Rect(_offsetX / _zoom, _offsetY / _zoom, Math.Min(viewport.Width, width) / _zoom, Math.Min(viewport.Height, height) / _zoom);
         }
 
         /// <summary>
@@ -718,43 +715,14 @@ namespace Greenshot.Viewer.Views
             e.Handled = true;
         }
 
-        private void OverviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            _overviewDragging = true;
-            Overview.CaptureMouse();
-            MoveToOverviewPoint(e.GetPosition(OverviewImage));
-            e.Handled = true;
-        }
-
-        private void OverviewMouseMove(object sender, MouseEventArgs e)
-        {
-            if (_overviewDragging)
-            {
-                MoveToOverviewPoint(e.GetPosition(OverviewImage));
-            }
-        }
-
-        private void OverviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            _overviewDragging = false;
-            Overview.ReleaseMouseCapture();
-            e.Handled = true;
-        }
-
         /// <summary>
-        /// Center the visible part on the point of the overview
+        /// Center the visible part on the point of the overview, in pixels of the capture
         /// </summary>
         private void MoveToOverviewPoint(Point point)
         {
-            if (_overviewScale <= 0)
-            {
-                return;
-            }
-
             var viewport = ViewportPixels;
-            double frameScale = _overviewScale / _zoom;
-            _offsetX = point.X / frameScale - viewport.Width / 2;
-            _offsetY = point.Y / frameScale - viewport.Height / 2;
+            _offsetX = point.X * _zoom - viewport.Width / 2;
+            _offsetY = point.Y * _zoom - viewport.Height / 2;
             LayoutCapture();
         }
 
