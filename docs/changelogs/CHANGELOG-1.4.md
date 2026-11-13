@@ -311,6 +311,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Installer** (#1766)
+- The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
+
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
 - Fixed null reference in cursor setter (#873)
