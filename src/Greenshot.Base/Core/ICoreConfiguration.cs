@@ -79,6 +79,22 @@ namespace Greenshot.Base.Core
         [DefaultValue(true)]
         bool DestinationWindowShowPreview { get; set; }
 
+        [Description("Where the destination window shows the preview: Top (above the list) or Left (left of the list, the recipes below it). A step of a recipe with its own choice overrides this.")]
+        [DefaultValue("Top")]
+        DestinationWindowPreviewPosition DestinationWindowPreviewPosition { get; set; }
+
+        [Description("Show what is known of the capture below the preview of the destination window: the window title, the time, whether it has recognized text (OCR) and HDR content. A step of a recipe with its own choice overrides this.")]
+        [DefaultValue(false)]
+        bool DestinationWindowShowMetadata { get; set; }
+
+        [Description("Close the destination window when something outside of it is clicked, like a context menu; it has no title bar then. A step of a recipe with its own choice overrides this.")]
+        [DefaultValue(false)]
+        bool DestinationWindowCloseOnDeactivate { get; set; }
+
+        [Description("Make the destination window as high as all the entries of its list need, also when the entries below a destination are shown (at most as high as the screen). A step of a recipe with its own choice overrides this.")]
+        [DefaultValue(false)]
+        bool DestinationWindowAutoSize { get; set; }
+
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }

@@ -3129,6 +3129,42 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("WindowPosition", value); OnPropertyChanged(nameof(DynamicDestinationWindowPosition)); }
         }
 
+        /// <summary>
+        /// Where the preview is: Default (the setting), Top (above the list) or Left (left of the list)
+        /// </summary>
+        public string DynamicDestinationPreviewPosition
+        {
+            get => GetParam("PreviewPosition", "Default");
+            set { SetParam("PreviewPosition", value); OnPropertyChanged(nameof(DynamicDestinationPreviewPosition)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the window title, time, OCR and HDR below the preview
+        /// </summary>
+        public string DynamicDestinationShowMetadataMode
+        {
+            get => GetTriStateParam("ShowMetadata");
+            set { SetTriStateParam("ShowMetadata", value); OnPropertyChanged(nameof(DynamicDestinationShowMetadataMode)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": a click outside closes the window, it has no title bar
+        /// </summary>
+        public string DynamicDestinationCloseOnDeactivateMode
+        {
+            get => GetTriStateParam("CloseOnDeactivate");
+            set { SetTriStateParam("CloseOnDeactivate", value); OnPropertyChanged(nameof(DynamicDestinationCloseOnDeactivateMode)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the window is as high as all entries of the list need
+        /// </summary>
+        public string DynamicDestinationAutoSizeMode
+        {
+            get => GetTriStateParam("AutoSize");
+            set { SetTriStateParam("AutoSize", value); OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode)); }
+        }
+
         public string DynamicDestinationSpecificDestinations
         {
             get
@@ -4173,6 +4209,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(DynamicDestinationShowPreviewMode));
             OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
             OnPropertyChanged(nameof(DynamicDestinationWindowPosition));
+            OnPropertyChanged(nameof(DynamicDestinationPreviewPosition));
+            OnPropertyChanged(nameof(DynamicDestinationShowMetadataMode));
+            OnPropertyChanged(nameof(DynamicDestinationCloseOnDeactivateMode));
+            OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));
             OnPropertyChanged(nameof(OnErrorNodeId));

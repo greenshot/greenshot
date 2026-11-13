@@ -26,8 +26,12 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Dapplo.Ini;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Recipes.ViewModels;
 using Greenshot.Recipes.Views;
 using Xunit;
@@ -138,6 +142,124 @@ namespace Greenshot.Tests.Recipes
             var (x, y) = DynamicDestinationWindow.LocationAtMouse(-10, 1030, 400, 300, workArea);
 
             Assert.Equal((-400, 740), (x, y));
+        }
+
+        [Theory]
+        // Inside: stays where it is
+        [InlineData(100, 200, 400, 300, 100, 200)]
+        // Grew below the bottom of the work area: moves up
+        [InlineData(100, 900, 400, 300, 100, 780)]
+        // Higher than the work area: starts at its top
+        [InlineData(100, 500, 400, 2000, 100, 0)]
+        public void AWindowWhichGrew_IsMovedBackIntoTheWorkArea(int x, int y, int width, int height, int expectedX, int expectedY)
+        {
+            var workArea = new System.Drawing.Rectangle(0, 0, 1920, 1080);
+
+            Assert.Equal((expectedX, expectedY), DynamicDestinationWindow.KeepInside(x, y, width, height, workArea));
+        }
+
+        [Theory]
+        [InlineData("Top", DestinationWindowPreviewPosition.Top)]
+        [InlineData("left", DestinationWindowPreviewPosition.Left)]
+        [InlineData("Default", null)]
+        [InlineData("", null)]
+        [InlineData(null, null)]
+        [InlineData("1", null)]
+        public void ThePreviewPositionOfAStep_IsTopLeftOrTheSetting(string value, DestinationWindowPreviewPosition? expected)
+        {
+            Assert.Equal(expected, DestinationWindowOptions.ParsePreviewPosition(value));
+        }
+
+        [Theory]
+        [InlineData("Mouse", true)]
+        [InlineData("center", false)]
+        [InlineData("Default", null)]
+        [InlineData(null, null)]
+        public void TheWindowPositionOfAStep_IsMouseCenterOrTheSetting(string value, bool? expected)
+        {
+            Assert.Equal(expected, DestinationWindowOptions.ParseAtMouse(value));
+        }
+
+        [Fact]
+        public void TheOptionsOfAStep_OverrideTheSettings_TheOthersComeFromTheSettings()
+        {
+            var configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            var position = configuration.DestinationWindowPreviewPosition;
+            var autoSize = configuration.DestinationWindowAutoSize;
+            try
+            {
+                configuration.DestinationWindowPreviewPosition = DestinationWindowPreviewPosition.Left;
+                configuration.DestinationWindowAutoSize = true;
+
+                var resolved = new DestinationWindowOptions { AutoSize = false, ShowMetadata = true }.Resolve(configuration);
+
+                Assert.Equal(DestinationWindowPreviewPosition.Left, resolved.PreviewPosition);
+                Assert.False(resolved.AutoSize);
+                Assert.True(resolved.ShowMetadata);
+                Assert.Equal(configuration.DestinationWindowShowPreview, resolved.ShowPreview);
+                Assert.Equal(configuration.DestinationWindowCloseOnDeactivate, resolved.CloseOnDeactivate);
+            }
+            finally
+            {
+                configuration.DestinationWindowPreviewPosition = position;
+                configuration.DestinationWindowAutoSize = autoSize;
+            }
+        }
+
+        [Fact]
+        public void ThePreviewAtTheLeft_PutsTheListBesideIt_WithoutAPreviewTheListIsBelow()
+        {
+            RunOnSta(() =>
+            {
+                var window = new DynamicDestinationWindow(null, new IDestination[] { new TestDestination("Clipboard") });
+
+                window.ApplyOptions(new DestinationWindowOptions { ShowPreview = true, PreviewPosition = DestinationWindowPreviewPosition.Left });
+                Assert.True(window.IsPreviewLeft);
+                Assert.Equal(1, System.Windows.Controls.Grid.GetColumn(window.ListPanel));
+                Assert.Equal(0, System.Windows.Controls.Grid.GetRow(window.ListPanel));
+                Assert.Equal(1, System.Windows.Controls.Grid.GetColumnSpan(window.SidePanel));
+                Assert.Equal(400 + DynamicDestinationWindow.SidePanelWidth, window.Width);
+
+                // The recipes are above the list again
+                window.ApplyOptions(new DestinationWindowOptions { ShowPreview = false, PreviewPosition = DestinationWindowPreviewPosition.Left });
+                Assert.False(window.IsPreviewLeft);
+                Assert.Equal(0, System.Windows.Controls.Grid.GetColumn(window.ListPanel));
+                Assert.Equal(1, System.Windows.Controls.Grid.GetRow(window.ListPanel));
+                Assert.Equal(2, System.Windows.Controls.Grid.GetColumnSpan(window.SidePanel));
+                Assert.Equal(400, window.Width);
+                window.Close();
+            });
+        }
+
+        [Fact]
+        public void AWindowWhichClosesLikeAContextMenu_HasNoTitleBar_OneWhichGrowsHasNoListHeight()
+        {
+            RunOnSta(() =>
+            {
+                var window = new DynamicDestinationWindow(null, new IDestination[] { new TestDestination("Clipboard") });
+                Assert.Contains(window.TitleBar, window.RootGrid.Children.Cast<System.Windows.UIElement>());
+                Assert.Equal(360, window.DestinationList.MaxHeight);
+
+                window.ApplyOptions(new DestinationWindowOptions { CloseOnDeactivate = true, AutoSize = true });
+
+                Assert.DoesNotContain(window.TitleBar, window.RootGrid.Children.Cast<System.Windows.UIElement>());
+                Assert.True(double.IsPositiveInfinity(window.DestinationList.MaxHeight));
+                window.Close();
+            });
+        }
+
+        [Fact]
+        public void TheOcrBadge_ShowsWhetherTheCaptureHasRecognizedText()
+        {
+            var details = new CaptureDetails();
+            // Other features (a window, a QR code) are no text
+            details.Features.Add(new OtherFeature());
+            Assert.False(CaptureMetadataViewModel.HasOcrLines(details));
+
+            details.Features.Add(new DetectedOcrLine(new NativeRect(0, 0, 40, 20), "text", new List<OcrWordInfo>()));
+            Assert.True(CaptureMetadataViewModel.HasOcrLines(details));
+            // Only shown: the capture keeps everything
+            Assert.Equal(2, details.Features.Count);
         }
 
         [Fact]
@@ -288,6 +410,17 @@ namespace Greenshot.Tests.Recipes
                 Assert.True(single.CanChooseItself);
                 window.Close();
             });
+        }
+
+        private sealed class OtherFeature : IDetectedFeature
+        {
+            public NativeRect Bounds => new NativeRect(0, 0, 10, 10);
+            public string FeatureType => "Other";
+            public string Text => "";
+            public string ToolTipText => "";
+            public void Offset(int x, int y)
+            {
+            }
         }
 
         private sealed class TestDestination : DestinationBase

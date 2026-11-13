@@ -19,9 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Export;
@@ -43,21 +45,41 @@ namespace Greenshot.Destinations
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Settings.DestinationWindow, 1);
 
         /// <summary>
+        /// For beta testers the destination window takes the place of the menu of "Ask for destination every time" (the picker)
+        /// </summary>
+        internal static bool ReplacesPicker => IniConfigRegistry.GetSection<ICoreConfiguration>()?.IsBetaTester == true;
+
+        /// <summary>
         /// Export the capture to the destination chosen in the window: until an export succeeds or the user closes the window.
         /// A failed export shows the window again, with the error.
         /// </summary>
-        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+        public override Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             if (!request.Ui.IsInteractive)
             {
                 // Nobody to choose
-                return ExportResult.Declined;
+                return Task.FromResult(ExportResult.Declined);
             }
 
+            return ChooseAndExportAsync(request.Source, DestinationHelper.GetChoices(request.Metadata),
+                (destination, source) => DestinationExporter.ExportAsync(destination, source, request.Metadata, true, request.Ui, cancellationToken), cancellationToken);
+        }
+
+        /// <summary>
+        /// Shows the destination window until an export to the chosen destination succeeds or the user closes the window; a failed
+        /// export shows the window again, with the error. The window works on a copy of the capture, which the editor recipes can
+        /// replace: then the chosen destination gets a copy of the changed capture, else the source itself.
+        /// </summary>
+        /// <param name="source">The capture</param>
+        /// <param name="destinations">The destinations to choose from</param>
+        /// <param name="export">Exports to the chosen destination from the source it gets</param>
+        /// <param name="cancellationToken">Closes the window</param>
+        /// <returns>The result of the successful export, or Declined when the window was closed</returns>
+        internal static async Task<ExportResult> ChooseAndExportAsync(IExportSource source, IReadOnlyList<IDestination> destinations,
+            Func<IDestination, IExportSource, Task<ExportResult>> export, CancellationToken cancellationToken)
+        {
             var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
-            var destinations = DestinationHelper.GetChoices(request.Metadata);
-            // The window works on a copy, which the editor recipes can replace
-            var capture = await request.Source.UseSurfaceAsync(surface => new EditableCapture(surface.Clone()), cancellationToken).ConfigureAwait(false);
+            var capture = await source.UseSurfaceAsync(surface => new EditableCapture(surface.Clone()), cancellationToken).ConfigureAwait(false);
             try
             {
                 string error = null;
@@ -71,8 +93,8 @@ namespace Greenshot.Destinations
                     }
 
                     var result = capture.IsChanged
-                        ? await ExportChangedAsync(chosen, capture, request, ui, cancellationToken).ConfigureAwait(false)
-                        : await DestinationExporter.ExportAsync(chosen, request.Source, request.Metadata, true, request.Ui, cancellationToken).ConfigureAwait(false);
+                        ? await ExportChangedAsync(chosen, capture, export, ui, cancellationToken).ConfigureAwait(false)
+                        : await export(chosen, source).ConfigureAwait(false);
                     if (result.IsSucceeded)
                     {
                         // The caller applies the result (messages, surface state) for the chosen destination
@@ -92,8 +114,8 @@ namespace Greenshot.Destinations
         /// <summary>
         /// Exports the capture changed by a recipe: each try gets its own copy, a destination which keeps it (the editor) owns it
         /// </summary>
-        private static async Task<ExportResult> ExportChangedAsync(IDestination destination, EditableCapture capture, ExportRequest request, IUiDispatcher ui,
-            CancellationToken cancellationToken)
+        private static async Task<ExportResult> ExportChangedAsync(IDestination destination, EditableCapture capture, Func<IDestination, IExportSource, Task<ExportResult>> export,
+            IUiDispatcher ui, CancellationToken cancellationToken)
         {
             var copy = await ui.InvokeAsync(() => capture.Surface.Clone(), cancellationToken).ConfigureAwait(false);
             ExportResult result = null;
@@ -101,7 +123,7 @@ namespace Greenshot.Destinations
             {
                 await ThreadPoolSwitch.SwitchToThreadPoolAsync();
                 using var source = new SurfaceExportSource(copy, ui, true);
-                result = await DestinationExporter.ExportAsync(destination, source, request.Metadata, true, request.Ui, cancellationToken).ConfigureAwait(false);
+                result = await export(destination, source).ConfigureAwait(false);
                 return result;
             }
             finally

@@ -92,15 +92,24 @@ Triggers and recipes are decoupled. Any trigger can run any recipe, and a single
 
 `ContextMenu` triggers add items to the **Recipes** menu in the context menu opened from Greenshot's system tray icon; 
 `Editor` triggers add items to the image editor's **Recipes** menu. 
-The destination window (destination "Ask for destination every time, in a window", Export in the viewer and the
+The destination window (destination "Open in destination window", Export in the viewer and the
 `DynamicDestination` step) lists the same
 recipes in a list between the preview and the search box (only when there are some): the recipe changes the capture shown
 there, like in the editor, before a destination is chosen.
-The window opens centered on the mouse pointer, or in the middle of the screen: *Settings > Destination* has the option for all
-three ways to open it (`DestinationWindowAtMouse` in greenshot.ini, on by default), and the `DynamicDestination` step has the parameter
-`WindowPosition` (`Default` follows the setting, `Center` or `Mouse` for this step).
-The preview of the capture follows *Settings > Destination* too (`DestinationWindowShowPreview`); the step parameter
-`ShowPreview` (`true` or `false`) overrides it, and without the parameter the setting decides.
+With *Beta tester* in the expert settings, "Ask for destination every time" (and a recipe with the `Picker` destination) shows this window
+instead of the menu.
+*Settings > Destination > Destination window* sets how the window looks and behaves, for all three ways to open it; each step parameter
+below overrides its setting for that step, without the parameter (or with `Default`) the setting decides:
+
+| Setting (greenshot.ini) | Step parameter | What it does |
+|---|---|---|
+| `DestinationWindowAtMouse` (on) | `WindowPosition`: `Default`, `Center`, `Mouse` | Opens centered on the mouse pointer, or in the middle of the screen |
+| `DestinationWindowShowPreview` (on) | `ShowPreview`: `true`, `false` | A preview of the capture; a click on it opens a viewer centered on the preview |
+| `DestinationWindowPreviewPosition` (`Top`) | `PreviewPosition`: `Default`, `Top`, `Left` | The preview above the list, or left of it with the recipes below it (without a preview the recipes are always above the list) |
+| `DestinationWindowShowMetadata` (off) | `ShowMetadata`: `true`, `false` | Below the preview: the window title, the address, the time and size, and whether the capture has recognized text (OCR) and HDR content (only shown) |
+| `DestinationWindowCloseOnDeactivate` (off) | `CloseOnDeactivate`: `true`, `false` | A click outside of the window closes it, like a context menu, also when it opened without the focus; the window has no title bar then |
+| `DestinationWindowAutoSize` (off) | `AutoSize`: `true`, `false` | The window is as high as all entries of the list need, also when the entries below a destination show; at most as high as the screen |
+
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
 The default `Recipes` items appear first and named submenus are sorted alphabetically. `parameters.Order` sorts items within each group. 
 For example:

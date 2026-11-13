@@ -51,6 +51,11 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
     [StepParameter("WindowPosition", ContractDataType.Enum, DefaultValue = "Default", Description = "Where the window opens: Center is the middle of the screen, Mouse is at the mouse pointer, Default follows the setting of Greenshot",
         AllowedValues = new[] { "Default", "Center", "Mouse" })]
+    [StepParameter("PreviewPosition", ContractDataType.Enum, DefaultValue = "Default", Description = "Where the preview is: Top is above the list, Left is left of the list (the recipes below it), Default follows the setting of Greenshot",
+        AllowedValues = new[] { "Default", "Top", "Left" })]
+    [StepParameter("ShowMetadata", ContractDataType.Boolean, Description = "Show the window title, the time, OCR and HDR of the capture below the preview (default: the setting of Greenshot)")]
+    [StepParameter("CloseOnDeactivate", ContractDataType.Boolean, Description = "Close the window when something outside of it is clicked, it has no title bar then (default: the setting of Greenshot)")]
+    [StepParameter("AutoSize", ContractDataType.Boolean, Description = "Make the window as high as all entries of the list need (default: the setting of Greenshot)")]
     [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
@@ -68,14 +73,17 @@ namespace Greenshot.Recipes.Steps
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             string title = Config.GetParameter<string>("Title") ?? "Export Capture";
-            // Without a choice in the step the setting of Greenshot decides
-            bool? showPreview = Config.GetParameter<bool?>("ShowPreview");
             int timeoutSeconds = Config.GetParameter<int?>("TimeoutSeconds") ?? 0;
-            // Mouse or Center; without one (or Default) the setting decides
-            string windowPosition = Config.GetParameter<string>("WindowPosition");
-            bool? atMouse = string.Equals(windowPosition, "Mouse", StringComparison.OrdinalIgnoreCase) ? true
-                : string.Equals(windowPosition, "Center", StringComparison.OrdinalIgnoreCase) ? false
-                : (bool?)null;
+            // What the step doesn't choose itself (no value, or Default) follows the settings of Greenshot
+            var options = new DestinationWindowOptions
+            {
+                ShowPreview = Config.GetParameter<bool?>("ShowPreview"),
+                AtMouse = DestinationWindowOptions.ParseAtMouse(Config.GetParameter<string>("WindowPosition")),
+                PreviewPosition = DestinationWindowOptions.ParsePreviewPosition(Config.GetParameter<string>("PreviewPosition")),
+                ShowMetadata = Config.GetParameter<bool?>("ShowMetadata"),
+                CloseOnDeactivate = Config.GetParameter<bool?>("CloseOnDeactivate"),
+                AutoSize = Config.GetParameter<bool?>("AutoSize")
+            };
 
             string lastError = null;
             if (context.Properties.TryGetValue("LastError", out var errObj) && errObj != null)
@@ -110,7 +118,7 @@ namespace Greenshot.Recipes.Steps
             try
             {
                 selectedDest = await context.Ui.InvokeAsync(
-                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, showPreview, atMouse),
+                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, options),
                     cancellationToken).ConfigureAwait(false);
                 if (capture.IsChanged)
                 {

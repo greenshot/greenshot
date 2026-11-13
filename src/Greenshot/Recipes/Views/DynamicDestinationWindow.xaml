@@ -37,19 +37,16 @@
     </Window.Resources>
 
     <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" BorderThickness="1">
-        <Grid>
+        <Grid x:Name="RootGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Title bar -->
                 <RowDefinition Height="Auto"/> <!-- Error banner -->
-                <RowDefinition Height="Auto"/> <!-- Preview -->
-                <RowDefinition Height="Auto"/> <!-- Editor recipes -->
-                <RowDefinition Height="Auto"/> <!-- Search -->
-                <RowDefinition Height="Auto"/> <!-- Destinations -->
+                <RowDefinition Height="Auto"/> <!-- Preview, details, recipes and the list -->
                 <RowDefinition Height="Auto"/> <!-- Time left -->
             </Grid.RowDefinitions>
 
-            <!-- Close is the X, the size of the capture sits next to it -->
-            <wpf:ThemedTitleBar Grid.Row="0">
+            <!-- Close is the X, the size of the capture sits next to it. Not there when the window closes by a click outside of it. -->
+            <wpf:ThemedTitleBar x:Name="TitleBar" Grid.Row="0">
                 <TextBlock Text="{Binding DimensionsText}" Margin="0,0,8,0" VerticalAlignment="Center"
                            FontSize="{wpf:FontSize 11}"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
@@ -81,153 +78,226 @@
                 </Grid>
             </Border>
 
-            <!-- The capture, a button so it also opens the viewer with the keyboard; not shown without a preview -->
-            <Button x:Name="ThumbnailButton" Grid.Row="2" Margin="10,10,10,0" MaxHeight="110" Cursor="Hand"
-                    Click="Thumbnail_Click"
-                    ToolTip="{Binding ClickToPreviewTooltip}"
-                    AutomationProperties.Name="{Binding ClickToPreviewTooltip, TargetNullValue=''}"
-                    FocusVisualStyle="{StaticResource GreenshotFocusVisual}"
-                    Visibility="{Binding ThumbnailVisibility}">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ThumbnailBorder" BorderThickness="1" CornerRadius="4" ClipToBounds="True"
-                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}">
-                            <Image Source="{Binding PreviewImageSource}" Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ThumbnailBorder" Property="BorderBrush"
-                                        Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-
-            <!-- Editor recipes, which change the capture; only when there are some -->
-            <Grid Grid.Row="3" Margin="10,10,10,0" Visibility="{Binding RecipeSectionVisibility}">
+            <!-- Two parts: the capture (preview, details, recipes) and the list (search, destinations). With the preview at the top
+                 they are below each other, with the preview at the left side by side (see ApplyLayout). -->
+            <Grid x:Name="ContentGrid" Grid.Row="2">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="SideColumn" Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <ComboBox x:Name="RecipeBox" Grid.Column="0" ItemsSource="{Binding AvailableRecipes}"
-                          PreviewKeyDown="RecipeBox_PreviewKeyDown"
-                          SelectedItem="{Binding SelectedRecipe}"
-                          DisplayMemberPath="Name" Margin="0,0,8,0"
-                          ToolTip="{Binding RecipeHeaderText}"
-                          AutomationProperties.Name="{Binding RecipeHeaderText, TargetNullValue=''}"
-                          Style="{StaticResource DefaultComboBoxStyle}">
-                    <ComboBox.ItemContainerStyle>
-                        <!-- The recipe name instead of the class name for screen readers -->
-                        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
-                            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
-                        </Style>
-                    </ComboBox.ItemContainerStyle>
-                </ComboBox>
-
-                <Button x:Name="RunRecipeButton" Grid.Column="1" Content="{Binding RunRecipeButtonText}"
-                        Style="{StaticResource PrimaryButtonStyle}" Padding="12,5"
-                        Click="RunRecipe_Click"/>
-            </Grid>
-
-            <!-- Search: typing filters the list, Enter takes the first entry, Down goes into the list -->
-            <Grid Grid.Row="4" Margin="10,10,10,6">
-                <TextBox x:Name="SearchBox"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="30,5,8,5"
-                         AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
-                         PreviewKeyDown="SearchBox_PreviewKeyDown"
-                         PreviewTextInput="SearchBox_PreviewTextInput"/>
-                <TextBlock Text="&#xE721;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
-                           FontSize="{wpf:FontSize 12}" Margin="10,0,0,0"
-                           HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False"
-                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                          />
-                <TextBlock Text="{wpf:Text Recipe.PickerSearch}" Margin="31,0,8,0"
-                           VerticalAlignment="Center" IsHitTestVisible="False"
-                           FontSize="{wpf:FontSize 12}"
-                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                          >
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </Grid>
-
-            <!-- All destinations in one list, always in the same order; the number in front picks the entry with Ctrl -->
-            <ListBox x:Name="DestinationList" Grid.Row="5" Margin="6,0,6,6" MaxHeight="360"
-                     Style="{StaticResource ThemeListBox}"
-                     Background="Transparent" BorderThickness="0"
-                     ItemContainerStyle="{StaticResource DestinationItemStyle}"
-                     SelectionMode="Single"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     PreviewKeyDown="DestinationList_PreviewKeyDown"
-                     PreviewTextInput="DestinationList_PreviewTextInput">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="30"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Also an empty key cap for the rows without a number (after the tenth), so all rows look the same -->
-                            <views:KeyCapBadgeView Grid.Column="0" HorizontalAlignment="Left" MinWidth="28"
-                                                   KeyText="{Binding NumberText}"
-                                                   IsUnderlined="{Binding ShortcutHintVisible}"
-                                                   ToolTip="{Binding ShortcutText}"/>
-
-                            <Image Grid.Column="1" Source="{Binding IconSource}" Width="20" Height="20" Margin="{Binding IconMargin}"
-                                   RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
-
-                            <TextBlock Grid.Column="2" Text="{Binding Title}" VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"/>
-
-                            <!-- A note like "Retry" -->
-                            <Border Grid.Column="3" CornerRadius="3" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center"
-                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"
-                                    Visibility="{Binding BadgeVisibility}">
-                                <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 10}" FontWeight="Bold"
-                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
+                <StackPanel x:Name="SidePanel" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <!-- The capture, a button so it also opens the viewer with the keyboard; not shown without a preview -->
+                <Button x:Name="ThumbnailButton" Margin="10,10,10,0" MaxHeight="110" Cursor="Hand"
+                        Click="Thumbnail_Click"
+                        ToolTip="{Binding ClickToPreviewTooltip}"
+                        AutomationProperties.Name="{Binding ClickToPreviewTooltip, TargetNullValue=''}"
+                        FocusVisualStyle="{StaticResource GreenshotFocusVisual}"
+                        Visibility="{Binding ThumbnailVisibility}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="ThumbnailBorder" BorderThickness="1" CornerRadius="4" ClipToBounds="True"
+                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}">
+                                <Image Source="{Binding PreviewImageSource}" Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Center"/>
                             </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ThumbnailBorder" Property="BorderBrush"
+                                            Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
 
-                            <!-- >>> when there are entries below (open editors, printers), <<< while they show. Not a tab stop: with the
-                                 keyboard Right and Left do it. The button fills the height of the row (the negative margin is the padding
-                                 of the row) and is wide, so the mouse hits it easily. -->
-                            <Button Grid.Column="4" Style="{StaticResource SecondaryTextButtonStyle}"
-                                    Margin="4,-3,-4,-3" Padding="14,0" MinWidth="52" Focusable="False" IsTabStop="False"
-                                    VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                    Content="{Binding ToggleGlyph}" FontWeight="Bold" FontSize="{wpf:FontSize 12}"
-                                    ToolTip="{Binding ToggleToolTip}"
-                                    AutomationProperties.Name="{Binding ToggleToolTip, TargetNullValue=''}"
-                                    Visibility="{Binding ToggleVisibility}"
-                                    Click="ToggleButton_Click"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                <!-- What is known of the capture: window title, address, time and size, whether it has recognized text (OCR) and HDR content -->
+                <StackPanel x:Name="MetadataPanel" Margin="10,6,10,0" Visibility="{Binding MetadataVisibility}">
+                    <TextBlock Text="{Binding Metadata.WindowTitle}" TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding Metadata.WindowTitle}"
+                               Visibility="{Binding Metadata.WindowTitleVisibility}"/>
+                    <TextBlock Text="{Binding Metadata.Url}" TextTrimming="CharacterEllipsis" FontSize="{wpf:FontSize 11.5}"
+                               ToolTip="{Binding Metadata.Url}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               Visibility="{Binding Metadata.UrlVisibility}"/>
+                    <DockPanel Margin="0,4,0,0">
+                        <!-- The badges of the editor: OCR and HDR, struck through when the capture has none -->
+                        <Border DockPanel.Dock="Right" Margin="4,0,0,0" CornerRadius="3" BorderThickness="1"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                ToolTip="{Binding Metadata.HdrToolTip}"
+                                AutomationProperties.Name="{Binding Metadata.HdrAccessibleName, TargetNullValue=''}"
+                                Focusable="False">
+                            <TextBlock Text="{Binding Metadata.HdrBadge}" Margin="5,1" FontSize="{wpf:FontSize 10}" FontWeight="Bold" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Metadata.HasHdr}" Value="False">
+                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                        <Border DockPanel.Dock="Right" Margin="4,0,0,0" CornerRadius="3" BorderThickness="1"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                ToolTip="{Binding Metadata.OcrToolTip}"
+                                AutomationProperties.Name="{Binding Metadata.OcrAccessibleName, TargetNullValue=''}"
+                                Focusable="False">
+                            <TextBlock Text="{Binding Metadata.OcrBadge}" Margin="5,1" FontSize="{wpf:FontSize 10}" FontWeight="Bold" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Metadata.HasOcr}" Value="False">
+                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Text="{Binding Metadata.Details}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                   FontSize="{wpf:FontSize 11}"
+                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                    </DockPanel>
+                </StackPanel>
+
+                <!-- Editor recipes, which change the capture; only when there are some -->
+                <Grid Margin="10,10,10,0" Visibility="{Binding RecipeSectionVisibility}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox x:Name="RecipeBox" Grid.Column="0" ItemsSource="{Binding AvailableRecipes}"
+                              PreviewKeyDown="RecipeBox_PreviewKeyDown"
+                              SelectedItem="{Binding SelectedRecipe}"
+                              DisplayMemberPath="Name" Margin="0,0,8,0"
+                              ToolTip="{Binding RecipeHeaderText}"
+                              AutomationProperties.Name="{Binding RecipeHeaderText, TargetNullValue=''}"
+                              Style="{StaticResource DefaultComboBoxStyle}">
+                        <ComboBox.ItemContainerStyle>
+                            <!-- The recipe name instead of the class name for screen readers -->
+                            <Style TargetType="ComboBoxItem" BasedOn="{StaticResource DefaultComboBoxItemStyle}">
+                                <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+
+                    <Button x:Name="RunRecipeButton" Grid.Column="1" Content="{Binding RunRecipeButtonText}"
+                            Style="{StaticResource PrimaryButtonStyle}" Padding="12,5"
+                            Click="RunRecipe_Click"/>
+                </Grid>
+                </StackPanel>
+
+                <DockPanel x:Name="ListPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+
+                <!-- Search: typing filters the list, Enter takes the first entry, Down goes into the list -->
+                <Grid DockPanel.Dock="Top" Margin="10,10,10,6">
+                    <TextBox x:Name="SearchBox"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="30,5,8,5"
+                             AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
+                             PreviewKeyDown="SearchBox_PreviewKeyDown"
+                             PreviewTextInput="SearchBox_PreviewTextInput"/>
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                               FontSize="{wpf:FontSize 12}" Margin="10,0,0,0"
+                               HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                              />
+                    <TextBlock Text="{wpf:Text Recipe.PickerSearch}" Margin="31,0,8,0"
+                               VerticalAlignment="Center" IsHitTestVisible="False"
+                               FontSize="{wpf:FontSize 12}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                              >
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <!-- All destinations in one list, always in the same order; the number in front picks the entry with Ctrl -->
+                <ListBox x:Name="DestinationList" Margin="6,0,6,6" MaxHeight="360"
+                         Style="{StaticResource ThemeListBox}"
+                         Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource DestinationItemStyle}"
+                         SelectionMode="Single"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         PreviewKeyDown="DestinationList_PreviewKeyDown"
+                         PreviewTextInput="DestinationList_PreviewTextInput">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" MinWidth="30"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Also an empty key cap for the rows without a number (after the tenth), so all rows look the same -->
+                                <views:KeyCapBadgeView Grid.Column="0" HorizontalAlignment="Left" MinWidth="28"
+                                                       KeyText="{Binding NumberText}"
+                                                       IsUnderlined="{Binding ShortcutHintVisible}"
+                                                       ToolTip="{Binding ShortcutText}"/>
+
+                                <Image Grid.Column="1" Source="{Binding IconSource}" Width="20" Height="20" Margin="{Binding IconMargin}"
+                                       RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="2" Text="{Binding Title}" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <!-- A note like "Retry" -->
+                                <Border Grid.Column="3" CornerRadius="3" Padding="5,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerBrush}"
+                                        Visibility="{Binding BadgeVisibility}">
+                                    <TextBlock Text="{Binding BadgeText}" FontSize="{wpf:FontSize 10}" FontWeight="Bold"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.DangerForegroundBrush}"/>
+                                </Border>
+
+                                <!-- >>> when there are entries below (open editors, printers), <<< while they show. Not a tab stop: with the
+                                     keyboard Right and Left do it. The button fills the height of the row (the negative margin is the padding
+                                     of the row) and is wide, so the mouse hits it easily. -->
+                                <Button Grid.Column="4" Style="{StaticResource SecondaryTextButtonStyle}"
+                                        Margin="4,-3,-4,-3" Padding="14,0" MinWidth="52" Focusable="False" IsTabStop="False"
+                                        VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                        Content="{Binding ToggleGlyph}" FontWeight="Bold" FontSize="{wpf:FontSize 12}"
+                                        ToolTip="{Binding ToggleToolTip}"
+                                        AutomationProperties.Name="{Binding ToggleToolTip, TargetNullValue=''}"
+                                        Visibility="{Binding ToggleVisibility}"
+                                        Click="ToggleButton_Click"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                </DockPanel>
+            </Grid>
 
             <!-- Only for a destination window which closes by itself -->
-            <TextBlock Grid.Row="6" Text="{Binding TimeoutText}" Margin="12,0,12,8" HorizontalAlignment="Right"
+            <TextBlock Grid.Row="3" Text="{Binding TimeoutText}" Margin="12,0,12,8" HorizontalAlignment="Right"
                        FontSize="{wpf:FontSize 11.5}"
                        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                        Visibility="{Binding TimeoutVisibility}"/>
 
             <!-- While a recipe changes the capture: dims everything below the title bar and takes the mouse -->
-            <Border x:Name="BusyOverlay" Grid.Row="1" Grid.RowSpan="6" Cursor="Wait" Opacity="0.6" Visibility="Collapsed"
+            <Border x:Name="BusyOverlay" Grid.Row="1" Grid.RowSpan="3" Cursor="Wait" Opacity="0.6" Visibility="Collapsed"
                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
         </Grid>
     </Border>

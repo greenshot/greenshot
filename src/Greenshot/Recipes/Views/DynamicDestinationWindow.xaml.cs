@@ -26,18 +26,24 @@ using System.ComponentModel;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Grid = System.Windows.Controls.Grid;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Dapplo.Windows.Desktop;
+using Dapplo.Windows.Input.Mouse;
+using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
@@ -82,6 +88,32 @@ namespace Greenshot.Recipes.Views
         private EditableCapture _capture;
         private CaptureFlowHandle _runningRecipe;
         private bool _closed;
+        private bool _closing;
+        private ICaptureDetails _watchedDetails;
+        // The mouse clicks anywhere on the screen, while the window closes with a click outside of it
+        private IDisposable _clicksOutside;
+
+        /// <summary>
+        /// The width of the part with the preview, the details and the recipes when it is left of the list
+        /// </summary>
+        internal const double SidePanelWidth = 260;
+
+        /// <summary>
+        /// How the window looks and behaves, every value set (see DestinationWindowOptions.Resolve)
+        /// </summary>
+        internal DestinationWindowOptions Options { get; private set; } = new DestinationWindowOptions().Resolve(null);
+
+        /// <summary>
+        /// The preview is left of the list: only with a preview, without one the recipes are above the list
+        /// </summary>
+        internal bool IsPreviewLeft => Options.ShowPreview == true && Options.PreviewPosition == DestinationWindowPreviewPosition.Left;
+
+        /// <summary>
+        /// What is known of the capture, below the preview
+        /// </summary>
+        public CaptureMetadataViewModel Metadata { get; } = new CaptureMetadataViewModel();
+
+        public Visibility MetadataVisibility => Options.ShowMetadata == true && _capture != null ? Visibility.Visible : Visibility.Collapsed;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -214,7 +246,18 @@ namespace Greenshot.Recipes.Views
             Texts.Config.LanguageChanged += OnLanguageChanged;
 
             // The search box has the focus from the start: typing filters at once
-            Loaded += (s, e) => SearchBox.Focus();
+            Loaded += (s, e) =>
+            {
+                LimitListToWorkArea();
+                // Opened from the tray, a hotkey or a recipe Windows may leave another window in the foreground: the window takes it,
+                // so the keys work and a click outside of it deactivates it
+                if (!IsActive)
+                {
+                    WindowHelper.ToForeground(new WindowInteropHelper(this).Handle);
+                }
+                WatchClicksOutside();
+                SearchBox.Focus();
+            };
             SourceInitialized += (s, e) =>
             {
                 if (PlaceAtMouse)
@@ -222,6 +265,15 @@ namespace Greenshot.Recipes.Views
                     MoveToMouse();
                 }
             };
+            // A window which grows (more entries, the entries below a destination) stays on the screen
+            SizeChanged += (s, e) =>
+            {
+                if (e.HeightChanged && IsLoaded)
+                {
+                    KeepInWorkArea();
+                }
+            };
+            Closing += (s, e) => _closing = !e.Cancel;
             Closed += (s, e) =>
             {
                 _closed = true;
@@ -233,6 +285,12 @@ namespace Greenshot.Recipes.Views
                 {
                     _capture.Changed -= OnCaptureChanged;
                 }
+                if (_watchedDetails != null)
+                {
+                    _watchedDetails.FeaturesChanged -= OnFeaturesChanged;
+                }
+                _clicksOutside?.Dispose();
+                _clicksOutside = null;
                 Texts.Config.LanguageChanged -= OnLanguageChanged;
             };
             DataObject.AddPastingHandler(SearchBox, SearchBox_Pasting);
@@ -240,7 +298,11 @@ namespace Greenshot.Recipes.Views
             PreviewKeyUp += (s, e) => UpdateShortcutHint();
             // Ctrl released while another window had the focus
             Activated += (s, e) => UpdateShortcutHint();
-            Deactivated += (s, e) => UpdateShortcutHint();
+            Deactivated += (s, e) =>
+            {
+                UpdateShortcutHint();
+                CloseWhenClickedOutside();
+            };
             PreviewMouseDown += (s, e) => StopTimeout();
             KeyDown += OnWindowKeyDown;
         }
@@ -280,14 +342,15 @@ namespace Greenshot.Recipes.Views
         }
 
         /// <summary>
-        /// The capture can be changed with the editor recipes, the window shows it as preview
+        /// The capture can be changed with the editor recipes, the window shows it as preview (and what is known of it) as the options say
         /// </summary>
-        private void UseCapture(EditableCapture capture, bool showPreview)
+        internal void UseCapture(EditableCapture capture, DestinationWindowOptions options)
         {
             _capture = capture;
+            ApplyOptions(options);
             // The open editors, the printers: loaded in the background, the entries show when they are there
             StartLoadingSubEntries(capture.Surface?.CaptureDetails);
-            if (showPreview)
+            if (Options.ShowPreview == true || Options.ShowMetadata == true)
             {
                 _capture.Changed += OnCaptureChanged;
                 ShowCapture();
@@ -299,12 +362,62 @@ namespace Greenshot.Recipes.Views
             SelectedRecipe = AvailableRecipes.FirstOrDefault();
             OnPropertyChanged(nameof(SelectedRecipe));
             OnPropertyChanged(nameof(RecipeSectionVisibility));
+            OnPropertyChanged(nameof(MetadataVisibility));
+        }
+
+        /// <summary>
+        /// Takes the options (the ones not set come from the settings) and arranges the window for them
+        /// </summary>
+        internal void ApplyOptions(DestinationWindowOptions options)
+        {
+            Options = (options ?? new DestinationWindowOptions()).Resolve(IniConfigRegistry.GetSection<ICoreConfiguration>());
+            ApplyLayout();
+            // Like a context menu: no title bar (not just hidden: it would give the window the frame of Windows or a caption area)
+            if (Options.CloseOnDeactivate == true)
+            {
+                RootGrid.Children.Remove(TitleBar);
+            }
+
+            // Grows with the list: the list has no height of its own, the work area of the screen limits it (when loaded)
+            if (Options.AutoSize == true)
+            {
+                DestinationList.MaxHeight = double.PositiveInfinity;
+            }
+
+            OnPropertyChanged(nameof(MetadataVisibility));
+        }
+
+        /// <summary>
+        /// The preview at the top: the capture (preview, details, recipes) above the list. At the left: the capture left of the list,
+        /// the window is wider by it. Without a preview the recipes are always above the list.
+        /// </summary>
+        private void ApplyLayout()
+        {
+            bool left = IsPreviewLeft;
+            Grid.SetRow(SidePanel, 0);
+            Grid.SetColumn(SidePanel, 0);
+            Grid.SetRowSpan(SidePanel, left ? 2 : 1);
+            Grid.SetColumnSpan(SidePanel, left ? 1 : 2);
+            Grid.SetRow(ListPanel, left ? 0 : 1);
+            Grid.SetColumn(ListPanel, left ? 1 : 0);
+            Grid.SetRowSpan(ListPanel, left ? 2 : 1);
+            Grid.SetColumnSpan(ListPanel, left ? 1 : 2);
+            SideColumn.Width = left ? new GridLength(SidePanelWidth) : GridLength.Auto;
+            // Beside the list there is room for a bigger preview
+            ThumbnailButton.MaxHeight = left ? 200 : 110;
+            SidePanel.Margin = left ? new Thickness(0, 0, 0, 10) : new Thickness(0);
+            Width = left ? 400 + SidePanelWidth : 400;
         }
 
         private void ShowCapture()
         {
-            using var image = _capture.GetImageForExport();
-            SetPreview(image);
+            if (Options.ShowPreview == true)
+            {
+                using var image = _capture.GetImageForExport();
+                SetPreview(image);
+            }
+
+            UpdateMetadata();
         }
 
         private void OnCaptureChanged(object sender, EventArgs e)
@@ -313,6 +426,44 @@ namespace Greenshot.Recipes.Views
             ClosePreviewViewer();
             ShowCapture();
         }
+
+        /// <summary>
+        /// Shows what is known of the capture; the OCR of the capture may still be running, its lines come later
+        /// </summary>
+        private void UpdateMetadata()
+        {
+            if (Options.ShowMetadata != true || _capture?.Surface == null)
+            {
+                return;
+            }
+
+            var details = _capture.Surface.CaptureDetails;
+            if (!ReferenceEquals(details, _watchedDetails))
+            {
+                if (_watchedDetails != null)
+                {
+                    _watchedDetails.FeaturesChanged -= OnFeaturesChanged;
+                }
+
+                _watchedDetails = details;
+                if (details != null)
+                {
+                    details.FeaturesChanged += OnFeaturesChanged;
+                }
+            }
+
+            Metadata.Update(_capture.Surface);
+        }
+
+        // Raised by the processors (OCR, QR) on their thread
+        private void OnFeaturesChanged(object sender, EventArgs e) =>
+            Dispatcher.InvokeAsync(() =>
+            {
+                if (!_closed)
+                {
+                    UpdateMetadata();
+                }
+            }).Task.FireAndLog("Show the details of the capture");
 
         /// <summary>
         /// Runs the editor recipe on the capture; the window waits for it and shows the changed capture
@@ -693,6 +844,7 @@ namespace Greenshot.Recipes.Views
             OnPropertyChanged(nameof(ClickToPreviewTooltip));
             OnPropertyChanged(nameof(ErrorSubtitleText));
             OnPropertyChanged(nameof(TimeoutText));
+            Metadata.Refresh();
         }
 
         /// <summary>
@@ -746,6 +898,14 @@ namespace Greenshot.Recipes.Views
             }
 
             viewer.Owner = this;
+            // Opens over the preview, centered on it, like the preview grows (on the screen of the preview, inside its work area)
+            if (ThumbnailButton.IsVisible)
+            {
+                var center = ThumbnailButton.PointToScreen(new Point(ThumbnailButton.ActualWidth / 2, ThumbnailButton.ActualHeight / 2));
+                viewer.CenterOn = new System.Drawing.Point((int)Math.Round(center.X), (int)Math.Round(center.Y));
+            }
+            // A click outside of both closes this window too (when it closes like a context menu)
+            viewer.Deactivated += (s, e) => CloseWhenClickedOutside();
             viewer.Closed += (s, e) =>
             {
                 if (_previewViewer != viewer)
@@ -1071,16 +1231,14 @@ namespace Greenshot.Recipes.Views
         /// <param name="cancellationToken">Closes the window</param>
         /// <param name="title">The title, null for the default</param>
         /// <param name="timeoutSeconds">Closes the window after this many seconds, 0 for never</param>
-        /// <param name="showPreview">True: show the capture, false: don't, null: as set in the settings</param>
-        /// <param name="atMouse">True: the window opens at the mouse pointer, false: in the middle of the screen (of the owner), null: as set in the settings</param>
+        /// <param name="options">How the window looks and behaves (e.g. of a step of a recipe), what isn't set there comes from the settings; null: all from the settings</param>
         /// <returns>The chosen destination, or null when the window was closed</returns>
         public static IDestination Choose(Window owner, EditableCapture capture, IEnumerable<IDestination> destinations, string errorMessage,
-            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, bool? showPreview = null, bool? atMouse = null)
+            CancellationToken cancellationToken = default, string title = null, int timeoutSeconds = 0, DestinationWindowOptions options = null)
         {
-            var configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
             var window = new DynamicDestinationWindow(title, destinations, errorMessage, timeoutSeconds);
-            window.UseCapture(capture, showPreview ?? configuration.DestinationWindowShowPreview);
-            window.PlaceAtMouse = atMouse ?? configuration.DestinationWindowAtMouse;
+            window.UseCapture(capture, options);
+            window.PlaceAtMouse = window.Options.AtMouse == true;
             if (owner != null)
             {
                 window.Owner = owner;
@@ -1128,11 +1286,154 @@ namespace Greenshot.Recipes.Views
         /// The top left corner of a window (in screen pixels) which is centered on the mouse pointer and stays inside the work area
         /// of the screen; one which doesn't fit starts at the top left of the work area
         /// </summary>
-        internal static (int X, int Y) LocationAtMouse(int mouseX, int mouseY, int width, int height, System.Drawing.Rectangle workArea)
+        internal static (int X, int Y) LocationAtMouse(int mouseX, int mouseY, int width, int height, System.Drawing.Rectangle workArea) =>
+            KeepInside(mouseX - width / 2, mouseY - height / 2, width, height, workArea);
+
+        /// <summary>
+        /// The top left corner of a window moved as little as possible to be inside the work area; one which doesn't fit starts at the
+        /// top left of the work area
+        /// </summary>
+        internal static (int X, int Y) KeepInside(int x, int y, int width, int height, System.Drawing.Rectangle workArea) =>
+            (Math.Max(workArea.Left, Math.Min(x, workArea.Right - width)), Math.Max(workArea.Top, Math.Min(y, workArea.Bottom - height)));
+
+        /// <summary>
+        /// Moves the window back into the work area of its screen, e.g. after it grew with the list
+        /// </summary>
+        private void KeepInWorkArea()
         {
-            int x = Math.Max(workArea.Left, Math.Min(mouseX - width / 2, workArea.Right - width));
-            int y = Math.Max(workArea.Top, Math.Min(mouseY - height / 2, workArea.Bottom - height));
-            return (x, y);
+            var handle = new WindowInteropHelper(this).Handle;
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            var bounds = InteropWindowFactory.CreateFor(handle).GetInfo(forceUpdate: true).Bounds;
+            var workArea = System.Windows.Forms.Screen.FromHandle(handle).WorkingArea;
+            var (x, y) = KeepInside(bounds.Left, bounds.Top, bounds.Width, bounds.Height, workArea);
+            if (x != bounds.Left || y != bounds.Top)
+            {
+                User32Api.SetWindowPos(handle, IntPtr.Zero, x, y, 0, 0, WindowPos.SWP_NOSIZE | WindowPos.SWP_NOZORDER | WindowPos.SWP_NOACTIVATE);
+            }
+        }
+
+        /// <summary>
+        /// A window which grows with its list (AutoSize) is at most as high as the work area of its screen: the list gets the height
+        /// which is left, a longer list scrolls
+        /// </summary>
+        private void LimitListToWorkArea()
+        {
+            if (Options.AutoSize != true)
+            {
+                return;
+            }
+
+            var handle = new WindowInteropHelper(this).Handle;
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            double workAreaHeight = System.Windows.Forms.Screen.FromHandle(handle).WorkingArea.Height / System.Windows.Media.VisualTreeHelper.GetDpi(this).DpiScaleY;
+            // Everything but the list: the title bar, the search, the preview above the list
+            double others = ActualHeight - DestinationList.ActualHeight;
+            DestinationList.MaxHeight = Math.Max(100, workAreaHeight - others);
+        }
+
+        /// <summary>
+        /// A click outside of the window closes it also when the window never was the active one (then it isn't deactivated): the clicks
+        /// of the whole screen are watched while the window is open
+        /// </summary>
+        private void WatchClicksOutside()
+        {
+            if (Options.CloseOnDeactivate != true || _clicksOutside != null)
+            {
+                return;
+            }
+
+            var handle = new WindowInteropHelper(this).Handle;
+            _clicksOutside = MouseHook.MouseEventsNonBlocking
+                .Where(click => IsButtonDown(click.WindowsMessage))
+                // On the thread of the hook: which window was clicked
+                .Where(click => !BelongsTo(WindowFromPoint(new NativePointStruct { X = click.Point.X, Y = click.Point.Y }), handle))
+                .Subscribe(click => Dispatcher.InvokeAsync(CloseAfterClickOutside).Task.FireAndLog("Close the destination window after a click outside of it"));
+        }
+
+        private static bool IsButtonDown(WindowsMessages message) =>
+            message == WindowsMessages.WM_LBUTTONDOWN || message == WindowsMessages.WM_RBUTTONDOWN || message == WindowsMessages.WM_MBUTTONDOWN
+            || message == WindowsMessages.WM_XBUTTONDOWN || message == WindowsMessages.WM_NCLBUTTONDOWN || message == WindowsMessages.WM_NCRBUTTONDOWN;
+
+        /// <summary>
+        /// The clicked window is this one, or a window owned by it: the viewer of the preview, the list of the recipes, a tooltip
+        /// </summary>
+        private static bool BelongsTo(IntPtr clicked, IntPtr window)
+        {
+            // The top level window of e.g. a control, then its owners
+            var current = clicked == IntPtr.Zero ? IntPtr.Zero : GetAncestor(clicked, GaRoot);
+            for (int depth = 0; current != IntPtr.Zero && depth < 20; depth++)
+            {
+                if (current == window)
+                {
+                    return true;
+                }
+
+                current = GetWindow(current, GwOwner);
+            }
+
+            return false;
+        }
+
+        private void CloseAfterClickOutside()
+        {
+            if (_closing || _closed || _runningRecipe != null)
+            {
+                return;
+            }
+
+            ClosePreviewViewer();
+            Close();
+        }
+
+        private const uint GaRoot = 2;
+        private const uint GwOwner = 4;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NativePointStruct
+        {
+            public int X;
+            public int Y;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(NativePointStruct point);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetWindow(IntPtr hwnd, uint command);
+
+        /// <summary>
+        /// Like a context menu: a click outside of the window (and of its viewer) closes it. Not while a recipe changes the capture, it
+        /// may ask something in a window of its own.
+        /// </summary>
+        private void CloseWhenClickedOutside()
+        {
+            if (Options.CloseOnDeactivate != true || _closing || _closed)
+            {
+                return;
+            }
+
+            // Decided once the activation moved on: to the viewer of the preview (it belongs to this window), or somewhere else
+            Dispatcher.InvokeAsync(() =>
+            {
+                if (_closing || _closed || _runningRecipe != null || IsActive || _previewViewer?.IsActive == true)
+                {
+                    return;
+                }
+
+                ClosePreviewViewer();
+                Close();
+            }, DispatcherPriority.Background).Task.FireAndLog("Close the destination window after a click outside of it");
         }
 
         private void Choose(DestinationTileViewModel tile)

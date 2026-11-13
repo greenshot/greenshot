@@ -573,20 +573,17 @@
             
             <!-- Destinations Tab -->
             <TabItem Header="{wpf:Text Settings.Destination}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     <GroupBox Header="{wpf:Text Settings.Destination}">
                         <DockPanel LastChildFill="True">
-                            <CheckBox Content="{wpf:Text Settings.DestinationPicker}" 
-                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
+                            <CheckBox Content="{wpf:Text Settings.DestinationPicker}"
+                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}"
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
                                       Margin="5" DockPanel.Dock="Top"/>
-                            <CheckBox Content="{wpf:Text Settings.DestinationWindowAtMouse}"
-                                      IsChecked="{Binding CoreConfiguration.DestinationWindowAtMouse, Mode=TwoWay}"
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAtMouse}"
-                                      Margin="5,0,5,5" DockPanel.Dock="Top"/>
-                            <CheckBox Content="{wpf:Text Settings.DestinationWindowShowPreview}"
-                                      IsChecked="{Binding CoreConfiguration.DestinationWindowShowPreview, Mode=TwoWay}"
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowPreview}"
-                                      Margin="5,0,5,5" DockPanel.Dock="Top"/>
                             <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
                             <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
                                 <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
@@ -658,6 +655,42 @@
                             </ListView>
                         </DockPanel>
                     </GroupBox>
+                    <!-- The destination window ("Open in destination window", Export in the viewer, the DynamicDestination step);
+                         a step of a recipe can choose each of these for itself -->
+                    <GroupBox Header="{wpf:Text Settings.DestinationWindowSettings}" Grid.Row="1">
+                        <StackPanel>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowAtMouse}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowAtMouse, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAtMouse}"/>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowShowPreview}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowShowPreview, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowPreview}"/>
+                            <!-- Only with a preview: without one the recipes are above the list -->
+                            <Grid Margin="20,4,0,4" IsEnabled="{Binding CoreConfiguration.DestinationWindowShowPreview}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="{wpf:Text Settings.DestinationWindowPreviewPosition}" Target="{Binding ElementName=DestinationWindowPreviewPositionComboBox}"/>
+                                <ComboBox x:Name="DestinationWindowPreviewPositionComboBox" Grid.Column="1"
+                                          ItemsSource="{Binding DestinationWindowPreviewPositionChoices}"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding CoreConfiguration.DestinationWindowPreviewPosition, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowPreviewPosition}"/>
+                            </Grid>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowShowMetadata}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowShowMetadata, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowMetadata}"/>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowCloseOnDeactivate}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowCloseOnDeactivate, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowCloseOnDeactivate}"/>
+                            <CheckBox Content="{wpf:Text Settings.DestinationWindowAutoSize}"
+                                      IsChecked="{Binding CoreConfiguration.DestinationWindowAutoSize, Mode=TwoWay}"
+                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAutoSize}"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
             </TabItem>
             
             <!-- Editor Tab -->

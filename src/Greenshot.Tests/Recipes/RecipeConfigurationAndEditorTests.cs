@@ -250,6 +250,29 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void DynamicDestinationStep_WindowOptions_FollowTheSettingsUntilTheStepChoosesThem()
+        {
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(RecipeStepConfig.CreateDynamicDestination("dyn_dest"), new System.Windows.Point(0, 0));
+            Assert.Equal("Default", vm.DynamicDestinationPreviewPosition);
+            Assert.Equal("", vm.DynamicDestinationShowMetadataMode);
+            Assert.Equal("", vm.DynamicDestinationCloseOnDeactivateMode);
+            Assert.Equal("", vm.DynamicDestinationAutoSizeMode);
+
+            vm.DynamicDestinationPreviewPosition = "Left";
+            vm.DynamicDestinationShowMetadataMode = "true";
+            vm.DynamicDestinationCloseOnDeactivateMode = "false";
+            vm.DynamicDestinationAutoSizeMode = "true";
+
+            Assert.Equal("Left", vm.Config.GetParameter<string>("PreviewPosition"));
+            Assert.True(vm.Config.GetParameter<bool>("ShowMetadata"));
+            Assert.False(vm.Config.GetParameter<bool>("CloseOnDeactivate"));
+            Assert.True(vm.Config.GetParameter<bool>("AutoSize"));
+
+            vm.DynamicDestinationAutoSizeMode = "";
+            Assert.False(vm.Config.Parameters.ContainsKey("AutoSize"));
+        }
+
+        [Fact]
         public void StepNodeViewModel_NumberFields_KeepExpressions()
         {
             var config = new RecipeNodeConfig("border", WellKnownStepTypes.Effect).Set("Effect", "Border").Set("Width", "${option.border_thickness}");

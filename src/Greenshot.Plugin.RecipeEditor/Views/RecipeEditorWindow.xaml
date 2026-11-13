@@ -2826,6 +2826,38 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.WindowPositionMouse}" Tag="Mouse"/>
                                             </ComboBox>
 
+                                            <TextBlock Text="{wpf:Text RecipeEditor.PreviewPosition}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.PreviewPosition}" SelectedValue="{Binding SelectedNode.DynamicDestinationPreviewPosition, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag="Default"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PreviewPositionTop}" Tag="Top"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.PreviewPositionLeft}" Tag="Left"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowMetadata}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowMetadata}" SelectedValue="{Binding SelectedNode.DynamicDestinationShowMetadataMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.CloseOnDeactivate}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.CloseOnDeactivate}" SelectedValue="{Binding SelectedNode.DynamicDestinationCloseOnDeactivateMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="{wpf:Text RecipeEditor.AutoSize}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.AutoSize}" SelectedValue="{Binding SelectedNode.DynamicDestinationAutoSizeMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
+
                                             <TextBlock Text="{wpf:Text RecipeEditor.DestinationsFilter}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.DestinationsFilter}" Text="{Binding SelectedNode.DynamicDestinationSpecificDestinations, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
