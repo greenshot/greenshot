@@ -42,7 +42,7 @@ namespace Greenshot.Destinations
     {
         public override string Designation => nameof(WellKnownDestinations.DestinationWindow);
 
-        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Settings.DestinationWindow, 1);
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Texts.Settings.DestinationWindow, 1, DestinationIcons.Greenshot);
 
         /// <summary>
         /// For beta testers the destination window takes the place of the menu of "Ask for destination every time" (the picker)
