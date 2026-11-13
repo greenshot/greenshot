@@ -232,3 +232,6 @@ src/**/*.Credentials.cs
 src/**/Greenshot-proxy.exe
 # Local build/test runner requests and results (tools/build-runner)
 .build-runner/
+
+# Six Labors license key for the stand-alone editor: a secret, never committed (docs/vNext/standalone-editor.md)
+sixlabors.lic

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The tests of the stand-alone editor (Greenshot.Editor.Standalone), on .NET 10 like the editor; they also run on Linux and macOS -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers></RuntimeIdentifiers>
+    <!-- xunit.v3 test projects are programs -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Greenshot.Editor.Standalone.Tests</RootNamespace>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <SixLaborsLicenseKey Condition="'$(SixLaborsLicenseKey)' == '' And '$(SIXLABORS_LIC)' != ''">$(SIXLABORS_LIC)</SixLaborsLicenseKey>
+    <SixLaborsLicenseFile Condition="'$(SixLaborsLicenseKey)' == '' And Exists('..\Greenshot.Editor.Standalone\sixlabors.lic')">..\Greenshot.Editor.Standalone\sixlabors.lic</SixLaborsLicenseFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.1" />
+    <PackageReference Include="xunit.v3.mtp-off" Version="4.0.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- Avalonia depends on this package, which sends statistics about every build to Avalonia. Building Greenshot doesn't phone home:
+         nothing of the package is used, so its build task never runs. -->
+    <PackageReference Include="Avalonia.BuildServices" Version="11.3.2" ExcludeAssets="all" PrivateAssets="all" />
+    <PackageReference Include="Avalonia.Headless" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Editor.Standalone\Greenshot.Editor.Standalone.csproj" />
+  </ItemGroup>
+</Project>
