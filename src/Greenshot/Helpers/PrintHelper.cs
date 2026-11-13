@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -280,6 +281,9 @@ namespace Greenshot.Helpers
                     e.Graphics.DrawString(footerString, f, Brushes.Black, pageRect.Width / 2 - footerStringWidth / 2, pageRect.Height);
                 }
 
+                // A capture shrunk to the page keeps readable text with the best interpolation (BUG-1877)
+                e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 e.Graphics.DrawImage(image, printRect, imageRect, GraphicsUnit.Pixel);
             }
             finally
@@ -293,8 +297,12 @@ namespace Greenshot.Helpers
 
         private void ApplyEffects(SurfaceOutputSettings printOutputSettings)
         {
-            // TODO:
-            // add effects here
+            // Many printer drivers ignore the color setting of the page, so gray scale is made in the image (BUG-2471)
+            if (Grayscale && !Monochrome)
+            {
+                printOutputSettings.Effects.Add(new GrayscaleEffect());
+            }
+
             if (Monochrome)
             {
                 byte threshold = MonochromeThreshold;
