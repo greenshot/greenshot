@@ -554,12 +554,14 @@ namespace Greenshot.Base.Expressions
         internal static string FileNameSafe(string value)
         {
             if (string.IsNullOrEmpty(value)) return string.Empty;
-            var chars = FilenameHelper.MakeFilenameSafe(value).ToCharArray();
-            for (int i = 0; i < chars.Length; i++)
+            var sb = new StringBuilder(value.Length);
+            foreach (char c in FilenameHelper.MakeFilenameSafe(value))
             {
-                if (chars[i] < ' ' || Array.IndexOf(NotInFileNames, chars[i]) >= 0) chars[i] = '_';
+                // Invisible marks, e.g. the left-to-right mark in the title of an Edge tab, make the file unreadable for some programs (BUG-2164)
+                if (CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.Format) continue;
+                sb.Append(c < ' ' || Array.IndexOf(NotInFileNames, c) >= 0 ? '_' : c);
             }
-            string safe = new string(chars).Trim();
+            string safe = sb.ToString().Trim();
             if (safe.Length > MaxFileNameValueLength) safe = safe.Substring(0, MaxFileNameValueLength);
             if (safe.Trim('.').Length == 0) safe = safe.Replace('.', '_');
             return safe;

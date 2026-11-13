@@ -101,8 +101,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     catch (Exception e)
                     {
                         LOG.Error("Powerpoint shape creating failed", e);
-                        using var slides = DisposableCom.Create(presentation.ComObject.Slides);
-                        slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
+                        // A layout without a picture place (e.g. ppLayoutBlank) fails here after its slide was added: use that slide (BUG-1940)
+                        if (slide == null)
+                        {
+                            using var slides = DisposableCom.Create(presentation.ComObject.Slides);
+                            slide = DisposableCom.Create(slides.ComObject.Add(slides.ComObject.Count + 1, PpSlideLayout.ppLayoutBlank));
+                        }
                     }
 
                     using (var shapes = DisposableCom.Create(slide.ComObject.Shapes))

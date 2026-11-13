@@ -227,6 +227,14 @@ namespace Greenshot.Tests.Expressions
         }
 
         [Fact]
+        public void FileName_InvisibleMarksAreLeftOut()
+        {
+            // BUG-2164: the title of an Edge tab can hold a left-to-right mark, some programs can't open such a file
+            var name = _resolver.RenderFileName("${payload.title}", ".png", Scope("\u200EGreenshot\u200B tab\uFEFF"));
+            Assert.Equal("Greenshot tab.png", name.Name);
+        }
+
+        [Fact]
         public void FileName_FixedSubFolders_AreKept()
         {
             var name = _resolver.RenderFileName("${payload.time:yyyy}\\${payload.title}", ".png", Scope());
