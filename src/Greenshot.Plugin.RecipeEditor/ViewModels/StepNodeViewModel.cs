@@ -3175,6 +3175,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("AutoSize", value); OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode)); }
         }
 
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the editor recipes, which change the capture, are offered in the window
+        /// </summary>
+        public string DynamicDestinationShowRecipesMode
+        {
+            get => GetTriStateParam("ShowRecipes");
+            set { SetTriStateParam("ShowRecipes", value); OnPropertyChanged(nameof(DynamicDestinationShowRecipesMode)); }
+        }
+
         public string DynamicDestinationSpecificDestinations
         {
             get
@@ -4278,6 +4287,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(DynamicDestinationShowMetadataMode));
             OnPropertyChanged(nameof(DynamicDestinationCloseOnDeactivateMode));
             OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode));
+            OnPropertyChanged(nameof(DynamicDestinationShowRecipesMode));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));
             OnPropertyChanged(nameof(OnErrorNodeId));

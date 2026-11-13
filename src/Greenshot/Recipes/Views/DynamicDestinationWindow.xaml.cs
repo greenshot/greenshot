@@ -146,7 +146,7 @@ namespace Greenshot.Recipes.Views
         /// </summary>
         public ObservableCollection<RecipeChoice> AvailableRecipes { get; } = new ObservableCollection<RecipeChoice>();
         public RecipeChoice SelectedRecipe { get; set; }
-        public Visibility RecipeSectionVisibility => AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility RecipeSectionVisibility => Options.ShowRecipes == true && AvailableRecipes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         public string SearchText
         {
@@ -355,9 +355,13 @@ namespace Greenshot.Recipes.Views
                 _capture.Changed += OnCaptureChanged;
                 ShowCapture();
             }
-            foreach (var trigger in EditableCapture.GetEditorRecipes())
+            // Without the recipes (option) the list and its button aren't shown
+            if (Options.ShowRecipes == true)
             {
-                AvailableRecipes.Add(new RecipeChoice(EditableCapture.DisplayName(trigger), trigger));
+                foreach (var trigger in EditableCapture.GetEditorRecipes())
+                {
+                    AvailableRecipes.Add(new RecipeChoice(EditableCapture.DisplayName(trigger), trigger));
+                }
             }
             SelectedRecipe = AvailableRecipes.FirstOrDefault();
             OnPropertyChanged(nameof(SelectedRecipe));

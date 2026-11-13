@@ -133,6 +133,7 @@ below overrides its setting for that step, without the parameter (or with `Defau
 | `DestinationWindowShowMetadata` (off) | `ShowMetadata`: `true`, `false` | Below the preview: the window title, the address, the time and size, and whether the capture has recognized text (OCR) and HDR content (only shown) |
 | `DestinationWindowCloseOnDeactivate` (off) | `CloseOnDeactivate`: `true`, `false` | A click outside of the window closes it, like a context menu, also when it opened without the focus; the window has no title bar then |
 | `DestinationWindowAutoSize` (off) | `AutoSize`: `true`, `false` | The window is as high as all entries of the list need, also when the entries below a destination show; at most as high as the screen |
+| `DestinationWindowShowRecipes` (on) | `ShowRecipes`: `true`, `false` | The editor recipes (the list and its button), which change the capture before a destination is chosen |
 
 Both trigger types can set `parameters.Group` to place their menu items in a submenu. The default group, `Recipes`, keeps the item directly in that menu.
 A `ContextMenu` trigger with the group `Main` puts its item in the tray menu itself, next to the captures, see

@@ -56,6 +56,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("ShowMetadata", ContractDataType.Boolean, Description = "Show the window title, the time, OCR and HDR of the capture below the preview (default: the setting of Greenshot)")]
     [StepParameter("CloseOnDeactivate", ContractDataType.Boolean, Description = "Close the window when something outside of it is clicked, it has no title bar then (default: the setting of Greenshot)")]
     [StepParameter("AutoSize", ContractDataType.Boolean, Description = "Make the window as high as all entries of the list need (default: the setting of Greenshot)")]
+    [StepParameter("ShowRecipes", ContractDataType.Boolean, Description = "Show the editor recipes, which change the capture before a destination is chosen (default: the setting of Greenshot)")]
     [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
@@ -82,7 +83,8 @@ namespace Greenshot.Recipes.Steps
                 PreviewPosition = DestinationWindowOptions.ParsePreviewPosition(Config.GetParameter<string>("PreviewPosition")),
                 ShowMetadata = Config.GetParameter<bool?>("ShowMetadata"),
                 CloseOnDeactivate = Config.GetParameter<bool?>("CloseOnDeactivate"),
-                AutoSize = Config.GetParameter<bool?>("AutoSize")
+                AutoSize = Config.GetParameter<bool?>("AutoSize"),
+                ShowRecipes = Config.GetParameter<bool?>("ShowRecipes")
             };
 
             string lastError = null;

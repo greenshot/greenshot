@@ -2292,6 +2292,11 @@ namespace Greenshot.Plugin.RecipeEditor
         string AutoSize { get; }
 
         /// <summary>
+        /// Show recipes
+        /// </summary>
+        string ShowRecipes { get; }
+
+        /// <summary>
         /// Specific Destinations Filter (Optional, comma-separated)
         /// </summary>
         string DestinationsFilter { get; }

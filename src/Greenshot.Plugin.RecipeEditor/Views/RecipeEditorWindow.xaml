@@ -2887,6 +2887,14 @@
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
                                             </ComboBox>
 
+                                            <TextBlock Text="{wpf:Text RecipeEditor.ShowRecipes}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.ShowRecipes}" SelectedValue="{Binding SelectedNode.DynamicDestinationShowRecipesMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OutputFormatFromConfiguration}" Tag=""/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.Yes}" Tag="true"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.No}" Tag="false"/>
+                                            </ComboBox>
+
                                             <TextBlock Text="{wpf:Text RecipeEditor.DestinationsFilter}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox AutomationProperties.Name="{wpf:Text RecipeEditor.DestinationsFilter}" Text="{Binding SelectedNode.DynamicDestinationSpecificDestinations, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"

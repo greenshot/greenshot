@@ -198,6 +198,8 @@ namespace Greenshot.Tests.Recipes
                 Assert.True(resolved.ShowMetadata);
                 Assert.Equal(configuration.DestinationWindowShowPreview, resolved.ShowPreview);
                 Assert.Equal(configuration.DestinationWindowCloseOnDeactivate, resolved.CloseOnDeactivate);
+                Assert.Equal(configuration.DestinationWindowShowRecipes, resolved.ShowRecipes);
+                Assert.False(new DestinationWindowOptions { ShowRecipes = false }.Resolve(configuration).ShowRecipes);
             }
             finally
             {

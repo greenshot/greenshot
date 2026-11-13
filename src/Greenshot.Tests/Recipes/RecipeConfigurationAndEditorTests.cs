@@ -270,6 +270,10 @@ namespace Greenshot.Tests.Recipes
 
             vm.DynamicDestinationAutoSizeMode = "";
             Assert.False(vm.Config.Parameters.ContainsKey("AutoSize"));
+
+            Assert.Equal("", vm.DynamicDestinationShowRecipesMode);
+            vm.DynamicDestinationShowRecipesMode = "false";
+            Assert.False(vm.Config.GetParameter<bool>("ShowRecipes"));
         }
 
         [Fact]

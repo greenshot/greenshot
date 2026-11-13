@@ -297,6 +297,11 @@ namespace Greenshot.Base.Languages
         string DestinationWindowAutoSize { get; }
 
         /// <summary>
+        /// Show recipes
+        /// </summary>
+        string DestinationWindowShowRecipes { get; }
+
+        /// <summary>
         /// Send to printer
         /// </summary>
         string DestinationPrinter { get; }

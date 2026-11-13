@@ -62,6 +62,11 @@ namespace Greenshot.Recipes.Views
         public bool? AutoSize { get; set; }
 
         /// <summary>
+        /// Show the editor recipes (the list and its button), which change the capture
+        /// </summary>
+        public bool? ShowRecipes { get; set; }
+
+        /// <summary>
         /// The options with every value set: the ones which aren't set here come from the settings
         /// </summary>
         public DestinationWindowOptions Resolve(ICoreConfiguration configuration) => new DestinationWindowOptions
@@ -71,7 +76,8 @@ namespace Greenshot.Recipes.Views
             PreviewPosition = PreviewPosition ?? configuration?.DestinationWindowPreviewPosition ?? DestinationWindowPreviewPosition.Top,
             ShowMetadata = ShowMetadata ?? configuration?.DestinationWindowShowMetadata ?? false,
             CloseOnDeactivate = CloseOnDeactivate ?? configuration?.DestinationWindowCloseOnDeactivate ?? false,
-            AutoSize = AutoSize ?? configuration?.DestinationWindowAutoSize ?? false
+            AutoSize = AutoSize ?? configuration?.DestinationWindowAutoSize ?? false,
+            ShowRecipes = ShowRecipes ?? configuration?.DestinationWindowShowRecipes ?? true
         };
 
         /// <summary>

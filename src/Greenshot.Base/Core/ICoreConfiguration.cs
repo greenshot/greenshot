@@ -97,6 +97,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool DestinationWindowAutoSize { get; set; }
 
+        [Description("Show the editor recipes in the destination window, to change the capture before it goes to a destination. A step of a recipe with its own choice overrides this.")]
+        [DefaultValue(true)]
+        bool DestinationWindowShowRecipes { get; set; }
+
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]
         [DefaultValue("PNG,DIB")]
         List<ClipboardFormat> ClipboardFormats { get; set; }
