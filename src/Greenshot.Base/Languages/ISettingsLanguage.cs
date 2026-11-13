@@ -247,9 +247,59 @@ namespace Greenshot.Base.Languages
         string DestinationPicker { get; }
 
         /// <summary>
-        /// Ask for destination every time, in a window
+        /// Open in destination window
         /// </summary>
         string DestinationWindow { get; }
+
+        /// <summary>
+        /// Destination window (the header of its settings)
+        /// </summary>
+        string DestinationWindowSettings { get; }
+
+        /// <summary>
+        /// Open at mouse pointer
+        /// </summary>
+        string DestinationWindowAtMouse { get; }
+
+        /// <summary>
+        /// Show preview
+        /// </summary>
+        string DestinationWindowShowPreview { get; }
+
+        /// <summary>
+        /// Preview position
+        /// </summary>
+        string DestinationWindowPreviewPosition { get; }
+
+        /// <summary>
+        /// Above the list
+        /// </summary>
+        string DestinationWindowPreviewTop { get; }
+
+        /// <summary>
+        /// Left of the list
+        /// </summary>
+        string DestinationWindowPreviewLeft { get; }
+
+        /// <summary>
+        /// Show capture details
+        /// </summary>
+        string DestinationWindowShowMetadata { get; }
+
+        /// <summary>
+        /// Close on click outside
+        /// </summary>
+        string DestinationWindowCloseOnDeactivate { get; }
+
+        /// <summary>
+        /// Grow with the list
+        /// </summary>
+        string DestinationWindowAutoSize { get; }
+
+        /// <summary>
+        /// Show recipes
+        /// </summary>
+        string DestinationWindowShowRecipes { get; }
 
         /// <summary>
         /// Send to printer

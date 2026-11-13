@@ -186,6 +186,22 @@ namespace Greenshot.Recipes.Pipeline
         {
             var copies = new Dictionary<string, PreparedCopy>();
             var choices = DestinationHelper.GetChoices(captureDetails);
+            // Beta testers get the destination window instead of the menu; the extensions run for the chosen destination, on the
+            // capture as the window's recipes left it (a changed capture is a new source, the copies of the old one don't fit it)
+            if (DestinationWindowDestination.ReplacesPicker && userInteraction.IsInteractive)
+            {
+                var chosenResult = await DestinationWindowDestination.ChooseAndExportAsync(source, choices,
+                    (destination, from) => ExportWithChainsAsync(context, destination, destination.Designation, from, captureDetails, userInteraction,
+                        ReferenceEquals(from, source) ? copies : new Dictionary<string, PreparedCopy>(), true, cancellationToken),
+                    cancellationToken).ConfigureAwait(false);
+                if (chosenResult.Status == ExportStatus.Declined)
+                {
+                    context.LogStep("The destination window was closed.");
+                }
+
+                return;
+            }
+
             while (true)
             {
                 var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);

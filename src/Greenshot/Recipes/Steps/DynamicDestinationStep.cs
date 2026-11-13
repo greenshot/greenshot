@@ -47,8 +47,16 @@ namespace Greenshot.Recipes.Steps
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
     [StepParameter("Title", ContractDataType.String, Translatable = true, Description = "Title of the flyout")]
     [StepParameter("Destinations", ContractDataType.Object, ValueType = typeof(List<string>), Description = "Destinations to offer (default: all)")]
-    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture (default: the setting of Greenshot)")]
     [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
+    [StepParameter("WindowPosition", ContractDataType.Enum, DefaultValue = "Default", Description = "Where the window opens: Center is the middle of the screen, Mouse is at the mouse pointer, Default follows the setting of Greenshot",
+        AllowedValues = new[] { "Default", "Center", "Mouse" })]
+    [StepParameter("PreviewPosition", ContractDataType.Enum, DefaultValue = "Default", Description = "Where the preview is: Top is above the list, Left is left of the list (the recipes below it), Default follows the setting of Greenshot",
+        AllowedValues = new[] { "Default", "Top", "Left" })]
+    [StepParameter("ShowMetadata", ContractDataType.Boolean, Description = "Show the window title, the time, OCR and HDR of the capture below the preview (default: the setting of Greenshot)")]
+    [StepParameter("CloseOnDeactivate", ContractDataType.Boolean, Description = "Close the window when something outside of it is clicked, it has no title bar then (default: the setting of Greenshot)")]
+    [StepParameter("AutoSize", ContractDataType.Boolean, Description = "Make the window as high as all entries of the list need (default: the setting of Greenshot)")]
+    [StepParameter("ShowRecipes", ContractDataType.Boolean, Description = "Show the editor recipes, which change the capture before a destination is chosen (default: the setting of Greenshot)")]
     [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
@@ -66,8 +74,18 @@ namespace Greenshot.Recipes.Steps
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             string title = Config.GetParameter<string>("Title") ?? "Export Capture";
-            bool showPreview = Config.GetParameter<bool?>("ShowPreview") ?? true;
             int timeoutSeconds = Config.GetParameter<int?>("TimeoutSeconds") ?? 0;
+            // What the step doesn't choose itself (no value, or Default) follows the settings of Greenshot
+            var options = new DestinationWindowOptions
+            {
+                ShowPreview = Config.GetParameter<bool?>("ShowPreview"),
+                AtMouse = DestinationWindowOptions.ParseAtMouse(Config.GetParameter<string>("WindowPosition")),
+                PreviewPosition = DestinationWindowOptions.ParsePreviewPosition(Config.GetParameter<string>("PreviewPosition")),
+                ShowMetadata = Config.GetParameter<bool?>("ShowMetadata"),
+                CloseOnDeactivate = Config.GetParameter<bool?>("CloseOnDeactivate"),
+                AutoSize = Config.GetParameter<bool?>("AutoSize"),
+                ShowRecipes = Config.GetParameter<bool?>("ShowRecipes")
+            };
 
             string lastError = null;
             if (context.Properties.TryGetValue("LastError", out var errObj) && errObj != null)
@@ -102,7 +120,7 @@ namespace Greenshot.Recipes.Steps
             try
             {
                 selectedDest = await context.Ui.InvokeAsync(
-                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, showPreview),
+                    () => DynamicDestinationWindow.Choose(null, capture, targetDests, lastError, cancellationToken, title, timeoutSeconds, options),
                     cancellationToken).ConfigureAwait(false);
                 if (capture.IsChanged)
                 {
@@ -121,7 +139,9 @@ namespace Greenshot.Recipes.Steps
                 return;
             }
 
-            if (EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase))
+            // The editor itself takes over the capture; an open editor chosen below it (a destination without entries of its own) only gets a copy
+            if (EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)
+                && selectedDest.Descriptor?.HasDynamicDestinations == true)
             {
                 context.Payload.RetainSurfaceForEditor = true;
                 context.LogStep("DynamicDestination: User selected Open in Editor.");

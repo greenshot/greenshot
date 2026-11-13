@@ -3110,13 +3110,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public bool DynamicDestinationShowPreview
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false"
+        /// </summary>
+        public string DynamicDestinationShowPreviewMode
         {
-            get => GetParamBool("ShowPreview", true);
+            get => GetTriStateParam("ShowPreview");
             set
             {
-                SetParam("ShowPreview", value);
-                OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+                SetTriStateParam("ShowPreview", value);
+                OnPropertyChanged(nameof(DynamicDestinationShowPreviewMode));
                 OnPropertyChanged(nameof(Summary));
             }
         }
@@ -3125,6 +3128,60 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             get => GetParam("TimeoutSeconds", "0");
             set { SetNumberParam("TimeoutSeconds", value); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        /// <summary>
+        /// Where the window opens: Default (the setting), Center (the middle of the screen) or Mouse (at the mouse pointer)
+        /// </summary>
+        public string DynamicDestinationWindowPosition
+        {
+            get => GetParam("WindowPosition", "Default");
+            set { SetParam("WindowPosition", value); OnPropertyChanged(nameof(DynamicDestinationWindowPosition)); }
+        }
+
+        /// <summary>
+        /// Where the preview is: Default (the setting), Top (above the list) or Left (left of the list)
+        /// </summary>
+        public string DynamicDestinationPreviewPosition
+        {
+            get => GetParam("PreviewPosition", "Default");
+            set { SetParam("PreviewPosition", value); OnPropertyChanged(nameof(DynamicDestinationPreviewPosition)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the window title, time, OCR and HDR below the preview
+        /// </summary>
+        public string DynamicDestinationShowMetadataMode
+        {
+            get => GetTriStateParam("ShowMetadata");
+            set { SetTriStateParam("ShowMetadata", value); OnPropertyChanged(nameof(DynamicDestinationShowMetadataMode)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": a click outside closes the window, it has no title bar
+        /// </summary>
+        public string DynamicDestinationCloseOnDeactivateMode
+        {
+            get => GetTriStateParam("CloseOnDeactivate");
+            set { SetTriStateParam("CloseOnDeactivate", value); OnPropertyChanged(nameof(DynamicDestinationCloseOnDeactivateMode)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the window is as high as all entries of the list need
+        /// </summary>
+        public string DynamicDestinationAutoSizeMode
+        {
+            get => GetTriStateParam("AutoSize");
+            set { SetTriStateParam("AutoSize", value); OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode)); }
+        }
+
+        /// <summary>
+        /// "" (the setting of Greenshot), "true" or "false": the editor recipes, which change the capture, are offered in the window
+        /// </summary>
+        public string DynamicDestinationShowRecipesMode
+        {
+            get => GetTriStateParam("ShowRecipes");
+            set { SetTriStateParam("ShowRecipes", value); OnPropertyChanged(nameof(DynamicDestinationShowRecipesMode)); }
         }
 
         public string DynamicDestinationSpecificDestinations
@@ -4223,8 +4280,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(VideoRegionHeight));
             OnPropertyChanged(nameof(VideoMonitorIndex));
             OnPropertyChanged(nameof(DynamicDestinationTitle));
-            OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+            OnPropertyChanged(nameof(DynamicDestinationShowPreviewMode));
             OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
+            OnPropertyChanged(nameof(DynamicDestinationWindowPosition));
+            OnPropertyChanged(nameof(DynamicDestinationPreviewPosition));
+            OnPropertyChanged(nameof(DynamicDestinationShowMetadataMode));
+            OnPropertyChanged(nameof(DynamicDestinationCloseOnDeactivateMode));
+            OnPropertyChanged(nameof(DynamicDestinationAutoSizeMode));
+            OnPropertyChanged(nameof(DynamicDestinationShowRecipesMode));
             OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
             OnPropertyChanged(nameof(OnErrorAction));
             OnPropertyChanged(nameof(OnErrorNodeId));

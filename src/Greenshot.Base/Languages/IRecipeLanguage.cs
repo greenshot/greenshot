@@ -942,16 +942,6 @@ namespace Greenshot.Base.Languages
         string PromptNo { get; }
 
         /// <summary>
-        /// Core Destinations
-        /// </summary>
-        string PickerCoreDestinations { get; }
-
-        /// <summary>
-        /// Destinations
-        /// </summary>
-        string PickerDestinations { get; }
-
-        /// <summary>
         /// Change the capture with a recipe (the editor recipes, in the destination window)
         /// </summary>
         string PickerApplyRecipe { get; }
@@ -965,16 +955,6 @@ namespace Greenshot.Base.Languages
         /// Choose another destination below, or try again:
         /// </summary>
         string PickerErrorChooseAgain { get; }
-
-        /// <summary>
-        /// Switch to Light Mode (T)
-        /// </summary>
-        string PickerThemeLight { get; }
-
-        /// <summary>
-        /// Switch to Dark Mode (T)
-        /// </summary>
-        string PickerThemeDark { get; }
 
         /// <summary>
         /// Auto-closing in {0}s...
@@ -992,14 +972,34 @@ namespace Greenshot.Base.Languages
         string PickerSearch { get; }
 
         /// <summary>
-        /// Copy image to clipboard
+        /// Show entries
         /// </summary>
-        string PickerClipboardSub { get; }
+        string PickerExpand { get; }
 
         /// <summary>
-        /// Annotate and export
+        /// Hide entries
         /// </summary>
-        string PickerEditorSub { get; }
+        string PickerCollapse { get; }
+
+        /// <summary>
+        /// The text of the capture is recognized (OCR)
+        /// </summary>
+        string PickerOcrAvailable { get; }
+
+        /// <summary>
+        /// No text of the capture is recognized (OCR)
+        /// </summary>
+        string PickerOcrMissing { get; }
+
+        /// <summary>
+        /// The capture has HDR content
+        /// </summary>
+        string PickerHdrAvailable { get; }
+
+        /// <summary>
+        /// The capture has no HDR content
+        /// </summary>
+        string PickerHdrMissing { get; }
 
         /// <summary>
         /// Save Directly
@@ -1007,24 +1007,9 @@ namespace Greenshot.Base.Languages
         string PickerFile { get; }
 
         /// <summary>
-        /// Save to folder
-        /// </summary>
-        string PickerFileSub { get; }
-
-        /// <summary>
         /// Save As...
         /// </summary>
         string PickerFileas { get; }
-
-        /// <summary>
-        /// Choose folder &amp; format
-        /// </summary>
-        string PickerFileasSub { get; }
-
-        /// <summary>
-        /// Send to printer
-        /// </summary>
-        string PickerPrinterSub { get; }
 
         /// <summary>
         /// OCR Text
@@ -1032,84 +1017,14 @@ namespace Greenshot.Base.Languages
         string PickerOcr { get; }
 
         /// <summary>
-        /// Extract text from image
-        /// </summary>
-        string PickerOcrSub { get; }
-
-        /// <summary>
         /// Windows Share
         /// </summary>
         string PickerShare { get; }
 
         /// <summary>
-        /// Share with apps &amp; contacts
-        /// </summary>
-        string PickerShareSub { get; }
-
-        /// <summary>
-        /// New email attachment
-        /// </summary>
-        string PickerEmailSub { get; }
-
-        /// <summary>
-        /// Insert into document
-        /// </summary>
-        string PickerWordSub { get; }
-
-        /// <summary>
-        /// Insert into worksheet
-        /// </summary>
-        string PickerExcelSub { get; }
-
-        /// <summary>
-        /// Insert into presentation
-        /// </summary>
-        string PickerPowerpointSub { get; }
-
-        /// <summary>
-        /// Send to notebook
-        /// </summary>
-        string PickerOnenoteSub { get; }
-
-        /// <summary>
         /// QR Code Actions
         /// </summary>
         string PickerQr { get; }
-
-        /// <summary>
-        /// Detect &amp; decode QR codes
-        /// </summary>
-        string PickerQrSub { get; }
-
-        /// <summary>
-        /// Open in Paint
-        /// </summary>
-        string PickerPaintSub { get; }
-
-        /// <summary>
-        /// Upload &amp; copy link
-        /// </summary>
-        string PickerUploadSub { get; }
-
-        /// <summary>
-        /// Attach to issue
-        /// </summary>
-        string PickerJiraSub { get; }
-
-        /// <summary>
-        /// Attach to page
-        /// </summary>
-        string PickerConfluenceSub { get; }
-
-        /// <summary>
-        /// Cloud upload
-        /// </summary>
-        string PickerCloudSub { get; }
-
-        /// <summary>
-        /// Export destination
-        /// </summary>
-        string PickerExportSub { get; }
 
         /// <summary>
         /// Recipe catalog

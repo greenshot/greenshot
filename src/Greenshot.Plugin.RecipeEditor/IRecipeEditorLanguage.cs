@@ -2247,6 +2247,56 @@ namespace Greenshot.Plugin.RecipeEditor
         string AutoDismissTimeout { get; }
 
         /// <summary>
+        /// Window position
+        /// </summary>
+        string WindowPosition { get; }
+
+        /// <summary>
+        /// Middle of the screen
+        /// </summary>
+        string WindowPositionCenter { get; }
+
+        /// <summary>
+        /// At the mouse pointer
+        /// </summary>
+        string WindowPositionMouse { get; }
+
+        /// <summary>
+        /// Preview position
+        /// </summary>
+        string PreviewPosition { get; }
+
+        /// <summary>
+        /// Above the list
+        /// </summary>
+        string PreviewPositionTop { get; }
+
+        /// <summary>
+        /// Left of the list
+        /// </summary>
+        string PreviewPositionLeft { get; }
+
+        /// <summary>
+        /// Show capture details
+        /// </summary>
+        string ShowMetadata { get; }
+
+        /// <summary>
+        /// Close on click outside
+        /// </summary>
+        string CloseOnDeactivate { get; }
+
+        /// <summary>
+        /// Grow with the list
+        /// </summary>
+        string AutoSize { get; }
+
+        /// <summary>
+        /// Show recipes
+        /// </summary>
+        string ShowRecipes { get; }
+
+        /// <summary>
         /// Specific Destinations Filter (Optional, comma-separated)
         /// </summary>
         string DestinationsFilter { get; }

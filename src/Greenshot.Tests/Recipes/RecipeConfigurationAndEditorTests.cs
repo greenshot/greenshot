@@ -227,11 +227,53 @@ namespace Greenshot.Tests.Recipes
 
             Assert.True(vm.IsDynamicDestination);
             Assert.Equal("Select Destination", vm.DynamicDestinationTitle);
-            Assert.True(vm.DynamicDestinationShowPreview);
+            Assert.Equal("true", vm.DynamicDestinationShowPreviewMode);
             Assert.Equal("15", vm.DynamicDestinationTimeoutSeconds);
             Assert.Contains("Clipboard", vm.DynamicDestinationSpecificDestinations);
             Assert.Contains("Editor", vm.DynamicDestinationSpecificDestinations);
             Assert.Contains("15s", vm.Summary);
+        }
+
+        [Fact]
+        public void DynamicDestinationStep_ShowPreview_FollowsTheSettingUntilTheStepChoosesOne()
+        {
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(RecipeStepConfig.CreateDynamicDestination("dyn_dest"), new System.Windows.Point(0, 0));
+            Assert.Equal("", vm.DynamicDestinationShowPreviewMode);
+            Assert.False(vm.Config.Parameters.ContainsKey("ShowPreview"));
+
+            vm.DynamicDestinationShowPreviewMode = "false";
+            Assert.Equal("false", vm.DynamicDestinationShowPreviewMode);
+            Assert.False(vm.Config.GetParameter<bool>("ShowPreview"));
+
+            vm.DynamicDestinationShowPreviewMode = "";
+            Assert.False(vm.Config.Parameters.ContainsKey("ShowPreview"));
+        }
+
+        [Fact]
+        public void DynamicDestinationStep_WindowOptions_FollowTheSettingsUntilTheStepChoosesThem()
+        {
+            var vm = new Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel(RecipeStepConfig.CreateDynamicDestination("dyn_dest"), new System.Windows.Point(0, 0));
+            Assert.Equal("Default", vm.DynamicDestinationPreviewPosition);
+            Assert.Equal("", vm.DynamicDestinationShowMetadataMode);
+            Assert.Equal("", vm.DynamicDestinationCloseOnDeactivateMode);
+            Assert.Equal("", vm.DynamicDestinationAutoSizeMode);
+
+            vm.DynamicDestinationPreviewPosition = "Left";
+            vm.DynamicDestinationShowMetadataMode = "true";
+            vm.DynamicDestinationCloseOnDeactivateMode = "false";
+            vm.DynamicDestinationAutoSizeMode = "true";
+
+            Assert.Equal("Left", vm.Config.GetParameter<string>("PreviewPosition"));
+            Assert.True(vm.Config.GetParameter<bool>("ShowMetadata"));
+            Assert.False(vm.Config.GetParameter<bool>("CloseOnDeactivate"));
+            Assert.True(vm.Config.GetParameter<bool>("AutoSize"));
+
+            vm.DynamicDestinationAutoSizeMode = "";
+            Assert.False(vm.Config.Parameters.ContainsKey("AutoSize"));
+
+            Assert.Equal("", vm.DynamicDestinationShowRecipesMode);
+            vm.DynamicDestinationShowRecipesMode = "false";
+            Assert.False(vm.Config.GetParameter<bool>("ShowRecipes"));
         }
 
         [Fact]
