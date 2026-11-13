@@ -90,7 +90,7 @@ namespace Greenshot.Base.Core
         bool DestinationWindowShowMetadata { get; set; }
 
         [Description("Close the destination window when something outside of it is clicked, like a context menu; it has no title bar then. A step of a recipe with its own choice overrides this.")]
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         bool DestinationWindowCloseOnDeactivate { get; set; }
 
         [Description("Make the destination window as high as all the entries of its list need, also when the entries below a destination are shown (at most as high as the screen). A step of a recipe with its own choice overrides this.")]
@@ -98,7 +98,7 @@ namespace Greenshot.Base.Core
         bool DestinationWindowAutoSize { get; set; }
 
         [Description("Show the editor recipes in the destination window, to change the capture before it goes to a destination. A step of a recipe with its own choice overrides this.")]
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         bool DestinationWindowShowRecipes { get; set; }
 
         [Description("Specify which formats we copy on the clipboard? Options are: PNG, HTML, HTMLDATAURL and DIB")]

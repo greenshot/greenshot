@@ -75,9 +75,9 @@ namespace Greenshot.Recipes.Views
             ShowPreview = ShowPreview ?? configuration?.DestinationWindowShowPreview ?? true,
             PreviewPosition = PreviewPosition ?? configuration?.DestinationWindowPreviewPosition ?? DestinationWindowPreviewPosition.Top,
             ShowMetadata = ShowMetadata ?? configuration?.DestinationWindowShowMetadata ?? false,
-            CloseOnDeactivate = CloseOnDeactivate ?? configuration?.DestinationWindowCloseOnDeactivate ?? false,
+            CloseOnDeactivate = CloseOnDeactivate ?? configuration?.DestinationWindowCloseOnDeactivate ?? true,
             AutoSize = AutoSize ?? configuration?.DestinationWindowAutoSize ?? false,
-            ShowRecipes = ShowRecipes ?? configuration?.DestinationWindowShowRecipes ?? true
+            ShowRecipes = ShowRecipes ?? configuration?.DestinationWindowShowRecipes ?? false
         };
 
         /// <summary>
