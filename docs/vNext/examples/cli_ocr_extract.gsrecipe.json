@@ -13,7 +13,7 @@
         "Command": "ocr",
         "Description": "Extract text from an image file using OCR and return to stdout",
         "FireAndForget": false,
-        "Stdout": "${Payload.ExtractedText}",
+        "Stdout": "${payload.ocr.text}",
         "Arguments": [
           {
             "name": "file",
@@ -40,8 +40,7 @@
       "name": "Load Image File",
       "enabled": true,
       "parameters": {
-        "SourceType": "File",
-        "Filename": "${Filename}"
+        "SourceType": "File"
       }
     },
     {
@@ -57,7 +56,7 @@
       "name": "Print Extracted Text",
       "enabled": true,
       "parameters": {
-        "Text": "${Payload.ExtractedText}"
+        "Text": "${payload.ocr.text}"
       }
     }
   ],

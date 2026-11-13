@@ -6,15 +6,15 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="ThemeListView" TargetType="{x:Type ListView}">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style x:Key="ThemeListViewItem" TargetType="{x:Type ListViewItem}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
@@ -33,12 +33,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TabItemSelectedBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -48,9 +48,9 @@
 
     <!-- A list without columns, e.g. tiles in a WrapPanel: the item shows its template, selected and hovered like ThemeListViewItem -->
     <Style x:Key="ThemeListBox" TargetType="{x:Type ListBox}">
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
@@ -59,7 +59,7 @@
         <!-- Set here: the default style binds them to the list, which fails with "Cannot find source for binding" for grouped lists -->
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
@@ -78,12 +78,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TabItemSelectedBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -95,9 +95,9 @@
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="6,6"/>
-        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-        <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
-        <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).MutedBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).GroupBoxBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Template">

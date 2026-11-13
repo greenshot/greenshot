@@ -115,8 +115,7 @@ namespace Greenshot.Recipes.Steps
                 string stepStr = stepVal.ToString();
                 if (!string.IsNullOrWhiteSpace(stepStr))
                 {
-                    var evaluator = Greenshot.Base.Recipes.Expressions.ExpressionEvaluator.Instance;
-                    return evaluator.Evaluate<string>(stepStr, context);
+                    return Greenshot.Base.Expressions.OutputTemplates.RenderFolder(stepStr, Greenshot.Base.Recipes.Expressions.RecipeExpressions.ScopeOf(context), out _);
                 }
             }
 

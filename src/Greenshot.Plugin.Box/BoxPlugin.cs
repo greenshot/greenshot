@@ -34,6 +34,7 @@ using Greenshot.Plugin.Box.Destinations;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Box.Recipes;
 using Greenshot.Plugin.Box.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.Box;
 
@@ -91,7 +92,7 @@ public class BoxPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvi
     public async Task<string> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
     {
         var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        string filename = OutputTemplates.UploadFileName(captureDetails, _config.UploadFormat);
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
         string url = await userInteraction.RunWithProgressAsync(Texts.Get<IBoxLanguage>().CommunicationWait,

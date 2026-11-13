@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -31,71 +32,83 @@ namespace Greenshot.Plugin.ExternalCommand;
 [Description("Greenshot ExternalCommand Plugin configuration")]
 public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 {
-    [Description("The commands that are available.")]
+    [Description("True when the commands of Greenshot 1.3 (the keys below) were converted into files of the Commands folder; they are only read once and kept for going back to 1.3.")]
+    [NotAdministrable]
+    bool DefinitionsConverted { get; set; }
+
+    [Description("Greenshot 1.3: the commands that are available.")]
     List<string> Commands { get; set; }
 
-    [Description("Redirect the standard error of all external commands, used to output as warning to the greenshot.log.")]
+    [Description("Greenshot 1.3: redirect the standard error of all external commands.")]
     [DefaultValue(true)]
     bool RedirectStandardError { get; set; }
 
-    [Description("Redirect the standard output of all external commands, used for different other functions (more below).")]
+    [Description("Greenshot 1.3: redirect the standard output of all external commands.")]
     [DefaultValue(true)]
     bool RedirectStandardOutput { get; set; }
 
-    [Description("Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be useful for debugging.")]
+    [Description("Greenshot 1.3: show the standard output of all external commands in the log.")]
     [DefaultValue(false)]
     bool ShowStandardOutputInLog { get; set; }
 
     [DataMember(Name = "ParseForUri")]
-    [Description("Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.")]
+    [Description("Greenshot 1.3: parse the output for a URI.")]
     [DefaultValue(true)]
     bool ParseOutputForUri { get; set; }
 
-    [Description("Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.")]
+    [Description("Greenshot 1.3: place the standard output on the clipboard.")]
     [DefaultValue(false)]
     bool OutputToClipboard { get; set; }
 
-    [Description("Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)")]
+    [Description("Greenshot 1.3: place a URI found in the output on the clipboard.")]
     [DefaultValue(true)]
     bool UriToClipboard { get; set; }
 
-    [Description("The commandline for the output command.")]
+    [Description("Greenshot 1.3: the commandline ({0} for the file).")]
     Dictionary<string, string> Commandline { get; set; }
 
-    [Description("The arguments for the output command.")]
+    [Description("Greenshot 1.3: the arguments ({0} for the file).")]
     Dictionary<string, string> Argument { get; set; }
 
-    [Description("The output file format for the output command.")]
+    [Description("The program of a command before the definitions (early 1.4 builds), only read to convert it.")]
+    Dictionary<string, string> CommandlineTemplate { get; set; }
+
+    [Description("The arguments of a command before the definitions (early 1.4 builds), only read to convert it.")]
+    Dictionary<string, string> ArgumentTemplate { get; set; }
+
+    [Description("Greenshot 1.3: the output file format per command.")]
     Dictionary<string, string> OutputFormat { get; set; }
 
-    [Description("Should the command be started in the background.")]
+    [Description("Greenshot 1.3: start the command in the background.")]
     Dictionary<string, bool> RunInbackground { get; set; }
 
-    [Description("Redirect standard error for the output command.")]
+    [Description("Greenshot 1.3: redirect standard error per command.")]
     Dictionary<string, bool> RedirectStandardErrorCommand { get; set; }
 
-    [Description("Redirect standard output for the output command.")]
+    [Description("Greenshot 1.3: redirect standard output per command.")]
     Dictionary<string, bool> RedirectStandardOutputCommand { get; set; }
 
-    [Description("Show standard output in log for the output command.")]
+    [Description("Greenshot 1.3: show standard output in the log per command.")]
     Dictionary<string, bool> ShowStandardOutputInLogCommand { get; set; }
 
-    [Description("Parse output for URI for the output command.")]
+    [Description("Greenshot 1.3: parse the output for a URI per command.")]
     Dictionary<string, bool> ParseOutputForUriCommand { get; set; }
 
-    [Description("Copy standard output to clipboard for the output command.")]
+    [Description("Greenshot 1.3: copy the standard output to the clipboard per command.")]
     Dictionary<string, bool> OutputToClipboardCommand { get; set; }
 
-    [Description("Copy found URI to clipboard for the output command.")]
+    [Description("Greenshot 1.3: copy a found URI to the clipboard per command.")]
     Dictionary<string, bool> UriToClipboardCommand { get; set; }
 
-    [Description("If a build in command was deleted manually, it should not be recreated.")]
+    [Description("The built-in commands (MS Paint, Paint.NET) which were deleted in Greenshot 1.3: they aren't offered.")]
     List<string> DeletedBuildInCommands { get; set; }
 
+    [Description("The commands (by name, the built-in ones too) which are turned off: they get no destination and recipes can't use them.")]
+    List<string> DisabledCommands { get; set; }
+
     /// <summary>
-    /// Deletes the configuration for the specified command.
+    /// Mark the section as changed after the dictionaries were changed.
     /// Implemented in <see cref="ExternalCommandConfigurationImpl"/>.
     /// </summary>
-    /// <param name="command">Name of the command to delete</param>
-    void Delete(string command);
+    void MarkChanged();
 }

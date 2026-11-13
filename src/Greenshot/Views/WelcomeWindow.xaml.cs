@@ -55,14 +55,14 @@ namespace Greenshot.Views
         public event PropertyChangedEventHandler PropertyChanged;
 
         // Theme brushes bound to XAML
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
-        public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
+        public SolidColorBrush WarningTextBrush => ThemeManager.Instance.CurrentPalette.WarningText;
 
         /// <summary>
         /// The capture hotkeys of the user with what they do
@@ -119,7 +119,7 @@ namespace Greenshot.Views
             _tipIndex = _rand.Next(Tips().Length);
             InitializeLanguage();
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
             Unloaded += OnWindowUnloaded;
             Loaded += (sender, args) => FocusStep();
@@ -356,7 +356,7 @@ namespace Greenshot.Views
 
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             Texts.Config.LanguageChanged -= OnLanguageChanged;
         }
 

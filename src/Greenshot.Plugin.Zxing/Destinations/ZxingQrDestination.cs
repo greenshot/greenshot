@@ -39,7 +39,7 @@ namespace Greenshot.Plugin.Zxing.Destinations
         /// <summary>
         /// The icon of the destination: the QR icon of imageres.dll
         /// </summary>
-        public static string IconKey { get; } = DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
+        public static string IconKey { get; } = DestinationIcons.Exe(System.IO.Path.Combine(System.Environment.SystemDirectory, "imageres.dll"), 97);
 
         public override string Designation => "ZxingQrDestination";
 

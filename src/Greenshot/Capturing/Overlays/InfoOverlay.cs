@@ -119,7 +119,8 @@ namespace Greenshot.Capturing.Overlays
                 _viewModel.Selection = $"{FormatSize(size.Width, size.Height)} @ {FormatPoint(selection.X + screenBounds.X, selection.Y + screenBounds.Y)}";
             }
 
-            _viewModel.Window = Host.FindWindowUnderCursor(false)?.GetCaption() ?? string.Empty;
+            // The title the capture gets (e.g. without the browser name), the title fixes are applied when the selection ends
+            _viewModel.Window = TitleFix.Fix(Host.FindWindowUnderCursor(false)?.GetCaption());
             var cursor = Host.CursorPosition;
             _viewModel.Mouse = FormatPoint(cursor.X + screenBounds.X, cursor.Y + screenBounds.Y);
         }

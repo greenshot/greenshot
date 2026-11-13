@@ -324,7 +324,8 @@ namespace Greenshot.Ai
                 image = result?.Png == null ? null : new
                 {
                     mime_type = "image/png",
-                    data = Convert.ToBase64String(result.Png),
+                    // A byte[] is written as base64 straight into the UTF-8 reply
+                    data = result.Png,
                     width = result.Width,
                     height = result.Height,
                     original_width = result.OriginalWidth,

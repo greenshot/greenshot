@@ -319,13 +319,19 @@ namespace Greenshot.Recipes.Pipeline
                         if (step != null && !(step is IEvaluatesOwnParameters))
                         {
                             var resolvedConfig = translatedConfig.Clone();
-                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(translatedConfig.Parameters, nodeContext);
+                            resolvedConfig.Parameters = RecipeExpressions.ResolveParameters(translatedConfig.Parameters, nodeContext, contract);
                             step = _stepFactory(resolvedConfig);
                         }
                         if (step == null)
                         {
                             Log.WarnFormat("Could not resolve executable step for node '{0}' [{1}]", nodeConfig.Id, nodeConfig.StepType);
                             nodeContext.LogStep($"Warning: unresolved step factory for node '{nodeConfig.Id}' [{nodeConfig.StepType}]");
+                        }
+                        else if (UsedDestinations.FirstNotAllowed(step) is { } notAllowed)
+                        {
+                            // A destination which is switched off or blocked is never used, also not by a step of its own
+                            Log.WarnFormat("Skipped DAG node [{0}] '{1}': the destination '{2}' is switched off or blocked", nodeConfig.Id, step.Name, notAllowed);
+                            nodeContext.LogStep($"Warning: skipped node [{nodeConfig.Id}] {step.Name}, the destination '{notAllowed}' is switched off or blocked.");
                         }
                         else
                         {
@@ -484,7 +490,7 @@ namespace Greenshot.Recipes.Pipeline
                                 break;
                             }
 
-                            bool isMet = ExpressionEvaluator.Instance.Evaluate<bool>(exp, nodeContext, false);
+                            bool isMet = RecipeExpressions.IsMet(exp, nodeContext);
                             if (isMet)
                             {
                                 matchedBranchKey = b.Key;

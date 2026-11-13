@@ -35,6 +35,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Video;
+using Greenshot.Base.Expressions;
 using log4net;
 
 namespace Greenshot.Recipes.Steps
@@ -72,7 +73,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("PreventSleepWhileRecording", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the PC awake while recording")]
     [StepParameter("AutoPauseOnSessionLock", ContractDataType.Boolean, DefaultValue = true, Description = "Pause while the PC is locked")]
     [StepParameter("OutputDirectory", ContractDataType.DirectoryPath, Description = "Directory to write to")]
-    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name in OutputDirectory, {yyyyMMdd_HHmmss} is the start time (default Greenshot_{yyyyMMdd_HHmmss}.mp4)")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Purpose = TemplatePurpose.FileName, Description = "File name in OutputDirectory, e.g. Greenshot_${time.now:yyyyMMdd_HHmmss}.mp4 (the default)")]
     [StepInputVariable("SourceType", ContractDataType.Enum, Description = "What to record, when the parameter is not set")]
     [StepInputVariable("WindowHandle", ContractDataType.Object, Description = "Window to record (set by the caller)")]
     [StepInputVariable("CaptureRegion", ContractDataType.Object, Description = "Region to record (set by the caller)")]
@@ -363,10 +364,10 @@ namespace Greenshot.Recipes.Steps
 
             if (!string.IsNullOrWhiteSpace(outputDir))
             {
-                string outputPath = Path.Combine(outputDir, !string.IsNullOrWhiteSpace(filenamePattern) ? filenamePattern : "Greenshot_{yyyyMMdd_HHmmss}.mp4");
-                outputPath = Environment.ExpandEnvironmentVariables(outputPath);
-                outputPath = outputPath.Replace("{yyyyMMdd_HHmmss}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-                options.OutputFilePath = outputPath;
+                // The engine rendered both: the folder (a DirectoryPath) and the file name
+                options.OutputFilePath = Path.Combine(outputDir, !string.IsNullOrWhiteSpace(filenamePattern)
+                    ? filenamePattern
+                    : $"Greenshot_{DateTime.Now:yyyyMMdd_HHmmss}.mp4");
             }
 
             return options;

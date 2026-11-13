@@ -31,6 +31,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -120,6 +121,8 @@ namespace Greenshot.Destinations
             var outputSettings = _options?.OutputSettings ?? new SurfaceOutputSettings();
             FileExistsAction ifExists;
             string fullPath;
+            // A name made from the template: its counters go up once the file is written
+            RenderedFileName generated = null;
             if (_options?.FilePath != null)
             {
                 // The file of the flow is a new name: the settings decide, unless the flow does
@@ -137,7 +140,8 @@ namespace Greenshot.Destinations
             }
             else
             {
-                fullPath = await CreateNewFilenameAsync(captureDetails, request.Ui, cancellationToken).ConfigureAwait(false);
+                generated = await CreateNewFilenameAsync(captureDetails, request.Ui, cancellationToken).ConfigureAwait(false);
+                fullPath = generated?.FullPath;
                 // As we generate a file, the configuration tells us if we allow to overwrite
                 ifExists = _options?.IfFileExists ?? CoreConfig.OutputFileIfExists;
             }
@@ -161,6 +165,7 @@ namespace Greenshot.Destinations
                 var hdrResult = await TrySaveHdrAsync(request, fullPath, ifExists, cancellationToken).ConfigureAwait(false);
                 if (hdrResult != null)
                 {
+                    generated?.Commit();
                     return hdrResult;
                 }
                 // Without it the normal file is saved (the log tells why; a recipe can ask before with payload.hdr)
@@ -191,6 +196,7 @@ namespace Greenshot.Destinations
                 // A file on this computer gets every detail of ExportMetadata, also the private ones
                 outputSettings.IncludePrivateMetadata = true;
                 fullPath = await ExportFiles.SaveAsync(request.Source, fullPath, overwrite, outputSettings, cancellationToken).ConfigureAwait(false);
+                generated?.Commit();
             }
             catch (FileAlreadyExistsException ex)
             {
@@ -504,33 +510,29 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// Create the filename for a new capture from the configured pattern, when the pattern is invalid the user can fix it in the settings.
+        /// Create the file name for a new capture from the configured folder and file name templates, when the name is invalid the user can
+        /// fix it in the settings. Commit the result when the file was written, so its counters go up.
         /// </summary>
-        internal static async Task<string> CreateNewFilenameAsync(ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
+        internal static async Task<RenderedFileName> CreateNewFilenameAsync(ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
         {
             Log.InfoFormat("Creating new filename");
-            string pattern = CoreConfig.OutputFileFilenamePattern;
-            if (string.IsNullOrEmpty(pattern))
-            {
-                pattern = "greenshot ${capturetime}";
-            }
-
-            string filename = FilenameHelper.GetFilenameFromPattern(pattern, CoreConfig.OutputFileFormat, captureDetails);
-            string filepath = CoreConfig.GetOutputDirectory(out string folderProblem);
+            var scope = VariableScope.ForCapture(captureDetails);
+            string filepath = CoreConfig.GetOutputDirectory(scope, out string folderProblem);
             if (folderProblem != null)
             {
                 // Saved to the default folder this time: say so, instead of letting the screenshot "disappear"
-                string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfig.OutputFilePath, folderProblem, filepath);
+                string message = string.Format(Texts.Core.ErrorOutputfolderFallback, CoreConfig.OutputDirectory, folderProblem, filepath);
                 userInteraction.NotifyAsync(new Notification(NotificationKind.Warning, message)).FireAndLog("Screenshot folder fallback notification", Log);
             }
             try
             {
-                return Path.Combine(filepath, filename);
+                scope.TargetFolder = filepath;
+                return OutputTemplates.RenderFileName(null, FileFormatRegistry.GetPreferredExtensionWithDot(CoreConfig.OutputFileFormat), scope);
             }
             catch (ArgumentException)
             {
                 // configured filename or path not valid, show error message...
-                Log.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, filename);
+                Log.InfoFormat("Generated path or filename not valid: {0}, {1}", filepath, OutputTemplates.FileNameTemplate);
                 if (!userInteraction.IsInteractive)
                 {
                     throw;

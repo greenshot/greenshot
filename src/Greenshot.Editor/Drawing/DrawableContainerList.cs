@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Forms;
@@ -261,7 +262,8 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var dc in this)
             {
-                if (dc.DrawingBounds.IntersectsWith(clipRectangle) && dc.HasFilters && dc.Status == EditStatus.IDLE)
+                // The cheap checks first, the drawing bounds are calculated
+                if (dc.HasFilters && dc.Status == EditStatus.IDLE && dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
                     return true;
                 }
@@ -364,7 +366,7 @@ namespace Greenshot.Editor.Drawing
         /// <returns>A comma-separated string of inverted filter type names, or null if no inverted filters exist.</returns>
         private static string GetInvertedFilterGroupKey(DrawableContainer dc)
         {
-            if (dc == null || !dc.HasFilters)
+            if (dc == null || !dc.HasInvertedFilter)
             {
                 return null;
             }
@@ -402,7 +404,7 @@ namespace Greenshot.Editor.Drawing
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
-                if (dc.Parent == null || !dc.HasFilters)
+                if (dc.Parent == null || !dc.HasInvertedFilter)
                 {
                     continue;
                 }
@@ -844,6 +846,58 @@ namespace Greenshot.Editor.Drawing
             {
                 surfaceElement.AddContextMenuItems(menu, surface, mouseEventArgs);
             }
+
+            // Copy the style or size of one element, apply it to the selected ones (also in another editor window)
+            AddStyleAndSizeItems(menu, surface);
+
+            // The panel area with the sections of the selection, for every element
+            if (surface is Surface editorSurface)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                item = new ToolStripMenuItem(Texts.Editor.PanelProperties);
+                item.Click += delegate { editorSurface.RequestProperties(); };
+                menu.Items.Add(item);
+            }
+        }
+
+        private void AddStyleAndSizeItems(ContextMenuStrip menu, ISurface surface)
+        {
+            bool canCopy = ElementStyleClipboard.CanCopy(this);
+            bool canApplyStyle = ElementStyleClipboard.CanApplyStyle(this);
+            bool canApplySize = ElementStyleClipboard.CanApplySize(this);
+            if (!canCopy && !canApplyStyle && !canApplySize)
+            {
+                return;
+            }
+
+            menu.Items.Add(new ToolStripSeparator());
+            if (canCopy)
+            {
+                var copyStyle = new ToolStripMenuItem(Texts.Editor.CopyStyle);
+                copyStyle.Click += delegate { ElementStyleClipboard.CopyStyle(this[0]); };
+                menu.Items.Add(copyStyle);
+            }
+
+            if (canApplyStyle)
+            {
+                var applyStyle = new ToolStripMenuItem(Texts.Editor.ApplyStyle);
+                applyStyle.Click += delegate { ElementStyleClipboard.ApplyStyle(surface, this); };
+                menu.Items.Add(applyStyle);
+            }
+
+            if (canCopy)
+            {
+                var copySize = new ToolStripMenuItem(Texts.Editor.CopySize);
+                copySize.Click += delegate { ElementStyleClipboard.CopySize(this[0]); };
+                menu.Items.Add(copySize);
+            }
+
+            if (canApplySize)
+            {
+                var applySize = new ToolStripMenuItem(Texts.Editor.ApplySize);
+                applySize.Click += delegate { ElementStyleClipboard.ApplySize(surface, this); };
+                menu.Items.Add(applySize);
+            }
         }
 
         public virtual void ShowContextMenu(MouseEventArgs mouseEventArgs, ISurface iSurface)
@@ -865,6 +919,7 @@ namespace Greenshot.Editor.Drawing
                 menu.Dispose();
                 return;
             }
+            EditorTheme.ApplyRenderer(menu);
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
         }
 

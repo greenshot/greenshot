@@ -174,9 +174,15 @@ namespace Greenshot.Base.Controls
             base.OnHandleCreated(e);
             if (!DesignMode)
             {
-                WindowFrameTheme.Attach(Handle);
+                WindowFrameTheme.Attach(Handle, IsDarkTitleBar);
             }
         }
+
+        /// <summary>
+        /// A form with its own theme setting (the editor) decides here if its title bar is dark, null follows Greenshot's theme.
+        /// When the answer changes, the form calls <see cref="WindowFrameTheme.Update"/>.
+        /// </summary>
+        protected virtual Func<bool> IsDarkTitleBar => null;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

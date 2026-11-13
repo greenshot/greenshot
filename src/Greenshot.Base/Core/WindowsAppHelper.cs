@@ -233,8 +233,13 @@ public static class WindowsAppHelper
             string expandedCmd = null;
             if (!string.IsNullOrWhiteSpace(commandLine))
             {
-                expandedCmd = FilenameHelper.FillVariables(commandLine, true);
-                expandedCmd = FilenameHelper.FillCmdVariables(expandedCmd, true);
+                expandedCmd = Greenshot.Base.Expressions.OutputTemplates.RenderCommand(commandLine, Greenshot.Base.Expressions.VariableScope.Empty, out _);
+            }
+
+            // 0. A Windows App by its app id: shell:AppsFolder\<family>!<app>
+            if (WindowsAppLauncher.AppIdOf(expandedCmd) is { } appId)
+            {
+                return packageManager.FindPackagesForUser(string.Empty, appId.Substring(0, appId.IndexOf('!'))).LastOrDefault();
             }
 
             // 1. Check if the path is an AppExecutionAlias reparse point (e.g. in %LOCALAPPDATA%\Microsoft\WindowsApps\)

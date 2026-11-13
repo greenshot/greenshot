@@ -31,7 +31,7 @@ using Xunit;
 namespace Greenshot.Tests.Recipes
 {
     /// <summary>
-    /// Triggers which read the general settings: the hotkeys of the built-in recipes ("${config.RegionHotkey}")
+    /// Triggers which read the general settings: the hotkeys of the built-in recipes ("${config.Core.RegionHotkey}")
     /// and a trigger's 'when'
     /// </summary>
     public class RecipeTriggerSettingTests
@@ -42,12 +42,12 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
-        [InlineData(RecipeManager.RecipeIdRegion, "${config.RegionHotkey}")]
-        [InlineData(RecipeManager.RecipeIdWindow, "${config.WindowHotkey}")]
-        [InlineData(RecipeManager.RecipeIdActiveWindow, "${config.WindowHotkey}")]
-        [InlineData(RecipeManager.RecipeIdFullScreen, "${config.FullscreenHotkey}")]
-        [InlineData(RecipeManager.RecipeIdLastRegion, "${config.LastregionHotkey}")]
-        [InlineData(RecipeManager.RecipeIdClipboard, "${config.ClipboardHotkey}")]
+        [InlineData(RecipeManager.RecipeIdRegion, "${config.Core.RegionHotkey}")]
+        [InlineData(RecipeManager.RecipeIdWindow, "${config.Core.WindowHotkey}")]
+        [InlineData(RecipeManager.RecipeIdActiveWindow, "${config.Core.WindowHotkey}")]
+        [InlineData(RecipeManager.RecipeIdFullScreen, "${config.Core.FullscreenHotkey}")]
+        [InlineData(RecipeManager.RecipeIdLastRegion, "${config.Core.LastregionHotkey}")]
+        [InlineData(RecipeManager.RecipeIdClipboard, "${config.Core.ClipboardHotkey}")]
         public void BuiltInRecipe_HasTheHotkeyOfTheSettings(string recipeId, string hotkey)
         {
             var recipe = new RecipeManager().GetRecipeById(recipeId);
@@ -62,11 +62,11 @@ namespace Greenshot.Tests.Recipes
         public void WindowHotkey_StartsOneOfTheWindowRecipes()
         {
             var manager = new RecipeManager();
-            string interactive = manager.GetRecipeById(RecipeManager.RecipeIdWindow).Triggers.Single().When;
-            string active = manager.GetRecipeById(RecipeManager.RecipeIdActiveWindow).Triggers.Single().When;
+            string interactive = manager.GetRecipeById(RecipeManager.RecipeIdWindow).Triggers.Single(t => t.TriggerType == TriggerConfig.TypeHotkey).When;
+            string active = manager.GetRecipeById(RecipeManager.RecipeIdActiveWindow).Triggers.Single(t => t.TriggerType == TriggerConfig.TypeHotkey).When;
 
-            Assert.Equal("${config.CaptureWindowsInteractive}", interactive);
-            Assert.Equal("${config.CaptureWindowsInteractive == false}", active);
+            Assert.Equal("${config.Core.CaptureWindowsInteractive}", interactive);
+            Assert.Equal("${config.Core.CaptureWindowsInteractive == false}", active);
         }
 
         [Fact]
@@ -85,9 +85,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
-        [InlineData("${config.NoSuchSetting}", true)]
-        [InlineData("${config.CaptureWindowsInteractive}", true)]
-        [InlineData("${config.RegionHotkey}", false)]
+        [InlineData("${config.Core.NoSuchSetting}", true)]
+        [InlineData("${config.Core.CaptureWindowsInteractive}", true)]
+        [InlineData("${config.Core.RegionHotkey}", false)]
         public void Validator_TakesOnlyTextSettingsAsHotkey(string hotkey, bool error)
         {
             var recipe = CreateRecipe("trigger_setting_hotkey");

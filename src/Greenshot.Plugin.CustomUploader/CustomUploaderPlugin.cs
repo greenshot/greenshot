@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -39,6 +40,7 @@ using Greenshot.Plugin.CustomUploader.Recipes;
 using Greenshot.Plugin.CustomUploader.Sxcu;
 using Greenshot.Plugin.CustomUploader.ViewModels;
 using Greenshot.Plugin.CustomUploader.Views;
+using Greenshot.Base.Expressions;
 
 namespace Greenshot.Plugin.CustomUploader;
 
@@ -87,12 +89,33 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         registry.Register<CustomUploaderStep>(config => new CustomUploaderStep(config, this));
     }
 
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
+    /// <summary>
+    /// Like the recipe files: an uploader file added or changed outside Greenshot is left out at the start, once Greenshot runs
+    /// the user sees where it sends the captures and decides whether to use it
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        if (IsEnabled)
+        {
+            DefinitionApprovalAtStartup.AskWhenIdle(CreateStore, ConfirmAtStartup);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static bool ConfirmAtStartup(StoredDefinition<UploaderDefinition> stored) =>
+        DefinitionImport.Confirm(null, CustomUploaderSettingsViewModel.DescribeApproval(stored.Definition, CreateStore(), stored.Id),
+            new[] { Language.ApproveButton, Language.ApproveLater }) == 0;
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
-    /// The uploaders and uploads of the configuration, empty before the plugin registered it
+    /// The folder of the uploaders, next to greenshot.ini: one .sxcu file per uploader, the keys in it encrypted
+    /// </summary>
+    internal static string FolderPath => DefinitionFolder.NextToConfiguration("Uploaders");
+
+    /// <summary>
+    /// The uploaders of the Uploaders folder and the uploads of the configuration, empty before the plugin registered it
     /// </summary>
     internal static UploaderStore CreateStore()
     {
@@ -103,19 +126,13 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         }
 
         config.OnAfterLoad();
-        return new UploaderStore(config.Uploaders, config.UploadHistory, () =>
+        return new UploaderStore(DefinitionFolder.Open(FolderPath, UploaderFile.FileExtension, UploaderFile.MaximumLength), config.UploadHistory, () =>
         {
             config.MarkChanged();
             // Saved at once: an import is confirmed, and a deletion link must not get lost
             IniConfigRegistry.Get()?.Save();
         }, icons: config.UploaderIcons, reminders: config.UploadReminders);
     }
-
-    /// <summary>
-    /// What the user approves for a recipe: the uploader and its server
-    /// </summary>
-    internal static RecipeGatedAction CreateGatedAction(UploaderDefinition definition) =>
-        new RecipeGatedAction(RecipeGateType.NetworkAccess, $"{definition.Name} ({UploaderFile.DescribeServer(definition)})");
 
     /// <summary>
     /// Upload the capture with the uploader, shows the progress to the user, puts the link on the clipboard and keeps the upload.
@@ -130,7 +147,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
             return ExportResult.Declined;
         }
 
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(outputSettings.Format, captureDetails));
+        string filename = OutputTemplates.UploadFileName(captureDetails, outputSettings.Format);
         var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
 
         UploaderResponse response;
@@ -264,6 +281,5 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
     /// <summary>
     /// The readable uploaders
     /// </summary>
-    internal static UploaderDefinition[] GetUploaders() =>
-        CreateStore().GetUploaders().Where(uploader => uploader.Definition != null).Select(uploader => uploader.Definition).ToArray();
+    internal static IReadOnlyList<UploaderDefinition> GetUploaders() => CreateStore().GetReadable();
 }

@@ -302,9 +302,9 @@ namespace Greenshot.Tests.Ipc
             using (var pipeServer = CreatePipeServer())
             {
                 var connectTask = pipeServer.WaitForConnectionAsync();
-                using (var process = Process.Start(CreateStartInfo(ProxyBinaries.Proxy, "chrome-extension://test-extension-id/ --parent-window=0", redirectInput: true)))
+                // Not System.Diagnostics.Process: its StandardInput can put a UTF-8 BOM in front of the first frame
+                using (var process = PipedChildProcess.Start(ProxyBinaries.Find(ProxyBinaries.Proxy), "chrome-extension://test-extension-id/ --parent-window=0", Path.GetTempPath()))
                 {
-                    Assert.NotNull(process);
                     try
                     {
                         await StepAsync("connect", () => connectTask);
@@ -318,17 +318,17 @@ namespace Greenshot.Tests.Ipc
 
                         // Extension -> proxy stdin -> pipe
                         string message = "{\"command\":\"TAB_CHANGED\",\"url\":\"https://example.com/\"}";
-                        await StepAsync("write message to proxy stdin", () => Task.Run(() => WriteFrame(process.StandardInput.BaseStream, Encoding.UTF8.GetBytes(message))));
+                        await StepAsync("write message to proxy stdin", () => Task.Run(() => WriteFrame(process.StandardInput, Encoding.UTF8.GetBytes(message))));
                         byte[] relayed = await StepAsync("read relayed message from pipe", () => ReadFrameAsync(pipeServer));
                         Assert.Equal(message, Encoding.UTF8.GetString(relayed));
 
                         // Pipe -> proxy stdout -> extension
                         string response = "{\"status\":\"ok\",\"reply\":\"Hello from Greenshot\"}";
                         await StepAsync("write response to pipe", () => WriteFrameAsync(pipeServer, Encoding.UTF8.GetBytes(response)));
-                        byte[] received = await StepAsync("read response from proxy stdout", () => Task.Run(() => ReadFrame(process.StandardOutput.BaseStream)));
+                        byte[] received = await StepAsync("read response from proxy stdout", () => Task.Run(() => ReadFrame(process.StandardOutput)));
                         Assert.Equal(response, Encoding.UTF8.GetString(received));
 
-                        await StepAsync("close proxy stdin", () => Task.Run(() => process.StandardInput.Close()));
+                        await StepAsync("close proxy stdin", () => Task.Run(() => process.StandardInput.Dispose()));
                         bool exited = await StepAsync("wait for proxy exit", () => Task.Run(() => process.WaitForExit(5000)));
                         Assert.True(exited, "Proxy should exit when the extension closes stdin.");
                     }
@@ -339,7 +339,7 @@ namespace Greenshot.Tests.Ipc
                     }
                     finally
                     {
-                        KillIfRunning(process);
+                        process.Kill();
                     }
                 }
             }

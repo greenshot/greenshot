@@ -46,6 +46,11 @@ namespace Greenshot.Base.Core
             throw new InteractionRequiredException("Save file dialog");
         }
 
+        public Task<string> PickOpenFileAsync(CancellationToken cancellationToken)
+        {
+            throw new InteractionRequiredException("Open file dialog");
+        }
+
         public Task<SurfaceOutputSettings> PromptOutputSettingsAsync(SurfaceOutputSettings current, CancellationToken cancellationToken)
         {
             // Keep the current settings

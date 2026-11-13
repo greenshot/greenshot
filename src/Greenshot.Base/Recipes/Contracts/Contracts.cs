@@ -60,6 +60,19 @@ namespace Greenshot.Base.Recipes.Contracts
         /// <summary>A text the user sees, which the translations of a recipe can translate, see <see cref="StepParameterAttribute.Translatable"/>.</summary>
         public bool Translatable { get; set; }
 
+        /// <summary>Where the ${...} of the value is used, null for the default of the data type, see <see cref="EffectivePurpose"/></summary>
+        public Greenshot.Base.Expressions.TemplatePurpose? Purpose { get; set; }
+
+        /// <summary>Folder for paths, else Value, unless <see cref="Purpose"/> says otherwise</summary>
+        [JsonIgnore]
+        public Greenshot.Base.Expressions.TemplatePurpose EffectivePurpose =>
+            Purpose ?? (DataType == ContractDataType.DirectoryPath || DataType == ContractDataType.FilePath
+                ? Greenshot.Base.Expressions.TemplatePurpose.Folder
+                : Greenshot.Base.Expressions.TemplatePurpose.Value);
+
+        /// <summary>The step renders the template itself (it knows the folder or the written file), the engine leaves it as it is</summary>
+        public bool RenderedByStep { get; set; }
+
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>
         public bool Matches(string parameterName) => string.Equals(Name, parameterName, StringComparison.OrdinalIgnoreCase);
 
@@ -89,7 +102,7 @@ namespace Greenshot.Base.Recipes.Contracts
     /// </summary>
     /// <remarks>
     /// A name can contain placeholders that depend on the node, see <see cref="ResolveNames"/>:
-    /// <c>{NodeId}</c> is the node's id, <c>{Parameter:A}</c> the value of parameter A,
+    /// <c>{NodeId}</c> is the node's id, <c>{Parameter:A}</c> the value of parameter A (<c>{Parameter:A|x}</c>: x when A isn't set),
     /// and a name that is only <c>{ParameterKeys:X}</c> stands for every key of the dictionary parameter X.
     /// </remarks>
     public class VariableContract
@@ -152,7 +165,16 @@ namespace Greenshot.Base.Recipes.Contracts
                 int end = result.IndexOf('}', start);
                 if (end < 0) return Array.Empty<string>();
                 string parameterName = result.Substring(start + parameterPrefix.Length, end - start - parameterPrefix.Length);
+                // {Parameter:A|x}: x when A isn't set
+                string fallback = null;
+                int bar = parameterName.IndexOf('|');
+                if (bar >= 0)
+                {
+                    fallback = parameterName.Substring(bar + 1);
+                    parameterName = parameterName.Substring(0, bar);
+                }
                 string value = node?.GetParameter<object>(parameterName)?.ToString();
+                if (string.IsNullOrWhiteSpace(value)) value = fallback;
                 if (string.IsNullOrWhiteSpace(value)) return Array.Empty<string>();
                 result = result.Substring(0, start) + value + result.Substring(end + 1);
             }

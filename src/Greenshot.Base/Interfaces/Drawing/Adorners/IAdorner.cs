@@ -49,10 +49,10 @@ namespace Greenshot.Base.Interfaces.Drawing.Adorners
         IDrawableContainer Owner { get; }
 
         /// <summary>
-        /// Is the current point "over" the Adorner?
-        /// If this is the case, the
+        /// Is the point "over" the Adorner? The adorner is drawn in screen pixels, whatever the zoom, so the point is in surface
+        /// (client) coordinates, not in image coordinates.
         /// </summary>
-        /// <param name="point">Point to test</param>
+        /// <param name="point">Point to test, in surface coordinates</param>
         /// <returns>true if so</returns>
         bool HitTest(NativePoint point);
 

@@ -18,6 +18,67 @@ using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
+    /// <summary>
+    /// A recipe from the catalog in the list of the update check
+    /// </summary>
+    public class CatalogRecipeItemViewModel : ViewModelBase
+    {
+        public CatalogRecipeItemViewModel(RecipeCatalogStatus status, Action update)
+        {
+            Status = status ?? throw new ArgumentNullException(nameof(status));
+            UpdateCommand = new RelayCommand(() => update?.Invoke(), () => status.CanUpdate);
+        }
+
+        public RecipeCatalogStatus Status { get; }
+
+        public string Name => Status.Name;
+
+        public string Id => Status.Id;
+
+        public string Versions => string.Format(Texts.Get<IRecipeEditorLanguage>().ManagerCatalogVersions,
+            string.IsNullOrWhiteSpace(Status.InstalledVersion) ? "?" : Status.InstalledVersion, Status.CatalogVersion ?? "-");
+
+        /// <summary>
+        /// Why it is listed, or why it can't be updated
+        /// </summary>
+        public string State
+        {
+            get
+            {
+                var texts = Texts.Get<IRecipeEditorLanguage>();
+                var lines = new List<string>();
+                if (!Status.IsLoaded)
+                {
+                    lines.Add(texts.ManagerCatalogNotLoaded);
+                }
+                if (Status.CatalogVersion == null)
+                {
+                    lines.Add(texts.ManagerCatalogRemoved);
+                }
+                else if (Status.NeedsNewerGreenshot)
+                {
+                    lines.Add(string.Format(texts.ManagerCatalogNeedsNewer, Status.MinGreenshot));
+                }
+                else if (!Status.HasUpdate)
+                {
+                    lines.Add(texts.ManagerCatalogNoUpdate);
+                }
+                return string.Join(" ", lines);
+            }
+        }
+
+        public bool HasState => !string.IsNullOrEmpty(State);
+
+        public bool CanUpdate => Status.CanUpdate;
+
+        /// <summary>
+        /// The update buttons of the list are told apart by the recipe name (screen readers)
+        /// </summary>
+        public string UpdateButtonName => $"{Texts.Get<IRecipeEditorLanguage>().ManagerBtnCatalogUpdate}: {Name}";
+
+        public ICommand UpdateCommand { get; }
+    }
+
     public class RecipeManagerItemViewModel : ViewModelBase
     {
         private readonly IRecipeManager _recipeManager;
@@ -203,6 +264,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 return "🌐 " + Texts.Get<IRecipeEditorLanguage>().TriggerBrowserExtension;
             }
+            if (Is(TriggerConfig.TypeNotification))
+            {
+                return "🔔 " + Texts.Get<IRecipeEditorLanguage>().TriggerNotification;
+            }
             if (Is(TriggerConfig.TypeSchedule))
             {
                 return "⏱ " + Texts.Get<IRecipeEditorLanguage>().TriggerSchedule;
@@ -338,9 +403,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ICapturePipeline pipeline = null,
             Action<CaptureRecipe> onSelectRecipeForEditor = null,
             Action onNewRecipeRequested = null,
-            Action<RecipeExtension> onEditExtension = null)
+            Action<RecipeExtension> onEditExtension = null,
+            IRecipeCatalog catalog = null)
         {
             _onEditExtension = onEditExtension;
+            _catalog = catalog ?? SimpleServiceProvider.Current?.GetInstance<IRecipeCatalog>(isOptional: true);
             _recipeManager = recipeManager ?? SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true);
             _pipeline = pipeline ?? SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
             _onSelectRecipeForEditor = onSelectRecipeForEditor;
@@ -352,6 +419,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ResetAllCommand = new RelayCommand(ExecuteResetAll, () => AllRecipes.Any(r => r.IsOverridden));
             CloseCommand = new RelayCommand(() => RequestClose?.Invoke());
             GetMoreRecipesCommand = new RelayCommand(ExecuteGetMoreRecipes);
+            CheckCatalogUpdatesCommand = new RelayCommand(() => AsyncCommand.Run(CheckCatalogUpdatesAsync, "Check the recipes from the catalog for updates"), () => !_isCheckingCatalog);
 
             LoadRecipes();
         }
@@ -437,8 +505,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ExecuteGetMoreRecipes()
         {
-            var version = typeof(EnvironmentInfo).Assembly.GetName().Version;
-            string url = RecipeCatalogUrl + Uri.EscapeDataString(version?.ToString(3) ?? string.Empty);
+            // The catalog filters by the file version (1.4.123), the assembly version is only 1.4.0.0
+            string url = _catalog?.CatalogUrl ?? RecipeCatalogUrl + Uri.EscapeDataString(typeof(EnvironmentInfo).Assembly.GetName().Version?.ToString(3) ?? string.Empty);
             try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
@@ -447,6 +515,63 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 Log.Warn($"Couldn't open {url}", ex);
             }
+        }
+
+        private readonly IRecipeCatalog _catalog;
+        private bool _isCheckingCatalog;
+
+        /// <summary>
+        /// Recipes from the catalog are installed (also ones which can't be loaded), and the catalog may be used
+        /// </summary>
+        public bool CanCheckCatalogUpdates => _catalog?.CanCheckForUpdates == true;
+
+        /// <summary>
+        /// Compares the installed recipes from the catalog with the catalog
+        /// </summary>
+        public ICommand CheckCatalogUpdatesCommand { get; }
+
+        /// <summary>
+        /// The recipes from the catalog with another version there, or which aren't loaded; filled by <see cref="CheckCatalogUpdatesCommand"/>
+        /// </summary>
+        public ObservableCollection<CatalogRecipeItemViewModel> CatalogRecipes { get; } = new ObservableCollection<CatalogRecipeItemViewModel>();
+
+        public bool HasCatalogRecipes => CatalogRecipes.Count > 0;
+
+        internal async Task CheckCatalogUpdatesAsync()
+        {
+            if (_catalog == null || _isCheckingCatalog)
+            {
+                return;
+            }
+            _isCheckingCatalog = true;
+            CommandManager.InvalidateRequerySuggested();
+            StatusMessage = Texts.Get<IRecipeEditorLanguage>().ManagerCatalogChecking;
+            try
+            {
+                var check = await _catalog.CheckForUpdatesAsync();
+                CatalogRecipes.Clear();
+                foreach (var status in check.Recipes ?? Array.Empty<RecipeCatalogStatus>())
+                {
+                    CatalogRecipes.Add(new CatalogRecipeItemViewModel(status, () => AsyncCommand.Run(() => UpdateFromCatalogAsync(status.Id), $"Update the recipe '{status.Id}' from the catalog")));
+                }
+                OnPropertyChanged(nameof(HasCatalogRecipes));
+                StatusMessage = check.Error ?? (CatalogRecipes.Any(r => r.Status.HasUpdate) ? string.Empty : Texts.Get<IRecipeEditorLanguage>().ManagerCatalogUpToDate);
+            }
+            finally
+            {
+                _isCheckingCatalog = false;
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        private async Task UpdateFromCatalogAsync(string recipeId)
+        {
+            if (_catalog == null || !await _catalog.UpdateAsync(recipeId))
+            {
+                return;
+            }
+            LoadRecipes();
+            await CheckCatalogUpdatesAsync();
         }
 
         public void LoadRecipes()
@@ -490,6 +615,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             ApplyFilter();
             UpdateStats();
+            OnPropertyChanged(nameof(CanCheckCatalogUpdates));
         }
 
         private void ApplyFilter()

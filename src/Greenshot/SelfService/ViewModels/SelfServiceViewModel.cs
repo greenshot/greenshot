@@ -46,6 +46,12 @@ namespace Greenshot.SelfService.ViewModels
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
         public ChecksumSectionViewModel ChecksumSection { get; }
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// The settings Windows policies set (Group Policy, Intune), see docs/vNext/policies.md
+        /// </summary>
+        public Greenshot.Policies.PoliciesSectionViewModel PoliciesSection { get; }
+#endif
 
         /// <summary>
         /// The earlier Imgur uploads, null (no section) when there are none
@@ -94,16 +100,16 @@ namespace Greenshot.SelfService.ViewModels
         public string CurrentSectionId => SelectedSection?.Id;
 
         // Theme brushes forwarding for seamless WPF binding
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
-        public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
+        public SolidColorBrush WarningTextBrush => ThemeManager.Instance.CurrentPalette.WarningText;
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? Texts.Core.AccessibleThemeLight : Texts.Core.AccessibleThemeDark;
 
         public SelfServiceViewModel(string initialSectionId = null)
         {
@@ -120,6 +126,10 @@ namespace Greenshot.SelfService.ViewModels
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
             Sections.Add(ChecksumSection);
+#if !GREENSHOT_LIGHT
+            PoliciesSection = new Greenshot.Policies.PoliciesSectionViewModel();
+            Sections.Add(PoliciesSection);
+#endif
             if (ImgurSectionViewModel.HasUploads)
             {
                 ImgurSection = new ImgurSectionViewModel();
@@ -132,7 +142,7 @@ namespace Greenshot.SelfService.ViewModels
 
             SelectSection(initialSectionId ?? "system");
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Texts.Config.LanguageChanged += OnLanguageChanged;
         }
 
@@ -158,7 +168,7 @@ namespace Greenshot.SelfService.ViewModels
 
         public void ToggleTheme()
         {
-            WpfThemeHelper.ToggleTheme();
+            ThemeManager.Instance.ToggleTheme();
         }
 
         private void OnThemeChanged()
@@ -186,7 +196,7 @@ namespace Greenshot.SelfService.ViewModels
 
         public void Cleanup()
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             Texts.Config.LanguageChanged -= OnLanguageChanged;
             ClipboardSection?.StopMonitoring();
             ClipboardSection?.Dispose();

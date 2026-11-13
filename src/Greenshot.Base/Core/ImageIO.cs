@@ -156,6 +156,24 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Write the .greenshot format: the image as PNG, then the serialized elements, their length and the marker "GreenshotXX.YY"
+        /// (see <see cref="LoadGreenshotSurface(Stream, ISurface)"/>). Doesn't touch the surface, so it can run on any thread which owns the image.
+        /// </summary>
+        /// <param name="destination">Stream to write to</param>
+        /// <param name="image">The image of the surface, without the elements</param>
+        /// <param name="elements">The elements, from ISurface.SaveElementsToStream</param>
+        /// <param name="elementsLength">The length SaveElementsToStream returned</param>
+        public static void WriteGreenshotFormat(Stream destination, Image image, MemoryStream elements, long elementsLength)
+        {
+            image.Save(destination, ImageFormat.Png);
+            elements.WriteTo(destination);
+            using var writer = new BinaryWriter(destination, Encoding.ASCII, true);
+            writer.Write(elementsLength);
+            Version v = typeof(ImageIO).Assembly.GetName().Version;
+            writer.Write(Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}"));
+        }
+
+        /// <summary>
         /// Create an image from a surface with the settings from the output settings applied
         /// </summary>
         /// <param name="surface"></param>

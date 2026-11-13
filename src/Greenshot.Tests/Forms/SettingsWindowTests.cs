@@ -203,6 +203,21 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void UnlistedDestinationNames_SkipsDestinationsWhichHaveARow()
+        {
+            var config = new CoreConfigurationImpl();
+            config.ResetToDefaults();
+            config.ExcludeDestinations = new System.Collections.Generic.List<string> { "Printer", "Box" };
+            config.BlockedDestinations = new System.Collections.Generic.List<string> { "box", "Picker" };
+            config.AllowedDestinations = new System.Collections.Generic.List<string>();
+
+            // Printer is registered and switched off by the user: it has its row, a second one would keep it switched off
+            var names = SettingsViewModel.UnlistedDestinationNames(config, new[] { "printer", "FileDefault" });
+
+            Assert.Equal(new[] { "Box" }, names);
+        }
+
+        [Fact]
         public void SettingsViewModel_PluginSelection_ControlsAndPropertiesWork()
         {
             var viewModel = new SettingsViewModel();

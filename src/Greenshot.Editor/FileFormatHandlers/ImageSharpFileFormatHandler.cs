@@ -86,16 +86,12 @@ namespace Greenshot.Editor.FileFormatHandlers
                 PngOptimizer.Save(bitmap, destination, surfaceOutputSettings, metadata);
                 return true;
             }
-            using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
-            if (image == null)
+            if (bitmap == null)
             {
                 return false;
             }
 
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
-
-            // The program name, and the details the user wants, in EXIF and XMP (formats without them skip it)
-            metadata.ApplyTo(image.Metadata);
 
             // Support reducing colors for formats that support it, but only if the setting is enabled
             IQuantizer quantizer = null;
@@ -125,7 +121,14 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            image.Save(destination, encoder);
+
+            // The pixels of the bitmap are read in place where the format allows it, no ImageSharp copy of the image
+            ImageSharpHelper.UsePixels(bitmap, image =>
+            {
+                // The program name, and the details the user wants, in EXIF and XMP (formats without them skip it)
+                metadata.ApplyTo(image.Metadata);
+                image.Save(destination, encoder);
+            });
             return true;
         }
 

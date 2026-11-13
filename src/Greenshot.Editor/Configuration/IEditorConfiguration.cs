@@ -29,8 +29,10 @@ using Dapplo.Ini.Interfaces;
 using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Editor.Drawing;
+using Dapplo.Ini.WindowsPolicies;
 
 namespace Greenshot.Editor.Configuration
 {
@@ -40,11 +42,13 @@ namespace Greenshot.Editor.Configuration
     {
         [Description("Last used colors")]
         [IniValue(ListDelimiter = '|')]
+        [NotAdministrable]
         List<Color> RecentColors { get; set; }
 
         [DataMember(Name = "LastFieldValue")]
         [IniValue(ListDelimiter = '|', WriteComments = IniBooleanOption.Disabled)]
         [Description("Field values, make sure the last used settings are reused")]
+        [NotAdministrable]
         Dictionary<string, object> LastUsedFieldValues { get; set; }
 
         [Description("Match the editor window size to the capture")]
@@ -53,23 +57,32 @@ namespace Greenshot.Editor.Configuration
 
         [Description("Placement flags")]
         [DefaultValue(0)]
+        [NotAdministrable]
         WindowPlacementFlags WindowPlacementFlags { get; set; }
 
         [Description("Show command")]
         [DefaultValue("Normal")]
+        [NotAdministrable]
         ShowWindowCommands ShowWindowCommand { get; set; }
 
         [Description("Position of minimized window")]
         [DefaultValue("-1,-1")]
+        [NotAdministrable]
         NativePoint WindowMinPosition { get; set; }
 
         [Description("Position of maximized window")]
         [DefaultValue("-1,-1")]
+        [NotAdministrable]
         NativePoint WindowMaxPosition { get; set; }
 
         [Description("Position of normal window")]
         [DefaultValue("100,100,400,400")]
+        [NotAdministrable]
         NativeRect WindowNormalPosition { get; set; }
+
+        [Description("The colors of the editor window: Light, Dark or System (follow the Windows app mode). The capture is never changed. A high contrast theme of Windows always wins.")]
+        [DefaultValue("Light")]
+        UiTheme EditorTheme { get; set; }
 
         [Description("Show the captures of an editor window as tabs, when false every capture gets its own window")]
         [DefaultValue(true)]
@@ -148,10 +161,27 @@ namespace Greenshot.Editor.Configuration
 
         [DefaultValue("🙂")]
         [Description("Last used emoji")]
+        [NotAdministrable]
         string RecentEmoji { get; set; }
 
         [IniValue(ListDelimiter = '|')]
         [Description("Emoji picked recently, newest first")]
+        [NotAdministrable]
         List<string> RecentEmojis { get; set; }
+
+        [Description("Width of the panel area at the right of the canvas, in pixels at 100% (96 DPI)")]
+        [DefaultValue(320)]
+        [NotAdministrable]
+        int EditorPanelWidth { get; set; }
+
+        [Description("The panel which was shown last in the panel area of the editor, e.g. Greenshot.Selection")]
+        [DefaultValue("Greenshot.Selection")]
+        [NotAdministrable]
+        string SelectedEditorPanel { get; set; }
+
+        [IniValue(ListDelimiter = '|')]
+        [Description("The sections of the Selection panel which the user collapsed, e.g. Greenshot.SizeAndPosition")]
+        [NotAdministrable]
+        List<string> CollapsedEditorSections { get; set; }
     }
 }

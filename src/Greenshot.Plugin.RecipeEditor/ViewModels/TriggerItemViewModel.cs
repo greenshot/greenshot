@@ -89,7 +89,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         /// <summary>
-        /// The hotkey comes from an option ("${option.key}") or the general settings ("${config.Name}"):
+        /// The hotkey comes from an option ("${option.key}") or the general settings ("${config.Core.Name}"):
         /// the hotkey window can't show it, recording a hotkey would replace the reference
         /// </summary>
         public bool IsHotkeyReference => IsHotkey && (RecipeOptionStore.TryParseReference(Hotkey, out _) || TriggerConfig.TryParseConfigReference(Hotkey, out _));

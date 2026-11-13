@@ -116,7 +116,7 @@ namespace Greenshot.Tests.Forms
         public void HotkeyControls_CanBeInstantiatedOnStaThread()
         {
             Exception threadEx = null;
-            bool initialDarkMode = Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode;
+            bool initialDarkMode = Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme;
             var thread = new Thread(() =>
             {
                 try
@@ -136,7 +136,7 @@ namespace Greenshot.Tests.Forms
                     display.ShowEditButton = true;
                     Assert.Equal(System.Windows.Visibility.Visible, display.EditButtonControl.Visibility);
 
-                    Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode = true;
+                    Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme = true;
                     var modal = new HotkeyEditorView();
                     string savedResult = null;
                     modal.Open("Test Recipe Hotkey", "Ctrl + Shift + R", s => savedResult = s);
@@ -166,7 +166,7 @@ namespace Greenshot.Tests.Forms
                 finally
                 {
                     // Don't leak the dark theme into other tests
-                    Greenshot.Base.Wpf.WpfThemeHelper.IsDarkMode = initialDarkMode;
+                    Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme = initialDarkMode;
                 }
             });
 

@@ -35,7 +35,8 @@ using System.Windows.Data;
 using Dapplo.Windows.Clipboard;
 using Greenshot.Base.Core;
 using Greenshot.Base.Http;
-using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Base.Languages;
 using Greenshot.Plugin.Stamps.Library;
 using log4net;
@@ -43,24 +44,26 @@ using log4net;
 namespace Greenshot.Plugin.Stamps.ViewModels;
 
 /// <summary>
-/// The stamps window: the stamps of the folder, the search, the selected stamp and what can be done with it
+/// The stamps panel of one editor window: the stamps of the folder, the search, the selected stamp and what can be done with it
 /// </summary>
-public sealed class StampsViewModel : INotifyPropertyChanged
+public sealed class StampsViewModel : INotifyPropertyChanged, IDisposable
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(StampsViewModel));
     private readonly ObservableCollection<StampViewModel> _items = new();
     private readonly HashSet<string> _collapsedCategories = new(StringComparer.CurrentCultureIgnoreCase);
-    private readonly Func<IEditorWindow> _activeEditor;
+    private IEditorPanelContext _context;
+    private int _shownVersion = -1;
     private string _searchText = string.Empty;
     private StampViewModel _selectedStamp;
     private string _statusText;
 
-    /// <param name="library">the stamps folder</param>
-    /// <param name="activeEditor">the editor window the stamps are inserted into, null when none is open</param>
-    internal StampsViewModel(StampLibrary library, Func<IEditorWindow> activeEditor)
+    /// <param name="library">the stamps folder, shared by the views of all editor windows</param>
+    /// <param name="context">the editor window: the stamps are inserted into the capture it shows</param>
+    internal StampsViewModel(StampLibrary library, IEditorPanelContext context)
     {
         Library = library ?? throw new ArgumentNullException(nameof(library));
-        _activeEditor = activeEditor ?? throw new ArgumentNullException(nameof(activeEditor));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context.CurrentSurfaceChanged += OnCurrentSurfaceChanged;
         Stamps = CollectionViewSource.GetDefaultView(_items);
         Stamps.Filter = item => ((StampViewModel)item).Stamp.Matches(_searchText) && HasFilterTagsOf(((StampViewModel)item).Stamp);
         // The stamps without category first, as "General"
@@ -243,14 +246,9 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// A stamp is selected and an editor is open to insert it into
+    /// A stamp is selected and the editor shows a capture to insert it into
     /// </summary>
-    public bool CanInsert => _selectedStamp != null && _activeEditor() != null;
-
-    /// <summary>
-    /// What the insert button does, or why it can't
-    /// </summary>
-    public string InsertToolTip => _activeEditor() != null ? Language.InsertTooltip : Language.NoEditor;
+    public bool CanInsert => _selectedStamp != null && _context?.CurrentSurface != null;
 
     /// <summary>
     /// Shown instead of the list when it is empty: there are no stamps yet, or none matches the search
@@ -276,7 +274,6 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     /// </summary>
     public void Reload()
     {
-        string selectedKey = _selectedStamp?.Stamp.Key;
         try
         {
             Library.Load();
@@ -287,6 +284,27 @@ public sealed class StampsViewModel : INotifyPropertyChanged
             StatusText = ex.Message;
         }
 
+        Refresh();
+    }
+
+    /// <summary>
+    /// Show the stamps again when the library was changed since they were shown, e.g. in the panel of another editor window
+    /// </summary>
+    internal void RefreshIfChanged()
+    {
+        if (_shownVersion != Library.Version)
+        {
+            Refresh();
+        }
+    }
+
+    /// <summary>
+    /// Show the stamps of the library (without reading the folder), the selection is kept when the stamp is still there
+    /// </summary>
+    private void Refresh()
+    {
+        string selectedKey = _selectedStamp?.Stamp.Key;
+        _shownVersion = Library.Version;
         _items.Clear();
         foreach (var stamp in Library.Stamps)
         {
@@ -298,14 +316,25 @@ public sealed class StampsViewModel : INotifyPropertyChanged
         ShowCount();
     }
 
+    // The capture to insert into changed, e.g. another tab
+    private void OnCurrentSurfaceChanged(object sender, EventArgs e) => OnPropertyChanged(nameof(CanInsert));
+
     /// <summary>
-    /// The editor window which was active last changed, or none is open anymore
+    /// The editor window closed
     /// </summary>
-    internal void OnActiveEditorChanged()
+    public void Dispose()
     {
-        OnPropertyChanged(nameof(CanInsert));
-        OnPropertyChanged(nameof(InsertToolTip));
+        if (_context != null)
+        {
+            _context.CurrentSurfaceChanged -= OnCurrentSurfaceChanged;
+            _context = null;
+        }
     }
+
+    /// <summary>
+    /// The keyboard goes to the capture: after a stamp was inserted, and for Esc in the panel
+    /// </summary>
+    internal void FocusTarget() => _context?.FocusCanvas();
 
     /// <summary>
     /// Insert the stamp into the capture of the editor window which was active last, and give that window the keyboard
@@ -313,11 +342,9 @@ public sealed class StampsViewModel : INotifyPropertyChanged
     /// <returns>true when it was inserted</returns>
     public bool Insert(StampViewModel stamp)
     {
-        var editor = _activeEditor();
-        var surface = editor?.CurrentSurface;
+        var surface = _context?.CurrentSurface;
         if (stamp == null || surface == null)
         {
-            StatusText = Language.NoEditor;
             return false;
         }
 
@@ -341,7 +368,7 @@ public sealed class StampsViewModel : INotifyPropertyChanged
 
         StatusText = string.Format(Language.Inserted, stamp.Name);
         // The new element is selected there, the keys move and size it
-        editor.Activate();
+        FocusTarget();
         return true;
     }
 

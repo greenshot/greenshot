@@ -184,6 +184,9 @@
                             <Button Content="{ui:Text RecipeEditor.ManagerBtnGetMore}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding GetMoreRecipesCommand}"
                                     ToolTip="{ui:Text RecipeEditor.ManagerBtnGetMoreTooltip}" Margin="6,0,0,0"
                                     Visibility="{Binding CanGetMoreRecipes, Converter={StaticResource BoolToVis}}"/>
+                            <Button Content="{ui:Text RecipeEditor.ManagerBtnCheckUpdates}" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding CheckCatalogUpdatesCommand}"
+                                    ToolTip="{ui:Text RecipeEditor.ManagerBtnCheckUpdatesTooltip}" Margin="6,0,0,0"
+                                    Visibility="{Binding CanCheckCatalogUpdates, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
                     </Grid>
 
@@ -208,6 +211,43 @@
             <!-- Recipe List -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
                 <StackPanel>
+                    <!-- Recipes from the catalog with another version there, or which this Greenshot can't load (after "Check for Updates") -->
+                    <StackPanel Visibility="{Binding HasCatalogRecipes, Converter={StaticResource BoolToVis}}" Margin="0,0,0,8">
+                        <TextBlock Text="{ui:Text RecipeEditor.ManagerHeaderCatalogUpdates}" FontWeight="SemiBold" FontSize="{ui:FontSize 10}" Margin="2,0,0,6" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                        <ItemsControl ItemsSource="{Binding CatalogRecipes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:CatalogRecipeItemViewModel}">
+                                    <Border Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                                            BorderBrush="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,10" Padding="14,10" SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <WrapPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="{ui:FontSize 13}" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                               Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
+                                                    <TextBlock Text="{Binding Id, StringFormat='({0})'}" FontSize="{ui:FontSize 10}" FontFamily="Consolas" VerticalAlignment="Center"
+                                                               Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                                                </WrapPanel>
+                                                <TextBlock Text="{Binding Versions}" FontSize="{ui:FontSize 11}"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
+                                                <TextBlock Text="{Binding State}" FontSize="{ui:FontSize 11}" TextWrapping="Wrap" Margin="0,2,0,0"
+                                                           Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"
+                                                           Visibility="{Binding HasState, Converter={StaticResource BoolToVis}}"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Content="{ui:Text RecipeEditor.ManagerBtnCatalogUpdate}" Style="{StaticResource PrimaryButtonStyle}"
+                                                    Command="{Binding UpdateCommand}" ToolTip="{ui:Text RecipeEditor.ManagerBtnCatalogUpdateTooltip}"
+                                                    AutomationProperties.Name="{Binding UpdateButtonName, TargetNullValue=''}"
+                                                    Visibility="{Binding CanUpdate, Converter={StaticResource BoolToVis}}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                     <TextBlock Text="{ui:Text RecipeEditor.ManagerHeaderRecipes}" FontWeight="SemiBold" FontSize="{ui:FontSize 10}" Margin="2,0,0,6" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
                     <ItemsControl ItemsSource="{Binding FilteredRecipes}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
                     <!-- Automatic steps (recipe extensions): they change other recipes, they have no triggers of their own -->

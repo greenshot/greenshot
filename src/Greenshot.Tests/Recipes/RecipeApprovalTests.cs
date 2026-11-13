@@ -256,8 +256,8 @@ namespace Greenshot.Tests.Recipes
                     StepType = "ExternalCommand",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "CommandLine", @"C:\Tools\optimize.exe" },
-                        { "Arguments", "\"{0}\"" }
+                        { "Program", @"C:\Tools\optimize.exe" },
+                        { "Arguments", "\"${export.file}\"" }
                     }
                 });
             recipe.Flow.AddTransition("source", "cmd_step");
@@ -423,7 +423,7 @@ namespace Greenshot.Tests.Recipes
                 {
                     Id = "cmd_step",
                     StepType = "ExternalCommand",
-                    Parameters = new Dictionary<string, object> { { "CommandLine", @"C:\Tools\optimize.exe" }, { "Arguments", "\"{0}\"" } }
+                    Parameters = new Dictionary<string, object> { { "Program", @"C:\Tools\optimize.exe" }, { "Arguments", "\"${export.file}\"" } }
                 });
             edited.Flow.AddTransition("source", "cmd_step");
             var validation = RecipeValidator.Validate(edited);

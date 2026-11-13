@@ -66,6 +66,12 @@ public sealed class StampLibrary
     public string Directory { get; }
 
     /// <summary>
+    /// Counts the changes (reading, adding, renaming, moving, deleting): the views of several editor windows share the library,
+    /// a view which sees another number shows the stamps again
+    /// </summary>
+    public int Version { get; private set; }
+
+    /// <summary>
     /// The extensions of the files which are stamps
     /// </summary>
     public IReadOnlyCollection<string> Extensions => _extensions;
@@ -101,6 +107,7 @@ public sealed class StampLibrary
     /// </summary>
     public void Load()
     {
+        Version++;
         var index = ReadIndex();
         var stamps = new List<Stamp>();
         if (System.IO.Directory.Exists(Directory))
@@ -127,6 +134,7 @@ public sealed class StampLibrary
     /// <exception cref="ArgumentException">when the file isn't an image Greenshot can use as stamp</exception>
     public Stamp Import(string sourceFile, string category = "")
     {
+        Version++;
         if (!IsStampFile(sourceFile))
         {
             throw new ArgumentException($"{Path.GetExtension(sourceFile)} files can't be stamps", nameof(sourceFile));
@@ -154,6 +162,7 @@ public sealed class StampLibrary
     /// <returns>the new stamp</returns>
     public Stamp Add(string name, string extension, byte[] content, string category = "")
     {
+        Version++;
         if (!_extensions.Contains(extension))
         {
             throw new ArgumentException($"{extension} files can't be stamps", nameof(extension));
@@ -180,6 +189,7 @@ public sealed class StampLibrary
     /// <param name="tags">the tags</param>
     public void Update(Stamp stamp, string name, IEnumerable<string> tags)
     {
+        Version++;
         if (stamp == null) throw new ArgumentNullException(nameof(stamp));
 
         stamp.Name = string.IsNullOrWhiteSpace(name) ? Path.GetFileNameWithoutExtension(stamp.FullPath) : name.Trim();
@@ -199,6 +209,7 @@ public sealed class StampLibrary
     /// <returns>the tag as it is in the list (an existing one keeps its spelling), null when it is empty</returns>
     public string AddTag(string tag)
     {
+        Version++;
         tag = NormalizeTags(new[] { tag?.Replace(',', ' ').Replace(';', ' ') }).FirstOrDefault();
         if (tag == null)
         {
@@ -238,6 +249,7 @@ public sealed class StampLibrary
     /// <param name="category">the category, see <see cref="NormalizeCategory"/>; empty for none</param>
     public void Move(Stamp stamp, string category)
     {
+        Version++;
         if (stamp == null) throw new ArgumentNullException(nameof(stamp));
 
         category = NormalizeCategory(category);
@@ -279,6 +291,7 @@ public sealed class StampLibrary
     /// </summary>
     public void Delete(Stamp stamp)
     {
+        Version++;
         if (stamp == null) throw new ArgumentNullException(nameof(stamp));
 
         if (File.Exists(stamp.FullPath))

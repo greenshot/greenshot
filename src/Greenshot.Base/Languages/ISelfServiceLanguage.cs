@@ -1422,6 +1422,81 @@ namespace Greenshot.Base.Languages
         string LogviewerWrap { get; }
 
         /// <summary>
+        /// Setting
+        /// </summary>
+        string PoliciesColumnSetting { get; }
+
+        /// <summary>
+        /// Set by
+        /// </summary>
+        string PoliciesColumnSource { get; }
+
+        /// <summary>
+        /// Value
+        /// </summary>
+        string PoliciesColumnValue { get; }
+
+        /// <summary>
+        /// computer
+        /// </summary>
+        string PoliciesComputer { get; }
+
+        /// <summary>
+        /// Copy
+        /// </summary>
+        string PoliciesCopy { get; }
+
+        /// <summary>
+        /// {0} policies
+        /// </summary>
+        string PoliciesCount { get; }
+
+        /// <summary>
+        /// Mandatory, {0}
+        /// </summary>
+        string PoliciesMandatory { get; }
+
+        /// <summary>
+        /// No Windows policies apply to Greenshot.
+        /// </summary>
+        string PoliciesNone { get; }
+
+        /// <summary>
+        /// Recommended, {0}
+        /// </summary>
+        string PoliciesRecommended { get; }
+
+        /// <summary>
+        /// Reload
+        /// </summary>
+        string PoliciesReload { get; }
+
+        /// <summary>
+        /// Save policy templates…
+        /// </summary>
+        string PoliciesSaveTemplates { get; }
+
+        /// <summary>
+        /// Settings your organization sets with Group Policy or Intune. A mandatory policy can't be changed in the settings, a recommended one is only the default.
+        /// </summary>
+        string PoliciesSub { get; }
+
+        /// <summary>
+        /// {0} policies saved to {1}
+        /// </summary>
+        string PoliciesTemplatesSaved { get; }
+
+        /// <summary>
+        /// Windows policies
+        /// </summary>
+        string PoliciesTitle { get; }
+
+        /// <summary>
+        /// user
+        /// </summary>
+        string PoliciesUser { get; }
+
+        /// <summary>
         /// Esc: Close  |  F5: Refresh  |  T: Theme
         /// </summary>
         string ShortcutsHint { get; }
