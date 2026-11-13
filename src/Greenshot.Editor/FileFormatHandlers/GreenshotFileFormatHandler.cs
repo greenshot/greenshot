@@ -121,6 +121,10 @@ namespace Greenshot.Editor.FileFormatHandlers
                 Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", captureBitmap.Width, captureBitmap.Height, captureBitmap.PixelFormat, captureBitmap.HorizontalResolution, captureBitmap.VerticalResolution);
             }
 
+            // The file is opened as it was saved: nothing is changed yet, so closing it doesn't ask to save (BUG-2274),
+            // and nothing is selected, so a click picks one element instead of moving all of them (BUG-2908)
+            returnSurface.DeselectAllElements();
+            returnSurface.Modified = false;
             return returnSurface;
         }
     }

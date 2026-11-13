@@ -311,6 +311,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Editor bugs from the old bug tracker** (#1764)
+- Closing an opened .greenshot file without changes no longer asks to save it, and its elements are no longer all selected after opening
+- A crop rectangle left on the canvas after choosing another tool can be confirmed or cancelled, before this gave an error
+- A counter with a transparent fill can be selected, the counter button keeps its icon when the counter starts at 0 and shows the right number after undo, counters can start at up to 9999
+- Ctrl+Backspace in a text box removes one word, also after a line break
+- Invert keeps transparent areas transparent
+
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
 - Fixed null reference in cursor setter (#873)
