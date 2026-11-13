@@ -23,8 +23,9 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
-InfoBeforeFile=additional_files\readme.txt
-LicenseFile=additional_files\gpl-3.0.rtf
+; The GPL doesn't have to be accepted to install or use Greenshot (GPLv3 section 9), so it is shown without "I accept" (BUG-2094)
+InfoBeforeFile=additional_files\gpl-3.0.rtf
+InfoAfterFile=additional_files\readme.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=10.0.17763
 OutputDir=..\..\installer
