@@ -303,6 +303,11 @@ namespace Greenshot.Ipc
         }
 
         /// <summary>
+        /// True when the source has its own list of allowed commands
+        /// </summary>
+        internal static bool HasOwnCommands(string source) => !string.IsNullOrEmpty(source) && SourceAllowedCommands.ContainsKey(source);
+
+        /// <summary>
         /// Checks the command against the global whitelist and, when the source has one, the source-specific whitelist.
         /// </summary>
         internal static bool IsCommandAllowedForSource(string command, string source)

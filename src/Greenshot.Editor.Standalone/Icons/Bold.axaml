@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Bold: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Bold">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M2.5,2.5 H8.6 C11.2,2.5 12.4,3.6 12.4,5.3 C12.4,6.6 11.6,7.4 10.4,7.7 C12,8 13.2,9 13.2,10.6 C13.2,12.4 11.8,13.5 9.2,13.5 H2.5 V12.2 H4 V3.8 H2.5 Z M6.6,3.9 V7 H8.3 C9.4,7 9.9,6.4 9.9,5.4 C9.9,4.4 9.4,3.9 8.3,3.9 Z M6.6,8.4 V12.1 H8.6 C9.9,12.1 10.5,11.4 10.5,10.2 C10.5,9.1 9.9,8.4 8.6,8.4 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4DFFFFFF" Thickness="1.3" LineJoin="Round" LineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#454545" Geometry="M2.5,2.5 H8.6 C11.2,2.5 12.4,3.6 12.4,5.3 C12.4,6.6 11.6,7.4 10.4,7.7 C12,8 13.2,9 13.2,10.6 C13.2,12.4 11.8,13.5 9.2,13.5 H2.5 V12.2 H4 V3.8 H2.5 Z M6.6,3.9 V7 H8.3 C9.4,7 9.9,6.4 9.9,5.4 C9.9,4.4 9.4,3.9 8.3,3.9 Z M6.6,8.4 V12.1 H8.6 C9.9,12.1 10.5,11.4 10.5,10.2 C10.5,9.1 9.9,8.4 8.6,8.4 Z" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.CutMark: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.CutMark">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M0.5,4.5 L3,2.5 L5.5,4.5 L8,2.5 L10.5,4.5 L13,2.5 L15.5,4.5 L15.5,13.5 L13,13.5 L10.5,11.5 L8,13.5 L5.5,11.5 L3,13.5 L0.5,11.5 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#A7CCFF" />
+              <GradientStop Offset="1" Color="#E8F6F6" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M0.5,9.6 C3.5,7.4 6,8.2 8,9.4 C10.5,10.8 13,8 15.5,8.8 L15.5,13.5 L13,13.5 L10.5,11.5 L8,13.5 L5.5,11.5 L3,13.5 L0.5,11.5 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#3E8A5E" />
+              <GradientStop Offset="1" Color="#1E4E3A" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M0.5,4.5 L3,2.5 L5.5,4.5 L8,2.5 L10.5,4.5 L13,2.5 L15.5,4.5 L15.5,13.5 L13,13.5 L10.5,11.5 L8,13.5 L5.5,11.5 L3,13.5 L0.5,11.5 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4D6B6B" Thickness="1" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#FFE060" Geometry="M10.2,6 A1.3,1.3 0 1 1 12.8,6 A1.3,1.3 0 1 1 10.2,6 Z" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

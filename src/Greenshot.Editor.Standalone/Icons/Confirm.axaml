@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Confirm: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Confirm">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M1.5,8.5 L4,6 L6.5,8.5 L12.5,2.5 L15,5 L6.5,13.5 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#72F082" />
+              <GradientStop Offset="0.5" Color="#16B42A" />
+              <GradientStop Offset="1" Color="#008A0C" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#005A08" Thickness="1" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M2.8,8.5 L4,7.3 L6.5,9.8 L12.5,3.8">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#60FFFFFF" Thickness="0.8" LineJoin="Round" LineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

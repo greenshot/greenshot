@@ -1,0 +1,546 @@
+<!--
+    The editor window: a command bar, the tabs of the open documents, the tool rail on the left, the canvas (zoom and pan)
+    in the middle and the panel with the properties, the canvas and the layers on the right.
+    The colors come from the Fluent theme (light and dark follow the system), the icons from Icons/*.axaml.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Greenshot.Editor.Standalone.ViewModels"
+        xmlns:c="using:Greenshot.Editor.Standalone.Controls"
+        xmlns:l="using:Greenshot.Editor.Standalone.Controls"
+        xmlns:t="using:Greenshot.Editor.Standalone.Tools"
+        xmlns:doc="using:Greenshot.Document"
+        xmlns:edit="using:Greenshot.Document.Editing"
+        x:Class="Greenshot.Editor.Standalone.Views.EditorWindow"
+        x:DataType="vm:EditorWindowViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="/Assets/greenshot.ico"
+        Width="1280" Height="820" MinWidth="760" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        DragDrop.AllowDrop="True">
+
+    <Window.Resources>
+        <c:EnumNameConverter x:Key="EnumName"/>
+        <c:EnumEqualsConverter x:Key="EnumEquals"/>
+        <c:NumberConverter x:Key="Number"/>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Image.icon">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+        </Style>
+        <Style Selector="Button.icon, ToggleButton.icon, RadioButton.icon">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="MinWidth" Value="32"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.icon:disabled Image, ToggleButton.icon:disabled Image">
+            <Setter Property="Opacity" Value="0.35"/>
+        </Style>
+        <Style Selector="Button.tool.selected">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+        </Style>
+        <Style Selector="Button.tool.selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
+        </Style>
+        <Style Selector="Rectangle.separator">
+            <Setter Property="Width" Value="1"/>
+            <Setter Property="Margin" Value="5,6"/>
+            <Setter Property="Fill" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.heading">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,12,0,6"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="Grid.row">
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+        <Style Selector="Button.emoji">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenCommand}"/>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+C" Command="{Binding CopyImageCommand}"/>
+        <KeyBinding Gesture="Ctrl+W" Command="{Binding CloseTabCommand}"/>
+        <KeyBinding Gesture="Ctrl+OemPeriod" Command="{Binding TurnClockwiseCommand}"/>
+        <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding TurnCounterClockwiseCommand}"/>
+        <KeyBinding Gesture="Ctrl+OemPlus" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}"/>
+        <KeyBinding Gesture="Ctrl+Add" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}"/>
+        <KeyBinding Gesture="Ctrl+OemMinus" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}"/>
+        <KeyBinding Gesture="Ctrl+Subtract" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}"/>
+        <KeyBinding Gesture="Ctrl+D9" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.BestFit}"/>
+        <KeyBinding Gesture="Ctrl+D0" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.ActualSize}"/>
+    </Window.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- The command bar -->
+        <Border Grid.Row="0" Padding="6,3" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button x:Name="FileButton" Margin="2,2,6,2" Padding="12,5" Content="{l:Text File}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuItem Header="{l:Text Open}" Command="{Binding OpenCommand}"/>
+                                <MenuItem Header="{l:Text Save}" Command="{Binding SaveCommand}"/>
+                                <MenuItem Header="{l:Text SaveAs}" Command="{Binding SaveAsCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="{l:Text CopyImage}" Command="{Binding CopyImageCommand}"/>
+                                <MenuItem Header="{l:Text InsertImage}" Command="{Binding InsertImageCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="{l:Text CloseTab}" Command="{Binding CloseTabCommand}"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding OpenCommand}" ToolTip.Tip="{l:Text Open}" AutomationProperties.Name="{l:Text Open}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Open}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding SaveCommand}" ToolTip.Tip="{l:Text Save}" AutomationProperties.Name="{l:Text Save}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Save}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding CopyImageCommand}" ToolTip.Tip="{l:Text CopyImage}" AutomationProperties.Name="{l:Text CopyImage}">
+                        <Image Classes="icon" Source="{StaticResource Icon.CopyImage}"/>
+                    </Button>
+                    <Button x:Name="SendToButton" Margin="4,2" Padding="10,5" Content="{l:Text SendTo}" Click="SendTo_Click"
+                            IsVisible="{Binding CanSendTo}" IsEnabled="{Binding HasTabs}" ToolTip.Tip="{Binding GreenshotText}"/>
+                    <Rectangle Classes="separator"/>
+                    <Button Classes="icon" Command="{Binding UndoCommand}" ToolTip.Tip="{Binding UndoText}" AutomationProperties.Name="{Binding UndoText}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Undo}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding RedoCommand}" ToolTip.Tip="{Binding RedoText}" AutomationProperties.Name="{Binding RedoText}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Redo}"/>
+                    </Button>
+                    <Rectangle Classes="separator"/>
+                    <Button Classes="icon" Command="{Binding CutCommand}" ToolTip.Tip="{l:Text Cut}" AutomationProperties.Name="{l:Text Cut}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Cut}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding CopyCommand}" ToolTip.Tip="{l:Text Copy}" AutomationProperties.Name="{l:Text Copy}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Copy}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding PasteCommand}" ToolTip.Tip="{l:Text Paste}" AutomationProperties.Name="{l:Text Paste}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Paste}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding DeleteCommand}" ToolTip.Tip="{l:Text Delete}" AutomationProperties.Name="{l:Text Delete}">
+                        <Image Classes="icon" Source="{StaticResource Icon.Delete}"/>
+                    </Button>
+                    <Rectangle Classes="separator"/>
+                    <Button Classes="icon" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static edit:Arrangement.ToFront}" ToolTip.Tip="{l:Text BringToFront}" AutomationProperties.Name="{l:Text BringToFront}">
+                        <Image Classes="icon" Source="{StaticResource Icon.BringToFront}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static edit:Arrangement.Forward}" ToolTip.Tip="{l:Text BringForward}" AutomationProperties.Name="{l:Text BringForward}">
+                        <Image Classes="icon" Source="{StaticResource Icon.BringForward}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static edit:Arrangement.Backward}" ToolTip.Tip="{l:Text SendBackward}" AutomationProperties.Name="{l:Text SendBackward}">
+                        <Image Classes="icon" Source="{StaticResource Icon.SendBackward}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding ArrangeCommand}" CommandParameter="{x:Static edit:Arrangement.ToBack}" ToolTip.Tip="{l:Text SendToBack}" AutomationProperties.Name="{l:Text SendToBack}">
+                        <Image Classes="icon" Source="{StaticResource Icon.SendToBack}"/>
+                    </Button>
+                    <Rectangle Classes="separator"/>
+                    <Button Classes="icon" Command="{Binding TurnCounterClockwiseCommand}" ToolTip.Tip="{l:Text TurnCounterClockwise}" AutomationProperties.Name="{l:Text TurnCounterClockwise}">
+                        <Image Classes="icon" Source="{StaticResource Icon.RotateCounterClockwise}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding TurnClockwiseCommand}" ToolTip.Tip="{l:Text TurnClockwise}" AutomationProperties.Name="{l:Text TurnClockwise}">
+                        <Image Classes="icon" Source="{StaticResource Icon.RotateClockwise}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding AutoCropCommand}" ToolTip.Tip="{l:Text AutoCrop}" AutomationProperties.Name="{l:Text AutoCrop}">
+                        <Image Classes="icon" Source="{StaticResource Icon.AutoCrop}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding InsertImageCommand}" ToolTip.Tip="{l:Text InsertImage}" AutomationProperties.Name="{l:Text InsertImage}">
+                        <Image Classes="icon" Source="{StaticResource Icon.NewTab}"/>
+                    </Button>
+                    <Rectangle Classes="separator"/>
+                    <Button x:Name="StampsButton" Margin="4,2" Padding="10,5" Content="{l:Text Stamps}" IsEnabled="{Binding HasTabs}">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft" Opening="StampsFlyout_Opening">
+                                <DockPanel Width="372" MaxHeight="460" DataContext="{Binding Stamps}" x:DataType="vm:StampsViewModel">
+                                    <TextBox DockPanel.Dock="Top" Text="{Binding Search}" PlaceholderText="{l:Text StampsSearch}" AutomationProperties.Name="{l:Text StampsSearch}"/>
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0" Spacing="6">
+                                        <Button Content="{l:Text StampsImport}" Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).ImportStampCommand}"/>
+                                        <Button Content="{l:Text StampsFromSelection}" Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).SelectionToStampCommand}"/>
+                                    </StackPanel>
+                                    <TextBlock DockPanel.Dock="Bottom" Text="{Binding Folder}" Opacity="0.6" FontSize="11" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Folder}"/>
+                                    <Panel Margin="0,8,0,0" MinHeight="72">
+                                        <TextBlock Text="{l:Text StampsEmpty}" TextWrapping="Wrap" Opacity="0.7" IsVisible="{Binding IsEmpty}"/>
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsControl ItemsSource="{Binding Stamps}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:StampViewModel">
+                                                        <Button Width="84" Height="96" Margin="2" Padding="4" Background="Transparent" ToolTip.Tip="{Binding ToolTip}" AutomationProperties.Name="{Binding Name}"
+                                                                Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).PlaceStampCommand}" CommandParameter="{Binding}" Click="Stamp_Click">
+                                                            <DockPanel>
+                                                                <TextBlock DockPanel.Dock="Bottom" Text="{Binding Name}" FontSize="11" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+                                                                <Image Source="{Binding Thumbnail}" Stretch="Uniform" StretchDirection="DownOnly" Margin="0,0,0,4"/>
+                                                            </DockPanel>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Panel>
+                                </DockPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Classes="icon" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.Out}" ToolTip.Tip="{l:Text ZoomOut}" AutomationProperties.Name="{l:Text ZoomOut}">
+                        <Image Classes="icon" Source="{StaticResource Icon.ZoomOut}"/>
+                    </Button>
+                    <TextBlock Text="{Binding ZoomText}" MinWidth="52" TextAlignment="Center" VerticalAlignment="Center" AutomationProperties.LiveSetting="Polite"/>
+                    <Button Classes="icon" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.In}" ToolTip.Tip="{l:Text ZoomIn}" AutomationProperties.Name="{l:Text ZoomIn}">
+                        <Image Classes="icon" Source="{StaticResource Icon.ZoomIn}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.BestFit}" ToolTip.Tip="{l:Text ZoomBestFit}" AutomationProperties.Name="{l:Text ZoomBestFit}">
+                        <Image Classes="icon" Source="{StaticResource Icon.ZoomBestFit}"/>
+                    </Button>
+                    <Button Classes="icon" Command="{Binding ZoomCommand}" CommandParameter="{x:Static vm:ZoomCommand.ActualSize}" ToolTip.Tip="{l:Text ZoomActualSize}" AutomationProperties.Name="{l:Text ZoomActualSize}">
+                        <Image Classes="icon" Source="{StaticResource Icon.ZoomActualSize}"/>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- The tabs of the open documents -->
+        <TabStrip x:Name="DocumentTabs" Grid.Row="1" Margin="6,0" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" IsVisible="{Binding HasTabs}"
+                  AutomationProperties.Name="{l:Text Tabs}">
+            <TabStrip.Styles>
+                <Style Selector="TabStripItem">
+                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="MinHeight" Value="34"/>
+                    <Setter Property="Padding" Value="10,0,4,0"/>
+                </Style>
+            </TabStrip.Styles>
+            <TabStrip.ItemTemplate>
+                <DataTemplate x:DataType="vm:DocumentTabViewModel">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding DisplayTitle}" MaxWidth="220" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                        <Button Classes="icon" MinWidth="22" MinHeight="22" Padding="3" Margin="6,0,0,0" Focusable="False"
+                                ToolTip.Tip="{l:Text CloseTab}" AutomationProperties.Name="{l:Text CloseTab}"
+                                Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).CloseTabCommand}" CommandParameter="{Binding}">
+                            <Image Source="{StaticResource Icon.Close}" Width="12" Height="12"/>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </TabStrip.ItemTemplate>
+        </TabStrip>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
+
+            <!-- The tools -->
+            <Border Grid.Column="0" Padding="4" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Tools}" AutomationProperties.Name="{l:Text Tools}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ToolViewModel">
+                                <Button Classes="icon tool" Classes.selected="{Binding IsSelected}" Margin="0,1" ToolTip.Tip="{Binding ToolTip}" AutomationProperties.Name="{Binding Name}"
+                                        Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).SelectToolCommand}" CommandParameter="{Binding Kind}">
+                                    <Image Classes="icon" Source="{Binding Icon}"/>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <!-- The document -->
+            <Panel Grid.Column="1">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Focusable="False">
+                    <c:DocumentCanvas x:Name="Canvas" Tab="{Binding SelectedTab}" AutomationProperties.Name="{l:Text CanvasName}" PointerReleased="Canvas_PointerReleased"/>
+                </ScrollViewer>
+                <TextBlock Text="{l:Text NoDocument}" IsVisible="{Binding !HasTabs}" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7" TextWrapping="Wrap" MaxWidth="420" TextAlignment="Center"/>
+                <Border IsVisible="{Binding IsCropping}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" Padding="6" CornerRadius="6"
+                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button Classes="accent" Content="{l:Text ApplyCrop}" Command="{Binding ApplyCropCommand}"/>
+                        <Button Content="{l:Text CancelCrop}" Command="{Binding CancelCropCommand}"/>
+                    </StackPanel>
+                </Border>
+            </Panel>
+
+            <!-- The panel: the properties of the selection or the tool, the canvas and the layers -->
+            <Border Grid.Column="2" Width="292" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" IsVisible="{Binding HasTabs}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="12,4,16,16">
+
+                        <StackPanel DataContext="{Binding Properties}" x:DataType="vm:PropertiesViewModel" IsVisible="{Binding IsVisible}">
+                            <TextBlock Classes="heading" Text="{Binding Heading}" FontSize="15"/>
+
+                            <Grid Classes="row" ColumnDefinitions="*,Auto" IsVisible="{Binding HasStroke}">
+                                <TextBlock x:Name="LineColorLabel" Classes="label" Text="{l:Text LineColor}"/>
+                                <ColorPicker Grid.Column="1" Color="{Binding LineColor}" AutomationProperties.LabeledBy="{Binding #LineColorLabel}"/>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34" IsVisible="{Binding HasStroke}">
+                                <TextBlock x:Name="LineWidthLabel" Classes="label" Text="{l:Text LineWidth}"/>
+                                <Slider x:Name="LineWidthSlider" Grid.Column="1" Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding LineWidth}" AutomationProperties.LabeledBy="{Binding #LineWidthLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #LineWidthSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,Auto" IsVisible="{Binding HasFill}">
+                                <TextBlock x:Name="FillColorLabel" Classes="label" Text="{l:Text FillColor}"/>
+                                <ColorPicker Grid.Column="1" Color="{Binding FillColor}" AutomationProperties.LabeledBy="{Binding #FillColorLabel}"/>
+                            </Grid>
+                            <CheckBox Margin="0,2" Content="{l:Text Shadow}" IsChecked="{Binding Shadow}" IsVisible="{Binding HasShadow}"/>
+
+                            <Grid Classes="row" ColumnDefinitions="*,150" IsVisible="{Binding HasArrowHeads}">
+                                <TextBlock x:Name="ArrowHeadsLabel" Classes="label" Text="{l:Text ArrowHeads}"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllArrowHeads}" SelectedItem="{Binding ArrowHeads}" AutomationProperties.LabeledBy="{Binding #ArrowHeadsLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="doc:ArrowHeads">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid Classes="row" ColumnDefinitions="*,150" IsVisible="{Binding IsHighlight}">
+                                <TextBlock x:Name="HighlightModeLabel" Classes="label" Text="{l:Text HighlightMode}"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllHighlightModes}" SelectedItem="{Binding HighlightMode}" AutomationProperties.LabeledBy="{Binding #HighlightModeLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="doc:HighlightMode">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,Auto" IsVisible="{Binding IsHighlight}">
+                                <TextBlock x:Name="HighlightColorLabel" Classes="label" Text="{l:Text HighlightColor}"/>
+                                <ColorPicker Grid.Column="1" Color="{Binding HighlightColor}" AutomationProperties.LabeledBy="{Binding #HighlightColorLabel}"/>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34" IsVisible="{Binding IsHighlight}">
+                                <TextBlock x:Name="MagnificationLabel" Classes="label" Text="{l:Text Magnification}"/>
+                                <Slider x:Name="MagnificationSlider" Grid.Column="1" Minimum="2" Maximum="8" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Magnification}" AutomationProperties.LabeledBy="{Binding #MagnificationLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #MagnificationSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+
+                            <Grid Classes="row" ColumnDefinitions="*,150" IsVisible="{Binding IsObfuscate}">
+                                <TextBlock x:Name="ObfuscateModeLabel" Classes="label" Text="{l:Text ObfuscateMode}"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllObfuscateModes}" SelectedItem="{Binding ObfuscateMode}" AutomationProperties.LabeledBy="{Binding #ObfuscateModeLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="doc:ObfuscateMode">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34" IsVisible="{Binding IsObfuscate}">
+                                <TextBlock x:Name="ObfuscateSizeLabel" Classes="label" Text="{l:Text ObfuscateSize}"/>
+                                <Slider x:Name="ObfuscateSizeSlider" Grid.Column="1" Minimum="2" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding ObfuscateSize}" AutomationProperties.LabeledBy="{Binding #ObfuscateSizeLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #ObfuscateSizeSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+
+                            <Grid Classes="row" ColumnDefinitions="*,150" IsVisible="{Binding IsCutMark}">
+                                <TextBlock x:Name="CutMarkLabel" Classes="label" Text="{l:Text EdgeShape}"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding CutMarkShape}" AutomationProperties.LabeledBy="{Binding #CutMarkLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="doc:EdgeStyle">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+
+                            <!-- The emoji: the ones used last, a choice of common ones, and a box for any other -->
+                            <StackPanel IsVisible="{Binding IsEmoji}">
+                                <TextBox Text="{Binding Emoji, UpdateSourceTrigger=LostFocus}" PlaceholderText="{l:Text EmojiHint}" FontSize="18" AutomationProperties.Name="{l:Text Emoji}" KeyDown="EmojiBox_KeyDown"/>
+                                <TextBlock Classes="heading" Text="{l:Text EmojiRecent}" IsVisible="{Binding RecentEmojis.Count}"/>
+                                <ItemsControl ItemsSource="{Binding RecentEmojis}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Button Classes="emoji" Content="{Binding}" Click="Emoji_Click" AutomationProperties.Name="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Classes="heading" Text="{l:Text Emoji}"/>
+                                <ItemsControl ItemsSource="{Binding EmojiChoices}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Button Classes="emoji" Content="{Binding}" Click="Emoji_Click" AutomationProperties.Name="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <!-- The text of a text box, a speech bubble, a label or a step label -->
+                            <StackPanel IsVisible="{Binding HasText}">
+                                <TextBlock Classes="heading" Text="{l:Text Font}"/>
+                                <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding FontFamilies}" SelectedItem="{Binding FontFamily}" AutomationProperties.Name="{l:Text Font}"/>
+                                <Grid Classes="row" ColumnDefinitions="*,110,34">
+                                    <TextBlock x:Name="FontSizeLabel" Classes="label" Text="{l:Text FontSize}"/>
+                                    <Slider x:Name="FontSizeSlider" Grid.Column="1" Minimum="6" Maximum="96" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FontSize}" AutomationProperties.LabeledBy="{Binding #FontSizeLabel}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding #FontSizeSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                                <Grid Classes="row" ColumnDefinitions="*,Auto">
+                                    <TextBlock x:Name="TextColorLabel" Classes="label" Text="{l:Text TextColor}"/>
+                                    <ColorPicker Grid.Column="1" Color="{Binding TextColor}" AutomationProperties.LabeledBy="{Binding #TextColorLabel}"/>
+                                </Grid>
+                                <WrapPanel Margin="0,4">
+                                    <ToggleButton Classes="icon" IsChecked="{Binding Bold}" ToolTip.Tip="{l:Text Bold}" AutomationProperties.Name="{l:Text Bold}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.Bold}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Classes="icon" IsChecked="{Binding Italic}" ToolTip.Tip="{l:Text Italic}" AutomationProperties.Name="{l:Text Italic}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.Italic}"/>
+                                    </ToggleButton>
+                                    <Rectangle Classes="separator"/>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignLeft}" AutomationProperties.Name="{l:Text AlignLeft}"
+                                                  IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=Start}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignLeft}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignCenter}" AutomationProperties.Name="{l:Text AlignCenter}"
+                                                  IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=Center}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignCenter}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignRight}" AutomationProperties.Name="{l:Text AlignRight}"
+                                                  IsChecked="{Binding HorizontalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=End}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignRight}"/>
+                                    </ToggleButton>
+                                    <Rectangle Classes="separator"/>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignTop}" AutomationProperties.Name="{l:Text AlignTop}"
+                                                  IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=Start}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignTop}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignMiddle}" AutomationProperties.Name="{l:Text AlignMiddle}"
+                                                  IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=Center}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignMiddle}"/>
+                                    </ToggleButton>
+                                    <ToggleButton Classes="icon" ToolTip.Tip="{l:Text AlignBottom}" AutomationProperties.Name="{l:Text AlignBottom}"
+                                                  IsChecked="{Binding VerticalAlignment, Converter={StaticResource EnumEquals}, ConverterParameter=End}">
+                                        <Image Classes="icon" Source="{StaticResource Icon.AlignBottom}"/>
+                                    </ToggleButton>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <!-- Position, size and rotation of one selected element -->
+                            <StackPanel IsVisible="{Binding HasArea}">
+                                <TextBlock Classes="heading" Text="{l:Text Resize}"/>
+                                <Grid ColumnDefinitions="Auto,*,12,Auto,*" RowDefinitions="Auto,6,Auto,6,Auto">
+                                    <TextBlock x:Name="XLabel" Classes="label" Text="{l:Text PositionX}" Margin="0,0,6,0"/>
+                                    <NumericUpDown Grid.Column="1" ShowButtonSpinner="False" FormatString="0.##" Value="{Binding AreaX, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #XLabel}"/>
+                                    <TextBlock x:Name="YLabel" Grid.Column="3" Classes="label" Text="{l:Text PositionY}" Margin="0,0,6,0"/>
+                                    <NumericUpDown Grid.Column="4" ShowButtonSpinner="False" FormatString="0.##" Value="{Binding AreaY, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #YLabel}"/>
+                                    <TextBlock x:Name="WLabel" Grid.Row="2" Classes="label" Text="{l:Text Width}" Margin="0,0,6,0"/>
+                                    <NumericUpDown Grid.Row="2" Grid.Column="1" ShowButtonSpinner="False" FormatString="0.##" Minimum="1" Value="{Binding AreaWidth, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #WLabel}"/>
+                                    <TextBlock x:Name="HLabel" Grid.Row="2" Grid.Column="3" Classes="label" Text="{l:Text Height}" Margin="0,0,6,0"/>
+                                    <NumericUpDown Grid.Row="2" Grid.Column="4" ShowButtonSpinner="False" FormatString="0.##" Minimum="1" Value="{Binding AreaHeight, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #HLabel}"/>
+                                    <TextBlock x:Name="RotationLabel" Grid.Row="4" Classes="label" Text="{l:Text Rotation}" Margin="0,0,6,0" IsVisible="{Binding CanTurn}"/>
+                                    <NumericUpDown Grid.Row="4" Grid.Column="1" ShowButtonSpinner="False" FormatString="0.#" Minimum="-360" Maximum="360" IsVisible="{Binding CanTurn}"
+                                                   Value="{Binding Rotation, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #RotationLabel}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- The canvas, shown when nothing is selected with the select tool -->
+                        <StackPanel IsVisible="{Binding Properties.ShowsCanvas}">
+                            <TextBlock Classes="heading" Text="{l:Text Canvas}" FontSize="15"/>
+                            <Grid ColumnDefinitions="Auto,*,12,Auto,*">
+                                <TextBlock x:Name="CanvasWidthLabel" Classes="label" Text="{l:Text Width}" Margin="0,0,6,0"/>
+                                <NumericUpDown Grid.Column="1" ShowButtonSpinner="False" FormatString="0" Minimum="1" Maximum="30000" Value="{Binding ResizeWidth, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #CanvasWidthLabel}"/>
+                                <TextBlock x:Name="CanvasHeightLabel" Grid.Column="3" Classes="label" Text="{l:Text Height}" Margin="0,0,6,0"/>
+                                <NumericUpDown Grid.Column="4" ShowButtonSpinner="False" FormatString="0" Minimum="1" Maximum="30000" Value="{Binding ResizeHeight, Converter={StaticResource Number}}" AutomationProperties.LabeledBy="{Binding #CanvasHeightLabel}"/>
+                            </Grid>
+                            <DockPanel Margin="0,6">
+                                <Button DockPanel.Dock="Right" Content="{l:Text Apply}" Command="{Binding ResizeCommand}"/>
+                                <CheckBox Content="{l:Text KeepRatio}" IsChecked="{Binding KeepRatio}" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                                <TextBlock x:Name="BackgroundLabel" Classes="label" Text="{l:Text Background}"/>
+                                <ColorPicker Grid.Column="1" Color="{Binding Properties.Background}" AutomationProperties.LabeledBy="{Binding #BackgroundLabel}"/>
+                            </Grid>
+
+                            <TextBlock Classes="heading" Text="{l:Text Frame}"/>
+                            <WrapPanel>
+                                <Button Margin="0,2,4,2" Command="{Binding AddBorderCommand}" Content="{l:Text AddBorder}"/>
+                                <Button Margin="0,2,4,2" Command="{Binding AddDropShadowCommand}" Content="{l:Text AddDropShadow}"/>
+                                <Button Margin="0,2,4,2" Command="{Binding AddTornEdgesCommand}" Content="{l:Text AddTornEdges}"/>
+                            </WrapPanel>
+                            <StackPanel DataContext="{Binding Properties}" x:DataType="vm:PropertiesViewModel" IsVisible="{Binding HasFrame}">
+                                <Grid Classes="row" ColumnDefinitions="*,150">
+                                    <TextBlock x:Name="FrameShapeLabel" Classes="label" Text="{l:Text EdgeShape}"/>
+                                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding FrameShape}" AutomationProperties.LabeledBy="{Binding #FrameShapeLabel}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="doc:EdgeStyle">
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Classes="row" ColumnDefinitions="*,110,34">
+                                    <TextBlock x:Name="FrameWidthLabel" Classes="label" Text="{l:Text FrameWidth}"/>
+                                    <Slider x:Name="FrameWidthSlider" Grid.Column="1" Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FrameWidth}" AutomationProperties.LabeledBy="{Binding #FrameWidthLabel}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding #FrameWidthSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                                </Grid>
+                                <Grid Classes="row" ColumnDefinitions="*,Auto">
+                                    <TextBlock x:Name="FrameColorLabel" Classes="label" Text="{l:Text FrameColor}"/>
+                                    <ColorPicker Grid.Column="1" Color="{Binding FrameColor}" AutomationProperties.LabeledBy="{Binding #FrameColorLabel}"/>
+                                </Grid>
+                                <CheckBox Margin="0,2" Content="{l:Text FrameShadow}" IsChecked="{Binding FrameShadow}"/>
+                                <Button HorizontalAlignment="Left" Margin="0,4" Content="{l:Text RemoveFrame}" Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).RemoveFrameCommand}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Classes="heading" Text="{l:Text Layers}" FontSize="15" Margin="0,18,0,4"/>
+                        <ItemsControl ItemsSource="{Binding Layers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LayerViewModel">
+                                    <StackPanel Margin="0,2">
+                                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <CheckBox Content="{l:Text LayerVisible}" IsChecked="{Binding Visible}"/>
+                                            <CheckBox Content="{l:Text LayerLocked}" IsChecked="{Binding Locked}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- The status -->
+        <Border Grid.Row="3" Padding="10,4" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <DockPanel LastChildFill="True">
+                <TextBlock DockPanel.Dock="Right" Text="{Binding GreenshotText}" Opacity="0.7" Margin="16,0,0,0"/>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding SizeText}" Opacity="0.7" Margin="0,0,16,0"/>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding SelectionText}" Opacity="0.7" Margin="0,0,16,0" AutomationProperties.LiveSetting="Polite"/>
+                <TextBlock Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" AutomationProperties.LiveSetting="Polite"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

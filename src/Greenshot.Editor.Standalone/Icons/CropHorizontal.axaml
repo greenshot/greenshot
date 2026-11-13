@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.CropHorizontal: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.CropHorizontal">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M1.5,1.5 H14.5 V5.5 H1.5 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#FAD4A1" />
+              <GradientStop Offset="1" Color="#EEBF8C" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#B07A45" Thickness="1" LineJoin="Miter" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M4.5,2 V3.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M7.5,2 V3.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M10.5,2 V3.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M13.5,2 V3.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M3,2 V2.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M6,2 V2.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M9,2 V2.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M12,2 V2.5">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M1.5,10.5 H14.5 V14.5 H1.5 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#FAD4A1" />
+              <GradientStop Offset="1" Color="#EEBF8C" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#B07A45" Thickness="1" LineJoin="Miter" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M4.5,12.5 V14">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M7.5,12.5 V14">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M10.5,12.5 V14">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M13.5,12.5 V14">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#C8925A" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M0,6.5 H16">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2547B5" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M0,9.5 H16">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#2547B5" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

@@ -89,8 +89,20 @@ namespace Greenshot.Ipc
         /// </summary>
         public const string Mcp = "mcp";
 
+        /// <summary>
+        /// greenshot-editor.exe, the stand-alone editor: it asks for the destinations and sends its documents to them.
+        /// Only known while a part of Greenshot brings the commands for it (see <see cref="IIpcCommandExtension.SourceCommands"/>).
+        /// </summary>
+        public const string Editor = "editor";
+
         public static bool IsKnown(string source)
         {
+            if (string.Equals(source, Editor, StringComparison.OrdinalIgnoreCase))
+            {
+                // Without its own list of commands a source may use every command: the editor is only let in with its list
+                return IpcSecurityDispatcher.HasOwnCommands(Editor);
+            }
+
 #if GREENSHOT_LIGHT
             // Greenshot Light has no browser extension and no AI tools: their connections are rejected at HELLO
             return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||

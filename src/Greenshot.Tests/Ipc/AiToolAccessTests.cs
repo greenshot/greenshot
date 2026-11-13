@@ -498,6 +498,13 @@ namespace Greenshot.Tests.Ipc
         [InlineData(@"C:\Users\me\Downloads\greenshot-cli.exe", "cli", false)]
         [InlineData(@"C:\Program Files\Greenshot\evil.exe", "cli", false)]
         [InlineData(null, "cli", false)]
+        [InlineData(@"C:\Program Files\Greenshot\Editor\greenshot-editor.exe", "editor", true)]
+        [InlineData(@"C:\Program Files\Greenshot\Editor\greenshot-editor.exe", "cli", false)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-editor.exe", "editor", false)]
+        [InlineData(@"C:\Program Files\Greenshot\Other\greenshot-editor.exe", "editor", false)]
+        [InlineData(@"C:\Program Files\Greenshot\Editor\Editor\greenshot-editor.exe", "editor", false)]
+        [InlineData(@"C:\Users\me\Editor\greenshot-editor.exe", "editor", false)]
+        [InlineData(@"C:\Program Files\Greenshot\Editor\greenshot-cli.exe", "cli", false)]
         public void PipeClients_MustBeGreenshotsOwnPrograms(string clientPath, string source, bool allowed)
         {
             Assert.Equal(allowed, IpcClientVerifier.IsAllowed(clientPath, source, @"C:\Program Files\Greenshot\", out string error));

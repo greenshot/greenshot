@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Redo: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Redo">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M12.44,10.67 A4.9,4.9 0 1 1 9.84,4.06">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#1A5FA0" Thickness="4.4" LineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#1A5FA0" Geometry="M13.17,5.41 L10.63,0.49 L7.93,7.17 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#1A5FA0" Thickness="1.4" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M12.44,10.67 A4.9,4.9 0 1 1 9.84,4.06">
+          <GeometryDrawing.Pen>
+            <Pen Thickness="2.4" LineCap="Round">
+              <Pen.Brush>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                  <GradientStop Offset="0" Color="#9ADFFE" />
+                  <GradientStop Offset="0.5" Color="#4FA6EC" />
+                  <GradientStop Offset="1" Color="#257AC5" />
+                </LinearGradientBrush>
+              </Pen.Brush>
+            </Pen>
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M13.17,5.41 L10.63,0.49 L7.93,7.17 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+              <GradientStop Offset="0" Color="#9ADFFE" />
+              <GradientStop Offset="1" Color="#2F89D4" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

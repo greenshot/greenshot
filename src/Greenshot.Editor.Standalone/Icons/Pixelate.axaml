@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.Pixelate: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.Pixelate">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Brush="#C8C8C8" Geometry="M4,0 H6 V2 H4 Z M10,0 H12 V2 H10 Z M2,4 H4 V6 H2 Z M12,4 H14 V6 H12 Z M6,6 H8 V8 H6 Z M8,6 H10 V8 H8 Z M0,8 H2 V10 H0 Z M14,8 H16 V10 H14 Z M4,14 H6 V16 H4 Z M10,14 H12 V16 H10 Z" />
+        <GeometryDrawing Brush="#3A3A3A" Geometry="M6,0 H8 V2 H6 Z M12,6 H14 V8 H12 Z M6,8 H8 V10 H6 Z M12,10 H14 V12 H12 Z M0,14 H2 V16 H0 Z M12,14 H14 V16 H12 Z" />
+        <GeometryDrawing Brush="#666666" Geometry="M8,0 H10 V2 H8 Z M2,6 H4 V8 H2 Z M8,8 H10 V10 H8 Z M2,10 H4 V12 H2 Z M2,14 H4 V16 H2 Z M14,14 H16 V16 H14 Z" />
+        <GeometryDrawing Brush="#4A4A4A" Geometry="M4,2 H6 V4 H4 Z M10,4 H12 V6 H10 Z M4,6 H6 V8 H4 Z M10,8 H12 V10 H10 Z" />
+        <GeometryDrawing Brush="#2E2E2E" Geometry="M6,2 H8 V4 H6 Z M12,8 H14 V10 H12 Z M0,12 H2 V14 H0 Z M12,12 H14 V14 H12 Z" />
+        <GeometryDrawing Brush="#7A7A7A" Geometry="M8,2 H10 V4 H8 Z M2,8 H4 V10 H2 Z M2,12 H4 V14 H2 Z M14,12 H16 V14 H14 Z" />
+        <GeometryDrawing Brush="#585858" Geometry="M10,2 H12 V4 H10 Z M4,4 H6 V6 H4 Z M10,6 H12 V8 H10 Z M4,8 H6 V10 H4 Z" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>
