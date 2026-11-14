@@ -31,6 +31,7 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
+using Greenshot.Recipes.Steps;
 using log4net;
 
 namespace Greenshot.Recipes
@@ -454,6 +455,13 @@ namespace Greenshot.Recipes
             if (Is(type, WellKnownStepTypes.OpenWindow))
             {
                 return $"Opens {node.GetParameter<string>("Window")}";
+            }
+            if (Is(type, WellKnownStepTypes.Delay))
+            {
+                int seconds = node.GetParameter(DelayStep.SecondsParameter, DelayStep.DefaultSeconds);
+                return node.GetParameter(DelayStep.AskUserParameter, false)
+                    ? $"Lets you choose a delay (default {seconds} seconds), then waits"
+                    : $"Waits {seconds} seconds";
             }
 
             var contract = registry.GetContract(type);

@@ -22,6 +22,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
@@ -30,24 +31,28 @@ using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Forms;
+using Greenshot.Settings.Views;
 
 namespace Greenshot.Recipes.Steps
 {
     /// <summary>
-    /// Opens a window of Greenshot: the tray menu, the settings, the about window, the help or an empty editor
+    /// Opens a window of Greenshot: the tray menu, the settings, the quick settings, the about window, the help or an empty editor
     /// </summary>
-    [StepInfo(WellKnownStepTypes.OpenWindow, "Open window", "Opens a window of Greenshot: the tray menu, the settings, about, the help or an empty editor.", "Interaction")]
+    [StepInfo(WellKnownStepTypes.OpenWindow, "Open window", "Opens a window of Greenshot: the tray menu, the settings, the quick settings, about, the help or an empty editor.", "Interaction")]
     [StepParameter(WindowParameter, ContractDataType.Enum, Required = true, SupportsExpressions = false, Description = "Which window to open",
-        AllowedValues = new[] { TrayMenu, Settings, About, Help, EmptyEditor })]
+        AllowedValues = new[] { TrayMenu, Settings, QuickSettings, About, Help, EmptyEditor })]
     public class OpenWindowStep : ICaptureStep
     {
         public const string WindowParameter = "Window";
 
         public const string TrayMenu = "TrayMenu";
         public const string Settings = "Settings";
+        public const string QuickSettings = "QuickSettings";
         public const string About = "About";
         public const string Help = "Help";
         public const string EmptyEditor = "EmptyEditor";
+
+        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
@@ -63,12 +68,19 @@ namespace Greenshot.Recipes.Steps
             if (context == null) return;
 
             string window = Config.GetParameter<string>(WindowParameter);
+            if (string.Equals(window, QuickSettings, StringComparison.OrdinalIgnoreCase) && CoreConfig?.DisableQuickSettings == true)
+            {
+                context.Abort("The quick settings are switched off (DisableQuickSettings in greenshot.ini).");
+                return;
+            }
+
             var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
-            // Without the shell (unattended, tests) only the help and the editor can be opened
+            // Without the shell (unattended, tests) only the quick settings, the help and the editor can be opened
             Action open = window switch
             {
                 _ when string.Equals(window, TrayMenu, StringComparison.OrdinalIgnoreCase) && shell != null => shell.ShowTrayMenu,
                 _ when string.Equals(window, Settings, StringComparison.OrdinalIgnoreCase) && shell != null => () => shell.ShowSetting(),
+                _ when string.Equals(window, QuickSettings, StringComparison.OrdinalIgnoreCase) => () => QuickSettingsWindow.ShowOrActivate(shell),
                 _ when string.Equals(window, About, StringComparison.OrdinalIgnoreCase) && shell != null => shell.ShowAbout,
                 _ when string.Equals(window, Help, StringComparison.OrdinalIgnoreCase) => () => AsyncCommand.Run(HelpFileLoader.LoadHelpAsync, "Load the help"),
                 _ when string.Equals(window, EmptyEditor, StringComparison.OrdinalIgnoreCase) => () => ImageEditorForm.OpenNewImage(),

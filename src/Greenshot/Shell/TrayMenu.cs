@@ -48,6 +48,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
 using Greenshot.Recipes;
 using Greenshot.Recipes.Triggers;
+using Greenshot.Settings;
 using log4net;
 
 namespace Greenshot.Shell
@@ -59,11 +60,6 @@ namespace Greenshot.Shell
     public sealed class TrayMenu
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TrayMenu));
-
-        /// <summary>
-        /// At most this many recipe options in the "Automatic steps" block of the quick settings, the others are in Settings > Recipes ("More…")
-        /// </summary>
-        private const int MaxRecipeQuickSettings = 6;
 
         private static readonly ConcurrentDictionary<string, ImageSource> Icons = new ConcurrentDictionary<string, ImageSource>();
 
@@ -175,7 +171,7 @@ namespace Greenshot.Shell
             bool hasSettingsBlock = false;
             if (!conf.DisableQuickSettings)
             {
-                var quickSettings = CreateQuickSettingsItem(conf);
+                var quickSettings = CreateQuickSettingsItem();
                 if (quickSettings.Items.Count > 0)
                 {
                     menu.Items.Add(quickSettings);
@@ -562,188 +558,68 @@ namespace Greenshot.Shell
         }
 
         /// <summary>
-        /// The quick settings: the settings which are changed often, stored right away
+        /// The quick settings (<see cref="QuickSettings"/>) as a sub menu: a group is a sub menu (an inline group a header with its
+        /// items), a switch a checked item, a choice a sub menu with one item per value
         /// </summary>
-        private MenuItem CreateQuickSettingsItem(ICoreConfiguration conf)
+        private MenuItem CreateQuickSettingsItem()
         {
             var quickSettings = ThemedMenu.CreateItem(Texts.Core.ContextmenuQuicksettings);
-            var coreSection = IniConfigRegistry.GetSection<ICoreConfiguration>();
-
-            // Only add if the value is not fixed
-            if (coreSection == null || !coreSection.IsConstant("CaptureMousepointer"))
+            foreach (var group in QuickSettings.Create())
             {
-                quickSettings.Items.Add(ThemedMenu.CreateCheckItem(Texts.Settings.CaptureMousepointer, conf.CaptureMousepointer, value => conf.CaptureMousepointer = value));
-            }
-
-            if (coreSection == null || !coreSection.IsConstant("Destinations"))
-            {
-                var destinations = ThemedMenu.CreateItem(Texts.Settings.Destination);
-                foreach (var destination in DestinationHelper.GetAllDestinations())
+                if (group.Title == null)
                 {
-                    var selectedDestination = destination;
-                    destinations.Items.Add(ThemedMenu.CreateCheckItem(destination.Descriptor?.DisplayName ?? destination.Designation,
-                        conf.OutputDestinations.Contains(destination.Designation),
-                        isChecked => QuickSettingDestinationChanged(conf, selectedDestination, isChecked)));
-                }
-
-                if (destinations.Items.Count > 0)
-                {
-                    quickSettings.Items.Add(destinations);
-                }
-            }
-
-            // print options
-            var printOptions = ThemedMenu.CreateItem(Texts.Settings.Printoptions);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintPromptOptions", Texts.Settings.Alwaysshowprintoptionsdialog, v => conf.OutputPrintPromptOptions = v, conf.OutputPrintPromptOptions);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintAllowRotate", Texts.Core.PrintoptionsAllowrotate, v => conf.OutputPrintAllowRotate = v, conf.OutputPrintAllowRotate);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintAllowEnlarge", Texts.Core.PrintoptionsAllowenlarge, v => conf.OutputPrintAllowEnlarge = v, conf.OutputPrintAllowEnlarge);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintAllowShrink", Texts.Core.PrintoptionsAllowshrink, v => conf.OutputPrintAllowShrink = v, conf.OutputPrintAllowShrink);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintCenter", Texts.Core.PrintoptionsAllowcenter, v => conf.OutputPrintCenter = v, conf.OutputPrintCenter);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintInverted", Texts.Core.PrintoptionsInverted, v => conf.OutputPrintInverted = v, conf.OutputPrintInverted);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintGrayscale", Texts.Core.PrintoptionsPrintgrayscale, v => conf.OutputPrintGrayscale = v, conf.OutputPrintGrayscale);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintMonochrome", Texts.Core.PrintoptionsPrintmonochrome, v => conf.OutputPrintMonochrome = v, conf.OutputPrintMonochrome);
-            AddBoolMenuItem(printOptions, coreSection, "OutputPrintFooter", Texts.Core.PrintoptionsTimestamp, v => conf.OutputPrintFooter = v, conf.OutputPrintFooter);
-            if (printOptions.Items.Count > 0)
-            {
-                quickSettings.Items.Add(printOptions);
-            }
-
-            // effects
-            var effects = ThemedMenu.CreateItem(Texts.Settings.Visualization);
-            AddBoolMenuItem(effects, coreSection, "PlayCameraSound", Texts.Settings.Playsound, v => conf.PlayCameraSound = v, conf.PlayCameraSound);
-            AddBoolMenuItem(effects, coreSection, "ShowTrayNotification", Texts.Settings.Shownotify, v => conf.ShowTrayNotification = v, conf.ShowTrayNotification);
-            if (effects.Items.Count > 0)
-            {
-                quickSettings.Items.Add(effects);
-            }
-
-            AddRecipeQuickSettings(quickSettings);
-            return quickSettings;
-        }
-
-        /// <summary>
-        /// Adds a checked item for a config property, skipping it when the property is marked as constant (admin-enforced).
-        /// </summary>
-        private static void AddBoolMenuItem(MenuItem parent, IIniSection section, string propertyName, string text, Action<bool> setter, bool currentValue)
-        {
-            if (section != null && section.IsConstant(propertyName))
-            {
-                return;
-            }
-
-            parent.Items.Add(ThemedMenu.CreateCheckItem(text, currentValue, setter));
-        }
-
-        private static void QuickSettingDestinationChanged(ICoreConfiguration conf, IDestination selectedDestination, bool isChecked)
-        {
-            if (isChecked)
-            {
-                if (selectedDestination.Designation.Equals(nameof(WellKnownDestinations.Picker)))
-                {
-                    // If the item is the destination picker, remove all others
-                    conf.OutputDestinations.Clear();
-                }
-                else
-                {
-                    // If the item is not the destination picker, remove the picker
-                    conf.OutputDestinations.Remove(nameof(WellKnownDestinations.Picker));
-                }
-
-                // Checked an item, add if the destination is not yet selected
-                if (!conf.OutputDestinations.Contains(selectedDestination.Designation))
-                {
-                    conf.OutputDestinations.Add(selectedDestination.Designation);
-                }
-            }
-            else if (conf.OutputDestinations.Contains(selectedDestination.Designation))
-            {
-                // deselected a destination, only remove if it was selected
-                conf.OutputDestinations.Remove(selectedDestination.Designation);
-            }
-
-            // Check if something was selected, if not make the picker the default
-            if (conf.OutputDestinations.Count == 0)
-            {
-                conf.OutputDestinations.Add(nameof(WellKnownDestinations.Picker));
-            }
-        }
-
-        /// <summary>
-        /// The options recipes offer in the quick settings ("quickSettings": true), in one "Automatic steps" block: a switch
-        /// is a checked item, a choice a submenu with one item per value, at most <see cref="MaxRecipeQuickSettings"/> of them,
-        /// and "More…" opens Settings > Recipes. The value is stored right away.
-        /// </summary>
-        private void AddRecipeQuickSettings(MenuItem quickSettings)
-        {
-            List<(FlowDefinition Recipe, RecipeOption Option)> options;
-            try
-            {
-                // The extensions (border, drop shadow, caption, ...) first, then the recipes
-                var manager = RecipeManager.Instance;
-                options = manager.GetAllExtensions()
-                    .OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
-                    .Cast<FlowDefinition>()
-                    .Concat(manager.GetAllRecipes().OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
-                    .Where(r => r?.Options != null)
-                    .SelectMany(r => r.Options
-                        .Where(o => o != null && o.QuickSettings && (o.Type == ContractDataType.Boolean || (o.Type == ContractDataType.Enum && o.Choices != null)))
-                        .Select(o => (Recipe: r, Option: o)))
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't add the options of the recipes to the quick settings.", ex);
-                return;
-            }
-
-            if (options.Count == 0)
-            {
-                return;
-            }
-
-            if (quickSettings.Items.Count > 0)
-            {
-                quickSettings.Items.Add(ThemedMenu.CreateSeparator());
-            }
-
-            var header = ThemedMenu.CreateItem(Texts.Core.QuicksettingsAutomaticsteps);
-            header.IsEnabled = false;
-            quickSettings.Items.Add(header);
-
-            // The same label of two recipes gets the recipe name in front
-            var duplicateLabels = new HashSet<string>(options.GroupBy(o => o.Option.DisplayLabel, StringComparer.CurrentCultureIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.CurrentCultureIgnoreCase);
-            if (options.Count > MaxRecipeQuickSettings)
-            {
-                Log.DebugFormat("{0} recipe options are marked for the quick settings, showing {1}.", options.Count, MaxRecipeQuickSettings);
-            }
-
-            foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
-            {
-                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{recipe.DisplayName}: {option.DisplayLabel}" : option.DisplayLabel;
-                var value = RecipeOptionStore.GetValue(recipe, option);
-                if (option.Type == ContractDataType.Boolean)
-                {
-                    var switchItem = ThemedMenu.CreateCheckItem(label, value is true, isChecked => RecipeOptionStore.SetValue(recipe.Id, option, isChecked));
-                    if (!string.IsNullOrEmpty(option.DisplayDescription))
-                    {
-                        switchItem.ToolTip = option.DisplayDescription;
-                    }
-                    quickSettings.Items.Add(switchItem);
+                    AddQuickSettings(quickSettings, group.Settings);
                     continue;
                 }
 
-                var choiceList = ThemedMenu.CreateItem(label);
-                foreach (var choice in option.Choices.Where(c => c != null))
+                if (!group.IsInline)
                 {
-                    var selectedChoice = choice;
-                    bool isCurrent = string.Equals(choice.Value, value as string, StringComparison.OrdinalIgnoreCase);
-                    // Like a radio button: clicking the current value keeps it
-                    choiceList.Items.Add(ThemedMenu.CreateCheckItem(choice.DisplayLabel, isCurrent, _ => RecipeOptionStore.SetValue(recipe.Id, option, selectedChoice.Value)));
+                    var groupItem = ThemedMenu.CreateItem(group.Title);
+                    AddQuickSettings(groupItem, group.Settings);
+                    quickSettings.Items.Add(groupItem);
+                    continue;
                 }
-                quickSettings.Items.Add(choiceList);
-            }
 
-            quickSettings.Items.Add(ThemedMenu.CreateItem(Texts.Core.QuicksettingsAutomaticstepsMore, null, () => RunLater(() => _shell.ShowSetting(null, "recipes"))));
+                if (quickSettings.Items.Count > 0)
+                {
+                    quickSettings.Items.Add(ThemedMenu.CreateSeparator());
+                }
+                var header = ThemedMenu.CreateItem(group.Title);
+                header.IsEnabled = false;
+                quickSettings.Items.Add(header);
+                AddQuickSettings(quickSettings, group.Settings);
+                if (group.MoreSettingsTab != null)
+                {
+                    string tab = group.MoreSettingsTab;
+                    quickSettings.Items.Add(ThemedMenu.CreateItem(Texts.Core.QuicksettingsAutomaticstepsMore, null, () => RunLater(() => _shell.ShowSetting(null, tab))));
+                }
+            }
+            return quickSettings;
+        }
+
+        private static void AddQuickSettings(MenuItem parent, IEnumerable<QuickSetting> settings)
+        {
+            foreach (var setting in settings)
+            {
+                if (!setting.IsChoice)
+                {
+                    var switchItem = ThemedMenu.CreateCheckItem(setting.Label, setting.IsOn, setting.SetOn);
+                    if (setting.Description != null)
+                    {
+                        switchItem.ToolTip = setting.Description;
+                    }
+                    parent.Items.Add(switchItem);
+                    continue;
+                }
+
+                var choiceList = ThemedMenu.CreateItem(setting.Label);
+                foreach (var choice in setting.Choices)
+                {
+                    // Like a radio button: clicking the current value keeps it
+                    choiceList.Items.Add(ThemedMenu.CreateCheckItem(choice.Label, choice.IsSelected, _ => choice.Select()));
+                }
+                parent.Items.Add(choiceList);
+            }
         }
     }
 }
