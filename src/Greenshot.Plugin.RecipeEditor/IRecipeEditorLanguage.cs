@@ -307,6 +307,11 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepOpenWindow { get; }
 
         /// <summary>
+        /// Delay
+        /// </summary>
+        string StepDelay { get; }
+
+        /// <summary>
         /// OUTPUT &amp; DESTINATIONS
         /// </summary>
         string HeaderOutputDestinations { get; }
@@ -1845,6 +1850,26 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Empty image in the editor
         /// </summary>
         string OpenWindowEmptyEditor { get; }
+
+        /// <summary>
+        /// Quick settings
+        /// </summary>
+        string OpenWindowQuickSettings { get; }
+
+        /// <summary>
+        /// Seconds to wait (supports ${...}, e.g. a recipe option)
+        /// </summary>
+        string DelaySeconds { get; }
+
+        /// <summary>
+        /// Let the user choose the delay first (unattended: the seconds above)
+        /// </summary>
+        string DelayAskUser { get; }
+
+        /// <summary>
+        /// Show a countdown (it doesn't take the focus, so an open menu stays open)
+        /// </summary>
+        string DelayShowCountdown { get; }
 
         /// <summary>
         /// Exit Code
@@ -4720,6 +4745,16 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Open: {0}
         /// </summary>
         string SummaryOpenWindow { get; }
+
+        /// <summary>
+        /// Wait {0} s
+        /// </summary>
+        string SummaryDelay { get; }
+
+        /// <summary>
+        /// Wait, the user chooses (default {0} s)
+        /// </summary>
+        string SummaryDelayAsk { get; }
 
         /// <summary>
         /// Stderr (exit {0}, abort): {1}

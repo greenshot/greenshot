@@ -81,6 +81,7 @@ namespace Greenshot.Recipes
         public const string RecipeIdTrayMenu = "recipe_tray_menu";
         public const string RecipeIdOpenSettings = "recipe_open_settings";
         public const string RecipeIdEmptyEditor = "recipe_empty_editor";
+        public const string RecipeIdQuickSettings = "recipe_quick_settings";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -459,6 +460,8 @@ namespace Greenshot.Recipes
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdTrayMenu, "Core.contextmenu_showtraymenu", "Opens the tray menu at the mouse", OpenWindowStep.TrayMenu), disabled);
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdOpenSettings, "Core.contextmenu_opensettings", "Opens the settings", OpenWindowStep.Settings), disabled);
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdEmptyEditor, "Core.contextmenu_openemptyeditor", "Opens an empty image in the editor", OpenWindowStep.EmptyEditor), disabled);
+            // 14. The quick settings in a window, for a hotkey or a click on the tray icon
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdQuickSettings, "Core.contextmenu_quicksettings", "Opens the quick settings in a window", OpenWindowStep.QuickSettings), disabled);
         }
 
         private static CaptureRecipe CreateOpenWindowRecipe(string id, string name, string description, string window)

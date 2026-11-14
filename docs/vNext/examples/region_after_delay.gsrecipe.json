@@ -1,0 +1,69 @@
+{
+  "version": "2.0",
+  "id": "recipe_region_after_delay",
+  "name": "Region after a delay",
+  "description": "Asks how long to wait, counts down while you open a menu or popup, then lets you select the region",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "Region after a delay menu item",
+      "enabled": true,
+      "parameters": {
+        "MenuItemText": "Region after a delay",
+        "Group": "Recipes"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "wait",
+      "stepType": "Delay",
+      "enabled": true,
+      "parameters": {
+        "Seconds": 5,
+        "AskUser": true
+      }
+    },
+    {
+      "id": "source",
+      "stepType": "Source",
+      "enabled": true,
+      "parameters": {
+        "SourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "enabled": true,
+      "parameters": {
+        "SelectionMode": "Region"
+      }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "name": "Destinations of the settings",
+      "enabled": true
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "wait"
+    ],
+    "transitions": [
+      {
+        "from": "wait",
+        "to": "source"
+      },
+      {
+        "from": "source",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "destination"
+      }
+    ]
+  }
+}

@@ -285,7 +285,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot, ShowInExplorer, OpenWindow) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, SetMetadata, ImmediateFeedback, Ocr, Destinations, Notification, Conditional, Slot, ShowInExplorer, OpenWindow, Delay) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
@@ -504,8 +504,23 @@
             },
             "Window": {
               "type": "string",
-              "enum": [ "TrayMenu", "Settings", "About", "Help", "EmptyEditor" ],
-              "description": "Used by 'OpenWindow' step (required): the window of Greenshot to open."
+              "enum": [ "TrayMenu", "Settings", "QuickSettings", "About", "Help", "EmptyEditor" ],
+              "description": "Used by 'OpenWindow' step (required): the window of Greenshot to open. 'QuickSettings' shows the quick settings of the tray menu in a window."
+            },
+            "Seconds": {
+              "type": [ "integer", "string" ],
+              "default": 5,
+              "description": "Used by 'Delay' step: the seconds to wait, 0 to 600, supports ${...} (e.g. a recipe option). With AskUser the choice selected first."
+            },
+            "AskUser": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'Delay' step: let the user choose the delay first (3, 5, 10, 30 seconds or Seconds). Unattended (command line) nothing is asked, it waits Seconds."
+            },
+            "ShowCountdown": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'Delay' step: show a countdown at the bottom right of the display, with a Cancel button. It never takes the focus, so an open menu or popup stays open. Unattended nothing is shown."
             },
             "DestinationDesignations": {
               "type": "array",

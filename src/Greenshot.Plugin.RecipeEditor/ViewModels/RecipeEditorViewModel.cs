@@ -2478,6 +2478,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 case WellKnownStepTypes.OpenWindow:
                     dict["Window"] = "Settings";
                     break;
+                case WellKnownStepTypes.Delay:
+                    dict["Seconds"] = 5;
+                    break;
                 case "ExternalCommand":
                     dict["Program"] = "cmd.exe";
                     dict["Arguments"] = "/c echo Processing \"${export.file}\"";

@@ -698,6 +698,9 @@
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepOpenWindow}" Command="{Binding AddStepCommand}" CommandParameter="OpenWindow">
                                 <TextBlock><Run Text="🪟 "/><Run Text="{wpf:Text RecipeEditor.StepOpenWindow}"/></TextBlock>
                             </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepDelay}" Command="{Binding AddStepCommand}" CommandParameter="Delay">
+                                <TextBlock><Run Text="⏳ "/><Run Text="{wpf:Text RecipeEditor.StepDelay}"/></TextBlock>
+                            </Button>
 
                             <!-- 5. Destinations & Output -->
                             <TextBlock Text="{wpf:Text RecipeEditor.HeaderOutputDestinations}" FontWeight="SemiBold" FontSize="{wpf:FontSize 10}" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
@@ -2491,10 +2494,21 @@
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.OpenWindowWindow}" SelectedValue="{Binding SelectedNode.OpenWindowWindow, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowTrayMenu}" Tag="TrayMenu"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowSettings}" Tag="Settings"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowQuickSettings}" Tag="QuickSettings"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowAbout}" Tag="About"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowHelp}" Tag="Help"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowEmptyEditor}" Tag="EmptyEditor"/>
                                             </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Delay}">
+                                            <TextBlock x:Name="DelaySecondsLabel" Text="{wpf:Text RecipeEditor.DelaySeconds}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                                            <TextBox AutomationProperties.LabeledBy="{Binding ElementName=DelaySecondsLabel}" Text="{Binding SelectedNode.DelaySeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.DelayAskUser}" IsChecked="{Binding SelectedNode.DelayAskUser, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.DelayShowCountdown}" IsChecked="{Binding SelectedNode.DelayShowCountdown, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- PDF Step Inspector -->

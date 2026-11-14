@@ -2912,6 +2912,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Window", value); OnPropertyChanged(nameof(OpenWindowWindow)); OnPropertyChanged(nameof(Summary)); }
         }
 
+        // --- Delay Step ---
+        public string DelaySeconds
+        {
+            get => GetParam("Seconds", "5");
+            set { SetNumberParam("Seconds", value); OnPropertyChanged(nameof(DelaySeconds)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool DelayAskUser
+        {
+            get => GetParamBool("AskUser", false);
+            set { SetParam("AskUser", value); OnPropertyChanged(nameof(DelayAskUser)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool DelayShowCountdown
+        {
+            get => GetParamBool("ShowCountdown", true);
+            set { SetParam("ShowCountdown", value); OnPropertyChanged(nameof(DelayShowCountdown)); }
+        }
+
         public string StderrExitCode
         {
             get => GetParam("ExitCode", "1");
@@ -4024,6 +4043,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShowInExplorer, ShowInExplorerPath);
                     case WellKnownStepTypes.OpenWindow:
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryOpenWindow, OpenWindowWindow);
+                    case WellKnownStepTypes.Delay:
+                        return string.Format(DelayAskUser ? Texts.Get<IRecipeEditorLanguage>().SummaryDelayAsk : Texts.Get<IRecipeEditorLanguage>().SummaryDelay, DelaySeconds);
                     case WellKnownStepTypes.Stderr:
                         return string.Format(StderrAbort ? Texts.Get<IRecipeEditorLanguage>().SummaryStderrAbort : Texts.Get<IRecipeEditorLanguage>().SummaryStderr, StderrExitCode, OutputText);
                     case WellKnownStepTypes.Conditional:
@@ -4168,6 +4189,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OutputText));
             OnPropertyChanged(nameof(ShowInExplorerPath));
             OnPropertyChanged(nameof(OpenWindowWindow));
+            OnPropertyChanged(nameof(DelaySeconds));
+            OnPropertyChanged(nameof(DelayAskUser));
+            OnPropertyChanged(nameof(DelayShowCountdown));
             OnPropertyChanged(nameof(StderrExitCode));
             OnPropertyChanged(nameof(StderrAbort));
             OnPropertyChanged(nameof(IsFileSource));

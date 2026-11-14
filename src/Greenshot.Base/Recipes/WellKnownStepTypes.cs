@@ -160,6 +160,11 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public const string OpenWindow = "OpenWindow";
 
+        /// <summary>
+        /// Waits before the next step (e.g. the capture) with a countdown, optionally the user chooses the delay; needs no image.
+        /// </summary>
+        public const string Delay = "Delay";
+
         private static readonly HashSet<string> DestinationStepTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             Destinations, SaveFile, Clipboard, Editor, Printer, Email, DynamicDestination, CustomDestination
