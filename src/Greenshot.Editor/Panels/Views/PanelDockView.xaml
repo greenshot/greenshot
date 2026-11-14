@@ -13,101 +13,91 @@
              FontSize="{wpf:FontSize 12}"
              AutomationProperties.Name="{wpf:Text Editor.PanelArea}">
     <UserControl.Resources>
-        <Style x:Key="PanelFocusVisual">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Margin="-1" StrokeThickness="2" SnapsToDevicePixels="True"
-                                   Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}">
+                <Setter Property="Padding" Value="3,2"/>
+            </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="Padding" Value="3,2"/>
-        </Style>
+            <!-- A flat button: the close button, the emoji cells -->
+            <Style x:Key="PanelFlatButton" TargetType="ButtonBase">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="2"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ButtonBase">
+                            <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <!-- A flat button: the close button, the emoji cells -->
-        <Style x:Key="PanelFlatButton" TargetType="ButtonBase">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="2"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource PanelFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ButtonBase">
-                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- A section: a header to collapse it, the content below -->
-        <Style TargetType="Expander">
-            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Expander">
-                        <Border Background="{Binding Path=(wpf:ThemeScope.Theme).CardBackground, RelativeSource={RelativeSource Self}}"
-                                BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"
-                                BorderThickness="1" CornerRadius="4">
-                            <DockPanel>
-                                <ToggleButton DockPanel.Dock="Top" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                              AutomationProperties.Name="{TemplateBinding Header}"
-                                              FocusVisualStyle="{StaticResource PanelFocusVisual}"
-                                              HorizontalContentAlignment="Stretch" Cursor="Hand">
-                                    <ToggleButton.Template>
-                                        <ControlTemplate TargetType="ToggleButton">
-                                            <Border Background="Transparent" Padding="6,5">
-                                                <DockPanel>
-                                                    <Path x:Name="Arrow" DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
-                                                          Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z"
-                                                          Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" RenderTransformOrigin="0.5,0.5">
-                                                        <Path.RenderTransform>
-                                                            <RotateTransform x:Name="ArrowRotation" Angle="-90"/>
-                                                        </Path.RenderTransform>
-                                                    </Path>
-                                                    <ContentPresenter VerticalAlignment="Center"/>
-                                                </DockPanel>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsChecked" Value="True">
-                                                    <Setter TargetName="Arrow" Property="RenderTransform">
-                                                        <Setter.Value>
-                                                            <RotateTransform Angle="0"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </ToggleButton.Template>
-                                    <TextBlock Text="{TemplateBinding Header}" FontWeight="SemiBold"/>
-                                </ToggleButton>
-                                <ContentPresenter x:Name="Content" Margin="6,0,6,6" Visibility="Collapsed"/>
-                            </DockPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsExpanded" Value="True">
-                                <Setter TargetName="Content" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <!-- A section: a header to collapse it, the content below -->
+            <Style TargetType="Expander">
+                <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Expander">
+                            <Border Background="{Binding Path=(wpf:ThemeScope.Theme).CardBackground, RelativeSource={RelativeSource Self}}"
+                                    BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"
+                                    BorderThickness="1" CornerRadius="4">
+                                <DockPanel>
+                                    <ToggleButton DockPanel.Dock="Top" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                                  AutomationProperties.Name="{TemplateBinding Header}"
+                                                  FocusVisualStyle="{StaticResource GreenshotFocusVisual}"
+                                                  HorizontalContentAlignment="Stretch" Cursor="Hand">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent" Padding="6,5">
+                                                    <DockPanel>
+                                                        <Path x:Name="Arrow" DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                              Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z"
+                                                              Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}" RenderTransformOrigin="0.5,0.5">
+                                                            <Path.RenderTransform>
+                                                                <RotateTransform x:Name="ArrowRotation" Angle="-90"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                        <ContentPresenter VerticalAlignment="Center"/>
+                                                    </DockPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="Arrow" Property="RenderTransform">
+                                                            <Setter.Value>
+                                                                <RotateTransform Angle="0"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                        <TextBlock Text="{TemplateBinding Header}" FontWeight="SemiBold"/>
+                                    </ToggleButton>
+                                    <ContentPresenter x:Name="Content" Margin="6,0,6,6" Visibility="Collapsed"/>
+                                </DockPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsExpanded" Value="True">
+                                    <Setter TargetName="Content" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <AdornerDecorator>

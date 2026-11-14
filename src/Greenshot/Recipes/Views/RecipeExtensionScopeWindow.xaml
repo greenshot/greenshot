@@ -16,8 +16,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -28,15 +27,6 @@
                 <TextBlock Text="{Binding Name}" TextWrapping="Wrap"/>
             </CheckBox>
         </DataTemplate>
-
-        <!-- A column is a card, like the group boxes of the other dialogs -->
-        <Style x:Key="ColumnCard" TargetType="Border">
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-        </Style>
 
         </ResourceDictionary>
     </Window.Resources>
@@ -65,7 +55,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.ColumnSpan="3" Text="{wpf:Text Settings.RecipesScopeDescription}" TextWrapping="Wrap" Margin="0,0,0,10"
                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Style="{StaticResource ColumnCard}">
+                <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
@@ -81,7 +71,7 @@
                         </ScrollViewer>
                     </DockPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Style="{StaticResource ColumnCard}" x:Name="DestinationsCard">
+                <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0" x:Name="DestinationsCard">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">

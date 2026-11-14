@@ -7,8 +7,7 @@
 	<Page.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-				<ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+				<ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Page.Resources>
@@ -32,7 +31,7 @@
 			AutomationProperties.Name="{wpf:Text Confluence.SearchPages}">
 			<!-- The page title for a screen reader, the item has no ToString -->
 			<ListView.ItemContainerStyle>
-				<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+				<Style TargetType="ListViewItem" BasedOn="{StaticResource ThemeListViewItem}">
 					<Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
 				</Style>
 			</ListView.ItemContainerStyle>

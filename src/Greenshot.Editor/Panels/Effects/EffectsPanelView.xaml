@@ -12,22 +12,11 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-            <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+            <Style TargetType="Label" BasedOn="{StaticResource GreenshotLabelStyle}">
                 <Setter Property="Padding" Value="0,6,0,2"/>
-                <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-            </Style>
-            <Style x:Key="SectionHeader" TargetType="TextBlock">
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Margin" Value="0,10,0,2"/>
-            </Style>
-            <Style x:Key="ValueText" TargetType="TextBlock">
-                <Setter Property="Margin" Value="8,0,0,0"/>
-                <Setter Property="MinWidth" Value="40"/>
-                <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
             <Style x:Key="Swatch" TargetType="Border">
                 <Setter Property="Width" Value="22"/>
@@ -46,7 +35,7 @@
             <ComboBox x:Name="EffectBox" ItemsSource="{Binding Effects}" DisplayMemberPath="Title" SelectedIndex="{Binding EffectIndex}"/>
 
             <!-- The preview: the capture with the effect in its full size, zoomed to fit; the wheel zooms, dragging moves it -->
-            <TextBlock Text="{wpf:Text Editor.EffectsPreview}" Style="{StaticResource SectionHeader}"/>
+            <TextBlock Text="{wpf:Text Editor.EffectsPreview}" Style="{StaticResource HeadingTextStyle}"/>
             <local:ZoomPanImage x:Name="PreviewImage" Height="260" BorderThickness="1" CornerRadius="4" Padding="2" SnapsToDevicePixels="True"
                                 AutomationProperties.Name="{wpf:Text Editor.EffectsPreview}" AutomationProperties.HelpText="{wpf:Text Editor.EffectsPreviewHint}"
                                 ToolTip="{wpf:Text Editor.EffectsPreviewHint}"
@@ -63,7 +52,7 @@
 
             <!-- Presets: a click sets the settings below, which can be changed afterwards -->
             <StackPanel Visibility="{Binding HasPresets, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{wpf:Text Editor.EffectsPresets}" Style="{StaticResource SectionHeader}"/>
+                <TextBlock Text="{wpf:Text Editor.EffectsPresets}" Style="{StaticResource HeadingTextStyle}"/>
                 <ItemsControl ItemsSource="{Binding Presets}" Focusable="False" AutomationProperties.Name="{wpf:Text Editor.EffectsPresets}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -83,7 +72,7 @@
             <StackPanel Visibility="{Binding ShowsBorder, Converter={StaticResource BoolToVisibility}}">
                 <Label x:Name="BorderWidthLabel" Content="{wpf:Text Editor.EffectsBorderWidth}"/>
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=BorderWidthSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=BorderWidthSlider, Path=ValueText}" Style="{StaticResource ValueTextStyle}"/>
                     <wpf:ValueSlider x:Name="BorderWidthSlider" ValueFormat="{}{0:0} px" Minimum="1" Maximum="50" IsSnapToTickEnabled="True" TickFrequency="1"
                                      Value="{Binding BorderWidth}" AutomationProperties.LabeledBy="{Binding ElementName=BorderWidthLabel}"/>
                 </DockPanel>
@@ -98,26 +87,26 @@
             <StackPanel Visibility="{Binding ShowsShadow, Converter={StaticResource BoolToVisibility}}">
                 <Label x:Name="DarknessLabel" Content="{wpf:Text Editor.DropshadowDarkness}"/>
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DarknessSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=DarknessSlider, Path=ValueText}" Style="{StaticResource ValueTextStyle}"/>
                     <wpf:ValueSlider x:Name="DarknessSlider" ValueFormat="{}{0:0}" Minimum="1" Maximum="40" IsSnapToTickEnabled="True" TickFrequency="1"
                                      Value="{Binding ShadowDarkness}" AutomationProperties.LabeledBy="{Binding ElementName=DarknessLabel}"/>
                 </DockPanel>
                 <Label x:Name="ShadowSizeLabel" Content="{wpf:Text Editor.DropshadowThickness}"/>
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ShadowSizeSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=ShadowSizeSlider, Path=ValueText}" Style="{StaticResource ValueTextStyle}"/>
                     <wpf:ValueSlider x:Name="ShadowSizeSlider" ValueFormat="{}{0:0} px" Minimum="1" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
                                      Value="{Binding ShadowSize}" AutomationProperties.LabeledBy="{Binding ElementName=ShadowSizeLabel}"/>
                 </DockPanel>
                 <Label x:Name="OffsetLabel" Content="{wpf:Text Editor.DropshadowOffset}"/>
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Left" Text="X" Width="14" VerticalAlignment="Center"/>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetXSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetXSlider, Path=ValueText}" Style="{StaticResource ValueTextStyle}"/>
                     <wpf:ValueSlider x:Name="OffsetXSlider" ValueFormat="{}{0:0} px" Minimum="-20" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
                                      Value="{Binding ShadowOffsetX}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetLabel}" AutomationProperties.HelpText="X"/>
                 </DockPanel>
                 <DockPanel Margin="0,4,0,0">
                     <TextBlock DockPanel.Dock="Left" Text="Y" Width="14" VerticalAlignment="Center"/>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetYSlider, Path=ValueText}" Style="{StaticResource ValueText}"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding ElementName=OffsetYSlider, Path=ValueText}" Style="{StaticResource ValueTextStyle}"/>
                     <wpf:ValueSlider x:Name="OffsetYSlider" ValueFormat="{}{0:0} px" Minimum="-20" Maximum="20" IsSnapToTickEnabled="True" TickFrequency="1"
                                      Value="{Binding ShadowOffsetY}" AutomationProperties.LabeledBy="{Binding ElementName=OffsetLabel}" AutomationProperties.HelpText="Y"/>
                 </DockPanel>
