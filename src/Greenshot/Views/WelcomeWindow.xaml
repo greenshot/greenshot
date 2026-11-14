@@ -18,8 +18,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <!-- Hyperlink Style -->
         <Style TargetType="Hyperlink">
@@ -27,27 +26,6 @@
             <!-- Always underlined: the color alone doesn't mark a link -->
             <Setter Property="TextDecorations" Value="Underline"/>
             <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <!-- A card of the window -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="14"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-        </Style>
-
-        <Style x:Key="CardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{wpf:FontSize 14}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-
-        <Style x:Key="BodyTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -72,7 +50,7 @@
                     <local:AnimatedLogo Grid.Column="0" Width="110" Height="110" VerticalAlignment="Center"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="18,0,0,0">
                         <TextBlock Text="{wpf:Text Welcome.Title}" FontSize="{wpf:FontSize 24}" FontWeight="Bold" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
-                        <TextBlock x:Name="ThanksText" Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource BodyTextStyle}"/>
+                        <TextBlock x:Name="ThanksText" Text="{wpf:Text Welcome.Thanks}" FontSize="{wpf:FontSize 14}" Style="{StaticResource MutedTextStyle}"/>
                     </StackPanel>
                 </Grid>
 
@@ -95,7 +73,7 @@
                         <!-- The basics: the user's own hotkeys -->
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Text Welcome.BasicsTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsTitle}" Style="{StaticResource HeadingTextStyle}"/>
                                 <ItemsControl ItemsSource="{Binding Basics}" Margin="0,0,0,6">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -115,8 +93,8 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <TextBlock Text="{wpf:Text Welcome.BasicsMenu}" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{wpf:Text Welcome.BasicsAfter}" Style="{StaticResource BodyTextStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsMenu}" Style="{StaticResource MutedTextStyle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{wpf:Text Welcome.BasicsAfter}" Style="{StaticResource MutedTextStyle}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -126,7 +104,7 @@
                         <!-- The setup: every check with ✓, or what keeps Greenshot from working as expected with a fix (SetupSectionViewModel, also in the Self-Service window) -->
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.SetupTitle}" Style="{StaticResource HeadingTextStyle}"/>
                                 <TextBlock Text="{wpf:Text Welcome.SetupSub}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                 <TextBlock Visibility="{Binding Setup.VersionPendingVisibility}" Text="{Binding Setup.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <TextBlock Visibility="{Binding Setup.VersionOkVisibility}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
@@ -185,7 +163,7 @@
                     <StackPanel x:Name="StepDone" Visibility="Hidden">
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
-                                <TextBlock Text="{wpf:Text Welcome.DoneTitle}" Style="{StaticResource CardTitleStyle}"/>
+                                <TextBlock Text="{wpf:Text Welcome.DoneTitle}" Style="{StaticResource HeadingTextStyle}"/>
                                 <TextBlock Text="{wpf:Text Welcome.Done}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                 <Button Content="{wpf:Text Welcome.ButtonSettings}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Click="OnSettingsClicked"/>
                             </StackPanel>
@@ -199,7 +177,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="💡" FontSize="{wpf:FontSize 20}" VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{wpf:Text Welcome.TipTitle}" Style="{StaticResource HeadingTextStyle}" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding CurrentTip}" wpf:LiveRegion.Mode="Polite" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                     <TextBlock>
                                         <Hyperlink Click="OnNextTipClicked">

@@ -6,13 +6,9 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-            <!-- The title names the list, the columns need no header -->
-            <Style x:Key="NoColumnHeader" TargetType="GridViewColumnHeader" BasedOn="{StaticResource ThemeGridViewColumnHeader}">
-                <Setter Property="Visibility" Value="Collapsed"/>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 

@@ -435,9 +435,6 @@ namespace Greenshot.Tests.Forms
             var tm = ThemeManager.Instance;
             Assert.NotNull(tm.ControlBorderBrush);
 
-            var dict = tm.GetThemeResources();
-            Assert.True(dict.Contains("ThemeControlBorderBrush"));
-
             bool notified = false;
             System.ComponentModel.PropertyChangedEventHandler handler = (s, e) =>
             {

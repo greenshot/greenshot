@@ -37,7 +37,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Slider">
+    <Style x:Key="GreenshotSliderStyle" TargetType="Slider">
         <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
         <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="MinHeight" Value="20"/>
@@ -88,8 +88,10 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Slider" BasedOn="{StaticResource GreenshotSliderStyle}"/>
+
     <!-- A slider which tells a screen reader its value, see ValueSlider.cs; it looks like any other slider -->
-    <Style TargetType="{x:Type wpf:ValueSlider}" BasedOn="{StaticResource {x:Type Slider}}">
+    <Style TargetType="{x:Type wpf:ValueSlider}" BasedOn="{StaticResource GreenshotSliderStyle}">
         <Setter Property="Margin" Value="0,3"/>
     </Style>
 </ResourceDictionary>

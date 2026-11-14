@@ -62,36 +62,7 @@ namespace Greenshot.Settings.Views
             _viewModel = new SettingsViewModel();
             DataContext = _viewModel;
             Icon = _viewModel.WindowIcon;
-            
-            // Apply theme
-            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-            
-            // Listen for theme changes
-            System.ComponentModel.PropertyChangedEventHandler themeHandler = (s, e) =>
-            {
-                if (Dispatcher.CheckAccess())
-                {
-                    Resources.MergedDictionaries.Clear();
-                    Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                }
-                else if (!Dispatcher.HasShutdownStarted)
-                {
-                    _ = Dispatcher.InvokeAsync(() =>
-                    {
-                        try
-                        {
-                            Resources.MergedDictionaries.Clear();
-                            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                        }
-                        catch
-                        {
-                            // Window or dispatcher shutting down
-                        }
-                    });
-                }
-            };
-            ThemeManager.Instance.PropertyChanged += themeHandler;
-            Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
+            // The shared styles (GreenshotStyles.xaml, merged in the XAML) bind to the theme, a theme change needs nothing here
 
 #if GREENSHOT_LIGHT
             // Greenshot Light has no plugins and no AI tools

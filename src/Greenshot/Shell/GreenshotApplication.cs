@@ -256,6 +256,19 @@ namespace Greenshot.Shell
                 GreenshotMain.Application_ThreadException(sender, new ThreadExceptionEventArgs(args.Exception));
                 args.Handled = true;
             };
+            // The shared styles for every WPF window and panel (also of the plugins): a window only merges what goes beyond them
+            try
+            {
+                wpfApplication.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary
+                {
+                    Source = new Uri("/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml", UriKind.Relative)
+                });
+            }
+            catch (Exception ex)
+            {
+                // The windows still merge the styles themselves
+                Log.Warn("Couldn't load the shared WPF styles", ex);
+            }
         }
 
 

@@ -14,7 +14,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="VisibleWhenTrue"/>
         </ResourceDictionary>
@@ -46,7 +46,7 @@
                                     <TextBox Grid.Column="1" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              AutomationProperties.Name="{Binding Label, TargetNullValue=''}">
                                         <TextBox.Style>
-                                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsMasked}" Value="True">
                                                         <Setter Property="Visibility" Value="Collapsed"/>

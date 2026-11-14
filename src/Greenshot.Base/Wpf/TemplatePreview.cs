@@ -97,7 +97,12 @@ namespace Greenshot.Base.Wpf
             // A sample capture: the title of this window stands for the window title of a capture
             var (text, isError) = Describe(Template, Purpose, Extension, Window.GetWindow(this)?.Title);
             Text = text;
-            SetResourceReference(ForegroundProperty, isError ? "ThemeErrorBrush" : "ThemeMutedBrush");
+            // Bound to the theme like the shared styles, so a theme change updates the color
+            SetBinding(ForegroundProperty, new System.Windows.Data.Binding
+            {
+                Path = new PropertyPath(isError ? "(0).ErrorBrush" : "(0).MutedBrush", ThemeScope.ThemeProperty),
+                RelativeSource = System.Windows.Data.RelativeSource.Self
+            });
             LiveRegion.Announce(this);
         }
 
