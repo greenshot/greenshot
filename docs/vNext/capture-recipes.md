@@ -211,8 +211,8 @@ no destination added when a trigger starts it:
   of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
 - `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `QuickSettings`, `About`, `Help` or
   `EmptyEditor`. `QuickSettings` shows the quick settings of the tray menu (mouse pointer, destinations, print options,
-  sound and notifications, the options of recipes marked for the quick settings) in a window: every change is stored at
-  once, *Preferences...* opens all settings. With `DisableQuickSettings=true` in `greenshot.ini` the step stops the
+  sound and notifications, the options of recipes marked for the quick settings) in a window: the groups which are
+  sub menus in the tray menu (destinations, print options, ...) start closed, every change is stored at once, *Preferences...* opens all settings. With `DisableQuickSettings=true` in `greenshot.ini` the step stops the
   recipe instead. The built-in recipe "Quick preferences" (`recipe_quick_settings`) does just this, so a hotkey or a
   click on the tray icon can open the quick settings.
 - `Delay` waits, see [Waiting before the capture](#waiting-before-the-capture-delay-step).

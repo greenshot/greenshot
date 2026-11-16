@@ -36,6 +36,8 @@ namespace Greenshot.Settings.ViewModels
         public QuickSettingGroupViewModel(QuickSettingGroup group, QuickSettingsViewModel owner, Action<string> openSettings)
         {
             Title = group.Title;
+            // A group which is a sub menu in the tray menu (destinations, print options, ...) starts closed, the window stays short
+            IsCollapsible = group.Title != null && !group.IsInline;
             Settings = group.Settings.Select(setting => new QuickSettingViewModel(setting, owner)).ToList();
             if (group.MoreSettingsTab != null)
             {
@@ -50,6 +52,16 @@ namespace Greenshot.Settings.ViewModels
         public string Title { get; }
 
         public bool HasTitle => Title != null;
+
+        /// <summary>
+        /// Shown as an expander, closed at first
+        /// </summary>
+        public bool IsCollapsible { get; }
+
+        /// <summary>
+        /// Shown as an open list
+        /// </summary>
+        public bool IsOpen => !IsCollapsible;
 
         public IReadOnlyList<QuickSettingViewModel> Settings { get; }
 

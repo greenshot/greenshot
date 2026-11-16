@@ -18,9 +18,29 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+            <DataTemplate x:Key="QuickSettingTemplate">
+                <StackPanel Margin="0,2">
+                    <CheckBox Content="{Binding Label}"
+                              IsChecked="{Binding IsOn, Mode=TwoWay}"
+                              ToolTip="{Binding Description}"
+                              Visibility="{Binding IsSwitch, Converter={StaticResource BoolToVisibility}}"/>
+                    <Grid Visibility="{Binding IsChoice, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{Binding Label}" Target="{Binding ElementName=ChoiceBox}"
+                               ToolTip="{Binding Description}" VerticalAlignment="Center" Padding="0,0,8,0"/>
+                        <ComboBox x:Name="ChoiceBox" Grid.Column="1" MinWidth="140"
+                                  ItemsSource="{Binding Choices}"
+                                  SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                                  DisplayMemberPath="Label"/>
+                    </Grid>
+                </StackPanel>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -38,36 +58,22 @@
                 <ItemsControl ItemsSource="{Binding Groups}" Margin="20,12,20,8" Focusable="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,10">
-                                <TextBlock Text="{Binding Title}"
-                                           Visibility="{Binding HasTitle, Converter={StaticResource BoolToVisibility}}"
-                                           FontSize="{wpf:FontSize 13}"
-                                           FontWeight="SemiBold"
-                                           Margin="0,4,0,4"/>
-                                <ItemsControl ItemsSource="{Binding Settings}" Focusable="False">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Margin="0,2">
-                                                <CheckBox Content="{Binding Label}"
-                                                          IsChecked="{Binding IsOn, Mode=TwoWay}"
-                                                          ToolTip="{Binding Description}"
-                                                          Visibility="{Binding IsSwitch, Converter={StaticResource BoolToVisibility}}"/>
-                                                <Grid Visibility="{Binding IsChoice, Converter={StaticResource BoolToVisibility}}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Label Grid.Column="0" Content="{Binding Label}" Target="{Binding ElementName=ChoiceBox}"
-                                                           ToolTip="{Binding Description}" VerticalAlignment="Center" Padding="0,0,8,0"/>
-                                                    <ComboBox x:Name="ChoiceBox" Grid.Column="1" MinWidth="140"
-                                                              ItemsSource="{Binding Choices}"
-                                                              SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                                                              DisplayMemberPath="Label"/>
-                                                </Grid>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                            <StackPanel Margin="0,0,0,6">
+                                <!-- The settings without a group, and a group shown open (the options of recipes) -->
+                                <StackPanel Visibility="{Binding IsOpen, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="{Binding Title}"
+                                               Visibility="{Binding HasTitle, Converter={StaticResource BoolToVisibility}}"
+                                               FontSize="{wpf:FontSize 13}"
+                                               FontWeight="SemiBold"
+                                               Margin="0,4,0,4"/>
+                                    <ItemsControl ItemsSource="{Binding Settings}" ItemTemplate="{StaticResource QuickSettingTemplate}" Focusable="False"/>
+                                </StackPanel>
+                                <!-- A group with many entries (destinations, print options, ...) starts closed -->
+                                <Expander Header="{Binding Title}"
+                                          Style="{StaticResource ExpanderStyle}"
+                                          Visibility="{Binding IsCollapsible, Converter={StaticResource BoolToVisibility}}">
+                                    <ItemsControl ItemsSource="{Binding Settings}" ItemTemplate="{StaticResource QuickSettingTemplate}" Focusable="False" Margin="20,0,0,4"/>
+                                </Expander>
                                 <Button Content="{Binding MoreText}"
                                         Command="{Binding MoreCommand}"
                                         Visibility="{Binding HasMore, Converter={StaticResource BoolToVisibility}}"
