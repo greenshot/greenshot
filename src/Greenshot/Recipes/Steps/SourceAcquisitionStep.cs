@@ -592,11 +592,23 @@ namespace Greenshot.Recipes.Steps
                 }
             }
 
-            if (delay > 0)
+            if (delay <= 0)
             {
-                context.LogStep($"Waiting pre-capture delay: {delay}ms");
-                await Task.Delay(delay, ct).ConfigureAwait(false);
+                return;
             }
+
+            context.LogStep($"Waiting pre-capture delay: {delay}ms");
+            var wait = TimeSpan.FromMilliseconds(delay);
+            // A second or more is time to open a menu or popup: with a countdown, which doesn't take the focus
+            if (wait >= CaptureCountdown.ShownFrom && context.UserInteraction?.IsInteractive == true)
+            {
+                if (!await CaptureCountdown.WaitAsync(context, wait, ct).ConfigureAwait(false))
+                {
+                    context.Abort("The user cancelled the wait before the capture.");
+                }
+                return;
+            }
+            await Task.Delay(wait, ct).ConfigureAwait(false);
         }
     }
 }

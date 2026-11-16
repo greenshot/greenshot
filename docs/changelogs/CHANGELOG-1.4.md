@@ -359,7 +359,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Quick settings window and capture after a delay**
 - The quick settings of the tray menu can open in a window of their own, e.g. from a hotkey or a click on the tray icon (recipe "Quick preferences")
-- The quick settings have "Wait before capturing" (off, 3, 5, 10 or 30 seconds): every capture then counts down first, so you can open a menu or popup; the countdown doesn't close the menu
+- The quick settings have "Wait before capturing" (off, 1, 3, 5 or 10 seconds), which sets the existing capture delay; a delay of a second or more counts down first, so you can open a menu or popup, and the countdown doesn't close the menu
 - A recipe can wait before the capture in the same way, and can ask how long to wait
 
 **When the file already exists**

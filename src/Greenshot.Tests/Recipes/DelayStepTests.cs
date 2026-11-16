@@ -112,20 +112,14 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Theory]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdRegion)]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdWindow)]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdActiveWindow)]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdFullScreen)]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdLastRegion)]
-        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdOcr)]
-        public void BuiltInCapture_StartsWithTheCountdownOfTheSettings(string recipeId)
+        [InlineData(1000, 1)]
+        [InlineData(1001, 2)]
+        [InlineData(2500, 3)]
+        [InlineData(300, 1)]
+        [InlineData(0, 1)]
+        public void SecondsLeft_RoundsUpAndNeverShowsZero(int milliseconds, int expected)
         {
-            var recipe = new Greenshot.Recipes.RecipeManager().GetRecipeById(recipeId);
-
-            var start = recipe.FindNode(Assert.Single(recipe.Flow.GetEffectiveStartNodes()));
-            Assert.Equal(WellKnownStepTypes.Delay, start.StepType);
-            Assert.Equal("${config.Core.CaptureCountdownSeconds}", start.GetParameter<string>(DelayStep.SecondsParameter));
-            Assert.True(RecipeValidator.Validate(recipe).IsValid, RecipeValidator.Validate(recipe).ToString());
+            Assert.Equal(expected, CaptureCountdown.SecondsLeft(TimeSpan.FromMilliseconds(milliseconds)));
         }
 
         /// <summary>

@@ -1182,6 +1182,11 @@ namespace Greenshot.Base.Languages
         string QuicksettingsCaptureCountdownOff { get; }
 
         /// <summary>
+        /// {0} ms
+        /// </summary>
+        string QuicksettingsCaptureCountdownMilliseconds { get; }
+
+        /// <summary>
         /// Save directly (using preferred file output settings)
         /// </summary>
         string QuicksettingsDestinationFile { get; }

@@ -99,11 +99,6 @@ namespace Greenshot.Base.Core
         [Range(0, int.MaxValue, ErrorMessage = "CaptureDelay must be non-negative.")]
         int CaptureDelay { get; set; }
 
-        [Description("Seconds to wait, with a countdown, before the built-in captures (region, window, full screen, last region, OCR), so a menu or popup can be opened first. 0: no wait.")]
-        [DefaultValue(0)]
-        [Range(0, 600, ErrorMessage = "CaptureCountdownSeconds must be 0 to 600.")]
-        int CaptureCountdownSeconds { get; set; }
-
         [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
         [DefaultValue(null)]
         string RecipeFiles { get; set; }

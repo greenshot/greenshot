@@ -61,11 +61,6 @@ namespace Greenshot.Recipes.Steps
         /// </summary>
         private static readonly int[] OfferedSeconds = { 3, 5, 10, 30 };
 
-        /// <summary>
-        /// The countdown closes this long before the end, so it is gone from the screen before the next step captures it
-        /// </summary>
-        private static readonly TimeSpan CountdownGoneBeforeEnd = TimeSpan.FromMilliseconds(250);
-
         private const string CancelKey = "cancel";
 
         public string Name { get; }
@@ -104,7 +99,7 @@ namespace Greenshot.Recipes.Steps
 
             if (interactive && Config.GetParameter(ShowCountdownParameter, true))
             {
-                if (!await CountdownAsync(context, seconds, cancellationToken).ConfigureAwait(false))
+                if (!await CaptureCountdown.WaitAsync(context, TimeSpan.FromSeconds(seconds), cancellationToken).ConfigureAwait(false))
                 {
                     context.Abort("The user cancelled the delay.");
                 }
@@ -158,47 +153,6 @@ namespace Greenshot.Recipes.Steps
             }, cancellationToken).ConfigureAwait(false);
 
             return int.TryParse(chosenKey, NumberStyles.Integer, CultureInfo.InvariantCulture, out int chosen) ? Clamp(chosen) : null;
-        }
-
-        /// <summary>
-        /// Show the countdown and wait, it closes shortly before the end
-        /// </summary>
-        /// <returns>False when the user cancelled</returns>
-        private static async Task<bool> CountdownAsync(CaptureFlowContext context, int seconds, CancellationToken cancellationToken)
-        {
-            var cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            DelayCountdownWindow window = null;
-            await context.Ui.InvokeAsync(() =>
-            {
-                window = new DelayCountdownWindow(seconds, () => cancelled.TrySetResult(true));
-                window.ShowWithoutFocus();
-            }, cancellationToken).ConfigureAwait(false);
-
-            try
-            {
-                for (int left = seconds; left > 0; left--)
-                {
-                    var tick = Task.Delay(left > 1 ? TimeSpan.FromSeconds(1) : TimeSpan.FromSeconds(1) - CountdownGoneBeforeEnd, cancellationToken);
-                    if (await Task.WhenAny(tick, cancelled.Task).ConfigureAwait(false) == cancelled.Task)
-                    {
-                        return false;
-                    }
-                    // Throws when the flow was cancelled
-                    await tick.ConfigureAwait(false);
-                    if (left > 1)
-                    {
-                        int secondsLeft = left - 1;
-                        await context.Ui.InvokeAsync(() => window.SecondsLeft = secondsLeft, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-            }
-            finally
-            {
-                await context.Ui.InvokeAsync(() => window?.Close(), CancellationToken.None).ConfigureAwait(false);
-            }
-
-            await Task.Delay(CountdownGoneBeforeEnd, cancellationToken).ConfigureAwait(false);
-            return true;
         }
     }
 }
