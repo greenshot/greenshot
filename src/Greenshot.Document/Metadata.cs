@@ -69,8 +69,9 @@ namespace Greenshot.Document
         /// <summary>
         /// Values this version doesn't know, written back unchanged
         /// </summary>
+        // With a setter, not init: the generated JSON code (DocumentJsonContext) can't fill such a property otherwise
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Unknown { get; init; }
+        public Dictionary<string, JsonElement> Unknown { get; set; }
 
         /// <summary>
         /// The metadata as it is saved at the time: modified, the next revision, and created when it isn't known
@@ -128,8 +129,9 @@ namespace Greenshot.Document
         /// <summary>
         /// Values this version doesn't know (e.g. those of a browser), written back unchanged
         /// </summary>
+        // With a setter, not init: the generated JSON code (DocumentJsonContext) can't fill such a property otherwise
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Unknown { get; init; }
+        public Dictionary<string, JsonElement> Unknown { get; set; }
     }
 
     public static class SourceTypes

@@ -13,6 +13,8 @@
     <IsTestProject>true</IsTestProject>
     <SixLaborsLicenseKey Condition="'$(SixLaborsLicenseKey)' == '' And '$(SIXLABORS_LIC)' != ''">$(SIXLABORS_LIC)</SixLaborsLicenseKey>
     <SixLaborsLicenseFile Condition="'$(SixLaborsLicenseKey)' == '' And Exists('..\Greenshot.Editor.Standalone\sixlabors.lic')">..\Greenshot.Editor.Standalone\sixlabors.lic</SixLaborsLicenseFile>
+    <!-- JSON only through generated code, as in the editor compiled ahead (native AOT): what would need to look at types while running fails, also in the tests -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.1" />

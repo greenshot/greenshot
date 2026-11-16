@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.Document;
@@ -105,6 +106,44 @@ namespace Greenshot.Editor.Standalone.Tests
                 new RectangleElement(Id(), new RectD(350, 310, 60, 40)) { Label = new BoxLabel("Label") { Y = LabelPlace.After, Offset = 2 }, Style = new Style { Text = new TextStyle { Size = 12, Color = Black } } });
             var numbers = new Group(Id(), GroupTypes.Steps, new Guid?[] { steps[0].Id, steps[1].Id, steps[2].Id });
             return document with { Groups = new[] { numbers } };
+        }
+
+        /// <summary>
+        /// The gallery with everything else a document file can hold: a frame, an anchored element, an element of a plugin,
+        /// numbered steps, metadata, what was found in the capture, and values of plugins
+        /// </summary>
+        public static GreenshotDocument Rich()
+        {
+            var gallery = Gallery();
+            var capture = gallery.Layers[0].Elements.OfType<ImageElement>().First();
+            var extra = new Element[]
+            {
+                new FrameElement(Guid.NewGuid(), capture.Area, 5) { Target = capture.Id, Band = new FrameBand(3, Red), Placement = FramePlacement.Outside, CornerRadius = 4 },
+                new PluginElement(Guid.NewGuid(), new RectD(500, 320, 80, 80), "greenshot.barcode") { Version = 2, Data = "{\"text\":\"https://getgreenshot.org\",\"format\":\"QR_CODE\"}", Fallback = capture.Resource, Resources = new[] { capture.Resource } },
+                new TextElement(Guid.NewGuid(), new RectD(10, 390, 100, 20), "Anchored") { Anchor = new Anchor { Target = capture.Id, X = new AxisAnchor(AnchorLine.End, AnchorLine.End, -10), Y = new AxisAnchor(AnchorLine.Center) } }
+            };
+            var layers = gallery.Layers.Select((layer, index) => index == gallery.Layers.Count - 1 ? layer with { Elements = layer.Elements.Concat(extra).ToList() } : layer).ToList();
+            var steps = gallery.Groups[0] with { Name = "Steps", Properties = new StepNumbering(3, StepFormat.UpperLetters).ToProperties(), Extensions = new RawJson("{\"plugin\":{\"a\":1}}") };
+            return gallery with
+            {
+                Layers = layers,
+                Groups = new[] { steps },
+                Extensions = new RawJson("{\"greenshot.test\":{\"kept\":true}}"),
+                Metadata = new DocumentMetadata
+                {
+                    Title = "A window", Description = "Everything", Tags = new[] { "one", "two" }, Created = new DateTimeOffset(2026, 11, 16, 12, 0, 0, TimeSpan.FromHours(1)), Generator = "Tests", Revision = 3,
+                    Source = new MetadataSource(SourceTypes.Capture) { Mode = "window", Region = new RectD(10, 20, 640, 420) }, Session = new SessionInfo(Guid.NewGuid())
+                },
+                Analysis = new Dictionary<Guid, ImageAnalysis>
+                {
+                    [capture.Resource] = new ImageAnalysis
+                    {
+                        Ocr = new OcrResult(new[] { new OcrLine("Hello world", new RectD(1, 2, 80, 12), new[] { new OcrWord("Hello", new RectD(1, 2, 38, 12)), new OcrWord("world", new RectD(42, 2, 39, 12)) }) }) { Engine = "test" },
+                        Barcodes = new[] { new BarcodeResult("QR_CODE", "text", new[] { new PointD(1, 1), new PointD(9, 1), new PointD(9, 9), new PointD(1, 9) }) },
+                        Areas = new[] { new AreaResult(1, "window", new RectD(0, 0, 640, 420)) { Title = "Window" }, new AreaResult(2, "element", new RectD(5, 5, 20, 10)) { Parent = 1 } }
+                    }
+                }
+            };
         }
 
         /// <summary>

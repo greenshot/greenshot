@@ -290,13 +290,13 @@ namespace Greenshot.Editor.Standalone.ViewModels
             set => ChangeOption(options => options.CutMarkShape = value, element => element);
         }
 
-        public IReadOnlyList<ArrowHeads> AllArrowHeads { get; } = (ArrowHeads[])Enum.GetValues(typeof(ArrowHeads));
+        public IReadOnlyList<ArrowHeads> AllArrowHeads { get; } = Enum.GetValues<ArrowHeads>();
 
-        public IReadOnlyList<HighlightMode> AllHighlightModes { get; } = (HighlightMode[])Enum.GetValues(typeof(HighlightMode));
+        public IReadOnlyList<HighlightMode> AllHighlightModes { get; } = Enum.GetValues<HighlightMode>();
 
-        public IReadOnlyList<ObfuscateMode> AllObfuscateModes { get; } = (ObfuscateMode[])Enum.GetValues(typeof(ObfuscateMode));
+        public IReadOnlyList<ObfuscateMode> AllObfuscateModes { get; } = Enum.GetValues<ObfuscateMode>();
 
-        public IReadOnlyList<EdgeStyle> AllEdgeStyles { get; } = (EdgeStyle[])Enum.GetValues(typeof(EdgeStyle));
+        public IReadOnlyList<EdgeStyle> AllEdgeStyles { get; } = Enum.GetValues<EdgeStyle>();
 
         // Position and size of one selected element, in canvas pixels
         public double AreaX

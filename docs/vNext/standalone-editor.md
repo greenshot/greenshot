@@ -95,8 +95,42 @@ the process took ("Stand-alone editor:").
 - While the window is built, a thread of the pool lists the fonts and reads and draws a small picture (`WarmUp`), and
   another loads the settings and texts, so that code is loaded and compiled when the capture arrives.
 - About half of what is left is compiling (Avalonia, ImageSharp and the editor). `dotnet publish -r win-x64` compiles
-  them ahead (`PublishReadyToRun`); a plain build, which is what the solution does today, doesn't.
+  them ahead (`PublishReadyToRun`); a plain build, which is what the solution does today, doesn't. Native AOT (below)
+  leaves no compiling at all.
 - The capture in the handed over file is stored, not compressed a second time.
+
+## Native AOT
+
+The editor can be published as native code, without the .NET runtime and without compiling while it runs:
+
+```
+dotnet publish src/Greenshot.Editor.Standalone -c Debug -r win-x64 -p:EditorAot=true -o src/Greenshot/bin/Debug/net480/Editor
+```
+
+This needs the C++ build tools of Visual Studio ("Desktop development with C++") for the linker. The result is one
+`greenshot-editor.exe` with the Skia and HarfBuzz libraries, the language packs and the emoji font next to it. On Linux
+it shows the first capture 0.2 seconds after its start (Release; a Debug publish 0.4), where the normal build takes
+2.1 and a ReadyToRun build 1.3. The Release executable is 45 MB, 60 MB with the two native libraries.
+
+What makes it work, and what a change has to keep:
+
+- No reflection over types while running. The JSON of a document is written and read by generated code
+  (`DocumentJsonContext` in Greenshot.Document, used by every program which reads documents). A new type of the document
+  is listed there, a new enum also in its `EnumConverters`. A value with a default which a file may leave out gets its
+  default in a constructor marked `[JsonConstructor]`, not only at the property: generated code sets every `init`
+  property, a missing one to 0 or null. The editor and its tests switch the reflection of System.Text.Json off
+  (`JsonSerializerIsReflectionEnabledByDefault`), so a forgotten type fails in the tests and not only in the AOT build.
+- The texts in the XAML (`{l:Text Key}`) ask the language pack by key, bindings in the XAML are compiled ones.
+- Publishing with `-p:EditorAot=true` switches the AOT and trim analyzers on. What is left are warnings in the code
+  Dapplo.Ini generates for the settings (it says enums need code made while running; the editor's settings are text,
+  numbers and a switch, and they are read in the AOT build) and one inside System.Formats.Nrbf (old `.greenshot`
+  files; they open in the AOT build).
+
+Native AOT and plugins as DLLs exclude each other: a program compiled this way can't load .NET code which wasn't
+compiled into it. Content (stamps, language packs, plugin elements with their picture in a document) is data and works.
+
+Checked by hand on Linux only: start, texts, settings read, a document with every kind of element, an old document.
+Not checked in the AOT build: saving the settings, the clipboard, file dialogs, stamps, the pipe to Greenshot, Windows.
 
 ## Building
 

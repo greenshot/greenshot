@@ -25,8 +25,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!-- When the editor is published for a runtime (dotnet publish -r win-x64) its code and that of Avalonia and ImageSharp is
          compiled ahead: about half of the start is compiling otherwise. A plain build (what the solution does) is not. -->
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(EditorAot)' != 'true'">true</PublishReadyToRun>
+    <PublishAot Condition="'$(EditorAot)' == 'true'">true</PublishAot>
+    <IsAotCompatible Condition="'$(EditorAot)' == 'true'">true</IsAotCompatible>
     <SixLaborsLicenseKey Condition="'$(SixLaborsLicenseKey)' == '' And '$(SIXLABORS_LIC)' != ''">$(SIXLABORS_LIC)</SixLaborsLicenseKey>
+    <!-- JSON only through generated code, as in the editor compiled ahead (native AOT): what would need to look at types while running fails, also in the tests -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <ItemGroup>

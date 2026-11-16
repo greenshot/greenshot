@@ -23,6 +23,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -255,7 +256,8 @@ namespace Greenshot.Editor.Standalone.Ipc
 
         internal static async Task WriteFrameAsync(Stream stream, JsonObject message, CancellationToken cancellationToken)
         {
-            byte[] payload = JsonSerializer.SerializeToUtf8Bytes(message);
+            // The object writes itself: no serializer which looks at types while running (native AOT has none)
+            byte[] payload = Encoding.UTF8.GetBytes(message.ToJsonString());
             byte[] frame = new byte[4 + payload.Length];
             BinaryPrimitives.WriteUInt32LittleEndian(frame, (uint)payload.Length);
             payload.CopyTo(frame, 4);

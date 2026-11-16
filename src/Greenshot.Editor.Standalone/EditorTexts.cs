@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Dapplo.Ini.Internationalization;
@@ -42,6 +43,12 @@ namespace Greenshot.Editor.Standalone
         private static LanguageConfig _config;
 
         public static IEditorLanguage Text => Language.Value;
+
+        /// <summary>
+        /// The text of a property of <see cref="IEditorLanguage"/> by its name, ###name### when the language packs don't have it
+        /// </summary>
+        public static string TextOf(string name) =>
+            name != null && Language.Value is IReadOnlyDictionary<string, string> texts && texts.TryGetValue(LanguageSectionBase.NormalizeKey(name), out string text) ? text : $"###{name}###";
 
         /// <summary>
         /// The language in use, e.g. en-US

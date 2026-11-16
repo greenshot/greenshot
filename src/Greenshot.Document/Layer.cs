@@ -52,6 +52,11 @@ namespace Greenshot.Document
     {
         public bool Visible { get; init; } = true;
 
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public Layer(Guid id, string name, LayerKind kind, IReadOnlyList<Element> elements, bool visible = true) : this(id, name, kind, elements) => Visible = visible;
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Locked { get; init; }
 

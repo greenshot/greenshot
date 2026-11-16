@@ -19,13 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System;
-using Avalonia.Data;
+using System.Collections.Generic;
+using System.ComponentModel;
+using Avalonia;
 
 namespace Greenshot.Editor.Standalone.Controls
 {
     /// <summary>
     /// {l:Text Save} in the XAML: the text of the language pack with that key. It is a binding, so it follows when the
-    /// language changes.
+    /// language changes. The text is asked from the language pack by its key and not from a property found by its name
+    /// while running, so it also works when the editor is compiled ahead and trimmed (native AOT).
     /// </summary>
     public sealed class TextExtension
     {
@@ -43,6 +46,43 @@ namespace Greenshot.Editor.Standalone.Controls
         /// </summary>
         public string Key { get; set; }
 
-        public object ProvideValue(IServiceProvider serviceProvider) => new Binding(Key) { Source = EditorTexts.Text, Mode = BindingMode.OneWay };
+        public object ProvideValue(IServiceProvider serviceProvider) => new Texts(Key).ToBinding();
+
+        // The text now and after every change of the language
+        private sealed class Texts : IObservable<object>
+        {
+            private readonly string _key;
+
+            public Texts(string key) => _key = key;
+
+            public IDisposable Subscribe(IObserver<object> observer)
+            {
+                var texts = EditorTexts.Text;
+                observer.OnNext(EditorTexts.TextOf(_key));
+                void Changed(object sender, PropertyChangedEventArgs e)
+                {
+                    if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == _key || e.PropertyName == "Item[]")
+                    {
+                        observer.OnNext(EditorTexts.TextOf(_key));
+                    }
+                }
+
+                texts.PropertyChanged += Changed;
+                return new Subscription(() => texts.PropertyChanged -= Changed);
+            }
+        }
+
+        private sealed class Subscription : IDisposable
+        {
+            private Action _end;
+
+            public Subscription(Action end) => _end = end;
+
+            public void Dispose()
+            {
+                _end?.Invoke();
+                _end = null;
+            }
+        }
     }
 }

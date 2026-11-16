@@ -161,6 +161,117 @@ namespace Greenshot.Editor.Standalone.Tests.Misc
         }
 
         [Fact]
+        public void EverythingADocumentFileHolds_IsWrittenTheSame_AfterReadingIt()
+        {
+            // Also the check for the editor compiled ahead (native AOT): the JSON is written and read by generated code,
+            // which only knows the types it was generated for. What it doesn't know fails here, or is missing in the text.
+            string folder = TempFolder();
+            try
+            {
+                string first = Path.Combine(folder, "first.greenshot"), second = Path.Combine(folder, "second.greenshot");
+                DocumentFiles.Save(Samples.Rich(), first);
+                var opened = DocumentFiles.Open(first);
+                DocumentFiles.Save(opened, second);
+                if (Environment.GetEnvironmentVariable("GREENSHOT_TEST_OUTPUT") is { Length: > 0 } output)
+                {
+                    File.Copy(first, Path.Combine(output, "rich.greenshot"), true);
+                }
+
+                static string Entry(string file, string name)
+                {
+                    using var zip = System.IO.Compression.ZipFile.OpenRead(file);
+                    using var reader = new StreamReader(zip.GetEntry(name).Open());
+                    return reader.ReadToEnd();
+                }
+
+                string document = Entry(first, "document.json");
+                Assert.Equal(document, Entry(second, "document.json"));
+                Assert.Equal(Entry(first, "analysis.json"), Entry(second, "analysis.json"));
+                foreach (string expected in new[]
+                         {
+                             "\"type\": \"frame\"", "\"placement\": \"outside\"", "\"type\": \"plugin\"", "\"format\":\"QR_CODE\"", "\"heads\": \"both\"", "\"mode\": \"magnify\"",
+                             "\"format\":\"upperLetters\"", "\"greenshot.test\"", "\"anchor\"", "\"underline\": true"
+                         })
+                {
+                    Assert.Contains(expected, document);
+                }
+
+                Assert.Contains("\"engine\": \"test\"", Entry(first, "analysis.json"));
+                string metadata = Entry(second, "metadata.json");
+                Assert.Contains("\"title\": \"A window\"", metadata);
+                Assert.Contains("\"mode\": \"window\"", metadata);
+                Assert.Equal(new StepNumbering(3, StepFormat.UpperLetters), StepNumbering.Of(opened.Groups[0]));
+                Assert.Equal("Hello", opened.Analysis.Values.Single().Ocr.Lines[0].Words[0].Text);
+                // What was read is complete enough to draw
+                using var drawn = Greenshot.Editor.Standalone.Rendering.DocumentRenderer.Render(opened);
+                Assert.True(drawn.Width >= 640);
+            }
+            finally
+            {
+                Directory.Delete(folder, true);
+            }
+        }
+
+        [Fact]
+        public void ValuesWhichAreMissingInTheFile_GetTheirDefaults()
+        {
+            // The trap of the generated JSON code: a value which has its default only at the property would be 0 or null
+            const string id = "\"id\": \"01a12eae-0000-7000-8000-000000000001\", \"area\": {\"x\": 1, \"y\": 2, \"width\": 30, \"height\": 40}";
+            var elements = GreenshotPackage.ReadElements("[" +
+                "{\"type\": \"rectangle\", " + id + ", \"label\": {\"text\": \"a\"}}," +
+                "{\"type\": \"line\", \"id\": \"01a12eae-0000-7000-8000-000000000002\", \"start\": {\"x\": 1, \"y\": 2}, \"end\": {\"x\": 3, \"y\": 4}, \"label\": {\"text\": \"b\"}}," +
+                "{\"type\": \"highlight\", " + id + ", \"mode\": \"magnify\"}," +
+                "{\"type\": \"cutMark\", " + id + ", \"horizontal\": true, \"seed\": 3}," +
+                "{\"type\": \"cutMark\", " + id + ", \"shape\": {\"style\": \"wave\"}}," +
+                "{\"type\": \"frame\", " + id + ", \"seed\": 3}," +
+                "{\"type\": \"plugin\", " + id + ", \"kind\": \"x\"}," +
+                "{\"type\": \"highlight\", " + id + ", \"mode\": \"text\", \"color\": \"#FF000080\", \"magnification\": 4}]");
+            var rectangle = Assert.IsType<RectangleElement>(elements[0]);
+            Assert.Equal(new RectD(1, 2, 30, 40), rectangle.Area);
+            Assert.Same(Style.Empty, rectangle.Style);
+            Assert.Equal(new BoxLabel("a"), rectangle.Label);
+            Assert.Equal(LabelPlace.Center, rectangle.Label.Y);
+            Assert.Equal(new LineLabel("b"), Assert.IsType<LineElement>(elements[1]).Label);
+            Assert.Equal(new HighlightElement(rectangle.Id, rectangle.Area, HighlightMode.Magnify), elements[2]);
+            Assert.Equal(new CutMarkElement(rectangle.Id, rectangle.Area, true, 3), elements[3]);
+            Assert.Equal(new EdgeShape(EdgeStyle.Wave) { Height = 12, Range = 20 }, Assert.IsType<CutMarkElement>(elements[4]).Shape);
+            Assert.Equal(new EdgeShape(EdgeStyle.Torn), Assert.IsType<FrameElement>(elements[5]).Shape);
+            Assert.Empty(Assert.IsType<PluginElement>(elements[6]).Resources);
+            var highlight = Assert.IsType<HighlightElement>(elements[7]);
+            Assert.Equal((new Rgba(255, 0, 0, 128), 4, 3, 0.9), (highlight.Color, highlight.Magnification, highlight.BlurRadius, highlight.Brightness));
+
+            // A layer without "visible" is visible
+            string folder = TempFolder();
+            try
+            {
+                string file = Path.Combine(folder, "layers.greenshot");
+                DocumentFiles.Save(Samples.Page(Samples.Green), file);
+                using (var zip = System.IO.Compression.ZipFile.Open(file, System.IO.Compression.ZipArchiveMode.Update))
+                {
+                    var entry = zip.GetEntry("document.json");
+                    string json;
+                    using (var reader = new StreamReader(entry.Open()))
+                    {
+                        json = reader.ReadToEnd();
+                    }
+
+                    Assert.Contains("\"visible\": true", json);
+                    entry.Delete();
+                    using var writer = new StreamWriter(zip.CreateEntry("document.json").Open());
+                    writer.Write(System.Text.RegularExpressions.Regex.Replace(json, ",\\s*\"visible\": true", string.Empty));
+                }
+
+                var opened = DocumentFiles.Open(file);
+                Assert.All(opened.Layers, layer => Assert.True(layer.Visible));
+                Assert.Equal(Rgba.Transparent, opened.Canvas.Background);
+            }
+            finally
+            {
+                Directory.Delete(folder, true);
+            }
+        }
+
+        [Fact]
         public void ADocument_SurvivesSavingAndOpening_AndAnImageOpensAsACapture()
         {
             string folder = TempFolder();

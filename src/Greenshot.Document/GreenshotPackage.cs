@@ -29,6 +29,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Greenshot.Document
 {
@@ -52,18 +53,35 @@ namespace Greenshot.Document
         private const int MaxEntries = 10_000;
         private const long MaxEntrySize = 256L * 1024 * 1024;
 
-        private sealed record ResourceEntry(string Path, string MediaType, int? Width = null, int? Height = null, RawJson Extensions = null);
+        internal sealed record ResourceEntry(string Path, string MediaType, int? Width = null, int? Height = null, RawJson Extensions = null);
 
-        private sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources, RawJson Extensions = null);
+        internal sealed record DocumentJson(int Version, Guid Id, Canvas Canvas, IReadOnlyList<Layer> Layers, IReadOnlyList<Group> Groups, IReadOnlyDictionary<Guid, ResourceEntry> Resources, RawJson Extensions = null);
 
-        private static readonly JsonSerializerOptions Options = new()
+        // The types are written and read by generated code (DocumentJsonContext), nothing looks at them while running:
+        // that is faster to start and also works where code can't be made while running (native AOT, trimming).
+        // A new type in the document is added to DocumentJsonContext, a new enum also to DocumentJsonContext.EnumConverters.
+        private static readonly JsonSerializerOptions Options = CreateOptions();
+
+        private static JsonSerializerOptions CreateOptions()
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            IgnoreReadOnlyProperties = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = true,
-            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase), new RgbaConverter(), new ElementConverter() }
-        };
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                IgnoreReadOnlyProperties = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true,
+                TypeInfoResolver = DocumentJsonContext.Default,
+                Converters = { new RgbaConverter(), new ElementConverter() }
+            };
+            foreach (var converter in DocumentJsonContext.EnumConverters())
+            {
+                options.Converters.Add(converter);
+            }
+
+            return options;
+        }
+
+        private static JsonTypeInfo<T> TypeOf<T>(JsonSerializerOptions options) => (JsonTypeInfo<T>)options.GetTypeInfo(typeof(T));
 
         /// <summary>
         /// Writes the document with the resources its elements link to, other resources are left out. The metadata is
@@ -90,10 +108,10 @@ namespace Greenshot.Document
 
             using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
             WriteEntry(zip, "mimetype", Encoding.ASCII.GetBytes(MediaType), CompressionLevel.NoCompression);
-            WriteEntry(zip, "document.json", JsonSerializer.SerializeToUtf8Bytes(json, Options), CompressionLevel.Optimal);
+            WriteEntry(zip, "document.json", JsonSerializer.SerializeToUtf8Bytes(json, TypeOf<DocumentJson>(Options)), CompressionLevel.Optimal);
             if (document.Metadata != null)
             {
-                WriteEntry(zip, MetadataEntry, JsonSerializer.SerializeToUtf8Bytes(document.Metadata.Saved(DateTimeOffset.Now), Options), CompressionLevel.Optimal);
+                WriteEntry(zip, MetadataEntry, JsonSerializer.SerializeToUtf8Bytes(document.Metadata.Saved(DateTimeOffset.Now), TypeOf<DocumentMetadata>(Options)), CompressionLevel.Optimal);
             }
 
             foreach (var resource in linked)
@@ -107,7 +125,7 @@ namespace Greenshot.Document
             var analysis = document.Analysis.Where(pair => entries.ContainsKey(pair.Key) && pair.Value != null && !pair.Value.IsEmpty).ToDictionary(pair => pair.Key, pair => pair.Value);
             if (analysis.Count > 0)
             {
-                WriteEntry(zip, AnalysisEntry, JsonSerializer.SerializeToUtf8Bytes(analysis, Options), CompressionLevel.Optimal);
+                WriteEntry(zip, AnalysisEntry, JsonSerializer.SerializeToUtf8Bytes(analysis, TypeOf<Dictionary<Guid, ImageAnalysis>>(Options)), CompressionLevel.Optimal);
             }
         }
 
@@ -115,7 +133,7 @@ namespace Greenshot.Document
         /// Elements written like those in document.json (a JSON array), e.g. in a recipe
         /// </summary>
         public static IReadOnlyList<Element> ReadElements(string json) =>
-            JsonSerializer.Deserialize<List<Element>>(json, Options) ?? throw new InvalidDataException("No elements");
+            JsonSerializer.Deserialize(json, TypeOf<List<Element>>(Options)) ?? throw new InvalidDataException("No elements");
 
         private static string Extension(Resource resource, Func<string, string> extensionFor) =>
             extensionFor(resource.MediaType)?.TrimStart('.') ?? throw new InvalidDataException($"The resource {resource.Id} has the unsupported media type {resource.MediaType}");
@@ -136,7 +154,7 @@ namespace Greenshot.Document
                 throw new InvalidDataException("The package is not a Greenshot document");
             }
 
-            var json = JsonSerializer.Deserialize<DocumentJson>(ReadEntry(zip, "document.json"), Options) ?? throw new InvalidDataException("document.json is empty");
+            var json = JsonSerializer.Deserialize(ReadEntry(zip, "document.json"), TypeOf<DocumentJson>(Options)) ?? throw new InvalidDataException("document.json is empty");
             if (json.Version > Version)
             {
                 throw new InvalidDataException($"The document has version {json.Version}, this Greenshot reads up to version {Version}");
@@ -146,12 +164,12 @@ namespace Greenshot.Document
                 pair => WithSize(new Resource(pair.Key, pair.Value.MediaType, ReadEntry(zip, pair.Value.Path)) { Width = pair.Value.Width, Height = pair.Value.Height, Extensions = pair.Value.Extensions }));
             var analysis = zip.GetEntry(AnalysisEntry) == null
                 ? new Dictionary<Guid, ImageAnalysis>()
-                : (JsonSerializer.Deserialize<Dictionary<Guid, ImageAnalysis>>(ReadEntry(zip, AnalysisEntry), Options) ?? new Dictionary<Guid, ImageAnalysis>())
+                : (JsonSerializer.Deserialize(ReadEntry(zip, AnalysisEntry), TypeOf<Dictionary<Guid, ImageAnalysis>>(Options)) ?? new Dictionary<Guid, ImageAnalysis>())
                     .Where(pair => resources.ContainsKey(pair.Key) && pair.Value != null).ToDictionary(pair => pair.Key, pair => pair.Value);
             return new GreenshotDocument(json.Id, json.Canvas, json.Layers, resources)
             {
                 Analysis = analysis,
-                Metadata = zip.GetEntry(MetadataEntry) == null ? null : JsonSerializer.Deserialize<DocumentMetadata>(ReadEntry(zip, MetadataEntry), Options),
+                Metadata = zip.GetEntry(MetadataEntry) == null ? null : JsonSerializer.Deserialize(ReadEntry(zip, MetadataEntry), TypeOf<DocumentMetadata>(Options)),
                 Groups = (json.Groups ?? Array.Empty<Group>()).Select(group => group.Members == null ? group with { Members = Array.Empty<Guid?>() } : group).ToList(),
                 Extensions = json.Extensions
             };
@@ -248,13 +266,19 @@ namespace Greenshot.Document
                 if (name == null || !Types.TryGetValue(name, out var elementType))
                 {
                     var id = json["id"] is JsonValue idValue && idValue.TryGetValue(out string idText) && Guid.TryParse(idText, out var guid) ? guid : Guid.Empty;
-                    var area = json["area"] is JsonObject areaObject ? areaObject.Deserialize<RectD>(options) : default;
+                    var area = json["area"] is JsonObject areaObject ? areaObject.Deserialize(TypeOf<RectD>(options)) : default;
                     return new UnknownElement(id, area, name, json.ToJsonString());
                 }
 
                 var data = json["data"];
                 json.Remove("data");
-                var element = (Element)json.Deserialize(elementType, options);
+                var element = (Element)json.Deserialize(options.GetTypeInfo(elementType)) ?? throw new JsonException("An element is null");
+                if (element.Style == null)
+                {
+                    // Left out when it is empty (Write), and the generated code sets what is missing to null
+                    element = element with { Style = Style.Empty };
+                }
+
                 return element is PluginElement plugin ? plugin with { Data = data?.ToJsonString() } : element;
             }
 
@@ -268,7 +292,7 @@ namespace Greenshot.Document
 
                 writer.WriteStartObject();
                 writer.WriteString("type", Names[value.GetType()]);
-                foreach (var property in JsonSerializer.SerializeToElement(value, value.GetType(), options).EnumerateObject())
+                foreach (var property in JsonSerializer.SerializeToElement(value, options.GetTypeInfo(value.GetType())).EnumerateObject())
                 {
                     // An element without its own style leaves it out
                     if (property.NameEquals("style") && property.Value.ValueKind == JsonValueKind.Object && !property.Value.EnumerateObject().Any())
