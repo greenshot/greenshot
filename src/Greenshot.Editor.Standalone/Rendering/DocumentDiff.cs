@@ -92,8 +92,10 @@ namespace Greenshot.Editor.Standalone.Rendering
                     {
                         changed = Union(changed, DrawnArea(after, element));
                     }
-                    else if (!ReferenceEquals(known, element))
+                    else if (!ReferenceEquals(known, element) && !known.Equals(element))
                     {
+                        // Another object with the same values draws the same: a frame is made again with every change of the
+                        // document, and it is as large as the capture
                         changed = Union(Union(changed, DrawnArea(before, known)), DrawnArea(after, element));
                     }
                 }

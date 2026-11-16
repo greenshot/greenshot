@@ -62,6 +62,34 @@ namespace Greenshot.Editor.Standalone.Tests.Rendering
         }
 
         [Theory]
+        [InlineData(300, 200, 40, 30)]
+        [InlineData(-8, -8, 70, 50)]
+        [InlineData(600, 380, 46, 46)]
+        [InlineData(100, 400, 200, 26)]
+        public void APartOfACaptureWithTornEdges_IsDrawnLikeTheWhole_AndOnlyThatPartIsDrawn(double x, double y, double width, double height)
+        {
+            var document = Greenshot.Editor.Standalone.Editing.CaptureFrames.WithFrame(Samples.Gallery(), frame => frame with
+            {
+                Shape = new EdgeShape(EdgeStyle.Torn),
+                Style = frame.Style with { Shadow = new ShadowStyle { Enabled = true, Size = 7, Darkness = 0.6, Offset = new PointD(-1, -1) } }
+            });
+            var canvas = document.CanvasArea();
+            using var cache = new RenderCache();
+            using var whole = DocumentRenderer.Render(document, cache);
+            var area = DocumentRenderer.Affected(document, new RectD(x, y, width, height));
+            Assert.True(area.Width <= width + 2 && area.Height <= height + 2, $"Only the changed part is drawn, not {area}");
+
+            using var part = DocumentRenderer.Render(document, area, cache);
+            Samples.Keep(part, $"torn-part-{x}-{y}");
+            using var expected = whole.Clone(context => context.Crop(new Rectangle((int)(area.X - canvas.X), (int)(area.Y - canvas.Y), (int)area.Width, (int)area.Height)));
+            Assert.True(Difference(expected, part) <= 2, $"A part differs from the whole by {Difference(expected, part)}");
+
+            // The frame is made again with every change (the same values in another object): that alone changes nothing
+            var again = document with { Layers = document.Layers.Select(layer => layer with { Elements = layer.Elements.Select(element => element is FrameElement frame ? frame with { Seed = frame.Seed } : element).ToList() }).ToList() };
+            Assert.Equal(default(RectD), DocumentDiff.Changed(document, again));
+        }
+
+        [Theory]
         [InlineData(400, 130, 30, 30)]
         [InlineData(10, 10, 300, 200)]
         [InlineData(205.5, 285.5, 100, 60)]

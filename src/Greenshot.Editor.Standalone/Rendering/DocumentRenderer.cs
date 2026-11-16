@@ -338,6 +338,16 @@ namespace Greenshot.Editor.Standalone.Rendering
                 // The offset is on the canvas, it doesn't turn with the element
                 // Room for the shadow around what is drawn: outside of the layer nothing of it shows
                 var grown = bounds.Inflate(2 + size + Math.Max(Math.Abs(offset.X), Math.Abs(offset.Y)));
+                // Not more than what is drawn now, with what its shadow is made of: around a small change in a large framed
+                // capture the layer is small, not as large as the capture
+                var needed = _area.Inflate(2 + 2 * size + Math.Max(Math.Abs(offset.X), Math.Abs(offset.Y)));
+                double x = Math.Max(grown.X, needed.X), y = Math.Max(grown.Y, needed.Y), right = Math.Min(grown.Right, needed.Right), bottom = Math.Min(grown.Bottom, needed.Bottom);
+                if (right <= x || bottom <= y)
+                {
+                    return;
+                }
+
+                grown = new RectD(x, y, right - x, bottom - y);
                 int left = (int)Math.Floor(grown.X), top = (int)Math.Floor(grown.Y);
                 var layer = new Rectangle(left, top, (int)Math.Ceiling(grown.Right) - left, (int)Math.Ceiling(grown.Bottom) - top);
                 _canvas.SaveLayer(new GraphicsOptions(), layer, effect);
