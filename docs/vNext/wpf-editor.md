@@ -36,7 +36,7 @@ becomes a surface (`DocumentToSurface`) and goes to the destination like an expo
   Emoji (J), Highlight (H), Obfuscate (O), Cut mark (U), Crop (C). Shift keeps squares and circles, snaps lines and turns to 15 degrees,
   and moves along one axis.
 - Select: click, Shift/Ctrl+click to add or remove, drag on the empty canvas for a rubber band (Alt: also what it touches),
-  double-click a text, speech bubble, rectangle or ellipse to type its text (Ctrl+Enter or a click outside ends, Esc cancels).
+  double-click a text, speech bubble, rectangle or ellipse to type its text (Esc, Ctrl+Enter or a click outside ends the typing and keeps the text).
   The round handle above an element turns it. Arrow keys move by 1 pixel, with Shift by 10.
 - Zoom and pan: Ctrl+wheel zooms at the mouse, the wheel scrolls (Shift+wheel sideways), the middle button or Space with the left
   button drags the view. Ctrl+0 is 100 %, Ctrl+9 fits the window. The overview at the bottom right moves the visible part with a click or a drag.

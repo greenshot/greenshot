@@ -152,6 +152,25 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
         });
 
         [Fact]
+        public Task Escape_EndsTheTyping_AndKeepsTheNewSpeechBubbleWithItsText() => EditorUi.RunAsync(async () =>
+        {
+            var window = await EditorUi.OpenAsync(Samples.Page(400, 300, Samples.White, null));
+            var tab = window.ViewModel.SelectedTab;
+            tab.ToolKind = ToolKind.SpeechBubble;
+            await DragAsync(window, new PointD(40, 40), new PointD(300, 120));
+            Assert.NotNull(tab.EditingText);
+            window.KeyTextInput("Some text");
+
+            window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+            window.KeyRelease(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+            await EditorUi.DrawnAsync(window);
+
+            Assert.Null(tab.EditingText);
+            Assert.Equal("Some text", Assert.IsType<SpeechBubbleElement>(Assert.Single(tab.Committed.Layers[1].Elements)).Text);
+            Close(window);
+        });
+
+        [Fact]
         public Task TypedText_IsKept_WhenACommandEndsTheTyping() => EditorUi.RunAsync(async () =>
         {
             var window = await EditorUi.OpenAsync(Samples.Page(400, 300, Samples.White, null));
