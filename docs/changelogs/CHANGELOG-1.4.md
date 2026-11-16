@@ -314,6 +314,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Installer** (#1766)
 - The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
 
+**Editor bugs from the old bug tracker** (#1764)
+- Closing an opened .greenshot file without changes no longer asks to save it, and its elements are no longer all selected after opening
+- While a crop waits for Confirm or Cancel, the tool keys (R, E, T, ...) and shortcuts are blocked like the disabled buttons; before, they could leave the crop rectangle behind, and confirming it later gave an error
+- A counter with a transparent fill can be selected, the counter button keeps its icon when the counter starts at 0 and shows the right number after undo, counters can start at up to 9999
+- Ctrl+Backspace in a text box removes one word, also after a line break
+- Invert keeps transparent areas transparent
+
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
 - Fixed null reference in cursor setter (#873)

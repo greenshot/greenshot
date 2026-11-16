@@ -258,14 +258,9 @@ namespace Greenshot.Editor.Drawing
 
         public override bool ClickableAt(int x, int y)
         {
+            // The number is always drawn, so the whole label can be clicked, also with a transparent fill (BUG-2367)
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
-            Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
-            if (_drawAsRectangle)
-            {
-                return RectangleContainer.RectangleClickableAt(rect, 0, fillColor, x, y);
-            }
-
-            return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
+            return rect.Contains(x, y);
         }
 
         public ScaleOptions GetScaleOptions() => ScaleOptions.Rational;
