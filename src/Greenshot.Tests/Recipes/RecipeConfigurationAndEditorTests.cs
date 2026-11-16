@@ -99,6 +99,23 @@ namespace Greenshot.Tests.Recipes
             TestEnvironment.EnsureInitialized();
         }
 
+        /// <summary>
+        /// Opens a capture recipe acquire -> select -> feedback -> export in the editor
+        /// </summary>
+        private static void OpenCaptureRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel editorVm)
+        {
+            var recipe = new CaptureRecipe("recipe_editor_test", "Editor test")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSelection("select"))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            recipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "feedback")
+                .AddTransition("feedback", "export");
+            editorVm.ActiveRecipe = recipe;
+        }
+
         [Fact]
         public void RecipeConfigHelper_ReflectsConfigurationState()
         {
@@ -289,7 +306,7 @@ namespace Greenshot.Tests.Recipes
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
             try
             {
-                editorVm.NewRecipe();
+                OpenCaptureRecipe(editorVm);
                 editorVm.AddStep(WellKnownStepTypes.Conditional);
                 var condition = editorVm.Nodes.First(n => n.IsConditional);
                 var export = editorVm.Nodes.First(n => n.Id == "export");
@@ -307,6 +324,126 @@ namespace Greenshot.Tests.Recipes
                 // Neither the branch nor a plain transition of the condition is left
                 Assert.DoesNotContain(editorVm.Connections, c => c.Source == branch.Port);
                 Assert.DoesNotContain(editorVm.ActiveRecipe.Flow.Transitions, t => t.From == condition.Id && (t.Branch == branch.Key || t.IsPlain));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
+        public void RecipeEditorViewModel_AskTheCanvasToShowNewAndLaidOutSteps()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            var requests = new List<Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel>();
+            editorVm.ShowStepsRequested += node => requests.Add(node);
+            try
+            {
+                // A recipe is opened: all its steps
+                editorVm.NewRecipe();
+                Assert.NotEmpty(requests);
+                Assert.All(requests, r => Assert.Null(r));
+
+                // A step is added: that step, also as the only one
+                Assert.Empty(editorVm.Nodes);
+                requests.Clear();
+                editorVm.AddStep(WellKnownStepTypes.OpenWindow);
+                var added = Assert.Single(editorVm.Nodes);
+                Assert.Same(added, Assert.Single(requests));
+
+                // Auto layout: all steps
+                requests.Clear();
+                editorVm.AutoLayoutCommand.Execute(null);
+                Assert.Null(Assert.Single(requests));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
+        public void RecipeEditorViewModel_NewRecipeTemplates_AreSmallAndHaveNoHotkeyYet()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.Empty);
+                Assert.Empty(editorVm.ActiveRecipe.Nodes);
+                Assert.Empty(editorVm.ActiveRecipe.Triggers);
+
+                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.HotkeyOpensWindow);
+                var openWindow = Assert.Single(editorVm.Nodes);
+                Assert.Equal(WellKnownStepTypes.OpenWindow, openWindow.StepType);
+                Assert.True(openWindow.IsStartNode);
+                var hotkey = Assert.Single(editorVm.ActiveRecipe.Triggers);
+                Assert.Equal(Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, hotkey.TriggerType);
+                Assert.Equal(string.Empty, hotkey.GetHotkey(editorVm.ActiveRecipe));
+
+                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.CaptureRegionToFile);
+                Assert.Equal(new[] { "acquire", "select", "save_file" }, editorVm.Nodes.Select(n => n.Id));
+                Assert.Equal(2, editorVm.Connections.Count);
+                Assert.Equal(string.Empty, Assert.Single(editorVm.ActiveRecipe.Triggers).GetHotkey(editorVm.ActiveRecipe));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
+        public void RecipeEditorViewModel_NewRecipeFrom_CopiesWithOwnIdAndWithoutHotkeys()
+        {
+            var source = new CaptureRecipe("recipe_copy_source", "Copy source", "The original")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateSaveFile("save_file"));
+            source.Flow = new RecipeFlowConfig("acquire").AddTransition("acquire", "save_file");
+            source.Triggers.Add(Greenshot.Base.Recipes.Triggers.TriggerConfig.CreateHotkey("${config.Core.RegionHotkey}"));
+            source.Translations = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["de-DE"] = new Dictionary<string, string> { ["name"] = "Kopierquelle", ["description"] = "Das Original" }
+            };
+            source.IsBuiltIn = true;
+            source.FilePath = "built-in.gsrecipe.json";
+
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipeFrom(source);
+                var copy = editorVm.ActiveRecipe;
+
+                Assert.NotSame(source, copy);
+                Assert.NotEqual(source.Id, copy.Id);
+                Assert.False(copy.IsBuiltIn);
+                Assert.Null(copy.FilePath);
+                Assert.Equal(new[] { "acquire", "save_file" }, editorVm.Nodes.Select(n => n.Id));
+                Assert.Single(editorVm.Connections);
+                // Its hotkey would clash with the original's
+                Assert.Equal("None", Assert.Single(copy.Triggers).GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter));
+                Assert.False(copy.Translations["de-DE"].ContainsKey("name"));
+                Assert.Equal("Das Original", copy.Translations["de-DE"]["description"]);
+
+                // The original is unchanged
+                Assert.Equal("${config.Core.RegionHotkey}", source.Triggers[0].GetParameter<string>(Greenshot.Base.Recipes.Triggers.TriggerConfig.HotkeyParameter));
+                Assert.True(source.Translations["de-DE"].ContainsKey("name"));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
+        public void RecipeEditorViewModel_NewRecipeChoices_AreTheTemplatesAndOneCopyEntry()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                // However many recipes there are: the recipe to copy is picked separately
+                var choices = editorVm.GetNewRecipeChoices();
+                Assert.Equal(editorVm.AvailableRecipes.Count > 0 ? 4 : 3, choices.Count);
+                Assert.True(choices.Count(c => c.IsCopy) <= 1);
+                Assert.Equal(editorVm.AvailableRecipes.Count, editorVm.GetRecipesToCopy().Count);
             }
             finally
             {
@@ -357,7 +494,7 @@ namespace Greenshot.Tests.Recipes
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
             try
             {
-                editorVm.NewRecipe();
+                OpenCaptureRecipe(editorVm);
                 var vm = editorVm.Nodes.First(n => n.Id == "export");
                 Assert.Equal("Default", vm.OnErrorAction);
                 Assert.Empty(editorVm.ActiveRecipe.Flow.ErrorTransitions);
@@ -432,7 +569,7 @@ namespace Greenshot.Tests.Recipes
         public void RecipeEditorViewModel_ManagesErrorTransitionsAndDynamicDestination()
         {
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();
-            editorVm.NewRecipe();
+            OpenCaptureRecipe(editorVm);
 
             // Add DynamicDestination step
             editorVm.AddStep(WellKnownStepTypes.DynamicDestination);

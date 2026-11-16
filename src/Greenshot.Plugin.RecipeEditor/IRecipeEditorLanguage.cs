@@ -4142,6 +4142,73 @@ namespace Greenshot.Plugin.RecipeEditor
         string StatusRecipeCreated { get; }
 
         /// <summary>
+        /// New recipe
+        /// </summary>
+        string NewRecipeTitle { get; }
+
+        /// <summary>
+        /// Start with a small template, or with a copy of a recipe you already have.
+        /// </summary>
+        string NewRecipeIntro { get; }
+
+        /// <summary>
+        /// Create
+        /// </summary>
+        string NewRecipeBtnCreate { get; }
+
+
+
+        /// <summary>
+        /// Copy of {0}
+        /// </summary>
+        string NewRecipeCopyName { get; }
+
+        /// <summary>
+        /// Empty recipe
+        /// </summary>
+        string TemplateEmptyName { get; }
+
+        /// <summary>
+        /// No trigger and no steps
+        /// </summary>
+        string TemplateEmptyDescription { get; }
+
+        /// <summary>
+        /// Hotkey opens a window
+        /// </summary>
+        string TemplateHotkeyWindowName { get; }
+
+        /// <summary>
+        /// A hotkey opens one of Greenshot's windows, e.g. the settings
+        /// </summary>
+        string TemplateHotkeyWindowDescription { get; }
+
+        /// <summary>
+        /// Capture a region to a file
+        /// </summary>
+        string TemplateRegionToFileName { get; }
+
+        /// <summary>
+        /// A hotkey captures a region and saves it as a file
+        /// </summary>
+        string TemplateRegionToFileDescription { get; }
+
+        /// <summary>
+        /// Copy of an existing recipe
+        /// </summary>
+        string TemplateCopyName { get; }
+
+        /// <summary>
+        /// Starts with the triggers and steps of a recipe you already have
+        /// </summary>
+        string TemplateCopyDescription { get; }
+
+        /// <summary>
+        /// Recipe to copy
+        /// </summary>
+        string NewRecipeCopyLabel { get; }
+
+        /// <summary>
         /// Revert '{0}' to default built-in definition?
         /// </summary>
         string ConfirmResetActiveRecipe { get; }
