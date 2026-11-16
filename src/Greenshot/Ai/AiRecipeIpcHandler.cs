@@ -716,12 +716,8 @@ namespace Greenshot.Ai
         private static string GetNewFilePath(string recipeId)
         {
             string directory = AiRecipeDirectoryProvider();
-            var name = new StringBuilder();
-            foreach (char c in recipeId ?? "recipe")
-            {
-                name.Append(Path.GetInvalidFileNameChars().Contains(c) || c == '.' ? '_' : c);
-            }
-            string baseName = name.Length == 0 ? "recipe" : name.ToString();
+            string name = FilenameHelper.MakeFilenameSafe(recipeId ?? "recipe").Replace('.', '_');
+            string baseName = name.Length == 0 ? "recipe" : name;
             string path = Path.Combine(directory, baseName + RecipeSerializer.RecipeFileExtension);
             for (int i = 2; File.Exists(path); i++)
             {
