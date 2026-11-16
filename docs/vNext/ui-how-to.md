@@ -43,7 +43,7 @@ The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -87,7 +87,10 @@ looks the same and a change of the design is made in one place. Merge the dictio
 
 | File | What it gives you |
 |---|---|
-| `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box, expander and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
+| `GreenshotStyles.xaml` | All shared styles in one: merges every file below and themes `Label`, `TextBox`, `PasswordBox`, `ComboBox`, `CheckBox`, `Button`, the list views, scroll bars, `GroupBox`, `TabControl` and `Slider` by default. Greenshot merges it once into the WPF application, so every window and panel gets it; merge it in your view as well, so the view also works in tests and the designer. Merge only this file, not the single ones. |
+| `CardStyles.xaml` | `CardStyle`: a framed block of content (a card) on the window background. |
+| `TextStyles.xaml` | `HeadingTextStyle` (the title of a card or section), `MutedTextStyle` (explaining text), `ValueTextStyle` (the value right of a slider). |
+| `ScrollBarStyles.xaml`, `GroupBoxStyles.xaml`, `TabStyles.xaml`, `SliderStyles.xaml`, `FocusStyles.xaml` | The default look of scroll bars (also the corner of a `ScrollViewer`), group boxes, tabs and sliders; `GreenshotFocusVisual` for a focus frame. |
 | `ButtonStyles.xaml` | `PrimaryButtonStyle` (the main action, e.g. OK), `SecondaryButtonStyle` (the other actions, e.g. Cancel), `WarnButtonStyle`, `ErrorButtonStyle` (strong red, destructive), `LightErrorButtonStyle` (a lighter delete), text-only buttons `PrimaryTextButtonStyle`, `SecondaryTextButtonStyle`, `LinkTextButtonStyle`, `ToolboxButtonStyle`, `PaletteSwatchStyle`, `DefaultRadioButtonStyle`, `FilterChipRadioButtonStyle`, and the caption buttons `TitleBarButtonStyle`, `TitleCloseButtonStyle`. |
 | `ComboBoxStyles.xaml` | `DefaultComboBoxStyle`, the default style of every `ComboBox` in a window which merges it; with `IsEditable="True"` the box takes typing and the list offers values. |
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
@@ -95,6 +98,11 @@ looks the same and a change of the design is made in one place. Merge the dictio
 | `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`; `ThemeListBox` and `ThemeListBoxItem` for a list without columns, e.g. tiles in a `WrapPanel`. |
 | `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `EditEntryButtonStyle` (its text as a button, e.g. a click changes the entry), `RemoveEntryButtonStyle` (the small x in it), `TakeEntryButtonStyle` (a small + which takes the entry into another list), `AddPillButtonStyle` (the + at the end of the list). |
 | `MenuStyles.xaml` | `GreenshotContextMenuStyle`, `GreenshotMenuItemStyle`, `GreenshotMenuSeparatorStyle`; `ThemedMenu` uses them for the tray menu and the other menus. |
+
+To change a shared default a little in one view, base the style on its name, not on the type:
+`BasedOn="{StaticResource GreenshotTextBoxStyle}"` (likewise `GreenshotLabelStyle`, `GreenshotCheckBoxStyle`,
+`DefaultComboBoxStyle`, `GreenshotSliderStyle`, `GreenshotScrollViewerStyle`, `ThemeListViewItem`, `ThemeListBoxItem`).
+`BasedOn="{StaticResource {x:Type TextBox}}"` doesn't find the shared style there and the control falls back to the Windows look.
 
 ```xaml
 <Button Content="{wpf:Text Core.Ok}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True"/>
