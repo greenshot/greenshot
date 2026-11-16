@@ -62,23 +62,24 @@
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Text Settings.Applicationsettings}">
                             <StackPanel>
-                                <!-- Language and colors side by side -->
+                                <!-- Language and colors side by side, the boxes as wide as their longest entries need -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Language}" Target="{Binding ElementName=LanguageComboBox}"/>
-                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" 
+                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" MinWidth="120" 
                                               ItemsSource="{Binding SupportedLanguages}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
-                                    <Label Grid.Column="2" Margin="12,0,0,0" Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
-                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3"
+                                    <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
+                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3" MinWidth="120"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -241,6 +242,9 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Capture}">
                             <StackPanel>
+                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
@@ -469,14 +473,6 @@
                             </StackPanel>
                         </GroupBox>
                         
-                        <GroupBox Header="{wpf:Text Settings.Windowscapture}">
-                            <StackPanel>
-                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
-                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
-                            </StackPanel>
-                        </GroupBox>
-
                         <GroupBox Header="{wpf:Text Settings.Ocr}"
                                   Visibility="{Binding HasOcr, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel>

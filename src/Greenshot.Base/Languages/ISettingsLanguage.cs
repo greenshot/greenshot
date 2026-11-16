@@ -1160,11 +1160,6 @@ namespace Greenshot.Base.Languages
         string TooltipFixedCaptureMovesCursor { get; }
 
         /// <summary>
-        /// Window capture
-        /// </summary>
-        string Windowscapture { get; }
-
-        /// <summary>
         /// Show magnifier
         /// </summary>
         string Zoom { get; }
