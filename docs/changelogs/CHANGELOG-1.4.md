@@ -311,6 +311,14 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Printing, PowerPoint and file names, bugs from the old bug tracker** (#1765)
+- "Force grayscale printing" prints in gray also when the printer driver ignores it
+- A capture shrunk to fit the page prints with sharper text
+- With the PowerPoint slide layout ppLayoutBlank the capture goes on one slide, before an extra empty slide was added
+- Invisible marks in window titles (e.g. of Microsoft Edge) are left out of file names
+- File names from window titles and web pages can no longer hide text or fake their extension with invisible or right-to-left characters; emoji and scripts that need joining characters still work
+- A name like CON or NUL, which Windows can't save, gets a _ in front
+
 **Installer** (#1766)
 - The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
 
