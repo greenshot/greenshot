@@ -206,6 +206,11 @@ namespace Greenshot.Settings.ViewModels
         public bool IsExpertTabVisible => !CoreConfiguration.HideExpertSettings;
 
         /// <summary>
+        /// A released version: only there "check for unstable updates" means something, an unstable version always offers newer unstable versions
+        /// </summary>
+        public bool IsReleasedVersion => !UpdateService.IsUnstableBuild;
+
+        /// <summary>
         /// A mandatory Windows policy sets at least one setting (the settings window says so), see docs/vNext/policies.md
         /// </summary>
         public bool IsManagedByPolicies =>

@@ -373,6 +373,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
 - The plugin list in the settings shows who signed each plugin
 
+**Update check**
+- A released version only offers the next release, unless "Check for unstable updates" is on; an unstable (beta) version offers newer unstable versions and releases, whichever is newest
+
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
 - By @htcfreek

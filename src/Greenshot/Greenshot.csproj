@@ -32,6 +32,11 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
+    <!-- The ThisAssembly class of Nerdbank.GitVersioning (UpdateService.IsUnstableBuild) in its own namespace:
+         Greenshot.Base has one too (global, visible here with InternalsVisibleTo) -->
+    <NBGV_ThisAssemblyNamespace>Greenshot</NBGV_ThisAssemblyNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
     <!-- Restore for both, the Release build of Greenshot-Installer builds Light (win-x86, as AnyCPU) with the restore of the full version -->
     <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>

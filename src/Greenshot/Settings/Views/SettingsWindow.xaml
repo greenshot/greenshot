@@ -1123,8 +1123,10 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
                                 
+                                <!-- An unstable version always offers newer unstable versions, so only a released version has the choice -->
                                 <CheckBox Content="{wpf:Text Settings.ExpertCheckunstableupdates}"
-                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}">
+                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}"
+                                          Visibility="{Binding IsReleasedVersion, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <CheckBox.IsEnabled>
                                         <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="CheckForUnstable">
                                             <Binding Path="ExpertModeEnabled"/>
