@@ -23,6 +23,8 @@ take Greenshot with it.
   resize) and the layers.
 - The menu "Effects" in the top bar: border, drop shadow, torn edges (with the shadow the torn edges of Greenshot
   have), grayscale, invert, turn and auto crop. Grayscale and invert change the capture, not what is drawn on it.
+  Ctrl+T adds torn edges, as in Greenshot's editor.
+- Tooltips show below their button (right of a tool), not under the mouse pointer.
 - Stamps: the images of the stamps folder (the one of the [stamps plugin](stamps.md), `stamps.json` gives names and
   tags) are placed with a click, files are imported, and the selection can be kept as a new stamp. This is part of
   the editor, it has no plugins.
