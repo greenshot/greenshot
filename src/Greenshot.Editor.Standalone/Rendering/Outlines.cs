@@ -99,7 +99,26 @@ namespace Greenshot.Editor.Standalone.Rendering
                 var shape = frame.ShapeOf(side);
                 bool horizontal = side is Edges.Top or Edges.Bottom;
                 double height = Math.Min(shape.Height, Math.Min(w, h) / 3);
-                foreach (var point in Of(shape, horizontal ? w : h, height, random))
+                double length = horizontal ? w : h;
+                var points = Of(shape, length, height, random);
+                if (shape?.Style == EdgeStyle.Torn && points.Count >= 2)
+                {
+                    // In a corner two torn sides share one point which is in from both, like the torn edges of the editor;
+                    // next to a straight side the tear starts on that side. Without this a spike sticks out of the corner.
+                    bool before = frame.ShapeOf(Previous(side))?.Style == EdgeStyle.Torn, after = frame.ShapeOf(Next(side))?.Style == EdgeStyle.Torn;
+                    var last = points[points.Count - 1];
+                    points[points.Count - 1] = after ? new PointF((float)length - last.Y, last.Y) : new PointF((float)length, 0);
+                    if (before)
+                    {
+                        points.RemoveAt(0);
+                    }
+                    else
+                    {
+                        points[0] = new PointF(0, 0);
+                    }
+                }
+
+                foreach (var point in points)
                 {
                     float a = point.X, d = point.Y;
                     outline.Add(side switch
@@ -115,6 +134,10 @@ namespace Greenshot.Editor.Standalone.Rendering
             // Sides meet in the corners, a point twice in a row confuses the clipping
             return outline.Where((point, index) => index == 0 || point != outline[index - 1]).ToArray();
         }
+
+        private static Edges Next(Edges side) => side switch { Edges.Top => Edges.Right, Edges.Right => Edges.Bottom, Edges.Bottom => Edges.Left, _ => Edges.Top };
+
+        private static Edges Previous(Edges side) => side switch { Edges.Top => Edges.Left, Edges.Right => Edges.Top, Edges.Bottom => Edges.Right, _ => Edges.Bottom };
 
         /// <summary>
         /// A box with round corners as points

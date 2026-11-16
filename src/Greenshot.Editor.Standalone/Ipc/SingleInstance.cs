@@ -35,9 +35,12 @@ namespace Greenshot.Editor.Standalone.Ipc
     /// </summary>
     public static class SingleInstance
     {
-        private const int ConnectTimeout = 300;
+        // The editor which runs may be busy starting: long enough for that
+        private const int ConnectTimeout = 5000;
         private const int MaxRequestSize = 1024 * 1024;
         private static CancellationTokenSource _stop;
+        // Held for as long as this editor runs
+        private static Mutex _first;
 
         /// <summary>
         /// Another editor was started with these files. Raised on a thread of the pool.
@@ -61,6 +64,49 @@ namespace Greenshot.Editor.Standalone.Ipc
             }
             catch (Exception ex) when (ex is TimeoutException or IOException or UnauthorizedAccessException)
             {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// True when no other editor of this user runs, this one is then the one. A named mutex answers that at once,
+        /// asking the pipe (TrySend) takes its whole timeout when nobody listens.
+        /// </summary>
+        public static bool IsFirst()
+        {
+            if (_first != null)
+            {
+                return true;
+            }
+
+            try
+            {
+                // Owning it counts, not that it exists: one which an editor left behind when it was ended is taken over
+                var mutex = new Mutex(false, PipeName);
+                bool owned;
+                try
+                {
+#pragma warning disable RS0030 // R1: nothing waits here, a timeout of 0 only asks whether the mutex is free
+                    owned = mutex.WaitOne(0);
+#pragma warning restore RS0030
+                }
+                catch (AbandonedMutexException)
+                {
+                    owned = true;
+                }
+
+                if (owned)
+                {
+                    _first = mutex;
+                    return true;
+                }
+
+                mutex.Dispose();
+                return false;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or WaitHandleCannotBeOpenedException or PlatformNotSupportedException)
+            {
+                // Not known: the pipe tells
                 return false;
             }
         }

@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Standalone.Tests.Ipc
         {
             SingleInstance.PipeName = "GreenshotEditorTest_" + Guid.NewGuid().ToString("N");
             var request = new StartRequest { Files = { "/tmp/a.png" }, Handover = { "/tmp/b.greenshot" } };
-            Assert.False(SingleInstance.TrySend(request), "Nobody listens yet: this editor is the first");
+            Assert.True(SingleInstance.IsFirst(), "No other editor runs: this one is the first, known without waiting for a pipe");
 
             var received = new TaskCompletionSource<StartRequest>(TaskCreationOptions.RunContinuationsAsynchronously);
             void OnReceived(StartRequest got) => received.TrySetResult(got);

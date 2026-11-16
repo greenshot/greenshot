@@ -387,6 +387,55 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
         });
 
         [Fact]
+        public Task TornEdges_AreAddedAroundTheCapture() => EditorUi.RunAsync(async () =>
+        {
+            var window = await EditorUi.OpenAsync(Samples.Page(480, 300, null, null));
+            window.ViewModel.AddTornEdgesCommand.Execute(null);
+            await EditorUi.DrawnAsync(window);
+            using (EditorUi.Capture(window, "torn-edges"))
+            {
+            }
+
+            var frame = Assert.Single(window.ViewModel.SelectedTab.Document.Layers.SelectMany(layer => layer.Elements).OfType<FrameElement>());
+            Assert.Equal(EdgeStyle.Torn, frame.Shape.Style);
+            Assert.Equal(new RectD(-8, -8, 494, 314), window.ViewModel.SelectedTab.Document.CanvasArea());
+            Close(window);
+        });
+
+        [Fact]
+        public Task Grayscale_ChangesTheCapture_NotWhatIsDrawnOnIt_AndUndoBringsItBack() => EditorUi.RunAsync(async () =>
+        {
+            var box = new RectangleElement(System.Guid.NewGuid(), new RectD(40, 40, 100, 60)) { Style = Samples.Plain with { Fill = FillStyle.Of(Samples.Red) } };
+            var window = await EditorUi.OpenAsync(Samples.Page(200, 150, Samples.Green, null, box));
+            var tab = window.ViewModel.SelectedTab;
+
+            window.ViewModel.GrayscaleCommand.Execute(null);
+            await EditorUi.DrawnAsync(window);
+
+            using (var image = EditorUi.Capture(window, "grayscale"))
+            {
+                var capture = At(window, 10, 10);
+                var gray = image[(int)capture.X, (int)capture.Y];
+                Assert.True(gray.R == gray.G && gray.G == gray.B, $"The capture is gray: {gray}");
+                var drawn = At(window, 90, 70);
+                Assert.Equal(new SixLabors.ImageSharp.PixelFormats.Rgba32(255, 0, 0), image[(int)drawn.X, (int)drawn.Y]);
+            }
+
+            Assert.Single(tab.Document.Resources);
+            window.ViewModel.InvertCommand.Execute(null);
+            window.ViewModel.UndoCommand.Execute(null);
+            window.ViewModel.UndoCommand.Execute(null);
+            await EditorUi.DrawnAsync(window);
+            using (var image = EditorUi.Capture(window, "grayscale-undone"))
+            {
+                var capture = At(window, 10, 10);
+                Assert.Equal(new SixLabors.ImageSharp.PixelFormats.Rgba32(0, 128, 0), image[(int)capture.X, (int)capture.Y]);
+            }
+
+            Close(window);
+        });
+
+        [Fact]
         public Task TheDarkTheme_ShowsEveryPanel() => EditorUi.RunAsync(async () =>
         {
             Application.Current.RequestedThemeVariant = ThemeVariant.Dark;

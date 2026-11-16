@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Linq;
 using Greenshot.Document;
 using Greenshot.Editor.Standalone.Rendering;
 using SixLabors.ImageSharp;
@@ -166,6 +167,26 @@ namespace Greenshot.Editor.Standalone.Tests.Rendering
             using var b = one.Clone(context => context.Crop(right));
 
             Assert.True(Difference(a, b) <= 2, $"The second {kind} differs by {Difference(a, b)} from the same one drawn alone");
+        }
+
+        [Fact]
+        public void TornEdgesWithAShadow_GrowTheCanvasByTheShadow()
+        {
+            var document = Greenshot.Editor.Standalone.Editing.CaptureFrames.WithFrame(Samples.Page(480, 300, null, null), frame => frame with
+            {
+                Shape = new EdgeShape(EdgeStyle.Torn),
+                Style = new Style { Shadow = new ShadowStyle { Enabled = true, Size = 7, Darkness = 0.6, Offset = new PointD(-1, -1) } }
+            });
+
+            Assert.Equal(new RectD(-8, -8, 494, 314), document.CanvasArea());
+            using var image = DocumentRenderer.Render(document);
+            Samples.Keep(image, "torn");
+            Assert.Equal(494, image.Width);
+            // The corner is cut off and the shadow doesn't reach it; next to the edge the shadow is dark
+            Assert.True(image[0, 0].A < 40, $"Nothing in the corner: {image[0, 0]}");
+            int darkest = Enumerable.Range(0, 22).Max(y => image[247, y].R < 40 ? image[247, y].A : 0);
+            Assert.True(darkest > 40, $"The shadow above the top edge, at most {darkest}");
+            Assert.Equal(new Rgba32(250, 250, 245), image[247, 165]);
         }
     }
 }

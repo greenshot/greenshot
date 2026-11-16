@@ -22,6 +22,7 @@ using System;
 using Avalonia;
 using Greenshot.Editor.Standalone.Diagnostics;
 using Greenshot.Editor.Standalone.Ipc;
+using Greenshot.Editor.Standalone.Rendering;
 
 namespace Greenshot.Editor.Standalone
 {
@@ -35,8 +36,9 @@ namespace Greenshot.Editor.Standalone
         [STAThread]
         public static int Main(string[] args)
         {
+            double runtimeStarted = StartClock.Elapsed;
             var request = StartRequest.Parse(args);
-            if (SingleInstance.TrySend(request))
+            if (!SingleInstance.IsFirst() && SingleInstance.TrySend(request))
             {
                 return 0;
             }
@@ -44,6 +46,8 @@ namespace Greenshot.Editor.Standalone
             try
             {
                 EditorLog.Info($"Greenshot editor {typeof(Program).Assembly.GetName().Version} starts");
+                StartClock.Mark($"the runtime was ready after {runtimeStarted:F0} ms, no other editor runs");
+                WarmUp.Start();
                 SingleInstance.Listen();
                 App.Request = request;
                 return BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

@@ -17,8 +17,12 @@ take Greenshot with it.
 - Tabs, one document each. Undo and redo per tab.
 - The tools of the WPF editor: select, rectangle, ellipse, line, arrow, freehand, text, speech bubble, step label,
   emoji, highlight, obfuscate, cut mark and crop, with the same keys (R, E, L, A, F, T, S, I, J, H, O, U, C).
+- A selected element shows its handles, no line around it. Esc while typing ends the typing and keeps the text.
+- Crop (Enter applies it) also removes the elements which are completely outside of what is kept.
 - A panel with the properties of the selection or of the tool, the canvas (background, border, shadow, torn edges,
   resize) and the layers.
+- The menu "Effects" in the top bar: border, drop shadow, torn edges (with the shadow the torn edges of Greenshot
+  have), grayscale, invert, turn and auto crop. Grayscale and invert change the capture, not what is drawn on it.
 - Stamps: the images of the stamps folder (the one of the [stamps plugin](stamps.md), `stamps.json` gives names and
   tags) are placed with a click, files are imported, and the selection can be kept as a new stamp. This is part of
   the editor, it has no plugins.
@@ -80,6 +84,19 @@ Who may do what:
 - The editor only talks to a pipe whose server is the Greenshot.exe one folder up.
 
 An editor which is not in the folder `Editor` of a Greenshot runs alone: it opens, edits and saves, and has no "Send to".
+
+## How fast it starts
+
+The log of the editor (`greenshot-editor.log`) has a line for every step of the start, beginning with "Start:", with
+the time since the process was started. Greenshot logs how long converting the capture, writing the file and starting
+the process took ("Stand-alone editor:").
+
+- Whether another editor runs is asked from a named mutex, which answers at once. Only when there is one, the pipe is used.
+- While the window is built, a thread of the pool lists the fonts and reads and draws a small picture (`WarmUp`), and
+  another loads the settings and texts, so that code is loaded and compiled when the capture arrives.
+- About half of what is left is compiling (Avalonia, ImageSharp and the editor). `dotnet publish -r win-x64` compiles
+  them ahead (`PublishReadyToRun`); a plain build, which is what the solution does today, doesn't.
+- The capture in the handed over file is stored, not compressed a second time.
 
 ## Building
 

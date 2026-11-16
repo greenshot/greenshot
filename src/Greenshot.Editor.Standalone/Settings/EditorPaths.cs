@@ -36,6 +36,7 @@ namespace Greenshot.Editor.Standalone.Settings
         public const string LogFileName = "greenshot-editor.log";
 
         private static string _settingsDirectory;
+        private static bool _settingsDirectoryWasSet;
 
         /// <summary>
         /// The folder of Greenshot when the editor was installed with it (the folder above the editor), else null
@@ -59,7 +60,11 @@ namespace Greenshot.Editor.Standalone.Settings
         public static string SettingsDirectory
         {
             get => _settingsDirectory ??= IsPortable ? GreenshotDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ApplicationFolder);
-            set => _settingsDirectory = value;
+            set
+            {
+                _settingsDirectory = value;
+                _settingsDirectoryWasSet = value != null;
+            }
         }
 
         /// <summary>
@@ -70,7 +75,7 @@ namespace Greenshot.Editor.Standalone.Settings
         /// <summary>
         /// The log of the editor, next to the log of Greenshot
         /// </summary>
-        public static string LogFile => Path.Combine(IsPortable || _settingsDirectory != null ? SettingsDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationFolder), LogFileName);
+        public static string LogFile => Path.Combine(IsPortable || _settingsDirectoryWasSet ? SettingsDirectory : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationFolder), LogFileName);
 
         /// <summary>
         /// The stamps folder: the configured one, else "Stamps" next to the settings (the same folder the stamps of Greenshot use)

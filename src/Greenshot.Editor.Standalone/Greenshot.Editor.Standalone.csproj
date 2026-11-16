@@ -23,6 +23,9 @@
     <IsPackable>false</IsPackable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- When the editor is published for a runtime (dotnet publish -r win-x64) its code and that of Avalonia and ImageSharp is
+         compiled ahead: about half of the start is compiling otherwise. A plain build (what the solution does) is not. -->
+    <PublishReadyToRun>true</PublishReadyToRun>
     <SixLaborsLicenseKey Condition="'$(SixLaborsLicenseKey)' == '' And '$(SIXLABORS_LIC)' != ''">$(SIXLABORS_LIC)</SixLaborsLicenseKey>
   </PropertyGroup>
 

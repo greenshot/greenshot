@@ -323,7 +323,7 @@ namespace Greenshot.Editor.Standalone.Rendering
             /// <summary>
             /// What draw draws gets the shadow of the style: it is drawn on a layer of its own, the shadow is the effect of the layer
             /// </summary>
-            private void Shadowed(Style style, RectD bounds, Action draw)
+            private void Shadowed(Style style, RectD bounds, Action draw, double softness = 3)
             {
                 if (style.Shadow is not { Enabled: true } shadow)
                 {
@@ -334,9 +334,10 @@ namespace Greenshot.Editor.Standalone.Rendering
                 double size = shadow.Size ?? DefaultShadowSize;
                 var offset = shadow.Offset ?? DefaultShadowOffset;
                 var color = Color.FromPixel(new Rgba32(0, 0, 0, (byte)Math.Round(255 * Math.Clamp(shadow.Darkness ?? DefaultShadowDarkness, 0, 1))));
-                var effect = new DropShadowLayerEffect(new Point((int)Math.Round(offset.X), (int)Math.Round(offset.Y)), (float)Math.Max(0.1, size / 3), color);
+                var effect = new DropShadowLayerEffect(new Point((int)Math.Round(offset.X), (int)Math.Round(offset.Y)), (float)Math.Max(0.1, size / softness), color);
                 // The offset is on the canvas, it doesn't turn with the element
-                var grown = bounds.Inflate(2);
+                // Room for the shadow around what is drawn: outside of the layer nothing of it shows
+                var grown = bounds.Inflate(2 + size + Math.Max(Math.Abs(offset.X), Math.Abs(offset.Y)));
                 int left = (int)Math.Floor(grown.X), top = (int)Math.Floor(grown.Y);
                 var layer = new Rectangle(left, top, (int)Math.Ceiling(grown.Right) - left, (int)Math.Ceiling(grown.Bottom) - top);
                 _canvas.SaveLayer(new GraphicsOptions(), layer, effect);
@@ -941,7 +942,8 @@ namespace Greenshot.Editor.Standalone.Rendering
                     }
 
                     Stroke(shape, style.Stroke);
-                });
+                    // The shadow of a frame is as wide as its size, like the drop shadow of the editor
+                }, 2);
             }
         }
     }

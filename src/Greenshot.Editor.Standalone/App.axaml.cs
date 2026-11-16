@@ -39,6 +39,7 @@ namespace Greenshot.Editor.Standalone
     public sealed class App : Application
     {
         private EditorWindow _window;
+        private bool _startLogged;
 
         /// <summary>
         /// What the command line asked to open, set before the application starts
@@ -54,16 +55,19 @@ namespace Greenshot.Editor.Standalone
                 "dark" => ThemeVariant.Dark,
                 _ => ThemeVariant.Default
             };
+            StartClock.Mark("settings and theme loaded");
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                StartClock.Mark("Avalonia is ready");
                 var greenshot = GreenshotLink.Create();
                 EditorSession.Current.Greenshot = greenshot;
                 _window = new EditorWindow(new EditorWindowViewModel());
                 desktop.MainWindow = _window;
+                StartClock.Mark("window created");
                 desktop.Exit += (_, _) =>
                 {
                     greenshot?.Dispose();
@@ -72,7 +76,11 @@ namespace Greenshot.Editor.Standalone
                 greenshot?.Start();
                 // Another editor which is started hands its files to this one
                 SingleInstance.Received += request => Dispatcher.UIThread.Post(() => Open(request));
-                _window.Opened += (_, _) => Open(Request);
+                _window.Opened += (_, _) =>
+                {
+                    StartClock.Mark("window shown");
+                    Open(Request);
+                };
             }
 
             base.OnFrameworkInitializationCompleted();
@@ -108,6 +116,14 @@ namespace Greenshot.Editor.Standalone
             foreach (string file in request.Files ?? new List<string>())
             {
                 await _window.ViewModel.OpenFileAsync(file);
+            }
+
+            if (!_startLogged)
+            {
+                _startLogged = true;
+                StartClock.Mark("files opened");
+                // After everything which was waiting is drawn
+                Dispatcher.UIThread.Post(() => StartClock.Mark("first picture drawn"), DispatcherPriority.Background);
             }
         }
     }

@@ -98,7 +98,9 @@ namespace Greenshot.Document
 
             foreach (var resource in linked)
             {
-                WriteEntry(zip, entries[resource.Id].Path, resource.Data, CompressionLevel.Optimal);
+                // A picture which is compressed already (the capture as PNG) is stored as it is: compressing it again costs
+                // most of the time of writing the file and makes it no smaller
+                WriteEntry(zip, entries[resource.Id].Path, resource.Data, IsCompressed(resource.MediaType) ? CompressionLevel.NoCompression : CompressionLevel.Optimal);
             }
 
             // Like the resources: only the analysis of written resources
@@ -170,6 +172,8 @@ namespace Greenshot.Document
             static int BigEndian(ReadOnlySpan<byte> bytes, int offset) => (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
             return resource with { Width = BigEndian(data, 16), Height = BigEndian(data, 20) };
         }
+
+        private static bool IsCompressed(string mediaType) => mediaType?.ToLowerInvariant() is "image/png" or "image/jpeg" or "image/gif" or "image/webp" or "image/avif" or "image/jxl" or "image/heic";
 
         private static void WriteEntry(ZipArchive zip, string path, ReadOnlyMemory<byte> data, CompressionLevel compressionLevel)
         {

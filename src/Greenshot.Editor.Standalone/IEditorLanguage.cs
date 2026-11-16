@@ -865,5 +865,25 @@ namespace Greenshot.Editor.Standalone
         /// Greenshot is not running, so there is nowhere to send to
         /// </summary>
         string SendToUnavailable { get; }
+
+        /// <summary>
+        /// Effects
+        /// </summary>
+        string Effects { get; }
+
+        /// <summary>
+        /// Grayscale
+        /// </summary>
+        string EffectGrayscale { get; }
+
+        /// <summary>
+        /// Invert
+        /// </summary>
+        string EffectInvert { get; }
+
+        /// <summary>
+        /// Remove border, shadow and torn edges
+        /// </summary>
+        string RemoveFrameMenu { get; }
     }
 }

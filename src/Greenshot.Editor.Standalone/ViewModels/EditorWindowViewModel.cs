@@ -30,6 +30,7 @@ using Greenshot.Document;
 using Greenshot.Document.Editing;
 using Greenshot.Editor.Standalone.Settings;
 using Greenshot.Editor.Standalone.Diagnostics;
+using Greenshot.Editor.Standalone.Editing;
 using Greenshot.Editor.Standalone.Files;
 using Greenshot.Editor.Standalone.Ipc;
 using Greenshot.Editor.Standalone.Rendering;
@@ -131,6 +132,8 @@ namespace Greenshot.Editor.Standalone.ViewModels
             AddDropShadowCommand = new RelayCommand(() => Properties.AddDropShadow(), () => SelectedTab != null);
             AddTornEdgesCommand = new RelayCommand(() => Properties.AddTornEdges(), () => SelectedTab != null);
             RemoveFrameCommand = new RelayCommand(() => Properties.RemoveFrame(), () => Properties.HasFrame);
+            GrayscaleCommand = new RelayCommand(() => SelectedTab.ChangeDocument(CaptureEffects.Grayscale, EditorTexts.Text.UndoEffect), () => SelectedTab != null);
+            InvertCommand = new RelayCommand(() => SelectedTab.ChangeDocument(CaptureEffects.Invert, EditorTexts.Text.UndoEffect), () => SelectedTab != null);
             ResizeCommand = new RelayCommand(() => SelectedTab.Resize(ResizeWidth, ResizeHeight), () => SelectedTab != null && ResizeWidth > 0 && ResizeHeight > 0);
             PlaceStampCommand = RelayCommand.ForTask(parameter => PlaceStampAsync(parameter as StampViewModel), parameter => SelectedTab != null && parameter is StampViewModel, Failed);
             ImportStampCommand = Command(ImportStampAsync);
@@ -312,6 +315,8 @@ namespace Greenshot.Editor.Standalone.ViewModels
         public ICommand AddDropShadowCommand { get; }
         public ICommand AddTornEdgesCommand { get; }
         public ICommand RemoveFrameCommand { get; }
+        public ICommand GrayscaleCommand { get; }
+        public ICommand InvertCommand { get; }
         public ICommand ResizeCommand { get; }
         public ICommand PlaceStampCommand { get; }
         public ICommand ImportStampCommand { get; }

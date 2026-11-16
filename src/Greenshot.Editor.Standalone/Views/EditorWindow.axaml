@@ -172,6 +172,23 @@
                         <Image Classes="icon" Source="{StaticResource Icon.NewTab}"/>
                     </Button>
                     <Rectangle Classes="separator"/>
+                    <Button x:Name="EffectsButton" Margin="4,2,0,2" Padding="10,5" Content="{l:Text Effects}" IsEnabled="{Binding HasTabs}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuItem Header="{l:Text AddBorder}" Command="{Binding AddBorderCommand}"/>
+                                <MenuItem Header="{l:Text AddDropShadow}" Command="{Binding AddDropShadowCommand}"/>
+                                <MenuItem Header="{l:Text AddTornEdges}" Command="{Binding AddTornEdgesCommand}"/>
+                                <MenuItem Header="{l:Text RemoveFrameMenu}" Command="{Binding RemoveFrameCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="{l:Text EffectGrayscale}" Command="{Binding GrayscaleCommand}"/>
+                                <MenuItem Header="{l:Text EffectInvert}" Command="{Binding InvertCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="{l:Text TurnCounterClockwise}" Command="{Binding TurnCounterClockwiseCommand}"/>
+                                <MenuItem Header="{l:Text TurnClockwise}" Command="{Binding TurnClockwiseCommand}"/>
+                                <MenuItem Header="{l:Text AutoCrop}" Command="{Binding AutoCropCommand}"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
                     <Button x:Name="StampsButton" Margin="4,2" Padding="10,5" Content="{l:Text Stamps}" IsEnabled="{Binding HasTabs}">
                         <Button.Flyout>
                             <Flyout Placement="BottomEdgeAlignedLeft" Opening="StampsFlyout_Opening">

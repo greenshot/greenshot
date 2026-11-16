@@ -376,14 +376,26 @@ namespace Greenshot.Editor.Standalone.ViewModels
         public bool FrameShadow
         {
             get => _tab != null && CaptureFrames.FrameOf(_tab.Document) is FrameElement frame && _tab.Document.StyleOf(frame).Shadow?.Enabled == true;
-            set => ChangeFrame(frame => frame with { Style = frame.Style with { Shadow = (frame.Style.Shadow ?? new ShadowStyle()) with { Enabled = value } } }, null);
+            set => ChangeFrame(frame => frame with { Style = frame.Style with { Shadow = CaptureShadow(frame.Style.Shadow, value) } }, null);
         }
 
         public void AddBorder() => ChangeFrame(frame => frame with { Band = new FrameBand(4, new Rgba(105, 105, 105, 255)) }, null);
 
         public void AddDropShadow() => FrameShadow = true;
 
-        public void AddTornEdges() => ChangeFrame(frame => frame with { Shape = new EdgeShape(EdgeStyle.Torn), Style = frame.Style with { Shadow = (frame.Style.Shadow ?? new ShadowStyle()) with { Enabled = true } } }, null);
+        public void AddTornEdges() => ChangeFrame(frame => frame with { Shape = new EdgeShape(EdgeStyle.Torn), Style = frame.Style with { Shadow = CaptureShadow(frame.Style.Shadow, true) } }, null);
+
+        /// <summary>
+        /// The shadow around the capture as the effects of Greenshot make it (drop shadow, torn edges): 7 pixels on every
+        /// side, a little to the top left. With its size named the canvas grows by it.
+        /// </summary>
+        private static ShadowStyle CaptureShadow(ShadowStyle current, bool enabled) => (current ?? new ShadowStyle()) with
+        {
+            Enabled = enabled,
+            Size = current?.Size ?? 7,
+            Darkness = current?.Darkness ?? 0.6,
+            Offset = current?.Offset ?? new PointD(-1, -1)
+        };
 
         public void RemoveFrame()
         {

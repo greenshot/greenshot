@@ -98,7 +98,9 @@ namespace Greenshot.DocumentModel
             string file = null;
             try
             {
+                var watch = Stopwatch.StartNew();
                 var document = SurfaceToDocument.ToDocument(surface);
+                long converted = watch.ElapsedMilliseconds;
                 string title = captureDetails?.Title ?? surface.CaptureDetails?.Title;
                 if (!string.IsNullOrEmpty(title))
                 {
@@ -119,9 +121,13 @@ namespace Greenshot.DocumentModel
                     UseShellExecute = false,
                     WorkingDirectory = Path.GetDirectoryName(EditorExecutable)
                 };
+                long written = watch.ElapsedMilliseconds;
                 using (Process.Start(start))
                 {
                 }
+
+                // The other part of the start is in the log of the editor (greenshot-editor.log, lines "Start:")
+                Log.InfoFormat("Stand-alone editor: capture converted in {0} ms, file written in {1} ms, editor started in {2} ms", converted, written - converted, watch.ElapsedMilliseconds - written);
 
                 return null;
             }
