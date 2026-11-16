@@ -2159,6 +2159,18 @@ namespace Greenshot.Editor.Forms
             // LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
             // avoid conflict with other shortcuts and
             // make sure there's no selected element claiming input focus
+            // While a crop waits for Confirm or Cancel the tools and menus are disabled, so are their keys: else another tool
+            // leaves the crop rectangle behind (BUG-3291). Esc which didn't reach the canvas (e.g. the tool bar has the focus) cancels the crop.
+            if (_controlsDisabledDueToConfirmable)
+            {
+                if (e.KeyCode == Keys.Escape && e.Modifiers == Keys.None)
+                {
+                    BtnCancelClick(sender, e);
+                }
+
+                return;
+            }
+
             if (e.Modifiers.Equals(Keys.None) && CanvasHasKeys)
             {
                 switch (e.KeyCode)
