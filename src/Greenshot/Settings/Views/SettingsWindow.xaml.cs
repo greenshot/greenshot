@@ -204,6 +204,11 @@ namespace Greenshot.Settings.Views
             Close();
         }
 
+        private void CheckForUpdatesNow_Click(object sender, RoutedEventArgs e) =>
+            Base.Threading.AsyncCommand.Run(() => _viewModel.CheckForUpdatesNowAsync(), "Check for updates from the settings");
+
+        private void UpdateDownload_Click(object sender, RoutedEventArgs e) => _viewModel.OpenUpdateDownloads();
+
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             // Don't save settings

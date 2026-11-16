@@ -192,9 +192,24 @@ namespace Greenshot.Base.Languages
         string CaptureWindowsInteractive { get; }
 
         /// <summary>
-        /// Update check interval in days (0=no check)
+        /// Check for updates
         /// </summary>
-        string Checkperiod { get; }
+        string UpdateCheck { get; }
+
+        /// <summary>
+        /// Days between checks
+        /// </summary>
+        string UpdateCheckInterval { get; }
+
+        /// <summary>
+        /// Check now
+        /// </summary>
+        string UpdateCheckNow { get; }
+
+        /// <summary>
+        /// This is Greenshot {0}.
+        /// </summary>
+        string UpdateCurrentVersion { get; }
 
         /// <summary>
         /// Configure

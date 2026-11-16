@@ -190,8 +190,8 @@ namespace Greenshot.Helpers
                 }
 
                 IsRunning = true;
-                var interval = CoreConfig?.UpdateCheckInterval ?? 14;
-                BackgroundTaskAsync(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
+                // Read for every round, so a change in the settings counts without a restart
+                BackgroundTaskAsync(() => TimeSpan.FromDays(CoreConfig?.UpdateCheckInterval ?? 14), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
             }
         }
 
