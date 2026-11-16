@@ -721,6 +721,23 @@ Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cu
 
 ---
 
+### Starting a new recipe in the Recipe Editor
+
+**New** (Ctrl+N) asks what the recipe starts with:
+
+| Choice | Trigger | Steps |
+|---|---|---|
+| Empty recipe | none | none: the first step you add is the start step |
+| Hotkey opens a window | Hotkey | `OpenWindow` (Settings) |
+| Capture a region to a file | Hotkey | `Source` (Region) → `InteractiveSelection` → `SaveFile` |
+| Copy of an existing recipe (picked from a drop-down) | as the recipe | as the recipe |
+
+The Hotkey triggers have no key yet (`"None"`): the recipe does nothing on its own until you record one. A copy gets its
+own id and the name "Copy of …", and its Hotkey triggers lose their key so they don't clash with the original's. Copy a
+built-in capture recipe to start with the steps and slots the built-in recipes have.
+
+---
+
 ### Visual Recipe Editor — Creating Templates from Editors & Files
 
 The visual Recipe Editor includes a built-in workflow to convert open screenshot editor surfaces into recipe annotation steps:
@@ -920,7 +937,7 @@ it does nothing itself. No slot, no extension; nothing is inferred.
 | `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
 
 The built-in capture recipes (region, window, active window, full screen, last region, clipboard and the browser
-extension) have all four slots, and so does a new recipe in the recipe editor; their `BeforeDestination` slot sits right
+extension) have all four slots, and so does a copy of one of them made with New in the recipe editor; their `BeforeDestination` slot sits right
 before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json

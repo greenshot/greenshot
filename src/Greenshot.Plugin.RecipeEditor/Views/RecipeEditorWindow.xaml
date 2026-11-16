@@ -202,13 +202,14 @@
         <!-- Node Template (Top/Bottom Flow) -->
         <DataTemplate DataType="{x:Type vm:StepNodeViewModel}">
             <Border Background="{Binding DataContext.NodeCardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderBrush="{Binding DataContext.NodeCardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderThickness="1.5"
                     CornerRadius="8"
                     Width="220"
                     SnapsToDevicePixels="True">
                 <Border.Style>
+                    <!-- Border brush and thickness only in the style: set on the Border, they would win over the trigger and a selected step would look like any other -->
                     <Style TargetType="Border">
+                        <Setter Property="BorderBrush" Value="{Binding DataContext.NodeCardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        <Setter Property="BorderThickness" Value="1.5"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
