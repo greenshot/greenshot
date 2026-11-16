@@ -101,7 +101,8 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Stderr,
             WellKnownStepTypes.Slot,
             WellKnownStepTypes.ShowInExplorer,
-            WellKnownStepTypes.OpenWindow
+            WellKnownStepTypes.OpenWindow,
+            WellKnownStepTypes.Delay
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -1182,7 +1182,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.counterUpDown.DecimalPlaces = 0;
 			this.counterUpDown.Increment = 1;
-			this.counterUpDown.Maximum = 100;
+			this.counterUpDown.Maximum = 9999;
 			this.counterUpDown.Minimum = 0;
 			this.counterUpDown.Name = "counterUpDown";
 			this.counterUpDown.Text = "1";

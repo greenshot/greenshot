@@ -677,7 +677,8 @@ namespace Greenshot.Base.Core
                 },
                 new float[]
                 {
-                    1, 1, 1, 1, 1
+                    // No offset for the alpha: transparent stays transparent (BUG-2397)
+                    1, 1, 1, 0, 1
                 }
             });
             ApplyColorMatrix(clone, invertMatrix);
