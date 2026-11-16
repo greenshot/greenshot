@@ -276,6 +276,33 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void SettingsWindow_NumberBoxUsesTheSharedTextBoxTemplate()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // The local style of the settings (a margin) bases on GreenshotTextBoxStyle: the text box keeps the shared,
+                    // rounded template. BasedOn="{StaticResource {x:Type TextBox}}" left it with the Windows template.
+                    var textBox = Assert.IsType<System.Windows.Controls.TextBox>(window.FindName("IconSizeTextBox"));
+                    textBox.ApplyTemplate();
+                    Assert.IsType<System.Windows.Controls.Border>(textBox.Template.FindName("Bd", textBox));
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void SettingsWindow_TabStylesComeFromTheSharedDictionary()
         {
             Exception threadEx = null;

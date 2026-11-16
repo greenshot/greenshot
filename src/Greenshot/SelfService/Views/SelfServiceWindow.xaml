@@ -22,20 +22,9 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- Card Border Style -->
-        <Style x:Key="CardBorderStyle" TargetType="Border">
-            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="Margin" Value="0,0,0,14"/>
-        </Style>
 
         <!-- Themed Fluent Navigation Item Style -->
         <Style x:Key="NavListBoxItemStyle" TargetType="ListBoxItem">
@@ -82,82 +71,10 @@
             </Setter>
         </Style>
 
-        <!-- Themed High-Contrast ListViewItem Style for Tables -->
-        <Style x:Key="ThemedListViewItemStyle" TargetType="{x:Type ListViewItem}">
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="4,5"/>
-            <Setter Property="Margin" Value="0,1"/>
-            <!-- The checksum rows: file name and status instead of the view model class name -->
+        <!-- The checksum rows: file name and status instead of the view model class name -->
+        <Style x:Key="ChecksumListViewItem" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ThemeListViewItem}">
             <Setter Property="AutomationProperties.Name" Value="{Binding RelativePath, TargetNullValue=''}"/>
             <Setter Property="AutomationProperties.ItemStatus" Value="{Binding StatusText, TargetNullValue=''}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                        <Border x:Name="itemBorder" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="4" 
-                                Padding="{TemplateBinding Padding}" 
-                                SnapsToDevicePixels="True">
-                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True"/>
-                                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Themed GridViewColumnHeader Style -->
-        <Style x:Key="ThemedGridViewColumnHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="6,6"/>
-            <Setter Property="Foreground" Value="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="Background" Value="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="{wpf:FontSize 11.5}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                              RecognizesAccessKey="True"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -337,7 +254,7 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Process Working Set Card -->
-                            <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,8,0">
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,8,0">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryProcess}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.WorkingSetText}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Margin="0,6,0,2"/>
@@ -346,7 +263,7 @@
                             </Border>
 
                             <!-- Managed GC Heap Card -->
-                            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0">
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="4,0,4,0">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryGc}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.GcMemoryText}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Margin="0,6,0,2"/>
@@ -355,7 +272,7 @@
                             </Border>
 
                             <!-- System RAM Card -->
-                            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="8,0,0,0">
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="8,0,0,0">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.SysMemoryRam}" FontSize="{wpf:FontSize 10.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.SystemMemoryText}" FontSize="{wpf:FontSize 14}" FontWeight="Bold" Margin="0,6,0,2"/>
@@ -365,7 +282,7 @@
                         </Grid>
 
                         <!-- Process Status Bar Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -383,7 +300,7 @@
                         </Border>
 
                         <!-- Full Diagnostic Text Viewer Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="12">
+                        <Border Style="{StaticResource CardStyle}" Padding="12">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.SysReportTitle}" FontWeight="SemiBold" FontSize="{wpf:FontSize 12.5}" Margin="0,0,0,8"/>
                                 <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
@@ -421,7 +338,7 @@
                             <TextBlock Text="{wpf:Text Welcome.SetupTitle}" FontSize="{wpf:FontSize 18}" FontWeight="SemiBold" Foreground="{Binding TextPrimaryBrush}"/>
                             <TextBlock Text="{wpf:Text Welcome.SetupSub}" FontSize="{wpf:FontSize 12}" Foreground="{Binding TextSecondaryBrush}" Margin="0,3,0,0"/>
                         </StackPanel>
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Visibility="{Binding SetupSection.VersionPendingVisibility}" Text="{Binding SetupSection.VersionText}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <TextBlock Visibility="{Binding SetupSection.VersionOkVisibility}" TextWrapping="Wrap" Margin="0,0,0,8">
@@ -512,7 +429,7 @@
                         </Grid>
 
                         <!-- Screenshot Folder Card: where Greenshot saves, and why screenshots "disappear" -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <TextBlock Text="🖼️ " FontSize="{wpf:FontSize 15}" Margin="0,0,4,0"/>
@@ -585,7 +502,7 @@
                         </Border>
 
                         <!-- Log File Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -634,7 +551,7 @@
                         </Border>
 
                         <!-- Config File Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -683,7 +600,7 @@
                         </Border>
 
                         <!-- Log Quick Glance Card with Magnify Glass Button -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -780,7 +697,7 @@
                         </Grid>
 
                         <!-- Blocker Status Alert Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" 
+                        <Border Style="{StaticResource CardStyle}" 
                                 BorderBrush="{Binding ClipboardSection.StatusBrush}" 
                                 BorderThickness="1.5">
                             <Grid>
@@ -846,7 +763,7 @@
                         </Border>
 
                         <!-- Live Diagnostic Loop Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
@@ -923,7 +840,7 @@
                         </Border>
 
                         <!-- Formats on Clipboard Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <Grid Margin="0,0,0,8">
                                     <Grid.ColumnDefinitions>
@@ -1006,7 +923,7 @@
                         </Grid>
 
                         <!-- Greenshot Registered Hotkeys Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.HotkeysConfiguredTitle}" FontWeight="SemiBold" FontSize="{wpf:FontSize 13}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Hotkeys}">
@@ -1050,7 +967,7 @@
                         </Border>
 
                         <!-- OneDrive Fix Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1088,7 +1005,7 @@
                         </Border>
 
                         <!-- Windows Snipping Tool Fix Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1132,7 +1049,7 @@
                         </Border>
 
                         <!-- Dropbox Guidance Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                     <TextBlock Text="📦 " FontSize="{wpf:FontSize 15}" Margin="0,0,4,0"/>
@@ -1151,7 +1068,7 @@
                         </Border>
 
                         <!-- Contender Apps Detection Card -->
-                        <Border Style="{StaticResource CardBorderStyle}">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.HotkeysOtherTitle}" FontWeight="SemiBold" FontSize="{wpf:FontSize 13}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Contenders}">
@@ -1223,7 +1140,7 @@
                         </Grid>
 
                         <!-- Scanning / Progress Indicator Card (visible when scanning) -->
-                        <Border Style="{StaticResource CardBorderStyle}" 
+                        <Border Style="{StaticResource CardStyle}" 
                                 Visibility="{Binding ChecksumSection.IsScanning, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Margin="0,0,0,12"
                                 Padding="12">
@@ -1253,7 +1170,7 @@
                         </Border>
 
                         <!-- Overall Status Banner Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" 
+                        <Border Style="{StaticResource CardStyle}" 
                                 BorderBrush="{Binding ChecksumSection.BannerBrush}" 
                                 Background="{Binding ChecksumSection.BannerBackgroundBrush}"
                                 BorderThickness="1.5">
@@ -1307,7 +1224,7 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- Total -->
-                            <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,4,0" Padding="10">
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,4,0" Padding="10">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.ChecksumMetricTotal}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.TotalCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Margin="0,4,0,0"/>
@@ -1315,7 +1232,7 @@
                             </Border>
 
                             <!-- Valid (Matches) -->
-                            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.ChecksumMetricValid}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.MatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.SuccessBrush}" Margin="0,4,0,0"/>
@@ -1323,7 +1240,7 @@
                             </Border>
 
                             <!-- Mismatched (Corrupt) -->
-                            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.ChecksumMetricCorrupt}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.MismatchedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.ErrorBrush}" Margin="0,4,0,0"/>
@@ -1331,7 +1248,7 @@
                             </Border>
 
                             <!-- Missing -->
-                            <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                            <Border Grid.Column="3" Style="{StaticResource CardStyle}" Margin="4,0,4,0" Padding="10">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.ChecksumMetricMissing}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.MissingCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WarningBrush}" Margin="0,4,0,0"/>
@@ -1339,7 +1256,7 @@
                             </Border>
 
                             <!-- Unlisted -->
-                            <Border Grid.Column="4" Style="{StaticResource CardBorderStyle}" Margin="4,0,0,0" Padding="10">
+                            <Border Grid.Column="4" Style="{StaticResource CardStyle}" Margin="4,0,0,0" Padding="10">
                                 <StackPanel>
                                     <TextBlock Text="{wpf:Text SelfService.ChecksumMetricUnlisted}" FontSize="{wpf:FontSize 9.5}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.InfoBrush}"/>
                                     <TextBlock Text="{Binding ChecksumSection.UnlistedCount}" FontSize="{wpf:FontSize 18}" FontWeight="Bold" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.InfoBrush}" Margin="0,4,0,0"/>
@@ -1348,7 +1265,7 @@
                         </Grid>
 
                         <!-- Search and Filter Bar -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="10" Margin="0,0,0,10">
+                        <Border Style="{StaticResource CardStyle}" Padding="10" Margin="0,0,0,10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -1423,10 +1340,10 @@
                         </Border>
 
                         <!-- Table: ListView of Verified Files -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="0" Margin="0,0,0,10">
+                        <Border Style="{StaticResource CardStyle}" Padding="0" Margin="0,0,0,10">
                             <ListView ItemsSource="{Binding ChecksumSection.FilteredItems}" 
                                       SelectedItem="{Binding ChecksumSection.SelectedItem, Mode=TwoWay}"
-                                      ItemContainerStyle="{StaticResource ThemedListViewItemStyle}"
+                                      ItemContainerStyle="{StaticResource ChecksumListViewItem}"
                                       Background="Transparent" 
                                       BorderThickness="0" 
                                       MaxHeight="260"
@@ -1434,7 +1351,7 @@
                                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                       Foreground="{Binding TextPrimaryBrush}">
                                 <ListView.View>
-                                    <GridView ColumnHeaderContainerStyle="{StaticResource ThemedGridViewColumnHeaderStyle}">
+                                    <GridView ColumnHeaderContainerStyle="{StaticResource ThemeGridViewColumnHeader}">
                                         <!-- Status Column -->
                                         <GridViewColumn Header="{wpf:Text SelfService.ChecksumColStatus}" Width="120">
                                             <GridViewColumn.CellTemplate>
@@ -1507,7 +1424,7 @@
                         </Border>
 
                         <!-- Selected Item Comparison Detail Inspector Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" 
+                        <Border Style="{StaticResource CardStyle}" 
                                 Visibility="{Binding ChecksumSection.HasSelectedItem, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Padding="14">
                             <Grid>
@@ -1679,7 +1596,7 @@
                         </Grid>
 
                         <!-- Feedback Banner (when an action is performed) -->
-                        <Border Style="{StaticResource CardBorderStyle}"
+                        <Border Style="{StaticResource CardStyle}"
                                 BorderThickness="1.5"
                                 BorderBrush="{Binding IntegrationDebugSection.ActionFeedbackBrush}"
                                 Margin="0,0,0,12"
@@ -1692,7 +1609,7 @@
                         </Border>
 
                         <!-- Host & Proxy Status Overview Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.DebugStatusTitle}" 
                                            FontSize="{wpf:FontSize 13}" 
@@ -1748,7 +1665,7 @@
                         </Border>
 
                         <!-- Extension ID Configuration Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.DebugExtensionIdTitle}" 
                                            FontSize="{wpf:FontSize 13}" 
@@ -1792,7 +1709,7 @@
                         </Border>
 
                         <!-- Actions Card -->
-                        <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                        <Border Style="{StaticResource CardStyle}">
                             <StackPanel>
                                 <TextBlock Text="{wpf:Text SelfService.DebugActions}" 
                                            FontSize="{wpf:FontSize 13}" 

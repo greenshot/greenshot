@@ -6,12 +6,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-        <Style TargetType="Label">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
 
         </ResourceDictionary>
     </UserControl.Resources>

@@ -9,147 +9,141 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              SizeChanged="OnSizeChanged">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <Style x:Key="EmojiFocusVisual">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Margin="1" StrokeThickness="2" SnapsToDevicePixels="True"
-                                   Stroke="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <Style x:Key="EmojiButton" TargetType="Button">
+                <Setter Property="Width" Value="40"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="3">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <Style x:Key="EmojiButton" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource EmojiFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
+                <Border Background="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"
+                        BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}" BorderThickness="1">
+                    <ItemsControl ItemsSource="{Binding AllVariations}" KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
+                                  MaxWidth="280" Margin="1">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- A screen reader says the name of the emoji character itself -->
+                                <Button Style="{StaticResource EmojiButton}" AutomationProperties.Name="{Binding Text, TargetNullValue=''}" Click="OnEmojiPicked">
+                                    <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"/>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+            </ControlTemplate>
 
-        <ControlTemplate x:Key="VariationPopupTemplate" TargetType="ContentControl">
-            <Border Background="{Binding Path=(wpf:ThemeScope.Theme).BackgroundBrush, RelativeSource={RelativeSource Self}}"
-                    BorderBrush="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}" BorderThickness="1">
-                <ItemsControl ItemsSource="{Binding AllVariations}" KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="OnVariationKeyDown"
-                              MaxWidth="280" Margin="1">
-                    <ItemsControl.ItemsPanel>
+            <DataTemplate x:Key="CellTemplate">
+                <!-- A plain button: a toggle button would be read as "off". With variations a click opens them, see OnEmojiPicked -->
+                <Button Style="{StaticResource EmojiButton}" AutomationProperties.Name="{Binding Text, TargetNullValue=''}" Click="OnEmojiPicked"
+                        ToolTip="{Binding Name, TargetNullValue={x:Null}}">
+                    <Grid>
+                        <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
+                                 Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                 Stretch="Fill" Points="0,1 1,1 1,0" Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+                        <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened">
+                            <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
+                        </Popup>
+                    </Grid>
+                </Button>
+            </DataTemplate>
+
+            <!-- The rows of emoji: one Tab stop, the arrow keys move between the emoji -->
+            <Style x:Key="EmojiRows" TargetType="ListView">
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="KeyboardNavigation.TabNavigation" Value="Once"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
                         <ItemsPanelTemplate>
-                            <WrapPanel/>
+                            <VirtualizingStackPanel/>
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <!-- No padding, no mouse over highlight of the row: the keyboard goes to the emoji buttons in the row -->
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Focusable" Value="False"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <ContentPresenter/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
                         <DataTemplate>
-                            <!-- A screen reader says the name of the emoji character itself -->
-                            <Button Style="{StaticResource EmojiButton}" AutomationProperties.Name="{Binding Text, TargetNullValue=''}" Click="OnEmojiPicked">
-                                <emoji:EmojiControl Height="24" Emoji="{Binding Path=Text}"/>
-                            </Button>
+                            <ItemsControl ItemsSource="{Binding}" Focusable="False" ItemTemplate="{StaticResource CellTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
-        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <DataTemplate x:Key="CellTemplate">
-            <!-- A plain button: a toggle button would be read as "off". With variations a click opens them, see OnEmojiPicked -->
-            <Button Style="{StaticResource EmojiButton}" AutomationProperties.Name="{Binding Text, TargetNullValue=''}" Click="OnEmojiPicked"
-                    ToolTip="{Binding Name, TargetNullValue={x:Null}}">
-                <Grid>
-                    <emoji:EmojiControl Height="24" Margin="4" Emoji="{Binding Path=Text}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    <Polygon Visibility="{Binding HasVariations, Converter={StaticResource BoolToVis}}"
-                             Width="6" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                             Stretch="Fill" Points="0,1 1,1 1,0" Fill="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
-                    <Popup x:Name="VariationPopup" StaysOpen="False" AllowsTransparency="True" Margin="0" Opened="OnVariationPopupOpened">
-                        <ContentControl Template="{StaticResource ResourceKey=VariationPopupTemplate}"/>
-                    </Popup>
-                </Grid>
-            </Button>
-        </DataTemplate>
-
-        <!-- The rows of emoji: one Tab stop, the arrow keys move between the emoji -->
-        <Style x:Key="EmojiRows" TargetType="ListView">
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="KeyboardNavigation.TabNavigation" Value="Once"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
-            <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-            <Setter Property="ItemsPanel">
-                <Setter.Value>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel/>
-                    </ItemsPanelTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <!-- No padding, no mouse over highlight of the row: the keyboard goes to the emoji buttons in the row -->
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Focusable" Value="False"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListViewItem">
-                                    <ContentPresenter/>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <ItemsControl ItemsSource="{Binding}" Focusable="False" ItemTemplate="{StaticResource CellTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="GroupTab" TargetType="TabItem">
-            <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource EmojiFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="Border" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="3,2" Background="Transparent">
-                            <ContentPresenter ContentSource="Header"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <Style x:Key="GroupTab" TargetType="TabItem">
+                <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Border x:Name="Border" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="3,2" Background="Transparent">
+                                <ContentPresenter ContentSource="Header"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <DockPanel>

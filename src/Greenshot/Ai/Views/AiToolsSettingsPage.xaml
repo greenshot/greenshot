@@ -6,8 +6,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
