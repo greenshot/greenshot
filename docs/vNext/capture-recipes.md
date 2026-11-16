@@ -728,7 +728,7 @@ Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cu
 | Choice | Trigger | Steps |
 |---|---|---|
 | Empty recipe | none | none: the first step you add is the start step |
-| Hotkey opens a window | Hotkey | `OpenWindow` (Settings) |
+| Hotkey opens a window | Hotkey | `OpenWindow` (QuickSettings) |
 | Capture a region to a file | Hotkey | `Source` (Region) → `InteractiveSelection` → `SaveFile` |
 | Copy of an existing recipe (picked from a drop-down) | as the recipe | as the recipe |
 
