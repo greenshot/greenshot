@@ -179,7 +179,7 @@ Without a mouse, `Tab` selects the next window (the top one first) and `Shift` +
 - `D` shows or hides technical details of the selected window next to the size: its number, its title (or the name of the program),
   and for an area its type and name. This helps when you report a problem with a certain program.
 
-**For beta testers** (Expert settings, *Enable to enable beta-test features*): many programs draw their whole content themselves,
+**For beta testers** (Expert settings, *Enable beta-test features*): many programs draw their whole content themselves,
 e.g. web browsers, so Greenshot only finds one window for them. In those programs the window mode also finds the **areas** of the
 content, like the menu, a side bar or a part of a web page, and selects the smallest area under the mouse (areas smaller than
 64 pixels are skipped).
@@ -481,7 +481,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |
 | Capture tab, *Text recognition (OCR)* | *Language of the text* | The language Windows reads text in, for the text mode and the Windows OCR destination. |
 | Expert tab | *Make some optimizations for usage with remote desktop* | No animations and no crosshair lines, also outside of a remote session. In a remote session this happens on its own. |
-| Expert tab | *Enable to enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
+| Expert tab | *Enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
 | Expert tab | *Take screenshots with DirectX* | The way the picture of the screens is taken; needed for HDR screens. |
 | Expert tab | *Ignore the screen reader flag of Windows when capturing* | The capture starts as without a screen reader (live screen, region), also while the screen reader flag of Windows is on. For a flag a program left on, see [the screen reader flag stays on](#the-screen-reader-flag-stays-on). |
 | Expert tab | *Prepare the capture in the background after the start* | The first capture after the start of Greenshot opens faster, but uses more memory. |

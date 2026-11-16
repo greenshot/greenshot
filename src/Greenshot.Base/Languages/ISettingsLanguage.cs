@@ -422,7 +422,7 @@ namespace Greenshot.Base.Languages
         string ExpertAutoreducecolors { get; }
 
         /// <summary>
-        /// Enable to enable beta-test features.
+        /// Enable beta-test features
         /// </summary>
         string ExpertBetatester { get; }
 

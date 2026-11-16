@@ -69,7 +69,8 @@ flowchart TD
 
 ## 1. Capturing
 
-Only the DirectX way of taking screenshots can see HDR (*Take screenshots with DirectX* on the Expert tab). A backend which can
+Only the DirectX way of taking screenshots can see HDR (*Take screenshots with DirectX* on the Expert tab); while it is off, the
+setting *Keep the HDR content of HDR displays* is greyed out. A backend which can
 deliver HDR implements `IHdrScreenCaptureBackend` (`GraphicsCaptureBackend`). Windows.Graphics.Capture delivers each HDR display as
 an FP16 texture in scRGB: linear light with the sRGB primaries, where 1.0 is 80 nits. Values above the SDR white level of the
 display are highlights.

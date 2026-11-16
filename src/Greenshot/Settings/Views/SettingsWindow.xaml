@@ -225,9 +225,16 @@
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
-                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}"
-                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureHdr}"/>
+                                <!-- Only the DirectX capture (UseGraphicsCapture) keeps HDR content, the GDI capture has none -->
+                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}" ToolTipService.ShowOnDisabled="True"
+                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="CaptureHdr">
+                                            <Binding Path="CoreConfiguration.UseGraphicsCapture"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
@@ -1193,6 +1200,7 @@
                                             <CheckBox.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="KeepGraphicsCaptureReady">
                                                     <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration.UseGraphicsCapture"/>
                                                     <Binding Path="CoreConfiguration"/>
                                                 </MultiBinding>
                                             </CheckBox.IsEnabled>
