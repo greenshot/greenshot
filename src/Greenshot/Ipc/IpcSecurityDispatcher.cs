@@ -40,7 +40,6 @@ using Greenshot.Base.Serialization;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
-using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
@@ -446,9 +445,12 @@ namespace Greenshot.Ipc
                     await HandleRecipeManagerAsync(context, shell).ConfigureAwait(false);
                     break;
 
+#if !GREENSHOT_LIGHT
+                // Greenshot Light has no recipe catalog, INSTALL_RECIPE is an unknown command there
                 case "INSTALL_RECIPE":
                     await HandleInstallRecipeAsync(context).ConfigureAwait(false);
                     break;
+#endif
 
                 case "EXIT":
                     try
@@ -1509,6 +1511,7 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// INSTALL_RECIPE (greenshot:install-recipe?id=...): the recipe with this id from the recipe catalog, in the approval window.
         /// The reply doesn't wait for the user.
@@ -1518,7 +1521,7 @@ namespace Greenshot.Ipc
             string recipeId = null;
             context.Envelope.Parsed?.Parameters?.TryGetValue("id", out recipeId);
             recipeId = recipeId?.Trim();
-            RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
+            Greenshot.Recipes.Catalog.RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
             await context.ReplyAsync(new
             {
                 status = "ok",
@@ -1526,6 +1529,7 @@ namespace Greenshot.Ipc
                 stdout = $"Installing the recipe '{recipeId}' from the recipe catalog."
             }).ConfigureAwait(false);
         }
+#endif
 
         private static string ParseUrlSchemeCommand(string rawUrl, out Dictionary<string, string> parameters)
         {

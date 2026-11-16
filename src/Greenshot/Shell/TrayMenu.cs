@@ -544,7 +544,10 @@ namespace Greenshot.Shell
                 recipesItem.Items.Add(ThemedMenu.CreateSeparator());
             }
 
+#if !GREENSHOT_LIGHT
+            // Greenshot Light has only the built-in recipes
             AddItem(recipesItem, Texts.Core.ContextmenuImportrecipe ?? "Import Recipe...", null, TrayActions.ImportRecipe);
+#endif
             AddItem(recipesItem, Texts.Core.ContextmenuReloadrecipes ?? "Reload Recipes", null, () => recipeManager.ReloadRecipes());
 
             var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);

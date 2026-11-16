@@ -510,6 +510,8 @@ namespace Greenshot.Settings.Views
         /// </summary>
         private void RecipesGetMore_Click(object sender, RoutedEventArgs e)
         {
+#if !GREENSHOT_LIGHT
+            // Greenshot Light hides the button (no recipe catalog)
             string url = Greenshot.Recipes.Catalog.RecipeCatalogInstaller.GetCatalogUrl();
             try
             {
@@ -519,6 +521,7 @@ namespace Greenshot.Settings.Views
             {
                 Log.Warn($"Couldn't open {url}", ex);
             }
+#endif
         }
 
         private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)

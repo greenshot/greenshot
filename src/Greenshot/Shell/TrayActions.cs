@@ -65,6 +65,7 @@ namespace Greenshot.Shell
             }
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// Let the user pick a recipe file, approve it and add it to the recipe files
         /// </summary>
@@ -118,5 +119,6 @@ namespace Greenshot.Shell
                 IniConfigRegistry.Get()?.Save();
             }
         }
+#endif
     }
 }

@@ -25,7 +25,7 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 >
 > Right-click the Greenshot tray icon and open **Recipes**:
 > - **your recipes' menu entries**: run them with a single click.
-> - **Import Recipe...**: approve a `.gsrecipe.json` file and add it to your recipes.
+> - **Import Recipe...**: approve a `.gsrecipe.json` file and add it to your recipes (not in Greenshot Light, which has only the built-in recipes).
 > - **Reload Recipes**: read the recipe files again.
 > - **Recipe Manager...** and **Recipe Editor...**: manage, create and change recipes.
 >
@@ -76,7 +76,7 @@ Settings > Recipes offer "Get More Recipes" (beta testers only) to open the cata
 Installing a newer version of the same recipe shows what changed, like any changed file. A recipe with the same id
 that didn't come from the catalog (a built-in recipe, or one of your own files) is never replaced, and only one install
 window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
-section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
+section of `greenshot-fixed.ini`. Greenshot Light has no recipe files and no catalog: it doesn't know the link and has no "Get More Recipes".
 
 #### A recipe which doesn't load
 
