@@ -315,6 +315,40 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void RecipeEditorViewModel_AskTheCanvasToShowNewAndLaidOutSteps()
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            var requests = new List<Greenshot.Plugin.RecipeEditor.ViewModels.StepNodeViewModel>();
+            editorVm.ShowStepsRequested += node => requests.Add(node);
+            try
+            {
+                // A recipe is opened: all its steps
+                editorVm.NewRecipe();
+                Assert.NotEmpty(requests);
+                Assert.All(requests, r => Assert.Null(r));
+
+                // A step is added: that step, also when nothing else is left
+                foreach (var node in editorVm.Nodes.Where(n => !n.IsBoundary).ToList())
+                {
+                    editorVm.DeleteNode(node);
+                }
+                requests.Clear();
+                editorVm.AddStep(WellKnownStepTypes.OpenWindow);
+                var added = Assert.Single(editorVm.Nodes);
+                Assert.Same(added, Assert.Single(requests));
+
+                // Auto layout: all steps
+                requests.Clear();
+                editorVm.AutoLayoutCommand.Execute(null);
+                Assert.Null(Assert.Single(requests));
+            }
+            finally
+            {
+                editorVm.Detach();
+            }
+        }
+
+        [Fact]
         public void StepNodeViewModel_EnabledAndWhen_EditTheNode()
         {
             var config = new RecipeNodeConfig("border", WellKnownStepTypes.Effect);

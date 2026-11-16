@@ -224,6 +224,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool HasSelectedNode => SelectedNode != null;
 
+        /// <summary>
+        /// Asks the canvas to scroll to a step which was added, or with null to the steps of the recipe, when they are out of view
+        /// </summary>
+        public event Action<StepNodeViewModel> ShowStepsRequested;
+
         public StepConnectionViewModel SelectedConnection
         {
             get => _selectedConnection;
@@ -801,7 +806,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             UndoCommand = new RelayCommand(Undo, () => CanUndo);
             ReviewApprovalCommand = new RelayCommand(ReviewApproval);
             RedoCommand = new RelayCommand(Redo, () => CanRedo);
-            AutoLayoutCommand = new RelayCommand(PerformAutoLayout);
+            AutoLayoutCommand = new RelayCommand(() =>
+            {
+                PerformAutoLayout();
+                ShowStepsRequested?.Invoke(null);
+            });
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedNode != null || SelectedConnection != null);
             AddStepCommand = new RelayCommand(p => AddStep(p as string));
@@ -1124,6 +1133,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!_isRestoring)
             {
                 ScheduleAutoLayout();
+                // The canvas may still be scrolled to where the previous recipe was
+                ShowStepsRequested?.Invoke(null);
             }
             ValidateGraphCycles();
             IsDirty = false;
@@ -1453,6 +1464,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 ActiveRecipe.Nodes.Add(config);
             }
             IsDirty = true;
+            ShowStepsRequested?.Invoke(nodeVm);
             return nodeVm;
         }
 
