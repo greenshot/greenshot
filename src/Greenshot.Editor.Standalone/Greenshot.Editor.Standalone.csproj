@@ -11,7 +11,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <UseWPF>false</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
-    <RuntimeIdentifiers></RuntimeIdentifiers>
+    <!-- The runtime of this machine: restored with the project, so the editor can be published for it right after a build (below) -->
+    <RuntimeIdentifiers>$(NETCoreSdkPortableRuntimeIdentifier)</RuntimeIdentifiers>
     <OutputType>WinExe</OutputType>
     <AssemblyName>greenshot-editor</AssemblyName>
     <RootNamespace>Greenshot.Editor.Standalone</RootNamespace>
@@ -23,11 +24,21 @@
     <IsPackable>false</IsPackable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- When the editor is published for a runtime (dotnet publish -r win-x64) its code and that of Avalonia and ImageSharp is
-         compiled ahead: about half of the start is compiling otherwise. A plain build (what the solution does) is not. -->
-    <PublishReadyToRun Condition="'$(EditorAot)' != 'true'">true</PublishReadyToRun>
+    <!--
+      Published for a runtime (dotnet publish -r win-x64) the editor is self-contained: no .NET has to be installed.
+      - plain: one greenshot-editor.exe with all .NET code in it, next to it only the two native libraries of Avalonia
+        (Skia, HarfBuzz), the language packs and the emoji font. This is what a build puts next to Greenshot (below).
+      - -p:EditorOptimized=true: also trimmed to what is used and compiled ahead (ReadyToRun), starts about 4 times faster.
+      - -p:EditorAot=true: native code (needs the C++ build tools), the smallest and fastest.
+    -->
+    <SelfContained Condition="'$(RuntimeIdentifier)' != ''">true</SelfContained>
+    <PublishSingleFile Condition="'$(RuntimeIdentifier)' != '' And '$(EditorAot)' != 'true'">true</PublishSingleFile>
+    <PublishTrimmed Condition="'$(RuntimeIdentifier)' != '' And '$(EditorOptimized)' == 'true' And '$(EditorAot)' != 'true'">true</PublishTrimmed>
+    <PublishReadyToRun Condition="'$(RuntimeIdentifier)' != '' And '$(EditorOptimized)' == 'true' And '$(EditorAot)' != 'true'">true</PublishReadyToRun>
     <PublishAot Condition="'$(EditorAot)' == 'true'">true</PublishAot>
-    <IsAotCompatible Condition="'$(EditorAot)' == 'true'">true</IsAotCompatible>
+    <IsAotCompatible Condition="'$(EditorAot)' == 'true' Or '$(EditorOptimized)' == 'true'">true</IsAotCompatible>
+    <!-- No .pdb of the native libraries and no .xml next to the executable -->
+    <DebugType Condition="'$(RuntimeIdentifier)' != '' And '$(EditorAot)' != 'true'">embedded</DebugType>
     <SixLaborsLicenseKey Condition="'$(SixLaborsLicenseKey)' == '' And '$(SIXLABORS_LIC)' != ''">$(SIXLABORS_LIC)</SixLaborsLicenseKey>
     <!-- JSON only through generated code, as in the editor compiled ahead (native AOT): what would need to look at types while running fails, also in the tests -->
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
@@ -49,6 +60,13 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+  </ItemGroup>
+
+  <!-- The .NET runtime and the program file for the runtime of this machine, which the self-contained editor next to Greenshot
+       is made of (the target below). A restore fetches them with the other packages, so that publish needs no restore of its own. -->
+  <ItemGroup Condition="'$(NETCoreSdkPortableRuntimeIdentifier)' != ''">
+    <PackageDownload Include="Microsoft.NETCore.App.Runtime.$(NETCoreSdkPortableRuntimeIdentifier)" Version="[$(BundledNETCoreAppPackageVersion)]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Host.$(NETCoreSdkPortableRuntimeIdentifier)" Version="[$(BundledNETCoreAppPackageVersion)]" />
   </ItemGroup>
 
   <ItemGroup>
@@ -76,16 +94,19 @@
 
   <!--
     The editor runs from the folder Editor below Greenshot.exe: Greenshot starts it from there and only lets it use the pipe
-    from there. After a build the editor is copied next to a Greenshot which was built with the same configuration (if there
-    is one), so "Editor (stand-alone)" works in a development build. Greenshot itself doesn't build the editor.
+    from there. After a build the editor is published into that folder of a Greenshot which was built with the same
+    configuration (if there is one), so "Editor (stand-alone)" works in a development build: self-contained and as a single
+    file, a handful of files instead of every DLL of .NET, Avalonia and ImageSharp. Greenshot itself doesn't build the editor.
+    -p:EditorNextToGreenshot=false switches it off.
   -->
   <PropertyGroup>
     <GreenshotOutputForEditor>..\Greenshot\bin\$(Configuration)\net480\</GreenshotOutputForEditor>
+    <EditorRuntimeForGreenshot>$(NETCoreSdkPortableRuntimeIdentifier)</EditorRuntimeForGreenshot>
   </PropertyGroup>
-  <Target Name="CopyEditorNextToGreenshot" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true' And Exists('$(GreenshotOutputForEditor)Greenshot.exe')">
-    <ItemGroup>
-      <_EditorOutput Include="$(OutDir)**\*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_EditorOutput)" DestinationFiles="@(_EditorOutput->'$(GreenshotOutputForEditor)Editor\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  <Target Name="PublishEditorNextToGreenshot" AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' And '$(EditorNextToGreenshot)' != 'false' And '$(RuntimeIdentifier)' == '' And '$(EditorRuntimeForGreenshot)' != '' And Exists('$(GreenshotOutputForEditor)Greenshot.exe')">
+    <!-- Emptied first: publishing a single file again into a folder removes the files next to it -->
+    <RemoveDir Directories="$(GreenshotOutputForEditor)Editor" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="RuntimeIdentifier=$(EditorRuntimeForGreenshot);Configuration=$(Configuration);PublishDir=$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(GreenshotOutputForEditor)', 'Editor'))" RemoveProperties="TargetFramework" />
   </Target>
 </Project>

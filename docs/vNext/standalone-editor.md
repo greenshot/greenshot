@@ -103,18 +103,28 @@ the process took ("Stand-alone editor:").
   leaves no compiling at all.
 - The capture in the handed over file is stored, not compressed a second time.
 
+## What is in the Editor folder
+
+The editor is self-contained: it brings .NET with it, nothing has to be installed. A build of the editor publishes it
+into `Editor` next to a Greenshot.exe built with the same configuration, as a single file: `greenshot-editor.exe` with
+all .NET code in it, and next to it only the two native libraries of Avalonia (Skia and HarfBuzz), the folder with the
+language packs and the emoji font. Not every DLL of .NET, Avalonia and ImageSharp.
+
+There are three ways to publish it, `<rid>` is the runtime, e.g. `win-x64`:
+
+| | Command (in `src/Greenshot.Editor.Standalone`) | Executable | First capture shown | Time to publish |
+|---|---|---|---|---|
+| Plain (what a build does) | `dotnet publish -c Debug -r <rid>` | 86 MB | 2.6 s | 7 s |
+| Optimized | `dotnet publish -c Release -r <rid> -p:EditorOptimized=true` | 111 MB | 0.7 s | 1.5 minutes |
+| Native AOT | `dotnet publish -c Release -r <rid> -p:EditorAot=true` | 42 MB | 0.2 s | 1.5 minutes |
+
+Add `-o <folder>` for where it goes, e.g. `-o ../Greenshot/bin/Debug/net480/Editor`. The numbers are from Linux.
+"Optimized" trims the code to what is used and compiles it ahead (ReadyToRun). Native AOT has no .NET runtime at all and
+compiles nothing while it runs; it needs the C++ build tools of Visual Studio ("Desktop development with C++") for the
+linker, and it writes its debug symbols as one more file (`.pdb`, on Linux `.dbg`). Publishing a single file a second time into the same folder removes the files next to it (the SDK does that), so
+empty the folder first; the build does.
+
 ## Native AOT
-
-The editor can be published as native code, without the .NET runtime and without compiling while it runs:
-
-```
-dotnet publish src/Greenshot.Editor.Standalone -c Debug -r win-x64 -p:EditorAot=true -o src/Greenshot/bin/Debug/net480/Editor
-```
-
-This needs the C++ build tools of Visual Studio ("Desktop development with C++") for the linker. The result is one
-`greenshot-editor.exe` with the Skia and HarfBuzz libraries, the language packs and the emoji font next to it. On Linux
-it shows the first capture 0.2 seconds after its start (Release; a Debug publish 0.4), where the normal build takes
-2.1 and a ReadyToRun build 1.3. The Release executable is 45 MB, 60 MB with the two native libraries.
 
 What makes it work, and what a change has to keep:
 
@@ -139,8 +149,9 @@ Not checked in the AOT build: saving the settings, the clipboard, file dialogs, 
 ## Building
 
 The projects `Greenshot.Editor.Standalone` and `Greenshot.Editor.Standalone.Tests` are in `Greenshot.sln` and build
-in the Debug configurations. After a build the editor copies itself into `Editor` next to a Greenshot.exe built with
-the same configuration, so build Greenshot first and the editor after it.
+in the Debug configurations. After a build the editor is published into `Editor` next to a Greenshot.exe built with
+the same configuration (see "What is in the Editor folder"), so build Greenshot first and the editor after it.
+`-p:EditorNextToGreenshot=false` switches that off.
 
 ImageSharp 4 and ImageSharp.Drawing 3 need a Six Labors license. A Debug build works without one (with a warning),
 a Release build fails without. The key comes from the environment variable `SIXLABORS_LIC` (the repository secret of
