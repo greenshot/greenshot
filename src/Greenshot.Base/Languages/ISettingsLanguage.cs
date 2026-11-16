@@ -541,10 +541,6 @@ namespace Greenshot.Base.Languages
         /// </summary>
         string ExpertSuppresssavedialogatclose { get; }
 
-        /// <summary>
-        /// Show window thumbnails in context menu (for Vista and windows 7)
-        /// </summary>
-        string ExpertThumbnailpreview { get; }
 
         /// <summary>
         /// Filename pattern

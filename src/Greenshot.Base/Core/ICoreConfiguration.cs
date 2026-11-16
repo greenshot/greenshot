@@ -350,9 +350,6 @@ namespace Greenshot.Base.Core
         [PolicyCategory(PolicyCategories.Common)]
         bool HideExpertSettings { get; set; }
 
-        [Description("Enable/disable thumbnail previews")]
-        [DefaultValue(true)]
-        bool ThumnailPreview { get; set; }
 
         [Description("Make some optimizations for usage with remote desktop")]
         [DefaultValue(false)]

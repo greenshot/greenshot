@@ -1138,16 +1138,6 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
                                 
-                                <CheckBox Content="{wpf:Text Settings.ExpertThumbnailpreview}"
-                                          IsChecked="{Binding CoreConfiguration.ThumnailPreview, Mode=TwoWay}">
-                                    <CheckBox.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ThumnailPreview">
-                                            <Binding Path="ExpertModeEnabled"/>
-                                            <Binding Path="CoreConfiguration"/>
-                                        </MultiBinding>
-                                    </CheckBox.IsEnabled>
-                                </CheckBox>
-                                
                                 <!-- An unstable version always offers newer unstable versions, so only a released version has the choice -->
                                 <CheckBox Content="{wpf:Text Settings.ExpertCheckunstableupdates}"
                                           IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}"
