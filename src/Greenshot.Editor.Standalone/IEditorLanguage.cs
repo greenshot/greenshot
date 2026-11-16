@@ -885,5 +885,45 @@ namespace Greenshot.Editor.Standalone
         /// Remove border, shadow and torn edges
         /// </summary>
         string RemoveFrameMenu { get; }
+
+        /// <summary>
+        /// Tooth height
+        /// </summary>
+        string ToothHeight { get; }
+
+        /// <summary>
+        /// Tooth width
+        /// </summary>
+        string ToothRange { get; }
+
+        /// <summary>
+        /// Sides
+        /// </summary>
+        string EdgeSides { get; }
+
+        /// <summary>
+        /// Top
+        /// </summary>
+        string SideTop { get; }
+
+        /// <summary>
+        /// Right
+        /// </summary>
+        string SideRight { get; }
+
+        /// <summary>
+        /// Bottom
+        /// </summary>
+        string SideBottom { get; }
+
+        /// <summary>
+        /// Left
+        /// </summary>
+        string SideLeft { get; }
+
+        /// <summary>
+        /// Border and edges
+        /// </summary>
+        string FrameSettings { get; }
     }
 }

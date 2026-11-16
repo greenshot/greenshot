@@ -403,6 +403,41 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
         });
 
         [Fact]
+        public Task TornEdges_CanBeChanged_AfterClickingThem() => EditorUi.RunAsync(async () =>
+        {
+            var window = await EditorUi.OpenAsync(Samples.Page(480, 300, null, null));
+            var tab = window.ViewModel.SelectedTab;
+            var properties = window.ViewModel.Properties;
+            window.ViewModel.AddTornEdgesCommand.Execute(null);
+            await EditorUi.DrawnAsync(window);
+            Assert.True(properties.ShowsFrame, "Nothing is selected: the settings of the edges are shown with the canvas");
+
+            // A click on the capture with its torn edges: something is selected now, the settings stay
+            await DragAsync(window, new PointD(240, 150), new PointD(240, 150));
+            await EditorUi.DrawnAsync(window);
+            Assert.NotEmpty(tab.SelectedElements);
+            Assert.True(properties.ShowsFrame, "The settings of the torn edges are shown when they are clicked");
+            Assert.True(properties.FrameHasTeeth);
+
+            properties.FrameToothHeight = 24;
+            properties.FrameToothRange = 40;
+            properties.FrameBottom = false;
+            await EditorUi.DrawnAsync(window);
+            using (EditorUi.Capture(window, "torn-edges-changed"))
+            {
+            }
+
+            var frame = Assert.Single(tab.Document.Layers.SelectMany(layer => layer.Elements).OfType<FrameElement>());
+            Assert.Equal((24, 40), (frame.Shape.Height, frame.Shape.Range));
+            Assert.Equal(EdgeStyle.None, frame.Sides.Bottom.Style);
+            Assert.Null(frame.Sides.Top);
+            Assert.False(properties.FrameBottom);
+            properties.FrameBottom = true;
+            Assert.Null(Assert.Single(tab.Document.Layers.SelectMany(layer => layer.Elements).OfType<FrameElement>()).Sides);
+            Close(window);
+        });
+
+        [Fact]
         public Task Grayscale_ChangesTheCapture_NotWhatIsDrawnOnIt_AndUndoBringsItBack() => EditorUi.RunAsync(async () =>
         {
             var box = new RectangleElement(System.Guid.NewGuid(), new RectD(40, 40, 100, 60)) { Style = Samples.Plain with { Fill = FillStyle.Of(Samples.Red) } };

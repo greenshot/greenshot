@@ -361,6 +361,88 @@ namespace Greenshot.Editor.Standalone.ViewModels
             set => ChangeFrame(frame => frame with { Shape = (frame.Shape ?? new EdgeShape(value)) with { Style = value } }, null);
         }
 
+        /// <summary>
+        /// The settings of the frame are shown with the canvas, and when the frame or what it frames is selected
+        /// </summary>
+        public bool ShowsFrame
+        {
+            get
+            {
+                if (_tab == null || CaptureFrames.FrameOf(_tab.Document) is not FrameElement frame)
+                {
+                    return false;
+                }
+
+                return ShowsCanvas || Targets.Any(element => element.Id == frame.Id || element.Id == frame.Target);
+            }
+        }
+
+        /// <summary>
+        /// True when the edge has teeth or waves, which have a size
+        /// </summary>
+        public bool FrameHasTeeth => FrameShape is EdgeStyle.Torn or EdgeStyle.ZigZag or EdgeStyle.Wave;
+
+        public double FrameToothHeight
+        {
+            get => _tab == null ? 12 : CaptureFrames.FrameOf(_tab.Document)?.Shape?.Height ?? 12;
+            set => ChangeFrame(frame => frame with { Shape = (frame.Shape ?? new EdgeShape(EdgeStyle.Torn)) with { Height = (int)Math.Max(1, Math.Round(value)) } }, "frame.tooth.height");
+        }
+
+        public double FrameToothRange
+        {
+            get => _tab == null ? 20 : CaptureFrames.FrameOf(_tab.Document)?.Shape?.Range ?? 20;
+            set => ChangeFrame(frame => frame with { Shape = (frame.Shape ?? new EdgeShape(EdgeStyle.Torn)) with { Range = (int)Math.Max(2, Math.Round(value)) } }, "frame.tooth.range");
+        }
+
+        public bool FrameTop
+        {
+            get => HasSide(Edges.Top);
+            set => ChangeSide(Edges.Top, value);
+        }
+
+        public bool FrameRight
+        {
+            get => HasSide(Edges.Right);
+            set => ChangeSide(Edges.Right, value);
+        }
+
+        public bool FrameBottom
+        {
+            get => HasSide(Edges.Bottom);
+            set => ChangeSide(Edges.Bottom, value);
+        }
+
+        public bool FrameLeft
+        {
+            get => HasSide(Edges.Left);
+            set => ChangeSide(Edges.Left, value);
+        }
+
+        // A side has the shape of the frame unless it is switched off: then it is straight
+        private bool HasSide(Edges side) => _tab != null && CaptureFrames.FrameOf(_tab.Document) is FrameElement frame && SideOf(frame.Sides, side)?.Style != EdgeStyle.None;
+
+        private static EdgeShape SideOf(FrameSides sides, Edges side) => side switch
+        {
+            Edges.Top => sides?.Top,
+            Edges.Right => sides?.Right,
+            Edges.Bottom => sides?.Bottom,
+            _ => sides?.Left
+        };
+
+        private void ChangeSide(Edges side, bool shaped) => ChangeFrame(frame =>
+        {
+            var straight = shaped ? null : new EdgeShape(EdgeStyle.None);
+            var sides = frame.Sides ?? new FrameSides();
+            sides = side switch
+            {
+                Edges.Top => sides with { Top = straight },
+                Edges.Right => sides with { Right = straight },
+                Edges.Bottom => sides with { Bottom = straight },
+                _ => sides with { Left = straight }
+            };
+            return frame with { Sides = sides.Top == null && sides.Right == null && sides.Bottom == null && sides.Left == null ? null : sides };
+        }, null);
+
         public double FrameWidth
         {
             get => _tab == null ? 0 : CaptureFrames.FrameOf(_tab.Document)?.Band?.Width ?? 0;

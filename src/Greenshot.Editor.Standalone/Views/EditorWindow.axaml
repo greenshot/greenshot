@@ -521,29 +521,51 @@
                                 <Button Margin="0,2,4,2" Command="{Binding AddDropShadowCommand}" Content="{l:Text AddDropShadow}"/>
                                 <Button Margin="0,2,4,2" Command="{Binding AddTornEdgesCommand}" Content="{l:Text AddTornEdges}"/>
                             </WrapPanel>
-                            <StackPanel DataContext="{Binding Properties}" x:DataType="vm:PropertiesViewModel" IsVisible="{Binding HasFrame}">
-                                <Grid Classes="row" ColumnDefinitions="*,150">
-                                    <TextBlock x:Name="FrameShapeLabel" Classes="label" Text="{l:Text EdgeShape}"/>
-                                    <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding FrameShape}" AutomationProperties.LabeledBy="{Binding #FrameShapeLabel}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="doc:EdgeStyle">
-                                                <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </Grid>
-                                <Grid Classes="row" ColumnDefinitions="*,110,34">
-                                    <TextBlock x:Name="FrameWidthLabel" Classes="label" Text="{l:Text FrameWidth}"/>
-                                    <Slider x:Name="FrameWidthSlider" Grid.Column="1" Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FrameWidth}" AutomationProperties.LabeledBy="{Binding #FrameWidthLabel}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding #FrameWidthSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
-                                </Grid>
-                                <Grid Classes="row" ColumnDefinitions="*,Auto">
-                                    <TextBlock x:Name="FrameColorLabel" Classes="label" Text="{l:Text FrameColor}"/>
-                                    <ColorPicker Grid.Column="1" Color="{Binding FrameColor}" AutomationProperties.LabeledBy="{Binding #FrameColorLabel}"/>
-                                </Grid>
-                                <CheckBox Margin="0,2" Content="{l:Text FrameShadow}" IsChecked="{Binding FrameShadow}"/>
-                                <Button HorizontalAlignment="Left" Margin="0,4" Content="{l:Text RemoveFrame}" Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).RemoveFrameCommand}"/>
+                        </StackPanel>
+
+                        <!-- The border and edges of the capture: with the canvas, and when the frame or the capture is selected -->
+                        <StackPanel DataContext="{Binding Properties}" x:DataType="vm:PropertiesViewModel" IsVisible="{Binding ShowsFrame}">
+                            <TextBlock Classes="heading" Text="{l:Text FrameSettings}"/>
+                            <Grid Classes="row" ColumnDefinitions="*,150">
+                                <TextBlock x:Name="FrameShapeLabel" Classes="label" Text="{l:Text EdgeShape}"/>
+                                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding AllEdgeStyles}" SelectedItem="{Binding FrameShape}" AutomationProperties.LabeledBy="{Binding #FrameShapeLabel}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="doc:EdgeStyle">
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumName}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34" IsVisible="{Binding FrameHasTeeth}">
+                                <TextBlock x:Name="ToothHeightLabel" Classes="label" Text="{l:Text ToothHeight}"/>
+                                <Slider x:Name="ToothHeightSlider" Grid.Column="1" Minimum="2" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FrameToothHeight}" AutomationProperties.LabeledBy="{Binding #ToothHeightLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #ToothHeightSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34" IsVisible="{Binding FrameHasTeeth}">
+                                <TextBlock x:Name="ToothRangeLabel" Classes="label" Text="{l:Text ToothRange}"/>
+                                <Slider x:Name="ToothRangeSlider" Grid.Column="1" Minimum="4" Maximum="80" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FrameToothRange}" AutomationProperties.LabeledBy="{Binding #ToothRangeLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #ToothRangeSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+                            <StackPanel IsVisible="{Binding FrameHasTeeth}" Margin="0,2">
+                                <TextBlock x:Name="EdgeSidesLabel" Classes="label" Text="{l:Text EdgeSides}"/>
+                                <WrapPanel ItemWidth="120" AutomationProperties.LabeledBy="{Binding #EdgeSidesLabel}">
+                                    <CheckBox x:Name="FrameTopBox" Margin="0,0,12,0" Content="{l:Text SideTop}" IsChecked="{Binding FrameTop}"/>
+                                    <CheckBox Margin="0,0,12,0" Content="{l:Text SideRight}" IsChecked="{Binding FrameRight}"/>
+                                    <CheckBox Margin="0,0,12,0" Content="{l:Text SideBottom}" IsChecked="{Binding FrameBottom}"/>
+                                    <CheckBox Content="{l:Text SideLeft}" IsChecked="{Binding FrameLeft}"/>
+                                </WrapPanel>
                             </StackPanel>
+                            <Grid Classes="row" ColumnDefinitions="*,110,34">
+                                <TextBlock x:Name="FrameWidthLabel" Classes="label" Text="{l:Text FrameWidth}"/>
+                                <Slider x:Name="FrameWidthSlider" Grid.Column="1" Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding FrameWidth}" AutomationProperties.LabeledBy="{Binding #FrameWidthLabel}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding #FrameWidthSlider.Value, StringFormat={}{0:0}}" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
+                            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                                <TextBlock x:Name="FrameColorLabel" Classes="label" Text="{l:Text FrameColor}"/>
+                                <ColorPicker Grid.Column="1" Color="{Binding FrameColor}" AutomationProperties.LabeledBy="{Binding #FrameColorLabel}"/>
+                            </Grid>
+                            <CheckBox Margin="0,2" Content="{l:Text FrameShadow}" IsChecked="{Binding FrameShadow}"/>
+                            <Button HorizontalAlignment="Left" Margin="0,4" Content="{l:Text RemoveFrame}" Command="{Binding $parent[Window].((vm:EditorWindowViewModel)DataContext).RemoveFrameCommand}"/>
                         </StackPanel>
 
                         <TextBlock Classes="heading" Text="{l:Text Layers}" FontSize="15" Margin="0,18,0,4"/>
