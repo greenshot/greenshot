@@ -79,10 +79,10 @@ namespace Greenshot.Tests.Editor
                 .Invoke(s, new object[] { new MouseEventArgs(MouseButtons.Left, 1, x, y, 0) });
 
         /// <summary>
-        /// BUG-3291: a crop rectangle stays when Esc chooses the cursor, selecting it and pressing Confirm threw a NotImplementedException
+        /// BUG-3291: a crop rectangle stays when another tool is chosen (or Esc reaches the editor window instead of the canvas), selecting it and pressing Confirm threw a NotImplementedException
         /// </summary>
         [Fact]
-        public void ACropRectangleSelectedAfterEscCanBeConfirmed() => Sta(() =>
+        public void ACropRectangleSelectedAfterAnotherToolCanBeConfirmed() => Sta(() =>
         {
             using var surface = new Surface(NewBitmap(400, 300));
             surface.DrawingMode = DrawingModes.Crop;
@@ -103,7 +103,7 @@ namespace Greenshot.Tests.Editor
         /// BUG-3291: Cancel removes the crop rectangle in the same situation
         /// </summary>
         [Fact]
-        public void ACropRectangleSelectedAfterEscCanBeCancelled() => Sta(() =>
+        public void ACropRectangleSelectedAfterAnotherToolCanBeCancelled() => Sta(() =>
         {
             using var surface = new Surface(NewBitmap(400, 300));
             surface.DrawingMode = DrawingModes.Crop;

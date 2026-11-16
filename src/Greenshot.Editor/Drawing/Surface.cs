@@ -3813,7 +3813,7 @@ namespace Greenshot.Editor.Drawing
         /// <param name="confirm">bool</param>
         public void Confirm(bool confirm)
         {
-            // A crop rectangle which wasn't confirmed stays after another tool (or Esc) was chosen, it can be selected
+            // A crop rectangle which was not confirmed stays when another tool is chosen, it can be selected
             // and confirmed or cancelled from there too (BUG-3291)
             if (DrawingMode == DrawingModes.Crop || (_cropContainer != null && selectedElements.Contains(_cropContainer)))
             {
