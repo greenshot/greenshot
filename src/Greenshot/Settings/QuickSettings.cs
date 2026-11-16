@@ -62,12 +62,15 @@ namespace Greenshot.Settings
                 return groups;
             }
 
-            if (!conf.IsConstant("CaptureMousepointer"))
+            var general = new List<QuickSetting>();
+            AddSwitch(general, conf, "CaptureMousepointer", Texts.Settings.CaptureMousepointer, () => conf.CaptureMousepointer, value => conf.CaptureMousepointer = value);
+            if (!conf.IsConstant("CaptureCountdownSeconds"))
             {
-                groups.Add(new QuickSettingGroup(null, new[]
-                {
-                    QuickSetting.Switch(Texts.Settings.CaptureMousepointer, () => conf.CaptureMousepointer, value => conf.CaptureMousepointer = value)
-                }));
+                general.Add(CreateCountdown(conf));
+            }
+            if (general.Count > 0)
+            {
+                groups.Add(new QuickSettingGroup(null, general));
             }
 
             if (!conf.IsConstant("Destinations"))
@@ -95,7 +98,7 @@ namespace Greenshot.Settings
             var effects = new List<QuickSetting>();
             AddSwitch(effects, conf, "PlayCameraSound", Texts.Settings.Playsound, () => conf.PlayCameraSound, v => conf.PlayCameraSound = v);
             AddSwitch(effects, conf, "ShowTrayNotification", Texts.Settings.Shownotify, () => conf.ShowTrayNotification, v => conf.ShowTrayNotification = v);
-            AddGroup(groups, Texts.Settings.Visualization, effects);
+            AddGroup(groups, Texts.Core.QuicksettingsSoundAndNotifications, effects);
 
             var recipeOptions = CreateRecipeOptions();
             if (recipeOptions.Count > 0)
@@ -104,6 +107,25 @@ namespace Greenshot.Settings
             }
 
             return groups;
+        }
+
+        /// <summary>
+        /// The seconds the built-in captures wait with a countdown: off and the usual delays, and the value of greenshot.ini when it is another one
+        /// </summary>
+        private static QuickSetting CreateCountdown(ICoreConfiguration conf)
+        {
+            var seconds = new List<int> { 0, 3, 5, 10, 30 };
+            if (!seconds.Contains(conf.CaptureCountdownSeconds))
+            {
+                seconds.Add(conf.CaptureCountdownSeconds);
+                seconds.Sort();
+            }
+            var choices = seconds
+                .Select(value => new QuickSettingChoice(value == 0 ? Texts.Core.QuicksettingsCaptureCountdownOff : string.Format(Texts.Recipe.DelayChoiceSeconds, value),
+                    () => conf.CaptureCountdownSeconds == value,
+                    () => conf.CaptureCountdownSeconds = value))
+                .ToList();
+            return QuickSetting.Choice(Texts.Core.QuicksettingsCaptureCountdown, choices);
         }
 
         private static void AddSwitch(List<QuickSetting> settings, IIniSection section, string propertyName, string label, Func<bool> isOn, Action<bool> setOn)

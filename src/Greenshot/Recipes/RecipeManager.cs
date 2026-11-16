@@ -286,6 +286,7 @@ namespace Greenshot.Recipes
             regionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.RegionHotkey}", "Region Hotkey"));
             // The items of the tray menu are ContextMenu triggers of the built-in recipes, see TrayMenu
             regionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturearea", 10, "contextmenu_capturearea.Image"));
+            AddCountdown(regionRecipe);
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -313,6 +314,7 @@ namespace Greenshot.Recipes
             windowHotkey.When = "${config.Core.CaptureWindowsInteractive}";
             windowRecipe.AddTrigger(windowHotkey);
             windowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindow", 30, "contextmenu_capturewindow.Image"));
+            AddCountdown(windowRecipe);
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -334,6 +336,7 @@ namespace Greenshot.Recipes
             activeWindowRecipe.AddTrigger(activeWindowHotkey);
             // "Capture window from list": a sub menu with the open windows, the chosen one is the TargetWindow
             activeWindowRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturewindowfromlist", 110, expand: TriggerConfig.ExpandWindows));
+            AddCountdown(activeWindowRecipe);
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -353,6 +356,7 @@ namespace Greenshot.Recipes
             fullScreenRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.FullscreenHotkey}", "Fullscreen Hotkey"));
             // With more than one display a sub menu with "All" and each display
             fullScreenRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturefullscreen", 40, "contextmenu_capturefullscreen.Image", TriggerConfig.ExpandDisplays));
+            AddCountdown(fullScreenRecipe);
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -371,6 +375,7 @@ namespace Greenshot.Recipes
             RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "export", "export");
             lastRegionRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.LastregionHotkey}", "Last Region Hotkey"));
             lastRegionRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_capturelastregion", 20, "contextmenu_capturelastregion.Image"));
+            AddCountdown(lastRegionRecipe);
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -414,6 +419,7 @@ namespace Greenshot.Recipes
                 .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
                 .AddTransition("feedback", "export");
+            AddCountdown(ocrRecipe);
             RegisterBuiltIn(ocrRecipe, disabled);
 
             InitializeShellRecipes(disabled);
@@ -462,6 +468,20 @@ namespace Greenshot.Recipes
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdEmptyEditor, "Core.contextmenu_openemptyeditor", "Opens an empty image in the editor", OpenWindowStep.EmptyEditor), disabled);
             // 14. The quick settings in a window, for a hotkey or a click on the tray icon
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdQuickSettings, "Core.contextmenu_quicksettings", "Opens the quick settings in a window", OpenWindowStep.QuickSettings), disabled);
+        }
+
+        /// <summary>
+        /// The capture waits CaptureCountdownSeconds with a countdown first (0, the default: it doesn't wait), so a menu or popup
+        /// can be opened; set in the quick settings
+        /// </summary>
+        private static void AddCountdown(CaptureRecipe recipe)
+        {
+            const string countdownId = "countdown";
+            var startNodes = recipe.Flow.GetEffectiveStartNodes();
+            recipe.Nodes.Insert(0, new RecipeNodeConfig(countdownId, WellKnownStepTypes.Delay, "Wait before capturing")
+                .Set(DelayStep.SecondsParameter, "${config.Core.CaptureCountdownSeconds}"));
+            recipe.Flow.StartNodes = new List<string> { countdownId };
+            recipe.Flow.AddTransitions(countdownId, startNodes);
         }
 
         private static CaptureRecipe CreateOpenWindowRecipe(string id, string name, string description, string window)

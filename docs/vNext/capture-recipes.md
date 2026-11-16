@@ -211,7 +211,7 @@ no destination added when a trigger starts it:
   of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
 - `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `QuickSettings`, `About`, `Help` or
   `EmptyEditor`. `QuickSettings` shows the quick settings of the tray menu (mouse pointer, destinations, print options,
-  sound and notifications, the options of recipes marked for the quick settings) in a window: the groups which are
+  the wait before capturing, sound and notifications, the options of recipes marked for the quick settings) in a window: the groups which are
   sub menus in the tray menu (destinations, print options, ...) start closed, every change is stored at once, *Preferences...* opens all settings. With `DisableQuickSettings=true` in `greenshot.ini` the step stops the
   recipe instead. The built-in recipe "Quick preferences" (`recipe_quick_settings`) does just this, so a hotkey or a
   click on the tray icon can open the quick settings.
@@ -240,6 +240,11 @@ the menu you want to capture); without a mouse let it run out and press Esc in t
 
 The `CaptureDelay` setting and the `DelayMs` of the `Source` step are still applied after the `Delay` step: they are
 the short wait which lets Greenshot's own menu close before the capture.
+
+**For every capture.** The built-in capture recipes (region, window, active window, full screen, last region, OCR) start
+with a `Delay` step `countdown` whose `Seconds` is `${config.Core.CaptureCountdownSeconds}`. The quick settings set it
+with *Wait before capturing* (off, 3, 5, 10 or 30 seconds), `greenshot.ini` takes 0 to 600 and `greenshot-fixed.ini` can
+fix it. 0, the default, doesn't wait and shows nothing. Clipboard and Open file don't wait, they don't capture the screen.
 
 [`examples/region_after_delay.gsrecipe.json`](examples/region_after_delay.gsrecipe.json) asks how long to wait, counts
 down and then lets you select the region; it is in the Recipes menu of the tray menu. The part which matters:

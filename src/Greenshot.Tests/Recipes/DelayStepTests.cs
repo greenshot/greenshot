@@ -35,6 +35,7 @@ namespace Greenshot.Tests.Recipes
     /// <summary>
     /// The Delay step: unattended it shows nothing and never asks, the choices and limits of the seconds
     /// </summary>
+    [Collection(TestCollections.RecipeManager)]
     public class DelayStepTests
     {
         public DelayStepTests()
@@ -108,6 +109,23 @@ namespace Greenshot.Tests.Recipes
         public void Choices_HaveTheSecondsOfTheStep(int seconds, int[] expected)
         {
             Assert.Equal(expected, DelayStep.ChoicesFor(seconds));
+        }
+
+        [Theory]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdRegion)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdWindow)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdActiveWindow)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdFullScreen)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdLastRegion)]
+        [InlineData(Greenshot.Recipes.RecipeManager.RecipeIdOcr)]
+        public void BuiltInCapture_StartsWithTheCountdownOfTheSettings(string recipeId)
+        {
+            var recipe = new Greenshot.Recipes.RecipeManager().GetRecipeById(recipeId);
+
+            var start = recipe.FindNode(Assert.Single(recipe.Flow.GetEffectiveStartNodes()));
+            Assert.Equal(WellKnownStepTypes.Delay, start.StepType);
+            Assert.Equal("${config.Core.CaptureCountdownSeconds}", start.GetParameter<string>(DelayStep.SecondsParameter));
+            Assert.True(RecipeValidator.Validate(recipe).IsValid, RecipeValidator.Validate(recipe).ToString());
         }
 
         /// <summary>

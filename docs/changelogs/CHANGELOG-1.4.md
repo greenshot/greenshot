@@ -359,7 +359,8 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Quick settings window and capture after a delay**
 - The quick settings of the tray menu can open in a window of their own, e.g. from a hotkey or a click on the tray icon (recipe "Quick preferences")
-- A recipe can wait before the capture so you can open a menu or popup first: it shows a countdown which doesn't close the menu, and can ask how long to wait
+- The quick settings have "Wait before capturing" (off, 3, 5, 10 or 30 seconds): every capture then counts down first, so you can open a menu or popup; the countdown doesn't close the menu
+- A recipe can wait before the capture in the same way, and can ask how long to wait
 
 **When the file already exists**
 - greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
