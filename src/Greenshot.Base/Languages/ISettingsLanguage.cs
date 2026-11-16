@@ -452,7 +452,7 @@ namespace Greenshot.Base.Languages
         string ExpertClipboardformats { get; }
 
         /// <summary>
-        /// The number for the ${NUM} in the filename pattern
+        /// The number for the ${counter.global} in the filename pattern
         /// </summary>
         string ExpertCounter { get; }
 

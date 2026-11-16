@@ -62,7 +62,7 @@
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Text Settings.Applicationsettings}">
                             <StackPanel>
-                                <!-- Language and colors side by side, the boxes as wide as their longest entries need -->
+                                <!-- Language and colors side by side, the boxes at least 200 and 160 wide -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
@@ -72,14 +72,14 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Language}" Target="{Binding ElementName=LanguageComboBox}"/>
-                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" MinWidth="120" 
+                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" MinWidth="200" 
                                               ItemsSource="{Binding SupportedLanguages}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
                                     <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
-                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3" MinWidth="120"
+                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3" MinWidth="160"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -175,7 +175,7 @@
                                               ToolTip="{wpf:Text Settings.TooltipTrayicon}"
                                               AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayClickRecipe}"/>
-                                    <Label Grid.Column="2" Margin="12,0,0,0" Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
+                                    <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
                                     <ComboBox x:Name="TrayDoubleClickComboBox" Grid.Column="3"
                                               ItemsSource="{Binding TrayDoubleClickChoices}"
                                               DisplayMemberPath="DisplayName"
@@ -573,6 +573,25 @@
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFormat}"/>
                                 </Grid>
                                 
+                                <!-- The next number of ${counter.global}, next to the file name it is used in -->
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="CounterLabel"
+                                               Text="{wpf:Text Settings.ExpertCounter}" 
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Grid.Column="1" 
+                                             HorizontalAlignment="Right"
+                                             Width="70"
+                                             TextAlignment="Right"
+                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=CounterLabel}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileIncrementingNumber}"/>
+                                </Grid>
                                 <CheckBox Content="{wpf:Text Settings.Copypathtoclipboard}"
                                           IsChecked="{Binding CoreConfiguration.OutputFileCopyPathToClipboard, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileCopyPathToClipboard}"/>
@@ -624,14 +643,13 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 <Grid Margin="0,5">
+                                    <!-- Author and copyright on one line -->
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" SharedSizeGroup="OutputLabel"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
                                     <Label Grid.Row="0" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataAuthorName}" Target="{Binding ElementName=ExportMetadataAuthorTextBox}"/>
                                     <!-- Author and copyright are written with the detail "Author" -->
                                     <TextBox x:Name="ExportMetadataAuthorTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataAuthor}">
@@ -642,8 +660,8 @@
                                             </MultiBinding>
                                         </TextBox.IsEnabled>
                                     </TextBox>
-                                    <Label Grid.Row="1" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
-                                    <TextBox x:Name="ExportMetadataCopyrightTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataCopyright}">
+                                    <Label Grid.Row="0" Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
+                                    <TextBox x:Name="ExportMetadataCopyrightTextBox" Grid.Row="0" Grid.Column="3" Text="{Binding CoreConfiguration.ExportMetadataCopyright}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ExportMetadataCopyright">
                                                 <Binding Path="IsAuthorMetadataSelected"/>
@@ -1276,30 +1294,6 @@
                                     </StackPanel>
                                 </Expander>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="CounterLabel"
-                                               Text="{wpf:Text Settings.ExpertCounter}" 
-                                               TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    <TextBox Grid.Column="1" 
-                                             HorizontalAlignment="Right"
-                                             Width="70"
-                                             TextAlignment="Right"
-                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}"
-                                             AutomationProperties.LabeledBy="{Binding ElementName=CounterLabel}">
-                                        <TextBox.IsEnabled>
-                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileIncrementingNumber">
-                                                <Binding Path="ExpertModeEnabled"/>
-                                                <Binding Path="CoreConfiguration"/>
-                                            </MultiBinding>
-                                        </TextBox.IsEnabled>
-                                    </TextBox>
-                                </Grid>
 
 
                                 <GroupBox Header="{wpf:Text Settings.ExpertClipboardformats}" Margin="0,8,0,0">
