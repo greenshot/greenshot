@@ -114,9 +114,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.ttf">
+    <!-- Twemoji Mozilla as WOFF (zlib, SixLabors.Fonts reads it; its .NET Framework build has no Brotli for WOFF2), without glyph names (post format 3) -->
+    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.woff">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Twemoji.Mozilla.ttf</TargetPath>
+      <TargetPath>Twemoji.Mozilla.woff</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
 

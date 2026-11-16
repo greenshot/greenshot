@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Drawing.Emoji
 
         private static readonly Lazy<FontFamily> TwemojiFontFamily = new(() =>
         {
-            var twemojiFontFile = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "Twemoji.Mozilla.ttf");
+            var twemojiFontFile = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "Twemoji.Mozilla.woff");
             if (!File.Exists(twemojiFontFile))
             {
                 throw new FileNotFoundException($"Can't find {twemojiFontFile}, bad installation?");
