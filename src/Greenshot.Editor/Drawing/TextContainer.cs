@@ -629,19 +629,33 @@ namespace Greenshot.Editor.Drawing
             if (e.KeyCode == Keys.Back && e.Control)
             {
                 e.SuppressKeyPress = true;
-                int selStart = _textBox.SelectionStart;
-                while (selStart > 0 && _textBox.Text.Substring(selStart - 1, 1) == " ")
+                // Remove the word before the cursor, a line break ends a word too (BUG-2583)
+                string currentText = _textBox.Text;
+                int end = _textBox.SelectionStart;
+                int start = end;
+                while (start > 0 && (currentText[start - 1] == ' ' || currentText[start - 1] == '\t'))
                 {
-                    selStart--;
+                    start--;
                 }
 
-                int prevSpacePos = -1;
-                if (selStart != 0)
+                if (start > 0 && currentText[start - 1] == '\n')
                 {
-                    prevSpacePos = _textBox.Text.LastIndexOf(' ', selStart - 1);
+                    // At the start of a line only the line break is removed
+                    start--;
+                    if (start > 0 && currentText[start - 1] == '\r')
+                    {
+                        start--;
+                    }
+                }
+                else
+                {
+                    while (start > 0 && !char.IsWhiteSpace(currentText[start - 1]))
+                    {
+                        start--;
+                    }
                 }
 
-                _textBox.Select(prevSpacePos + 1, _textBox.SelectionStart - prevSpacePos - 1);
+                _textBox.Select(start, end - start);
                 _textBox.SelectedText = string.Empty;
             }
         }

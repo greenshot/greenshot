@@ -34,10 +34,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/generic.xaml"/>
                 <!-- Nodify's focus frames for the keyboard navigation of the editor and its connections -->
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/FocusVisual.xaml"/>

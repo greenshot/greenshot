@@ -27,6 +27,7 @@ using System.Windows;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using Microsoft.Win32;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Definitions;
 
@@ -83,14 +84,7 @@ public static class DefinitionImport
     /// </summary>
     public static string FileNameFor(string name, string extension)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        var safe = new StringBuilder();
-        foreach (char c in name ?? string.Empty)
-        {
-            safe.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
-        }
-
-        string fileName = safe.ToString().Trim();
+        string fileName = FilenameHelper.MakeFilenameSafe(name ?? string.Empty);
         return (fileName.Length == 0 ? "definition" : fileName) + extension;
     }
 

@@ -115,4 +115,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- For a list whose title names it: the columns need no header -->
+    <Style x:Key="NoColumnHeader" TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource ThemeGridViewColumnHeader}">
+        <Setter Property="Visibility" Value="Collapsed"/>
+    </Style>
 </ResourceDictionary>
