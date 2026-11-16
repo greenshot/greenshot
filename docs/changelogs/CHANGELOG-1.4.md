@@ -357,6 +357,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
 - The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
 
+**Quick settings window and capture after a delay**
+- The quick settings of the tray menu can open in a window of their own, e.g. from a hotkey or a click on the tray icon (recipe "Quick preferences")
+- Captures start at once, also from a hotkey: the old 100 ms "capture delay" is gone, the tray menu itself waits until it has disappeared
+- "Wait before every capture" (Settings and quick settings, off by default) waits a chosen time before every capture of the screen, with a countdown which doesn't close an open menu; an old capture delay you set is taken over
+- A recipe can wait before the capture in the same way, and can ask how long to wait
+
 **When the file already exists**
 - greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 

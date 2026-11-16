@@ -1825,7 +1825,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 case NewRecipeTemplate.HotkeyOpensWindow:
                     recipe = new CaptureRecipe(NewRecipeId(), language.TemplateHotkeyWindowName, language.TemplateHotkeyWindowDescription)
-                        .AddNode(new RecipeNodeConfig("open_window", WellKnownStepTypes.OpenWindow, WellKnownStepTypes.OpenWindow).Set("Window", "Settings"));
+                        .AddNode(new RecipeNodeConfig("open_window", WellKnownStepTypes.OpenWindow, WellKnownStepTypes.OpenWindow).Set("Window", "QuickSettings"));
                     recipe.Flow = new RecipeFlowConfig("open_window");
                     recipe.ShowInContextMenu = false;
                     recipe.Triggers.Add(CreateHotkeyTriggerWithoutKey());
@@ -2602,6 +2602,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.OpenWindow:
                     dict["Window"] = "Settings";
+                    break;
+                case WellKnownStepTypes.Delay:
+                    dict["Seconds"] = 5;
                     break;
                 case "ExternalCommand":
                     dict["Program"] = "cmd.exe";

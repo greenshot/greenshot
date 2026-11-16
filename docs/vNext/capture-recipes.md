@@ -175,6 +175,7 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Show the tray menu (`recipe_tray_menu`) | `OpenWindow` `TrayMenu`: the tray menu at the mouse | | |
 | Open the settings (`recipe_open_settings`) | `OpenWindow` `Settings` | | |
 | Open an empty image in the editor (`recipe_empty_editor`) | `OpenWindow` `EmptyEditor` | | |
+| Quick preferences (`recipe_quick_settings`) | `OpenWindow` `QuickSettings`: the quick settings of the tray menu in a window | | |
 | Handle the capture of a notification (`recipe_notification`) | A click on a Greenshot notification hands it the capture, it shows the destination window | | |
 
 The browser extension and the AI tools add their own built-in recipes; they get their capture from the browser or the AI
@@ -202,16 +203,70 @@ A recipe file which replaces a built-in recipe keeps its own triggers: a file wr
 recipes has no `Main` trigger, so the entry is missing from the tray menu until you add one (or use "Reset Default" in the
 recipe manager).
 
-**Steps without a capture.** Two steps don't use an image. A recipe which only has steps like these gets no source and
+**Steps without a capture.** Three steps don't use an image. A recipe which only has steps like these gets no source and
 no destination added when a trigger starts it:
 
 - `ShowInExplorer` shows a file (selected in its folder) or a folder in the Windows Explorer. `Path` (supports `${...}`)
   is the file or folder; when the file is gone its folder is shown. Without `Path` it shows the last capture, or the folder
   of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
-- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `About`, `Help` or `EmptyEditor`.
+- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `QuickSettings`, `About`, `Help` or
+  `EmptyEditor`. `QuickSettings` shows the quick settings of the tray menu (mouse pointer, destinations, print options,
+  the wait before capturing, sound and notifications, the options of recipes marked for the quick settings) in a window: the groups which are
+  sub menus in the tray menu (destinations, print options, ...) start closed, every change is stored at once, *Preferences...* opens all settings. With `DisableQuickSettings=true` in `greenshot.ini` the step stops the
+  recipe instead. The built-in recipe "Quick preferences" (`recipe_quick_settings`) does just this, so a hotkey or a
+  click on the tray icon can open the quick settings.
+- `Delay` waits, see [Waiting before the capture](#waiting-before-the-capture-delay-step).
 
 A `Source` with `SourceType` `File` and no `Filename` asks for the file when the recipe was started by hand (tray menu,
 hotkey, a click on the tray icon); started unattended it fails as before.
+
+### Waiting before the capture (`Delay` step)
+
+A `Delay` step before the `Source` gives you time to open a menu, a tooltip or a popup before Greenshot captures the
+screen. While it waits it shows a small countdown at the bottom right of the display with the mouse, with a *Cancel*
+button. The countdown never takes the focus, so the menu you opened stays open, and it closes a moment before the end, so
+it is not in the capture.
+
+| Parameter | Default | What it does |
+|---|---|---|
+| `Seconds` | `5` | The seconds to wait, 0 to 600. Supports `${...}`, e.g. `${option.delay}` of a recipe option, which can then be changed in the quick settings |
+| `AskUser` | `false` | First asks how long to wait: 3, 5, 10, 30 seconds or `Seconds` (the default button). *Cancel* or closing the prompt stops the recipe |
+| `ShowCountdown` | `true` | Show the countdown; without it the step only waits |
+
+The step sets `DelaySeconds` to the seconds it waited. Started unattended (from the command line, a schedule or a test)
+nothing is shown or asked: it waits `Seconds`, so a recipe with `AskUser` never fails for want of a user. *Cancel* in the
+countdown stops the recipe, like Esc in the capture window. The countdown can't get the keyboard focus (that would close
+the menu you want to capture); without a mouse let it run out and press Esc in the capture window.
+
+The wait of the `Source` step (below, or its `DelayMs`) is still applied after the `Delay` step.
+
+**For every capture.** No recipe step is needed to wait before every capture. By default Greenshot doesn't wait at
+all, so a hotkey captures at once. When the capture is started from the tray menu, the menu first waits until it is
+gone from the screen (that is not a setting). To wait before every capture of the screen (region, window, active
+window, full screen, last region, OCR), whatever started it:
+
+| Setting (`[Core]`) | Default | |
+|---|---|---|
+| `CaptureWait` | `false` | Wait before every capture of the screen. The quick settings switch it on and off with *Wait before capturing* |
+| `CaptureWaitMilliseconds` | `3000` | How long, 0 to 600000; *Milliseconds to wait before capture* in the settings, *Wait time* (1, 3, 5, 10 or 30 s) in the quick settings, which also switches the wait on |
+| `CaptureWaitCountdown` | `true` | Show the countdown (with *Cancel*) during a wait of a second or more |
+
+Started unattended (command line, schedule) it waits without the countdown. Clipboard, Open file and the current
+editor don't wait, they don't capture the screen. The `DelayMs` of a `Source` step replaces the setting for that step.
+`CaptureDelay` of earlier versions is gone: a value other than its old default of 100 ms is moved once into
+`CaptureWait` and `CaptureWaitMilliseconds`.
+
+[`examples/region_after_delay.gsrecipe.json`](examples/region_after_delay.gsrecipe.json) asks how long to wait, counts
+down and then lets you select the region; it is in the Recipes menu of the tray menu. The part which matters:
+
+```json
+"nodes": [
+  { "id": "wait", "stepType": "Delay", "parameters": { "Seconds": 5, "AskUser": true } },
+  { "id": "source", "stepType": "Source", "parameters": { "SourceType": "Region" } },
+  ...
+],
+"flow": { "startNodes": [ "wait" ], "transitions": [ { "from": "wait", "to": "source" }, ... ] }
+```
 
 ### A click on the tray icon
 
@@ -673,7 +728,7 @@ Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cu
 | Choice | Trigger | Steps |
 |---|---|---|
 | Empty recipe | none | none: the first step you add is the start step |
-| Hotkey opens a window | Hotkey | `OpenWindow` (Settings) |
+| Hotkey opens a window | Hotkey | `OpenWindow` (QuickSettings) |
 | Capture a region to a file | Hotkey | `Source` (Region) → `InteractiveSelection` → `SaveFile` |
 | Copy of an existing recipe (picked from a drop-down) | as the recipe | as the recipe |
 
