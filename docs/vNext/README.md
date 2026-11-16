@@ -40,6 +40,7 @@ work differently there, and they can still change before the release. The docume
 | [notifications.md](notifications.md) | Notifications: toasts and the tray icon |
 | [http.md](http.md) | Talking to services on the Internet with `HttpService` |
 | [document-model.md](document-model.md) | The experimental document model (`GreenshotDocument`), its file format, rules and renderer |
+| [standalone-editor.md](standalone-editor.md) | The experimental stand-alone editor (`greenshot-editor.exe`: .NET 10, Avalonia, ImageSharp 4) and how it talks to Greenshot over the pipe |
 | [destination-definitions.md](destination-definitions.md) | Destinations made of code plus definitions (data), like the custom uploader |
 | [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md) | The native proxy, IPC, command line and the browser extension |
 | [async-threading-roadmap.md](async-threading-roadmap.md) | The threading model and the async rules |

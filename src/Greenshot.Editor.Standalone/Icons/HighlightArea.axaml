@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.HighlightArea: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.HighlightArea">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Brush="#5C6E60" Geometry="M0.5,0.5 H15.5 V15.5 H0.5 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#3E4E42" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#465448" Geometry="M1,1 H5 V3 H1 Z M6,1 H11 V3 H6 Z M12,1 H15 V3 H12 Z M1,4 H7 V6 H1 Z M8,4 H15 V6 H8 Z M1,7 H3 V9 H1 Z M4,7 H9 V9 H4 Z M10,7 H15 V9 H10 Z M1,10 H6 V12 H1 Z M7,10 H12 V12 H7 Z M13,10 H15 V12 H13 Z M1,13 H4 V15 H1 Z M5,13 H10 V15 H5 Z" />
+        <GeometryDrawing Brush="#F4F8F0" Geometry="M3.5,5.5 H12.5 V10.5 H3.5 Z">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#9AB09E" Thickness="1" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#466749" Geometry="M4,7 H12 V9 H4 Z" />
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

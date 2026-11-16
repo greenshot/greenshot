@@ -54,6 +54,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Stdout":
                 case "ShowInExplorer":
                 case "OpenWindow":
+                case "Delay":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a")); // Gray
                 case "Stderr":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#cf222e")); // Red
@@ -120,6 +121,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Stdout": return "📤";
                 case "ShowInExplorer": return "📂";
                 case "OpenWindow": return "🪟";
+                case "Delay": return "⏳";
                 case "Stderr": return "⛔";
                 case "RecordVideo": return "🎥";
                 case "Conditional": return "🔀";

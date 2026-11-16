@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon.FillColor: vector version of the Greenshot editor icon, designed on a 16x16 grid. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="Icon.FillColor">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="M0,0 H16 V16 H0 Z" />
+        <GeometryDrawing Geometry="M5.2,1.6 C3.2,1.8 1.6,3.6 2.2,5.4">
+          <GeometryDrawing.Pen>
+            <Pen Brush="#5A5A5A" Thickness="1" LineCap="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M1.4,6.4 L6.4,1.6 L11.4,6.6 L6.6,11.4 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+              <GradientStop Offset="0" Color="#F2F2F6" />
+              <GradientStop Offset="0.5" Color="#B8B8C6" />
+              <GradientStop Offset="1" Color="#8A8A9A" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4A4A55" Thickness="1" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M11.4,6.6 L11.09,6.73 L10.64,6.69 L10.06,6.46 L9.41,6.08 L8.73,5.57 L8.05,4.95 L7.43,4.27 L6.92,3.59 L6.54,2.94 L6.31,2.36 L6.27,1.91 L6.4,1.6 L6.71,1.47 L7.16,1.51 L7.74,1.74 L8.39,2.12 L9.07,2.63 L9.75,3.25 L10.37,3.93 L10.88,4.61 L11.26,5.26 L11.49,5.84 L11.53,6.29 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+              <GradientStop Offset="0" Color="#5A7AE0" />
+              <GradientStop Offset="1" Color="#2042A8" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#4A4A55" Thickness="0.8" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M11.4,6.6 C13.6,7.6 14.2,9.2 14.2,10.4 C14.2,11.4 13.2,11.6 12.8,10.8 C12.4,10 13,8.6 11.4,6.6 Z">
+          <GeometryDrawing.Brush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#5A7AE0" />
+              <GradientStop Offset="1" Color="#2042A8" />
+            </LinearGradientBrush>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Pen>
+            <Pen Brush="#1A3088" Thickness="0.7" LineJoin="Round" />
+          </GeometryDrawing.Pen>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

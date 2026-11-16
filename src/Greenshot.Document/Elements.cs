@@ -89,6 +89,15 @@ namespace Greenshot.Document
 
         public LabelPlace Y { get; init; } = LabelPlace.Center;
 
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public BoxLabel(string text, LabelPlace x = LabelPlace.Center, LabelPlace y = LabelPlace.Center) : this(text)
+        {
+            X = x;
+            Y = y;
+        }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public double Offset { get; init; }
 
@@ -126,6 +135,11 @@ namespace Greenshot.Document
     public sealed record LineLabel(string Text)
     {
         public double At { get; init; } = 0.5;
+
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public LineLabel(string text, double at = 0.5) : this(text) => At = at;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public double Offset { get; init; }
@@ -240,6 +254,18 @@ namespace Greenshot.Document
 
         public int Magnification { get; init; } = 2;
 
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public HighlightElement(Guid id, RectD area, HighlightMode mode, Rgba color = default, double brightness = 0.9, int blurRadius = 3, int magnification = 2) : this(id, area, mode)
+        {
+            // No colour at all (also not a transparent one) is the default colour
+            Color = color == default ? new Rgba(255, 255, 0, 255) : color;
+            Brightness = brightness;
+            BlurRadius = blurRadius;
+            Magnification = magnification;
+        }
+
         public override RectD Bounds => Area.Turned(Rotation);
     }
 
@@ -347,6 +373,15 @@ namespace Greenshot.Document
         public int Height { get; init; } = 12;
 
         public int Range { get; init; } = 20;
+
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public EdgeShape(EdgeStyle style, int height = 12, int range = 20) : this(style)
+        {
+            Height = height;
+            Range = range;
+        }
     }
 
     /// <summary>
@@ -355,6 +390,11 @@ namespace Greenshot.Document
     public sealed record CutMarkElement(Guid Id, RectD Area, bool Horizontal, int Seed) : Element(Id)
     {
         public EdgeShape Shape { get; init; } = new(EdgeStyle.Torn);
+
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public CutMarkElement(Guid id, RectD area, bool horizontal, int seed, EdgeShape shape = null) : this(id, area, horizontal, seed) => Shape = shape ?? new EdgeShape(EdgeStyle.Torn);
 
         public override RectD Bounds => Area;
     }
@@ -435,6 +475,11 @@ namespace Greenshot.Document
 
         public EdgeShape Shape { get; init; } = new(EdgeStyle.Torn);
 
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public FrameElement(Guid id, RectD area, int seed, EdgeShape shape = null) : this(id, area, seed) => Shape = shape ?? new EdgeShape(EdgeStyle.Torn);
+
         public FrameSides Sides { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -486,6 +531,11 @@ namespace Greenshot.Document
         public string Data { get; init; }
 
         public IReadOnlyList<Guid> Resources { get; init; } = Array.Empty<Guid>();
+
+        // For reading JSON: a value which is missing gets its default here. Generated JSON code (DocumentJsonContext) sets
+        // every init property, a missing one to 0 or null, and so loses a default which is only written at the property.
+        [JsonConstructor]
+        public PluginElement(Guid id, RectD area, string kind, IReadOnlyList<Guid> resources = null) : this(id, area, kind) => Resources = resources ?? Array.Empty<Guid>();
 
         public Guid? Fallback { get; init; }
 

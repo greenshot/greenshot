@@ -89,18 +89,25 @@ namespace Greenshot.Document
     /// </summary>
     public sealed record StepNumbering(int Start = 1, StepFormat Format = StepFormat.Numbers)
     {
-        private static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
+        private static readonly JsonSerializerOptions Options = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            TypeInfoResolver = DocumentJsonContext.Default,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter<StepFormat>(JsonNamingPolicy.CamelCase) }
+        };
+
+        private static System.Text.Json.Serialization.Metadata.JsonTypeInfo<StepNumbering> TypeInfo => (System.Text.Json.Serialization.Metadata.JsonTypeInfo<StepNumbering>)Options.GetTypeInfo(typeof(StepNumbering));
 
         /// <summary>
         /// The numbering in the properties of a steps group, missing values are the defaults
         /// </summary>
         public static StepNumbering Of(Group group) =>
-            group.Properties == null ? new StepNumbering() : JsonSerializer.Deserialize<StepNumbering>(group.Properties.Json, Options) ?? new StepNumbering();
+            group.Properties == null ? new StepNumbering() : JsonSerializer.Deserialize(group.Properties.Json, TypeInfo) ?? new StepNumbering();
 
         /// <summary>
         /// The properties of a steps group with this numbering
         /// </summary>
-        public RawJson ToProperties() => new(JsonSerializer.Serialize(this, Options));
+        public RawJson ToProperties() => new(JsonSerializer.Serialize(this, TypeInfo));
 
         /// <summary>
         /// The text of the member at the index

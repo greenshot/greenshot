@@ -128,14 +128,6 @@ namespace Greenshot.Ipc
             return FallbackAllowedImageExtensions.Contains(extension);
         }
 
-        private static readonly HashSet<string> ReservedDeviceNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "CON", "PRN", "AUX", "NUL",
-            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-            "CONIN$", "CONOUT$"
-        };
-
         /// <summary>
         /// Validates, sanitizes, and canonicalizes a path supplied via IPC.
         /// Resolves non-rooted paths against envelope CWD.
@@ -235,10 +227,9 @@ namespace Greenshot.Ipc
             string[] segments = fullPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var segment in segments)
             {
-                string nameWithoutExt = Path.GetFileNameWithoutExtension(segment);
-                if (ReservedDeviceNames.Contains(nameWithoutExt))
+                if (FilenameHelper.IsReservedDeviceName(segment))
                 {
-                    errorMessage = $"Path refers to a reserved device name: '{nameWithoutExt}'.";
+                    errorMessage = $"Path refers to a reserved device name: '{Path.GetFileNameWithoutExtension(segment)}'.";
                     return false;
                 }
             }
@@ -301,6 +292,11 @@ namespace Greenshot.Ipc
             }
             return sourceCommands;
         }
+
+        /// <summary>
+        /// True when the source has its own list of allowed commands
+        /// </summary>
+        internal static bool HasOwnCommands(string source) => !string.IsNullOrEmpty(source) && SourceAllowedCommands.ContainsKey(source);
 
         /// <summary>
         /// Checks the command against the global whitelist and, when the source has one, the source-specific whitelist.

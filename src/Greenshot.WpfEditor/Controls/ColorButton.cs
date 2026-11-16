@@ -181,8 +181,7 @@ namespace Greenshot.WpfEditor.Controls
             border.SetBinding(Border.BackgroundProperty, new Binding(nameof(ThemeManager.BackgroundBrush)) { Source = theme });
             border.SetBinding(Border.BorderBrushProperty, new Binding(nameof(ThemeManager.BorderBrush)) { Source = theme });
             border.SetBinding(TextElement.ForegroundProperty, new Binding(nameof(ThemeManager.ForegroundBrush)) { Source = theme });
-            border.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml", UriKind.Relative) });
-            border.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative) });
+            border.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml", UriKind.Relative) });
             var popup = new Popup
             {
                 Child = border,

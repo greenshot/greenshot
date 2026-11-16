@@ -328,6 +328,8 @@ namespace Greenshot.Base.Core
             MoveTrayClickAction("LeftClickAction", nameof(TrayClickRecipe), value => TrayClickRecipe = value);
             MoveTrayClickAction("DoubleClickAction", nameof(TrayDoubleClickRecipe), value => TrayDoubleClickRecipe = value);
 
+            MoveCaptureDelay();
+
             // Prevent both settings at once, bug #3435056
             if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
             {
@@ -457,6 +459,55 @@ namespace Greenshot.Base.Core
             {
                 setRecipe(recipeId);
                 Log.InfoFormat("Moved the tray icon action {0}={1} to the recipe '{2}'.", oldKey, action, recipeId);
+            }
+
+            // Moved only once: an empty value is not moved again
+            try
+            {
+                SetRawValue(oldKey, string.Empty);
+                MarkAsDirty();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
+        }
+
+        /// <summary>
+        /// The default of the CaptureDelay of earlier versions: only the time a menu needed to close, the menu waits for that itself now
+        /// </summary>
+        internal const int OldDefaultCaptureDelay = 100;
+
+        /// <summary>
+        /// CaptureDelay (milliseconds before every capture, default 100) is replaced by CaptureWait and CaptureWaitMilliseconds.
+        /// A value other than the old default was chosen by the user: it is moved once. CaptureWaitCountdown stays as it is: a wait
+        /// shorter than a second never shows the countdown, and a longer one chosen later should.
+        /// </summary>
+        private void MoveCaptureDelay()
+        {
+            const string oldKey = "CaptureDelay";
+            string rawValue;
+            try
+            {
+                rawValue = GetRawValue(oldKey);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't read {oldKey}", ex);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(rawValue))
+            {
+                return;
+            }
+
+            if (int.TryParse(rawValue.Trim(), out int delay) && delay > 0 && delay != OldDefaultCaptureDelay
+                && !IsConstant(nameof(CaptureWait)) && !IsConstant(nameof(CaptureWaitMilliseconds)))
+            {
+                CaptureWait = true;
+                CaptureWaitMilliseconds = Clamp(delay, 0, 600000);
+                Log.InfoFormat("Moved {0}={1} to {2} and {3}.", oldKey, delay, nameof(CaptureWait), nameof(CaptureWaitMilliseconds));
             }
 
             // Moved only once: an empty value is not moved again

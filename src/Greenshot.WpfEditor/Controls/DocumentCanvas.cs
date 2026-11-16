@@ -775,7 +775,8 @@ namespace Greenshot.WpfEditor.Controls
         {
             if (e.Key == Key.Escape)
             {
-                EndTextEdit(false);
+                // Escape leaves the typing, not the text: what was typed stays (Ctrl+Z takes it back)
+                EndTextEdit(true);
                 e.Handled = true;
             }
             else if (e.Key == Key.Enter && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))

@@ -50,8 +50,9 @@ namespace Greenshot.Document
         /// <summary>
         /// Kinds of results this version doesn't know, written back unchanged
         /// </summary>
+        // With a setter, not init: the generated JSON code (DocumentJsonContext) can't fill such a property otherwise
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Unknown { get; init; }
+        public Dictionary<string, JsonElement> Unknown { get; set; }
 
         [JsonIgnore]
         public bool IsEmpty => Ocr == null && (Barcodes == null || Barcodes.Count == 0) && (Areas == null || Areas.Count == 0) && Extensions == null && (Unknown == null || Unknown.Count == 0);

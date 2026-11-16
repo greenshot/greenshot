@@ -11,10 +11,10 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-            <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+            <Style TargetType="Label" BasedOn="{StaticResource GreenshotLabelStyle}">
                 <Setter Property="Padding" Value="0,6,0,2"/>
             </Style>
         </ResourceDictionary>

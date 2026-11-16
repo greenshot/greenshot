@@ -28,7 +28,7 @@ namespace Greenshot.Ipc
 {
     /// <summary>
     /// Checks that the program on the other end of a pipe connection is one of Greenshot's own executables, from Greenshot's
-    /// directory, and that it announced a source this executable uses. Other programs can't talk to the pipe directly;
+    /// directory (the stand-alone editor: from its folder below it), and that it announced a source this executable uses. Other programs can't talk to the pipe directly;
     /// they can only start these executables, which then decide the source (e.g. greenshot-cli.exe is always "cli").
     /// Source "mcp" is checked by AiToolCaller, which also identifies the AI tool.
     /// </summary>
@@ -41,8 +41,15 @@ namespace Greenshot.Ipc
             // greenshot-cli.exe, the console front end
             ["greenshot-cli.exe"] = new[] { IpcSources.Cli },
             // greenshot-proxy.exe: greenshot: URLs, Explorer "Open with" and the browser extension (native messaging)
-            ["greenshot-proxy.exe"] = new[] { IpcSources.UrlScheme, IpcSources.OpenWith, IpcSources.NativeMessaging }
+            ["greenshot-proxy.exe"] = new[] { IpcSources.UrlScheme, IpcSources.OpenWith, IpcSources.NativeMessaging },
+            // greenshot-editor.exe, the stand-alone editor: it runs on another .NET and has its own folder below Greenshot's
+            [StandaloneEditor] = new[] { IpcSources.Editor }
         };
+
+        /// <summary>
+        /// The stand-alone editor, relative to Greenshot's directory
+        /// </summary>
+        public const string StandaloneEditor = @"Editor\greenshot-editor.exe";
 
         /// <summary>
         /// Verifies the client of the connection for every source except "mcp".
@@ -58,13 +65,39 @@ namespace Greenshot.Ipc
         }
 
         /// <summary>
+        /// The name of the program as it is listed: its file name when it is in Greenshot's directory, with the folder in front
+        /// when it is in a folder directly below. Null for a program anywhere else.
+        /// </summary>
+        private static string RelativeName(string clientPath, string greenshotDirectory)
+        {
+            if (string.IsNullOrEmpty(clientPath))
+            {
+                return null;
+            }
+
+            string greenshot = PipeClientProcess.NormalizeDirectory(greenshotDirectory);
+            string directory = Path.GetDirectoryName(clientPath);
+            if (string.Equals(PipeClientProcess.NormalizeDirectory(directory), greenshot, StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.GetFileName(clientPath);
+            }
+
+            string parent = string.IsNullOrEmpty(directory) ? null : Path.GetDirectoryName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            if (parent != null && string.Equals(PipeClientProcess.NormalizeDirectory(parent), greenshot, StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.Combine(Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), Path.GetFileName(clientPath));
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// True when the executable is one of Greenshot's, in Greenshot's directory, and may use the source.
         /// </summary>
         internal static bool IsAllowed(string clientPath, string source, string greenshotDirectory, out string error)
         {
-            string fileName = string.IsNullOrEmpty(clientPath) ? null : Path.GetFileName(clientPath);
-            if (fileName == null || !SourcesByExecutable.TryGetValue(fileName, out var sources) ||
-                !string.Equals(PipeClientProcess.NormalizeDirectory(Path.GetDirectoryName(clientPath)), PipeClientProcess.NormalizeDirectory(greenshotDirectory), StringComparison.OrdinalIgnoreCase))
+            string fileName = RelativeName(clientPath, greenshotDirectory);
+            if (fileName == null || !SourcesByExecutable.TryGetValue(fileName, out var sources))
             {
                 error = $"Only Greenshot's own programs may connect, not '{clientPath ?? "unknown"}'.";
                 return false;
