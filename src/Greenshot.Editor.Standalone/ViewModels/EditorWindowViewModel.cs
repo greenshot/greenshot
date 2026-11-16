@@ -116,7 +116,14 @@ namespace Greenshot.Editor.Standalone.ViewModels
             ZoomCommand = new RelayCommand(parameter => _view?.Zoom((ZoomCommand)parameter), _ => SelectedTab != null);
             InsertImageCommand = Command(InsertImageAsync, () => SelectedTab != null);
             AutoCropCommand = new RelayCommand(() => SelectedTab.AutoCrop(), () => SelectedTab != null);
-            ApplyCropCommand = new RelayCommand(() => (SelectedTab?.Tool as CropTool)?.Apply(), () => SelectedTab?.Tool is CropTool);
+            ApplyCropCommand = new RelayCommand(() =>
+            {
+                // Cropped: back to selecting, like after any other finished step
+                if ((SelectedTab?.Tool as CropTool)?.Apply() == true)
+                {
+                    SelectedTab.ToolKind = ToolKind.Select;
+                }
+            }, () => SelectedTab?.Tool is CropTool);
             CancelCropCommand = new RelayCommand(() => SelectedTab.ToolKind = ToolKind.Select, () => SelectedTab?.Tool is CropTool);
             SelectToolCommand = new RelayCommand(parameter => SelectedTab.ToolKind = (ToolKind)parameter, _ => SelectedTab != null);
             SendToCommand = RelayCommand.ForTask(parameter => SendToAsync(parameter as EditorDestination), parameter => SelectedTab != null && parameter is EditorDestination, Failed);

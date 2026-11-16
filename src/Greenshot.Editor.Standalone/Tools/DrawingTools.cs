@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Document;
 using Greenshot.Document.Editing;
+using Greenshot.Editor.Standalone.Editing;
 
 namespace Greenshot.Editor.Standalone.Tools
 {
@@ -121,6 +122,11 @@ namespace Greenshot.Editor.Standalone.Tools
             }
         }
 
+        /// <summary>
+        /// An element which is placed with a click (text, speech bubble, step label, emoji) is not drawn smaller than this
+        /// </summary>
+        public const double MinimumPlaced = 16;
+
         private static PointD Rounded(PointD point) => new(Math.Round(point.X), Math.Round(point.Y));
 
         /// <summary>
@@ -142,7 +148,14 @@ namespace Greenshot.Editor.Standalone.Tools
                     : new ArrowElement(_id, from, end, _host.Options.ArrowHeads) { Style = style };
             }
 
-            var area = click ? DefaultArea(from) : Box(from, to, constrain);
+            // A step label and an emoji are always as wide as high
+            var area = click ? DefaultArea(from) : Box(from, to, constrain || Kind is ToolKind.StepLabel or ToolKind.Emoji);
+            if (!click && DefaultArea(from) is RectD usual && (area is not RectD dragged || dragged.Width < MinimumPlaced || dragged.Height < MinimumPlaced))
+            {
+                // The mouse moved a little while it was clicked (placing several fast): the usual size, not a tiny element
+                area = usual;
+            }
+
             if (area == null)
             {
                 return null;
@@ -424,7 +437,7 @@ namespace Greenshot.Editor.Standalone.Tools
             }
 
             _area = null;
-            _host.Commit(DocumentEdits.Crop(_host.Document, area), EditorTexts.Text.UndoCrop);
+            _host.Commit(Cropping.Crop(_host.Document, area), EditorTexts.Text.UndoCrop);
             _host.ToolChanged();
             return true;
         }

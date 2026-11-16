@@ -82,7 +82,10 @@ namespace Greenshot.Editor.Standalone.Rendering
                 var used = cache ?? own;
                 var copied = CopyCapture(placed, drawn, used, image, include);
                 Func<Element, bool> drawnByCanvas = copied == null ? include : element => element.Id != copied && (include == null || include(element));
-                image.Mutate(context => context.Paint(new DrawingOptions(), used.Text, target => new Pass(placed, drawn, used, target, drawnByCanvas).Draw()));
+                // Not kept between drawings, and emptied before every text: the library finds a text it drew before by the text and
+                // its font only, and draws it again as it was then, also when it is turned or moved differently now
+                var glyphs = new DrawingTextCache();
+                image.Mutate(context => context.Paint(new DrawingOptions(), glyphs, target => new Pass(placed, drawn, used, target, drawnByCanvas, glyphs).Draw()));
                 if (drawn != wanted)
                 {
                     image.Mutate(context => context.Crop(new Rectangle((int)Math.Round(wanted.X - drawn.X), (int)Math.Round(wanted.Y - drawn.Y),
@@ -210,16 +213,18 @@ namespace Greenshot.Editor.Standalone.Rendering
             private readonly GreenshotDocument _document;
             private readonly RectD _area;
             private readonly RenderCache _cache;
+            private readonly DrawingTextCache _glyphs;
             private readonly DrawingCanvas _canvas;
             private readonly Func<Element, bool> _include;
             private readonly Matrix3x2 _toPixels;
             private readonly Rectangle _all;
 
-            public Pass(GreenshotDocument document, RectD area, RenderCache cache, DrawingCanvas canvas, Func<Element, bool> include)
+            public Pass(GreenshotDocument document, RectD area, RenderCache cache, DrawingCanvas canvas, Func<Element, bool> include, DrawingTextCache glyphs)
             {
                 _document = document;
                 _area = area;
                 _cache = cache;
+                _glyphs = glyphs;
                 _canvas = canvas;
                 _include = include;
                 _toPixels = Matrix3x2.CreateTranslation((float)-area.X, (float)-area.Y);
@@ -610,6 +615,7 @@ namespace Greenshot.Editor.Standalone.Rendering
                 // Centred by what is drawn of the digits, not by the line height of the font
                 options.Origin = new Vector2((float)(area.Center.X - ink.X - ink.Width / 2), (float)(area.Center.Y - ink.Y - ink.Height / 2));
                 var color = style.Text?.Color ?? style.Stroke?.Color ?? new Rgba(255, 255, 255, 255);
+                _glyphs.Clear();
                 _canvas.DrawText(options, number, Brushes.Solid(Colour(color)), null);
             }
 
@@ -668,6 +674,7 @@ namespace Greenshot.Editor.Standalone.Rendering
                     ColorFontSupport = ColorFontSupport.ColrV0 | ColorFontSupport.ColrV1 | ColorFontSupport.Svg
                 };
                 _canvas.Save(Options(Turn3(emoji.Rotation, area.Center)));
+                _glyphs.Clear();
                 _canvas.DrawText(options, emoji.Emoji, Brushes.Solid(Color.Black), null);
                 _canvas.Restore();
             }
@@ -758,8 +765,11 @@ namespace Greenshot.Editor.Standalone.Rendering
                 if (outline != null)
                 {
                     // The outline lies behind the letters, so it doesn't make them thinner
+                    _glyphs.Clear();
                     _canvas.DrawText(options, text, null, outline);
                 }
+
+                _glyphs.Clear();
 
                 _canvas.DrawText(options, text, Brushes.Solid(Colour(color)), null);
                 _canvas.Restore();

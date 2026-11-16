@@ -187,7 +187,7 @@ namespace Greenshot.Editor.Standalone.ViewModels
             }
 
             _tool.Cancel();
-            Commit(DocumentEdits.Crop(_committed, content), EditorTexts.Text.UndoCrop);
+            Commit(Cropping.Crop(_committed, content), EditorTexts.Text.UndoCrop);
             return true;
         }
 

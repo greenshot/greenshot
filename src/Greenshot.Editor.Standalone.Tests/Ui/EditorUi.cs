@@ -119,6 +119,8 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
         /// </summary>
         public static SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> Capture(EditorWindow window, string name)
         {
+            Dispatcher.UIThread.RunJobs();
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
             using var frame = window.CaptureRenderedFrame();
             using var stream = new MemoryStream();
             frame.Save(stream, PngBitmapEncoderOptions.Default);

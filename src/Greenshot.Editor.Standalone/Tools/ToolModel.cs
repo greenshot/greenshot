@@ -90,7 +90,7 @@ namespace Greenshot.Editor.Standalone.Tools
 
     public enum AdornerKind
     {
-        /// <summary>The outline of a selected element: Area turned by Rotation</summary>
+        /// <summary>The corners of a selected element which has no handles of its own (one of several, or the one a drawing tool just drew): Area turned by Rotation. No lines around it, like the handles of a single selected element.</summary>
         Outline,
         /// <summary>A square handle at Point</summary>
         Handle,

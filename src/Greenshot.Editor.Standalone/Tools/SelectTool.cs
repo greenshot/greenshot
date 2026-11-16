@@ -145,7 +145,6 @@ namespace Greenshot.Editor.Standalone.Tools
                     }
 
                     var union = Union(selected);
-                    adorners.Add(new Adorner(AdornerKind.Outline, union));
                     for (int handle = 0; handle < 8; handle++)
                     {
                         adorners.Add(new Adorner(AdornerKind.Handle, Point: SelectionHandles.Point(union, 0, handle)));
@@ -165,8 +164,8 @@ namespace Greenshot.Editor.Standalone.Tools
                 return;
             }
 
+            // Handles only, no line around the element: a line hides what is under it
             var (area, rotation) = FrameOf(element);
-            adorners.Add(new Adorner(AdornerKind.Outline, area, rotation));
             for (int handle = 0; handle < 8; handle++)
             {
                 adorners.Add(new Adorner(AdornerKind.Handle, Point: SelectionHandles.Point(area, rotation, handle)));

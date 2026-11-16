@@ -389,6 +389,13 @@ namespace Greenshot.Editor.Standalone.Views
             // The arrow keys move the selection only while the canvas has the focus, elsewhere they move in the controls
             bool arrow = toolKey is ToolKey.Left or ToolKey.Right or ToolKey.Up or ToolKey.Down;
             bool inPanel = arrow && FocusManager?.GetFocusedElement() is Control focused && !ReferenceEquals(focused, Canvas);
+            if (e.Key == Key.Enter && tab.Tool is CropTool && _viewModel.ApplyCropCommand.CanExecute(null))
+            {
+                _viewModel.ApplyCropCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+
             if (toolKey is ToolKey pressed && !inPanel && tab.Key(pressed, shift, control))
             {
                 e.Handled = true;

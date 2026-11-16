@@ -30,18 +30,12 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace Greenshot.Editor.Standalone.Rendering
 {
     /// <summary>
-    /// What the renderer keeps between two drawings of (versions of) a document: the decoded images of its resources and
-    /// the outlines of the glyphs it drew. One per open document, disposed with it.
+    /// What the renderer keeps between two drawings of (versions of) a document: the decoded images of its resources. One per open document, disposed with it.
     /// </summary>
     public sealed class RenderCache : IDisposable
     {
         private readonly object _lock = new();
         private readonly Dictionary<Guid, Image<Rgba32>> _images = new();
-
-        /// <summary>
-        /// The glyph outlines of the texts which were drawn
-        /// </summary>
-        public DrawingTextCache Text { get; } = new();
 
         /// <summary>
         /// The decoded image of a resource, null when it isn't an image ImageSharp can read

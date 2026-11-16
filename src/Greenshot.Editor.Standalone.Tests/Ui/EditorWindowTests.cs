@@ -302,6 +302,91 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
         });
 
         [Fact]
+        public Task AnEmoji_IsShownTurned_WhileItsTurnHandleIsDragged() => EditorUi.RunAsync(async () =>
+        {
+            var emoji = new EmojiElement(System.Guid.NewGuid(), new RectD(60, 60, 64, 64), "\U0001F600");
+            var window = await EditorUi.OpenAsync(Samples.Page(400, 300, Samples.White, null, emoji));
+            var tab = window.ViewModel.SelectedTab;
+            tab.Select(new[] { emoji.Id });
+            await EditorUi.DrawnAsync(window);
+            // The handle which turns is 24 screen pixels above the top; the middle of the emoji is at 92, 92
+            window.MouseDown(At(window, 92, 60 - 24), MouseButton.Left);
+            for (int step = 1; step <= 6; step++)
+            {
+                double angle = step * 30 * System.Math.PI / 180;
+                window.MouseMove(At(window, 92 + 60 * System.Math.Sin(angle), 92 - 60 * System.Math.Cos(angle)));
+                await EditorUi.DrawnAsync(window);
+                Assert.Equal(step * 30, tab.Document.Layers[1].Elements[0].Rotation, 3);
+            }
+
+            // Half a turn: the eyes (dark) are now below the middle, where the cheeks (yellow) were
+            using (var image = EditorUi.Capture(window, "emoji-turned"))
+            {
+                var eye = At(window, 82, 102);
+                var color = image[(int)eye.X, (int)eye.Y];
+                Assert.True(color.R < 160, $"An eye of the turned emoji is below its middle: {color}");
+            }
+
+            window.MouseUp(At(window, 92, 92 + 60), MouseButton.Left);
+            await EditorUi.DrawnAsync(window);
+            Close(window);
+        });
+
+        [Fact]
+        public Task ACrop_RemovesWhatIsOutside_AndGoesBackToSelecting() => EditorUi.RunAsync(async () =>
+        {
+            var inside = new RectangleElement(System.Guid.NewGuid(), new RectD(60, 60, 64, 64));
+            var outside = new RectangleElement(System.Guid.NewGuid(), new RectD(300, 200, 80, 60));
+            var partly = new RectangleElement(System.Guid.NewGuid(), new RectD(200, 100, 80, 60));
+            var window = await EditorUi.OpenAsync(Samples.Page(400, 300, null, null, inside, outside, partly));
+            var tab = window.ViewModel.SelectedTab;
+            tab.ToolKind = ToolKind.Crop;
+            await DragAsync(window, new PointD(20, 20), new PointD(220, 180));
+
+            window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            await EditorUi.DrawnAsync(window);
+
+            Assert.Equal(new RectD(0, 0, 200, 160), tab.Document.CanvasArea());
+            Assert.Equal(new[] { inside.Id, partly.Id }, tab.Document.Layers[1].Elements.Select(element => element.Id));
+            Assert.Equal(ToolKind.Select, tab.ToolKind);
+            Assert.False(window.ViewModel.IsCropping);
+            using (EditorUi.Capture(window, "cropped"))
+            {
+            }
+
+            window.ViewModel.UndoCommand.Execute(null);
+            await EditorUi.DrawnAsync(window);
+            Assert.Equal(3, tab.Document.Layers[1].Elements.Count);
+            Close(window);
+        });
+
+        [Fact]
+        public Task StepLabels_PlacedFastWithAMovingMouse_AllHaveTheUsualSize() => EditorUi.RunAsync(async () =>
+        {
+            var window = await EditorUi.OpenAsync(Samples.Page(400, 300, Samples.White, null));
+            var tab = window.ViewModel.SelectedTab;
+            tab.ToolKind = ToolKind.StepLabel;
+            for (int i = 0; i < 4; i++)
+            {
+                // The mouse moves some pixels between pressing and releasing
+                await DragAsync(window, new PointD(60 + i * 70, 100), new PointD(60 + i * 70 + 3 + i * 3, 100 + 2 + i * 2));
+            }
+
+            var labels = tab.Document.Layers[1].Elements;
+            Assert.Equal(4, labels.Count);
+            Assert.All(labels, label => Assert.Equal((30d, 30d), (label.Bounds.Width, label.Bounds.Height)));
+            using (EditorUi.Capture(window, "step-labels"))
+            {
+            }
+
+            // A clear drag still chooses the size
+            await DragAsync(window, new PointD(60, 200), new PointD(120, 250));
+            Assert.Equal((60d, 60d), (tab.Document.Layers[1].Elements[4].Bounds.Width, tab.Document.Layers[1].Elements[4].Bounds.Height));
+            Close(window);
+        });
+
+        [Fact]
         public Task TheDarkTheme_ShowsEveryPanel() => EditorUi.RunAsync(async () =>
         {
             Application.Current.RequestedThemeVariant = ThemeVariant.Dark;

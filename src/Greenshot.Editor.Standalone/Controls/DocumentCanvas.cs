@@ -51,6 +51,7 @@ namespace Greenshot.Editor.Standalone.Controls
         // Room around the canvas, in screen pixels, so handles at the edge can be grabbed
         private const double CanvasMargin = 48;
         private const double HandleSize = 8;
+        private const double CornerSize = 5;
         private const double WheelStep = 48;
 
         public static readonly StyledProperty<DocumentTabViewModel> TabProperty = AvaloniaProperty.Register<DocumentCanvas, DocumentTabViewModel>(nameof(Tab));
@@ -358,12 +359,11 @@ namespace Greenshot.Editor.Standalone.Controls
         {
             var accent = new SolidColorBrush(AccentColor);
             var outline = new Pen(accent, 1);
-            var contrast = new Pen(Brushes.White, 3);
             var handleFill = Brushes.White;
             IEnumerable<Adorner> adorners = Tab.Tool.Adorners;
             if (Tab.Tool is not SelectTool)
             {
-                // A drawing tool keeps the element it just drew selected: its outline shows which one the panel changes
+                // A drawing tool keeps the element it just drew selected: marks at its corners show which one the panel changes
                 adorners = adorners.Concat(Tab.SelectedElements.Select(element => ElementShapes.AreaOf(element) is RectD box
                     ? new Adorner(AdornerKind.Outline, box, ElementShapes.CanTurn(element) ? element.Rotation : 0)
                     : new Adorner(AdornerKind.Outline, element.Bounds)));
@@ -374,9 +374,13 @@ namespace Greenshot.Editor.Standalone.Controls
                 switch (adorner.Kind)
                 {
                     case AdornerKind.Outline:
-                        var geometry = Polygon(Corners(adorner.Area, adorner.Rotation));
-                        context.DrawGeometry(null, contrast, geometry);
-                        context.DrawGeometry(null, outline, geometry);
+                        // Small marks at the corners, no line around the element
+                        foreach (var corner in Corners(adorner.Area, adorner.Rotation))
+                        {
+                            var mark = Snap(corner);
+                            context.DrawRectangle(accent, new Pen(Brushes.White, 1), new Rect(mark.X - CornerSize / 2, mark.Y - CornerSize / 2, CornerSize, CornerSize));
+                        }
+
                         break;
                     case AdornerKind.Handle:
                         var point = Snap(ToScreen(adorner.Point));
@@ -423,7 +427,6 @@ namespace Greenshot.Editor.Standalone.Controls
             return corners.Select(corner => Snap(ToScreen(rotation == 0 ? corner : corner.Turned(rotation, area.Center)))).ToArray();
         }
 
-        private static Geometry Polygon(Point[] points) => new PolylineGeometry(points.Append(points[0]), false);
 
         private Rect ScreenRect(RectD area) => new(Snap(ToScreen(new PointD(area.X, area.Y))), Snap(ToScreen(new PointD(area.Right, area.Bottom))));
 
