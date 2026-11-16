@@ -1488,22 +1488,13 @@
                                                FontSize="{wpf:FontSize 11}" 
                                                Foreground="{Binding TextSecondaryBrush}" 
                                                VerticalAlignment="Center"/>
-                                    <Border Grid.Row="0" Grid.Column="1" 
-                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
-                                            BorderBrush="{Binding CardBorderBrush}" 
-                                            BorderThickness="1" 
-                                            CornerRadius="3" 
-                                            Padding="6,3" 
-                                            Margin="0,0,0,4">
-                                        <TextBox Text="{Binding ChecksumSection.SelectedItem.ExpectedHash, Mode=OneWay}" 
-                                                 AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailExpected}"
-                                                 IsReadOnly="True" 
-                                                 Background="Transparent" 
-                                                 BorderThickness="0" 
-                                                 FontFamily="Consolas, monospace" 
-                                                 FontSize="{wpf:FontSize 11}" 
-                                                 Foreground="{Binding TextPrimaryBrush}"/>
-                                    </Border>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,0,0,4"
+                                             Text="{Binding ChecksumSection.SelectedItem.ExpectedHash, Mode=OneWay}" 
+                                             AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailExpected}"
+                                             IsReadOnly="True" 
+                                             FontFamily="Consolas, monospace" 
+                                             FontSize="{wpf:FontSize 11}" 
+                                             Foreground="{Binding TextPrimaryBrush}"/>
 
                                     <!-- Actual -->
                                     <TextBlock Grid.Row="1" Grid.Column="0" 
@@ -1512,22 +1503,13 @@
                                                FontSize="{wpf:FontSize 11}" 
                                                Foreground="{Binding TextSecondaryBrush}" 
                                                VerticalAlignment="Center"/>
-                                    <Border Grid.Row="1" Grid.Column="1" 
-                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
-                                            BorderBrush="{Binding CardBorderBrush}" 
-                                            BorderThickness="1" 
-                                            CornerRadius="3" 
-                                            Padding="6,3" 
-                                            Margin="0,0,0,4">
-                                        <TextBox Text="{Binding ChecksumSection.SelectedItem.ActualHash, Mode=OneWay}" 
-                                                 AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailActual}"
-                                                 IsReadOnly="True" 
-                                                 Background="Transparent" 
-                                                 BorderThickness="0" 
-                                                 FontFamily="Consolas, monospace" 
-                                                 FontSize="{wpf:FontSize 11}" 
-                                                 Foreground="{Binding ChecksumSection.SelectedItem.StatusBrush}"/>
-                                    </Border>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,0,0,4"
+                                             Text="{Binding ChecksumSection.SelectedItem.ActualHash, Mode=OneWay}" 
+                                             AutomationProperties.Name="{wpf:Text SelfService.ChecksumDetailActual}"
+                                             IsReadOnly="True" 
+                                             FontFamily="Consolas, monospace" 
+                                             FontSize="{wpf:FontSize 11}" 
+                                             Foreground="{Binding ChecksumSection.SelectedItem.StatusBrush}"/>
 
                                     <!-- Full Path -->
                                     <TextBlock Grid.Row="2" Grid.Column="0" 
@@ -1683,22 +1665,11 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" 
-                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
-                                            BorderBrush="{Binding CardBorderBrush}" 
-                                            BorderThickness="1" 
-                                            CornerRadius="4" 
-                                            Padding="8,6" 
-                                            Margin="0,0,10,0">
-                                        <TextBox Text="{Binding IntegrationDebugSection.ExtensionId, UpdateSourceTrigger=PropertyChanged}" 
-                                                 AutomationProperties.Name="{wpf:Text SelfService.DebugExtensionId}"
-                                                 Background="Transparent" 
-                                                 BorderThickness="0" 
-                                                 FontFamily="Consolas, monospace" 
-                                                 FontSize="{wpf:FontSize 12}" 
-                                                 Foreground="{Binding TextPrimaryBrush}" 
-                                                 CaretBrush="{Binding TextPrimaryBrush}"/>
-                                    </Border>
+                                    <!-- The shared text box style: border, background and the height of the dropdowns -->
+                                    <TextBox Grid.Column="0" Margin="0,0,10,0"
+                                             Text="{Binding IntegrationDebugSection.ExtensionId, UpdateSourceTrigger=PropertyChanged}" 
+                                             AutomationProperties.Name="{wpf:Text SelfService.DebugExtensionId}"
+                                             FontFamily="Consolas, monospace"/>
                                     <Button Grid.Column="1" 
                                             Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnSaveDebugExtensionIdClicked">
