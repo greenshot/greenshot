@@ -311,6 +311,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Installer** (#1766)
+- The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
+
 **Editor bugs from the old bug tracker** (#1764)
 - Closing an opened .greenshot file without changes no longer asks to save it, and its elements are no longer all selected after opening
 - While a crop waits for Confirm or Cancel, the tool keys (R, E, T, ...) and shortcuts are blocked like the disabled buttons; before, they could leave the crop rectangle behind, and confirming it later gave an error
