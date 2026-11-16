@@ -799,7 +799,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 RefreshErrorRouting();
             };
 
-            NewRecipeCommand = new RelayCommand(NewRecipe);
+            NewRecipeCommand = new RelayCommand(ChooseNewRecipe);
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
             SaveAsCommand = new RelayCommand(SaveAsRecipe);
@@ -1750,25 +1750,130 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        public void NewRecipe()
+        /// <summary>
+        /// Asks what the new recipe starts with (a template or a copy of a recipe) and opens it
+        /// </summary>
+        public void ChooseNewRecipe()
+        {
+            var dlg = new NewRecipeWindow(GetNewRecipeChoices())
+            {
+                Owner = Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault()
+            };
+            if (dlg.ShowDialog() != true || dlg.SelectedChoice == null) return;
+            if (dlg.SelectedChoice.Source != null)
+            {
+                NewRecipeFrom(dlg.SelectedChoice.Source);
+            }
+            else
+            {
+                NewRecipe(dlg.SelectedChoice.Template);
+            }
+        }
+
+        /// <summary>
+        /// The entries of the New recipe window: the templates, then every recipe to start from a copy of
+        /// </summary>
+        public IList<NewRecipeChoice> GetNewRecipeChoices()
+        {
+            var language = Texts.Get<IRecipeEditorLanguage>();
+            var choices = new List<NewRecipeChoice>
+            {
+                new NewRecipeChoice(NewRecipeTemplate.Empty, language.TemplateEmptyName, language.TemplateEmptyDescription, language.NewRecipeGroupTemplates),
+                new NewRecipeChoice(NewRecipeTemplate.HotkeyOpensWindow, language.TemplateHotkeyWindowName, language.TemplateHotkeyWindowDescription, language.NewRecipeGroupTemplates),
+                new NewRecipeChoice(NewRecipeTemplate.CaptureRegionToFile, language.TemplateRegionToFileName, language.TemplateRegionToFileDescription, language.NewRecipeGroupTemplates)
+            };
+            choices.AddRange(AvailableRecipes.Where(r => r != null)
+                .OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+                .Select(r => new NewRecipeChoice(r, language.NewRecipeGroupCopy)));
+            return choices;
+        }
+
+        private static string NewRecipeId() => $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+
+        /// <summary>
+        /// A Hotkey trigger without a key: the recipe does nothing on its own until one is recorded
+        /// </summary>
+        private static TriggerConfig CreateHotkeyTriggerWithoutKey() =>
+            TriggerConfig.CreateHotkey(NoHotkey, string.Format(Texts.Get<IRecipeEditorLanguage>().TriggerDefaultName, TriggerConfig.TypeHotkey));
+
+        /// <summary>
+        /// The value of a Hotkey trigger without a key
+        /// </summary>
+        private const string NoHotkey = "None";
+
+        /// <summary>
+        /// An empty recipe, for the recipe manager and Ctrl+N callers which don't ask
+        /// </summary>
+        public void NewRecipe() => NewRecipe(NewRecipeTemplate.Empty);
+
+        /// <summary>
+        /// Opens a new recipe made from a template
+        /// </summary>
+        public void NewRecipe(NewRecipeTemplate template)
         {
             if (!ConfirmDiscardChanges()) return;
-            var recipe = new CaptureRecipe(
-                $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}",
-                Texts.Get<IRecipeEditorLanguage>().NewRecipeName,
-                Texts.Get<IRecipeEditorLanguage>().NewRecipeDescription)
-                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
-                .AddNode(RecipeStepConfig.CreateSelection("select"))
-                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
-                .AddNode(RecipeStepConfig.CreateDestinations("export"));
+            var language = Texts.Get<IRecipeEditorLanguage>();
+            CaptureRecipe recipe;
+            switch (template)
+            {
+                case NewRecipeTemplate.HotkeyOpensWindow:
+                    recipe = new CaptureRecipe(NewRecipeId(), language.TemplateHotkeyWindowName, language.TemplateHotkeyWindowDescription)
+                        .AddNode(new RecipeNodeConfig("open_window", WellKnownStepTypes.OpenWindow, WellKnownStepTypes.OpenWindow).Set("Window", "Settings"));
+                    recipe.Flow = new RecipeFlowConfig("open_window");
+                    recipe.ShowInContextMenu = false;
+                    recipe.Triggers.Add(CreateHotkeyTriggerWithoutKey());
+                    break;
+                case NewRecipeTemplate.CaptureRegionToFile:
+                    recipe = new CaptureRecipe(NewRecipeId(), language.TemplateRegionToFileName, language.TemplateRegionToFileDescription)
+                        .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                        .AddNode(RecipeStepConfig.CreateSelection("select"))
+                        .AddNode(RecipeStepConfig.CreateSaveFile("save_file"));
+                    recipe.Flow = new RecipeFlowConfig("acquire")
+                        .AddTransition("acquire", "select")
+                        .AddTransition("select", "save_file");
+                    recipe.Triggers.Add(CreateHotkeyTriggerWithoutKey());
+                    break;
+                default:
+                    recipe = new CaptureRecipe(NewRecipeId(), language.NewRecipeName, language.NewRecipeDescription)
+                    {
+                        Flow = new RecipeFlowConfig()
+                    };
+                    break;
+            }
+            OpenNewRecipe(recipe);
+        }
 
-            recipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "select")
-                .AddTransition("select", "feedback")
-                .AddTransition("feedback", "export");
-            // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
-            RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
+        /// <summary>
+        /// Opens a new recipe which is a copy of the recipe: its own id and name, and its hotkeys removed so they don't clash
+        /// </summary>
+        public void NewRecipeFrom(CaptureRecipe source)
+        {
+            if (source == null || !ConfirmDiscardChanges()) return;
+            var copy = source.Clone();
+            copy.Id = NewRecipeId();
+            copy.Name = string.Format(Texts.Get<IRecipeEditorLanguage>().NewRecipeCopyName, source.DisplayName);
+            copy.IsBuiltIn = false;
+            copy.IsOverridden = false;
+            copy.IsEnabled = true;
+            copy.FilePath = null;
+            copy.ProposedBy = null;
+            // The translated names are those of the original
+            if (copy.Translations != null)
+            {
+                foreach (var texts in copy.Translations.Values.Where(t => t != null))
+                {
+                    texts.Remove(FlowDefinition.TranslationName);
+                }
+            }
+            foreach (var trigger in copy.Triggers.Where(t => string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase)))
+            {
+                trigger.SetParameter(TriggerConfig.HotkeyParameter, NoHotkey);
+            }
+            OpenNewRecipe(copy);
+        }
 
+        private void OpenNewRecipe(CaptureRecipe recipe)
+        {
             ErrorTransitions.Clear();
             _openedFromContent = null;
             ActiveRecipe = recipe;
@@ -1790,7 +1895,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 },
                 () =>
                 {
-                    NewRecipe();
+                    // Once the recipe manager is closed: the New recipe window opens over the editor
+                    _ = Application.Current?.Dispatcher.BeginInvoke(new Action(ChooseNewRecipe));
                 },
                 OpenExtension);
 
