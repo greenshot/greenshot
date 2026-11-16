@@ -1755,14 +1755,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         public void ChooseNewRecipe()
         {
-            var dlg = new NewRecipeWindow(GetNewRecipeChoices())
+            var dlg = new NewRecipeWindow(GetNewRecipeChoices(), GetRecipesToCopy())
             {
                 Owner = Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault()
             };
             if (dlg.ShowDialog() != true || dlg.SelectedChoice == null) return;
-            if (dlg.SelectedChoice.Source != null)
+            if (dlg.SelectedChoice.IsCopy)
             {
-                NewRecipeFrom(dlg.SelectedChoice.Source);
+                NewRecipeFrom(dlg.SelectedRecipe);
             }
             else
             {
@@ -1771,22 +1771,29 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         }
 
         /// <summary>
-        /// The entries of the New recipe window: the templates, then every recipe to start from a copy of
+        /// The entries of the New recipe window: the templates and, when there is a recipe, a copy of one
         /// </summary>
         public IList<NewRecipeChoice> GetNewRecipeChoices()
         {
             var language = Texts.Get<IRecipeEditorLanguage>();
             var choices = new List<NewRecipeChoice>
             {
-                new NewRecipeChoice(NewRecipeTemplate.Empty, language.TemplateEmptyName, language.TemplateEmptyDescription, language.NewRecipeGroupTemplates),
-                new NewRecipeChoice(NewRecipeTemplate.HotkeyOpensWindow, language.TemplateHotkeyWindowName, language.TemplateHotkeyWindowDescription, language.NewRecipeGroupTemplates),
-                new NewRecipeChoice(NewRecipeTemplate.CaptureRegionToFile, language.TemplateRegionToFileName, language.TemplateRegionToFileDescription, language.NewRecipeGroupTemplates)
+                new NewRecipeChoice(NewRecipeTemplate.Empty, language.TemplateEmptyName, language.TemplateEmptyDescription),
+                new NewRecipeChoice(NewRecipeTemplate.HotkeyOpensWindow, language.TemplateHotkeyWindowName, language.TemplateHotkeyWindowDescription),
+                new NewRecipeChoice(NewRecipeTemplate.CaptureRegionToFile, language.TemplateRegionToFileName, language.TemplateRegionToFileDescription)
             };
-            choices.AddRange(AvailableRecipes.Where(r => r != null)
-                .OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
-                .Select(r => new NewRecipeChoice(r, language.NewRecipeGroupCopy)));
+            if (AvailableRecipes.Any(r => r != null))
+            {
+                choices.Add(new NewRecipeChoice(NewRecipeTemplate.CopyOfRecipe, language.TemplateCopyName, language.TemplateCopyDescription));
+            }
             return choices;
         }
+
+        /// <summary>
+        /// The recipes a new one can be a copy of, by name
+        /// </summary>
+        public IList<CaptureRecipe> GetRecipesToCopy() =>
+            AvailableRecipes.Where(r => r != null).OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase).ToList();
 
         private static string NewRecipeId() => $"recipe_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
 
@@ -1807,7 +1814,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void NewRecipe() => NewRecipe(NewRecipeTemplate.Empty);
 
         /// <summary>
-        /// Opens a new recipe made from a template
+        /// Opens a new recipe made from a template; for <see cref="NewRecipeTemplate.CopyOfRecipe"/> use <see cref="NewRecipeFrom"/>
         /// </summary>
         public void NewRecipe(NewRecipeTemplate template)
         {

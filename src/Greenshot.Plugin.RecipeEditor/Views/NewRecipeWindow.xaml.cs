@@ -22,9 +22,9 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.ViewModels;
 
@@ -40,18 +40,26 @@ namespace Greenshot.Plugin.RecipeEditor.Views
         /// </summary>
         public NewRecipeChoice SelectedChoice { get; private set; }
 
-        public NewRecipeWindow(IList<NewRecipeChoice> choices)
+        /// <summary>
+        /// The recipe to copy, for <see cref="NewRecipeChoice.IsCopy"/>
+        /// </summary>
+        public CaptureRecipe SelectedRecipe { get; private set; }
+
+        public NewRecipeWindow(IList<NewRecipeChoice> choices, IList<CaptureRecipe> recipes)
         {
             InitializeComponent();
 
-            var view = new ListCollectionView(new List<NewRecipeChoice>(choices));
-            view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(NewRecipeChoice.Group)));
-            ChoiceListBox.ItemsSource = view;
+            ChoiceListBox.ItemsSource = choices;
+            RecipeToCopyComboBox.ItemsSource = recipes;
+            if (recipes.Count > 0)
+            {
+                RecipeToCopyComboBox.SelectedIndex = 0;
+            }
             if (choices.Count > 0)
             {
                 ChoiceListBox.SelectedIndex = 0;
             }
-            UpdateCreateButton();
+            UpdateState();
 
             // The title bar in the colors of the theme, it follows theme changes from now on
             SourceInitialized += (s, e) => WindowFrameTheme.Attach(this);
@@ -69,21 +77,30 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             }), DispatcherPriority.Input);
         }
 
-        private void UpdateCreateButton()
+        private void UpdateState()
         {
-            CreateButton.IsEnabled = ChoiceListBox.SelectedItem is NewRecipeChoice;
+            var choice = ChoiceListBox.SelectedItem as NewRecipeChoice;
+            bool isCopy = choice?.IsCopy == true;
+            RecipeToCopyComboBox.IsEnabled = isCopy;
+            CreateButton.IsEnabled = choice != null && (!isCopy || RecipeToCopyComboBox.SelectedItem is CaptureRecipe);
         }
 
         private void ChoiceListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            UpdateCreateButton();
+            UpdateState();
+        }
+
+        private void RecipeToCopyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateState();
         }
 
         private void Create()
         {
-            if (ChoiceListBox.SelectedItem is NewRecipeChoice choice)
+            if (ChoiceListBox.SelectedItem is NewRecipeChoice choice && (!choice.IsCopy || RecipeToCopyComboBox.SelectedItem is CaptureRecipe))
             {
                 SelectedChoice = choice;
+                SelectedRecipe = choice.IsCopy ? RecipeToCopyComboBox.SelectedItem as CaptureRecipe : null;
                 DialogResult = true;
             }
         }

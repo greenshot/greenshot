@@ -19,8 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Recipes;
-
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     /// <summary>
@@ -41,47 +39,35 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// <summary>
         /// A hotkey which captures a region and saves it to a file
         /// </summary>
-        CaptureRegionToFile
+        CaptureRegionToFile,
+
+        /// <summary>
+        /// A copy of an existing recipe, which is picked in the New recipe window
+        /// </summary>
+        CopyOfRecipe
     }
 
     /// <summary>
-    /// One entry of the New recipe window: a template, or an existing recipe to start from a copy of
+    /// One entry of the New recipe window
     /// </summary>
     public class NewRecipeChoice
     {
-        public NewRecipeChoice(NewRecipeTemplate template, string title, string description, string group)
+        public NewRecipeChoice(NewRecipeTemplate template, string title, string description)
         {
             Template = template;
             Title = title;
             Description = description;
-            Group = group;
         }
 
-        public NewRecipeChoice(CaptureRecipe source, string group)
-        {
-            Source = source;
-            Title = source.DisplayName;
-            Description = source.DisplayDescription;
-            Group = group;
-        }
-
-        /// <summary>
-        /// The template, when <see cref="Source"/> is null
-        /// </summary>
         public NewRecipeTemplate Template { get; }
-
-        /// <summary>
-        /// The recipe which is copied, null for a template
-        /// </summary>
-        public CaptureRecipe Source { get; }
 
         public string Title { get; }
 
         public string Description { get; }
 
         /// <summary>
-        /// The heading the entry is shown under
+        /// The entry needs a recipe to copy
         /// </summary>
-        public string Group { get; }
+        public bool IsCopy => Template == NewRecipeTemplate.CopyOfRecipe;
     }
 }

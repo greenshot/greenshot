@@ -434,14 +434,16 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void RecipeEditorViewModel_NewRecipeChoices_AreTheTemplatesThenTheRecipes()
+        public void RecipeEditorViewModel_NewRecipeChoices_AreTheTemplatesAndOneCopyEntry()
         {
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
             try
             {
+                // However many recipes there are: the recipe to copy is picked separately
                 var choices = editorVm.GetNewRecipeChoices();
-                Assert.Equal(3, choices.TakeWhile(c => c.Source == null).Count());
-                Assert.Equal(editorVm.AvailableRecipes.Count, choices.Count(c => c.Source != null));
+                Assert.Equal(editorVm.AvailableRecipes.Count > 0 ? 4 : 3, choices.Count);
+                Assert.True(choices.Count(c => c.IsCopy) <= 1);
+                Assert.Equal(editorVm.AvailableRecipes.Count, editorVm.GetRecipesToCopy().Count);
             }
             finally
             {

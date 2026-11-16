@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         Title="{wpf:Text RecipeEditor.NewRecipeTitle}"
-        Height="520" Width="520"
-        MinHeight="360" MinWidth="400"
+        Width="480" MinWidth="400"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
@@ -23,7 +24,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -39,19 +41,9 @@
                 <ListBox x:Name="ChoiceListBox" Background="Transparent" BorderThickness="0"
                          AutomationProperties.LabeledBy="{Binding ElementName=IntroTextBlock}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
                          SelectionChanged="ChoiceListBox_SelectionChanged"
                          MouseDoubleClick="ChoiceListBox_MouseDoubleClick">
-                    <ListBox.GroupStyle>
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}" Margin="6,8,6,4"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                        </GroupStyle>
-                    </ListBox.GroupStyle>
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="Padding" Value="8,6"/>
@@ -100,7 +92,16 @@
                 </ListBox>
             </Border>
 
-            <Border Grid.Row="3" Padding="16,10" BorderThickness="0,1,0,0"
+            <!-- The recipe to copy: only for "Copy of an existing recipe", so the window keeps its size however many recipes there are -->
+            <StackPanel Grid.Row="3" Margin="16,0,16,12">
+                <TextBlock x:Name="RecipeToCopyLabel" Text="{wpf:Text RecipeEditor.NewRecipeCopyLabel}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,4"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                <ComboBox x:Name="RecipeToCopyComboBox" DisplayMemberPath="DisplayName"
+                          AutomationProperties.LabeledBy="{Binding ElementName=RecipeToCopyLabel}"
+                          SelectionChanged="RecipeToCopyComboBox_SelectionChanged"/>
+            </StackPanel>
+
+            <Border Grid.Row="4" Padding="16,10" BorderThickness="0,1,0,0"
                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

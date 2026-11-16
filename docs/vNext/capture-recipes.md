@@ -675,7 +675,7 @@ Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cu
 | Empty recipe | none | none: the first step you add is the start step |
 | Hotkey opens a window | Hotkey | `OpenWindow` (Settings) |
 | Capture a region to a file | Hotkey | `Source` (Region) → `InteractiveSelection` → `SaveFile` |
-| Copy of an existing recipe | as the recipe | as the recipe |
+| Copy of an existing recipe (picked from a drop-down) | as the recipe | as the recipe |
 
 The Hotkey triggers have no key yet (`"None"`): the recipe does nothing on its own until you record one. A copy gets its
 own id and the name "Copy of …", and its Hotkey triggers lose their key so they don't clash with the original's. Copy a

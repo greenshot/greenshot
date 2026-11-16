@@ -4156,15 +4156,7 @@ namespace Greenshot.Plugin.RecipeEditor
         /// </summary>
         string NewRecipeBtnCreate { get; }
 
-        /// <summary>
-        /// Templates
-        /// </summary>
-        string NewRecipeGroupTemplates { get; }
 
-        /// <summary>
-        /// Copy of an existing recipe
-        /// </summary>
-        string NewRecipeGroupCopy { get; }
 
         /// <summary>
         /// Copy of {0}
@@ -4200,6 +4192,21 @@ namespace Greenshot.Plugin.RecipeEditor
         /// A hotkey captures a region and saves it as a file
         /// </summary>
         string TemplateRegionToFileDescription { get; }
+
+        /// <summary>
+        /// Copy of an existing recipe
+        /// </summary>
+        string TemplateCopyName { get; }
+
+        /// <summary>
+        /// Starts with the triggers and steps of a recipe you already have
+        /// </summary>
+        string TemplateCopyDescription { get; }
+
+        /// <summary>
+        /// Recipe to copy
+        /// </summary>
+        string NewRecipeCopyLabel { get; }
 
         /// <summary>
         /// Revert '{0}' to default built-in definition?
