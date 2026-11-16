@@ -93,9 +93,11 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
-  <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
+  <!-- HttpClient (NetworkHelper.HttpClient) and the Range and Required attributes of the configurations are part of the framework,
+       but not referenced by default (the System.ComponentModel.Annotations package only adds a facade for them, which nothing uses) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 
   <!-- Async & threading guardrails, see docs/vNext/async-threading-roadmap.md (section 3 and Phase 0).

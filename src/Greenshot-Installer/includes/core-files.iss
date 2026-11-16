@@ -33,7 +33,6 @@ Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Componen
 Source: {#ReleaseDir}\SixLabors.Fonts.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Buffers.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.CommandLine.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: {#ReleaseDir}\System.ComponentModel.Annotations.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.IO.Pipelines.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Memory.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\System.Numerics.Vectors.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
