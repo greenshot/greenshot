@@ -29,7 +29,7 @@ namespace Greenshot.Recipes.Steps
 {
     /// <summary>
     /// Waits with the countdown window (it never takes the focus, so an open menu or popup stays open), used by the Delay step
-    /// and by the Source step for a CaptureDelay of a second or more
+    /// and by the Source step for a wait (CaptureWait) of a second or more
     /// </summary>
     internal static class CaptureCountdown
     {

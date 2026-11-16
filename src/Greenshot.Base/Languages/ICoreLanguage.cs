@@ -1172,19 +1172,14 @@ namespace Greenshot.Base.Languages
         string QuicksettingsSoundAndNotifications { get; }
 
         /// <summary>
-        /// Wait before capturing
+        /// Wait {0} before capturing
         /// </summary>
-        string QuicksettingsCaptureCountdown { get; }
-
-        /// <summary>
-        /// Off
-        /// </summary>
-        string QuicksettingsCaptureCountdownOff { get; }
+        string QuicksettingsCaptureWait { get; }
 
         /// <summary>
         /// {0} ms
         /// </summary>
-        string QuicksettingsCaptureCountdownMilliseconds { get; }
+        string QuicksettingsCaptureWaitMilliseconds { get; }
 
         /// <summary>
         /// Save directly (using preferred file output settings)

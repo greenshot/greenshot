@@ -64,10 +64,8 @@ namespace Greenshot.Settings
 
             var general = new List<QuickSetting>();
             AddSwitch(general, conf, "CaptureMousepointer", Texts.Settings.CaptureMousepointer, () => conf.CaptureMousepointer, value => conf.CaptureMousepointer = value);
-            if (!conf.IsConstant("CaptureDelay"))
-            {
-                general.Add(CreateCountdown(conf));
-            }
+            AddSwitch(general, conf, nameof(ICoreConfiguration.CaptureWait), string.Format(Texts.Core.QuicksettingsCaptureWait, WaitLabel(conf.CaptureWaitMilliseconds)),
+                () => conf.CaptureWait, value => conf.CaptureWait = value);
             if (general.Count > 0)
             {
                 groups.Add(new QuickSettingGroup(null, general));
@@ -110,42 +108,13 @@ namespace Greenshot.Settings
         }
 
         /// <summary>
-        /// The wait before every capture, which is CaptureDelay: off (its default, the short wait for a menu to close) and the
-        /// usual delays in seconds, and the value of greenshot.ini when it is another one. A wait of a second or more shows a countdown.
+        /// The wait for the label: seconds when it is whole seconds, else milliseconds
         /// </summary>
-        private static QuickSetting CreateCountdown(ICoreConfiguration conf)
+        internal static string WaitLabel(int milliseconds)
         {
-            var milliseconds = new List<int> { CaptureDelayOff, 1000, 3000, 5000, 10000 };
-            if (!milliseconds.Contains(conf.CaptureDelay))
-            {
-                milliseconds.Add(conf.CaptureDelay);
-                milliseconds.Sort();
-            }
-            var choices = milliseconds
-                .Select(value => new QuickSettingChoice(CaptureDelayLabel(value),
-                    () => conf.CaptureDelay == value,
-                    () => conf.CaptureDelay = value))
-                .ToList();
-            return QuickSetting.Choice(Texts.Core.QuicksettingsCaptureCountdown, choices);
-        }
-
-        /// <summary>
-        /// The default of CaptureDelay: only the time a menu needs to close
-        /// </summary>
-        internal const int CaptureDelayOff = 100;
-
-        /// <summary>
-        /// Off for the default, seconds when the wait is whole seconds, else milliseconds
-        /// </summary>
-        internal static string CaptureDelayLabel(int milliseconds)
-        {
-            if (milliseconds == CaptureDelayOff)
-            {
-                return Texts.Core.QuicksettingsCaptureCountdownOff;
-            }
             return milliseconds > 0 && milliseconds % 1000 == 0
                 ? string.Format(Texts.Recipe.DelayChoiceSeconds, milliseconds / 1000)
-                : string.Format(Texts.Core.QuicksettingsCaptureCountdownMilliseconds, milliseconds);
+                : string.Format(Texts.Core.QuicksettingsCaptureWaitMilliseconds, milliseconds);
         }
 
         private static void AddSwitch(List<QuickSetting> settings, IIniSection section, string propertyName, string label, Func<bool> isOn, Action<bool> setOn)

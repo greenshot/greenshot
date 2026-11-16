@@ -1034,6 +1034,16 @@ namespace Greenshot.Base.Languages
         string Waittime { get; }
 
         /// <summary>
+        /// Wait before every capture of the screen (to open a menu or popup first)
+        /// </summary>
+        string CaptureWait { get; }
+
+        /// <summary>
+        /// Show a countdown during the wait
+        /// </summary>
+        string CaptureWaitCountdown { get; }
+
+        /// <summary>
         /// Fixed capture sizes
         /// </summary>
         string FixedCaptureSizes { get; }

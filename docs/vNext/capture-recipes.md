@@ -238,14 +238,23 @@ nothing is shown or asked: it waits `Seconds`, so a recipe with `AskUser` never 
 countdown stops the recipe, like Esc in the capture window. The countdown can't get the keyboard focus (that would close
 the menu you want to capture); without a mouse let it run out and press Esc in the capture window.
 
-The `CaptureDelay` setting and the `DelayMs` of the `Source` step are still applied after the `Delay` step.
+The wait of the `Source` step (below, or its `DelayMs`) is still applied after the `Delay` step.
 
-**For every capture.** No recipe step is needed to wait before every capture: that is the `CaptureDelay` setting
-(*Milliseconds to wait before capture* in the settings, default 100 ms, the time a menu needs to close). The quick
-settings set it with *Wait before capturing*: off (100 ms), 1, 3, 5 or 10 seconds; the settings and `greenshot.ini`
-keep the millisecond precision. When the wait of the `Source` step (from `CaptureDelay` or its `DelayMs`) is a second
-or more, it shows the same countdown as the `Delay` step, with *Cancel*; started unattended it waits without one.
-Clipboard and Open file don't wait, they don't capture the screen.
+**For every capture.** No recipe step is needed to wait before every capture. By default Greenshot doesn't wait at
+all, so a hotkey captures at once. When the capture is started from the tray menu, the menu first waits until it is
+gone from the screen (that is not a setting). To wait before every capture of the screen (region, window, active
+window, full screen, last region, OCR), whatever started it:
+
+| Setting (`[Core]`) | Default | |
+|---|---|---|
+| `CaptureWait` | `false` | Wait before every capture of the screen. The quick settings switch it on and off with *Wait … before capturing* |
+| `CaptureWaitMilliseconds` | `3000` | How long, 0 to 600000; *Milliseconds to wait before capture* in the settings |
+| `CaptureWaitCountdown` | `true` | Show the countdown (with *Cancel*) during a wait of a second or more |
+
+Started unattended (command line, schedule) it waits without the countdown. Clipboard, Open file and the current
+editor don't wait, they don't capture the screen. The `DelayMs` of a `Source` step replaces the setting for that step.
+`CaptureDelay` of earlier versions is gone: a value other than its old default of 100 ms is moved once into
+`CaptureWait` and `CaptureWaitMilliseconds`.
 
 [`examples/region_after_delay.gsrecipe.json`](examples/region_after_delay.gsrecipe.json) asks how long to wait, counts
 down and then lets you select the region; it is in the Recipes menu of the tray menu. The part which matters:
