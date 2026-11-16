@@ -480,7 +480,8 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// CaptureDelay (milliseconds before every capture, default 100) is replaced by CaptureWait and CaptureWaitMilliseconds.
-        /// A value other than the old default was chosen by the user: it is moved once, with the countdown for a second or more.
+        /// A value other than the old default was chosen by the user: it is moved once. CaptureWaitCountdown stays as it is: a wait
+        /// shorter than a second never shows the countdown, and a longer one chosen later should.
         /// </summary>
         private void MoveCaptureDelay()
         {
@@ -506,10 +507,6 @@ namespace Greenshot.Base.Core
             {
                 CaptureWait = true;
                 CaptureWaitMilliseconds = Clamp(delay, 0, 600000);
-                if (!IsConstant(nameof(CaptureWaitCountdown)))
-                {
-                    CaptureWaitCountdown = delay >= 1000;
-                }
                 Log.InfoFormat("Moved {0}={1} to {2} and {3}.", oldKey, delay, nameof(CaptureWait), nameof(CaptureWaitMilliseconds));
             }
 

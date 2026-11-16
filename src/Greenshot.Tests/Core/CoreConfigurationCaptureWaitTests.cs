@@ -65,9 +65,9 @@ namespace Greenshot.Tests.Core
         }
 
         [Theory]
-        [InlineData("5000", 5000, true)]
-        [InlineData("250", 250, false)]
-        public void ChosenDelay_IsMovedOnce(string captureDelay, int expectedMilliseconds, bool expectedCountdown)
+        [InlineData("5000", 5000)]
+        [InlineData("250", 250)]
+        public void ChosenDelay_IsMovedOnce(string captureDelay, int expectedMilliseconds)
         {
             var config = new CoreConfigurationImpl();
             config.ResetToDefaults();
@@ -77,7 +77,8 @@ namespace Greenshot.Tests.Core
 
             Assert.True(config.CaptureWait);
             Assert.Equal(expectedMilliseconds, config.CaptureWaitMilliseconds);
-            Assert.Equal(expectedCountdown, config.CaptureWaitCountdown);
+            // The countdown keeps its default: a short wait doesn't show it anyway, a longer one chosen later should
+            Assert.True(config.CaptureWaitCountdown);
 
             // Moved only once: switching it off stays off
             config.CaptureWait = false;
