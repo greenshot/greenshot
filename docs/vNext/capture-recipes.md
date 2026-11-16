@@ -247,8 +247,8 @@ window, full screen, last region, OCR), whatever started it:
 
 | Setting (`[Core]`) | Default | |
 |---|---|---|
-| `CaptureWait` | `false` | Wait before every capture of the screen. The quick settings switch it on and off with *Wait … before capturing* |
-| `CaptureWaitMilliseconds` | `3000` | How long, 0 to 600000; *Milliseconds to wait before capture* in the settings |
+| `CaptureWait` | `false` | Wait before every capture of the screen. The quick settings switch it on and off with *Wait before capturing* |
+| `CaptureWaitMilliseconds` | `3000` | How long, 0 to 600000; *Milliseconds to wait before capture* in the settings, *Wait time* (1, 3, 5, 10 or 30 s) in the quick settings, which also switches the wait on |
 | `CaptureWaitCountdown` | `true` | Show the countdown (with *Cancel*) during a wait of a second or more |
 
 Started unattended (command line, schedule) it waits without the countdown. Clipboard, Open file and the current

@@ -64,8 +64,12 @@ namespace Greenshot.Settings
 
             var general = new List<QuickSetting>();
             AddSwitch(general, conf, "CaptureMousepointer", Texts.Settings.CaptureMousepointer, () => conf.CaptureMousepointer, value => conf.CaptureMousepointer = value);
-            AddSwitch(general, conf, nameof(ICoreConfiguration.CaptureWait), string.Format(Texts.Core.QuicksettingsCaptureWait, WaitLabel(conf.CaptureWaitMilliseconds)),
+            AddSwitch(general, conf, nameof(ICoreConfiguration.CaptureWait), Texts.Core.QuicksettingsCaptureWait,
                 () => conf.CaptureWait, value => conf.CaptureWait = value);
+            if (!conf.IsConstant(nameof(ICoreConfiguration.CaptureWaitMilliseconds)))
+            {
+                general.Add(CreateWaitTime(conf));
+            }
             if (general.Count > 0)
             {
                 groups.Add(new QuickSettingGroup(null, general));
@@ -105,6 +109,32 @@ namespace Greenshot.Settings
             }
 
             return groups;
+        }
+
+        /// <summary>
+        /// The usual wait times, and the one of the settings when it is another one; choosing one also switches the wait on
+        /// </summary>
+        private static QuickSetting CreateWaitTime(ICoreConfiguration conf)
+        {
+            var milliseconds = new List<int> { 1000, 3000, 5000, 10000, 30000 };
+            if (!milliseconds.Contains(conf.CaptureWaitMilliseconds))
+            {
+                milliseconds.Add(conf.CaptureWaitMilliseconds);
+                milliseconds.Sort();
+            }
+            var choices = milliseconds
+                .Select(value => new QuickSettingChoice(WaitLabel(value),
+                    () => conf.CaptureWaitMilliseconds == value,
+                    () =>
+                    {
+                        conf.CaptureWaitMilliseconds = value;
+                        if (!conf.IsConstant(nameof(ICoreConfiguration.CaptureWait)))
+                        {
+                            conf.CaptureWait = true;
+                        }
+                    }))
+                .ToList();
+            return QuickSetting.Choice(Texts.Core.QuicksettingsCaptureWaitTime, choices);
         }
 
         /// <summary>
