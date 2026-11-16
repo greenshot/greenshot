@@ -133,6 +133,13 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
             await DragAsync(window, new PointD(40, 40), new PointD(300, 120));
             Assert.NotNull(tab.EditingText);
             window.KeyTextInput("Hello");
+            // Space also drags the view. Windows gives no text for a key down which was handled, so while typing nobody may handle it
+            bool? spaceHandled = null;
+            window.AddHandler(InputElement.KeyDownEvent, (_, e) => spaceHandled = e.Handled, Avalonia.Interactivity.RoutingStrategies.Bubble, true);
+            window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+            window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+            Assert.False(spaceHandled);
+            window.KeyTextInput(" you");
             await EditorUi.DrawnAsync(window);
             using (EditorUi.Capture(window, "text-editing"))
             {
@@ -143,7 +150,7 @@ namespace Greenshot.Editor.Standalone.Tests.Ui
             await EditorUi.DrawnAsync(window);
             Assert.Null(tab.EditingText);
             var text = Assert.IsType<TextElement>(Assert.Single(tab.Document.Layers[1].Elements));
-            Assert.Equal("Hello", text.Text);
+            Assert.Equal("Hello you", text.Text);
             using (EditorUi.Capture(window, "text"))
             {
             }

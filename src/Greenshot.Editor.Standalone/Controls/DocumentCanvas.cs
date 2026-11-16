@@ -565,7 +565,8 @@ namespace Greenshot.Editor.Standalone.Controls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Key == Key.Space && !_toolDragging)
+            // A handled key down gives no text input, so Space typed in the text box must pass.
+            if (e.Key == Key.Space && !_toolDragging && !_textBox.IsKeyboardFocusWithin)
             {
                 if (!_spaceDown)
                 {
@@ -580,7 +581,7 @@ namespace Greenshot.Editor.Standalone.Controls
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if (e.Key == Key.Space)
+            if (e.Key == Key.Space && !_textBox.IsKeyboardFocusWithin)
             {
                 _spaceDown = false;
                 UpdateCursor();
