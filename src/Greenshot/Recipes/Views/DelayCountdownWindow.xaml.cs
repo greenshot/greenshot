@@ -41,6 +41,8 @@ namespace Greenshot.Recipes.Views
         /// </summary>
         private const double EdgeDistance = 16;
 
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DelayCountdownWindow));
+
         private readonly DelayCountdownViewModel _viewModel;
 
         /// <param name="seconds">The seconds of the countdown</param>
@@ -82,6 +84,7 @@ namespace Greenshot.Recipes.Views
             int y = workArea.Bottom - height - (int)(EdgeDistance * dpi.DpiScaleY);
             User32Api.SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, x, y, 0, 0,
                 WindowPos.SWP_NOSIZE | WindowPos.SWP_NOZORDER | WindowPos.SWP_NOACTIVATE);
+            Log.Debug($"Countdown shown at {x},{y} ({width}x{height}) in the work area {workArea}.");
             _viewModel.Announce();
         }
     }

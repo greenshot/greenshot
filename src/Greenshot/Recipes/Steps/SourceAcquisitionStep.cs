@@ -606,8 +606,11 @@ namespace Greenshot.Recipes.Steps
 
             context.LogStep($"Waiting pre-capture delay: {delay}ms");
             var wait = TimeSpan.FromMilliseconds(delay);
+            bool interactive = context.UserInteraction?.IsInteractive == true;
             // A second or more is time to open a menu or popup: with a countdown, which doesn't take the focus
-            if (showCountdown && wait >= CaptureCountdown.ShownFrom && context.UserInteraction?.IsInteractive == true)
+            bool countdown = showCountdown && wait >= CaptureCountdown.ShownFrom && interactive;
+            Log.Info($"Waiting {delay} ms before the capture, countdown: {countdown} (setting {showCountdown}, interactive {interactive}).");
+            if (countdown)
             {
                 if (!await CaptureCountdown.WaitAsync(context, wait, ct).ConfigureAwait(false))
                 {
