@@ -264,7 +264,7 @@ namespace Greenshot.Settings.Views
                 current = LogicalTreeHelper.GetParent(current) ?? (current is Visual ? VisualTreeHelper.GetParent(current) : null);
             }
             // The tab content is laid out after the selection, focus then
-            Dispatcher.BeginInvoke(new Action(() =>
+            _ = Dispatcher.BeginInvoke(new Action(() =>
             {
                 input.BringIntoView();
                 input.Focus();
