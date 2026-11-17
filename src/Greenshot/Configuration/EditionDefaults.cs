@@ -29,8 +29,8 @@ namespace Greenshot.Configuration
     /// <summary>
     /// The defaults of an edition which differ from the compiled ones, registered as a value source of the Default layer:
     /// they replace the compiled defaults and the values of greenshot-defaults.ini, but every value the user set wins.
-    /// Greenshot Light starts with the Balanced memory profile, it is the small tray tool and shouldn't keep a DirectX device
-    /// and the prepared editor ready.
+    /// Greenshot Light starts with the LowMemory memory profile: it is the small tray tool, so no DirectX device or prepared editor
+    /// is kept ready and WPF renders in software. The user can turn the profile up in the settings.
     /// </summary>
     public sealed class EditionDefaults : IValueSource
     {

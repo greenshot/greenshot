@@ -32,18 +32,21 @@ namespace Greenshot.Tests.Core
             TestEnvironment.EnsureInitialized();
         }
 
-        [Fact]
-        public void IniValues_OfAProfile_AreReadBackAsThatProfile()
+        [Theory]
+        [InlineData(MemoryProfile.Fast)]
+        [InlineData(MemoryProfile.Balanced)]
+        [InlineData(MemoryProfile.LowMemory)]
+        public void IniValues_OfAProfile_AreReadBackAsThatProfile(MemoryProfile profile)
         {
-            // The values the edition defaults give Dapplo.Ini must parse to the profile, e.g. Greenshot Light's Balanced
+            // The values the edition defaults give Dapplo.Ini must parse to the profile, e.g. Greenshot Light's LowMemory
             var configuration = new CoreConfigurationImpl();
             configuration.ResetToDefaults();
-            foreach (var value in MemoryProfiles.IniValuesOf(MemoryProfile.Balanced))
+            foreach (var value in MemoryProfiles.IniValuesOf(profile))
             {
                 configuration.SetRawValue(value.Key, value.Value);
             }
 
-            Assert.Equal(MemoryProfile.Balanced, MemoryProfiles.Detect(configuration));
+            Assert.Equal(profile, MemoryProfiles.Detect(configuration));
         }
 
         [Fact]

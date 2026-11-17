@@ -182,8 +182,8 @@ public class GreenshotMain
                .AddListener(new IniListener());
 
 #if GREENSHOT_LIGHT
-        // Greenshot Light, the small tray tool, starts with the Balanced memory profile: below every value the user set
-        builder.AddValueSource(new EditionDefaults(MemoryProfile.Balanced), ValueSourceLayer.Default);
+        // Greenshot Light, the small tray tool, starts with the LowMemory profile: below every value the user set, who can turn it up in the settings
+        builder.AddValueSource(new EditionDefaults(MemoryProfile.LowMemory), ValueSourceLayer.Default);
 #else
         // Windows policies (Group Policy, Intune): HKLM/HKCU\SOFTWARE\Policies\Greenshot\Greenshot\<Section>\<Key> is mandatory (wins over
         // greenshot-fixed.ini), ...\Recommended\<Section>\<Key> a default the user can change. Changes are picked up while Greenshot runs.
