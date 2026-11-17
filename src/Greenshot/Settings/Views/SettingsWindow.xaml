@@ -485,8 +485,9 @@
                                                VerticalAlignment="Center"
                                                ToolTip="{wpf:Text Settings.TooltipOcrEngine}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <!-- Both boxes as wide as each other, whatever the entries -->
                                     <ComboBox Grid.Column="1"
-                                              MinWidth="200"
+                                              Width="280"
                                               ItemsSource="{Binding OcrEngines}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Id"
@@ -507,11 +508,10 @@
                                                ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                     <ComboBox Grid.Column="1"
-                                              MinWidth="200"
+                                              Width="280"
                                               ItemsSource="{Binding OcrLanguages}"
                                               DisplayMemberPath="DisplayName"
-                                              SelectedValuePath="LanguageTag"
-                                              SelectedValue="{Binding SelectedOcrLanguage, Mode=TwoWay}"
+                                              SelectedItem="{Binding SelectedOcrLanguageItem, Mode=TwoWay}"
                                               AutomationProperties.LabeledBy="{Binding ElementName=OcrLanguageLabel}"
                                               ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"/>
                                 </Grid>

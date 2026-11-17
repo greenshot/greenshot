@@ -487,11 +487,6 @@ namespace Greenshot.Base.Languages
         string ExpertEnableexpert { get; }
 
         /// <summary>
-        /// Enable recipes
-        /// </summary>
-        string ExpertEnablerecipes { get; }
-
-        /// <summary>
         /// Printer footer pattern
         /// </summary>
         string ExpertFooterpattern { get; }

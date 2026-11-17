@@ -271,7 +271,7 @@ the mode starts. Then every line of text it found gets a thin frame.
 
 The words in the selection are copied to the clipboard as text; the capture doesn't go to your destinations. This is a visible step
 of the built-in region and window capture recipes (the branch *Text or image* after the selection), so a recipe of your own can do
-something else with the text. With recipes turned on (*Enable recipes*, in the settings of the recipe editor plugin), the built-in recipe *OCR text to clipboard* starts the capture
+something else with the text. With the recipe editor plugin switched on (Settings, Plugins tab), the built-in recipe *OCR text to clipboard* starts the capture
 in this mode and copies only the text; give it a hotkey or a menu entry to use it (see [capture-recipes.md](capture-recipes.md)).
 
 The text recognition needs a language installed in Windows (Time and language, Language and region). Which language Greenshot reads

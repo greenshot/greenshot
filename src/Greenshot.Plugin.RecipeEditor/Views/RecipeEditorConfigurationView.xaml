@@ -12,11 +12,10 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Margin="8">
-        <CheckBox IsChecked="{Binding Enabled}"
-                  Content="{wpf:Text Settings.ExpertEnablerecipes}"/>
-
-        <Label Content="{wpf:Text RecipeEditor.ConfigRecipeFiles}" Margin="0,8,0,2" Target="{Binding ElementName=RecipeFilesTextBox}"/>
-        <TextBox x:Name="RecipeFilesTextBox" Text="{Binding RecipeFiles, UpdateSourceTrigger=PropertyChanged}"/>
+    <!-- The recipe files and the switch of the recipe feature stay in greenshot.ini: Greenshot keeps the file list itself
+         (opening or importing a file adds it, deleting the recipe removes it), switching the plugin off switches recipes off -->
+    <StackPanel Margin="8" Orientation="Horizontal" VerticalAlignment="Top">
+        <Button Content="{wpf:Text Core.ContextmenuRecipeeditor}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="OpenEditor_Click"/>
+        <Button Content="{wpf:Text Core.ContextmenuManagerecipes}" Style="{StaticResource SecondaryButtonStyle}" Click="OpenManager_Click"/>
     </StackPanel>
 </UserControl>
