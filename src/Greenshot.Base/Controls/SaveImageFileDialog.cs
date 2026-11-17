@@ -26,20 +26,23 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
-using Microsoft.Win32;
+using Dapplo.Windows.Dialogs;
 using Greenshot.Base.Expressions;
 
 namespace Greenshot.Base.Controls
 {
     /// <summary>
     /// The save dialog for images: the file types Greenshot can write, the configured format preselected,
-    /// and the file name and folder suggested by the filename pattern, or the suggested file (e.g. of a recipe step). Wraps the Windows save dialog (Microsoft.Win32).
+    /// and the file name and folder suggested by the filename pattern, or the suggested file (e.g. of a recipe step). Shows the Windows save dialog of Dapplo.Windows.Dialogs.
     /// </summary>
     public sealed class SaveImageFileDialog
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
         private static ICoreConfiguration conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
-        private readonly SaveFileDialog _saveFileDialog = new SaveFileDialog();
+        private string _fileName;
+        private string _initialDirectory;
+        // The 0-based index of the selected file type in _filterOptions
+        private int _filterIndex;
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;
         private readonly ICaptureDetails _captureDetails;
@@ -73,22 +76,18 @@ namespace Greenshot.Base.Controls
 
             if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
             {
-                _saveFileDialog.InitialDirectory = initialDirectory;
+                _initialDirectory = initialDirectory;
             }
             else
             {
                 string outputDirectory = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.ForCapture(_captureDetails), out _);
                 if (Directory.Exists(outputDirectory))
                 {
-                    _saveFileDialog.InitialDirectory = outputDirectory;
+                    _initialDirectory = outputDirectory;
                 }
             }
 
-            // The following property fixes a problem that the directory where we save is locked (bug #2899790)
-            _saveFileDialog.RestoreDirectory = true;
-            _saveFileDialog.OverwritePrompt = true;
-            _saveFileDialog.CheckPathExists = false;
-            _saveFileDialog.AddExtension = true;
+            // The dialog doesn't change the current directory, which locked the folder where we save (bug #2899790), and asks before it overwrites a file
             if (string.IsNullOrWhiteSpace(_suggestedPath))
             {
                 ApplySuggestedValues();
@@ -121,7 +120,7 @@ namespace Greenshot.Base.Controls
 
             if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
             {
-                _saveFileDialog.InitialDirectory = directory;
+                _initialDirectory = directory;
             }
 
             FileName = fileName;
@@ -136,18 +135,15 @@ namespace Greenshot.Base.Controls
             PrepareFilterOptions();
             if (_filterOptions.Length == 0)
             {
-                _saveFileDialog.Filter = "All files|*.*";
-                _saveFileDialog.FilterIndex = 1;
+                _filterIndex = 0;
                 return;
             }
 
-            string fdf = string.Empty;
             int preselect = 0;
             int pngFilterIndex = -1;
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 FilterOption fo = _filterOptions[i];
-                fdf += fo.Label + "|" + string.Join(";", fo.Extensions.Select(extension => "*." + extension)) + "|";
                 if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Png, fo.FormatId))
                 {
                     pngFilterIndex = i;
@@ -164,9 +160,7 @@ namespace Greenshot.Base.Controls
                 preselect = pngFilterIndex;
             }
 
-            fdf = fdf.Substring(0, fdf.Length - 1);
-            _saveFileDialog.Filter = fdf;
-            _saveFileDialog.FilterIndex = preselect + 1;
+            _filterIndex = preselect;
         }
 
         private void PrepareFilterOptions()
@@ -194,8 +188,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string FileName
         {
-            get { return _saveFileDialog.FileName; }
-            set { _saveFileDialog.FileName = value; }
+            get { return _fileName; }
+            set { _fileName = value; }
         }
 
         /// <summary>
@@ -203,8 +197,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string InitialDirectory
         {
-            get { return _saveFileDialog.InitialDirectory; }
-            set { _saveFileDialog.InitialDirectory = value; }
+            get { return _initialDirectory; }
+            set { _initialDirectory = value; }
         }
 
         /// <summary>
@@ -216,12 +210,12 @@ namespace Greenshot.Base.Controls
         {
             get
             {
-                string fn = _saveFileDialog.FileName;
+                string fn = _fileName;
                 if (_filterOptions.Length == 0) return fn;
                 // if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
-                if (_filterOptions[_saveFileDialog.FilterIndex - 1].Extensions.Any(extension => fn.EndsWith("." + extension, StringComparison.OrdinalIgnoreCase))) return fn;
+                if (_filterOptions[_filterIndex].Extensions.Any(extension => fn.EndsWith("." + extension, StringComparison.OrdinalIgnoreCase))) return fn;
                 // otherwise we just add the selected filter item's extension
-                return fn + "." + _filterOptions[_saveFileDialog.FilterIndex - 1].PreferredExtension;
+                return fn + "." + _filterOptions[_filterIndex].PreferredExtension;
             }
             set
             {
@@ -235,7 +229,7 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string Extension
         {
-            get { return _filterOptions.Length == 0 ? null : _filterOptions[_saveFileDialog.FilterIndex - 1].PreferredExtension; }
+            get { return _filterOptions.Length == 0 ? null : _filterOptions[_filterIndex].PreferredExtension; }
             set
             {
                 string normalized = value?.Trim().TrimStart('.');
@@ -243,7 +237,7 @@ namespace Greenshot.Base.Controls
                 {
                     if (_filterOptions[i].Extensions.Any(extension => string.Equals(normalized, extension, StringComparison.OrdinalIgnoreCase)))
                     {
-                        _saveFileDialog.FilterIndex = i + 1;
+                        _filterIndex = i;
                     }
                 }
             }
@@ -254,9 +248,47 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public bool ShowDialog()
         {
-            bool chosen = _saveFileDialog.ShowDialog() == true;
-            CleanUp();
-            return chosen;
+            var builder = new FileSaveDialogBuilder()
+                .WithInitialDirectory(_initialDirectory)
+                .WithSuggestedFileName(_fileName);
+            if (_filterOptions.Length == 0)
+            {
+                builder.AddFilter("All files", "*.*");
+            }
+            else
+            {
+                foreach (var filterOption in _filterOptions)
+                {
+                    builder.AddFilter(filterOption.Label, string.Join(";", filterOption.Extensions.Select(extension => "*." + extension)));
+                }
+
+                // The dialog adds the extension of the chosen file type to a name without one
+                builder.WithSelectedFilter(_filterIndex).WithDefaultExtension(_filterOptions[_filterIndex].PreferredExtension);
+            }
+
+            FileDialogResult result;
+            try
+            {
+                result = builder.ShowDialog();
+            }
+            finally
+            {
+                CleanUp();
+            }
+
+            if (result.WasCancelled)
+            {
+                return false;
+            }
+
+            _fileName = result.SelectedPath;
+            if (_filterOptions.Length > 0 && result.SelectedFilterIndex >= 0 && result.SelectedFilterIndex < _filterOptions.Length)
+            {
+                // The file type the user chose
+                _filterIndex = result.SelectedFilterIndex;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -265,7 +297,7 @@ namespace Greenshot.Base.Controls
         private void ApplySuggestedValues()
         {
             string outputDirectory = OutputTemplates.RenderFolder(conf.OutputDirectory, VariableScope.ForCapture(_captureDetails), out _);
-            string baseDir = !string.IsNullOrEmpty(outputDirectory) ? outputDirectory : _saveFileDialog.InitialDirectory;
+            string baseDir = !string.IsNullOrEmpty(outputDirectory) ? outputDirectory : _initialDirectory;
             // A suggestion: the counters show their next number and stay
             string expanded = OutputTemplates.PreviewFileName(_captureDetails, baseDir);
             if (!string.IsNullOrEmpty(baseDir) && expanded.StartsWith(baseDir, StringComparison.OrdinalIgnoreCase))
@@ -298,7 +330,7 @@ namespace Greenshot.Base.Controls
 
                 if (fullDir != null)
                 {
-                    _saveFileDialog.InitialDirectory = fullDir;
+                    _initialDirectory = fullDir;
                 }
             }
 

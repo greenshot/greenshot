@@ -31,7 +31,7 @@ namespace Greenshot.Base.Controls
     /// <summary>
     /// The open, save and folder dialogs of Greenshot: the Windows Common Item Dialog of Dapplo.Windows.Dialogs (long paths, no WinForms or WPF dialog).
     /// The file types are given as filter text like "Recipes (*.gsrecipe.json)|*.gsrecipe.json|All files (*.*)|*.*", as the language packs have them.
-    /// Show them on the UI thread (STA).
+    /// Without an owner the active window of the thread owns the dialog. Show them on the UI thread (STA).
     /// </summary>
     public static class FileDialogs
     {
@@ -45,7 +45,7 @@ namespace Greenshot.Base.Controls
         /// <returns>the path, null when the user cancelled</returns>
         public static string PickFileToOpen(IntPtr owner, string filter, string title = null, string initialDirectory = null)
         {
-            var result = OpenBuilder(filter, title, initialDirectory).ShowDialog(OwnerOrActive(owner));
+            var result = OpenBuilder(filter, title, initialDirectory).ShowDialog(owner);
             return result.WasCancelled ? null : result.SelectedPath;
         }
 
@@ -64,7 +64,7 @@ namespace Greenshot.Base.Controls
         /// <returns>the paths, empty when the user cancelled</returns>
         public static IReadOnlyList<string> PickFilesToOpen(Window owner, string filter, string title = null, string initialDirectory = null)
         {
-            var result = OpenBuilder(filter, title, initialDirectory).AllowMultipleSelection().ShowDialog(OwnerOrActive(HandleOf(owner)));
+            var result = OpenBuilder(filter, title, initialDirectory).AllowMultipleSelection().ShowDialog(HandleOf(owner));
             return result.WasCancelled ? Array.Empty<string>() : result.SelectedPaths ?? Array.Empty<string>();
         }
 
@@ -82,21 +82,17 @@ namespace Greenshot.Base.Controls
             var builder = new FileSaveDialogBuilder()
                 .WithTitle(title)
                 .WithInitialDirectory(initialDirectory)
-                .WithSuggestedFileName(fileName);
-            var filters = ParseFilter(filter);
-            foreach (var (name, pattern) in filters)
-            {
-                builder.AddFilter(name, pattern);
-            }
+                .WithSuggestedFileName(fileName)
+                .AddFilters(filter);
 
             // With a default extension the dialog adds the extension of the chosen file type to a name without one
-            string defaultExtension = filters.Select(f => DefaultExtensionOf(f.Pattern)).FirstOrDefault(extension => extension != null);
+            string defaultExtension = DefaultExtensionOf(filter);
             if (defaultExtension != null)
             {
                 builder.WithDefaultExtension(defaultExtension);
             }
 
-            var result = builder.ShowDialog(OwnerOrActive(owner));
+            var result = builder.ShowDialog(owner);
             return result.WasCancelled ? null : result.SelectedPath;
         }
 
@@ -117,92 +113,47 @@ namespace Greenshot.Base.Controls
             var result = new FolderPickerBuilder()
                 .WithTitle(title)
                 .WithInitialDirectory(initialDirectory)
-                .ShowDialog(OwnerOrActive(HandleOf(owner)));
+                .ShowDialog(HandleOf(owner));
             return result.WasCancelled ? null : result.SelectedPath;
         }
 
         /// <summary>
-        /// The file types of a filter text: pairs of name and patterns, e.g. "Images (*.png;*.jpg)|*.png;*.jpg|All files (*.*)|*.*".
-        /// A name without patterns is left out.
+        /// The extension of the first pattern of the first file type that has one, without the dot:
+        /// "gsrecipe.json" for "Recipes|*.gsrecipe.json;*.json|All files|*.*", null when there is none (e.g. only "*.*")
         /// </summary>
         /// <param name="filter">the filter text, null or empty for none</param>
-        /// <returns>the name and patterns of each file type</returns>
-        public static IReadOnlyList<(string Name, string Pattern)> ParseFilter(string filter)
+        internal static string DefaultExtensionOf(string filter)
         {
-            var filters = new List<(string Name, string Pattern)>();
             if (string.IsNullOrWhiteSpace(filter))
-            {
-                return filters;
-            }
-
-            string[] parts = filter.Split('|');
-            for (int i = 0; i + 1 < parts.Length; i += 2)
-            {
-                string name = parts[i].Trim();
-                string pattern = parts[i + 1].Trim();
-                if (pattern.Length == 0)
-                {
-                    continue;
-                }
-
-                filters.Add((name.Length == 0 ? pattern : name, pattern));
-            }
-
-            return filters;
-        }
-
-        /// <summary>
-        /// The extension of the first pattern, without the dot: "gsrecipe.json" for "*.gsrecipe.json;*.json", null for "*.*"
-        /// </summary>
-        internal static string DefaultExtensionOf(string pattern)
-        {
-            string first = pattern?.Split(';').Select(p => p.Trim()).FirstOrDefault(p => p.Length > 0);
-            if (first == null || !first.StartsWith("*.", StringComparison.Ordinal))
             {
                 return null;
             }
 
-            string extension = first.Substring(2);
-            return extension.Length == 0 || extension.IndexOfAny(new[] { '*', '?' }) >= 0 ? null : extension;
-        }
-
-        private static FileOpenDialogBuilder OpenBuilder(string filter, string title, string initialDirectory)
-        {
-            var builder = new FileOpenDialogBuilder()
-                .WithTitle(title)
-                .WithInitialDirectory(initialDirectory);
-            foreach (var (name, pattern) in ParseFilter(filter))
+            string[] parts = filter.Split('|');
+            for (int i = 1; i < parts.Length; i += 2)
             {
-                builder.AddFilter(name, pattern);
-            }
-
-            return builder;
-        }
-
-        private static IntPtr HandleOf(Window window) => window == null ? IntPtr.Zero : new WindowInteropHelper(window).Handle;
-
-        /// <summary>
-        /// Like the WPF and WinForms dialogs: without an owner the active window of this thread owns the dialog, so it stays in front of it
-        /// </summary>
-        private static IntPtr OwnerOrActive(IntPtr owner)
-        {
-            if (owner != IntPtr.Zero)
-            {
-                return owner;
-            }
-
-            // The windows of the application can only be read on its thread
-            var application = Application.Current;
-            if (application != null && application.Dispatcher.CheckAccess())
-            {
-                var active = application.Windows.OfType<Window>().FirstOrDefault(window => window.IsActive);
-                if (active != null)
+                string first = parts[i].Split(';').Select(pattern => pattern.Trim()).FirstOrDefault(pattern => pattern.Length > 0);
+                if (first == null || !first.StartsWith("*.", StringComparison.Ordinal))
                 {
-                    return HandleOf(active);
+                    continue;
+                }
+
+                string extension = first.Substring(2);
+                if (extension.Length > 0 && extension.IndexOfAny(new[] { '*', '?' }) < 0)
+                {
+                    return extension;
                 }
             }
 
-            return System.Windows.Forms.Form.ActiveForm?.Handle ?? IntPtr.Zero;
+            return null;
         }
+
+        private static FileOpenDialogBuilder OpenBuilder(string filter, string title, string initialDirectory) =>
+            new FileOpenDialogBuilder()
+                .WithTitle(title)
+                .WithInitialDirectory(initialDirectory)
+                .AddFilters(filter);
+
+        private static IntPtr HandleOf(Window window) => window == null ? IntPtr.Zero : new WindowInteropHelper(window).Handle;
     }
 }
