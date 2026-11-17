@@ -350,9 +350,6 @@ namespace Greenshot.Base.Core
         [PolicyCategory(PolicyCategories.Common)]
         bool HideExpertSettings { get; set; }
 
-        [Description("Enable/disable thumbnail previews")]
-        [DefaultValue(true)]
-        bool ThumnailPreview { get; set; }
 
         [Description("Make some optimizations for usage with remote desktop")]
         [DefaultValue(false)]
@@ -394,7 +391,7 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool EnableUiStallWatchdog { get; set; }
 
-        [Description("Also check for unstable version updates")]
+        [Description("A released version also offers unstable (beta) versions as updates. An unstable version always offers newer unstable and released versions.")]
         [DefaultValue(false)]
         [PolicyCategory(PolicyCategories.Common)]
         bool CheckForUnstable { get; set; }
