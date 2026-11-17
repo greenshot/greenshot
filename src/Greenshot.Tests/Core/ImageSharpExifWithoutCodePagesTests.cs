@@ -23,7 +23,7 @@ using System;
 using System.IO;
 using System.Text;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Core.FileFormat;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
