@@ -64,7 +64,6 @@ namespace Greenshot.Settings.ViewModels
             CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
             ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
-            _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
             _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
@@ -230,6 +229,9 @@ namespace Greenshot.Settings.ViewModels
             OnPropertyChanged(nameof(ThemeToggleToolTip));
         }
 
+        /// <summary>
+        /// "I know what I am doing": not stored, off every time the settings open, so the expert settings are locked until it is ticked
+        /// </summary>
         public bool ExpertModeEnabled
         {
             get => _expertModeEnabled;
