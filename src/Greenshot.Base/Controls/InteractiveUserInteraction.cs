@@ -34,7 +34,6 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using log4net;
-using Microsoft.Win32;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
@@ -111,11 +110,7 @@ namespace Greenshot.Base.Controls
                     .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
                     .Select(extension => $"*.{extension}")
                     .ToList();
-                var openFileDialog = new OpenFileDialog
-                {
-                    Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
-                };
-                return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
+                return FileDialogs.PickFileToOpen(IntPtr.Zero, $"Image files ({string.Join(", ", extensions)})|{string.Join(";", extensions)}|All files (*.*)|*.*");
             }, cancellationToken);
         }
 

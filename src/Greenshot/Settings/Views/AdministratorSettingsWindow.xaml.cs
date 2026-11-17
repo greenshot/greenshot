@@ -29,7 +29,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Settings.ViewModels;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Settings.Views
 {
@@ -115,20 +115,15 @@ namespace Greenshot.Settings.Views
 
         private void SaveAs(string fileName, string filter, Func<string> content, Encoding encoding)
         {
-            var dialog = new SaveFileDialog
-            {
-                FileName = fileName,
-                DefaultExt = Path.GetExtension(fileName),
-                Filter = filter
-            };
-            if (dialog.ShowDialog(this) != true)
+            string path = FileDialogs.PickFileToSave(this, filter, fileName);
+            if (path == null)
             {
                 return;
             }
 
             try
             {
-                File.WriteAllText(dialog.FileName, content(), encoding);
+                File.WriteAllText(path, content(), encoding);
             }
             catch (Exception ex)
             {

@@ -18,7 +18,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Layout;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -1964,58 +1964,53 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public void OpenRecipeDialog()
         {
-            var dlg = new OpenFileDialog
-            {
-                Filter = RecipeSerializer.RecipeFileFilter,
-                Title = Texts.Get<IRecipeEditorLanguage>().TitleOpenRecipe
-            };
-
-            if (dlg.ShowDialog() == true && ConfirmDiscardChanges())
+            string recipeFile = FileDialogs.PickFileToOpen(IntPtr.Zero, RecipeSerializer.RecipeFileFilter, Texts.Get<IRecipeEditorLanguage>().TitleOpenRecipe);
+            if (recipeFile != null && ConfirmDiscardChanges())
             {
                 try
                 {
                     if (_recipeManager != null)
                     {
-                        var valResult = _recipeManager.LoadRecipeFromFile(dlg.FileName);
+                        var valResult = _recipeManager.LoadRecipeFromFile(recipeFile);
                         if (!valResult.IsValid)
                         {
                             string msg = Texts.Get<IRecipeEditorLanguage>().ErrorRecipeFailedValidation + "\n" + string.Join("\n", valResult.Errors);
                             ThemedMessageBox.Show(msg, Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
-                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(dlg.FileName));
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(recipeFile));
                         }
-                        else if (_recipeManager.GetAllExtensions().FirstOrDefault(e => string.Equals(e.FilePath, Path.GetFullPath(dlg.FileName), StringComparison.OrdinalIgnoreCase)) is RecipeExtension loadedExtension)
+                        else if (_recipeManager.GetAllExtensions().FirstOrDefault(e => string.Equals(e.FilePath, Path.GetFullPath(recipeFile), StringComparison.OrdinalIgnoreCase)) is RecipeExtension loadedExtension)
                         {
                             // An automatic step file
                             OpenExtensionCopy(loadedExtension, RecipeSerializer.Serialize(loadedExtension));
-                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedExtension, Path.GetFileName(dlg.FileName));
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedExtension, Path.GetFileName(recipeFile));
                         }
                         else
                         {
                             RefreshAvailableRecipes();
-                            var newlyLoaded = AvailableRecipes.FirstOrDefault(r => string.Equals(r.FilePath, dlg.FileName, StringComparison.OrdinalIgnoreCase))
+                            var newlyLoaded = AvailableRecipes.FirstOrDefault(r => string.Equals(r.FilePath, recipeFile, StringComparison.OrdinalIgnoreCase))
                                               ?? AvailableRecipes.LastOrDefault();
                             if (newlyLoaded != null)
                             {
                                 OpenWorkingCopy(newlyLoaded);
                             }
-                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegisteredFile, Path.GetFileName(dlg.FileName));
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegisteredFile, Path.GetFileName(recipeFile));
                         }
                     }
                     else
                     {
-                        var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
+                        var recipe = RecipeSerializer.LoadFromFile(recipeFile);
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
                             string msg = Texts.Get<IRecipeEditorLanguage>().ErrorRecipeFailedValidation + "\n" + string.Join("\n", valResult.Errors);
                             ThemedMessageBox.Show(msg, Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
-                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(dlg.FileName));
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusRecipeFailedValidation, Path.GetFileName(recipeFile));
                         }
                         else
                         {
-                            recipe.FilePath = dlg.FileName;
+                            recipe.FilePath = recipeFile;
                             ActiveRecipe = recipe;
-                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedFile, Path.GetFileName(dlg.FileName));
+                            StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedFile, Path.GetFileName(recipeFile));
                         }
                     }
                 }
@@ -2106,19 +2101,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SyncRecipeTransitions();
             SyncTriggersToRecipe();
 
-            var dlg = new SaveFileDialog
-            {
-                Filter = RecipeSerializer.RecipeFileFilter,
-                FileName = $"{ActiveRecipe.Id}.gsrecipe.json",
-                Title = Texts.Get<IRecipeEditorLanguage>().TitleSaveRecipeAs
-            };
-
-            if (dlg.ShowDialog() == true)
+            string recipeFile = FileDialogs.PickFileToSave(IntPtr.Zero, RecipeSerializer.RecipeFileFilter, $"{ActiveRecipe.Id}.gsrecipe.json", Texts.Get<IRecipeEditorLanguage>().TitleSaveRecipeAs);
+            if (recipeFile != null)
             {
                 try
                 {
-                    if (!SaveActiveRecipeTo(dlg.FileName)) return false;
-                    StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusSavedRecipe, Path.GetFileName(dlg.FileName));
+                    if (!SaveActiveRecipeTo(recipeFile)) return false;
+                    StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusSavedRecipe, Path.GetFileName(recipeFile));
                     return true;
                 }
                 catch (Exception ex)

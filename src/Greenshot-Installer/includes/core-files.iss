@@ -18,6 +18,7 @@ Source: {#ReleaseDir}\Dapplo.Windows.Clipboard.dll; DestDir: {app}; Components: 
 Source: {#ReleaseDir}\Dapplo.Windows.Com.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Common.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.DesktopWindowsManager.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Dapplo.Windows.Dialogs.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Dpi.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Gdi32.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Dapplo.Windows.Icons.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}

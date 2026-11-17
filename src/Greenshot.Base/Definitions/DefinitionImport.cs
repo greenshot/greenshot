@@ -26,7 +26,7 @@ using System.Text;
 using System.Windows;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Definitions;
@@ -51,13 +51,7 @@ public static class DefinitionImport
     /// <returns>the path, null when the user cancelled</returns>
     public static string PickFile(Window owner, string filter)
     {
-        var dialog = new OpenFileDialog
-        {
-            Filter = filter,
-            CheckFileExists = true,
-            Multiselect = false
-        };
-        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+        return FileDialogs.PickFileToOpen(owner, filter);
     }
 
     /// <summary>
@@ -69,14 +63,7 @@ public static class DefinitionImport
     /// <returns>the path, null when the user cancelled</returns>
     public static string PickExportFile(Window owner, string filter, string fileName)
     {
-        var dialog = new SaveFileDialog
-        {
-            Filter = filter,
-            FileName = fileName,
-            OverwritePrompt = true,
-            AddExtension = true
-        };
-        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+        return FileDialogs.PickFileToSave(owner, filter, fileName);
     }
 
     /// <summary>

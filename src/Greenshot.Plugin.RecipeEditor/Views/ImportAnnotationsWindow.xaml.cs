@@ -20,6 +20,7 @@
  */
 
 using System;
+using Greenshot.Base.Controls;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -179,17 +180,10 @@ namespace Greenshot.Plugin.RecipeEditor.Views
 
         private void OnBrowseDirectoryClicked(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            string folder = FileDialogs.PickFolder(this, Texts.Get<IRecipeEditorLanguage>().ImportSelectFolder, DirectoryTextBox.Text);
+            if (folder != null)
             {
-                dialog.Description = Texts.Get<IRecipeEditorLanguage>().ImportSelectFolder;
-                if (!string.IsNullOrWhiteSpace(DirectoryTextBox.Text) && Directory.Exists(DirectoryTextBox.Text))
-                {
-                    dialog.SelectedPath = DirectoryTextBox.Text;
-                }
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    DirectoryTextBox.Text = dialog.SelectedPath;
-                }
+                DirectoryTextBox.Text = folder;
             }
         }
 
