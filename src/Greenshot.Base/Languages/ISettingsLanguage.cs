@@ -312,9 +312,34 @@ namespace Greenshot.Base.Languages
         string ViewerBorderColor { get; }
 
         /// <summary>
-        /// Available
+        /// After a capture
         /// </summary>
-        string DestinationAvailable { get; }
+        string DestinationAfterCapture { get; }
+
+        /// <summary>
+        /// Send it to:
+        /// </summary>
+        string DestinationSendTo { get; }
+
+        /// <summary>
+        /// Nothing is ticked, so the capture opens in the editor.
+        /// </summary>
+        string DestinationSendToNone { get; }
+
+        /// <summary>
+        /// Destinations Greenshot offers
+        /// </summary>
+        string DestinationOffered { get; }
+
+        /// <summary>
+        /// A destination which is switched off isn't in the menus, the destination window or recipes.
+        /// </summary>
+        string DestinationOfferedHint { get; }
+
+        /// <summary>
+        /// Not loaded (shown on a destination of a plugin which isn't loaded)
+        /// </summary>
+        string DestinationNotLoaded { get; }
 
         /// <summary>
         /// Plugins are switched on or off at the next start of Greenshot.

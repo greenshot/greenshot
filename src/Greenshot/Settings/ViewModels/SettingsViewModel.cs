@@ -379,6 +379,9 @@ namespace Greenshot.Settings.ViewModels
 
         public ObservableCollection<DestinationViewModel> Destinations { get; private set; }
 
+        /// <summary>
+        /// After a capture: ask for the destination every time. The ticked destinations stay ticked, they are only saved without the picker
+        /// </summary>
         public bool PickerSelected
         {
             get => _pickerSelected;
@@ -388,17 +391,25 @@ namespace Greenshot.Settings.ViewModels
                 {
                     _pickerSelected = value;
                     OnPropertyChanged();
-                    // When picker is selected, deselect all destinations
-                    if (value)
-                    {
-                        foreach (var dest in Destinations)
-                        {
-                            dest.IsSelected = false;
-                        }
-                    }
+                    OnPropertyChanged(nameof(SendDirectly));
+                    OnPropertyChanged(nameof(IsSendToEmpty));
                 }
             }
         }
+
+        /// <summary>
+        /// After a capture: send it to the ticked destinations, the other choice of <see cref="PickerSelected"/>
+        /// </summary>
+        public bool SendDirectly
+        {
+            get => !PickerSelected;
+            set => PickerSelected = !value;
+        }
+
+        /// <summary>
+        /// Send directly with nothing ticked: Greenshot opens the editor (CoreConfigurationImpl.AfterLoad), the tab says so
+        /// </summary>
+        public bool IsSendToEmpty => SendDirectly && Destinations?.Any(item => item.IsSelected && item.IsAllowed) != true;
 
         private void InitializeImageFormats()
         {
@@ -466,6 +477,7 @@ namespace Greenshot.Settings.ViewModels
                     IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
                 };
                 
+                destItem.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IsSendToEmpty));
                 Destinations.Add(destItem);
             }
 

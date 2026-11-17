@@ -675,85 +675,137 @@
                 </ScrollViewer>
             </TabItem>
             
-            <!-- Destinations Tab -->
+            <!-- Destinations Tab: what happens after a capture (OutputDestinations), and which destinations Greenshot offers at all (ExcludeDestinations) -->
             <TabItem Header="{wpf:Text Settings.Destination}">
-                    <GroupBox Header="{wpf:Text Settings.Destination}">
-                        <DockPanel LastChildFill="True">
-                            <CheckBox Content="{wpf:Text Settings.DestinationPicker}" 
-                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
-                                      Margin="5" DockPanel.Dock="Top"/>
-                            <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
-                            <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
-                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.DestinationAfterCapture}">
+                            <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
+                                <RadioButton GroupName="AfterCapture" Style="{StaticResource DefaultRadioButtonStyle}" Margin="5,4"
+                                             Content="{wpf:Text Settings.DestinationPicker}"
+                                             IsChecked="{Binding PickerSelected, Mode=TwoWay}"/>
+                                <RadioButton x:Name="SendToRadioButton" GroupName="AfterCapture" Style="{StaticResource DefaultRadioButtonStyle}" Margin="5,4"
+                                             Content="{wpf:Text Settings.DestinationSendTo}"
+                                             IsChecked="{Binding SendDirectly, Mode=TwoWay}"/>
+                                <!-- The offered destinations, several can be ticked, e.g. file and clipboard -->
+                                <ItemsControl ItemsSource="{Binding Destinations}" Margin="26,2,0,0" Focusable="False"
+                                              IsEnabled="{Binding SendDirectly}"
+                                              AutomationProperties.Name="{wpf:Text Settings.DestinationSendTo}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <!-- Only what Greenshot offers: not what is switched off below, not a destination of a plugin which isn't loaded -->
+                                        <Style TargetType="ContentPresenter">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Width="230" Margin="0,2,8,2" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
+                                                      ToolTip="{Binding Description}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="180"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{wpf:Text Settings.DestinationSendToNone}" TextWrapping="Wrap" Margin="26,4,5,5"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                           Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            </DockPanel>
-                            <ListView ItemsSource="{Binding Destinations}" 
-                                      AutomationProperties.Name="{wpf:Text Settings.Destination}"
-                                      KeyboardNavigation.TabNavigation="Continue"
-                                      Style="{DynamicResource ThemeListView}"
-                                      Margin="5" 
-                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                      ScrollViewer.CanContentScroll="False"
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
-                                <ListView.ItemContainerStyle>
-                                    <!-- The rows take no focus: Tab (and the arrow keys) go from check box to check box, Space switches one -->
-                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource ThemeListViewItem}">
-                                        <Setter Property="Focusable" Value="False"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.View>
-                                    <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
-                                        <GridViewColumn Width="50">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}">
-                                                        <!-- Not with the picker, and not for a destination which isn't available -->
-                                                        <CheckBox.Style>
-                                                            <Style TargetType="CheckBox" BasedOn="{StaticResource GreenshotCheckBoxStyle}">
-                                                                <Setter Property="IsEnabled" Value="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                           Visibility="{Binding IsSendToEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Text Settings.DestinationOffered}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Settings.DestinationOfferedHint}" TextWrapping="Wrap" Margin="5,0,5,8"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <!-- One tile per destination: ticked it is offered; a lock when the administrator decides, "Not loaded" for a plugin which isn't loaded -->
+                                <ItemsControl ItemsSource="{Binding Destinations}" Margin="5,0,0,0" Focusable="False"
+                                              AutomationProperties.Name="{wpf:Text Settings.DestinationOffered}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="230" Margin="0,0,8,8" Padding="8,4" CornerRadius="4" BorderThickness="1"
+                                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox IsChecked="{Binding IsAllowed, Mode=TwoWay}" IsEnabled="{Binding CanChangeAllowed}"
+                                                              ToolTip="{Binding Description}" ToolTipService.ShowOnDisabled="True"
+                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
+                                                              AutomationProperties.HelpText="{wpf:Text Settings.DestinationOffered}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxWidth="160"/>
+                                                                <TextBlock Text="{wpf:Text Settings.DestinationNotLoaded}" FontSize="{wpf:FontSize 11}"
+                                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                    <!-- The administrator decides, see greenshot-fixed.ini -->
+                                                    <TextBlock Grid.Column="1" Text="&#xE72E;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                               ToolTip="{wpf:Text Settings.SetByAdministrator}"
+                                                               AutomationProperties.Name="{wpf:Text Settings.SetByAdministrator}"
+                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsAllowed}" Value="False">
-                                                                        <Setter Property="IsEnabled" Value="False"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
-                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                    <DataTrigger Binding="{Binding CanChangeAllowed}" Value="False">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </CheckBox.Style>
-                                                    </CheckBox>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="{wpf:Text Settings.Destination}" Width="330">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="{wpf:Text Settings.DestinationAvailable}" Width="90">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsAllowed, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
-                                                              AutomationProperties.HelpText="{wpf:Text Settings.DestinationAvailable}"
-                                                              IsEnabled="{Binding CanChangeAllowed}"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </GroupBox>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
+                                <DockPanel Margin="5,0,5,5" LastChildFill="False">
+                                    <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
+                                    <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
             
             <!-- Editor Tab -->
