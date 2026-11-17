@@ -374,9 +374,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The plugin list in the settings shows who signed each plugin
 
 **Update check**
-- The window menus always show a preview of the window under the mouse, the setting "Show window thumbnails in context menu" is gone
 - Settings > General: switch the update check on or off, choose the days between the checks, and "Check now" shows your version and a newer one with its download
 - A released version only offers the next release, unless "Check for unstable updates" is on; an unstable (beta) version offers newer unstable versions and releases, whichever is newest
+
+**Fewer settings**
+- The window menus always show a preview of the window under the mouse, the setting "Show window thumbnails in context menu" is gone
+- The magnifier is switched on and off with Z while capturing, the setting "Show magnifier" is gone
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry

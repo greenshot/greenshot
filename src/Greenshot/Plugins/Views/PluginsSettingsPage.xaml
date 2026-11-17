@@ -48,9 +48,9 @@
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      AutomationProperties.Name="{wpf:Text Settings.Plugins}">
-                <!-- The plugin's name for a screen reader, the item is a view model without ToString -->
+                <!-- Every plugin in a light frame, the selected one in an accent frame; the plugin's name for a screen reader, the item is a view model without ToString -->
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource ThemeListBoxItem}">
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource CardListBoxItem}">
                         <Setter Property="AutomationProperties.Name" Value="{Binding Name, TargetNullValue=''}"/>
                     </Style>
                 </ListBox.ItemContainerStyle>

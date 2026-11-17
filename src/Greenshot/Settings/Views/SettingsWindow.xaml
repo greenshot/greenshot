@@ -58,28 +58,28 @@
             <!-- General Tab -->
             <TabItem Header="{wpf:Text Settings.General}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
+                    <!-- The rows with two boxes share their columns, so both boxes of a row have the same width and the second labels line up -->
+                    <StackPanel Grid.IsSharedSizeScope="True">
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Text Settings.Applicationsettings}">
                             <StackPanel>
-                                <!-- Language and colors side by side, the boxes at least 200 and 160 wide -->
+                                <!-- Language and colors side by side, laid out like the tray icon clicks -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="SecondLabel"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Language}" Target="{Binding ElementName=LanguageComboBox}"/>
-                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" MinWidth="200" 
+                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1"
                                               ItemsSource="{Binding SupportedLanguages}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
                                     <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
-                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3" MinWidth="160"
+                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -158,12 +158,12 @@
                         <!-- Tray icon: the recipes a click and a double-click on the icon start -->
                         <GroupBox Header="{wpf:Text Settings.Trayicon}">
                             <StackPanel>
-                                <!-- Click and double-click side by side -->
+                                <!-- Click and double-click side by side, laid out like language and colors -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="SecondLabel"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.TrayiconClick}" Target="{Binding ElementName=TrayClickComboBox}"/>
@@ -242,9 +242,6 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Capture}">
                             <StackPanel>
-                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
-                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
@@ -261,13 +258,13 @@
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
-                                <CheckBox Content="{wpf:Text Settings.Zoom}"
-                                          IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
-                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
                                 <CheckBox Content="{wpf:Text Settings.FreezeScreen}"
                                           ToolTip="{wpf:Text Settings.TooltipFreezeScreen}"
                                           IsChecked="{Binding CoreConfiguration.CaptureFreezeScreen, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureFreezeScreen}"/>
+                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
@@ -765,13 +762,14 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Editor}">
                             <StackPanel>
+                                <!-- As wide as its entries need, not the whole row -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=EditorThemeComboBox}"/>
-                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1"
+                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1" MinWidth="200"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -900,7 +898,8 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center" Target="{Binding ElementName=FooterPatternTextBox}"/>
-                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
+                                    <!-- Starts where the text in the box starts, like the previews on the Output tab -->
+                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Margin="8,0,6,4" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
                                     <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterTemplate, Mode=TwoWay}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterTemplate,OutputPrintFooterPattern">

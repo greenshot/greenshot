@@ -287,7 +287,7 @@ remembers your choice for the next capture.
 The zoomer is a round magnifier next to the mouse. It shows the pixels around the mouse greatly enlarged, with a crosshair on the
 pixel under the mouse. While a selection is shown, its edges are drawn in the zoomer too, so you see whether a pixel is in or out.
 
-- `Z` shows or hides it. This is the same as *Show magnifier* in the settings (Capture tab).
+- `Z` shows or hides it. Greenshot remembers it for the next capture.
 - It is shown in the region, fixed size and text modes, not in the window mode, where you select whole windows.
 - Its size is a fifth of the smaller side of the monitor.
 - It can be made see-through with the setting `ZoomerOpacity`, see [Settings](#settings-which-change-capturing).
@@ -450,7 +450,7 @@ greenshot.ini, so you can also set them there (see [Settings](#settings-which-ch
 | Keys panel shown or hidden | `F1` | yes | `CaptureHelpVisible` |
 | Info panel shown or hidden | `I` | yes | `CaptureInfoVisible` |
 | Preview in a corner, at the mouse, or off | `P` | yes | `CaptureSelectionPreviewVisible`, `ZoomerShowsPreview` |
-| Zoomer shown or hidden | `Z` | yes, also in the settings as *Show magnifier* | `ZoomerEnabled` |
+| Zoomer shown or hidden | `Z` | yes | `ZoomerEnabled` |
 | Where the mouse holds the fixed size area | `C` | yes | `FixedCaptureAnchor` |
 | The last fixed size entry you captured | capturing a fixed size | yes, the fixed size mode starts with it | `FixedCaptureArea` |
 | The sizes and places of your last region and window captures (five) | capturing a region, a window or a fixed size | yes, listed under *Recently captured*; what they keep: *Recent captures keep* | `RecentCaptureAreas` |
@@ -472,7 +472,6 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | General tab, *Tray icon* | Click, Double-click | The recipe a click and a double-click on the Greenshot icon start, e.g. a region capture. |
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
-| Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
 | Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). `L` switches while selecting. |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
 | Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` and `0` pick them. Add a size with width and height, and optionally a place on a screen or in a window of a program (without X and Y: its top left corner); click a size to change it, or remove one from the list. |
