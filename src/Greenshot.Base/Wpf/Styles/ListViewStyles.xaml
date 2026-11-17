@@ -93,8 +93,8 @@
 
     <!-- A list of cards, e.g. the plugins: every item has a light frame, the selected one an accent frame -->
     <Style x:Key="CardListBoxItem" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ThemeListBoxItem}">
-        <Setter Property="Margin" Value="4,3"/>
-        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="Margin" Value="4,1"/>
+        <Setter Property="Padding" Value="4,0"/>
         <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Template">
             <Setter.Value>

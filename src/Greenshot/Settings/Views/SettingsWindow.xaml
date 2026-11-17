@@ -722,9 +722,20 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                                <!-- Hidden, not collapsed: the space stays, so the tab doesn't jump when a tick is set or removed -->
                                 <TextBlock Text="{wpf:Text Settings.DestinationSendToNone}" TextWrapping="Wrap" Margin="26,4,5,5"
-                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                           Visibility="{Binding IsSendToEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSendToEmpty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </GroupBox>
 
@@ -742,7 +753,7 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Width="230" Margin="0,0,8,8" Padding="8,4" CornerRadius="4" BorderThickness="1"
+                                            <Border Width="230" Margin="0,0,6,4" Padding="6,1" CornerRadius="4" BorderThickness="1"
                                                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                                                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}">
                                                 <Grid>
