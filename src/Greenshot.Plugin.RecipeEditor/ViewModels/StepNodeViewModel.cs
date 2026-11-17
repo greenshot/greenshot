@@ -1047,7 +1047,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     }
                     else if (IsImageType && System.IO.File.Exists(chosenFile))
                     {
-                        using var img = System.Drawing.Image.FromFile(chosenFile);
+                        // Through a stream: GDI+ can't open a path longer than 260 characters
+                        using var imageStream = File.OpenRead(chosenFile);
+                        using var img = System.Drawing.Image.FromStream(imageStream);
                         if (img.Width > 0 && img.Height > 0)
                         {
                             _aspectRatio = (double)img.Width / img.Height;
