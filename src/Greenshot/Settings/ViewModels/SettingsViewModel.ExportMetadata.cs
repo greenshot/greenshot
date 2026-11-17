@@ -51,7 +51,16 @@ namespace Greenshot.Settings.ViewModels
                     (ExportMetadataField.Text, texts.ExportMetadataText),
                     (ExportMetadataField.Barcodes, texts.ExportMetadataBarcodes)
                 }.Select(field => new ExportMetadataFieldViewModel(field.Item1, field.Item2, selected.Contains(field.Item1))));
+            foreach (var authorField in ExportMetadataFields.Where(entry => entry.Field == ExportMetadataField.Author))
+            {
+                authorField.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IsAuthorMetadataSelected));
+            }
         }
+
+        /// <summary>
+        /// The detail "Author" is written: only then the author and the copyright are used
+        /// </summary>
+        public bool IsAuthorMetadataSelected => ExportMetadataFields?.Any(entry => entry.Field == ExportMetadataField.Author && entry.IsSelected) == true;
 
         /// <summary>
         /// Write the chosen details back to ExportMetadata

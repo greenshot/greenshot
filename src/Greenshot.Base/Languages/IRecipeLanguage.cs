@@ -942,6 +942,36 @@ namespace Greenshot.Base.Languages
         string PromptNo { get; }
 
         /// <summary>
+        /// Wait before the capture
+        /// </summary>
+        string DelayPromptTitle { get; }
+
+        /// <summary>
+        /// How long should Greenshot wait? In the meantime, open the menu or popup you want to capture.
+        /// </summary>
+        string DelayPromptMessage { get; }
+
+        /// <summary>
+        /// {0} s
+        /// </summary>
+        string DelayChoiceSeconds { get; }
+
+        /// <summary>
+        /// Countdown before the capture
+        /// </summary>
+        string DelayCountdownTitle { get; }
+
+        /// <summary>
+        /// Capture in {0} s
+        /// </summary>
+        string DelayCountdown { get; }
+
+        /// <summary>
+        /// The capture starts in {0} seconds. Open the menu or popup you want to capture now.
+        /// </summary>
+        string DelayCountdownAnnouncement { get; }
+
+        /// <summary>
         /// Core Destinations
         /// </summary>
         string PickerCoreDestinations { get; }
@@ -1175,11 +1205,6 @@ namespace Greenshot.Base.Languages
         /// Recipe catalog
         /// </summary>
         string CatalogMessageTitle { get; }
-
-        /// <summary>
-        /// This edition of Greenshot doesn't use recipe files, so it can't install recipes from the catalog.
-        /// </summary>
-        string CatalogNotSupported { get; }
 
         /// <summary>
         /// Recipes are switched off in this Greenshot, so it can't install recipes from the catalog.

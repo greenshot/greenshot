@@ -6,25 +6,12 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:EnumDisplayer Type="{x:Type interop:EmailFormat}" x:Key="emailFormats"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <Style TargetType="Label">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Padding" Value="6,0"/>
-        </Style>
 
         </ResourceDictionary>
     </UserControl.Resources>
@@ -51,7 +38,7 @@
                      BorderThickness="0">
                 <!-- The application's name for a screen reader, the item has no ToString -->
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource ThemeListBoxItem}">
                         <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
                     </Style>
                 </ListBox.ItemContainerStyle>

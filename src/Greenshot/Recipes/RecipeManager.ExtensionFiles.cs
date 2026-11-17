@@ -38,11 +38,6 @@ namespace Greenshot.Recipes
     public partial class RecipeManager
     {
         /// <summary>
-        /// The built-in extensions, to bring one back when a file which replaced it is dropped
-        /// </summary>
-        private readonly Dictionary<string, RecipeExtension> _builtInExtensions = new Dictionary<string, RecipeExtension>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
         /// Whether the file content is an extension ("kind": "extension")
         /// </summary>
         internal static bool IsExtensionContent(string content)
@@ -208,48 +203,6 @@ namespace Greenshot.Recipes
         }
 
         /// <summary>
-        /// Which recipes an extension changes, where and when, in plain words (for its approval)
-        /// </summary>
-        public IReadOnlyList<string> DescribeExtensionReach(RecipeExtension extension)
-        {
-            var lines = new List<string>();
-            if (extension == null) return lines;
-
-            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.DisplayName).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
-            lines.Add(recipes.Count == 0
-                ? "• Changes no recipe now (none has a slot it fits in)."
-                : $"• Changes these recipes now: {string.Join(", ", recipes)}.");
-
-            var targets = extension.Extends?.Recipes ?? new List<string>();
-            if (targets.Any(t => t?.Trim() == RecipeExtension.TargetAll))
-            {
-                lines.Add("• Also every recipe added later which has the slot (\"*\").");
-            }
-            else if (targets.Any(t => string.Equals(t?.Trim(), RecipeExtension.TargetCaptures, StringComparison.OrdinalIgnoreCase)))
-            {
-                lines.Add("• Also every capture recipe added later (\"*capture\").");
-            }
-
-            lines.Add(extension.SlotName switch
-            {
-                RecipeSlots.AfterCapture => "• Where: after the capture and the selection, before the processors.",
-                RecipeSlots.BeforeExport => "• Where: once before the destinations, when the image is final.",
-                RecipeSlots.AfterExport => "• Where: after the destinations.",
-                RecipeSlots.BeforeDestination => "• Where: for each destination, on its own copy of the capture.",
-                _ => $"• Where: the slot '{extension.Extends?.Slot}'."
-            });
-
-            if (!string.IsNullOrWhiteSpace(extension.When))
-            {
-                lines.Add($"• Only when: {extension.When}");
-            }
-            lines.Add(extension.EnabledOption != null
-                ? "• Switched on and off in Settings > Recipes; there you can also limit it to some recipes and destinations."
-                : "• It has no on/off switch: it is always used once approved. You can limit it in Settings > Recipes.");
-            return lines;
-        }
-
-        /// <summary>
         /// The extension isn't used anymore (its file changed or its approval was revoked); a built-in one it replaced comes back
         /// </summary>
         private void DropExtension(string extensionId)
@@ -272,31 +225,6 @@ namespace Greenshot.Recipes
                 Log.InfoFormat("Automatic step '{0}' is not used anymore, until its file is approved (again).", extensionId);
                 NotifyRecipesChanged();
             }
-        }
-
-        /// <summary>
-        /// What the settings and the recipe manager show about an extension: what it does, which recipes it changes, its approval
-        /// </summary>
-        private RecipeDetails GetExtensionDetails(RecipeExtension extension)
-        {
-            var details = new RecipeDetails
-            {
-                WhatItDoes = RecipeDescriber.DescribeSteps(extension.AsRecipeView()).Select(l => l.IsDetail ? "    " + l.Text : l.Text).ToList(),
-                Reach = DescribeExtensionReach(extension),
-                ProposedBy = extension.ProposedBy
-            };
-            if (!string.IsNullOrEmpty(extension.FilePath))
-            {
-                var record = RecipeTrustStore.GetTrustRecord(extension.FilePath);
-                if (record != null)
-                {
-                    details.ApprovedAt = record.ApprovedAt.ToLocalTime();
-                    details.ApprovedHash = record.Sha256Hash;
-                    details.IsApprovalCurrent = string.Equals(RecipeTrustStore.ComputeSha256(extension.FilePath), record.Sha256Hash, StringComparison.OrdinalIgnoreCase);
-                    details.Permissions = record.GetApproval(extension.Id)?.AllowedGates?.Select(RecipeApprovalPolicy.GetGateName).ToList() ?? new List<string>();
-                }
-            }
-            return details;
         }
 
         /// <summary>
@@ -337,11 +265,6 @@ namespace Greenshot.Recipes
         public RecipeValidationResult SaveExtensionToFile(RecipeExtension extension, string filePath)
         {
             var result = new RecipeValidationResult();
-            if (!RecipeFilesSupported)
-            {
-                result.AddError("Greenshot Light doesn't save automatic step files.");
-                return result;
-            }
             if (extension == null || string.IsNullOrWhiteSpace(filePath))
             {
                 result.AddError("No automatic step or file to save to.");

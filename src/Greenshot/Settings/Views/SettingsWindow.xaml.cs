@@ -25,7 +25,9 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
@@ -62,36 +64,7 @@ namespace Greenshot.Settings.Views
             _viewModel = new SettingsViewModel();
             DataContext = _viewModel;
             Icon = _viewModel.WindowIcon;
-            
-            // Apply theme
-            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-            
-            // Listen for theme changes
-            System.ComponentModel.PropertyChangedEventHandler themeHandler = (s, e) =>
-            {
-                if (Dispatcher.CheckAccess())
-                {
-                    Resources.MergedDictionaries.Clear();
-                    Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                }
-                else if (!Dispatcher.HasShutdownStarted)
-                {
-                    _ = Dispatcher.InvokeAsync(() =>
-                    {
-                        try
-                        {
-                            Resources.MergedDictionaries.Clear();
-                            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                        }
-                        catch
-                        {
-                            // Window or dispatcher shutting down
-                        }
-                    });
-                }
-            };
-            ThemeManager.Instance.PropertyChanged += themeHandler;
-            Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
+            // The shared styles (GreenshotStyles.xaml, merged in the XAML) bind to the theme, a theme change needs nothing here
 
 #if GREENSHOT_LIGHT
             // Greenshot Light has no plugins and no AI tools
@@ -222,6 +195,12 @@ namespace Greenshot.Settings.Views
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
+            // A box with a value that can't be stored (red frame) keeps the window open: show that box instead
+            if (FindInvalidInput(SettingsTabControl) is { } invalidInput)
+            {
+                ShowInput(invalidInput);
+                return;
+            }
             HotkeyManager.UnregisterHotkeys();
             SaveSettings();
             TriggerManager.Instance.RestartHotkeyTriggers();
@@ -232,6 +211,70 @@ namespace Greenshot.Settings.Views
             DialogResult = true;
             Close();
         }
+
+        /// <summary>
+        /// The first element with a validation error, also on the tabs which aren't shown:
+        /// their content is in the logical tree, the items of templates only in the visual tree
+        /// </summary>
+        private static FrameworkElement FindInvalidInput(DependencyObject root)
+        {
+            var visited = new HashSet<DependencyObject>();
+            var pending = new Stack<DependencyObject>();
+            pending.Push(root);
+            while (pending.Count > 0)
+            {
+                var current = pending.Pop();
+                if (!visited.Add(current))
+                {
+                    continue;
+                }
+                if (current is FrameworkElement element && Validation.GetHasError(element))
+                {
+                    return element;
+                }
+                foreach (var child in LogicalTreeHelper.GetChildren(current).OfType<DependencyObject>())
+                {
+                    pending.Push(child);
+                }
+                if (current is Visual or System.Windows.Media.Media3D.Visual3D)
+                {
+                    int count = VisualTreeHelper.GetChildrenCount(current);
+                    for (int i = 0; i < count; i++)
+                    {
+                        pending.Push(VisualTreeHelper.GetChild(current, i));
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Selects the tab of the element and moves the focus to it
+        /// </summary>
+        private void ShowInput(FrameworkElement input)
+        {
+            DependencyObject current = input;
+            while (current != null)
+            {
+                if (current is TabItem tabItem && SettingsTabControl.Items.Contains(tabItem))
+                {
+                    SettingsTabControl.SelectedItem = tabItem;
+                    break;
+                }
+                current = LogicalTreeHelper.GetParent(current) ?? (current is Visual ? VisualTreeHelper.GetParent(current) : null);
+            }
+            // The tab content is laid out after the selection, focus then
+            _ = Dispatcher.BeginInvoke(new Action(() =>
+            {
+                input.BringIntoView();
+                input.Focus();
+            }), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void CheckForUpdatesNow_Click(object sender, RoutedEventArgs e) =>
+            Base.Threading.AsyncCommand.Run(() => _viewModel.CheckForUpdatesNowAsync(), "Check for updates from the settings");
+
+        private void UpdateDownload_Click(object sender, RoutedEventArgs e) => _viewModel.OpenUpdateDownloads();
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
@@ -539,6 +582,8 @@ namespace Greenshot.Settings.Views
         /// </summary>
         private void RecipesGetMore_Click(object sender, RoutedEventArgs e)
         {
+#if !GREENSHOT_LIGHT
+            // Greenshot Light hides the button (no recipe catalog)
             string url = Greenshot.Recipes.Catalog.RecipeCatalogInstaller.GetCatalogUrl();
             try
             {
@@ -548,6 +593,7 @@ namespace Greenshot.Settings.Views
             {
                 Log.Warn($"Couldn't open {url}", ex);
             }
+#endif
         }
 
         private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)

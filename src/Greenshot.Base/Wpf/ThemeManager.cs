@@ -475,45 +475,5 @@ namespace Greenshot.Base.Wpf
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public ResourceDictionary GetThemeResources()
-        {
-            var dict = new ResourceDictionary();
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
-            });
-
-            dict["ThemeBackgroundBrush"] = BackgroundBrush;
-            dict["ThemeForegroundBrush"] = ForegroundBrush;
-            dict["ThemeMutedBrush"] = MutedBrush;
-            dict["ThemeBorderBrush"] = BorderBrush;
-            dict["ThemeControlBorderBrush"] = ControlBorderBrush;
-            dict["ThemeGroupBoxBrush"] = GroupBoxBrush;
-            dict["ThemeControlBackgroundBrush"] = ControlBackgroundBrush;
-            dict["ThemeTextBoxBackgroundBrush"] = TextBoxBackgroundBrush;
-            dict["ThemeButtonBackgroundBrush"] = ButtonBackgroundBrush;
-            dict["ThemeButtonHoverBrush"] = ButtonHoverBrush;
-            dict["ThemeButtonPressedBrush"] = ButtonPressedBrush;
-            dict["ThemeHighlightForegroundBrush"] = HighlightForegroundBrush;
-            dict["ThemeTitleBarBrush"] = TitleBarBrush;
-            dict["ThemeAccentBrush"] = AccentBrush;
-            dict["ThemeAccentForegroundBrush"] = AccentForegroundBrush;
-            dict["ThemeWarningBrush"] = WarningBrush;
-            dict["ThemeErrorBrush"] = ErrorBrush;
-            
-            return dict;
-        }
     }
 }

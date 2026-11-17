@@ -18,7 +18,7 @@ param(
 $OutputDir = (Resolve-Path $OutputDir).Path.TrimEnd('\')
 $checksumFile = Join-Path $OutputDir 'checksum.SHA256'
 
-$mainExtensions = @('.dll', '.exe', '.com', '.config', '.ttf', '.xml')
+$mainExtensions = @('.dll', '.exe', '.com', '.config', '.ttf', '.woff', '.xml')
 $excluded = @('Microsoft.Build.*.dll', 'Microsoft.IO.Redist.dll', 'Microsoft.NET.StringTools.dll',
               'language*.xml', 'bom.xml', 'log4net.xml', '*.pdb')
 

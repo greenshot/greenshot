@@ -17,54 +17,16 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GroupBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/TabStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
-        <!-- Modern Label Style -->
-        <Style TargetType="Label">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        
-        <!-- Modern TextBox Style -->
-        <Style TargetType="TextBox">
+        <!-- The text boxes of the settings keep a margin, the rest is the shared style -->
+        <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}">
             <Setter Property="Margin" Value="6,3"/>
-            <Setter Property="Padding" Value="6,3"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                            <ScrollViewer x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <!-- A box which can't be changed (option off, or fixed by an administrator) looks like it, as in the dialogs -->
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.5"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
         
         </ResourceDictionary>
@@ -96,31 +58,28 @@
             <!-- General Tab -->
             <TabItem Header="{wpf:Text Settings.General}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
+                    <!-- The rows with two boxes share their columns, so both boxes of a row have the same width and the second labels line up -->
+                    <StackPanel Grid.IsSharedSizeScope="True">
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Text Settings.Applicationsettings}">
                             <StackPanel>
+                                <!-- Language and colors side by side, laid out like the tray icon clicks -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="SecondLabel"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Language}" Target="{Binding ElementName=LanguageComboBox}"/>
-                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1" 
+                                    <ComboBox x:Name="LanguageComboBox" Grid.Column="1"
                                               ItemsSource="{Binding SupportedLanguages}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=Language}"/>
-                                </Grid>
-
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
-                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="1"
+                                    <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=ThemeComboBox}"/>
+                                    <ComboBox x:Name="ThemeComboBox" Grid.Column="3"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -199,9 +158,12 @@
                         <!-- Tray icon: the recipes a click and a double-click on the icon start -->
                         <GroupBox Header="{wpf:Text Settings.Trayicon}">
                             <StackPanel>
+                                <!-- Click and double-click side by side, laid out like language and colors -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="SecondLabel"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.TrayiconClick}" Target="{Binding ElementName=TrayClickComboBox}"/>
@@ -213,14 +175,8 @@
                                               ToolTip="{wpf:Text Settings.TooltipTrayicon}"
                                               AutomationProperties.HelpText="{wpf:Text Settings.TooltipTrayicon}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=TrayClickRecipe}"/>
-                                </Grid>
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
-                                    <ComboBox x:Name="TrayDoubleClickComboBox" Grid.Column="1"
+                                    <Label Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.TrayiconDoubleclick}" Target="{Binding ElementName=TrayDoubleClickComboBox}"/>
+                                    <ComboBox x:Name="TrayDoubleClickComboBox" Grid.Column="3"
                                               ItemsSource="{Binding TrayDoubleClickChoices}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="RecipeId"
@@ -239,15 +195,41 @@
                                           IsChecked="{Binding CoreConfiguration.UseProxy, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UseProxy}"/>
                                 
+                                <!-- The update check: on or off, the days between the checks, and check now with what it found -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Content="{wpf:Text Settings.Checkperiod}" Target="{Binding ElementName=CheckPeriodTextBox}"/>
-                                    <TextBox x:Name="CheckPeriodTextBox" Grid.Column="1" HorizontalAlignment="Right" Width="80" TextAlignment="Right" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UpdateCheckInterval}"/>
+                                    <CheckBox Content="{wpf:Text Settings.UpdateCheck}" VerticalAlignment="Center"
+                                              IsChecked="{Binding UpdateCheckEnabled, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UpdateCheckInterval}"/>
+                                    <Label Grid.Column="2" Content="{wpf:Text Settings.UpdateCheckInterval}" Target="{Binding ElementName=UpdateCheckDaysTextBox}"
+                                           IsEnabled="{Binding UpdateCheckEnabled}"/>
+                                    <TextBox x:Name="UpdateCheckDaysTextBox" Grid.Column="3" Width="60" TextAlignment="Right"
+                                             Text="{Binding UpdateCheckDays, Mode=TwoWay}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="UpdateCheckInterval">
+                                                <Binding Path="UpdateCheckEnabled"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
+                                    <Button Grid.Column="4" Content="{wpf:Text Settings.UpdateCheckNow}" Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="6,0,0,0" VerticalAlignment="Center" Click="CheckForUpdatesNow_Click"
+                                            IsEnabled="{Binding IsCheckingForUpdates, Converter={StaticResource InverseBooleanConverter}}"/>
                                 </Grid>
+                                <!-- The current version, and the newer one with its download -->
+                                <DockPanel Margin="5,0,0,5">
+                                    <Button DockPanel.Dock="Right" Content="{wpf:Text Welcome.SetupVersionDownload}" Style="{StaticResource SecondaryButtonStyle}"
+                                            VerticalAlignment="Center" Click="UpdateDownload_Click"
+                                            Visibility="{Binding IsUpdateOffered, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding UpdateStateText}" TextWrapping="Wrap" VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                </DockPanel>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
@@ -263,19 +245,26 @@
                                 <CheckBox Content="{wpf:Text Settings.CaptureMousepointer}"
                                           IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureMousepointer}"/>
-                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}"
-                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureHdr}"/>
+                                <!-- Only the DirectX capture (UseGraphicsCapture) keeps HDR content, the GDI capture has none -->
+                                <CheckBox Content="{wpf:Text Settings.CaptureHdr}" ToolTip="{wpf:Text Settings.TipCaptureHdr}" ToolTipService.ShowOnDisabled="True"
+                                          IsChecked="{Binding CoreConfiguration.CaptureHdr, Mode=TwoWay}">
+                                    <CheckBox.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="CaptureHdr">
+                                            <Binding Path="CoreConfiguration.UseGraphicsCapture"/>
+                                            <Binding Path="CoreConfiguration"/>
+                                        </MultiBinding>
+                                    </CheckBox.IsEnabled>
+                                </CheckBox>
                                 <CheckBox Content="{wpf:Text Settings.Playsound}"
                                           IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=PlayCameraSound}"/>
-                                <CheckBox Content="{wpf:Text Settings.Zoom}"
-                                          IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
-                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
                                 <CheckBox Content="{wpf:Text Settings.FreezeScreen}"
                                           ToolTip="{wpf:Text Settings.TooltipFreezeScreen}"
                                           IsChecked="{Binding CoreConfiguration.CaptureFreezeScreen, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureFreezeScreen}"/>
+                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
@@ -298,24 +287,33 @@
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowNotificationThumbnail}"/>
                                 </StackPanel>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="WaitTimeLabel"
-                                               Text="{wpf:Text Settings.Waittime}"
-                                               TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    <TextBox Grid.Column="1" 
-                                             HorizontalAlignment="Right"
-                                             Width="70"
-                                             TextAlignment="Right"
-                                             Text="{Binding CoreConfiguration.CaptureDelay, Mode=TwoWay}"
-                                             AutomationProperties.LabeledBy="{Binding ElementName=WaitTimeLabel}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureDelay}"/>
-                                </Grid>
+                                <!-- The wait before every capture of the screen, off by default: a hotkey captures at once -->
+                                <CheckBox Content="{wpf:Text Settings.CaptureWait}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureWait, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWait}"/>
+                                <StackPanel Margin="20,0,0,0" IsEnabled="{Binding CoreConfiguration.CaptureWait}">
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock x:Name="WaitTimeLabel"
+                                                   Text="{wpf:Text Settings.Waittime}"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                        <TextBox Grid.Column="1"
+                                                 HorizontalAlignment="Right"
+                                                 Width="70"
+                                                 TextAlignment="Right"
+                                                 Text="{Binding CoreConfiguration.CaptureWaitMilliseconds, Mode=TwoWay}"
+                                                 AutomationProperties.LabeledBy="{Binding ElementName=WaitTimeLabel}"
+                                                 IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWaitMilliseconds}"/>
+                                    </Grid>
+                                    <CheckBox Content="{wpf:Text Settings.CaptureWaitCountdown}"
+                                              IsChecked="{Binding CoreConfiguration.CaptureWaitCountdown, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWaitCountdown}"/>
+                                </StackPanel>
 
                                 <!-- The sizes of the fixed size capture: pills with an "x", the "+" opens a small popup for width and height -->
                                 <StackPanel Margin="0,5"
@@ -472,14 +470,6 @@
                             </StackPanel>
                         </GroupBox>
                         
-                        <GroupBox Header="{wpf:Text Settings.Windowscapture}">
-                            <StackPanel>
-                                <CheckBox Content="{wpf:Text Settings.CaptureWindowsInteractive}"
-                                          IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
-                            </StackPanel>
-                        </GroupBox>
-
                         <GroupBox Header="{wpf:Text Settings.Ocr}"
                                   Visibility="{Binding HasOcr, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <StackPanel>
@@ -495,8 +485,9 @@
                                                VerticalAlignment="Center"
                                                ToolTip="{wpf:Text Settings.TooltipOcrEngine}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <!-- Both boxes as wide as each other, whatever the entries -->
                                     <ComboBox Grid.Column="1"
-                                              MinWidth="200"
+                                              Width="280"
                                               ItemsSource="{Binding OcrEngines}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Id"
@@ -517,11 +508,10 @@
                                                ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"
                                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
                                     <ComboBox Grid.Column="1"
-                                              MinWidth="200"
+                                              Width="280"
                                               ItemsSource="{Binding OcrLanguages}"
                                               DisplayMemberPath="DisplayName"
-                                              SelectedValuePath="LanguageTag"
-                                              SelectedValue="{Binding SelectedOcrLanguage, Mode=TwoWay}"
+                                              SelectedItem="{Binding SelectedOcrLanguageItem, Mode=TwoWay}"
                                               AutomationProperties.LabeledBy="{Binding ElementName=OcrLanguageLabel}"
                                               ToolTip="{wpf:Text Settings.TooltipOcrLanguage}"/>
                                 </Grid>
@@ -580,6 +570,25 @@
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFormat}"/>
                                 </Grid>
                                 
+                                <!-- The next number of ${counter.global}, next to the file name it is used in -->
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="CounterLabel"
+                                               Text="{wpf:Text Settings.ExpertCounter}" 
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    <TextBox Grid.Column="1" 
+                                             HorizontalAlignment="Right"
+                                             Width="70"
+                                             TextAlignment="Right"
+                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}"
+                                             AutomationProperties.LabeledBy="{Binding ElementName=CounterLabel}"
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileIncrementingNumber}"/>
+                                </Grid>
                                 <CheckBox Content="{wpf:Text Settings.Copypathtoclipboard}"
                                           IsChecked="{Binding CoreConfiguration.OutputFileCopyPathToClipboard, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileCopyPathToClipboard}"/>
@@ -614,6 +623,9 @@
                                 <CheckBox Content="{wpf:Text Settings.Reducecolors}"
                                           IsChecked="{Binding CoreConfiguration.OutputFileReduceColors, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileReduceColors}"/>
+                                <CheckBox Content="{wpf:Text Settings.ExpertAutoreducecolors}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileAutoReduceColors}"/>
                             </StackPanel>
                         </GroupBox>
 
@@ -628,20 +640,32 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 <Grid Margin="0,5">
+                                    <!-- Author and copyright on one line -->
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" SharedSizeGroup="OutputLabel"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
                                     <Label Grid.Row="0" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataAuthorName}" Target="{Binding ElementName=ExportMetadataAuthorTextBox}"/>
-                                    <TextBox x:Name="ExportMetadataAuthorTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataAuthor}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ExportMetadataAuthor}"/>
-                                    <Label Grid.Row="1" Grid.Column="0" Margin="0,0,12,0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
-                                    <TextBox x:Name="ExportMetadataCopyrightTextBox" Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataCopyright}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ExportMetadataCopyright}"/>
+                                    <!-- Author and copyright are written with the detail "Author" -->
+                                    <TextBox x:Name="ExportMetadataAuthorTextBox" Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.ExportMetadataAuthor}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ExportMetadataAuthor">
+                                                <Binding Path="IsAuthorMetadataSelected"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
+                                    <Label Grid.Row="0" Grid.Column="2" Margin="24,0,8,0" Content="{wpf:Text Settings.ExportMetadataCopyright}" Target="{Binding ElementName=ExportMetadataCopyrightTextBox}"/>
+                                    <TextBox x:Name="ExportMetadataCopyrightTextBox" Grid.Row="0" Grid.Column="3" Text="{Binding CoreConfiguration.ExportMetadataCopyright}">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ExportMetadataCopyright">
+                                                <Binding Path="IsAuthorMetadataSelected"/>
+                                                <Binding Path="CoreConfiguration"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
                                 </Grid>
                                 <TextBlock Text="{wpf:Text Settings.ExportMetadataPrivateHint}" TextWrapping="Wrap" Margin="5,0,5,5"
                                            Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
@@ -651,85 +675,148 @@
                 </ScrollViewer>
             </TabItem>
             
-            <!-- Destinations Tab -->
+            <!-- Destinations Tab: what happens after a capture (OutputDestinations), and which destinations Greenshot offers at all (ExcludeDestinations) -->
             <TabItem Header="{wpf:Text Settings.Destination}">
-                    <GroupBox Header="{wpf:Text Settings.Destination}">
-                        <DockPanel LastChildFill="True">
-                            <CheckBox Content="{wpf:Text Settings.DestinationPicker}" 
-                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}" 
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
-                                      Margin="5" DockPanel.Dock="Top"/>
-                            <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
-                            <DockPanel DockPanel.Dock="Bottom" Margin="5" LastChildFill="False">
-                                <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
-                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                           Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            </DockPanel>
-                            <ListView ItemsSource="{Binding Destinations}" 
-                                      AutomationProperties.Name="{wpf:Text Settings.Destination}"
-                                      KeyboardNavigation.TabNavigation="Continue"
-                                      Style="{DynamicResource ThemeListView}"
-                                      Margin="5" 
-                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                      ScrollViewer.CanContentScroll="False"
-                                      IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
-                                <ListView.ItemContainerStyle>
-                                    <!-- The rows take no focus: Tab (and the arrow keys) go from check box to check box, Space switches one -->
-                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource ThemeListViewItem}">
-                                        <Setter Property="Focusable" Value="False"/>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.View>
-                                    <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
-                                        <GridViewColumn Width="50">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}">
-                                                        <!-- Not with the picker, and not for a destination which isn't available -->
-                                                        <CheckBox.Style>
-                                                            <Style TargetType="CheckBox" BasedOn="{StaticResource GreenshotCheckBoxStyle}">
-                                                                <Setter Property="IsEnabled" Value="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Text Settings.DestinationAfterCapture}">
+                            <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
+                                <RadioButton GroupName="AfterCapture" Style="{StaticResource DefaultRadioButtonStyle}" Margin="5,4"
+                                             Content="{wpf:Text Settings.DestinationPicker}"
+                                             IsChecked="{Binding PickerSelected, Mode=TwoWay}"/>
+                                <RadioButton x:Name="SendToRadioButton" GroupName="AfterCapture" Style="{StaticResource DefaultRadioButtonStyle}" Margin="5,4"
+                                             Content="{wpf:Text Settings.DestinationSendTo}"
+                                             IsChecked="{Binding SendDirectly, Mode=TwoWay}"/>
+                                <!-- The offered destinations, several can be ticked, e.g. file and clipboard -->
+                                <ItemsControl ItemsSource="{Binding Destinations}" Margin="26,2,0,0" Focusable="False"
+                                              IsEnabled="{Binding SendDirectly}"
+                                              AutomationProperties.Name="{wpf:Text Settings.DestinationSendTo}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <!-- Only what Greenshot offers: not what is switched off below, not a destination of a plugin which isn't loaded -->
+                                        <Style TargetType="ContentPresenter">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Width="230" Margin="0,2,8,2" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
+                                                      ToolTip="{Binding Description}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="180"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <!-- Hidden, not collapsed: the space stays, so the tab doesn't jump when a tick is set or removed -->
+                                <TextBlock Text="{wpf:Text Settings.DestinationSendToNone}" TextWrapping="Wrap" Margin="26,4,5,5"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSendToEmpty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="{wpf:Text Settings.DestinationOffered}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Text Settings.DestinationOfferedHint}" TextWrapping="Wrap" Margin="5,0,5,8"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                <!-- One tile per destination: ticked it is offered; a lock when the administrator decides, "Not loaded" for a plugin which isn't loaded -->
+                                <ItemsControl ItemsSource="{Binding Destinations}" Margin="5,0,0,0" Focusable="False"
+                                              AutomationProperties.Name="{wpf:Text Settings.DestinationOffered}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="230" Margin="0,0,6,4" Padding="6,1" CornerRadius="4" BorderThickness="1"
+                                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox IsChecked="{Binding IsAllowed, Mode=TwoWay}" IsEnabled="{Binding CanChangeAllowed}"
+                                                              ToolTip="{Binding Description}" ToolTipService.ShowOnDisabled="True"
+                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
+                                                              AutomationProperties.HelpText="{wpf:Text Settings.DestinationOffered}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                            <StackPanel VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxWidth="160"/>
+                                                                <TextBlock Text="{wpf:Text Settings.DestinationNotLoaded}" FontSize="{wpf:FontSize 11}"
+                                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </CheckBox>
+                                                    <!-- The administrator decides, see greenshot-fixed.ini -->
+                                                    <TextBlock Grid.Column="1" Text="&#xE72E;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                               ToolTip="{wpf:Text Settings.SetByAdministrator}"
+                                                               AutomationProperties.Name="{wpf:Text Settings.SetByAdministrator}"
+                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsAllowed}" Value="False">
-                                                                        <Setter Property="IsEnabled" Value="False"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Destination}" Value="{x:Null}">
-                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                    <DataTrigger Binding="{Binding CanChangeAllowed}" Value="False">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </CheckBox.Style>
-                                                    </CheckBox>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="{wpf:Text Settings.Destination}" Width="330">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Image Source="{Binding IconSource}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="{wpf:Text Settings.DestinationAvailable}" Width="90">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsAllowed, Mode=TwoWay}"
-                                                              AutomationProperties.Name="{Binding Description, TargetNullValue=''}"
-                                                              AutomationProperties.HelpText="{wpf:Text Settings.DestinationAvailable}"
-                                                              IsEnabled="{Binding CanChangeAllowed}"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DockPanel>
-                    </GroupBox>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <!-- Which destinations can be used, greenshot-fixed.ini makes it a restriction -->
+                                <DockPanel Margin="5,0,5,5" LastChildFill="False">
+                                    <Button DockPanel.Dock="Right" Content="{wpf:Text Settings.BlockDestinations}" Style="{StaticResource SecondaryButtonStyle}" Click="AdministratorSettings_Click"/>
+                                    <TextBlock DockPanel.Dock="Left" Text="{wpf:Text Settings.SetByAdministrator}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                               Visibility="{Binding AreDestinationExclusionsFixed, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
             
             <!-- Editor Tab -->
@@ -738,13 +825,14 @@
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.Editor}">
                             <StackPanel>
+                                <!-- As wide as its entries need, not the whole row -->
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Text Settings.Theme}" Target="{Binding ElementName=EditorThemeComboBox}"/>
-                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1"
+                                    <ComboBox x:Name="EditorThemeComboBox" Grid.Column="1" MinWidth="200"
                                               ItemsSource="{Binding Themes}"
                                               DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Theme"
@@ -873,7 +961,8 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Label Content="{wpf:Text Settings.ExpertFooterpattern}" VerticalAlignment="Center" Target="{Binding ElementName=FooterPatternTextBox}"/>
-                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
+                                    <!-- Starts where the text in the box starts, like the previews on the Output tab -->
+                                    <wpf:TemplatePreview Grid.Row="1" Grid.Column="1" Margin="8,0,6,4" Purpose="Text" Template="{Binding Text, ElementName=FooterPatternTextBox}"/>
                                     <TextBox x:Name="FooterPatternTextBox" Grid.Column="1" Text="{Binding CoreConfiguration.OutputPrintFooterTemplate, Mode=TwoWay}">
                                         <TextBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputPrintFooterTemplate,OutputPrintFooterPattern">
@@ -988,7 +1077,7 @@
                     <StackPanel>
                         <StackPanel.Resources>
                             <!-- Compact fields: one line per option -->
-                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                            <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}">
                                 <Setter Property="Padding" Value="4,0"/>
                                 <Setter Property="Margin" Value="0,1"/>
                                 <Setter Property="Height" Value="24"/>
@@ -1115,16 +1204,6 @@
                                   Margin="8,4,8,8"
                                   IsEnabled="{Binding ExpertModeEnabled}">
                             <StackPanel>
-                                <CheckBox Content="{wpf:Text Settings.ExpertAutoreducecolors}"
-                                          IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors, Mode=TwoWay}">
-                                    <CheckBox.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileAutoReduceColors">
-                                            <Binding Path="ExpertModeEnabled"/>
-                                            <Binding Path="CoreConfiguration"/>
-                                        </MultiBinding>
-                                    </CheckBox.IsEnabled>
-                                </CheckBox>
-                                
                                 <CheckBox Content="{wpf:Text Settings.ExpertOptimizeforrdp}"
                                           IsChecked="{Binding CoreConfiguration.OptimizeForRDP, Mode=TwoWay}">
                                     <CheckBox.IsEnabled>
@@ -1135,18 +1214,10 @@
                                     </CheckBox.IsEnabled>
                                 </CheckBox>
                                 
-                                <CheckBox Content="{wpf:Text Settings.ExpertThumbnailpreview}"
-                                          IsChecked="{Binding CoreConfiguration.ThumnailPreview, Mode=TwoWay}">
-                                    <CheckBox.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="ThumnailPreview">
-                                            <Binding Path="ExpertModeEnabled"/>
-                                            <Binding Path="CoreConfiguration"/>
-                                        </MultiBinding>
-                                    </CheckBox.IsEnabled>
-                                </CheckBox>
-                                
+                                <!-- An unstable version always offers newer unstable versions, so only a released version has the choice -->
                                 <CheckBox Content="{wpf:Text Settings.ExpertCheckunstableupdates}"
-                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}">
+                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}"
+                                          Visibility="{Binding IsReleasedVersion, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <CheckBox.IsEnabled>
                                         <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="CheckForUnstable">
                                             <Binding Path="ExpertModeEnabled"/>
@@ -1222,6 +1293,7 @@
                                             <CheckBox.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="KeepGraphicsCaptureReady">
                                                     <Binding Path="ExpertModeEnabled"/>
+                                                    <Binding Path="CoreConfiguration.UseGraphicsCapture"/>
                                                     <Binding Path="CoreConfiguration"/>
                                                 </MultiBinding>
                                             </CheckBox.IsEnabled>
@@ -1284,30 +1356,6 @@
                                     </StackPanel>
                                 </Expander>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock x:Name="CounterLabel"
-                                               Text="{wpf:Text Settings.ExpertCounter}" 
-                                               TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                    <TextBox Grid.Column="1" 
-                                             HorizontalAlignment="Right"
-                                             Width="70"
-                                             TextAlignment="Right"
-                                             Text="{Binding CoreConfiguration.OutputFileIncrementingNumber, Mode=TwoWay}"
-                                             AutomationProperties.LabeledBy="{Binding ElementName=CounterLabel}">
-                                        <TextBox.IsEnabled>
-                                            <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="OutputFileIncrementingNumber">
-                                                <Binding Path="ExpertModeEnabled"/>
-                                                <Binding Path="CoreConfiguration"/>
-                                            </MultiBinding>
-                                        </TextBox.IsEnabled>
-                                    </TextBox>
-                                </Grid>
 
 
                                 <GroupBox Header="{wpf:Text Settings.ExpertClipboardformats}" Margin="0,8,0,0">

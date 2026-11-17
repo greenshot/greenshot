@@ -40,7 +40,6 @@ using Greenshot.Base.Serialization;
 using Greenshot.Helpers;
 using Greenshot.Ipc.Cli;
 using Greenshot.Recipes;
-using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.SelfService.Views;
 using Greenshot.Settings.Views;
@@ -127,14 +126,6 @@ namespace Greenshot.Ipc
 
             return FallbackAllowedImageExtensions.Contains(extension);
         }
-
-        private static readonly HashSet<string> ReservedDeviceNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "CON", "PRN", "AUX", "NUL",
-            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-            "CONIN$", "CONOUT$"
-        };
 
         /// <summary>
         /// Validates, sanitizes, and canonicalizes a path supplied via IPC.
@@ -235,10 +226,9 @@ namespace Greenshot.Ipc
             string[] segments = fullPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var segment in segments)
             {
-                string nameWithoutExt = Path.GetFileNameWithoutExtension(segment);
-                if (ReservedDeviceNames.Contains(nameWithoutExt))
+                if (FilenameHelper.IsReservedDeviceName(segment))
                 {
-                    errorMessage = $"Path refers to a reserved device name: '{nameWithoutExt}'.";
+                    errorMessage = $"Path refers to a reserved device name: '{Path.GetFileNameWithoutExtension(segment)}'.";
                     return false;
                 }
             }
@@ -455,9 +445,12 @@ namespace Greenshot.Ipc
                     await HandleRecipeManagerAsync(context, shell).ConfigureAwait(false);
                     break;
 
+#if !GREENSHOT_LIGHT
+                // Greenshot Light has no recipe catalog, INSTALL_RECIPE is an unknown command there
                 case "INSTALL_RECIPE":
                     await HandleInstallRecipeAsync(context).ConfigureAwait(false);
                     break;
+#endif
 
                 case "EXIT":
                     try
@@ -1518,6 +1511,7 @@ namespace Greenshot.Ipc
             }).ConfigureAwait(false);
         }
 
+#if !GREENSHOT_LIGHT
         /// <summary>
         /// INSTALL_RECIPE (greenshot:install-recipe?id=...): the recipe with this id from the recipe catalog, in the approval window.
         /// The reply doesn't wait for the user.
@@ -1527,7 +1521,7 @@ namespace Greenshot.Ipc
             string recipeId = null;
             context.Envelope.Parsed?.Parameters?.TryGetValue("id", out recipeId);
             recipeId = recipeId?.Trim();
-            RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
+            Greenshot.Recipes.Catalog.RecipeCatalogInstaller.InstallAsync(recipeId).FireAndLog("Install a recipe from the catalog", Log);
             await context.ReplyAsync(new
             {
                 status = "ok",
@@ -1535,6 +1529,7 @@ namespace Greenshot.Ipc
                 stdout = $"Installing the recipe '{recipeId}' from the recipe catalog."
             }).ConfigureAwait(false);
         }
+#endif
 
         private static string ParseUrlSchemeCommand(string rawUrl, out Dictionary<string, string> parameters)
         {

@@ -10,7 +10,7 @@ the settings, nobody has to type them by hand.
   and the names the settings mention. A change applies at the next start of Greenshot. Each loaded plugin shows who signed it,
   in green with a check mark when it is the certificate of Greenshot.exe; see [plugin-loading.md](plugin-loading.md) for the
   signature check.
-- **Destinations tab:** the *Available* column switches a destination on or off, a destination which is off isn't offered anywhere
+- **Destinations tab:** *After a capture* chooses between the destination menu (*Ask for destination every time*) and *Send it to:* one or more destinations. *Destinations Greenshot offers* switches a destination on or off, a destination which is off isn't offered anywhere; a lock means the administrator decides, *Not loaded* is a destination of a plugin which isn't loaded
   (tray menu, picker, editor, recipes). The change applies when the settings are saved. In a recipe this also holds for a
   step which uses a destination of its own (Box, Dropbox, Jira, Confluence, PDF, Office, an external command or uploader of
   the settings): the step is skipped, with a warning in the log of the flow.

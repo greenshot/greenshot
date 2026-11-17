@@ -170,10 +170,6 @@ namespace Greenshot.Recipes.Catalog
         /// </summary>
         internal static string GetRefusal(string recipeId)
         {
-            if (!RecipeManager.RecipeFilesSupported)
-            {
-                return Texts.Recipe.CatalogNotSupported;
-            }
             var configuration = ConfigurationProvider();
             if (!RecipeConfigHelper.IsRecipeFeatureEnabled(configuration))
             {
@@ -283,7 +279,7 @@ namespace Greenshot.Recipes.Catalog
         /// </summary>
         internal static InstalledCatalogRecipe GetInstalled(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath) || !RecipeManager.RecipeFilesSupported)
+            if (string.IsNullOrEmpty(filePath))
             {
                 return null;
             }
@@ -331,10 +327,6 @@ namespace Greenshot.Recipes.Catalog
         internal static IReadOnlyList<InstalledCatalogRecipe> GetInstalledRecipes()
         {
             var installed = new List<InstalledCatalogRecipe>();
-            if (!RecipeManager.RecipeFilesSupported)
-            {
-                return installed;
-            }
             try
             {
                 string directory = DirectoryProvider();

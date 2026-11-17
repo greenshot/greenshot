@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
@@ -33,7 +32,6 @@ using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Recipes.Approval;
 using Greenshot.Recipes.Steps;
 using Greenshot.Recipes.Triggers;
-using Greenshot.Recipes.Views;
 using log4net;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
@@ -81,6 +79,7 @@ namespace Greenshot.Recipes
         public const string RecipeIdTrayMenu = "recipe_tray_menu";
         public const string RecipeIdOpenSettings = "recipe_open_settings";
         public const string RecipeIdEmptyEditor = "recipe_empty_editor";
+        public const string RecipeIdQuickSettings = "recipe_quick_settings";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -91,28 +90,51 @@ namespace Greenshot.Recipes
         private readonly Dictionary<string, RecipeExtension> _extensions = new Dictionary<string, RecipeExtension>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// The built-in extensions, to bring one back when a file which replaced it is dropped
+        /// </summary>
+        private readonly Dictionary<string, RecipeExtension> _builtInExtensions = new Dictionary<string, RecipeExtension>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// The composed (effective) recipes by recipe id, with the recipe they were composed from: rebuilt when recipes or option values change
         /// </summary>
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, (CaptureRecipe Base, CaptureRecipe Composed)> _composed =
             new System.Collections.Concurrent.ConcurrentDictionary<string, (CaptureRecipe Base, CaptureRecipe Composed)>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, FileSystemWatcher> _fileWatchers = new Dictionary<string, FileSystemWatcher>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Recipe files changed on disk which wait to be checked (debounced: editors write files in several steps)
-        /// </summary>
-        private readonly Dictionary<string, Timer> _changedFileTimers = new Dictionary<string, Timer>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// The content (hash) of a changed file the user was already asked about, not asked again
-        /// </summary>
-        private readonly Dictionary<string, string> _askedForChangedFile = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Wait after the last change of a file before asking, ms
-        /// </summary>
-        private const int ChangedFileDelay = 1500;
-
         public event EventHandler RecipesChanged;
+
+        // The recipe files: loading, approving, watching and saving them (RecipeManager.RecipeFiles.cs and
+        // RecipeManager.ExtensionFiles.cs). Greenshot Light has only the built-in recipes, it leaves those files out and with them these calls.
+
+        /// <summary>
+        /// Loads the recipe files of the configuration
+        /// </summary>
+        /// <param name="interactive">false: no window is shown, a file which needs the user (approval, errors) is only added to <paramref name="needsUser"/></param>
+        /// <param name="needsUser">Collects the files which couldn't be loaded without the user</param>
+        partial void LoadConfiguredRecipeFiles(bool interactive, List<string> needsUser);
+
+        /// <summary>
+        /// The recipe file is used: it is watched and loaded at the next start
+        /// </summary>
+        partial void AddRecipeFileToConfig(string filePath);
+
+        /// <summary>
+        /// The recipe file isn't loaded at the next start anymore
+        /// </summary>
+        partial void RemoveRecipeFileFromConfig(string filePath);
+
+        /// <summary>
+        /// The trust store keeps the approvals of the configured recipe files only
+        /// </summary>
+        static partial void ForgetApprovalsOfUnusedFiles();
+
+        /// <summary>
+        /// Stops the watchers of folders which hold no recipe or automatic step file which is used
+        /// </summary>
+        partial void PruneFileWatchers();
+
+        /// <summary>
+        /// The approval of a recipe or automatic step from a file, for its details
+        /// </summary>
+        partial void AddApprovalDetails(RecipeDetails details, string filePath, string recipeId);
 
         // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
         // and a second instance would silently lose what was registered in the first one.
@@ -221,6 +243,63 @@ namespace Greenshot.Recipes
         {
             var recipe = GetRecipeById(recipeId);
             return recipe == null ? Array.Empty<RecipeExtension>() : GetEffectiveRecipe(recipe).AppliedExtensions ?? Array.Empty<RecipeExtension>();
+        }
+
+        /// <summary>
+        /// Which recipes an extension changes, where and when, in plain words (for its approval)
+        /// </summary>
+        public IReadOnlyList<string> DescribeExtensionReach(RecipeExtension extension)
+        {
+            var lines = new List<string>();
+            if (extension == null) return lines;
+
+            var recipes = GetAllRecipes().Where(r => RecipeComposer.CanExtend(extension, r)).Select(r => r.DisplayName).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+            lines.Add(recipes.Count == 0
+                ? "• Changes no recipe now (none has a slot it fits in)."
+                : $"• Changes these recipes now: {string.Join(", ", recipes)}.");
+
+            var targets = extension.Extends?.Recipes ?? new List<string>();
+            if (targets.Any(t => t?.Trim() == RecipeExtension.TargetAll))
+            {
+                lines.Add("• Also every recipe added later which has the slot (\"*\").");
+            }
+            else if (targets.Any(t => string.Equals(t?.Trim(), RecipeExtension.TargetCaptures, StringComparison.OrdinalIgnoreCase)))
+            {
+                lines.Add("• Also every capture recipe added later (\"*capture\").");
+            }
+
+            lines.Add(extension.SlotName switch
+            {
+                RecipeSlots.AfterCapture => "• Where: after the capture and the selection, before the processors.",
+                RecipeSlots.BeforeExport => "• Where: once before the destinations, when the image is final.",
+                RecipeSlots.AfterExport => "• Where: after the destinations.",
+                RecipeSlots.BeforeDestination => "• Where: for each destination, on its own copy of the capture.",
+                _ => $"• Where: the slot '{extension.Extends?.Slot}'."
+            });
+
+            if (!string.IsNullOrWhiteSpace(extension.When))
+            {
+                lines.Add($"• Only when: {extension.When}");
+            }
+            lines.Add(extension.EnabledOption != null
+                ? "• Switched on and off in Settings > Recipes; there you can also limit it to some recipes and destinations."
+                : "• It has no on/off switch: it is always used once approved. You can limit it in Settings > Recipes.");
+            return lines;
+        }
+
+        /// <summary>
+        /// What the settings and the recipe manager show about an extension: what it does, which recipes it changes, its approval
+        /// </summary>
+        private RecipeDetails GetExtensionDetails(RecipeExtension extension)
+        {
+            var details = new RecipeDetails
+            {
+                WhatItDoes = RecipeDescriber.DescribeSteps(extension.AsRecipeView()).Select(l => l.IsDetail ? "    " + l.Text : l.Text).ToList(),
+                Reach = DescribeExtensionReach(extension),
+                ProposedBy = extension.ProposedBy
+            };
+            AddApprovalDetails(details, extension.FilePath, extension.Id);
+            return details;
         }
 
         private CaptureRecipe Compose(CaptureRecipe recipe)
@@ -459,6 +538,8 @@ namespace Greenshot.Recipes
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdTrayMenu, "Core.contextmenu_showtraymenu", "Opens the tray menu at the mouse", OpenWindowStep.TrayMenu), disabled);
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdOpenSettings, "Core.contextmenu_opensettings", "Opens the settings", OpenWindowStep.Settings), disabled);
             RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdEmptyEditor, "Core.contextmenu_openemptyeditor", "Opens an empty image in the editor", OpenWindowStep.EmptyEditor), disabled);
+            // 14. The quick settings in a window, for a hotkey or a click on the tray icon
+            RegisterBuiltIn(CreateOpenWindowRecipe(RecipeIdQuickSettings, "Core.contextmenu_quicksettings", "Opens the quick settings in a window", OpenWindowStep.QuickSettings), disabled);
         }
 
         private static CaptureRecipe CreateOpenWindowRecipe(string id, string name, string description, string window)
@@ -511,116 +592,6 @@ namespace Greenshot.Recipes
             return set;
         }
 
-        private void AddRecipeFileToConfig(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath)) return;
-            // Only a file which is used is watched, not one which wasn't approved or valid
-            SetupWatcherForFile(filePath);
-            try
-            {
-                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
-                if (recipeConfig == null) return;
-
-                string existing = recipeConfig.RecipeFiles ?? "";
-                var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var configuredPaths = new List<string>();
-
-                foreach (string p in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    try
-                    {
-                        string norm = Path.GetFullPath(p.Trim());
-                        if (currentPaths.Add(norm))
-                        {
-                            configuredPaths.Add(norm);
-                        }
-                    }
-                    catch { }
-                }
-
-                string targetNorm = Path.GetFullPath(filePath);
-                if (currentPaths.Add(targetNorm))
-                {
-                    configuredPaths.Add(targetNorm);
-                    recipeConfig.RecipeFiles = string.Join(";", configuredPaths);
-                    IniConfigRegistry.Get()?.Save();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Failed to update configured recipe files for '{filePath}'", ex);
-            }
-        }
-
-        /// <summary>
-        /// Greenshot stops loading the recipe file (e.g. one which fails the checks): its recipes go, the file itself stays
-        /// </summary>
-        public void RemoveRecipeFile(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath)) return;
-            List<string> recipeIds;
-            lock (_recipes)
-            {
-                recipeIds = _recipes.Values.Where(recipe => IsSameFile(recipe.FilePath, filePath)).Select(recipe => recipe.Id).ToList();
-            }
-
-            foreach (string recipeId in recipeIds)
-            {
-                UnregisterRecipe(recipeId);
-            }
-
-            RemoveRecipeFileFromConfig(filePath);
-            Log.InfoFormat("Removed the recipe file '{0}' from Greenshot, the file stays", filePath);
-            NotifyRecipesChanged();
-        }
-
-        private static bool IsSameFile(string first, string second)
-        {
-            if (string.IsNullOrWhiteSpace(first) || string.IsNullOrWhiteSpace(second)) return false;
-            try
-            {
-                return string.Equals(Path.GetFullPath(first), Path.GetFullPath(second), StringComparison.OrdinalIgnoreCase);
-            }
-            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
-            {
-                return false;
-            }
-        }
-
-        private void RemoveRecipeFileFromConfig(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath)) return;
-            try
-            {
-                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
-                if (recipeConfig == null) return;
-
-                string existing = recipeConfig.RecipeFiles ?? "";
-                string targetNorm = Path.GetFullPath(filePath);
-                var configuredPaths = new List<string>();
-
-                foreach (string p in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    try
-                    {
-                        string norm = Path.GetFullPath(p.Trim());
-                        if (!string.Equals(norm, targetNorm, StringComparison.OrdinalIgnoreCase))
-                        {
-                            configuredPaths.Add(norm);
-                        }
-                    }
-                    catch { }
-                }
-
-                recipeConfig.RecipeFiles = string.Join(";", configuredPaths);
-                IniConfigRegistry.Get()?.Save();
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Failed to remove recipe file from config: '{filePath}'", ex);
-            }
-        }
-
         private void RegisterBuiltIn(CaptureRecipe recipe, ISet<string> disabledRecipeIds)
         {
             recipe.IsBuiltIn = true;
@@ -628,517 +599,6 @@ namespace Greenshot.Recipes
             recipe.IsEnabled = !disabledRecipeIds.Contains(recipe.Id);
             _builtInRecipes[recipe.Id] = recipe.Clone();
             _recipes[recipe.Id] = recipe;
-        }
-
-#if GREENSHOT_LIGHT
-        /// <summary>
-        /// Greenshot Light has only the built-in recipes: no recipe files are loaded, imported or saved
-        /// </summary>
-        internal static bool RecipeFilesSupported => false;
-#else
-        internal static bool RecipeFilesSupported => true;
-#endif
-
-        /// <summary>
-        /// True while ReloadRecipes loads the configured files: it notifies once for all of them
-        /// </summary>
-        private bool _loadingConfiguredFiles;
-
-        /// <summary>
-        /// Loads the recipe files of the configuration
-        /// </summary>
-        /// <param name="interactive">false: no window is shown, a file which needs the user (approval, errors) is only added to <paramref name="needsUser"/></param>
-        /// <param name="needsUser">Collects the files which couldn't be loaded without the user</param>
-        private void LoadConfiguredRecipeFiles(bool interactive, List<string> needsUser)
-        {
-            if (!RecipeFilesSupported)
-            {
-                return;
-            }
-
-            if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
-            {
-                Log.Debug("Recipe feature is disabled. Skipping external recipe file loading.");
-                return;
-            }
-
-            var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
-            string configured = recipeConfig?.RecipeFiles;
-            if (string.IsNullOrWhiteSpace(configured)) return;
-
-            var paths = configured.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var rawPath in paths)
-            {
-                var trimmed = rawPath.Trim();
-                if (string.IsNullOrEmpty(trimmed)) continue;
-
-                try
-                {
-                    string fullPath = Path.GetFullPath(trimmed);
-                    if (File.Exists(fullPath))
-                    {
-                        var result = LoadRecipeFromFile(fullPath, interactive);
-                        if (!result.IsValid)
-                        {
-                            Log.WarnFormat("Validation failed for configured recipe file '{0}': {1}", fullPath, string.Join("; ", result.Errors));
-                            if (!interactive)
-                            {
-                                needsUser.Add(fullPath);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Log.WarnFormat("Configured recipe file '{0}' was not found.", fullPath);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error loading configured recipe file '{trimmed}'", ex);
-                }
-            }
-        }
-
-        private void SetupWatcherForFile(string filePath)
-        {
-            if (string.IsNullOrEmpty(filePath)) return;
-
-            try
-            {
-                string dir = Path.GetDirectoryName(Path.GetFullPath(filePath));
-                if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir)) return;
-
-                lock (_fileWatchers)
-                {
-                    if (!_fileWatchers.ContainsKey(dir))
-                    {
-                        var watcher = new FileSystemWatcher(dir, "*.gsrecipe.json")
-                        {
-                            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                            EnableRaisingEvents = true
-                        };
-
-                        FileSystemEventHandler handler = (s, e) =>
-                        {
-                            Log.InfoFormat("Detected change on disk for recipe file '{0}' ({1}).", e.FullPath, e.ChangeType);
-                            ScheduleChangedFileCheck(e.FullPath);
-                        };
-
-                        watcher.Changed += handler;
-                        watcher.Created += handler;
-                        // Editors which save to a temporary file and rename it to the recipe file
-                        watcher.Renamed += (s, e) =>
-                        {
-                            Log.InfoFormat("Detected recipe file rename on disk: '{0}' -> '{1}'.", e.OldFullPath, e.FullPath);
-                            ScheduleChangedFileCheck(e.FullPath);
-                        };
-
-                        _fileWatchers[dir] = watcher;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Failed to initialize FileSystemWatcher for '{filePath}'", ex);
-            }
-        }
-
-        /// <summary>
-        /// A recipe file changed on disk: check it shortly after the last change
-        /// </summary>
-        private void ScheduleChangedFileCheck(string filePath)
-        {
-            lock (_changedFileTimers)
-            {
-                if (_changedFileTimers.TryGetValue(filePath, out var timer))
-                {
-                    timer.Change(ChangedFileDelay, Timeout.Infinite);
-                    return;
-                }
-                _changedFileTimers[filePath] = new Timer(_ =>
-                {
-                    lock (_changedFileTimers)
-                    {
-                        if (_changedFileTimers.TryGetValue(filePath, out var done))
-                        {
-                            done.Dispose();
-                            _changedFileTimers.Remove(filePath);
-                        }
-                    }
-                    // On the UI thread, like every other change of the recipes: it can change the triggers (hotkeys, clipboard listener)
-                    UiDispatcher.Current.InvokeAsync(() => CheckChangedFile(filePath)).FireAndLog("Check a changed recipe file");
-                }, null, ChangedFileDelay, Timeout.Infinite);
-            }
-        }
-
-        /// <summary>
-        /// A recipe file Greenshot uses was changed outside Greenshot (Greenshot's own saves are approved before they are written):
-        /// ask now, not when the recipe runs the next time.
-        /// </summary>
-        private void CheckChangedFile(string filePath)
-        {
-            try
-            {
-                string fullPath = Path.GetFullPath(filePath);
-                bool inUse;
-                lock (_recipes)
-                {
-                    inUse = _recipes.Values.Any(r => !string.IsNullOrEmpty(r.FilePath) && string.Equals(Path.GetFullPath(r.FilePath), fullPath, StringComparison.OrdinalIgnoreCase));
-                }
-                var extensionsOfFile = GetExtensionsOfFile(fullPath);
-                inUse |= extensionsOfFile.Count > 0;
-                if (!inUse || !File.Exists(fullPath) || RecipeTrustStore.IsRecipeApproved(fullPath, out string currentHash, out _))
-                {
-                    return;
-                }
-                lock (_askedForChangedFile)
-                {
-                    if (_askedForChangedFile.TryGetValue(fullPath, out var askedHash) && string.Equals(askedHash, currentHash, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return;
-                    }
-                    _askedForChangedFile[fullPath] = currentHash;
-                }
-                // An automatic step changes other recipes: it is not used until the change is approved
-                foreach (var extension in extensionsOfFile)
-                {
-                    DropExtension(extension.Id);
-                }
-                Log.InfoFormat("Recipe file '{0}' was changed outside Greenshot, asking for approval.", fullPath);
-                LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Could not check the changed recipe file '{filePath}'.", ex);
-            }
-        }
-
-        public RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath)
-        {
-            var result = new RecipeValidationResult();
-            if (!RecipeFilesSupported)
-            {
-                result.AddError("Greenshot Light doesn't save recipe files.");
-                return result;
-            }
-            if (recipe == null || string.IsNullOrWhiteSpace(filePath))
-            {
-                result.AddError("No recipe or file to save to.");
-                return result;
-            }
-
-            string fullPath = Path.GetFullPath(filePath);
-            recipe.FilePath = fullPath;
-            // The bytes which are approved are the bytes which are written
-            string content = RecipeSerializer.Serialize(recipe);
-            byte[] bytes = new UTF8Encoding(false).GetBytes(content);
-            string contentHash = RecipeTrustStore.ComputeSha256(bytes);
-
-            var validation = RecipeValidator.Validate(recipe);
-            RecipeApproval approval = null;
-            if (validation.IsValid)
-            {
-                approval = CreateEditApproval(recipe, fullPath, validation, out var decision, out string approvedContent);
-                if (decision.IsNeeded)
-                {
-                    Log.InfoFormat("The change of recipe '{0}' needs the user's decision: {1}", recipe.Id, string.Join(" ", decision.Reasons));
-                    var request = CreateApprovalRequest(recipe, fullPath, content, contentHash, validation);
-                    // The user is the author: no "switched off" start like for a file an AI tool wrote
-                    request.StartSwitchedOff = false;
-                    request.OwnEditReasons = decision.Reasons;
-                    request.SuggestedApproval = new RecipeApproval { RecipeId = recipe.Id, ApprovedTriggers = approval.ApprovedTriggers.Concat(decision.TriggerKeys).ToList() };
-                    if (request.PreviousContent == null && !string.IsNullOrEmpty(approvedContent))
-                    {
-                        request.PreviousContent = approvedContent;
-                    }
-                    approval = RequestInteractiveApproval(request);
-                    if (approval == null)
-                    {
-                        result.AddError("The recipe was not saved, its changes were not approved.");
-                        return result;
-                    }
-                }
-                approval.RecipeId = recipe.Id;
-                // Recorded before writing, so the change on disk is known as Greenshot's own
-                RecipeTrustStore.RecordApproval(fullPath, contentHash, approval, content, recipeName: recipe.Name, recipeVersion: recipe.Version);
-            }
-
-            try
-            {
-                string directory = Path.GetDirectoryName(fullPath);
-                if (!string.IsNullOrEmpty(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-                File.WriteAllBytes(fullPath, bytes);
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Could not save the recipe '{recipe.Id}' to '{fullPath}'.", ex);
-                result.AddError($"Could not save the recipe: {ex.Message}");
-                return result;
-            }
-
-            // Without an approval (an invalid recipe, saved as work in progress) none of its triggers is approved until it is loaded again
-            RecipeApprovalPolicy.Apply(recipe, approval);
-            recipe.ProposedBy = null;
-            lock (_recipes)
-            {
-                bool isBuiltIn = _builtInRecipes.ContainsKey(recipe.Id);
-                recipe.IsBuiltIn = isBuiltIn;
-                recipe.IsOverridden = isBuiltIn;
-            }
-            RegisterRecipe(recipe);
-            foreach (var warning in validation.Warnings) result.AddWarning(warning);
-            if (!validation.IsValid)
-            {
-                // Saved as work in progress: it is approved when it is loaded the next time
-                foreach (var error in validation.Errors) result.AddWarning(error);
-            }
-            return result;
-        }
-
-        public IReadOnlyList<string> GetSaveDecisionReasons(CaptureRecipe recipe, string filePath)
-        {
-            if (recipe == null)
-            {
-                return Array.Empty<string>();
-            }
-            var validation = RecipeValidator.Validate(recipe);
-            if (!validation.IsValid)
-            {
-                return Array.Empty<string>();
-            }
-            string fullPath = string.IsNullOrWhiteSpace(filePath) ? null : Path.GetFullPath(filePath);
-            CreateEditApproval(recipe, fullPath, validation, out var decision, out _);
-            return decision.Reasons;
-        }
-
-        /// <summary>
-        /// The approval of a recipe saved in the recipe editor, and what the user has to decide about it
-        /// </summary>
-        private RecipeApproval CreateEditApproval(CaptureRecipe recipe, string fullPath, RecipeValidationResult validation, out RecipeEditDecision decision, out string approvedContent)
-        {
-            var record = fullPath == null ? null : RecipeTrustStore.GetTrustRecord(fullPath);
-            var previousApproval = record?.GetApproval(recipe.Id);
-            approvedContent = GetApprovedContent(record, fullPath);
-            var approvedVersion = RecipeEditApproval.FindRecipe(approvedContent, recipe.Id);
-            return RecipeEditApproval.Create(recipe, validation, approvedVersion, previousApproval, GetBuiltInRecipe(recipe.Id) != null, out decision);
-        }
-
-        /// <summary>
-        /// The approved content of a recipe file: from its trust record, or, for a record from before the content was kept, the file
-        /// on disk when it is still the approved one. Null when it isn't known.
-        /// </summary>
-        internal static string GetApprovedContent(RecipeTrustRecord record, string fullPath)
-        {
-            if (record == null)
-            {
-                return null;
-            }
-            if (!string.IsNullOrEmpty(record.ApprovedContent))
-            {
-                return record.ApprovedContent;
-            }
-            try
-            {
-                if (!File.Exists(fullPath))
-                {
-                    return null;
-                }
-                byte[] bytes = File.ReadAllBytes(fullPath);
-                return string.Equals(RecipeTrustStore.ComputeSha256(bytes), record.Sha256Hash, StringComparison.OrdinalIgnoreCase) ? DecodeRecipeFile(bytes) : null;
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Could not read the approved version of '{fullPath}'.", ex);
-                return null;
-            }
-        }
-
-        public RecipeValidationResult LoadRecipeFromFile(string filePath)
-        {
-            return LoadRecipeFromFile(filePath, interactiveApproval: true, forceApprovalPrompt: false);
-        }
-
-        public RecipeValidationResult LoadRecipeFromFile(string filePath, bool interactiveApproval)
-        {
-            return LoadRecipeFromFile(filePath, interactiveApproval, forceApprovalPrompt: false);
-        }
-
-        public RecipeValidationResult LoadRecipeFromFile(string filePath, bool interactiveApproval, bool forceApprovalPrompt)
-        {
-            var overallResult = new RecipeValidationResult();
-            if (!RecipeFilesSupported)
-            {
-                overallResult.AddError("Greenshot Light doesn't load recipe files.");
-                return overallResult;
-            }
-            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
-            {
-                overallResult.AddError($"File not found: {filePath}");
-                return overallResult;
-            }
-
-            try
-            {
-                // Read the file once: what is parsed, shown and approved are the same bytes (the file can change in between)
-                byte[] bytes = File.ReadAllBytes(filePath);
-                string content = DecodeRecipeFile(bytes);
-                string contentHash = RecipeTrustStore.ComputeSha256(bytes);
-                Log.InfoFormat("Loading the recipe file '{0}' ({1} bytes, SHA-256 {2}).", filePath, bytes.Length, contentHash);
-                if (IsExtensionContent(content))
-                {
-                    // An automatic step: approved and used like a recipe of the file, but it changes other recipes
-                    return LoadExtensionFromContent(filePath, content, contentHash, interactiveApproval, forceApprovalPrompt);
-                }
-                var recipes = RecipeSerializer.DeserializeList(content, validate: false);
-                bool anyChanged = false;
-
-                foreach (var recipe in recipes)
-                {
-                    recipe.FilePath = filePath;
-                    var valResult = RecipeValidator.Validate(recipe);
-                    if (!valResult.IsValid)
-                    {
-                        foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
-                        Log.WarnFormat("The recipe '{0}' {1} from '{2}' fails the checks: {3}", recipe.Id, recipe.Version, filePath, string.Join("; ", valResult.Errors));
-                        if (interactiveApproval)
-                        {
-                            RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
-                        }
-                        continue;
-                    }
-
-                    // Security check: SHA-256 trust pinning, per recipe of the file
-                    var approval = forceApprovalPrompt ? null : RecipeTrustStore.GetApproval(filePath, contentHash, recipe.Id);
-                    if (approval == null)
-                    {
-                        if (interactiveApproval)
-                        {
-                            var decision = RequestInteractiveApprovalWithOptions(CreateApprovalRequest(recipe, filePath, content, contentHash, valResult));
-                            approval = decision?.Approval;
-                            if (approval != null)
-                            {
-                                RecipeTrustStore.RecordApproval(filePath, contentHash, approval, content, recipeName: recipe.Name, recipeVersion: recipe.Version);
-                            }
-                            else if (decision?.IsRevoked == true)
-                            {
-                                RevokeApproval(recipe.Id, filePath);
-                                overallResult.AddError($"The approval of recipe '{recipe.Name}' ({recipe.Id}) was revoked.");
-                                continue;
-                            }
-                            else if (forceApprovalPrompt && (approval = RecipeTrustStore.GetApproval(filePath, contentHash, recipe.Id)) != null)
-                            {
-                                // A review which was closed or kept as is changes nothing
-                                Log.InfoFormat("The review of recipe '{0}' was closed, its approval stays as it was.", recipe.Id);
-                            }
-                            else
-                            {
-                                overallResult.AddError($"User rejected recipe '{recipe.Name}' ({recipe.Id}) from '{filePath}'.");
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            overallResult.AddError($"Recipe '{recipe.Name}' from '{filePath}' is not approved and interactive approval is disabled.");
-                            continue;
-                        }
-                    }
-
-                    var missingGates = RecipeApprovalPolicy.GetMissingGates(valResult, approval);
-                    if (missingGates.Count > 0)
-                    {
-                        overallResult.AddError($"Recipe '{recipe.Name}' needs {string.Join(", ", missingGates.Select(RecipeApprovalPolicy.GetGateName))}, but that was not allowed.");
-                        continue;
-                    }
-
-                    foreach (var warn in valResult.Warnings) overallResult.AddWarning($"[{recipe.Id}]: {warn}");
-
-                    // Only the approved triggers can start the recipe
-                    RecipeApprovalPolicy.Apply(recipe, approval);
-                    recipe.FilePath = Path.GetFullPath(filePath);
-                    var trustRecord = RecipeTrustStore.GetTrustRecord(filePath);
-                    recipe.ProposedBy = trustRecord?.IsAiCreated == true ? trustRecord.Origin.Substring(RecipeTrustRecord.AiOriginPrefix.Length) : null;
-                    recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
-
-                    lock (_recipes)
-                    {
-                        if (_builtInRecipes.ContainsKey(recipe.Id))
-                        {
-                            recipe.IsBuiltIn = true;
-                            recipe.IsOverridden = true;
-                            _recipes[recipe.Id] = recipe;
-                            Log.InfoFormat("Overrode built-in recipe '{0}' with custom configuration from '{1}'", recipe.Id, filePath);
-                        }
-                        else
-                        {
-                            recipe.IsBuiltIn = false;
-                            recipe.IsOverridden = false;
-                            _recipes[recipe.Id] = recipe;
-                            Log.InfoFormat("Registered custom recipe '{0}' from '{1}'", recipe.Id, filePath);
-                        }
-                        anyChanged = true;
-                    }
-
-                    AddRecipeFileToConfig(filePath);
-                }
-
-                if (anyChanged && !_loadingConfiguredFiles)
-                {
-                    NotifyRecipesChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Failed to parse recipe file '{filePath}'", ex);
-                overallResult.AddError($"Exception reading recipe file: {ex.Message}");
-                if (interactiveApproval)
-                {
-                    RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
-                }
-            }
-
-            return overallResult;
-        }
-
-        /// <summary>
-        /// The text of a recipe file, the encoding detected like File.ReadAllText does
-        /// </summary>
-        internal static string DecodeRecipeFile(byte[] bytes)
-        {
-            using (var reader = new StreamReader(new MemoryStream(bytes), Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
-            {
-                return reader.ReadToEnd();
-            }
-        }
-
-        /// <summary>
-        /// What the approval window shows for a recipe from a file: the content that was read, the earlier approval, and the
-        /// built-in recipe it replaces
-        /// </summary>
-        private RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
-        {
-            var previousRecord = RecipeTrustStore.GetTrustRecord(filePath);
-            var request = new RecipeApprovalRequest
-            {
-                Recipe = recipe,
-                FilePath = filePath,
-                Content = content,
-                ContentHash = contentHash,
-                Validation = valResult,
-                PreviousRecord = previousRecord,
-                // A file an AI tool created, changed on disk: it starts switched off, like a proposal
-                StartSwitchedOff = previousRecord?.IsAiCreated == true
-            };
-            var builtIn = GetBuiltInRecipe(recipe.Id);
-            if (builtIn != null)
-            {
-                request.ReplacedRecipe = builtIn;
-                request.ReplacesBuiltIn = true;
-                request.PreviousContent = RecipeSerializer.Serialize(builtIn);
-            }
-            return request;
         }
 
         /// <summary>
@@ -1164,62 +624,6 @@ namespace Greenshot.Recipes
             }
         }
 
-        /// <summary>
-        /// Show the approval dialog (modal, on the UI thread). Returns what the user approved, null when the recipe was rejected.
-        /// </summary>
-        internal ApprovalResult RequestInteractiveApprovalWithOptions(RecipeApprovalRequest request)
-        {
-            if (!UiDispatcher.Current.CheckAccess())
-            {
-                Log.WarnFormat("The approval of '{0}' can only be asked on the UI thread, the recipe is not approved.", request.FilePath);
-                return null;
-            }
-
-            var window = new RecipeApprovalWindow(request)
-            {
-                Topmost = true,
-                ShowActivated = true,
-                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
-            };
-
-            // The active WPF window (e.g. RecipeEditorWindow) owns the approval, otherwise it stands alone (topmost)
-            IntPtr ownerHwnd = IntPtr.Zero;
-            if (System.Windows.Application.Current != null)
-            {
-                try
-                {
-                    var activeWpfWindow = System.Windows.Application.Current.Windows
-                        .OfType<System.Windows.Window>()
-                        .FirstOrDefault(w => w.IsActive && w != window);
-                    if (activeWpfWindow != null)
-                    {
-                        ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
-                    }
-                }
-                catch
-                {
-                    ownerHwnd = IntPtr.Zero;
-                }
-            }
-
-            if (ownerHwnd != IntPtr.Zero)
-            {
-                new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
-            }
-
-            if (window.ShowDialog() == true && window.Approval != null)
-            {
-                window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
-                return new ApprovalResult(window.Approval, window.OpenInEditor) { OptionValues = window.OptionValues };
-            }
-            return window.IsRevoked ? ApprovalResult.Revoked : null;
-        }
-
-        private RecipeApproval RequestInteractiveApproval(RecipeApprovalRequest request)
-        {
-            return RequestInteractiveApprovalWithOptions(request)?.Approval;
-        }
-
         private void OnOptionValuesChanged(string recipeId)
         {
             RecomposeRecipes();
@@ -1243,58 +647,6 @@ namespace Greenshot.Recipes
             var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.Triggers.ITriggerManager>(isOptional: true) as TriggerManager ?? TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
             RecipesChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Ensures that the recipe's backing file on disk is approved and current.
-        /// If the file has changed since approval, prompts the user interactively (if possible)
-        /// and reloads the recipe. Returns the valid/updated recipe, or null if unapproved/rejected.
-        /// </summary>
-        public async Task<CaptureRecipe> EnsureRecipeApprovedAndUpToDateAsync(CaptureRecipe currentRecipe, CancellationToken cancellationToken = default)
-        {
-            if (currentRecipe == null) return null;
-            if (string.IsNullOrEmpty(currentRecipe.FilePath))
-            {
-                // Built-in in-memory recipe without external file
-                return currentRecipe;
-            }
-
-            string fullPath;
-            try
-            {
-                fullPath = Path.GetFullPath(currentRecipe.FilePath);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Invalid recipe file path: {currentRecipe.FilePath}", ex);
-                return currentRecipe;
-            }
-
-            if (!File.Exists(fullPath))
-            {
-                Log.WarnFormat("External recipe file '{0}' no longer exists on disk.", fullPath);
-                return null;
-            }
-
-            // Check if file hash still matches DPAPI trust store
-            bool isApproved = RecipeTrustStore.IsRecipeApproved(fullPath, out string currentHash, out bool allowExternalCommands);
-            if (!isApproved)
-            {
-                Log.InfoFormat("Recipe file '{0}' was modified on disk or is not approved. Prompting user for approval before execution.", fullPath);
-                // The approval dialog is shown on the UI thread, the flow waits for it without blocking
-                var result = await UiDispatcher.Current.InvokeAsync(() => LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false), cancellationToken).ConfigureAwait(false);
-                if (!result.IsValid)
-                {
-                    Log.WarnFormat("Recipe re-approval or reload failed for '{0}': {1}", fullPath, string.Join("; ", result.Errors));
-                    return null;
-                }
-
-                // Return the newly loaded and updated recipe
-                return GetRecipeById(currentRecipe.Id)
-                    ?? GetAllRecipes().FirstOrDefault(r => string.Equals(r.FilePath, fullPath, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return currentRecipe;
         }
 
         public bool ResetToDefault(string recipeId)
@@ -1341,18 +693,7 @@ namespace Greenshot.Recipes
                 ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => e.DisplayName).ToList()
             };
 
-            if (!string.IsNullOrEmpty(recipe.FilePath))
-            {
-                var record = RecipeTrustStore.GetTrustRecord(recipe.FilePath);
-                if (record != null)
-                {
-                    details.ApprovedAt = record.ApprovedAt.ToLocalTime();
-                    details.ApprovedHash = record.Sha256Hash;
-                    details.IsApprovalCurrent = string.Equals(RecipeTrustStore.ComputeSha256(recipe.FilePath), record.Sha256Hash, StringComparison.OrdinalIgnoreCase);
-                    var approval = record.GetApproval(recipe.Id);
-                    details.Permissions = approval?.AllowedGates?.Select(RecipeApprovalPolicy.GetGateName).ToList() ?? new List<string>();
-                }
-            }
+            AddApprovalDetails(details, recipe.FilePath, recipe.Id);
 
             var builtIn = recipe.IsOverridden ? GetBuiltInRecipe(recipe.Id) : null;
             if (builtIn != null)
@@ -1365,88 +706,6 @@ namespace Greenshot.Recipes
                 details.BuiltInDiff = RecipeTextDiff.ToUnifiedText(RecipeSerializer.Serialize(builtIn), RecipeSerializer.Serialize(current));
             }
             return details;
-        }
-
-        /// <summary>
-        /// Revokes the approval of a recipe from a file: it no longer runs (a built-in recipe it replaced comes back), and isn't
-        /// loaded again until the user opens its file again. False when the recipe has no file.
-        /// </summary>
-        public bool RevokeApproval(string recipeId, string filePath = null)
-        {
-            var extension = GetExtensionById(recipeId);
-            bool isExtension = !string.IsNullOrEmpty(extension?.FilePath) && GetRecipeById(recipeId)?.FilePath == null;
-            filePath ??= GetRecipeById(recipeId)?.FilePath ?? extension?.FilePath;
-            if (string.IsNullOrEmpty(recipeId) || string.IsNullOrEmpty(filePath))
-            {
-                return false;
-            }
-            RecipeTrustStore.RevokeRecipeApproval(filePath, recipeId);
-            if (isExtension || GetExtensionsOfFile(Path.GetFullPath(filePath)).Any(e => string.Equals(e.Id, recipeId, StringComparison.OrdinalIgnoreCase)))
-            {
-                DropExtension(recipeId);
-            }
-            else
-            {
-                UnregisterRecipe(recipeId);
-            }
-            Log.InfoFormat("The user revoked the approval of recipe '{0}' from '{1}'.", recipeId, filePath);
-            return true;
-        }
-
-        public RecipeValidationResult ReviewApproval(string recipeId)
-        {
-            string filePath = GetRecipeById(recipeId)?.FilePath ?? GetExtensionById(recipeId)?.FilePath;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return null;
-            }
-            // Shows the approval window with the current approval; what the user confirms replaces it
-            return LoadRecipeFromFile(filePath, interactiveApproval: true, forceApprovalPrompt: true);
-        }
-
-        public bool ShowRecipeDetails(string recipeId)
-        {
-            var recipe = GetRecipeById(recipeId);
-            if (recipe == null && GetExtensionById(recipeId) is RecipeExtension extension && UiDispatcher.Current.CheckAccess())
-            {
-                return ShowExtensionDetails(extension);
-            }
-            if (recipe == null || !UiDispatcher.Current.CheckAccess())
-            {
-                return false;
-            }
-
-            RecipeApprovalRequest request;
-            if (!string.IsNullOrEmpty(recipe.FilePath) && File.Exists(recipe.FilePath))
-            {
-                byte[] bytes = File.ReadAllBytes(recipe.FilePath);
-                string content = DecodeRecipeFile(bytes);
-                var fileRecipe = RecipeSerializer.DeserializeList(content, validate: false)
-                    .FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase)) ?? recipe.Clone();
-                fileRecipe.FilePath = recipe.FilePath;
-                request = CreateApprovalRequest(fileRecipe, recipe.FilePath, content, RecipeTrustStore.ComputeSha256(bytes), RecipeValidator.Validate(fileRecipe));
-                // Only the details: no "starts switched off" for files an AI tool wrote, the switches show the approval
-                request.StartSwitchedOff = false;
-            }
-            else
-            {
-                request = new RecipeApprovalRequest
-                {
-                    Recipe = recipe,
-                    Content = RecipeSerializer.Serialize(recipe),
-                    Validation = RecipeValidator.Validate(recipe)
-                };
-            }
-            request.IsReadOnly = true;
-
-            var window = new RecipeApprovalWindow(request)
-            {
-                Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive),
-                ShowActivated = true
-            };
-            window.WindowStartupLocation = window.Owner != null ? System.Windows.WindowStartupLocation.CenterOwner : System.Windows.WindowStartupLocation.CenterScreen;
-            window.ShowDialog();
-            return true;
         }
 
         public void ResetAllToDefault()
@@ -1477,32 +736,12 @@ namespace Greenshot.Recipes
 
         /// <summary>
         /// Loads the recipes at startup without showing a window: the files which need the user (a changed file to approve, an error
-        /// to show) are returned, to be loaded with <see cref="LoadRecipeFilesInteractively"/> once Greenshot has started
+        /// to show) are returned, to be loaded with <c>LoadRecipeFilesInteractively</c> (not in Greenshot Light, which has no recipe files) once Greenshot has started
         /// </summary>
         /// <returns>The recipe files which weren't loaded (or only partly)</returns>
         public IReadOnlyList<string> LoadRecipesAtStartup()
         {
             return ReloadRecipes(interactive: false);
-        }
-
-        /// <summary>
-        /// Loads the recipe files again, asking the user where needed (approval, errors), e.g. the ones held back by <see cref="LoadRecipesAtStartup"/>
-        /// </summary>
-        public void LoadRecipeFilesInteractively(IEnumerable<string> filePaths)
-        {
-            _loadingConfiguredFiles = true;
-            try
-            {
-                foreach (var filePath in filePaths)
-                {
-                    LoadRecipeFromFile(filePath, interactiveApproval: true);
-                }
-            }
-            finally
-            {
-                _loadingConfiguredFiles = false;
-            }
-            NotifyRecipesChanged();
         }
 
         private IReadOnlyList<string> ReloadRecipes(bool interactive)
@@ -1536,81 +775,10 @@ namespace Greenshot.Recipes
                     }
                 }
             }
-            _loadingConfiguredFiles = true;
-            try
-            {
-                LoadConfiguredRecipeFiles(interactive, needsUser);
-            }
-            finally
-            {
-                _loadingConfiguredFiles = false;
-            }
+            LoadConfiguredRecipeFiles(interactive, needsUser);
             ForgetApprovalsOfUnusedFiles();
             NotifyRecipesChanged();
             return needsUser;
-        }
-
-        /// <summary>
-        /// The trust store keeps the approvals of the configured recipe files only, a file which is configured again is asked for again
-        /// </summary>
-        private static void ForgetApprovalsOfUnusedFiles()
-        {
-            // Without the recipe configuration (Recipe Editor plugin not loaded, recipes off) it isn't known which files are used
-            var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
-            if (!RecipeFilesSupported || recipeConfig == null || !RecipeConfigHelper.IsRecipeFeatureEnabled(recipeConfig))
-            {
-                return;
-            }
-            var configuredFiles = new List<string>();
-            foreach (var path in (recipeConfig.RecipeFiles ?? string.Empty).Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                try
-                {
-                    configuredFiles.Add(Path.GetFullPath(path.Trim()));
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug($"Ignoring the invalid recipe file path '{path}'.", ex);
-                }
-            }
-            RecipeTrustStore.KeepOnly(configuredFiles);
-        }
-
-        /// <summary>
-        /// Stops the watchers of folders which hold no recipe or automatic step file which is used
-        /// </summary>
-        private void PruneFileWatchers()
-        {
-            var usedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            void AddDirectoryOf(string filePath)
-            {
-                if (string.IsNullOrEmpty(filePath)) return;
-                try
-                {
-                    usedDirectories.Add(Path.GetDirectoryName(Path.GetFullPath(filePath)));
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug($"Ignoring the invalid recipe file path '{filePath}'.", ex);
-                }
-            }
-            foreach (var recipe in GetAllRecipes())
-            {
-                AddDirectoryOf(recipe.FilePath);
-            }
-            foreach (var extension in GetAllExtensions())
-            {
-                AddDirectoryOf(extension.FilePath);
-            }
-            lock (_fileWatchers)
-            {
-                foreach (var directory in _fileWatchers.Keys.Where(directory => !usedDirectories.Contains(directory)).ToList())
-                {
-                    _fileWatchers[directory].Dispose();
-                    _fileWatchers.Remove(directory);
-                    Log.DebugFormat("Stopped watching '{0}' for recipe file changes.", directory);
-                }
-            }
         }
 
         public IReadOnlyList<CaptureRecipe> GetAllRecipes()

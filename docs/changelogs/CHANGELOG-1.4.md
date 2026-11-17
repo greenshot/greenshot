@@ -311,6 +311,24 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Printing, PowerPoint and file names, bugs from the old bug tracker** (#1765)
+- "Force grayscale printing" prints in gray also when the printer driver ignores it
+- A capture shrunk to fit the page prints with sharper text
+- With the PowerPoint slide layout ppLayoutBlank the capture goes on one slide, before an extra empty slide was added
+- Invisible marks in window titles (e.g. of Microsoft Edge) are left out of file names
+- File names from window titles and web pages can no longer hide text or fake their extension with invisible or right-to-left characters; emoji and scripts that need joining characters still work
+- A name like CON or NUL, which Windows can't save, gets a _ in front
+
+**Installer** (#1766)
+- The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
+
+**Editor bugs from the old bug tracker** (#1764)
+- Closing an opened .greenshot file without changes no longer asks to save it, and its elements are no longer all selected after opening
+- While a crop waits for Confirm or Cancel, the tool keys (R, E, T, ...) and shortcuts are blocked like the disabled buttons; before, they could leave the crop rectangle behind, and confirming it later gave an error
+- A counter with a transparent fill can be selected, the counter button keeps its icon when the counter starts at 0 and shows the right number after undo, counters can start at up to 9999
+- Ctrl+Backspace in a text box removes one word, also after a line break
+- Invert keeps transparent areas transparent
+
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
 - Fixed null reference in cursor setter (#873)
@@ -339,6 +357,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
 - The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
 
+**Quick settings window and capture after a delay**
+- The quick settings of the tray menu can open in a window of their own, e.g. from a hotkey or a click on the tray icon (recipe "Quick preferences")
+- Captures start at once, also from a hotkey: the old 100 ms "capture delay" is gone, the tray menu itself waits until it has disappeared
+- "Wait before every capture" (Settings and quick settings, off by default) waits a chosen time before every capture of the screen, with a countdown which doesn't close an open menu; an old capture delay you set is taken over
+- A recipe can wait before the capture in the same way, and can ask how long to wait
+
 **When the file already exists**
 - greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 
@@ -348,6 +372,14 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A destination of a plugin which isn't loaded is no longer removed from the settings
 - A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
 - The plugin list in the settings shows who signed each plugin
+
+**Update check**
+- Settings > General: switch the update check on or off, choose the days between the checks, and "Check now" shows your version and a newer one with its download
+- A released version only offers the next release, unless "Check for unstable updates" is on; an unstable (beta) version offers newer unstable versions and releases, whichever is newest
+
+**Fewer settings**
+- The window menus always show a preview of the window under the mouse, the setting "Show window thumbnails in context menu" is gone
+- The magnifier is switched on and off with Z while capturing, the setting "Show magnifier" is gone
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry

@@ -105,6 +105,26 @@ namespace Greenshot.Tests.Core
             Assert.False(service.IsBetaUpdateAvailable);
         }
 
+        [Theory]
+        // A released version is only offered the next release
+        [InlineData("1.3.0", false, "1.3.1", "1.4.5", "1.3.1")]
+        [InlineData("1.3.1", false, "1.3.1", "1.4.5", null)]
+        // An unstable version is offered the newer of the latest unstable and the latest release
+        [InlineData("1.4.2", true, "1.3.1", "1.4.5", "1.4.5")]
+        [InlineData("1.4.2", true, "1.4.10", "1.4.5", "1.4.10")]
+        [InlineData("1.4.5", true, "1.3.1", "1.4.5", null)]
+        public void UpdateService_OfferedUpdate_FollowsTheKindOfTheCurrentVersion(string current, bool isUnstable, string release, string beta, string expected)
+        {
+            var service = new Greenshot.Helpers.UpdateService(Version.Parse(current), isUnstable);
+            service.ProcessFeed(new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = release,
+                CurrentBetaVersion = beta
+            });
+
+            Assert.Equal(expected == null ? null : Version.Parse(expected), service.OfferedUpdate);
+        }
+
         [Fact]
         public void UpdateService_DownloadsUri_IsConfigured()
         {

@@ -279,9 +279,8 @@ public sealed class StampLibrary
     /// </summary>
     public static string NormalizeCategory(string category)
     {
-        var invalid = Path.GetInvalidFileNameChars();
         var folders = (category ?? string.Empty).Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(folder => new string(folder.Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim().TrimEnd('.'))
+            .Select(folder => FilenameHelper.MakeFilenameSafe(folder.TrimEnd('.')))
             .Where(folder => folder.Length > 0);
         return string.Join("/", folders);
     }
@@ -345,8 +344,7 @@ public sealed class StampLibrary
     /// </summary>
     private string UniquePath(string category, string name, string extension)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        string baseName = new string((name ?? string.Empty).Select(c => invalid.Contains(c) ? '_' : c).ToArray()).Trim();
+        string baseName = FilenameHelper.MakeFilenameSafe(name ?? string.Empty);
         if (baseName.Length == 0)
         {
             baseName = "Stamp";
