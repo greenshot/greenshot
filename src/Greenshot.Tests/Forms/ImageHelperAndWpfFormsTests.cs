@@ -273,7 +273,7 @@ namespace Greenshot.Tests.Forms
 
             var textEn = Texts.Settings.ExpertBetatester;
             Assert.False(string.IsNullOrEmpty(textEn));
-            Assert.Equal("Enable to enable beta-test features.", textEn);
+            Assert.Equal("Enable beta-test features", textEn);
         }
 
         [Fact]

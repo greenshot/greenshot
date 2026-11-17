@@ -55,7 +55,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipe
         _config = section;
 
         services.AddService<IRecipeEditorService>(this);
-        services.AddSettingsView<IRecipeConfiguration>(config => new RecipeEditorConfigurationView(config));
+        services.AddSettingsView<IRecipeConfiguration>(_ => new RecipeEditorConfigurationView(this));
     }
 
     public object CreateSettingsViewModel(IServiceProvider services) => _config;

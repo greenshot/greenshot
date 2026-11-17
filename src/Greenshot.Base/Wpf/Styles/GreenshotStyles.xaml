@@ -64,7 +64,7 @@
         <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="Padding" Value="3,4"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
@@ -84,6 +84,15 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource TemplatedParent}}"/>
                         </Trigger>
+                        <!-- A single line box (see the style triggers): the line in the middle of the box -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="AcceptsReturn" Value="False"/>
+                                <Condition Property="TextWrapping" Value="NoWrap"/>
+                                <Condition Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_ContentHost" Property="VerticalAlignment" Value="Center"/>
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -92,6 +101,17 @@
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5"/>
             </Trigger>
+            <!-- A single line box has the height of the dropdowns (DefaultComboBoxStyle); boxes for more lines (AcceptsReturn, wrapping, a scroll bar) keep theirs -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="AcceptsReturn" Value="False"/>
+                    <Condition Property="TextWrapping" Value="NoWrap"/>
+                    <Condition Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="Padding" Value="3,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </MultiTrigger>
         </Style.Triggers>
     </Style>
     <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}"/>
@@ -102,9 +122,11 @@
         <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="6,4"/>
         <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <!-- The height of the text boxes and the dropdowns, the room is for the line -->
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Padding" Value="3,0"/>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5"/>

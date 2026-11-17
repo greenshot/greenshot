@@ -402,8 +402,6 @@ namespace Greenshot.Shell
         private void FillWindowList(MenuItem windowList, ContextMenuTrigger trigger, ICoreConfiguration conf)
         {
             windowList.Items.Clear();
-            // Only show the preview when enabled and DWM is there
-            bool thumbnailPreview = conf.ThumnailPreview;
 
             foreach (var window in WindowHelper.GetTopLevelWindows())
             {
@@ -435,14 +433,11 @@ namespace Greenshot.Shell
                     item.Icon = ThemedMenu.CreateIcon(icon);
                 }
 
-                if (thumbnailPreview)
-                {
-                    item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
-                    item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
-                    // Also for the item the arrow keys are on
-                    item.GotKeyboardFocus += (sender, args) => ShowThumbnail(item, windowToCapture);
-                    item.LostKeyboardFocus += (sender, args) => _thumbnailWindow?.Hide();
-                }
+                // The preview of the window (DWM thumbnail), also for the item the arrow keys are on
+                item.MouseEnter += (sender, args) => ShowThumbnail(item, windowToCapture);
+                item.MouseLeave += (sender, args) => _thumbnailWindow?.Hide();
+                item.GotKeyboardFocus += (sender, args) => ShowThumbnail(item, windowToCapture);
+                item.LostKeyboardFocus += (sender, args) => _thumbnailWindow?.Hide();
             }
         }
 

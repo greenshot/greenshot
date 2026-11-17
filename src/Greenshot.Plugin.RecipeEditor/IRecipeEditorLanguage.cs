@@ -3307,11 +3307,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string SelectEditorBtnImport { get; }
 
         /// <summary>
-        /// Configured Recipe Files (semicolon-separated):
-        /// </summary>
-        string ConfigRecipeFiles { get; }
-
-        /// <summary>
         /// OVERRIDDEN
         /// </summary>
         string BadgeOverridden { get; }

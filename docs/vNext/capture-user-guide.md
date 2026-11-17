@@ -179,7 +179,7 @@ Without a mouse, `Tab` selects the next window (the top one first) and `Shift` +
 - `D` shows or hides technical details of the selected window next to the size: its number, its title (or the name of the program),
   and for an area its type and name. This helps when you report a problem with a certain program.
 
-**For beta testers** (Expert settings, *Enable to enable beta-test features*): many programs draw their whole content themselves,
+**For beta testers** (Expert settings, *Enable beta-test features*): many programs draw their whole content themselves,
 e.g. web browsers, so Greenshot only finds one window for them. In those programs the window mode also finds the **areas** of the
 content, like the menu, a side bar or a part of a web page, and selects the smallest area under the mouse (areas smaller than
 64 pixels are skipped).
@@ -271,7 +271,7 @@ the mode starts. Then every line of text it found gets a thin frame.
 
 The words in the selection are copied to the clipboard as text; the capture doesn't go to your destinations. This is a visible step
 of the built-in region and window capture recipes (the branch *Text or image* after the selection), so a recipe of your own can do
-something else with the text. With recipes turned on (*Enable recipes*, in the settings of the recipe editor plugin), the built-in recipe *OCR text to clipboard* starts the capture
+something else with the text. With the recipe editor plugin switched on (Settings, Plugins tab), the built-in recipe *OCR text to clipboard* starts the capture
 in this mode and copies only the text; give it a hotkey or a menu entry to use it (see [capture-recipes.md](capture-recipes.md)).
 
 The text recognition needs a language installed in Windows (Time and language, Language and region). Which language Greenshot reads
@@ -287,7 +287,7 @@ remembers your choice for the next capture.
 The zoomer is a round magnifier next to the mouse. It shows the pixels around the mouse greatly enlarged, with a crosshair on the
 pixel under the mouse. While a selection is shown, its edges are drawn in the zoomer too, so you see whether a pixel is in or out.
 
-- `Z` shows or hides it. This is the same as *Show magnifier* in the settings (Capture tab).
+- `Z` shows or hides it. Greenshot remembers it for the next capture.
 - It is shown in the region, fixed size and text modes, not in the window mode, where you select whole windows.
 - Its size is a fifth of the smaller side of the monitor.
 - It can be made see-through with the setting `ZoomerOpacity`, see [Settings](#settings-which-change-capturing).
@@ -450,7 +450,7 @@ greenshot.ini, so you can also set them there (see [Settings](#settings-which-ch
 | Keys panel shown or hidden | `F1` | yes | `CaptureHelpVisible` |
 | Info panel shown or hidden | `I` | yes | `CaptureInfoVisible` |
 | Preview in a corner, at the mouse, or off | `P` | yes | `CaptureSelectionPreviewVisible`, `ZoomerShowsPreview` |
-| Zoomer shown or hidden | `Z` | yes, also in the settings as *Show magnifier* | `ZoomerEnabled` |
+| Zoomer shown or hidden | `Z` | yes | `ZoomerEnabled` |
 | Where the mouse holds the fixed size area | `C` | yes | `FixedCaptureAnchor` |
 | The last fixed size entry you captured | capturing a fixed size | yes, the fixed size mode starts with it | `FixedCaptureArea` |
 | The sizes and places of your last region and window captures (five) | capturing a region, a window or a fixed size | yes, listed under *Recently captured*; what they keep: *Recent captures keep* | `RecentCaptureAreas` |
@@ -472,7 +472,6 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | General tab, *Tray icon* | Click, Double-click | The recipe a click and a double-click on the Greenshot icon start, e.g. a region capture. |
 | Capture tab | *Capture mousepointer* | Whether the mouse cursor is in the capture. `M` changes it for one capture. Also in the tray menu under quick settings. |
 | Capture tab | *Play camera sound* | A camera sound when a capture is taken. |
-| Capture tab | *Show magnifier* | The zoomer, the same as `Z`. |
 | Capture tab | *Freeze the screen while selecting* | On (the default): you select on a picture of the screen. Off: you select on the live screen, see [Without freezing the screen](#without-freezing-the-screen). `L` switches while selecting. |
 | Capture tab | *Milliseconds to wait before capture* | Time to wait before the picture is taken, e.g. so a menu of the tray icon can close. At the default of 100 a hotkey doesn't wait, there is no menu to close. |
 | Capture tab | *Fixed capture sizes* | Your own sizes for the fixed size mode, in the order `1` – `9` and `0` pick them. Add a size with width and height, and optionally a place on a screen or in a window of a program (without X and Y: its top left corner); click a size to change it, or remove one from the list. |
@@ -481,7 +480,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |
 | Capture tab, *Text recognition (OCR)* | *Language of the text* | The language Windows reads text in, for the text mode and the Windows OCR destination. |
 | Expert tab | *Make some optimizations for usage with remote desktop* | No animations and no crosshair lines, also outside of a remote session. In a remote session this happens on its own. |
-| Expert tab | *Enable to enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
+| Expert tab | *Enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
 | Expert tab | *Take screenshots with DirectX* | The way the picture of the screens is taken; needed for HDR screens. |
 | Expert tab | *Ignore the screen reader flag of Windows when capturing* | The capture starts as without a screen reader (live screen, region), also while the screen reader flag of Windows is on. For a flag a program left on, see [the screen reader flag stays on](#the-screen-reader-flag-stays-on). |
 | Expert tab | *Prepare the capture in the background after the start* | The first capture after the start of Greenshot opens faster, but uses more memory. |
