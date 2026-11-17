@@ -1207,11 +1207,6 @@ namespace Greenshot.Base.Languages
         string CatalogMessageTitle { get; }
 
         /// <summary>
-        /// This edition of Greenshot doesn't use recipe files, so it can't install recipes from the catalog.
-        /// </summary>
-        string CatalogNotSupported { get; }
-
-        /// <summary>
         /// Recipes are switched off in this Greenshot, so it can't install recipes from the catalog.
         /// </summary>
         string CatalogRecipesOff { get; }

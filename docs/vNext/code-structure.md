@@ -28,6 +28,11 @@ and inside a feature by kind (Views, ViewModels, Tools, Steps, ...). The namespa
   Light has no toasts (the tray icon shows its notifications), no `greenshot-cli.exe` and no `greenshot-proxy.exe` (its installer
   opens files with `Greenshot.exe --file`), so it also runs on 32-bit Windows and natively on ARM64. The libraries and plugins stay
   AnyCPU, Full and Light load them; the solution platform stays "Any CPU" (the output paths are `bin\<Configuration>\net480`).
+- **Greenshot Light has only the built-in recipes.** Loading, approving and saving recipe files is in `RecipeManager.RecipeFiles.cs` and
+  `RecipeManager.ExtensionFiles.cs`, the core calls them through partial methods; Light compiles `RecipeManager.Light.cs` instead, and leaves out
+  the trust store, the approval window and the recipe catalog (`Recipes/Catalog`).
+- **Greenshot Light starts with the LowMemory memory profile** (the user can turn it up), the full version with Fast: `EditionDefaults` (`Greenshot/Configuration`) is a
+  Dapplo.Ini value source of the Default layer, so its values replace the compiled defaults and greenshot-defaults.ini, and every value the user set wins.
 - A namespace must not shadow a type it uses: the capture folder is `Capturing`, because a `Greenshot.Capture` namespace would hide `Greenshot.Base.Core.Capture`.
 
 ## Frozen: do not move or rename
