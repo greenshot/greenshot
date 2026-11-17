@@ -63,9 +63,10 @@ HDR files get the same noise as the editor, see [hdr.md](hdr.md).
 
 ## What blur and pixelate don't protect
 
-Someone who knows the font, for example of a known application, can render candidate texts, apply the same effect and compare. In
-our tests a blurred 4-digit number was found among 2000 candidates at every radius, up to the full text height; pixelate held out from
-about three quarters of the text height. The noise stops calculating the blur back, not this guessing. For short secrets like PINs,
+Someone who knows the font, for example of a known application, can render candidate texts, apply the same effect and compare:
+the candidate that looks most like the covered text is their guess. In our tests with a 4-digit number among 2000 candidates, this
+guess was right for blur at every radius, up to the full text height. For pixelate it was right up to a pixel size of about three
+quarters of the text height (the default) and wrong from there on. The noise stops calculating the blur back, not this guessing. For short secrets like PINs,
 card numbers or passwords, cover the text with a filled rectangle (the `Redact` effect of the `TextEffect` recipe step).
 
 **The recognized text still holds what you hid.** The OCR lines stay with the capture, including the text under an obfuscation or a
