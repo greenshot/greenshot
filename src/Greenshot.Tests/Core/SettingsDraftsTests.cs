@@ -69,6 +69,31 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void Apply_WithoutChange_ReportsNothing()
+        {
+            var live = new CoreConfigurationImpl { OutputFileJpegQuality = 80, OutputDestinations = new System.Collections.Generic.List<string> { "Editor" } };
+            var drafts = new SettingsDrafts();
+            var draft = drafts.Get<ICoreConfiguration>(live);
+
+            // OK writes the same values again, e.g. the destinations list: that is no change
+            draft.OutputFileJpegQuality = 80;
+            draft.OutputDestinations = new System.Collections.Generic.List<string> { "Editor" };
+
+            Assert.False(drafts.Apply());
+        }
+
+        [Fact]
+        public void Apply_WithChange_ReportsIt()
+        {
+            var live = new CoreConfigurationImpl { OutputFileJpegQuality = 80 };
+            var drafts = new SettingsDrafts();
+            drafts.Get<ICoreConfiguration>(live).OutputFileJpegQuality = 55;
+
+            Assert.True(drafts.Apply());
+            Assert.Equal(55, live.OutputFileJpegQuality);
+        }
+
+        [Fact]
         public void DroppedDrafts_ChangeNothing()
         {
             var live = new CoreConfigurationImpl { OutputFileJpegQuality = 80 };

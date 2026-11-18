@@ -209,9 +209,12 @@ namespace Greenshot.Settings.Views
                 ShowInput(SendToRadioButton);
                 return;
             }
-            HotkeyManager.UnregisterHotkeys();
-            SaveSettings();
-            TriggerManager.Instance.RestartHotkeyTriggers();
+            // The hotkeys and triggers are registered again only when a setting changed (a hotkey, a trigger's condition or the language)
+            if (SaveSettings())
+            {
+                HotkeyManager.UnregisterHotkeys();
+                TriggerManager.Instance.RestartHotkeyTriggers();
+            }
 
             var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
             shell?.UpdateUi();
@@ -520,7 +523,8 @@ namespace Greenshot.Settings.Views
             AddFixedCaptureSizeButton.Focus();
         }
 
-        private void SaveSettings()
+        /// <returns>true when a setting of the drafts or the language changed</returns>
+        private bool SaveSettings()
         {
             // Save destinations
             var destinations = new List<string>();
@@ -576,9 +580,10 @@ namespace Greenshot.Settings.Views
             }
             
             // The drafts the window changed: their changed keys go to the live sections at once, saved once
+            bool applied = false;
             try
             {
-                _viewModel.Drafts.Apply();
+                applied = _viewModel.Drafts.Apply();
             }
             catch (AccessViolationException ex)
             {
@@ -587,8 +592,14 @@ namespace Greenshot.Settings.Views
             }
             _applied = true;
 
-            // Force save of all configuration sections (the recipe options, hotkeys and the like are written live above)
-            IniConfigRegistry.Get()?.Save();
+            // The recipe options, the theme and the language are written live: saved now, but only when one of them changed
+            var config = IniConfigRegistry.Get();
+            if (config != null && config.HasPendingChanges())
+            {
+                config.Save();
+            }
+
+            return applied || _viewModel.LanguageChanged;
         }
 
         /// <summary>

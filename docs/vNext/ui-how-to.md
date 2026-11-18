@@ -202,7 +202,9 @@ The settings window is `Greenshot/Settings/Views/SettingsWindow.xaml` with `Sett
 - The window edits drafts of the sections (Dapplo.Ini `CreateDraft`, kept in `SettingsViewModel.Drafts`), never the live sections:
   the rest of Greenshot and the auto-save don't see a change before OK. OK (`SaveSettings`) copies lists like the destinations into the drafts,
   then `Drafts.Apply()` writes only the keys the window changed to the live sections and saves once; a key another part of Greenshot
-  changed meanwhile stays as it is. Cancel or closing the window drops the drafts and turns the theme and language previews back.
+  changed meanwhile stays as it is. Without a change OK writes and saves nothing, and the hotkeys and recipe triggers are only
+  registered again when a draft key or the language changed. Cancel or closing the window drops the drafts and turns the theme and
+  language previews back.
 - A new page gets its section with `Drafts.Get(section)`, never with `IniConfigRegistry.GetSection` alone.
 - Adding a setting: the property in the configuration interface, the text in `[Settings]` and `ISettingsLanguage`, the control on the right tab,
   with `FixedToEnabledConverter` when it can be fixed.

@@ -70,25 +70,28 @@ namespace Greenshot.Base.Core
         /// OK: writes the keys changed in the drafts to the live sections, all at once, and saves once.
         /// A key which changed live meanwhile (e.g. the counter of a capture) and wasn't changed here stays as it is.
         /// </summary>
-        public void Apply()
+        /// <returns>true when a key was written, false when the drafts had no change (nothing is written or saved then)</returns>
+        public bool Apply()
         {
-            if (_drafts.Count == 0)
+            // Nothing changed: no write, no save (IniConfig.Apply would save anyway)
+            if (_drafts.Values.All(draft => draft.GetDraftChanges().Count == 0))
             {
-                return;
+                return false;
             }
 
             var config = IniConfigRegistry.Get();
             if (config != null && _drafts.Keys.All(live => config.GetSections().Contains(live)))
             {
-                config.Apply(_drafts.Values.ToArray());
-                return;
+                return config.Apply(_drafts.Values.ToArray()).Values.Any(keys => keys.Count > 0);
             }
 
             // Sections which aren't registered (e.g. in tests): applied one by one, saved by whoever owns them
+            bool applied = false;
             foreach (var draft in _drafts.Values)
             {
-                draft.ApplyDraft();
+                applied |= draft.ApplyDraft().Count > 0;
             }
+            return applied;
         }
 
         private sealed class ReferenceComparer : IEqualityComparer<IIniSection>
