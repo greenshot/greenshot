@@ -20,6 +20,7 @@
  */
 
 using System.Collections;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -94,6 +95,71 @@ namespace Greenshot.Tests.Editor
             var pasted = DrawableContainerClipboard.Read(snapshot);
             Assert.NotNull(pasted);
             Assert.IsType<RectangleContainer>(pasted.Single());
+        }
+
+        [InteractiveDesktopFact]
+        public void Copy_WithoutImage_PlacesOnlyTheElements()
+        {
+            using var surface = new Surface();
+            DrawableContainerClipboard.Copy(CreateElements(surface));
+
+            Assert.True(DrawableContainerClipboard.IsAvailable);
+            Assert.NotEqual(true, ClipboardHelper.ContainsImageQuick());
+        }
+
+        [InteractiveDesktopFact]
+        public void Copy_WithImage_PlacesTheElementsAndTheImage()
+        {
+            using var surface = new Surface();
+            using var image = new Bitmap(20, 10);
+            DrawableContainerClipboard.Copy(CreateElements(surface), image);
+
+            // The editor pastes the elements...
+            Assert.True(DrawableContainerClipboard.IsAvailable);
+            var elements = ClipboardHelper.ReadSnapshot(new[] { DrawableContainerClipboard.Format }, DrawableContainerClipboard.MaxSize);
+            Assert.IsType<RectangleContainer>(Assert.Single(DrawableContainerClipboard.Read(elements)));
+
+            // ...other applications paste the image
+            Assert.True(ClipboardHelper.ContainsImageQuick());
+            var snapshot = ClipboardHelper.ReadSnapshot(ClipboardHelper.SelectImageReadFormats().ToArray());
+            using var pasted = ClipboardHelper.GetFirstImage(snapshot);
+            Assert.Equal(image.Size, pasted.Size);
+        }
+
+        [InteractiveDesktopFact]
+        public void CopySelectedElements_PlacesTheImageWithTheElements_AndPasteTakesTheElements()
+        {
+            using var surface = new Surface(new Bitmap(100, 80));
+            var rectangle = new RectangleContainer(surface) { Left = 10, Top = 20, Width = 30, Height = 40 };
+            surface.AddElement(rectangle);
+            surface.SelectElement(rectangle);
+
+            surface.CopySelectedElements();
+
+            // The whole capture is on the clipboard, not only the selected element
+            using (var pasted = ClipboardHelper.GetFirstImage(ClipboardHelper.ReadSnapshot(ClipboardHelper.SelectImageReadFormats().ToArray())))
+            {
+                Assert.Equal(new Size(100, 80), pasted.Size);
+            }
+
+            // Pasting in the editor still duplicates the element, the image isn't added as a second element
+            surface.PasteElementFromClipboard();
+            Assert.Equal(2, surface.Elements.OfType<RectangleContainer>().Count());
+            Assert.Equal(2, surface.Elements.Count);
+        }
+
+        [InteractiveDesktopFact]
+        public void CutSelectedElements_PlacesOnlyTheElements()
+        {
+            using var surface = new Surface(new Bitmap(100, 80));
+            var rectangle = new RectangleContainer(surface) { Left = 10, Top = 20, Width = 30, Height = 40 };
+            surface.AddElement(rectangle);
+            surface.SelectElement(rectangle);
+
+            surface.CutSelectedElements();
+
+            Assert.True(DrawableContainerClipboard.IsAvailable);
+            Assert.NotEqual(true, ClipboardHelper.ContainsImageQuick());
         }
     }
 }

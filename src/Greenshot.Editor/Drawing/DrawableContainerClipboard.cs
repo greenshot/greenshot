@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Dapplo.Windows.Clipboard;
@@ -101,14 +102,19 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Place the elements on the clipboard
+        /// Place the elements on the clipboard, with the image when there is one.
+        /// Like Office does with a copied shape: the editor pastes the elements, other applications paste the image.
         /// </summary>
         /// <param name="elements">IDrawableContainerList</param>
+        /// <param name="image">The image to place next to the elements, borrowed and not disposed, null for the elements only</param>
         /// <exception cref="ClipboardException">when the clipboard is in use</exception>
-        public static void Copy(IDrawableContainerList elements)
+        public static void Copy(IDrawableContainerList elements, Image image = null)
         {
-            var contents = new ClipboardContents().AddBytes(Serialize(elements), Format);
-            ClipboardHelper.SetClipboardData(contents);
+            var elementBytes = Serialize(elements);
+            // The image formats are placed first, applications which take the first format they understand should get the image
+            using var content = ClipboardHelper.CreateContent(image);
+            content.Contents.AddBytes(elementBytes, Format);
+            ClipboardHelper.SetClipboardData(content.Contents);
         }
 
         /// <summary>
