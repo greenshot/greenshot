@@ -64,6 +64,7 @@ namespace Greenshot.Editor.Forms
 			this.btnRect = new ToolStripButton();
 			this.btnEllipse = new ToolStripButton();
 			this.btnLine = new ToolStripButton();
+			this.btnPolyline = new ToolStripButton();
 			this.btnArrow = new ToolStripButton();
 			this.btnFreehand = new ToolStripButton();
 			this.btnText = new ToolStripButton();
@@ -105,6 +106,7 @@ namespace Greenshot.Editor.Forms
 			this.addRectangleToolStripMenuItem = new ToolStripMenuItem();
 			this.addEllipseToolStripMenuItem = new ToolStripMenuItem();
 			this.drawLineToolStripMenuItem = new ToolStripMenuItem();
+			this.drawPolylineToolStripMenuItem = new ToolStripMenuItem();
 			this.drawArrowToolStripMenuItem = new ToolStripMenuItem();
 			this.drawFreehandToolStripMenuItem = new ToolStripMenuItem();
 			this.addTextBoxToolStripMenuItem = new ToolStripMenuItem();
@@ -353,6 +355,7 @@ namespace Greenshot.Editor.Forms
 									this.btnRect,
 									this.btnEllipse,
 									this.btnLine,
+									this.btnPolyline,
 									this.btnArrow,
 									this.btnFreehand,
 									this.btnText,
@@ -411,6 +414,14 @@ namespace Greenshot.Editor.Forms
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnLine.Name = "btnLine";
 			this.btnLine.Click += new System.EventHandler(this.BtnLineClick);
+			//
+			// btnPolyline
+			//
+			this.btnPolyline.CheckOnClick = true;
+			this.btnPolyline.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.btnPolyline.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnPolyline.Name = "btnPolyline";
+			this.btnPolyline.Click += new System.EventHandler(this.BtnPolylineClick);
 			// 
 			// btnArrow
 			// 
@@ -683,6 +694,7 @@ namespace Greenshot.Editor.Forms
 									this.addRectangleToolStripMenuItem,
 									this.addEllipseToolStripMenuItem,
 									this.drawLineToolStripMenuItem,
+									this.drawPolylineToolStripMenuItem,
 									this.drawArrowToolStripMenuItem,
 									this.drawFreehandToolStripMenuItem,
 									this.addTextBoxToolStripMenuItem,
@@ -713,6 +725,11 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
+			//
+			// drawPolylineToolStripMenuItem
+			//
+			this.drawPolylineToolStripMenuItem.Name = "drawPolylineToolStripMenuItem";
+			this.drawPolylineToolStripMenuItem.Click += new System.EventHandler(this.BtnPolylineClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
@@ -1955,6 +1972,8 @@ namespace Greenshot.Editor.Forms
 		private ToolStripButton btnEmoji;
 		private ToolStripMenuItem drawLineToolStripMenuItem;
 		private ToolStripButton btnLine;
+		private ToolStripButton btnPolyline;
+		private ToolStripMenuItem drawPolylineToolStripMenuItem;
 		private ToolStripButton btnSettings;
 		private ToolStripButton btnHelp;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
