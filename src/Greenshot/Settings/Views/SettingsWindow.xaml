@@ -131,6 +131,10 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,2">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
@@ -139,7 +143,8 @@
                                                 <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="5,0,12,0"/>
                                                 <views:HotkeyDisplayView Grid.Column="1"
                                                                          HeaderText="{Binding Label}"
-                                                                         HotkeyString="{Binding HotkeyString, Mode=TwoWay}"
+                                                                         HotkeyString="{Binding HotkeyString, Mode=TwoWay, ValidatesOnNotifyDataErrors=True}"
+                                                                         AutomationProperties.HelpText="{Binding ConflictText, FallbackValue='', TargetNullValue=''}"
                                                                          ShowEditButton="{Binding CanChange}"
                                                                          IsEnabled="{Binding IsEditable}"
                                                                          EditRequested="HotkeyDisplayControl_EditRequested"/>
@@ -148,6 +153,10 @@
                                                         ToolTip="{wpf:Text Settings.HotkeySetInRecipe}"
                                                         AutomationProperties.HelpText="{wpf:Text Settings.HotkeySetInRecipe}"
                                                         Visibility="{Binding CanOpenRecipeEditor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                <!-- The same hotkey as another recipe: the second one would take the key, OK stops at this row -->
+                                                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding ConflictText}" TextWrapping="Wrap" Margin="5,2,5,2"
+                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}"
+                                                           Visibility="{Binding HasConflict, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

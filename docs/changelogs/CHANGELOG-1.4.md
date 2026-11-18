@@ -381,6 +381,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - The window menus always show a preview of the window under the mouse, the setting "Show window thumbnails in context menu" is gone
 - The magnifier is switched on and off with Z while capturing, the setting "Show magnifier" is gone
 
+**Hotkeys in the settings**
+- A hotkey which two recipes use is shown in red with the name of the other one, OK only closes the window once each hotkey is used once
+- Changing a setting no longer registers all hotkeys again, only the ones which changed
+
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
 - By @htcfreek
