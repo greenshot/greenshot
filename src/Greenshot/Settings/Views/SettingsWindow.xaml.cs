@@ -57,6 +57,7 @@ namespace Greenshot.Settings.Views
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsWindow));
         private readonly SettingsViewModel _viewModel;
+        private bool _applied;
 
         public SettingsWindow(string initialPluginName = null, string initialTabName = null)
         {
@@ -571,8 +572,32 @@ namespace Greenshot.Settings.Views
                 }
             }
             
-            // Force save of all configuration sections
+            // The drafts the window changed: their changed keys go to the live sections at once, saved once
+            try
+            {
+                _viewModel.Drafts.Apply();
+            }
+            catch (AccessViolationException ex)
+            {
+                // An administrator locked a key while the window was open: Dapplo.Ini checks all locks first, nothing was written
+                Log.Warn("The settings couldn't be applied, a setting was locked meanwhile", ex);
+            }
+            _applied = true;
+
+            // Force save of all configuration sections (the recipe options, hotkeys and the like are written live above)
             IniConfigRegistry.Get()?.Save();
+        }
+
+        /// <summary>
+        /// Closed without OK (Cancel, X, Esc): the drafts are dropped with the view model, only theme and language were shown live
+        /// </summary>
+        protected override void OnClosed(EventArgs e)
+        {
+            if (!_applied)
+            {
+                _viewModel.RevertPreviews();
+            }
+            base.OnClosed(e);
         }
 
         /// <summary>

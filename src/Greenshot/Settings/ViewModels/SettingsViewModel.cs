@@ -58,16 +58,41 @@ namespace Greenshot.Settings.ViewModels
         private bool _pickerSelected;
         private string _selectedLanguage;
         private int _iconSize;
+        private readonly UiTheme _themeAtStart;
+        private readonly string _languageAtStart;
+
+        /// <summary>
+        /// The drafts of all sections the window and the plugin pages show
+        /// </summary>
+        public SettingsDrafts Drafts { get; } = new SettingsDrafts();
+
+        /// <summary>
+        /// Theme and language show at once in every window (they are no draft): without OK they go back to what they were
+        /// </summary>
+        public void RevertPreviews()
+        {
+            if (ThemeManager.Instance.Theme != _themeAtStart)
+            {
+                ThemeManager.Instance.Theme = _themeAtStart;
+            }
+            if (!string.IsNullOrEmpty(_languageAtStart) && !string.Equals(Texts.Config.CurrentLanguage, _languageAtStart, StringComparison.OrdinalIgnoreCase))
+            {
+                Texts.SetLanguage(_languageAtStart);
+            }
+        }
 
         public SettingsViewModel()
         {
-            CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
-            EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
-            ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
+            // Drafts: the window changes copies, OK applies them (SettingsDrafts.Apply), Cancel drops them
+            CoreConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl()));
+            EditorConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl()));
+            ViewerConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl()));
+            _themeAtStart = ThemeManager.Instance.Theme;
             _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;
+            _languageAtStart = _selectedLanguage;
             
             // Initialize icon size
             _iconSize = CoreConfiguration.IconSize.Width;
