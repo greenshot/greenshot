@@ -56,17 +56,17 @@ namespace Greenshot.Settings.ViewModels
         /// The language choice only while Windows OCR is the chosen engine: it is the only one with languages, the others read all
         /// their languages at once and ignore it (also while another engine still downloads and Windows OCR reads meanwhile)
         /// </summary>
-        public bool HasOcrLanguageChoice => string.Equals(OcrEngineSelector.ConfiguredId, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase);
+        public bool HasOcrLanguageChoice => string.Equals(ChosenOcrEngineId, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// The id of the OCR engine. An engine which isn't ready (e.g. needs a download) gets ready first, asking the user; when that is declined the choice goes back.
         /// </summary>
         public string SelectedOcrEngine
         {
-            get => OcrEngineSelector.ConfiguredId;
+            get => ChosenOcrEngineId;
             set
             {
-                string previous = OcrEngineSelector.ConfiguredId;
+                string previous = ChosenOcrEngineId;
                 if (Win10Configuration == null || string.IsNullOrEmpty(value) || string.Equals(previous, value, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
@@ -102,7 +102,7 @@ namespace Greenshot.Settings.ViewModels
                 ready = false;
             }
 
-            if (!ready && string.Equals(OcrEngineSelector.ConfiguredId, engine.Id, StringComparison.OrdinalIgnoreCase))
+            if (!ready && string.Equals(ChosenOcrEngineId, engine.Id, StringComparison.OrdinalIgnoreCase))
             {
                 SetOcrEngine(previous);
             }
@@ -151,7 +151,13 @@ namespace Greenshot.Settings.ViewModels
             }
         }
 
-        private IWin10Configuration Win10Configuration => _win10Configuration ??= IniConfigRegistry.GetSection<IWin10Configuration>();
+        private IWin10Configuration Win10Configuration => _win10Configuration ??= Drafts.Get(IniConfigRegistry.GetSection<IWin10Configuration>());
+
+        /// <summary>
+        /// The engine chosen in this window (the draft), Windows when none is set; OcrEngineSelector.ConfiguredId is the live one
+        /// </summary>
+        private string ChosenOcrEngineId =>
+            string.IsNullOrWhiteSpace(Win10Configuration?.OcrEngine) ? Win10OcrProvider.EngineId : Win10Configuration.OcrEngine.Trim();
 
         private IList<OcrLanguage> CreateOcrLanguages()
         {

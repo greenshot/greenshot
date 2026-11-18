@@ -22,6 +22,7 @@
 
 using System.ComponentModel;
 using System.Windows;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugins.ViewModels
@@ -101,6 +102,11 @@ namespace Greenshot.Plugins.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// The drafts of the settings window, the page of the plugin binds to them
+        /// </summary>
+        public SettingsDrafts Drafts { get; set; }
+
         private UIElement _configControl;
         private bool _controlCreated;
 
@@ -109,7 +115,7 @@ namespace Greenshot.Plugins.ViewModels
             if (!_controlCreated)
             {
                 _controlCreated = true;
-                _configControl = Plugin == null ? null : PluginHelper.Instance.CreateSettingsView(Plugin) as UIElement;
+                _configControl = Plugin == null ? null : PluginHelper.Instance.CreateSettingsView(Plugin, Drafts) as UIElement;
             }
             return _configControl;
         }

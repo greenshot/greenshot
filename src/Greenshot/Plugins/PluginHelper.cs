@@ -83,19 +83,26 @@ namespace Greenshot.Plugins
         }
 
         /// <summary>
-        /// The view for the settings of the plugin, null when it has none
+        /// The view for the settings of the plugin, null when it has none.
+        /// With <paramref name="drafts"/> (the settings window) the plugin binds to drafts: a view model which is a section is replaced
+        /// by its draft, a view model of its own gets the drafts through <see cref="SettingsDraftsExtensions.SettingsSection{T}"/>.
         /// </summary>
-        public object CreateSettingsView(IGreenshotPlugin plugin)
+        public object CreateSettingsView(IGreenshotPlugin plugin, SettingsDrafts drafts = null)
         {
             if (plugin is not IConfigurablePlugin configurablePlugin)
             {
                 return null;
             }
 
-            var viewModel = configurablePlugin.CreateSettingsViewModel(SimpleServiceProvider.Current);
+            IServiceProvider services = drafts == null ? SimpleServiceProvider.Current : new DraftServiceProvider(SimpleServiceProvider.Current, drafts);
+            var viewModel = configurablePlugin.CreateSettingsViewModel(services);
             if (viewModel == null)
             {
                 return null;
+            }
+            if (drafts != null && viewModel is IIniSection section)
+            {
+                viewModel = drafts.Get(section);
             }
 
             foreach (var settingsView in _settingsViews)
@@ -134,6 +141,23 @@ namespace Greenshot.Plugins
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// The services for a settings page of a plugin: Greenshot's services and the drafts of the settings window
+        /// </summary>
+        private sealed class DraftServiceProvider : IServiceProvider
+        {
+            private readonly IServiceProvider _services;
+            private readonly SettingsDrafts _drafts;
+
+            public DraftServiceProvider(IServiceProvider services, SettingsDrafts drafts)
+            {
+                _services = services;
+                _drafts = drafts;
+            }
+
+            public object GetService(Type serviceType) => serviceType == typeof(SettingsDrafts) ? _drafts : _services?.GetService(serviceType);
         }
 
         private static void AddHash(string key, IEnumerable<string> current, Action<List<string>> store, string sha256)

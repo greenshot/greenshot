@@ -199,7 +199,11 @@ The settings window is `Greenshot/Settings/Views/SettingsWindow.xaml` with `Sett
 - `FixedToEnabledConverter` (in `IniValueConverter.cs`) disables a control whose value is fixed; the parameter is the property name.
 - The expert settings on the Expert tab are only enabled with `ExpertModeEnabled` (the check box above them). `ExpertVisibilityConverter` hides a single control
   outside the expert mode, `InverseBooleanConverter` inverts a boolean.
-- OK saves (`SaveSettings` copies lists like the destinations into the configuration, then saves all sections), Cancel closes without saving.
+- The window edits drafts of the sections (Dapplo.Ini `CreateDraft`, kept in `SettingsViewModel.Drafts`), never the live sections:
+  the rest of Greenshot and the auto-save don't see a change before OK. OK (`SaveSettings`) copies lists like the destinations into the drafts,
+  then `Drafts.Apply()` writes only the keys the window changed to the live sections and saves once; a key another part of Greenshot
+  changed meanwhile stays as it is. Cancel or closing the window drops the drafts and turns the theme and language previews back.
+- A new page gets its section with `Drafts.Get(section)`, never with `IniConfigRegistry.GetSection` alone.
 - Adding a setting: the property in the configuration interface, the text in `[Settings]` and `ISettingsLanguage`, the control on the right tab,
   with `FixedToEnabledConverter` when it can be fixed.
 
@@ -218,7 +222,9 @@ public void ConfigureServices(IPluginServices services)
 ```
 
 The settings window shows the view (a `UserControl`, e.g. `JiraConfigurationView`) on the plugins page, bound to the view model
-`CreateSettingsViewModel` returns, here the configuration section itself.
+`CreateSettingsViewModel` returns, here the configuration section itself. Returned sections are swapped for their drafts, so OK
+applies them and Cancel drops them. A view model of its own takes its sections through `services.SettingsSection(section)`
+(e.g. `AtlassianPlugin`), else it would change the live sections.
 
 ## Images
 
