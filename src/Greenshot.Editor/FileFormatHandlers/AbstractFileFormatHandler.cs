@@ -91,12 +91,18 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <returns>IEnumerable{IDrawableContainer}</returns>
         public virtual IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
-            if (TryLoadFromStream(stream, extension, out var bitmap))
+            // Keep the file, so the image can be stored unchanged
+            var data = new MemoryStream();
+            stream.CopyTo(data);
+            data.Position = 0;
+            if (TryLoadFromStream(data, extension, out var bitmap))
             {
                 var imageContainer = new ImageContainer(parent)
                 {
                     Image = bitmap
                 };
+                var format = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true)?.GetByExtension(extension);
+                imageContainer.SetOriginal(data.ToArray(), format?.MimeType);
                 imageContainer.ResetToDefaultSize();
                 yield return imageContainer;
             }

@@ -37,7 +37,7 @@ namespace Greenshot.Editor.Drawing
     public abstract class VectorGraphicsContainer : DrawableContainer
     {
         private int _rotationAngle;
-        protected int RotationAngle
+        protected internal int RotationAngle
         {
             get => _rotationAngle;
             set => _rotationAngle = value;
