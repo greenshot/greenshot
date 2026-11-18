@@ -676,7 +676,7 @@
             </TabItem>
             
             <!-- Destinations Tab: what happens after a capture (OutputDestinations), and which destinations Greenshot offers at all (ExcludeDestinations) -->
-            <TabItem Header="{wpf:Text Settings.Destination}">
+            <TabItem x:Name="DestinationsTabItem" Header="{wpf:Text Settings.Destination}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Text Settings.DestinationAfterCapture}">
@@ -722,9 +722,9 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <!-- Hidden, not collapsed: the space stays, so the tab doesn't jump when a tick is set or removed -->
-                                <TextBlock Text="{wpf:Text Settings.DestinationSendToNone}" TextWrapping="Wrap" Margin="26,4,5,5"
-                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}">
+                                <!-- Nothing ticked can't be saved (OK shows this tab). Hidden, not collapsed: the space stays, so the tab doesn't jump -->
+                                <TextBlock Text="{wpf:Text Settings.DestinationSendToRequired}" TextWrapping="Wrap" Margin="26,4,5,5"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ErrorBrush}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Hidden"/>
