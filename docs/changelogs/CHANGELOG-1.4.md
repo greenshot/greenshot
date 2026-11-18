@@ -396,6 +396,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
 - By @Copilot
 
+**File and folder dialogs** (#988)
+- All open, save and folder dialogs (settings, recipes, recipe editor, editor templates, stamps, imports and exports) are the current Windows dialogs, also for long paths; the old folder browser is gone
+- The Save as dialog for a capture says in its title which capture it saves, e.g. "Save as: Inbox - Outlook (08:41:12)"
+- Opening an image file offers each format on its own (e.g. only PNG), next to all formats Greenshot can open
+
 **External Commands**
 - An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
 - New settings page for the commands: add, change, remove, and share a command as a file (.gscommand.json) with export and import. The commands of Greenshot 1.3 are taken over once, MS Paint and Paint.NET come with Greenshot when they are installed

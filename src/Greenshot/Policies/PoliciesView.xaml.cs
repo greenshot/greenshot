@@ -28,7 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Languages;
 using Greenshot.Helpers;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Policies
 {
@@ -68,20 +68,15 @@ namespace Greenshot.Policies
         /// </summary>
         private void OnSaveTemplatesClicked(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog
-            {
-                FileName = "greenshot.admx",
-                DefaultExt = ".admx",
-                Filter = "ADMX (*.admx)|*.admx"
-            };
-            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+            string templateFile = FileDialogs.PickFileToSave(Window.GetWindow(this), "ADMX (*.admx)|*.admx", "greenshot.admx");
+            if (templateFile == null)
             {
                 return;
             }
 
             try
             {
-                var directory = Path.GetDirectoryName(dialog.FileName);
+                var directory = Path.GetDirectoryName(templateFile);
                 int count = PolicyTemplates.Write(directory, IniConfigRegistry.Get().GetSections());
                 StatusText.Text = string.Format(Texts.SelfService.PoliciesTemplatesSaved, count, directory);
             }

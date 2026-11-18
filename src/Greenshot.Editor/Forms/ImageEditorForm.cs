@@ -3035,28 +3035,20 @@ namespace Greenshot.Editor.Forms
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            string path = FileDialogs.PickFileToSave(Handle, "Greenshot templates (*.gst)|*.gst", Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails)));
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails))
-            };
-            DialogResult dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
-            {
-                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+                using Stream streamWrite = File.OpenWrite(path);
                 _surface.SaveElementsToStream(streamWrite);
             }
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            string path = FileDialogs.PickFileToOpen(Handle, "Greenshot templates (*.gst)|*.gst");
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst"
-            };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+                using (Stream streamRead = File.OpenRead(path))
                 {
                     _surface.LoadElementsFromStream(streamRead);
                 }

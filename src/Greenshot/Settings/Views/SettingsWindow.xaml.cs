@@ -35,6 +35,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
 using Greenshot.Capturing.Tools;
+using Greenshot.Base.Controls;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
 using Greenshot.Recipes.Triggers;
@@ -285,10 +286,10 @@ namespace Greenshot.Settings.Views
 
         private void BrowseStorageLocation_Click(object sender, RoutedEventArgs e)
         {
-            string selectedPath = ModernFolderPicker.SelectFolder(
+            string selectedPath = FileDialogs.PickFolder(
                 this,
-                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _),
-                Texts.Settings.Storagelocation);
+                Texts.Settings.Storagelocation,
+                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _));
 
             if (!string.IsNullOrEmpty(selectedPath))
             {

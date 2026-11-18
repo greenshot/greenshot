@@ -30,7 +30,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Recipes;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Shell
 {
@@ -71,18 +71,13 @@ namespace Greenshot.Shell
         /// </summary>
         public static void ImportRecipe()
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Title = Texts.Recipe.ImportTitle ?? "Import Capture Recipe",
-                Filter = RecipeSerializer.RecipeFileFilter,
-                Multiselect = false
-            };
-            if (openFileDialog.ShowDialog() != true || !File.Exists(openFileDialog.FileName))
+            string chosenFile = FileDialogs.PickFileToOpen(IntPtr.Zero, RecipeSerializer.RecipeFileFilter, Texts.Recipe.ImportTitle ?? "Import Capture Recipe");
+            if (chosenFile == null || !File.Exists(chosenFile))
             {
                 return;
             }
 
-            string recipePath = Path.GetFullPath(openFileDialog.FileName);
+            string recipePath = Path.GetFullPath(chosenFile);
             var result = RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
             if (!result.IsValid)
             {
