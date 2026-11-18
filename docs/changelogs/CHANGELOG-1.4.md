@@ -399,6 +399,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **File and folder dialogs** (#988)
 - All open, save and folder dialogs (settings, recipes, recipe editor, editor templates, stamps, imports and exports) are the current Windows dialogs, also for long paths; the old folder browser is gone
 - The Save as dialog for a capture says in its title which capture it saves, e.g. "Save as: Inbox - Outlook (08:41:12)"
+- Opening an image file offers each format on its own (e.g. only PNG), next to all formats Greenshot can open
 
 **External Commands**
 - An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again

@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core.FileFormat;
 using Xunit;
 
 namespace Greenshot.Tests.Controls
@@ -44,6 +45,26 @@ namespace Greenshot.Tests.Controls
         public void DefaultExtensionOf_IsTheFirstExtensionOfTheFileTypes(string filter, string expected)
         {
             Assert.Equal(expected, FileDialogs.DefaultExtensionOf(filter));
+        }
+
+        [Fact]
+        public void OpenImageFilter_ListsAllFormatsTogetherThenEachFormatThenAllFiles()
+        {
+            var formats = new[]
+            {
+                new FileFormatDefinition("jpeg", new[] { "jpg", "jpeg" }, new[] { "jpg", "jpeg" }, "jpg", "image/jpeg", null, "JPEG image"),
+                new FileFormatDefinition("png", new[] { "png" }, new[] { "png" }, "png", "image/png", null, "PNG image")
+            };
+
+            string filter = InteractiveUserInteraction.OpenImageFilter(formats);
+
+            Assert.Equal("Image files (*.jpeg, *.jpg, *.png)|*.jpeg;*.jpg;*.png|JPEG image (*.jpg, *.jpeg)|*.jpg;*.jpeg|PNG image (*.png)|*.png|All files (*.*)|*.*", filter);
+        }
+
+        [Fact]
+        public void OpenImageFilter_WithoutFormats_IsAllFiles()
+        {
+            Assert.Equal("All files (*.*)|*.*", InteractiveUserInteraction.OpenImageFilter(null));
         }
     }
 }
