@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading;
 using Greenshot.Ai.Views;
 using Greenshot.Base.Core;
@@ -63,6 +64,27 @@ namespace Greenshot.Tests.Forms
 
             // Second lookup must be cached and essentially instantaneous (< 10ms)
             Assert.True(secondLookupMs < 15, $"Second negative lookup should be cached (took {secondLookupMs}ms vs {firstLookupMs}ms)");
+        }
+
+        [Fact]
+        public void SettingsViewModel_SameHotkeyTwice_MarksBothRows()
+        {
+            var viewModel = new SettingsViewModel();
+            var rows = viewModel.Hotkeys.Where(h => h.CanChange && h.IsEditable).ToList();
+            Assert.True(rows.Count >= 2, "The built-in recipes have at least two hotkeys which can be changed");
+
+            rows[0].HotkeyString = "Ctrl + Alt + Shift + F12";
+            rows[1].HotkeyString = "Ctrl + Alt + Shift + F12";
+
+            Assert.True(rows[0].HasErrors);
+            Assert.True(rows[1].HasErrors);
+            Assert.Contains(rows[1].Label, rows[0].ConflictText);
+            Assert.NotEmpty(rows[0].GetErrors(nameof(RecipeHotkeyViewModel.HotkeyString)).Cast<object>());
+
+            // Another key for the second one: no conflict any more
+            rows[1].HotkeyString = "Ctrl + Alt + Shift + F11";
+            Assert.False(rows[0].HasConflict);
+            Assert.False(rows[1].HasErrors);
         }
 
         [Fact]

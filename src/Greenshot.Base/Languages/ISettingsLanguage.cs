@@ -783,6 +783,11 @@ namespace Greenshot.Base.Languages
         string HotkeySetInRecipe { get; }
 
         /// <summary>
+        /// A hotkey on the General tab is also the hotkey of another recipe ({0}: its name), only one of them can work
+        /// </summary>
+        string HotkeyConflict { get; }
+
+        /// <summary>
         /// Choose a folder
         /// </summary>
         string RecipesChooseFolder { get; }
