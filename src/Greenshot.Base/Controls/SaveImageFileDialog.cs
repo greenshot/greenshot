@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Greenshot.Base.Core;
@@ -28,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using log4net;
 using Dapplo.Windows.Dialogs;
 using Greenshot.Base.Expressions;
+using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
 {
@@ -249,6 +251,7 @@ namespace Greenshot.Base.Controls
         public bool ShowDialog()
         {
             var builder = new FileSaveDialogBuilder()
+                .WithTitle(DialogTitle())
                 .WithInitialDirectory(_initialDirectory)
                 .WithSuggestedFileName(_fileName);
             if (_filterOptions.Length == 0)
@@ -289,6 +292,32 @@ namespace Greenshot.Base.Controls
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// The title bar says which capture is saved, e.g. "Save as: Inbox - Outlook (08:41:12)", so several open save dialogs can be told apart
+        /// </summary>
+        /// <returns>the title, null for the default of Windows when there are no capture details</returns>
+        private string DialogTitle()
+        {
+            if (_captureDetails == null)
+            {
+                return null;
+            }
+
+            string title = string.IsNullOrWhiteSpace(_captureDetails.Title) ? "Greenshot" : _captureDetails.Title.Trim();
+            string time = _captureDetails.DateTime.ToString("T", CultureInfo.CurrentCulture);
+            string format = Texts.Core.SaveAsCaptureTitle;
+            try
+            {
+                return string.Format(CultureInfo.CurrentCulture, format, title, time);
+            }
+            catch (FormatException)
+            {
+                // A language pack with a broken placeholder
+                LOG.WarnFormat("The text save_as_capture_title {0} can't be formatted.", format);
+                return title;
+            }
         }
 
         /// <summary>

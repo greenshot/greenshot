@@ -1542,5 +1542,10 @@ namespace Greenshot.Base.Languages
         /// Functions
         /// </summary>
         string ExpressionHelpGroupFunctions { get; }
+
+        /// <summary>
+        /// Save as: {0} ({1}), the title bar of the save dialog: {0} the title of the capture, {1} the time it was taken
+        /// </summary>
+        string SaveAsCaptureTitle { get; }
     }
 }
