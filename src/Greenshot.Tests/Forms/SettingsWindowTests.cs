@@ -261,7 +261,7 @@ namespace Greenshot.Tests.Forms
                     var style = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.GroupBox)));
                     var padding = Assert.Single(style.Setters, s => s is System.Windows.Setter st && st.Property == System.Windows.Controls.Control.PaddingProperty) as System.Windows.Setter;
                     Assert.NotNull(padding);
-                    Assert.Equal(new System.Windows.Thickness(12), padding.Value);
+                    Assert.Equal(new System.Windows.Thickness(12, 8, 12, 8), padding.Value);
                 }
                 catch (Exception ex)
                 {
