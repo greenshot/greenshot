@@ -38,7 +38,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Plugin.Stamps.Library;
 using Greenshot.Plugin.Stamps.ViewModels;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Plugin.Stamps.Views;
 
@@ -631,13 +631,8 @@ public partial class StampsView : UserControl
     private void Add_Click(object sender, RoutedEventArgs e)
     {
         string patterns = string.Join(";", ViewModel.Library.Extensions.OrderBy(extension => extension).Select(extension => "*" + extension));
-        var dialog = new OpenFileDialog
-        {
-            Title = StampsTexts.AddTitle,
-            Multiselect = true,
-            Filter = $"{StampsTexts.ImageFiles} ({patterns})|{patterns}"
-        };
-        if (dialog.ShowDialog(Window.GetWindow(this)) == true && ViewModel.AddFiles(dialog.FileNames, ViewModel.CurrentCategory) > 0)
+        var files = FileDialogs.PickFilesToOpen(Window.GetWindow(this), $"{StampsTexts.ImageFiles} ({patterns})|{patterns}", StampsTexts.AddTitle);
+        if (files.Count > 0 && ViewModel.AddFiles(files, ViewModel.CurrentCategory) > 0)
         {
             FocusSelectedStamp();
         }

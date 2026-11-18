@@ -30,6 +30,9 @@ namespace Greenshot.Base.Recipes.Triggers
         public string Browser { get; }
         public bool FireAndForget { get; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { Browser, FireAndForget };
+
         public ExtensionTrigger(
             string id,
             string name,

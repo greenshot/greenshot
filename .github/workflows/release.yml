@@ -79,6 +79,23 @@ jobs:
         path: src/Greenshot/bin/Release/net480/greenshot-mcp.exe
         if-no-files-found: error
 
+    # The administrative templates (ADMX/ADML) for the Windows policies, generated from the settings of this build and its plugins,
+    # see docs/vNext/policies.md. Greenshot.exe is a WinExe: Start-Process -Wait waits for it to end.
+    - name: Generate policy templates
+      shell: pwsh
+      run: |
+        $output = Join-Path "${{ github.workspace }}" "policy-templates"
+        $process = Start-Process -FilePath "src/Greenshot/bin/Release/net480/Greenshot.exe" -ArgumentList "--policy-templates", "`"$output`"" -Wait -PassThru
+        if ($process.ExitCode -ne 0 -or -not (Test-Path (Join-Path $output "greenshot.admx"))) { throw "The policy templates were not written (exit code $($process.ExitCode))" }
+        Copy-Item "docs/vNext/policy-templates-readme.txt" (Join-Path $output "README.txt")
+
+    - name: Upload policy templates artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-policy-templates
+        path: ${{ github.workspace }}/policy-templates
+        if-no-files-found: error
+
     - name: Copy Files
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
@@ -242,6 +259,18 @@ jobs:
           name: artifacts-greenshot-mcp
           path: artifacts-greenshot-mcp
 
+      - name: Download policy templates artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-policy-templates
+          path: artifacts-greenshot-policy-templates
+
+      - name: Create policy templates ZIP
+        run: |
+          cd artifacts-greenshot-policy-templates
+          zip -r "Greenshot-PolicyTemplates-${{ needs.pre_deploy.outputs.version }}.zip" .
+        shell: bash
+
       - name: Create MCP server ZIP
         run: |
           cd artifacts-greenshot-mcp
@@ -270,7 +299,7 @@ jobs:
         with:
           name: "Greenshot ${{ needs.pre_deploy.outputs.version }} (continuous build)"
           tag_name: ${{ needs.pre_deploy.outputs.tag_name }}
-          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip, artifacts-greenshot-mcp/*.zip
+          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip, artifacts-greenshot-mcp/*.zip, artifacts-greenshot-policy-templates/*.zip
           generate_release_notes: true
           draft: ${{ env.IS_MAIN_OR_RELEASE_BRANCH != 'true'  }}
           prerelease: true

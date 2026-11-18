@@ -128,6 +128,7 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<SlotStep>(config => new SlotStep(config));
             _stepRegistry.Register<ShowInExplorerStep>(config => new ShowInExplorerStep(config));
             _stepRegistry.Register<OpenWindowStep>(config => new OpenWindowStep(config));
+            _stepRegistry.Register<DelayStep>(config => new DelayStep(config));
 
             // Register all plugin step providers
             try
@@ -223,7 +224,7 @@ namespace Greenshot.Recipes.Pipeline
                 // Clean up working set if enabled
                 if (CoreConfig.MinimizeWorkingSetSize)
                 {
-                    PsApi.EmptyWorkingSet();
+                    PooledMemory.Trim();
                 }
 
                 // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export

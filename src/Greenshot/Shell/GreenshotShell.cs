@@ -53,7 +53,6 @@ using Greenshot.Helpers;
 using Greenshot.Ipc;
 using Greenshot.Plugin.Win10;
 using Greenshot.Recipes;
-using Greenshot.Recipes.Catalog;
 using Greenshot.Recipes.Pipeline;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
@@ -64,6 +63,7 @@ using log4net;
 #if !GREENSHOT_LIGHT
 using Greenshot.Notifications;
 using Greenshot.Plugins;
+using Greenshot.Recipes.Catalog;
 #endif
 using WpfWindow = System.Windows.Window;
 using WpfWindowStyle = System.Windows.WindowStyle;
@@ -146,6 +146,9 @@ namespace Greenshot.Shell
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
+            // Before any image is made: the image pool keeps no more than the memory profile allows
+            PooledMemory.ApplyPoolLimit();
+
             // The background work of the start, MinimizeWorkingSetSize trims the memory when it's done
             var startupWork = new List<Task>();
             void TrackStartupWork(Task work, string description)
@@ -179,7 +182,10 @@ namespace Greenshot.Shell
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+#if !GREENSHOT_LIGHT
+            // Greenshot Light has only the built-in recipes, so no recipe catalog
             SimpleServiceProvider.Current.AddService<IRecipeCatalog>(new RecipeCatalogService());
+#endif
             // Every flow is started, tracked and cancelled through the flow runner
             _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
             SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
@@ -288,11 +294,13 @@ namespace Greenshot.Shell
             }
 #endif
 
+#if !GREENSHOT_LIGHT
             if (recipeFilesForTheUser.Count > 0)
             {
                 // The approval and error windows come after the start, not inside it, one at a time with the other questions
                 UserQuestions.Enqueue("the recipe files which need the user", () => RecipeManager.Instance.LoadRecipeFilesInteractively(recipeFilesForTheUser));
             }
+#endif
 
             if (startupCommand != null)
             {
@@ -350,7 +358,7 @@ namespace Greenshot.Shell
                 // Already logged by FireAndLog
             }
 
-            PsApi.EmptyWorkingSet();
+            PooledMemory.Trim();
         }
 
         /// <summary>

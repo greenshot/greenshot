@@ -58,7 +58,7 @@ namespace Greenshot.Base.Wpf
             {
                 Text = text ?? string.Empty,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center
             };
             message.SetBinding(TextBlock.FontSizeProperty, FontSizeExtension.CreateBinding(12));
@@ -73,9 +73,9 @@ namespace Greenshot.Base.Wpf
                     FontSize = 24,
                     Margin = new Thickness(0, 0, 14, 0),
                     VerticalAlignment = VerticalAlignment.Top,
-                    Foreground = icon == MessageBoxImage.Error ? WpfThemeHelper.ErrorText
-                        : icon == MessageBoxImage.Warning ? WpfThemeHelper.WarningText
-                        : WpfThemeHelper.Accent
+                    Foreground = icon == MessageBoxImage.Error ? ThemeManager.Instance.CurrentPalette.ErrorText
+                        : icon == MessageBoxImage.Warning ? ThemeManager.Instance.CurrentPalette.WarningText
+                        : ThemeManager.Instance.CurrentPalette.Accent
                 };
                 // Not the emoji: its meaning
                 AutomationProperties.SetName(iconText, GetIconName(icon));

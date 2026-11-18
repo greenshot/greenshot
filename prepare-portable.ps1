@@ -39,7 +39,7 @@ Copy-Item "$BuildArtifactsPath\*.dll" "$OutputPath" -Force
 
 # Copy emoji resources
 Copy-Item "$BuildArtifactsPath\emojis.xml" "$OutputPath" -Force
-Copy-Item "$BuildArtifactsPath\Twemoji.Mozilla.ttf" "$OutputPath" -Force
+Copy-Item "$BuildArtifactsPath\Twemoji.Mozilla.woff" "$OutputPath" -Force
 
 # Copy help files, not for Greenshot Light
 if (-not $Light) {

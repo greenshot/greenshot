@@ -24,6 +24,7 @@ using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Wpf.Views;
+using Greenshot.Base.Controls;
 using Greenshot.Helpers;
 using Greenshot.Settings;
 using Greenshot.Settings.ViewModels;
@@ -91,7 +92,7 @@ namespace Greenshot.Recipes.Views
                 return;
             }
 
-            string selectedPath = ModernFolderPicker.SelectFolder(Window.GetWindow(this), item.TextValue, item.Label);
+            string selectedPath = FileDialogs.PickFolder(Window.GetWindow(this), item.Label, item.TextValue);
             if (!string.IsNullOrEmpty(selectedPath))
             {
                 item.Value = selectedPath;

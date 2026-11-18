@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -96,9 +97,12 @@ namespace Greenshot.Mcp
         public static CallToolResult RecipeResult(JsonObject reply)
         {
             var content = new List<ContentBlock>();
-            if (reply["image"] is JsonObject image && (string?)image["data"] is { Length: > 0 } data)
+            // Decoded from the UTF-8 of the reply, without the base64 as a string in between
+            if (reply["image"] is JsonObject image && image["data"] is JsonValue dataValue
+                && dataValue.TryGetValue(out JsonElement data) && data.ValueKind == JsonValueKind.String
+                && data.TryGetBytesFromBase64(out byte[]? bytes) && bytes.Length > 0)
             {
-                content.Add(ImageContentBlock.FromBytes(Convert.FromBase64String(data), (string?)image["mime_type"] ?? "image/png"));
+                content.Add(ImageContentBlock.FromBytes(bytes, (string?)image["mime_type"] ?? "image/png"));
                 image.Remove("data");
             }
             var details = Without(reply, "status", "exit_code");

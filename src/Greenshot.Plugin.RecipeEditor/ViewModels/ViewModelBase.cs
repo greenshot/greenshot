@@ -11,7 +11,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public ViewModelBase()
         {
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
         }
 
         private void OnThemeChanged()
@@ -31,26 +31,26 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(NodeCardBorderBrush));
         }
 
-        public bool IsDarkMode => WpfThemeHelper.IsDarkMode;
-        public string ThemeToggleIcon => WpfThemeHelper.IsDarkMode ? "☀️" : "🌙";
-        public string ThemeToggleText => WpfThemeHelper.IsDarkMode ? Texts.Settings.ThemeLight : Texts.Settings.ThemeDark;
-        public string ThemeToggleToolTip => WpfThemeHelper.IsDarkMode ? Texts.Get<IRecipeEditorLanguage>().TooltipSwitchLight : Texts.Get<IRecipeEditorLanguage>().TooltipSwitchDark;
+        public bool IsDarkMode => ThemeManager.Instance.IsDarkTheme;
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleText => ThemeManager.Instance.IsDarkTheme ? Texts.Settings.ThemeLight : Texts.Settings.ThemeDark;
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? Texts.Get<IRecipeEditorLanguage>().TooltipSwitchLight : Texts.Get<IRecipeEditorLanguage>().TooltipSwitchDark;
 
         // Theme brushes for WPF binding with automatic Dark/Light mode support
-        public System.Windows.Media.SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public System.Windows.Media.SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public System.Windows.Media.SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public System.Windows.Media.SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public System.Windows.Media.SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public System.Windows.Media.SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public System.Windows.Media.SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
+        public System.Windows.Media.SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public System.Windows.Media.SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public System.Windows.Media.SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public System.Windows.Media.SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public System.Windows.Media.SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public System.Windows.Media.SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public System.Windows.Media.SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
 
         // Elevated node card styling
-        public System.Windows.Media.SolidColorBrush NodeCardBackgroundBrush => WpfThemeHelper.IsDarkMode
+        public System.Windows.Media.SolidColorBrush NodeCardBackgroundBrush => ThemeManager.Instance.IsDarkTheme
             ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x28, 0x28, 0x2A))
             : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xFF, 0xFF));
 
-        public System.Windows.Media.SolidColorBrush NodeCardBorderBrush => WpfThemeHelper.IsDarkMode
+        public System.Windows.Media.SolidColorBrush NodeCardBorderBrush => ThemeManager.Instance.IsDarkTheme
             ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x48, 0x48, 0x4C))
             : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xD0, 0xD0, 0xD6));
 

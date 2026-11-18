@@ -30,6 +30,9 @@ namespace Greenshot.Base.Recipes.Triggers
         public string Filter { get; }
         public bool FireAndForget { get; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { Filter, FireAndForget };
+
         public OpenFileTrigger(
             string id,
             string name,

@@ -37,6 +37,9 @@ namespace Greenshot.Recipes.Triggers
         private int _registrationId = -1;
         public string HotkeyString { get; set; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { HotkeyString };
+
         public HotkeyTrigger(string id, string name, string hotkeyString, string targetRecipeId)
             : base(id, name, targetRecipeId)
         {

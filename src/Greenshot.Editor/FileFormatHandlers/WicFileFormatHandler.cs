@@ -246,7 +246,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
 
             // Encoded into a buffer first: when WIC fails, the next handler writes to an untouched destination
-            using var buffer = new MemoryStream();
+            using MemoryStream buffer = RecyclableMemoryStreamFactory.GetStream("WicFileFormatHandler");
             var bitmapData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, source.PixelFormat);
             try
             {

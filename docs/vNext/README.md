@@ -22,9 +22,10 @@ work differently there, and they can still change before the release. The docume
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
 | [plugins-and-destinations.md](plugins-and-destinations.md) | Switching plugins and destinations on or off, and locking it for all users |
+| [policies.md](policies.md) | Configuring Greenshot with Windows policies (Group Policy, Intune), and what greenshot.ini keeps |
 | [plugin-loading.md](plugin-loading.md) | How plugins are loaded, the signature check and the question about unsigned plugins |
 | [mcp-server.md](mcp-server.md) | Letting AI tools use Greenshot through greenshot-mcp.exe |
-| [TEXT_OBFUSCATION_FEATURE.md](TEXT_OBFUSCATION_FEATURE.md) | Obfuscating text found with OCR |
+| [hiding-text.md](hiding-text.md) | Hiding text: blur, pixelate, Redact Text, how strong they are and what they don't protect |
 
 **For developers**
 

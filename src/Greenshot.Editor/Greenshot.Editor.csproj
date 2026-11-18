@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
-    <PackageReference Include="Dapplo.Windows.Imaging" Version="3.22.2" />
+    <PackageReference Include="Dapplo.Windows.Imaging" Version="3.24.2" />
     <!-- SecurityAccessDeniedException of the .greenshot type check -->
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
@@ -114,9 +114,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.ttf">
+    <!-- Twemoji Mozilla as WOFF (zlib, SixLabors.Fonts reads it; its .NET Framework build has no Brotli for WOFF2), without glyph names (post format 3) -->
+    <ContentWithTargetPath Include="Drawing\Emoji\Twemoji.Mozilla.woff">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Twemoji.Mozilla.ttf</TargetPath>
+      <TargetPath>Twemoji.Mozilla.woff</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
 

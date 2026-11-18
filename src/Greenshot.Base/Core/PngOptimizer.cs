@@ -61,33 +61,13 @@ public static class PngOptimizer
     /// <param name="destination">Stream to write to</param>
     /// <param name="outputSettings">The compression level, and DisableReduceColors to never write a palette</param>
     /// <param name="metadata">The details to write into the file, null for only the program name</param>
-    public static unsafe void Save(Bitmap bitmap, Stream destination, SurfaceOutputSettings outputSettings, ExportImageMetadata metadata = null)
+    public static void Save(Bitmap bitmap, Stream destination, SurfaceOutputSettings outputSettings, ExportImageMetadata metadata = null)
     {
         var options = new Options(
             (PngCompressionLevel)Math.Max(1, Math.Min(9, outputSettings.PngCompressionLevel)),
             !outputSettings.DisableReduceColors && (IniConfigRegistry.GetSection<ICoreConfiguration>()?.OutputFilePngPalette ?? true));
         // 32bpp ARGB and 24bpp RGB without row padding are read in place, everything else is converted to a copy first
-        bool isArgb = bitmap.PixelFormat == PixelFormat.Format32bppArgb;
-        bool isRgb = bitmap.PixelFormat == PixelFormat.Format24bppRgb && bitmap.Width * 3 % 4 == 0;
-        if (!isArgb && !isRgb)
-        {
-            using var copy = ImageSharpHelper.ConvertToImageSharp(bitmap);
-            Save(copy, bitmap, destination, options, metadata);
-            return;
-        }
-
-        var bitmapData = bitmap.LockBits(new NativeRect(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
-        try
-        {
-            using Image image = isArgb
-                ? Image.WrapMemory<Bgra32>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height)
-                : Image.WrapMemory<Bgr24>((void*)bitmapData.Scan0, bitmap.Width, bitmap.Height);
-            Save(image, bitmap, destination, options, metadata);
-        }
-        finally
-        {
-            bitmap.UnlockBits(bitmapData);
-        }
+        ImageSharpHelper.UsePixels(bitmap, image => Save(image, bitmap, destination, options, metadata));
     }
 
     private readonly struct Options

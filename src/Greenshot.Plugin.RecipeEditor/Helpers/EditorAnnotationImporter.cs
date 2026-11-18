@@ -274,7 +274,7 @@ namespace Greenshot.Plugin.RecipeEditor.Helpers
                 {
                     if (item.StorageMode == AssetStorageMode.SaveToFile && !string.IsNullOrWhiteSpace(targetDirectory))
                     {
-                        string safeBase = string.Join("_", (baseFileName ?? "asset").Split(Path.GetInvalidFileNameChars()));
+                        string safeBase = FilenameHelper.MakeFilenameSafe(baseFileName ?? "asset");
                         string fileName = $"{safeBase}_{item.Type.ToLowerInvariant()}_{fileCounter++}{item.FileExtension}";
                         string fullPath = Path.Combine(targetDirectory, fileName);
                         try

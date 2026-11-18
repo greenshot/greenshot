@@ -1127,7 +1127,7 @@ namespace Greenshot.Editor.Forms
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
                 GC.Collect();
-                PsApi.EmptyWorkingSet();
+                PooledMemory.Trim();
             }
         }
 
@@ -2055,6 +2055,8 @@ namespace Greenshot.Editor.Forms
         {
             _surface.Undo();
             UpdateUndoRedoSurfaceDependencies();
+            // An undo can remove or bring back a counter, the counter button shows the next number (BUG-1673)
+            RefreshEditorControls();
         }
 
         private void BtnUndoClick(object sender, EventArgs e)
@@ -2066,6 +2068,7 @@ namespace Greenshot.Editor.Forms
         {
             _surface.Redo();
             UpdateUndoRedoSurfaceDependencies();
+            RefreshEditorControls();
         }
 
         private void BtnRedoClick(object sender, EventArgs e)
@@ -2156,6 +2159,18 @@ namespace Greenshot.Editor.Forms
             // LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
             // avoid conflict with other shortcuts and
             // make sure there's no selected element claiming input focus
+            // While a crop waits for Confirm or Cancel the tools and menus are disabled, so are their keys: else another tool
+            // leaves the crop rectangle behind (BUG-3291). Esc which didn't reach the canvas (e.g. the tool bar has the focus) cancels the crop.
+            if (_controlsDisabledDueToConfirmable)
+            {
+                if (e.KeyCode == Keys.Escape && e.Modifiers == Keys.None)
+                {
+                    BtnCancelClick(sender, e);
+                }
+
+                return;
+            }
+
             if (e.Modifiers.Equals(Keys.None) && CanvasHasKeys)
             {
                 switch (e.KeyCode)
@@ -2838,7 +2853,8 @@ namespace Greenshot.Editor.Forms
         {
             if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
-            string stepLabelIcon = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
+            // There are icons for 1 to 20 and 20+, a counter which starts at 0 shows the icon of 1 (BUG-2173)
+            string stepLabelIcon = stepLabels <= 20 ? $"btnStepLabel{Math.Max(1, stepLabels):00}.Image" : "btnStepLabel20+.Image";
             // Binding the same icon again does nothing, so this is cheap when the count didn't change
             IconBinder.Bind(btnStepLabel, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
             IconBinder.Bind(addCounterToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
@@ -3019,28 +3035,20 @@ namespace Greenshot.Editor.Forms
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            string path = FileDialogs.PickFileToSave(Handle, "Greenshot templates (*.gst)|*.gst", Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails)));
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails))
-            };
-            DialogResult dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
-            {
-                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+                using Stream streamWrite = File.OpenWrite(path);
                 _surface.SaveElementsToStream(streamWrite);
             }
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            string path = FileDialogs.PickFileToOpen(Handle, "Greenshot templates (*.gst)|*.gst");
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst"
-            };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+                using (Stream streamRead = File.OpenRead(path))
                 {
                     _surface.LoadElementsFromStream(streamRead);
                 }

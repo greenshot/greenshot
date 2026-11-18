@@ -6,16 +6,11 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            </Style>
-            <!-- The section titles name the lists, the columns need no header -->
-            <Style x:Key="NoColumnHeader" TargetType="GridViewColumnHeader" BasedOn="{StaticResource ThemeGridViewColumnHeader}">
-                <Setter Property="Visibility" Value="Collapsed"/>
             </Style>
             <Style x:Key="UploaderList" TargetType="ListView" BasedOn="{StaticResource ThemeListView}">
                 <Setter Property="ItemContainerStyle" Value="{StaticResource ThemeListViewItem}"/>

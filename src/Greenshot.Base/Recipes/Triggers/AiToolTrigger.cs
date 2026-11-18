@@ -41,6 +41,9 @@ namespace Greenshot.Base.Recipes.Triggers
 
         public IReadOnlyList<CommandlineArgument> Arguments { get; }
 
+        /// <inheritdoc />
+        protected override IEnumerable<object> DefinitionValues => System.Linq.Enumerable.Concat(new object[] { ToolName, Description }, ArgumentValues(Arguments));
+
         public AiToolTrigger(string id, string name, string targetRecipeId, string toolName, string description = null, IEnumerable<CommandlineArgument> arguments = null)
             : base(id, name, targetRecipeId)
         {

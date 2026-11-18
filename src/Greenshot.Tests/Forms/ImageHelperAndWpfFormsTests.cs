@@ -273,7 +273,7 @@ namespace Greenshot.Tests.Forms
 
             var textEn = Texts.Settings.ExpertBetatester;
             Assert.False(string.IsNullOrEmpty(textEn));
-            Assert.Equal("Enable to enable beta-test features.", textEn);
+            Assert.Equal("Enable beta-test features", textEn);
         }
 
         [Fact]
@@ -412,10 +412,10 @@ namespace Greenshot.Tests.Forms
                     Assert.Equal("Other", model.WifiPassword);
 
                     // Test theme toggle
-                    bool initialTheme = WpfThemeHelper.IsDarkMode;
-                    WpfThemeHelper.ToggleTheme();
-                    Assert.NotEqual(initialTheme, WpfThemeHelper.IsDarkMode);
-                    WpfThemeHelper.ToggleTheme(); // Toggle back
+                    bool initialTheme = ThemeManager.Instance.IsDarkTheme;
+                    ThemeManager.Instance.ToggleTheme();
+                    Assert.NotEqual(initialTheme, ThemeManager.Instance.IsDarkTheme);
+                    ThemeManager.Instance.ToggleTheme(); // Toggle back
                 }
                 catch (Exception ex)
                 {
@@ -434,9 +434,6 @@ namespace Greenshot.Tests.Forms
         {
             var tm = ThemeManager.Instance;
             Assert.NotNull(tm.ControlBorderBrush);
-
-            var dict = tm.GetThemeResources();
-            Assert.True(dict.Contains("ThemeControlBorderBrush"));
 
             bool notified = false;
             System.ComponentModel.PropertyChangedEventHandler handler = (s, e) =>

@@ -432,21 +432,35 @@ namespace Greenshot.Base.Core
                 dibFormats |= DibFormats.Dib;
             }
 
+            if (dibFormats != DibFormats.None && pngStream == null && (activeFormats.Contains(ClipboardFormat.HTML) || activeFormats.Contains(ClipboardFormat.HTMLDATAURL)))
+            {
+                try
+                {
+                    // The HTML formats need the PNG: encoded before the image is locked for the DIBs
+                    GetPngStream();
+                }
+                catch (Exception pngEx)
+                {
+                    Log.Error("Error creating PNG for the HTML on the Clipboard.", pngEx);
+                }
+            }
+
             if (dibFormats != DibFormats.None)
             {
                 try
                 {
-                    var pixels = ClipboardBitmapConverter.ToBgra32(imageToSave);
-                    // The DIBs are encoded straight into the clipboard memory when the contents are placed, CF_DIBV5 before CF_DIB
-                    if (hasAlpha && (dibFormats & DibFormats.Dib) != 0)
+                    // CF_DIB has no defined alpha channel, many applications show transparent pixels black: place it on white (drawn before the lock)
+                    var flattened = hasAlpha && (dibFormats & DibFormats.Dib) != 0 ? content.Own(ClipboardBitmapConverter.FlattenOnWhite(imageToSave)) : null;
+                    // The locked bits of the image, no copy: the DIBs are encoded straight into the clipboard memory when the contents are placed, CF_DIBV5 before CF_DIB
+                    var pixels = content.Own(ClipboardBitmapConverter.ToBgra32(imageToSave));
+                    if (flattened != null)
                     {
-                        // CF_DIB has no defined alpha channel, many applications show transparent pixels black: place it on white
-                        contents.AddDib(new ReadOnlyMemory<byte>(pixels.Pixels), pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats & DibFormats.DibV5);
-                        contents.AddDib(new ReadOnlyMemory<byte>(ClipboardBitmapConverter.FlattenOnWhite(pixels)), pixels.Width, pixels.Height, pixels.Stride, false, DibFormats.Dib);
+                        contents.AddDib(pixels.Memory, pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats & DibFormats.DibV5);
+                        contents.AddDib(flattened.Memory, flattened.Width, flattened.Height, flattened.Stride, false, DibFormats.Dib);
                     }
                     else
                     {
-                        contents.AddDib(new ReadOnlyMemory<byte>(pixels.Pixels), pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats);
+                        contents.AddDib(pixels.Memory, pixels.Width, pixels.Height, pixels.Stride, pixels.PremultipliedAlpha, dibFormats);
                     }
 
                     content.HasData = true;

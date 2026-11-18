@@ -175,6 +175,8 @@ namespace Greenshot.Shell
                 // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
                 // the shell) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
                 IniConfigRegistry.Get().Load();
+                // A changed Windows policy reloads the configuration in the background, --reload does it on request: both are applied
+                ApplicationStartupHelper.ApplyConfigurationOnReload(IniConfigRegistry.Get());
 
                 // After the configuration is loaded: where it was loaded from tells whether this is the .zip (LeavesNoTraces)
                 StartJitProfile();
@@ -254,6 +256,19 @@ namespace Greenshot.Shell
                 GreenshotMain.Application_ThreadException(sender, new ThreadExceptionEventArgs(args.Exception));
                 args.Handled = true;
             };
+            // The shared styles for every WPF window and panel (also of the plugins): a window only merges what goes beyond them
+            try
+            {
+                wpfApplication.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary
+                {
+                    Source = new Uri("/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml", UriKind.Relative)
+                });
+            }
+            catch (Exception ex)
+            {
+                // The windows still merge the styles themselves
+                Log.Warn("Couldn't load the shared WPF styles", ex);
+            }
         }
 
 

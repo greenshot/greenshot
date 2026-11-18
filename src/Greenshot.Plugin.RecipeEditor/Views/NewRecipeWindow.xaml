@@ -1,0 +1,114 @@
+<Window x:Class="Greenshot.Plugin.RecipeEditor.Views.NewRecipeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Text RecipeEditor.NewRecipeTitle}"
+        Width="480" MinWidth="400"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <wpf:ThemedTitleBar Grid.Row="0"/>
+
+            <TextBlock x:Name="IntroTextBlock" Grid.Row="1" Margin="16,10,16,10" Text="{wpf:Text RecipeEditor.NewRecipeIntro}"
+                       FontSize="{wpf:FontSize 11}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" TextWrapping="Wrap"/>
+
+            <Border Grid.Row="2" Margin="16,0,16,12" Padding="6"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
+                    BorderThickness="1" CornerRadius="6">
+                <ListBox x:Name="ChoiceListBox" Background="Transparent" BorderThickness="0"
+                         AutomationProperties.LabeledBy="{Binding ElementName=IntroTextBlock}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                         SelectionChanged="ChoiceListBox_SelectionChanged"
+                         MouseDoubleClick="ChoiceListBox_MouseDoubleClick">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="8,6"/>
+                            <Setter Property="Margin" Value="0,2"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <!-- The template draws no focus, the shared frame shows the keyboard focus -->
+                            <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+                            <!-- Screen readers announce the entry's title instead of the class name -->
+                            <Setter Property="AutomationProperties.Name" Value="{Binding Title, TargetNullValue=''}"/>
+                            <Setter Property="AutomationProperties.HelpText" Value="{Binding Description, TargetNullValue=''}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="itemBorder" Background="Transparent"
+                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}"
+                                                BorderThickness="1" CornerRadius="5"
+                                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                                            <ContentPresenter/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.BadgeBackground}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"/>
+                                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.Accent}"/>
+                                                <Setter TargetName="itemBorder" Property="BorderThickness" Value="1.5"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="2,2">
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="{wpf:FontSize 11}"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding Description}" FontSize="{wpf:FontSize 10}" Margin="0,2,0,0" TextWrapping="Wrap"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <!-- The recipe to copy: only for "Copy of an existing recipe", so the window keeps its size however many recipes there are -->
+            <StackPanel Grid.Row="3" Margin="16,0,16,12">
+                <TextBlock x:Name="RecipeToCopyLabel" Text="{wpf:Text RecipeEditor.NewRecipeCopyLabel}" FontSize="{wpf:FontSize 11}" Margin="0,0,0,4"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}"/>
+                <ComboBox x:Name="RecipeToCopyComboBox" DisplayMemberPath="DisplayName"
+                          AutomationProperties.LabeledBy="{Binding ElementName=RecipeToCopyLabel}"
+                          SelectionChanged="RecipeToCopyComboBox_SelectionChanged"/>
+            </StackPanel>
+
+            <Border Grid.Row="4" Padding="16,10" BorderThickness="0,1,0,0"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBackground}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=CurrentPalette.CardBorder}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="{wpf:Text Core.Cancel}" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" IsCancel="True"/>
+                    <Button x:Name="CreateButton" Content="{wpf:Text RecipeEditor.NewRecipeBtnCreate}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="CreateButton_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

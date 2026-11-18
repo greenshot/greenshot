@@ -30,6 +30,7 @@ namespace Greenshot.Plugin.RecipeEditor.Views
 
             ViewModel = new RecipeEditorViewModel(recipeManager);
             DataContext = ViewModel;
+            ViewModel.ShowStepsRequested += OnShowStepsRequested;
 
             // Steps and triggers change their configuration directly: compare with the saved recipe regularly
             _unsavedStateTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(700) };
@@ -39,10 +40,11 @@ namespace Greenshot.Plugin.RecipeEditor.Views
             Closed += (s, e) =>
             {
                 _unsavedStateTimer.Stop();
+                ViewModel.ShowStepsRequested -= OnShowStepsRequested;
                 ViewModel.Detach();
             };
 
-            WpfThemeHelper.ThemeChanged += ApplyImmersiveDarkMode;
+            ThemeManager.Instance.PaletteChanged += ApplyImmersiveDarkMode;
             Loaded += (s, e) =>
             {
                 ApplyImmersiveDarkMode();
@@ -140,6 +142,49 @@ namespace Greenshot.Plugin.RecipeEditor.Views
                     }
                 }
             };
+        }
+
+        /// <summary>
+        /// The space kept between the shown steps and the edge of the canvas
+        /// </summary>
+        private const double ShowStepsMargin = 30;
+
+        private void OnShowStepsRequested(StepNodeViewModel node)
+        {
+            // After the steps are laid out and drawn: their size and the extent of all steps are known then
+            _ = Dispatcher.BeginInvoke(new Action(() => ShowSteps(node)), DispatcherPriority.ContextIdle);
+        }
+
+        /// <summary>
+        /// Scrolls the canvas, without zooming, so the step (or with null the steps of the recipe) can be seen.
+        /// Nothing changes when they are in view already. Steps taller than the canvas show from their top.
+        /// </summary>
+        private void ShowSteps(StepNodeViewModel node)
+        {
+            if (ViewModel.Nodes.Count == 0 || (node != null && !ViewModel.Nodes.Contains(node)))
+            {
+                return;
+            }
+            var viewport = new Rect(EditorCanvas.ViewportLocation, EditorCanvas.ViewportSize);
+            if (viewport.Width <= 0 || viewport.Height <= 0)
+            {
+                return;
+            }
+            var area = node == null
+                ? EditorCanvas.ItemsExtent
+                : new Rect(node.Location, node.Size.Height > 1 ? node.Size : new Size(220, 95));
+            if (area.IsEmpty || area.Width <= 0 || area.Height <= 0)
+            {
+                return;
+            }
+            area.Inflate(ShowStepsMargin, ShowStepsMargin);
+            if (viewport.Contains(area))
+            {
+                return;
+            }
+            double centerX = area.Left + area.Width / 2;
+            double centerY = area.Height > viewport.Height ? area.Top + viewport.Height / 2 : area.Top + area.Height / 2;
+            EditorCanvas.BringIntoView(new Point(centerX, centerY), animated: false);
         }
 
         private void OnConnectionPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

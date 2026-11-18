@@ -34,7 +34,6 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.Base.Wpf.Views;
 using log4net;
-using Microsoft.Win32;
 using Greenshot.Base.Languages;
 
 namespace Greenshot.Base.Controls
@@ -105,18 +104,45 @@ namespace Greenshot.Base.Controls
             return ModalAsync(() =>
             {
                 var fileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
-                var extensions = (fileFormatRegistry?.GetLoadableFileFormats() ?? Enumerable.Empty<FileFormatDefinition>())
+                return FileDialogs.PickFileToOpen(IntPtr.Zero, OpenImageFilter(fileFormatRegistry?.GetLoadableFileFormats()));
+            }, cancellationToken);
+        }
+
+        /// <summary>
+        /// The file types of the open dialog for images: first all formats Greenshot can open together,
+        /// then each format on its own (its extensions together, e.g. jpg and jpeg), then all files
+        /// </summary>
+        /// <param name="formats">the formats that can be opened, ordered as they should be listed</param>
+        /// <returns>the filter text for the dialog</returns>
+        internal static string OpenImageFilter(IEnumerable<FileFormatDefinition> formats)
+        {
+            var loadable = (formats ?? Enumerable.Empty<FileFormatDefinition>())
+                .Where(format => format != null && format.LoadableExtensions.Count > 0)
+                .ToList();
+            var filter = new List<string>();
+            if (loadable.Count > 0)
+            {
+                var allPatterns = loadable
                     .SelectMany(format => format.LoadableExtensions)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
                     .Select(extension => $"*.{extension}")
                     .ToList();
-                var openFileDialog = new OpenFileDialog
+                filter.Add($"Image files ({string.Join(", ", allPatterns)})");
+                filter.Add(string.Join(";", allPatterns));
+                foreach (var format in loadable)
                 {
-                    Filter = $"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}|All files (*.*)|*.*"
-                };
-                return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
-            }, cancellationToken);
+                    var patterns = format.LoadableExtensions.Select(extension => $"*.{extension}").ToList();
+                    // A '|' would split the filter text
+                    string name = (format.GetDisplayName() ?? format.Id).Replace("|", " ");
+                    filter.Add($"{name} ({string.Join(", ", patterns)})");
+                    filter.Add(string.Join(";", patterns));
+                }
+            }
+
+            filter.Add("All files (*.*)");
+            filter.Add("*.*");
+            return string.Join("|", filter);
         }
 
         public Task<SurfaceOutputSettings> PromptOutputSettingsAsync(SurfaceOutputSettings current, CancellationToken cancellationToken)

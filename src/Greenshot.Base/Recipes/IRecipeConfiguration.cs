@@ -23,6 +23,8 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Recipes
 {
@@ -48,6 +50,7 @@ namespace Greenshot.Base.Recipes
 
         [Description("Whether recipes can be installed from the Greenshot recipe catalog (greenshot:install-recipe links). An administrator switches it off in greenshot-fixed.ini.")]
         [DefaultValue(true)]
+        [PolicyCategory(PolicyCategories.Common)]
         bool AllowCatalogInstall { get; set; }
     }
 }

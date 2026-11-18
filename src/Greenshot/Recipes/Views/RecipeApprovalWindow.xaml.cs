@@ -266,19 +266,19 @@ namespace Greenshot.Recipes.Views
         public bool OpenInEditor { get; private set; }
 
         // Theme brushes for WPF binding
-        public SolidColorBrush WindowBackgroundBrush => WpfThemeHelper.WindowBackground;
-        public SolidColorBrush CardBackgroundBrush => WpfThemeHelper.CardBackground;
-        public SolidColorBrush CardBorderBrush => WpfThemeHelper.CardBorder;
-        public SolidColorBrush TextPrimaryBrush => WpfThemeHelper.TextPrimary;
-        public SolidColorBrush TextSecondaryBrush => WpfThemeHelper.TextSecondary;
-        public SolidColorBrush AccentBrush => WpfThemeHelper.Accent;
-        public SolidColorBrush WarningBackgroundBrush => WpfThemeHelper.WarningBackground;
-        public SolidColorBrush WarningBorderBrush => WpfThemeHelper.WarningBorder;
-        public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
-        public SolidColorBrush ErrorBackgroundBrush => WpfThemeHelper.ErrorBackground;
-        public SolidColorBrush ErrorBorderBrush => WpfThemeHelper.ErrorBorder;
-        public SolidColorBrush ErrorTextBrush => WpfThemeHelper.ErrorText;
-        public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
+        public SolidColorBrush WindowBackgroundBrush => ThemeManager.Instance.CurrentPalette.WindowBackground;
+        public SolidColorBrush CardBackgroundBrush => ThemeManager.Instance.CurrentPalette.CardBackground;
+        public SolidColorBrush CardBorderBrush => ThemeManager.Instance.CurrentPalette.CardBorder;
+        public SolidColorBrush TextPrimaryBrush => ThemeManager.Instance.CurrentPalette.TextPrimary;
+        public SolidColorBrush TextSecondaryBrush => ThemeManager.Instance.CurrentPalette.TextSecondary;
+        public SolidColorBrush AccentBrush => ThemeManager.Instance.CurrentPalette.Accent;
+        public SolidColorBrush WarningBackgroundBrush => ThemeManager.Instance.CurrentPalette.WarningBackground;
+        public SolidColorBrush WarningBorderBrush => ThemeManager.Instance.CurrentPalette.WarningBorder;
+        public SolidColorBrush WarningTextBrush => ThemeManager.Instance.CurrentPalette.WarningText;
+        public SolidColorBrush ErrorBackgroundBrush => ThemeManager.Instance.CurrentPalette.ErrorBackground;
+        public SolidColorBrush ErrorBorderBrush => ThemeManager.Instance.CurrentPalette.ErrorBorder;
+        public SolidColorBrush ErrorTextBrush => ThemeManager.Instance.CurrentPalette.ErrorText;
+        public SolidColorBrush BadgeBackgroundBrush => ThemeManager.Instance.CurrentPalette.BadgeBackground;
 
         public RecipeApprovalWindow(RecipeApprovalRequest request)
         {

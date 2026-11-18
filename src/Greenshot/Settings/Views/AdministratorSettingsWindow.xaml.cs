@@ -29,7 +29,7 @@ using Greenshot.Base.Languages;
 using Greenshot.Base.Wpf;
 using Greenshot.Settings.ViewModels;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Settings.Views
 {
@@ -50,6 +50,8 @@ namespace Greenshot.Settings.Views
             // Greenshot Light has no plugins
             NoUnsignedQuestionBox.Visibility = Visibility.Collapsed;
             AddPluginButton.Visibility = Visibility.Collapsed;
+            // and no Windows policies
+            SaveRegButton.Visibility = Visibility.Collapsed;
 #endif
             UpdateSettingsText();
         }
@@ -98,22 +100,30 @@ namespace Greenshot.Settings.Views
             ClipboardHelper.SetClipboardData(SettingsText.Text);
         }
 
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private void Save_Click(object sender, RoutedEventArgs e) => SaveAs("greenshot-fixed.ini", "INI (*.ini)|*.ini", () => SettingsText.Text, new UTF8Encoding(false));
+
+        /// <summary>
+        /// The same lines as mandatory Windows policies (HKLM\SOFTWARE\Policies\Greenshot\Greenshot\Core), see docs/vNext/policies.md
+        /// </summary>
+        private void SaveReg_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog
-            {
-                FileName = "greenshot-fixed.ini",
-                DefaultExt = ".ini",
-                Filter = "INI (*.ini)|*.ini"
-            };
-            if (dialog.ShowDialog(this) != true)
+#if !GREENSHOT_LIGHT
+            // regedit writes .reg files as UTF-16
+            SaveAs("greenshot-policies.reg", "Registry (*.reg)|*.reg", () => Policies.PolicyTemplates.CreateRegFile(SettingsText.Text), Encoding.Unicode);
+#endif
+        }
+
+        private void SaveAs(string fileName, string filter, Func<string> content, Encoding encoding)
+        {
+            string path = FileDialogs.PickFileToSave(this, filter, fileName);
+            if (path == null)
             {
                 return;
             }
 
             try
             {
-                File.WriteAllText(dialog.FileName, SettingsText.Text, new UTF8Encoding(false));
+                File.WriteAllText(path, content(), encoding);
             }
             catch (Exception ex)
             {

@@ -33,6 +33,10 @@ namespace Greenshot.Base.Recipes.Triggers
         public string Stdout { get; }
         public System.Collections.Generic.IReadOnlyList<CommandlineArgument> Arguments { get; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues =>
+            System.Linq.Enumerable.Concat(new object[] { Command, Description, FireAndForget, Stdout }, ArgumentValues(Arguments));
+
         public CommandlineTrigger(
             string id,
             string name,

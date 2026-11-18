@@ -547,23 +547,8 @@ namespace Greenshot.Base.Expressions
         private static string ToSeparators(string path) =>
             path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
-        /// <summary>Not allowed in a Windows file name; also left out on other systems, the files may be copied to Windows</summary>
-        private static readonly char[] NotInFileNames = "<>:\"/\\|?*".ToCharArray();
-
-        /// <summary>One value in a file name: one safe path part (no \ / : .. and the like), at most 80 characters</summary>
-        internal static string FileNameSafe(string value)
-        {
-            if (string.IsNullOrEmpty(value)) return string.Empty;
-            var chars = FilenameHelper.MakeFilenameSafe(value).ToCharArray();
-            for (int i = 0; i < chars.Length; i++)
-            {
-                if (chars[i] < ' ' || Array.IndexOf(NotInFileNames, chars[i]) >= 0) chars[i] = '_';
-            }
-            string safe = new string(chars).Trim();
-            if (safe.Length > MaxFileNameValueLength) safe = safe.Substring(0, MaxFileNameValueLength);
-            if (safe.Trim('.').Length == 0) safe = safe.Replace('.', '_');
-            return safe;
-        }
+        /// <summary>One value in a file name: one safe path part (no \ / : .. and the like), at most 80 characters, see <see cref="FilenameHelper.ToSafeNamePart"/></summary>
+        internal static string FileNameSafe(string value) => FilenameHelper.ToSafeNamePart(value, MaxFileNameValueLength);
 
         private static int FindFolderCounter(Template template)
         {

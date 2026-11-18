@@ -22,10 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Reflection;
-using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -55,15 +52,9 @@ namespace Greenshot.Editor.FileFormatHandlers
 
             try
             {
-                bitmap.Save(stream, ImageFormat.Png);
-                using MemoryStream tmpStream = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
-                long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
-                writer.Write(bytesWritten);
-                Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-                writer.Write(marker);
-                tmpStream.WriteTo(stream);
+                using MemoryStream elements = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
+                long elementsLength = surface.SaveElementsToStream(elements);
+                ImageIO.WriteGreenshotFormat(stream, bitmap, elements, elementsLength);
                 return true;
             }
             catch (Exception ex)
@@ -130,6 +121,10 @@ namespace Greenshot.Editor.FileFormatHandlers
                 Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", captureBitmap.Width, captureBitmap.Height, captureBitmap.PixelFormat, captureBitmap.HorizontalResolution, captureBitmap.VerticalResolution);
             }
 
+            // The file is opened as it was saved: nothing is changed yet, so closing it doesn't ask to save (BUG-2274),
+            // and nothing is selected, so a click picks one element instead of moving all of them (BUG-2908)
+            returnSurface.DeselectAllElements();
+            returnSurface.Modified = false;
             return returnSurface;
         }
     }

@@ -307,6 +307,11 @@ namespace Greenshot.Plugin.RecipeEditor
         string StepOpenWindow { get; }
 
         /// <summary>
+        /// Delay
+        /// </summary>
+        string StepDelay { get; }
+
+        /// <summary>
         /// OUTPUT &amp; DESTINATIONS
         /// </summary>
         string HeaderOutputDestinations { get; }
@@ -1847,6 +1852,26 @@ namespace Greenshot.Plugin.RecipeEditor
         string OpenWindowEmptyEditor { get; }
 
         /// <summary>
+        /// Quick settings
+        /// </summary>
+        string OpenWindowQuickSettings { get; }
+
+        /// <summary>
+        /// Seconds to wait (supports ${...}, e.g. a recipe option)
+        /// </summary>
+        string DelaySeconds { get; }
+
+        /// <summary>
+        /// Let the user choose the delay first (unattended: the seconds above)
+        /// </summary>
+        string DelayAskUser { get; }
+
+        /// <summary>
+        /// Show a countdown (it doesn't take the focus, so an open menu stays open)
+        /// </summary>
+        string DelayShowCountdown { get; }
+
+        /// <summary>
         /// Exit Code
         /// </summary>
         string ExitCode { get; }
@@ -3282,11 +3307,6 @@ namespace Greenshot.Plugin.RecipeEditor
         string SelectEditorBtnImport { get; }
 
         /// <summary>
-        /// Configured Recipe Files (semicolon-separated):
-        /// </summary>
-        string ConfigRecipeFiles { get; }
-
-        /// <summary>
         /// OVERRIDDEN
         /// </summary>
         string BadgeOverridden { get; }
@@ -4142,6 +4162,73 @@ namespace Greenshot.Plugin.RecipeEditor
         string StatusRecipeCreated { get; }
 
         /// <summary>
+        /// New recipe
+        /// </summary>
+        string NewRecipeTitle { get; }
+
+        /// <summary>
+        /// Start with a small template, or with a copy of a recipe you already have.
+        /// </summary>
+        string NewRecipeIntro { get; }
+
+        /// <summary>
+        /// Create
+        /// </summary>
+        string NewRecipeBtnCreate { get; }
+
+
+
+        /// <summary>
+        /// Copy of {0}
+        /// </summary>
+        string NewRecipeCopyName { get; }
+
+        /// <summary>
+        /// Empty recipe
+        /// </summary>
+        string TemplateEmptyName { get; }
+
+        /// <summary>
+        /// No trigger and no steps
+        /// </summary>
+        string TemplateEmptyDescription { get; }
+
+        /// <summary>
+        /// Hotkey opens a window
+        /// </summary>
+        string TemplateHotkeyWindowName { get; }
+
+        /// <summary>
+        /// A hotkey opens one of Greenshot's windows, e.g. the settings
+        /// </summary>
+        string TemplateHotkeyWindowDescription { get; }
+
+        /// <summary>
+        /// Capture a region to a file
+        /// </summary>
+        string TemplateRegionToFileName { get; }
+
+        /// <summary>
+        /// A hotkey captures a region and saves it as a file
+        /// </summary>
+        string TemplateRegionToFileDescription { get; }
+
+        /// <summary>
+        /// Copy of an existing recipe
+        /// </summary>
+        string TemplateCopyName { get; }
+
+        /// <summary>
+        /// Starts with the triggers and steps of a recipe you already have
+        /// </summary>
+        string TemplateCopyDescription { get; }
+
+        /// <summary>
+        /// Recipe to copy
+        /// </summary>
+        string NewRecipeCopyLabel { get; }
+
+        /// <summary>
         /// Revert '{0}' to default built-in definition?
         /// </summary>
         string ConfirmResetActiveRecipe { get; }
@@ -4720,6 +4807,16 @@ namespace Greenshot.Plugin.RecipeEditor
         /// Open: {0}
         /// </summary>
         string SummaryOpenWindow { get; }
+
+        /// <summary>
+        /// Wait {0} s
+        /// </summary>
+        string SummaryDelay { get; }
+
+        /// <summary>
+        /// Wait, the user chooses (default {0} s)
+        /// </summary>
+        string SummaryDelayAsk { get; }
 
         /// <summary>
         /// Stderr (exit {0}, abort): {1}

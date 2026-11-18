@@ -59,9 +59,9 @@ namespace Greenshot.SelfService.ViewModels
         public bool IsOneDriveTakingPrintKey => _hotkeyChecks.IsOneDriveBlocking;
 
         /// <summary>
-        /// A newer release of Greenshot than this one is available
+        /// A newer version of Greenshot than this one is offered (UpdateService.OfferedUpdate)
         /// </summary>
-        public bool IsOutdated => _updateService?.IsUpdateAvailable == true;
+        public bool IsOutdated => _updateService?.OfferedUpdate != null;
 
         /// <summary>
         /// The line about the version: checking, the latest, a newer one or couldn't check
@@ -82,7 +82,7 @@ namespace Greenshot.SelfService.ViewModels
                 }
 
                 return IsOutdated
-                    ? string.Format(texts.SetupVersionOld, _updateService.LatestReleaseVersion, _updateService.CurrentVersion)
+                    ? string.Format(texts.SetupVersionOld, _updateService.OfferedUpdate, _updateService.CurrentVersion)
                     : string.Format(texts.SetupVersionOk, _updateService.CurrentVersion);
             }
         }
@@ -189,7 +189,7 @@ namespace Greenshot.SelfService.ViewModels
         {
             int issues = (IsOutdated ? 1 : 0) + (IsTrayIconHidden ? 1 : 0) + (IsSnippingToolTakingPrintKey ? 1 : 0) + (IsOneDriveTakingPrintKey ? 1 : 0);
             BadgeText = issues > 0 ? issues.ToString() : null;
-            BadgeBrush = issues > 0 ? WpfThemeHelper.WarningBackground : null;
+            BadgeBrush = issues > 0 ? ThemeManager.Instance.CurrentPalette.WarningBackground : null;
         }
 
         private void OnVersionChanged()
