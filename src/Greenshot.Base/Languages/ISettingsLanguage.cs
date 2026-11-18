@@ -322,9 +322,9 @@ namespace Greenshot.Base.Languages
         string DestinationSendTo { get; }
 
         /// <summary>
-        /// Nothing is ticked, so the capture opens in the editor.
+        /// Tick at least one destination, or choose "Ask for destination every time".
         /// </summary>
-        string DestinationSendToNone { get; }
+        string DestinationSendToRequired { get; }
 
         /// <summary>
         /// Destinations Greenshot offers
