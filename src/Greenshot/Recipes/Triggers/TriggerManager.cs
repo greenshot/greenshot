@@ -51,13 +51,21 @@ namespace Greenshot.Recipes.Triggers
         public static TriggerManager Instance => LazyInstance.Value;
 
         /// <summary>
-        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration or the settings changed.
+        /// Register all hotkeys again, after HotkeyManager.UnregisterHotkeys removed every registration (a changed setting only needs SyncRecipeTriggers).
         /// The hotkeys of the general settings are triggers of the built-in recipes ("${config.Core.RegionHotkey}"), so this
         /// registers the triggers of all recipes again.
         /// </summary>
         public void RestartHotkeyTriggers()
         {
-            // New trigger objects, started when the triggers run (see RegisterTrigger)
+            // HotkeyManager.UnregisterHotkeys removed every registration: all recipe triggers are new objects, also the unchanged ones
+            lock (_triggers)
+            {
+                foreach (var tid in _triggers.Keys.Where(k => k.StartsWith("trigger_recipe_", StringComparison.OrdinalIgnoreCase)).ToList())
+                {
+                    UnregisterTrigger(tid);
+                }
+            }
+            // Started when the triggers run (see RegisterTrigger)
             SyncRecipeTriggers(RecipeManager.Instance.GetAllRecipes());
         }
 
@@ -97,24 +105,16 @@ namespace Greenshot.Recipes.Triggers
 
         /// <summary>
         /// Synchronizes modular triggers attached to registered recipes.
-        /// Unregisters any previous recipe-attached triggers and registers new ones.
+        /// A trigger which is still the same (TriggerBase.HasSameDefinition) keeps running, changed ones are registered again, the ones no recipe wants any more are unregistered.
         /// </summary>
         public void SyncRecipeTriggers(IEnumerable<CaptureRecipe> recipes)
         {
             if (recipes == null) return;
 
+            // The triggers the recipes want now; only the ones which differ from the registered ones are registered again
+            var wanted = new Dictionary<string, ITrigger>(StringComparer.OrdinalIgnoreCase);
             lock (_triggers)
             {
-                // Remove all triggers previously registered for recipes
-                var recipeTriggerIds = _triggers.Keys
-                    .Where(k => k.StartsWith("trigger_recipe_", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                foreach (var tid in recipeTriggerIds)
-                {
-                    UnregisterTrigger(tid);
-                }
-
                 foreach (var recipe in recipes)
                 {
                     if (!recipe.IsEnabled) continue;
@@ -124,7 +124,7 @@ namespace Greenshot.Recipes.Triggers
                         if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
                         {
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
+                            Want(wanted, new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                         }
                         continue;
                     }
@@ -142,7 +142,7 @@ namespace Greenshot.Recipes.Triggers
                             if (!string.IsNullOrWhiteSpace(hotkey))
                             {
                                 string triggerId = $"trigger_recipe_{recipe.Id}_hotkey_{i}";
-                                RegisterTrigger(new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
+                                Want(wanted, new HotkeyTrigger(triggerId, tc.Name ?? $"{recipe.Name} Hotkey", hotkey, recipe.Id));
                             }
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
@@ -152,7 +152,7 @@ namespace Greenshot.Recipes.Triggers
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
-                            RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order)
+                            Want(wanted, new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order)
                             {
                                 Icon = tc.GetParameter<string>(TriggerConfig.IconParameter),
                                 Expand = tc.GetParameter<string>(TriggerConfig.ExpandParameter)
@@ -164,14 +164,14 @@ namespace Greenshot.Recipes.Triggers
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
-                            RegisterTrigger(new EditorTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                            Want(wanted, new EditorTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
                         {
                             bool onImageCopied = tc.GetParameter<bool>("OnImageCopied", true);
                             string formatFilter = tc.GetParameter<string>("FormatFilter");
                             string triggerId = $"trigger_recipe_{recipe.Id}_clipboard_{i}";
-                            RegisterTrigger(new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
+                            Want(wanted, new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
                         {
@@ -181,31 +181,62 @@ namespace Greenshot.Recipes.Triggers
                             string stdout = tc.GetParameter<string>("Stdout");
                             var args = tc.GetParameter<System.Collections.Generic.List<CommandlineArgument>>("Arguments");
                             string triggerId = $"trigger_recipe_{recipe.Id}_cmd_{i}";
-                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf, stdout, args));
+                            Want(wanted, new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf, stdout, args));
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
                         {
                             string filter = tc.GetParameter<string>("Filter");
                             bool fnf = tc.GetParameter<bool>("FireAndForget", false);
                             string triggerId = $"trigger_recipe_{recipe.Id}_openfile_{i}";
-                            RegisterTrigger(new OpenFileTrigger(triggerId, tc.Name ?? $"{recipe.Name} OpenFile", recipe.Id, filter, fnf));
+                            Want(wanted, new OpenFileTrigger(triggerId, tc.Name ?? $"{recipe.Name} OpenFile", recipe.Id, filter, fnf));
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
                         {
                             string browser = tc.GetParameter<string>("Browser");
                             bool fnf = tc.GetParameter<bool>("FireAndForget", false);
                             string triggerId = $"trigger_recipe_{recipe.Id}_extension_{i}";
-                            RegisterTrigger(new ExtensionTrigger(triggerId, tc.Name ?? $"{recipe.Name} Browser Extension", recipe.Id, browser, fnf));
+                            Want(wanted, new ExtensionTrigger(triggerId, tc.Name ?? $"{recipe.Name} Browser Extension", recipe.Id, browser, fnf));
                         }
                     }
 
                     if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
                     {
                         string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
-                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
+                        Want(wanted, new ContextMenuTrigger(triggerId, recipe.Name, recipe.DisplayName, recipe.Id, "Recipes", 0));
                     }
                 }
+
+                foreach (var tid in _triggers.Keys.Where(k => k.StartsWith("trigger_recipe_", StringComparison.OrdinalIgnoreCase)).ToList())
+                {
+                    if (!wanted.TryGetValue(tid, out var want) || !(_triggers[tid] is TriggerBase registered) || !registered.HasSameDefinition(want))
+                    {
+                        UnregisterTrigger(tid);
+                    }
+                }
+
+                foreach (var want in wanted.Values)
+                {
+                    if (_triggers.ContainsKey(want.Id))
+                    {
+                        // The same as the running one, which stays
+                        want.Dispose();
+                        continue;
+                    }
+                    RegisterTrigger(want);
+                }
             }
+        }
+
+        /// <summary>
+        /// Notes a trigger a recipe wants; a later one with the same id replaces it
+        /// </summary>
+        private static void Want(IDictionary<string, ITrigger> wanted, ITrigger trigger)
+        {
+            if (wanted.TryGetValue(trigger.Id, out var earlier))
+            {
+                earlier.Dispose();
+            }
+            wanted[trigger.Id] = trigger;
         }
 
         public void RegisterTrigger(ITrigger trigger)

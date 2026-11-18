@@ -62,6 +62,9 @@ namespace Greenshot.Recipes.Triggers
         public bool OnImageCopied { get; set; } = true;
         public string FormatFilter { get; set; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { OnImageCopied, FormatFilter };
+
         public ClipboardTrigger(string id, string name, string targetRecipeId, bool onImageCopied = true, string formatFilter = null)
             : base(id, name, targetRecipeId)
         {

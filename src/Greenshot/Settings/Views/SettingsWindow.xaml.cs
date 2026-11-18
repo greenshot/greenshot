@@ -38,6 +38,7 @@ using Greenshot.Capturing.Tools;
 using Greenshot.Base.Controls;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
+using Greenshot.Recipes;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.ViewModels;
@@ -209,11 +210,10 @@ namespace Greenshot.Settings.Views
                 ShowInput(SendToRadioButton);
                 return;
             }
-            // The hotkeys and triggers are registered again only when a setting changed (a hotkey, a trigger's condition or the language)
+            // A changed setting (a hotkey, a trigger's condition or the language): only the triggers which differ now are registered again
             if (SaveSettings())
             {
-                HotkeyManager.UnregisterHotkeys();
-                TriggerManager.Instance.RestartHotkeyTriggers();
+                TriggerManager.Instance.SyncRecipeTriggers(RecipeManager.Instance.GetAllRecipes());
             }
 
             var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
