@@ -434,9 +434,21 @@ namespace Greenshot.Settings.ViewModels
         }
 
         /// <summary>
-        /// Send directly with nothing ticked: Greenshot opens the editor (CoreConfigurationImpl.AfterLoad), the tab says so
+        /// Send directly with nothing ticked: a capture would go nowhere (only loading greenshot.ini puts the editor into an empty list),
+        /// so OK keeps the window open. A kept destination of a plugin which isn't loaded counts, it is saved again.
         /// </summary>
-        public bool IsSendToEmpty => SendDirectly && Destinations?.Any(item => item.IsSelected && item.IsAllowed) != true;
+        public bool IsSendToEmpty => SendDirectly
+                                     && Destinations?.Any(item => item.IsSelected && item.IsAllowed) != true
+                                     && KeptOutputDestinations().Count == 0;
+
+        /// <summary>
+        /// The destinations of the settings which have no entry on the tab (e.g. of a plugin which isn't loaded), saved again as they are
+        /// </summary>
+        public List<string> KeptOutputDestinations() =>
+            CoreConfiguration.OutputDestinations?
+                .Where(designation => !string.Equals(designation, nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)
+                                      && Destinations?.All(item => !string.Equals(item.Designation, designation, StringComparison.OrdinalIgnoreCase)) != false)
+                .ToList() ?? new List<string>();
 
         private void InitializeImageFormats()
         {
@@ -472,6 +484,8 @@ namespace Greenshot.Settings.ViewModels
         private void InitializeDestinations()
         {
             Destinations = new ObservableCollection<DestinationViewModel>();
+            // From the setting itself, whether or not the picker is among the listed destinations
+            _pickerSelected = CoreConfiguration.OutputDestinations?.Any(designation => string.Equals(designation?.Trim(), nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)) == true;
             
             var allDestinations = GetListedDestinations();
             foreach (IDestination destination in allDestinations)
@@ -479,7 +493,6 @@ namespace Greenshot.Settings.ViewModels
                 // Skip picker - it's handled separately
                 if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                 {
-                    _pickerSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation);
                     continue;
                 }
 
@@ -501,7 +514,7 @@ namespace Greenshot.Settings.ViewModels
                     // Before IsSelected: switching it off unselects, an output destination which is off stays in the settings
                     IsAllowed = ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, destination.Designation),
                     CanChangeAllowed = !AreDestinationExclusionsFixed && !ConfigurationRestrictions.IsDestinationBlockedByAdministrator(CoreConfiguration, destination.Designation),
-                    IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
+                    IsSelected = CoreConfiguration.OutputDestinations?.Any(designation => string.Equals(designation?.Trim(), destination.Designation, StringComparison.OrdinalIgnoreCase)) == true
                 };
                 
                 destItem.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IsSendToEmpty));

@@ -203,6 +203,12 @@ namespace Greenshot.Settings.Views
                 ShowInput(invalidInput);
                 return;
             }
+            // "Send it to:" with nothing ticked: a capture would go nowhere, the tab says so in red
+            if (_viewModel.IsSendToEmpty)
+            {
+                ShowInput(SendToRadioButton);
+                return;
+            }
             HotkeyManager.UnregisterHotkeys();
             SaveSettings();
             TriggerManager.Instance.RestartHotkeyTriggers();
@@ -531,10 +537,7 @@ namespace Greenshot.Settings.Views
                 }
 
                 // Keep the destinations which aren't there right now, e.g. of a plugin which isn't loaded
-                destinations.AddRange(_viewModel.CoreConfiguration.OutputDestinations?
-                    .Where(designation => designation != nameof(WellKnownDestinations.Picker)
-                                          && _viewModel.Destinations.All(d => !string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase)))
-                    ?? Enumerable.Empty<string>());
+                destinations.AddRange(_viewModel.KeptOutputDestinations());
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
