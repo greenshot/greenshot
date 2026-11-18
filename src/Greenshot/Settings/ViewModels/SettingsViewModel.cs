@@ -67,6 +67,11 @@ namespace Greenshot.Settings.ViewModels
         public SettingsDrafts Drafts { get; } = new SettingsDrafts();
 
         /// <summary>
+        /// The language isn't the one of the start of the window any more (it changes at once, it is no draft)
+        /// </summary>
+        public bool LanguageChanged => !string.IsNullOrEmpty(_languageAtStart) && !string.Equals(Texts.Config.CurrentLanguage, _languageAtStart, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Theme and language show at once in every window (they are no draft): without OK they go back to what they were
         /// </summary>
         public void RevertPreviews()
@@ -75,7 +80,7 @@ namespace Greenshot.Settings.ViewModels
             {
                 ThemeManager.Instance.Theme = _themeAtStart;
             }
-            if (!string.IsNullOrEmpty(_languageAtStart) && !string.Equals(Texts.Config.CurrentLanguage, _languageAtStart, StringComparison.OrdinalIgnoreCase))
+            if (LanguageChanged)
             {
                 Texts.SetLanguage(_languageAtStart);
             }
