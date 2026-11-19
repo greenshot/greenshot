@@ -151,7 +151,6 @@ Filename: "{dotnet40}\ngen.exe"; Parameters: "install ""{app}\{#ExeName}.exe"" /
 Filename: "{sys}\rundll32.exe"; Parameters: "{#AutostartParameters}"; WorkingDir: "{app}"; Flags: runasoriginaluser waituntilterminated; Tasks: startup
 Filename: "{sys}\reg.exe"; Parameters: "add ""HKCU\Software\Microsoft\Active Setup\Installed Components\{{{#AutostartComponentGuid}}"" /v Version /t REG_SZ /d ""{#AutostartComponentVersion}"" /f"; Flags: runasoriginaluser runhidden waituntilterminated; Tasks: startup\allusers
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
-Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [UninstallRun]
 Filename: "{dotnet40}\ngen.exe"; Parameters: "uninstall ""{app}\{#ExeName}.exe"" /nologo"; Flags: runhidden waituntilterminated; RunOnceId: "NgenUninstall"; Check: IsAdminInstallMode
