@@ -168,6 +168,50 @@ flowchart TD
 Not covered: an administrator who elevates the setup with another account (the HKCU of the setup is the administrator's), and other users of the computer.
 Their older copies stay; the Self-Service troubleshooter is meant to show them later.
 
+### Updating while Greenshot runs
+
+A deployment tool often runs the setup in another session than the user's: as SYSTEM, from a service or a remote PowerShell (issue #732).
+From there the setup can't see the Greenshot of the user (its single instance mutex is in the user's session), and the Restart Manager can't
+close it ("Session Mismatch" in the setup log). The files of a running Greenshot can't be replaced, but they can be renamed:
+
+1. `PrepareToInstall` deletes the `*.old` files of an earlier update which aren't in use anymore, and tries for every file in use in the
+   installation directory (and its sub directories) whether it can be renamed (renamed and back). If one can't (e.g. a security program
+   prevents it), the setup ends before anything changed: the message that Greenshot is running, exit code 7 for a deployment tool.
+2. At `ssInstall`, after the Restart Manager closed what it could (Greenshot in the same session, as before), the files which are still in
+   use are renamed to `*.old` (or `*.1.old`, … when an earlier one is still in use), and the setup installs the new files under their names.
+3. After the installation the `*.old` files are deleted, those still in use at the next restart of Windows (administrator rights needed),
+   else by the next setup. The uninstaller deletes those not in use. If the setup ends without installing (cancelled, an error), they get
+   their names back.
+
+The running Greenshot keeps its own files, the ones it loaded. It notices the new version itself (`InstalledUpdate.cs`): when a capture
+ended or the last editor closed, and nothing is open (no capture, no editor, no settings), it compares the version of its `Greenshot.exe`
+with the one it started with. A different one, and no setup running anymore (the setup holds `Global\GreenshotSetup`, `SetupMutex`), makes
+it exit like a click on Exit and start the installed one, with the same arguments as the Restart Manager (`--restore`, `--ini-directory`).
+The new one waits until the old one exited, which keeps greenshot.ini locked until then.
+
+Until that moment a library Greenshot didn't load yet is already the new one; most are loaded at the start. Greenshot 1.3 and earlier 1.4
+builds don't notice anything and run on until the user exits them or logs off.
+
+In session 0 (SYSTEM, a service) the setup doesn't start Greenshot and doesn't open the web page after the installation: nobody would
+see them, and a Greenshot running there would keep its files in use at the next update.
+
+```mermaid
+flowchart TD
+    subgraph Setup["Setup (any session)"]
+        S1["PrepareToInstall: delete old *.old,<br/>try to rename every file in use"] --> S2{"all can be renamed?"}
+        S2 -- no --> S3["end, nothing changed<br/>(exit code 7)"]
+        S2 -- yes --> S4["ssInstall: Restart Manager closed what it could,<br/>rename what is still in use to *.old"]
+        S4 --> S5["install the new files"]
+        S5 --> S6["delete *.old, else at the next restart of Windows"]
+    end
+    subgraph GS["Running Greenshot (the user's session)"]
+        G1["a capture ended or the last editor closed"] --> G2{"nothing open, Greenshot.exe has another version,<br/>no setup running?"}
+        G2 -- no --> G3["runs on"]
+        G2 -- yes --> G4["exit, start the installed Greenshot<br/>(it waits until this one exited)"]
+    end
+    S5 -. "Greenshot.exe on disk" .-> G2
+```
+
 ### Uninstall
 
 The uninstaller removes the Run value of the user who uninstalls, if it starts this Greenshot.exe, and that user's Active Setup marker;

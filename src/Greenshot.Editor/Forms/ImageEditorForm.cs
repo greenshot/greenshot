@@ -97,6 +97,11 @@ namespace Greenshot.Editor.Forms
         private static readonly object OpenWindowsLock = new();
         private static ImageEditorForm _lastActiveWindow;
 
+        /// <summary>
+        /// The last open editor window closed, raised on the UI thread
+        /// </summary>
+        public static event EventHandler LastWindowClosed;
+
         // The surface of the selected tab
         private Surface _surface;
         // The badges are markers, the same in every language; their tooltips are translated
@@ -1133,9 +1138,15 @@ namespace Greenshot.Editor.Forms
 
         private void RemoveFromOpenWindows()
         {
+            bool lastWindowClosed;
             lock (OpenWindowsLock)
             {
-                OpenWindowList.Remove(this);
+                lastWindowClosed = OpenWindowList.Remove(this) && OpenWindowList.Count == 0;
+            }
+
+            if (lastWindowClosed)
+            {
+                LastWindowClosed?.Invoke(null, EventArgs.Empty);
             }
 
             if (_lastActiveWindow == this)
