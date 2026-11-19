@@ -145,6 +145,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🔌 Plugin Improvements
 
+**Divoom** (Beta)
+- "Capture for Divoom" in the tray menu captures an area of the size of a Divoom pixel display (e.g. Pixoo 64) and shows it there, the preview shows it as the display will
+- The device is set in the plugin settings, "Find devices" lists the devices in your network
+
 **Text from applications**
 - Capturing text (T), the OCR destination and the recipes use the exact text the applications show (through UI Automation, e.g. browsers and Explorer); OCR only reads the rest, e.g. text in images
 
