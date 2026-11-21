@@ -205,7 +205,7 @@
                 <Grid DockPanel.Dock="Top" Margin="10,10,10,6">
                     <TextBox x:Name="SearchBox"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="30,5,28,5"
+                             Padding="30,0,28,0"
                              AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
                              PreviewKeyDown="SearchBox_PreviewKeyDown"
                              PreviewTextInput="SearchBox_PreviewTextInput"/>
