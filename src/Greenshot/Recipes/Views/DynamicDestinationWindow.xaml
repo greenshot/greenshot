@@ -203,9 +203,11 @@
 
                 <!-- Search: typing filters the list, Enter takes the first entry, Down goes into the list -->
                 <Grid DockPanel.Dock="Top" Margin="10,10,10,6">
+                    <!-- The template of GreenshotStyles uses the padding twice (its border and the text): 15 makes room for the
+                         magnifier (about 30 px), 14 for the x; the placeholder starts where the text starts -->
                     <TextBox x:Name="SearchBox"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="30,0,28,0"
+                             Padding="15,0,14,0"
                              AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
                              PreviewKeyDown="SearchBox_PreviewKeyDown"
                              PreviewTextInput="SearchBox_PreviewTextInput"/>
@@ -214,7 +216,7 @@
                                HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
                               />
-                    <TextBlock Text="{wpf:Text Recipe.PickerSearch}" Margin="31,0,8,0"
+                    <TextBlock Text="{wpf:Text Recipe.PickerSearch}" Margin="33,0,28,0"
                                VerticalAlignment="Center" IsHitTestVisible="False"
                                FontSize="{wpf:FontSize 12}"
                                Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
