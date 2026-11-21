@@ -262,8 +262,8 @@
                          PreviewTextInput="DestinationList_PreviewTextInput">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <!-- The designation, which the search finds too; the key cap and the toggle have tooltips of their own -->
-                            <Grid ToolTip="{Binding DesignationToolTip}">
+                            <!-- The title and the designation, which the search finds too; the key cap and the toggle have tooltips of their own -->
+                            <Grid ToolTip="{Binding RowToolTip}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" MinWidth="30"/>
                                     <ColumnDefinition Width="Auto"/>

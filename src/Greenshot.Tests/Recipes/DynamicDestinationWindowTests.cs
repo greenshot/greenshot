@@ -246,6 +246,11 @@ namespace Greenshot.Tests.Recipes
 
                 Assert.DoesNotContain(window.TitleBar, window.RootGrid.Children.Cast<System.Windows.UIElement>());
                 Assert.True(double.IsPositiveInfinity(window.DestinationList.MaxHeight));
+
+                // Also no caption area of the title bar: it would take the clicks of the search box, which is at the top now
+                window.Show();
+                Assert.Null(System.Windows.Shell.WindowChrome.GetWindowChrome(window));
+                Assert.Equal(System.Windows.WindowStyle.None, window.WindowStyle);
                 window.Close();
             });
         }

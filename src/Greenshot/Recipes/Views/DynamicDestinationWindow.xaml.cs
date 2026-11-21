@@ -92,6 +92,8 @@ namespace Greenshot.Recipes.Views
         private ICaptureDetails _watchedDetails;
         // The mouse clicks anywhere on the screen, while the window closes with a click outside of it
         private IDisposable _clicksOutside;
+        // The viewer of the preview was opened: the user looks at the capture, from then on a click outside doesn't close the window
+        private bool _keepOpen;
 
         /// <summary>
         /// The width of the part with the preview, the details and the recipes when it is left of the list
@@ -270,7 +272,7 @@ namespace Greenshot.Recipes.Views
             {
                 if (e.HeightChanged && IsLoaded)
                 {
-                    KeepInWorkArea();
+                    KeepInWorkArea(e.NewSize);
                 }
             };
             Closing += (s, e) => _closing = !e.Cancel;
@@ -908,8 +910,8 @@ namespace Greenshot.Recipes.Views
                 var center = ThumbnailButton.PointToScreen(new Point(ThumbnailButton.ActualWidth / 2, ThumbnailButton.ActualHeight / 2));
                 viewer.CenterOn = new System.Drawing.Point((int)Math.Round(center.X), (int)Math.Round(center.Y));
             }
-            // A click outside of both closes this window too (when it closes like a context menu)
-            viewer.Deactivated += (s, e) => CloseWhenClickedOutside();
+            // From now on a click outside doesn't close this window (when it closes like a context menu), also when the viewer is closed again
+            KeepOpen();
             viewer.Closed += (s, e) =>
             {
                 if (_previewViewer != viewer)
@@ -1310,9 +1312,11 @@ namespace Greenshot.Recipes.Views
             (Math.Max(workArea.Left, Math.Min(x, workArea.Right - width)), Math.Max(workArea.Top, Math.Min(y, workArea.Bottom - height)));
 
         /// <summary>
-        /// Moves the window back into the work area of its screen, e.g. after it grew with the list
+        /// Moves the window back into the work area of its screen, e.g. after it grew with the list.
+        /// With the new size of SizeChanged: the window itself (its handle) may still have the old size then, it grew one step later
+        /// and was moved only when it got smaller again.
         /// </summary>
-        private void KeepInWorkArea()
+        private void KeepInWorkArea(Size newSize)
         {
             var handle = new WindowInteropHelper(this).Handle;
             if (handle == IntPtr.Zero)
@@ -1321,8 +1325,11 @@ namespace Greenshot.Recipes.Views
             }
 
             var bounds = InteropWindowFactory.CreateFor(handle).GetInfo(forceUpdate: true).Bounds;
+            var dpi = System.Windows.Media.VisualTreeHelper.GetDpi(this);
+            int width = (int)Math.Round(newSize.Width * dpi.DpiScaleX);
+            int height = (int)Math.Round(newSize.Height * dpi.DpiScaleY);
             var workArea = System.Windows.Forms.Screen.FromHandle(handle).WorkingArea;
-            var (x, y) = KeepInside(bounds.Left, bounds.Top, bounds.Width, bounds.Height, workArea);
+            var (x, y) = KeepInside(bounds.Left, bounds.Top, width, height, workArea);
             if (x != bounds.Left || y != bounds.Top)
             {
                 User32Api.SetWindowPos(handle, IntPtr.Zero, x, y, 0, 0, WindowPos.SWP_NOSIZE | WindowPos.SWP_NOZORDER | WindowPos.SWP_NOACTIVATE);
@@ -1358,7 +1365,7 @@ namespace Greenshot.Recipes.Views
         /// </summary>
         private void WatchClicksOutside()
         {
-            if (Options.CloseOnDeactivate != true || _clicksOutside != null)
+            if (Options.CloseOnDeactivate != true || _keepOpen || _clicksOutside != null)
             {
                 return;
             }
@@ -1414,9 +1421,19 @@ namespace Greenshot.Recipes.Views
             return false;
         }
 
+        /// <summary>
+        /// A click outside doesn't close the window anymore: the clicks of the screen aren't watched, the deactivation is ignored
+        /// </summary>
+        private void KeepOpen()
+        {
+            _keepOpen = true;
+            _clicksOutside?.Dispose();
+            _clicksOutside = null;
+        }
+
         private void CloseAfterClickOutside()
         {
-            if (_closing || _closed || _runningRecipe != null)
+            if (_closing || _closed || _keepOpen || _runningRecipe != null)
             {
                 return;
             }
@@ -1445,12 +1462,12 @@ namespace Greenshot.Recipes.Views
         private static extern IntPtr GetWindow(IntPtr hwnd, uint command);
 
         /// <summary>
-        /// Like a context menu: a click outside of the window (and of its viewer) closes it. Not while a recipe changes the capture, it
+        /// Like a context menu: a click outside of the window closes it. Not after the viewer of the preview was opened, and not while a recipe changes the capture, it
         /// may ask something in a window of its own.
         /// </summary>
         private void CloseWhenClickedOutside()
         {
-            if (Options.CloseOnDeactivate != true || _closing || _closed)
+            if (Options.CloseOnDeactivate != true || _keepOpen || _closing || _closed)
             {
                 return;
             }
@@ -1458,7 +1475,7 @@ namespace Greenshot.Recipes.Views
             // Decided once the activation moved on: to the viewer of the preview (it belongs to this window), or somewhere else
             Dispatcher.InvokeAsync(() =>
             {
-                if (_closing || _closed || _runningRecipe != null || IsActive || _previewViewer?.IsActive == true)
+                if (_closing || _closed || _keepOpen || _runningRecipe != null || IsActive || _previewViewer?.IsActive == true)
                 {
                     return;
                 }
