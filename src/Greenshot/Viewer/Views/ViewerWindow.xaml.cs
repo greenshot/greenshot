@@ -104,6 +104,12 @@ namespace Greenshot.Viewer.Views
 
         private IntPtr Handle => new WindowInteropHelper(this).EnsureHandle();
 
+        /// <summary>
+        /// The point (screen pixels) the viewer opens centered on, e.g. the preview it shows bigger; null: the middle of the screen with the
+        /// mouse pointer
+        /// </summary>
+        public System.Drawing.Point? CenterOn { get; set; }
+
         private int CaptureWidth => _viewModel.Image?.PixelWidth ?? 1;
 
         private int CaptureHeight => _viewModel.Image?.PixelHeight ?? 1;
@@ -254,7 +260,7 @@ namespace Greenshot.Viewer.Views
             var dpi = Dpi;
             var chromeWidth = (ActualWidth - Viewport.ActualWidth) * dpi.DpiScaleX;
             var chromeHeight = (ActualHeight - Viewport.ActualHeight) * dpi.DpiScaleY;
-            var screen = center ? Screen.FromPoint(System.Windows.Forms.Cursor.Position) : Screen.FromHandle(Handle);
+            var screen = center ? Screen.FromPoint(CenterOn ?? System.Windows.Forms.Cursor.Position) : Screen.FromHandle(Handle);
             var workArea = screen.WorkingArea;
 
             var viewport = viewportPixels ?? new Size(CaptureWidth * _zoom, CaptureHeight * _zoom);
@@ -263,7 +269,13 @@ namespace Greenshot.Viewer.Views
 
             int x;
             int y;
-            if (center)
+            if (center && CenterOn is { } point)
+            {
+                // Centered on the point, but inside the work area
+                x = Math.Max(workArea.Left, Math.Min(point.X - width / 2, workArea.Right - width));
+                y = Math.Max(workArea.Top, Math.Min(point.Y - height / 2, workArea.Bottom - height));
+            }
+            else if (center)
             {
                 x = workArea.Left + (workArea.Width - width) / 2;
                 y = workArea.Top + (workArea.Height - height) / 2;

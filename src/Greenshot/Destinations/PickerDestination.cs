@@ -44,6 +44,12 @@ namespace Greenshot.Destinations
         /// </summary>
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
+            // Beta testers get the destination window instead of the menu
+            if (DestinationWindowDestination.ReplacesPicker)
+            {
+                return await new DestinationWindowDestination().ExportAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+
             var destinations = DestinationHelper.GetChoices(request.Metadata);
 
             while (true)

@@ -43,8 +43,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Settings on the new Viewer tab
 - By @Lakritzator and @daxliniere
 
-**Ask for destination in a window**
-- New destination "Ask for destination every time, in a window": instead of the menu, a window with a preview of the capture and a search
+**Destination window**
+- New destination "Open in destination window": instead of the menu, a window with a preview of the capture and a search
+- Beta testers (Expert settings) get the destination window also for "Ask for destination every time", instead of the menu
+- Settings > Destination > Destination window: the preview above or left of the list, details of the capture (window title, time, OCR, HDR), close on a click outside like a context menu (also when it opened without the focus), grow with the list, show or hide the recipes
 - The editor recipes can change the capture in that window before it goes to a destination, also when exporting from the viewer
 
 **Emoji Support** (#358)
