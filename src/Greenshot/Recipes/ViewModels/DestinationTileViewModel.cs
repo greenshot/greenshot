@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -57,6 +58,20 @@ namespace Greenshot.Recipes.ViewModels
             {
                 _title = value;
                 OnPropertyChanged(nameof(Title));
+                OnPropertyChanged(nameof(DesignationToolTip));
+            }
+        }
+
+        /// <summary>
+        /// The tooltip of the row: the designation of the destination, the search finds it too (e.g. "FileDialog" for "Save as").
+        /// Null (no tooltip) for an entry below a destination, and when it reads like the title.
+        /// </summary>
+        public string DesignationToolTip
+        {
+            get
+            {
+                var designation = Parent == null ? Destination?.Designation : null;
+                return string.IsNullOrEmpty(designation) || string.Equals(designation, Title, StringComparison.OrdinalIgnoreCase) ? null : designation;
             }
         }
 
