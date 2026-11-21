@@ -192,7 +192,8 @@ namespace Greenshot.Recipes.Pipeline
             {
                 var chosenResult = await DestinationWindowDestination.ChooseAndExportAsync(source, choices,
                     (destination, from) => ExportWithChainsAsync(context, destination, destination.Designation, from, captureDetails, userInteraction,
-                        ReferenceEquals(from, source) ? copies : new Dictionary<string, PreparedCopy>(), true, cancellationToken),
+                        ReferenceEquals(from, source) ? copies : new Dictionary<string, PreparedCopy>(), true, cancellationToken,
+                        sourceIsChanged: !ReferenceEquals(from, source)),
                     cancellationToken).ConfigureAwait(false);
                 if (chosenResult.Status == ExportStatus.Declined)
                 {
@@ -241,9 +242,12 @@ namespace Greenshot.Recipes.Pipeline
         /// Runs the extensions on a copy of the capture. Returns the context of the copy (disposed with the flow, unless a
         /// destination keeps it), or null when an extension failed.
         /// </summary>
-        public static async Task<CaptureFlowContext> RunChainsOnCopyAsync(CaptureFlowContext context, IReadOnlyList<ExtensionChain> chains, string forWhat, CancellationToken cancellationToken)
+        /// <param name="changedSource">The capture as the destination window's recipes left it, when they changed it: the copy is made of it,
+        /// not of the capture of the flow. Null: the capture of the flow.</param>
+        public static async Task<CaptureFlowContext> RunChainsOnCopyAsync(CaptureFlowContext context, IReadOnlyList<ExtensionChain> chains, string forWhat, CancellationToken cancellationToken,
+            IExportSource changedSource = null)
         {
-            var copyContext = context.CreateBranchContext();
+            var copyContext = context.CreateBranchContext(changedSource == null ? null : await CopyOfAsync(context, changedSource, cancellationToken).ConfigureAwait(false));
             var engine = new DagExecutionEngine(StepRegistry.Instance.CreateStep, StepRegistry.Instance.GetContract);
             foreach (var chain in chains)
             {
@@ -259,12 +263,41 @@ namespace Greenshot.Recipes.Pipeline
         }
 
         /// <summary>
+        /// A payload with a copy of the changed capture, like the payload of the flow: its surface, and the rendered image as capture
+        /// </summary>
+        private static async Task<ICapturePayload> CopyOfAsync(CaptureFlowContext context, IExportSource changedSource, CancellationToken cancellationToken)
+        {
+            // The surface belongs to the UI thread: copied and rendered there
+            var copy = await changedSource.UseSurfaceAsync(surface =>
+            {
+                var clone = surface.Clone();
+                return (Surface: clone, Image: clone.GetImageForExport());
+            }, cancellationToken).ConfigureAwait(false);
+
+            var payload = new CapturePayload(new Capture(copy.Image) { CaptureDetails = copy.Surface.CaptureDetails })
+            {
+                Surface = copy.Surface,
+                ExtractedText = context.Payload?.ExtractedText
+            };
+            if (context.Payload?.Metadata != null)
+            {
+                foreach (var entry in context.Payload.Metadata)
+                {
+                    payload.Metadata[entry.Key] = entry.Value;
+                }
+            }
+
+            return payload;
+        }
+
+        /// <summary>
         /// Exports to the destination: when extensions run for it (BeforeDestination), they change a copy of the capture,
         /// which is exported instead, so the other destinations get the capture without them. Destinations with the same
         /// extensions share one copy (<paramref name="copies"/>), so the extensions run once per combination.
         /// </summary>
         private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
-            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool manuallyInitiated, CancellationToken cancellationToken)
+            IUserInteraction userInteraction, IDictionary<string, PreparedCopy> copies, bool manuallyInitiated, CancellationToken cancellationToken,
+            bool sourceIsChanged = false)
         {
             var applicable = ChainsFor(context, designation);
             if (applicable.Count == 0)
@@ -276,7 +309,9 @@ namespace Greenshot.Recipes.Pipeline
             if (!copies.TryGetValue(key, out var prepared))
             {
                 prepared = null;
-                var copyContext = await RunChainsOnCopyAsync(context, applicable, $"destination '{designation}'", cancellationToken).ConfigureAwait(false);
+                // The capture changed in the destination window: the extensions change a copy of that, not of the capture of the flow
+                var copyContext = await RunChainsOnCopyAsync(context, applicable, $"destination '{designation}'", cancellationToken,
+                    sourceIsChanged ? source : null).ConfigureAwait(false);
                 if (copyContext != null)
                 {
                     // The copy is disposed with the flow
