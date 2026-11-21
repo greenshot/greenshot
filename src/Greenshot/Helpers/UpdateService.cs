@@ -87,6 +87,38 @@ namespace Greenshot.Helpers
         public bool IsBetaUpdateAvailable => LatestBetaVersion != null && LatestBetaVersion > CurrentVersion;
 
         /// <summary>
+        /// This Greenshot is an unstable (beta) build: built from main, not from a release branch
+        /// (publicReleaseRefSpec of Nerdbank.GitVersioning in version.json)
+        /// </summary>
+        public static bool IsUnstableBuild => !ThisAssembly.IsPublicRelease;
+
+        /// <summary>
+        /// The current version is an unstable (beta) version, see <see cref="IsUnstableBuild"/>
+        /// </summary>
+        public bool IsUnstable { get; }
+
+        /// <summary>
+        /// Newer unstable versions are offered on an unstable version, and on a released one with the CheckForUnstable setting
+        /// </summary>
+        public bool OffersUnstable => IsUnstable || CoreConfig?.CheckForUnstable == true;
+
+        /// <summary>
+        /// The newest version to offer: the latest release, or the latest beta when <see cref="OffersUnstable"/> and it is newer; null when none is newer than the current version
+        /// </summary>
+        public Version OfferedUpdate
+        {
+            get
+            {
+                var offered = IsUpdateAvailable ? LatestReleaseVersion : null;
+                if (OffersUnstable && IsBetaUpdateAvailable && (offered == null || LatestBetaVersion > offered))
+                {
+                    offered = LatestBetaVersion;
+                }
+                return offered;
+            }
+        }
+
+        /// <summary>
         /// Indicates whether the background update check task is currently running.
         /// </summary>
         public bool IsRunning { get; private set; }
@@ -107,8 +139,10 @@ namespace Greenshot.Helpers
         /// Constructor allowing explicit CurrentVersion (useful for unit testing and dependency injection)
         /// </summary>
         /// <param name="currentVersion">Current version override</param>
-        public UpdateService(Version currentVersion)
+        /// <param name="isUnstable">Whether the current version is unstable, null: <see cref="IsUnstableBuild"/></param>
+        public UpdateService(Version currentVersion, bool? isUnstable = null)
         {
+            IsUnstable = isUnstable ?? IsUnstableBuild;
             if (currentVersion != null)
             {
                 CurrentVersion = currentVersion;
@@ -156,8 +190,8 @@ namespace Greenshot.Helpers
                 }
 
                 IsRunning = true;
-                var interval = CoreConfig?.UpdateCheckInterval ?? 14;
-                BackgroundTaskAsync(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
+                // Read for every round, so a change in the settings counts without a restart
+                BackgroundTaskAsync(() => TimeSpan.FromDays(CoreConfig?.UpdateCheckInterval ?? 14), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
             }
         }
 
@@ -299,15 +333,11 @@ namespace Greenshot.Helpers
 
             if (showNotification && DateTimeOffset.Now.AddDays(-1) > LastUpdateShown)
             {
-                if (IsBetaUpdateAvailable)
+                var offeredUpdate = OfferedUpdate;
+                if (offeredUpdate != null)
                 {
                     LastUpdateShown = DateTimeOffset.Now;
-                    ShowUpdate(LatestBetaVersion);
-                }
-                else if (IsUpdateAvailable)
-                {
-                    LastUpdateShown = DateTimeOffset.Now;
-                    ShowUpdate(LatestReleaseVersion);
+                    ShowUpdate(offeredUpdate);
                 }
             }
 

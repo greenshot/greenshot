@@ -32,6 +32,11 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
+    <!-- The ThisAssembly class of Nerdbank.GitVersioning (UpdateService.IsUnstableBuild) in its own namespace:
+         Greenshot.Base has one too (global, visible here with InternalsVisibleTo) -->
+    <NBGV_ThisAssemblyNamespace>Greenshot</NBGV_ThisAssemblyNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
     <!-- Restore for both, the Release build of Greenshot-Installer builds Light (win-x86, as AnyCPU) with the restore of the full version -->
     <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
@@ -46,8 +51,12 @@
     <OutputPath>bin\$(GreenshotBaseConfiguration)-Light\</OutputPath>
     <IntermediateOutputPath>obj\$(GreenshotBaseConfiguration)-Light\</IntermediateOutputPath>
   </PropertyGroup>
+  <!-- The members of the recipe manager which Greenshot Light has instead of the recipe files -->
+  <ItemGroup Condition="'$(GreenshotEdition)' != 'Light'">
+    <Compile Remove="Recipes\RecipeManager.Light.cs" />
+  </ItemGroup>
   <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp), the browser extension, with their settings tabs,
-       the Windows policies, and the toasts (Light informs with the balloons of the tray icon) -->
+       the Windows policies, the toasts (Light informs with the balloons of the tray icon), and the recipe files with their approval and catalog -->
   <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
     <Compile Remove="Ipc\BrowserExtension\**\*.cs" />
     <Compile Remove="Settings\ViewModels\SettingsViewModel.AiTools.cs" />
@@ -57,9 +66,20 @@
     <Compile Remove="Notifications\**\*.cs" />
     <Compile Remove="Native\ToastNotificationService.cs" />
     <Compile Remove="Policies\**\*.cs" />
+    <!-- Only the built-in recipes: no recipe files, so no approval of them, no trust store and no recipe catalog -->
+    <Compile Remove="Recipes\RecipeManager.RecipeFiles.cs" />
+    <Compile Remove="Recipes\RecipeManager.ExtensionFiles.cs" />
+    <Compile Remove="Recipes\Catalog\**\*.cs" />
+    <Compile Remove="Recipes\Approval\ApprovalResult.cs" />
+    <Compile Remove="Recipes\Approval\RecipeApprovalMode.cs" />
+    <Compile Remove="Recipes\Approval\RecipeApprovalRequest.cs" />
+    <Compile Remove="Recipes\Approval\RecipeEditApproval.cs" />
+    <Compile Remove="Recipes\Approval\RecipeTrustStore.cs" />
+    <Compile Remove="Recipes\Views\RecipeApprovalWindow.xaml.cs" />
     <Page Remove="Ai\**\*.xaml" />
     <Page Remove="Plugins\**\*.xaml" />
     <Page Remove="Policies\**\*.xaml" />
+    <Page Remove="Recipes\Views\RecipeApprovalWindow.xaml" />
   </ItemGroup>
   <!--
     Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types
@@ -92,7 +112,7 @@
     </Task>
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
-    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;PolicyTemplates;AddWindowsPolicies;PolicyRegFile" />
+    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;PolicyTemplates;AddWindowsPolicies;PolicyRegFile;RecipeTrustStore;RecipeApprovalWindow;RecipeApprovalRequest;RecipeEditApproval;RecipeCatalogClient;RecipeCatalogInstaller;RecipeCatalogService;RecipeCatalogSignature;RecipeCatalogIndex;LoadRecipeFilesInteractively;SetupWatcherForFile" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
@@ -107,7 +127,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.23.3" />
+    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.24.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Greenshot.Base.Recipes.Triggers
 {
@@ -44,6 +45,44 @@ namespace Greenshot.Base.Recipes.Triggers
             Id = id ?? Guid.NewGuid().ToString("N");
             Name = name;
             TargetRecipeId = targetRecipeId;
+        }
+
+        /// <summary>
+        /// What defines the trigger next to its type, id, name and recipe, e.g. the hotkey or the menu text.
+        /// Every trigger with settings of its own lists them here.
+        /// </summary>
+        protected virtual IEnumerable<object> DefinitionValues => Enumerable.Empty<object>();
+
+        /// <summary>
+        /// The other trigger does the same as this one: same type, id, name, recipe and definition.
+        /// A running trigger is kept when the new one has the same definition, it isn't registered again.
+        /// </summary>
+        public bool HasSameDefinition(ITrigger other) =>
+            other is TriggerBase otherTrigger
+            && otherTrigger.GetType() == GetType()
+            && string.Equals(otherTrigger.Id, Id, StringComparison.Ordinal)
+            && string.Equals(otherTrigger.Name, Name, StringComparison.Ordinal)
+            && string.Equals(otherTrigger.TargetRecipeId, TargetRecipeId, StringComparison.Ordinal)
+            && otherTrigger.IsEnabled == IsEnabled
+            && DefinitionValues.SequenceEqual(otherTrigger.DefinitionValues);
+
+        /// <summary>
+        /// The values of the arguments of a trigger, for <see cref="DefinitionValues"/>
+        /// </summary>
+        protected static IEnumerable<object> ArgumentValues(IReadOnlyCollection<CommandlineArgument> arguments)
+        {
+            yield return arguments?.Count ?? 0;
+            if (arguments == null) yield break;
+            foreach (var argument in arguments)
+            {
+                yield return argument?.Name;
+                yield return argument?.Variable;
+                yield return argument?.Description;
+                yield return argument?.Required;
+                yield return argument?.DefaultValue;
+                yield return argument?.Type;
+                yield return argument?.AllowedValues == null ? null : string.Join("\n", argument.AllowedValues);
+            }
         }
 
         public abstract void Start();

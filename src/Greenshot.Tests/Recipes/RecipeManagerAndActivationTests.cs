@@ -174,6 +174,44 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void TriggerManager_SyncRecipeTriggers_KeepsUnchangedTriggers()
+        {
+            var triggerManager = new TriggerManager();
+            var first = new CaptureRecipe("first_rec", "First Recipe") { IsEnabled = true };
+            first.Triggers.Add(TriggerConfig.CreateEditor("First Editor", "Test"));
+            var second = new CaptureRecipe("second_rec", "Second Recipe") { IsEnabled = true };
+            second.Triggers.Add(TriggerConfig.CreateEditor("Second Editor", "Test"));
+
+            triggerManager.SyncRecipeTriggers(new[] { first, second });
+            var firstTrigger = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "first_rec");
+            var secondTrigger = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "second_rec");
+
+            // Only the second recipe changes: the trigger of the first stays the same object, it isn't registered again
+            second.Triggers[0] = TriggerConfig.CreateEditor("Second Editor renamed", "Test");
+            triggerManager.SyncRecipeTriggers(new[] { first, second });
+
+            Assert.Same(firstTrigger, triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "first_rec"));
+            var changed = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "second_rec");
+            Assert.NotSame(secondTrigger, changed);
+            Assert.Equal("Second Editor renamed", changed.Name);
+
+            // A recipe which is gone takes its trigger along
+            triggerManager.SyncRecipeTriggers(new[] { first });
+            Assert.DoesNotContain(triggerManager.GetAllTriggers(), t => t.TargetRecipeId == "second_rec");
+        }
+
+        [Fact]
+        public void HotkeyTrigger_HasSameDefinition_ComparesTheHotkey()
+        {
+            using var trigger = new HotkeyTrigger("t1", "Region Hotkey", "PrintScreen", "recipe_region");
+            using var same = new HotkeyTrigger("t1", "Region Hotkey", "PrintScreen", "recipe_region");
+            using var otherKey = new HotkeyTrigger("t1", "Region Hotkey", "Shift + PrintScreen", "recipe_region");
+
+            Assert.True(trigger.HasSameDefinition(same));
+            Assert.False(trigger.HasSameDefinition(otherKey));
+        }
+
+        [Fact]
         public void RecipeManagerViewModel_FiltersRecipesCorrectly()
         {
             var manager = new RecipeManager();

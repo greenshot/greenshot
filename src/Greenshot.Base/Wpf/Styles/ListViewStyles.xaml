@@ -91,6 +91,43 @@
         </Setter>
     </Style>
 
+    <!-- A list of cards, e.g. the plugins: every item has a light frame, the selected one an accent frame -->
+    <Style x:Key="CardListBoxItem" TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ThemeListBoxItem}">
+        <Setter Property="Margin" Value="4,1"/>
+        <Setter Property="Padding" Value="4,0"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).BorderBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                    <!-- The frame is 2 thick when selected, the padding gives back the extra pixel so the content doesn't move -->
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            SnapsToDevicePixels="True">
+                        <Border x:Name="Inner" Padding="1">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).ButtonHoverBrush, RelativeSource={RelativeSource Self}}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TabItemSelectedBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource Self}}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            <Setter TargetName="Inner" Property="Padding" Value="0"/>
+                            <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="ThemeGridViewColumnHeader" TargetType="{x:Type GridViewColumnHeader}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -114,5 +151,10 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- For a list whose title names it: the columns need no header -->
+    <Style x:Key="NoColumnHeader" TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource ThemeGridViewColumnHeader}">
+        <Setter Property="Visibility" Value="Collapsed"/>
     </Style>
 </ResourceDictionary>

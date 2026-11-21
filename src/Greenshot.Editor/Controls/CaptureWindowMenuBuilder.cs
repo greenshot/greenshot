@@ -58,8 +58,6 @@ namespace Greenshot.Editor.Controls
             {
                 oldItem.Dispose();
             }
-            // check if thumbnailPreview is enabled and DWM is enabled
-            bool thumbnailPreview = coreConfig.ThumnailPreview;
             // The size the binder gives the drop down when it opens, see IconBinder
             int iconPixelSize = menuItem.Owner?.ImageScalingSize.Height ?? IconSizing.PixelSize(IconSizing.DefaultDpi);
 
@@ -85,12 +83,9 @@ namespace Greenshot.Editor.Controls
                 captureWindowItem.Click += onClick;
                 // In the size of the menu, the binder disposes the icon with the item
                 IconBinder.Bind(captureWindowItem, IconSource.FromImage(window.GetDisplayIcon(iconPixelSize > 16)));
-                // Only show preview when enabled
-                if (thumbnailPreview)
-                {
-                    captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
-                    captureWindowItem.MouseLeave += HideThumbnailOnLeave;
-                }
+                // The preview of the window (DWM thumbnail)
+                captureWindowItem.MouseEnter += ShowThumbnailOnEnter;
+                captureWindowItem.MouseLeave += HideThumbnailOnLeave;
             }
         }
 

@@ -117,6 +117,7 @@ namespace Greenshot.Settings.ViewModels
                         items.Add(new PluginViewModel
                         {
                             Plugin = plugin,
+                            Drafts = Drafts,
                             PluginName = ConfigurationRestrictions.PluginNameFromFile(location),
                             Name = plugin.Name,
                             Version = version,

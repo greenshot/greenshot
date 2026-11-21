@@ -43,7 +43,7 @@ The Jira upload window (`Greenshot.Plugin.Atlassian/Jira/Views/JiraUploadWindow.
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/DialogStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -87,7 +87,10 @@ looks the same and a change of the design is made in one place. Merge the dictio
 
 | File | What it gives you |
 |---|---|
-| `DialogStyles.xaml` | The usual start for a window: merges the shared button, check box, expander and list styles and themes `Label`, `TextBox`, `ComboBox` and the list views by default. |
+| `GreenshotStyles.xaml` | All shared styles in one: merges every file below and themes `Label`, `TextBox`, `PasswordBox`, `ComboBox`, `CheckBox`, `Button`, the list views, scroll bars, `GroupBox`, `TabControl` and `Slider` by default. Greenshot merges it once into the WPF application, so every window and panel gets it; merge it in your view as well, so the view also works in tests and the designer. Merge only this file, not the single ones. |
+| `CardStyles.xaml` | `CardStyle`: a framed block of content (a card) on the window background. |
+| `TextStyles.xaml` | `HeadingTextStyle` (the title of a card or section), `MutedTextStyle` (explaining text), `ValueTextStyle` (the value right of a slider). |
+| `ScrollBarStyles.xaml`, `GroupBoxStyles.xaml`, `TabStyles.xaml`, `SliderStyles.xaml`, `FocusStyles.xaml` | The default look of scroll bars (also the corner of a `ScrollViewer`), group boxes, tabs and sliders; `GreenshotFocusVisual` for a focus frame. |
 | `ButtonStyles.xaml` | `PrimaryButtonStyle` (the main action, e.g. OK), `SecondaryButtonStyle` (the other actions, e.g. Cancel), `WarnButtonStyle`, `ErrorButtonStyle` (strong red, destructive), `LightErrorButtonStyle` (a lighter delete), text-only buttons `PrimaryTextButtonStyle`, `SecondaryTextButtonStyle`, `LinkTextButtonStyle`, `ToolboxButtonStyle`, `PaletteSwatchStyle`, `DefaultRadioButtonStyle`, `FilterChipRadioButtonStyle`, and the caption buttons `TitleBarButtonStyle`, `TitleCloseButtonStyle`. |
 | `ComboBoxStyles.xaml` | `DefaultComboBoxStyle`, the default style of every `ComboBox` in a window which merges it; with `IsEditable="True"` the box takes typing and the list offers values. |
 | `CheckBoxStyles.xaml` | `GreenshotCheckBoxStyle`, also the default style of every `CheckBox` in a window which merges it. |
@@ -95,6 +98,11 @@ looks the same and a change of the design is made in one place. Merge the dictio
 | `ListViewStyles.xaml` | `ThemeListView`, `ThemeListViewItem`, `ThemeGridViewColumnHeader`; `ThemeListBox` and `ThemeListBoxItem` for a list without columns, e.g. tiles in a `WrapPanel`. |
 | `PillStyles.xaml` | `PillStyle` (an entry shown as a pill), `EditEntryButtonStyle` (its text as a button, e.g. a click changes the entry), `RemoveEntryButtonStyle` (the small x in it), `TakeEntryButtonStyle` (a small + which takes the entry into another list), `AddPillButtonStyle` (the + at the end of the list). |
 | `MenuStyles.xaml` | `GreenshotContextMenuStyle`, `GreenshotMenuItemStyle`, `GreenshotMenuSeparatorStyle`; `ThemedMenu` uses them for the tray menu and the other menus. |
+
+To change a shared default a little in one view, base the style on its name, not on the type:
+`BasedOn="{StaticResource GreenshotTextBoxStyle}"` (likewise `GreenshotLabelStyle`, `GreenshotCheckBoxStyle`,
+`DefaultComboBoxStyle`, `GreenshotSliderStyle`, `GreenshotScrollViewerStyle`, `ThemeListViewItem`, `ThemeListBoxItem`).
+`BasedOn="{StaticResource {x:Type TextBox}}"` doesn't find the shared style there and the control falls back to the Windows look.
 
 ```xaml
 <Button Content="{wpf:Text Core.Ok}" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True"/>
@@ -191,7 +199,14 @@ The settings window is `Greenshot/Settings/Views/SettingsWindow.xaml` with `Sett
 - `FixedToEnabledConverter` (in `IniValueConverter.cs`) disables a control whose value is fixed; the parameter is the property name.
 - The expert settings on the Expert tab are only enabled with `ExpertModeEnabled` (the check box above them). `ExpertVisibilityConverter` hides a single control
   outside the expert mode, `InverseBooleanConverter` inverts a boolean.
-- OK saves (`SaveSettings` copies lists like the destinations into the configuration, then saves all sections), Cancel closes without saving.
+- The window edits drafts of the sections (Dapplo.Ini `CreateDraft`, kept in `SettingsViewModel.Drafts`), never the live sections:
+  the rest of Greenshot and the auto-save don't see a change before OK. OK (`SaveSettings`) copies lists like the destinations into the drafts,
+  then `Drafts.Apply()` writes only the keys the window changed to the live sections and saves once; a key another part of Greenshot
+  changed meanwhile stays as it is. Without a change OK writes and saves nothing. After a change OK calls
+  `TriggerManager.SyncRecipeTriggers`, which registers only the triggers whose definition changed again
+  (`TriggerBase.HasSameDefinition`; a trigger with settings of its own lists them in `DefinitionValues`).
+  Cancel or closing the window drops the drafts and turns the theme and language previews back.
+- A new page gets its section with `Drafts.Get(section)`, never with `IniConfigRegistry.GetSection` alone.
 - Adding a setting: the property in the configuration interface, the text in `[Settings]` and `ISettingsLanguage`, the control on the right tab,
   with `FixedToEnabledConverter` when it can be fixed.
 
@@ -210,7 +225,9 @@ public void ConfigureServices(IPluginServices services)
 ```
 
 The settings window shows the view (a `UserControl`, e.g. `JiraConfigurationView`) on the plugins page, bound to the view model
-`CreateSettingsViewModel` returns, here the configuration section itself.
+`CreateSettingsViewModel` returns, here the configuration section itself. Returned sections are swapped for their drafts, so OK
+applies them and Cancel drops them. A view model of its own takes its sections through `services.SettingsSection(section)`
+(e.g. `AtlassianPlugin`), else it would change the live sections.
 
 ## Images
 

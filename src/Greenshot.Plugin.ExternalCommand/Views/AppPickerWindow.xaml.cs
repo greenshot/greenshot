@@ -25,7 +25,7 @@ using System.Windows;
 using System.Windows.Input;
 using Greenshot.Plugin.ExternalCommand.Running;
 using Greenshot.Plugin.ExternalCommand.ViewModels;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Plugin.ExternalCommand.Views;
 
@@ -55,13 +55,6 @@ public partial class AppPickerWindow : Window
     /// <param name="current">the current program, its folder is where the dialog starts</param>
     internal static InstalledApp BrowseForProgram(Window owner, string current)
     {
-        var dialog = new OpenFileDialog
-        {
-            Filter = "Programs (*.exe, *.bat, *.com, *.cmd)|*.exe;*.bat;*.com;*.cmd|All files (*.*)|*.*",
-            CheckFileExists = true,
-            Multiselect = false
-        };
-
         string folder = null;
         try
         {
@@ -72,13 +65,14 @@ public partial class AppPickerWindow : Window
             // Not a path, e.g. a template
         }
 
-        dialog.InitialDirectory = !string.IsNullOrEmpty(folder) && Directory.Exists(folder) ? folder : Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-        if (dialog.ShowDialog(owner) != true)
+        string initialDirectory = !string.IsNullOrEmpty(folder) && Directory.Exists(folder) ? folder : Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        string path = FileDialogs.PickFileToOpen(owner, "Programs (*.exe, *.bat, *.com, *.cmd)|*.exe;*.bat;*.com;*.cmd|All files (*.*)|*.*", initialDirectory: initialDirectory);
+        if (path == null)
         {
             return null;
         }
 
-        return new InstalledApp(Path.GetFileNameWithoutExtension(dialog.FileName), dialog.FileName, CommandDefinition.DefaultArguments);
+        return new InstalledApp(Path.GetFileNameWithoutExtension(path), path, CommandDefinition.DefaultArguments);
     }
 
     private void Choose()

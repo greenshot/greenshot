@@ -13,7 +13,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Pipeline;
 using Greenshot.Base.Recipes.Triggers;
 using Greenshot.Base.Wpf;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
@@ -670,20 +670,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ExecuteLoadRecipeFromFile()
         {
-            var dlg = new OpenFileDialog
-            {
-                Filter = RecipeSerializer.RecipeFileFilter,
-                Title = Texts.Get<IRecipeEditorLanguage>().TitleLoadRecipe
-            };
-
-            if (dlg.ShowDialog() == true)
+            string recipeFile = FileDialogs.PickFileToOpen(IntPtr.Zero, RecipeSerializer.RecipeFileFilter, Texts.Get<IRecipeEditorLanguage>().TitleLoadRecipe);
+            if (recipeFile != null)
             {
                 try
                 {
                     if (_recipeManager == null)
                     {
-                        var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
-                        recipe.FilePath = dlg.FileName;
+                        var recipe = RecipeSerializer.LoadFromFile(recipeFile);
+                        recipe.FilePath = recipeFile;
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
@@ -691,24 +686,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             return;
                         }
                         _onSelectRecipeForEditor?.Invoke(recipe);
-                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoaded, Path.GetFileName(dlg.FileName));
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoaded, Path.GetFileName(recipeFile));
                         RequestClose?.Invoke();
                         return;
                     }
 
-                    var result = _recipeManager.LoadRecipeFromFile(dlg.FileName);
+                    var result = _recipeManager.LoadRecipeFromFile(recipeFile);
                     if (!result.IsValid)
                     {
                         ThemedMessageBox.Show(Texts.Recipe.ImportFailed + "\n\n" + string.Join("\n", result.Errors), Texts.Get<IRecipeEditorLanguage>().TitleValidationError, MessageBoxButton.OK, MessageBoxImage.Warning);
-                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationFailed, Path.GetFileName(dlg.FileName));
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusValidationFailed, Path.GetFileName(recipeFile));
                     }
                     else
                     {
-                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegistered, Path.GetFileName(dlg.FileName));
+                        StatusMessage = string.Format(Texts.Get<IRecipeEditorLanguage>().StatusLoadedRegistered, Path.GetFileName(recipeFile));
                         LoadRecipes();
 
                         // Select the newly loaded recipe in the list
-                        var newlyLoaded = AllRecipes.FirstOrDefault(r => string.Equals(r.FilePath, dlg.FileName, StringComparison.OrdinalIgnoreCase));
+                        var newlyLoaded = AllRecipes.FirstOrDefault(r => string.Equals(r.FilePath, recipeFile, StringComparison.OrdinalIgnoreCase));
                         if (newlyLoaded != null)
                         {
                             SelectedRecipe = newlyLoaded;

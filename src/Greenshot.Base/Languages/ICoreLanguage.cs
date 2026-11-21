@@ -1167,6 +1167,26 @@ namespace Greenshot.Base.Languages
         string QuicksettingsAutomaticstepsMore { get; }
 
         /// <summary>
+        /// Sound and notifications
+        /// </summary>
+        string QuicksettingsSoundAndNotifications { get; }
+
+        /// <summary>
+        /// Wait before capturing
+        /// </summary>
+        string QuicksettingsCaptureWait { get; }
+
+        /// <summary>
+        /// Wait time
+        /// </summary>
+        string QuicksettingsCaptureWaitTime { get; }
+
+        /// <summary>
+        /// {0} ms
+        /// </summary>
+        string QuicksettingsCaptureWaitMilliseconds { get; }
+
+        /// <summary>
         /// Save directly (using preferred file output settings)
         /// </summary>
         string QuicksettingsDestinationFile { get; }
@@ -1522,5 +1542,10 @@ namespace Greenshot.Base.Languages
         /// Functions
         /// </summary>
         string ExpressionHelpGroupFunctions { get; }
+
+        /// <summary>
+        /// Save as: {0} ({1}), the title bar of the save dialog: {0} the title of the capture, {1} the time it was taken
+        /// </summary>
+        string SaveAsCaptureTitle { get; }
     }
 }

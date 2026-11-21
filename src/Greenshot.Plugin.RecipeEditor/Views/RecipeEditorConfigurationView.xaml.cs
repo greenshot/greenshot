@@ -19,16 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows;
 using System.Windows.Controls;
-using Greenshot.Base.Recipes;
 
 namespace Greenshot.Plugin.RecipeEditor.Views;
 
+/// <summary>
+/// The page of the recipe editor on the Plugins tab: opens the recipe editor and the recipe manager
+/// </summary>
 public partial class RecipeEditorConfigurationView : UserControl
 {
-    public RecipeEditorConfigurationView(IRecipeConfiguration config)
+    private readonly RecipeEditorPlugin _plugin;
+
+    public RecipeEditorConfigurationView(RecipeEditorPlugin plugin)
     {
-        DataContext = config;
+        _plugin = plugin;
         InitializeComponent();
     }
+
+    private void OpenEditor_Click(object sender, RoutedEventArgs e) => _plugin.OpenEditor();
+
+    private void OpenManager_Click(object sender, RoutedEventArgs e) => _plugin.OpenRecipeManager();
 }

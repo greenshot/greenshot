@@ -34,10 +34,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/generic.xaml"/>
                 <!-- Nodify's focus frames for the keyboard navigation of the editor and its connections -->
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/FocusVisual.xaml"/>
@@ -205,13 +202,14 @@
         <!-- Node Template (Top/Bottom Flow) -->
         <DataTemplate DataType="{x:Type vm:StepNodeViewModel}">
             <Border Background="{Binding DataContext.NodeCardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderBrush="{Binding DataContext.NodeCardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderThickness="1.5"
                     CornerRadius="8"
                     Width="220"
                     SnapsToDevicePixels="True">
                 <Border.Style>
+                    <!-- Border brush and thickness only in the style: set on the Border, they would win over the trigger and a selected step would look like any other -->
                     <Style TargetType="Border">
+                        <Setter Property="BorderBrush" Value="{Binding DataContext.NodeCardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        <Setter Property="BorderThickness" Value="1.5"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -697,6 +695,9 @@
                             </Button>
                             <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepOpenWindow}" Command="{Binding AddStepCommand}" CommandParameter="OpenWindow">
                                 <TextBlock><Run Text="🪟 "/><Run Text="{wpf:Text RecipeEditor.StepOpenWindow}"/></TextBlock>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxButtonStyle}" AutomationProperties.Name="{wpf:Text RecipeEditor.StepDelay}" Command="{Binding AddStepCommand}" CommandParameter="Delay">
+                                <TextBlock><Run Text="⏳ "/><Run Text="{wpf:Text RecipeEditor.StepDelay}"/></TextBlock>
                             </Button>
 
                             <!-- 5. Destinations & Output -->
@@ -2491,10 +2492,21 @@
                                             <ComboBox AutomationProperties.Name="{wpf:Text RecipeEditor.OpenWindowWindow}" SelectedValue="{Binding SelectedNode.OpenWindowWindow, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowTrayMenu}" Tag="TrayMenu"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowSettings}" Tag="Settings"/>
+                                                <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowQuickSettings}" Tag="QuickSettings"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowAbout}" Tag="About"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowHelp}" Tag="Help"/>
                                                 <ComboBoxItem Content="{wpf:Text RecipeEditor.OpenWindowEmptyEditor}" Tag="EmptyEditor"/>
                                             </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Delay}">
+                                            <TextBlock x:Name="DelaySecondsLabel" Text="{wpf:Text RecipeEditor.DelaySeconds}" FontSize="{wpf:FontSize 11}" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                                            <TextBox AutomationProperties.LabeledBy="{Binding ElementName=DelaySecondsLabel}" Text="{Binding SelectedNode.DelaySeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.DelayAskUser}" IsChecked="{Binding SelectedNode.DelayAskUser, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                            <CheckBox Content="{wpf:Text RecipeEditor.DelayShowCountdown}" IsChecked="{Binding SelectedNode.DelayShowCountdown, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- PDF Step Inspector -->

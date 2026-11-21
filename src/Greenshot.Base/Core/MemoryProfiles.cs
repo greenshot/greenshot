@@ -19,6 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -90,6 +93,28 @@ namespace Greenshot.Base.Core
             configuration.BufferPoolLimit = values.BufferPoolLimit;
             configuration.MinimizeWorkingSetSize = values.MinimizeWorkingSetSize;
             Log.InfoFormat("Memory profile {0} applied", profile);
+        }
+
+        /// <summary>
+        /// The values of the profile as they stand in greenshot.ini: key (the property name in the Core section, ignoring case) and value, empty for Custom
+        /// </summary>
+        public static IReadOnlyDictionary<string, string> IniValuesOf(MemoryProfile profile)
+        {
+            var values = ValuesOf(profile);
+            if (values == null)
+            {
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [nameof(ICoreConfiguration.HardwareRendering)] = values.HardwareRendering.ToString(),
+                [nameof(ICoreConfiguration.KeepGraphicsCaptureReady)] = values.KeepGraphicsCaptureReady.ToString(),
+                [nameof(ICoreConfiguration.PrewarmCapture)] = values.PrewarmCapture.ToString(),
+                [nameof(ICoreConfiguration.PrewarmEditor)] = values.PrewarmEditor.ToString(),
+                [nameof(ICoreConfiguration.BufferPoolLimit)] = values.BufferPoolLimit.ToString(CultureInfo.InvariantCulture),
+                [nameof(ICoreConfiguration.MinimizeWorkingSetSize)] = values.MinimizeWorkingSetSize.ToString()
+            };
         }
 
         /// <summary>

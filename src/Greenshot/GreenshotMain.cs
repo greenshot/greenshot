@@ -29,7 +29,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Parsing;
-#if !GREENSHOT_LIGHT
+#if GREENSHOT_LIGHT
+using Dapplo.Ini.Interfaces;
+#else
 using Dapplo.Ini.WindowsPolicies;
 using Greenshot.Policies;
 #endif
@@ -179,7 +181,10 @@ public class GreenshotMain
                // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
                .AddListener(new IniListener());
 
-#if !GREENSHOT_LIGHT
+#if GREENSHOT_LIGHT
+        // Greenshot Light, the small tray tool, starts with the LowMemory profile: below every value the user set, who can turn it up in the settings
+        builder.AddValueSource(new EditionDefaults(MemoryProfile.LowMemory), ValueSourceLayer.Default);
+#else
         // Windows policies (Group Policy, Intune): HKLM/HKCU\SOFTWARE\Policies\Greenshot\Greenshot\<Section>\<Key> is mandatory (wins over
         // greenshot-fixed.ini), ...\Recommended\<Section>\<Key> a default the user can change. Changes are picked up while Greenshot runs.
         // See docs/vNext/policies.md

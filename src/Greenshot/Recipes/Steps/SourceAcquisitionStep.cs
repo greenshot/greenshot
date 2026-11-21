@@ -478,9 +478,18 @@ namespace Greenshot.Recipes.Steps
         }
 
         /// <summary>
-        /// The default of ICoreConfiguration.CaptureDelay
+        /// The sources which capture the screen: only they wait before the capture (CaptureWait)
         /// </summary>
-        private const int DefaultCaptureDelay = 100;
+        private static bool CapturesScreen(CaptureSourceType sourceType) => sourceType switch
+        {
+            CaptureSourceType.Region => true,
+            CaptureSourceType.Window => true,
+            CaptureSourceType.ActiveWindow => true,
+            CaptureSourceType.FullScreen => true,
+            CaptureSourceType.LastRegion => true,
+            CaptureSourceType.TextOcr => true,
+            _ => false
+        };
 
         /// <summary>
         /// The parameter which selects on the live or on the frozen screen: Auto (the setting), Live or Frozen
@@ -542,9 +551,6 @@ namespace Greenshot.Recipes.Steps
         private static bool HasInteractiveSelection(CaptureFlowContext context) =>
             context.Recipe?.Nodes?.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) == true;
 
-        private static bool IsHotkeyTrigger(CaptureFlowContext context) =>
-            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
-
         private async Task PreparePreCaptureAsync(CaptureFlowContext context, CancellationToken ct)
         {
             // Dismiss lingering tray balloons
@@ -569,8 +575,15 @@ namespace Greenshot.Recipes.Steps
                 }
             }
 
-            // Resolve capture delay: Context -> Step config -> CoreConfig
+            if (!CapturesScreen(Config.GetParameter("SourceType", CaptureSourceType.Region)))
+            {
+                return;
+            }
+
+            // The wait before the capture: Context -> Step config -> the settings (CaptureWait, off by default: no wait at all).
+            // A menu which started the capture waited until it was gone already (ThemedMenu).
             int delay = -1;
+            bool showCountdown = CoreConfig.CaptureWaitCountdown;
             if (context.Properties.TryGetValue("CaptureDelay", out var ctxDelay) && ctxDelay is int cd)
             {
                 delay = cd;
@@ -583,20 +596,29 @@ namespace Greenshot.Recipes.Steps
 
             if (delay < 0)
             {
-                delay = CoreConfig.CaptureDelay;
-                // The default delay lets a tray or context menu close before the capture; a hotkey opens no menu, so it only made
-                // the capture slower. A delay the user configured is kept.
-                if (delay == DefaultCaptureDelay && IsHotkeyTrigger(context))
-                {
-                    delay = 0;
-                }
+                delay = CoreConfig.CaptureWait ? CoreConfig.CaptureWaitMilliseconds : 0;
             }
 
-            if (delay > 0)
+            if (delay <= 0)
             {
-                context.LogStep($"Waiting pre-capture delay: {delay}ms");
-                await Task.Delay(delay, ct).ConfigureAwait(false);
+                return;
             }
+
+            context.LogStep($"Waiting pre-capture delay: {delay}ms");
+            var wait = TimeSpan.FromMilliseconds(delay);
+            bool interactive = context.UserInteraction?.IsInteractive == true;
+            // A second or more is time to open a menu or popup: with a countdown, which doesn't take the focus
+            bool countdown = showCountdown && wait >= CaptureCountdown.ShownFrom && interactive;
+            Log.Info($"Waiting {delay} ms before the capture, countdown: {countdown} (setting {showCountdown}, interactive {interactive}).");
+            if (countdown)
+            {
+                if (!await CaptureCountdown.WaitAsync(context, wait, ct).ConfigureAwait(false))
+                {
+                    context.Abort("The user cancelled the wait before the capture.");
+                }
+                return;
+            }
+            await Task.Delay(wait, ct).ConfigureAwait(false);
         }
     }
 }

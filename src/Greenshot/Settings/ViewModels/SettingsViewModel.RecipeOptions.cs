@@ -44,9 +44,13 @@ namespace Greenshot.Settings.ViewModels
         public bool HasRecipeOptions => RecipeOptionGroups.Count > 0;
 
         /// <summary>
-        /// "Get More Recipes" opens the recipe catalog (beta)
+        /// "Get More Recipes" opens the recipe catalog (beta), Greenshot Light has no recipe catalog
         /// </summary>
+#if GREENSHOT_LIGHT
+        public bool CanGetMoreRecipes => false;
+#else
         public bool CanGetMoreRecipes => Greenshot.Recipes.Catalog.RecipeCatalogInstaller.CanGetMoreRecipes(CoreConfiguration);
+#endif
 
         /// <summary>
         /// The Recipes tab: options to set, or the catalog to get recipes from
