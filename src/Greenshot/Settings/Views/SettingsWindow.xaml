@@ -831,6 +831,12 @@
                                 <CheckBox Content="{wpf:Text Settings.DestinationWindowAtMouse}"
                                           IsChecked="{Binding CoreConfiguration.DestinationWindowAtMouse, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAtMouse}"/>
+                                <CheckBox Content="{wpf:Text Settings.DestinationWindowCloseOnDeactivate}"
+                                          IsChecked="{Binding CoreConfiguration.DestinationWindowCloseOnDeactivate, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowCloseOnDeactivate}"/>
+                                <CheckBox Content="{wpf:Text Settings.DestinationWindowAutoSize}"
+                                          IsChecked="{Binding CoreConfiguration.DestinationWindowAutoSize, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAutoSize}"/>
                                 <CheckBox Content="{wpf:Text Settings.DestinationWindowShowPreview}"
                                           IsChecked="{Binding CoreConfiguration.DestinationWindowShowPreview, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowPreview}"/>
@@ -851,12 +857,6 @@
                                 <CheckBox Content="{wpf:Text Settings.DestinationWindowShowMetadata}"
                                           IsChecked="{Binding CoreConfiguration.DestinationWindowShowMetadata, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowMetadata}"/>
-                                <CheckBox Content="{wpf:Text Settings.DestinationWindowCloseOnDeactivate}"
-                                          IsChecked="{Binding CoreConfiguration.DestinationWindowCloseOnDeactivate, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowCloseOnDeactivate}"/>
-                                <CheckBox Content="{wpf:Text Settings.DestinationWindowAutoSize}"
-                                          IsChecked="{Binding CoreConfiguration.DestinationWindowAutoSize, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowAutoSize}"/>
                                 <CheckBox Content="{wpf:Text Settings.DestinationWindowShowRecipes}"
                                           IsChecked="{Binding CoreConfiguration.DestinationWindowShowRecipes, Mode=TwoWay}"
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=DestinationWindowShowRecipes}"/>
