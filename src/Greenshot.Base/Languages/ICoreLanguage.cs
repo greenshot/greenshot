@@ -1027,6 +1027,11 @@ namespace Greenshot.Base.Languages
         string HdrNotSavedFailed { get; }
 
         /// <summary>
+        /// Sending the image to {0}…
+        /// </summary>
+        string ImageSearchWait { get; }
+
+        /// <summary>
         /// HDR content lost
         /// </summary>
         string HdrLostTitle { get; }
