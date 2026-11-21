@@ -205,7 +205,7 @@
                 <Grid DockPanel.Dock="Top" Margin="10,10,10,6">
                     <TextBox x:Name="SearchBox"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="30,5,8,5"
+                             Padding="30,5,28,5"
                              AutomationProperties.Name="{wpf:Text Recipe.PickerSearch}"
                              PreviewKeyDown="SearchBox_PreviewKeyDown"
                              PreviewTextInput="SearchBox_PreviewTextInput"/>
@@ -230,6 +230,23 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
+                    <!-- Clears the search; not a tab stop, Backspace does this with the keyboard -->
+                    <Button x:Name="ClearSearchButton" Content="&#xE711;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                            FontSize="{wpf:FontSize 10}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,0,4,0" Padding="6,4" Focusable="False"
+                            ToolTip="{wpf:Text Recipe.PickerClearSearch}"
+                            AutomationProperties.Name="{wpf:Text Recipe.PickerClearSearch}"
+                            Click="ClearSearch_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryTextButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
 
                 <!-- All destinations in one list, always in the same order; the number in front picks the entry with Ctrl -->

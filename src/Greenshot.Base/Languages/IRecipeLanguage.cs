@@ -1002,6 +1002,11 @@ namespace Greenshot.Base.Languages
         string PickerSearch { get; }
 
         /// <summary>
+        /// Clear the search
+        /// </summary>
+        string PickerClearSearch { get; }
+
+        /// <summary>
         /// Show entries
         /// </summary>
         string PickerExpand { get; }

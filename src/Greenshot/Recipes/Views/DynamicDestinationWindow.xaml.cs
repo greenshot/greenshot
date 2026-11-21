@@ -1046,6 +1046,15 @@ namespace Greenshot.Recipes.Views
             }
         }
 
+        /// <summary>
+        /// The x in the search box: empties the search, the keyboard stays in the search box
+        /// </summary>
+        private void ClearSearch_Click(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Clear();
+            SearchBox.Focus();
+        }
+
         private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
@@ -1358,9 +1367,28 @@ namespace Greenshot.Recipes.Views
             _clicksOutside = MouseHook.MouseEventsNonBlocking
                 .Where(click => IsButtonDown(click.WindowsMessage))
                 // On the thread of the hook: which window was clicked
-                .Where(click => !BelongsTo(WindowFromPoint(new NativePointStruct { X = click.Point.X, Y = click.Point.Y }), handle))
-                .Subscribe(click => Dispatcher.InvokeAsync(CloseAfterClickOutside).Task.FireAndLog("Close the destination window after a click outside of it"));
+                .Select(click => RootOf(WindowFromPoint(new NativePointStruct { X = click.Point.X, Y = click.Point.Y })))
+                .Where(clicked => !BelongsTo(clicked, handle))
+                .Subscribe(clicked => Dispatcher.InvokeAsync(() =>
+                {
+                    // A menu, drop-down or tooltip of Greenshot, e.g. the context menu of the viewer of the preview: its popup has no owner
+                    if (IsPopupOfThisThread(clicked))
+                    {
+                        return;
+                    }
+
+                    CloseAfterClickOutside();
+                }).Task.FireAndLog("Close the destination window after a click outside of it"));
         }
+
+        private static IntPtr RootOf(IntPtr clicked) => clicked == IntPtr.Zero ? IntPtr.Zero : GetAncestor(clicked, GaRoot);
+
+        /// <summary>
+        /// The window is the popup of a WPF menu, drop-down or tooltip of this (the UI) thread. Popups close by themselves on a click elsewhere.
+        /// </summary>
+        private static bool IsPopupOfThisThread(IntPtr window) =>
+            window != IntPtr.Zero && HwndSource.FromHwnd(window) is { IsDisposed: false } source
+            && source.Dispatcher.CheckAccess() && source.RootVisual?.GetType().Name == "PopupRoot";
 
         private static bool IsButtonDown(WindowsMessages message) =>
             message == WindowsMessages.WM_LBUTTONDOWN || message == WindowsMessages.WM_RBUTTONDOWN || message == WindowsMessages.WM_MBUTTONDOWN
@@ -1371,8 +1399,8 @@ namespace Greenshot.Recipes.Views
         /// </summary>
         private static bool BelongsTo(IntPtr clicked, IntPtr window)
         {
-            // The top level window of e.g. a control, then its owners
-            var current = clicked == IntPtr.Zero ? IntPtr.Zero : GetAncestor(clicked, GaRoot);
+            // The top level window of the click, then its owners
+            var current = clicked;
             for (int depth = 0; current != IntPtr.Zero && depth < 20; depth++)
             {
                 if (current == window)
