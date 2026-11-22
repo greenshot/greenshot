@@ -8,7 +8,7 @@ engine and opens the results in the default browser: where an image comes from, 
 | Bing | Greenshot writes a small page with the capture to its temp folder (`%TEMP%\Greenshot\Files`) and opens it in the default browser, the page sends the capture to Bing at once. The results open in your own browser session. The page is removed after a minute, at the latest when Greenshot exits. |
 | Yandex | Greenshot uploads the capture to Yandex and opens the result page. Yandex keeps the image under a public address: anyone with the link can see it. |
 
-The destination itself uses Bing, its sub entries offer each engine. It only works when someone is at the computer: recipes and
+In the menus the entry opens a sub menu with the engines; chosen as destination after a capture (or in a recipe) it uses Bing. It only works when someone is at the computer: recipes and
 other unattended flows skip it.
 
 ## Before the capture is sent

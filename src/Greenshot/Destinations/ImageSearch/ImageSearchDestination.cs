@@ -58,7 +58,7 @@ namespace Greenshot.Destinations.ImageSearch
         public override string Designation => "ImageSearch";
 
         public override DestinationDescriptor Descriptor => _engine == null
-            ? new DestinationDescriptor(Texts.Settings.DestinationImageSearch, 5, DestinationIcons.Stock(StockIconId.Find), hasDynamicDestinations: true)
+            ? new DestinationDescriptor(Texts.Settings.DestinationImageSearch, 5, DestinationIcons.Stock(StockIconId.Find), hasDynamicDestinations: true, useDynamicsOnly: true)
             : new DestinationDescriptor(_engine.Name, 5, DestinationIcons.Stock(StockIconId.Find));
 
         public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && CoreConfiguration?.IsBetaTester == true;
