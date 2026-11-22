@@ -462,6 +462,14 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void BuiltInClipboardRecipe_UsesTheDestinationsOfTheSettings()
+        {
+            var recipe = new RecipeManager().GetRecipeById(RecipeManager.RecipeIdClipboard);
+            var export = recipe.Nodes.Single(node => node.StepType == WellKnownStepTypes.Destinations);
+            Assert.Null(export.GetParameter<List<string>>("DestinationDesignations"));
+        }
+
+        [Fact]
         public void BuiltInExtensions_AreValid_OffByDefault_AndInOrder()
         {
             var extensions = BuiltInExtensions.Create();

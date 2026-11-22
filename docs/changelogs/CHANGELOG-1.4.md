@@ -98,6 +98,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture from clipboard**
+- The image from the clipboard goes to your destinations of the settings, like any other capture; 1.3 always opened it in the editor
+
 **Capture a fixed size** (#152, #1525)
 - Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
 - The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely

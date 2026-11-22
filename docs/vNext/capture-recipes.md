@@ -167,7 +167,7 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Capture window (`recipe_window`) | The capture screen in the window mode | Yes | `${config.WindowHotkey}` when *interactive window capture* is on |
 | Capture full screen (`recipe_fullscreen`) | All displays; in the menu with more than one display a sub menu: all, or one of them | Yes | `${config.FullscreenHotkey}` |
 | Capture active window (`recipe_active_window`) | The active window right away; in the menu "Capture window from list", a sub menu of the open windows | Yes | `${config.WindowHotkey}` when *interactive window capture* is off |
-| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
+| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard goes to the destinations of the settings, like a capture (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
 | Open file (`recipe_file`) | Asks for an image file and opens it, also used for files opened with Greenshot | Yes | |
 | OCR text to clipboard (`recipe_ocr`) | Select a region, its text goes to the clipboard | | |
 | Open last capture location (`recipe_open_capture_folder`) | `ShowInExplorer`: shows the last capture in the Explorer, or the folder of the screenshots | Yes | |
