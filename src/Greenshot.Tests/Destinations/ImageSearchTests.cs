@@ -69,7 +69,7 @@ namespace Greenshot.Tests.Destinations
         }
 
         [Theory]
-        [InlineData("\"C:\\Program Files\\Edge\\msedge.exe\" --single-argument %1", "C:\\Program Files\\Edge\\msedge.exe", "--single-argument \"C:\\t\\a b.html\"")]
+        [InlineData("\"C:\\Program Files\\Edge\\msedge.exe\" --single-argument %1", "C:\\Program Files\\Edge\\msedge.exe", "--single-argument C:\\t\\a b.html")]
         [InlineData("\"C:\\Firefox\\firefox.exe\" -osint -url \"%1\"", "C:\\Firefox\\firefox.exe", "-osint -url \"C:\\t\\a b.html\"")]
         [InlineData("C:\\browser.exe", "C:\\browser.exe", "\"C:\\t\\a b.html\"")]
         public void DefaultBrowser_PlacesTheTarget(string command, string program, string arguments)

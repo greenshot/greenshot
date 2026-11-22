@@ -47,6 +47,12 @@ namespace Greenshot.Destinations.ImageSearch
         /// <exception cref="Win32Exception">the browser couldn't be started</exception>
         public static void Open(string target)
         {
+            // A local page as file:// address: a browser takes it like any address, and it has no spaces or quotes
+            if (System.IO.Path.IsPathRooted(target))
+            {
+                target = new Uri(target).AbsoluteUri;
+            }
+
             var startInfo = CreateStartInfo(GetHttpsCommand(), target) ?? new ProcessStartInfo(target) { UseShellExecute = true };
             Process.Start(startInfo)?.Dispose();
         }
@@ -91,7 +97,8 @@ namespace Greenshot.Destinations.ImageSearch
                 arguments = space < 0 ? string.Empty : command.Substring(space + 1).Trim();
             }
 
-            // A command without %1 gets the target at the end; the quotes around %1 are added when missing
+            // A command without %1 gets the target at the end; the quotes around %1 are added when missing.
+            // Not after --single-argument (Edge, Chrome): everything after it is the address, quotes included.
             string quotedTarget = "\"" + target + "\"";
             if (arguments.Contains("\"%1\""))
             {
@@ -99,7 +106,7 @@ namespace Greenshot.Destinations.ImageSearch
             }
             else if (arguments.Contains("%1"))
             {
-                arguments = arguments.Replace("%1", quotedTarget);
+                arguments = arguments.Replace("%1", arguments.Contains("--single-argument") ? target : quotedTarget);
             }
             else
             {
