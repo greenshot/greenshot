@@ -29,6 +29,11 @@ namespace Greenshot.Editor.Controls
     /// </summary>
     public class NonJumpingPanel : Panel
     {
+        public NonJumpingPanel()
+        {
+            SetStyle(ControlStyles.StandardClick | ControlStyles.StandardDoubleClick, true);
+        }
+
         protected override Point ScrollToControl(Control activeControl)
         {
             // Returning the current location prevents the panel from
