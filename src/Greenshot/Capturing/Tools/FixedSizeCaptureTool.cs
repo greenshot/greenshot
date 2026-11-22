@@ -83,7 +83,18 @@ namespace Greenshot.Capturing.Tools
 
         public override CaptureMode Mode => CaptureMode.Region;
 
-        public override string Id => "FixedSize";
+        /// <summary>
+        /// The id of the tool, e.g. for the SelectionTool of a recipe
+        /// </summary>
+        public const string ToolId = "FixedSize";
+
+        public override string Id => ToolId;
+
+        /// <summary>
+        /// A size the capture starts with as the only entry, e.g. the screen of a device (FixedCaptureArea of the selection step):
+        /// it isn't stored as the last fixed size and isn't remembered as a recent capture. Empty for the entries of the settings.
+        /// </summary>
+        public FixedCaptureArea RequestedArea { get; set; }
 
         /// <summary>
         /// F switches to this tool from every other tool
@@ -109,13 +120,21 @@ namespace Greenshot.Capturing.Tools
         public override void Activate(ICaptureToolHost host)
         {
             base.Activate(host);
-            _sizes = GetSizes(Conf.FixedCaptureSizes, Conf.RecentCaptureAreas);
-            // The entry of the last fixed size capture again, or one of its size
-            var last = FixedCaptureArea.Parse(Conf.FixedCaptureArea);
-            _index = _sizes.FindIndex(entry => entry.Area == last);
-            if (_index < 0)
+            if (!RequestedArea.IsEmpty)
             {
-                _index = Math.Max(0, _sizes.FindIndex(entry => entry.Area.Size == last.Size));
+                _sizes = new List<(FixedCaptureArea Area, bool Recent)> { (RequestedArea, false) };
+                _index = 0;
+            }
+            else
+            {
+                _sizes = GetSizes(Conf.FixedCaptureSizes, Conf.RecentCaptureAreas);
+                // The entry of the last fixed size capture again, or one of its size
+                var last = FixedCaptureArea.Parse(Conf.FixedCaptureArea);
+                _index = _sizes.FindIndex(entry => entry.Area == last);
+                if (_index < 0)
+                {
+                    _index = Math.Max(0, _sizes.FindIndex(entry => entry.Area.Size == last.Size));
+                }
             }
             _processNames.Clear();
             _typedWidth = _typedHeight = null;
@@ -221,8 +240,11 @@ namespace Greenshot.Capturing.Tools
             {
                 return;
             }
-            Conf.FixedCaptureArea = _sizes[_index].Area.ToString();
-            RememberArea(_selection.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y), Host.Windows);
+            if (RequestedArea.IsEmpty)
+            {
+                Conf.FixedCaptureArea = _sizes[_index].Area.ToString();
+                RememberArea(_selection.Offset(Host.ScreenBounds.X, Host.ScreenBounds.Y), Host.Windows);
+            }
             Host.Accept(_selection);
         }
 

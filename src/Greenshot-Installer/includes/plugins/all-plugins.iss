@@ -2,6 +2,7 @@
 #include "box.iss"
 ; The custom uploader is not delivered yet: uncomment the next line and remove GreenshotDeliverPlugin from its csproj
 ;#include "customuploader.iss"
+#include "divoom.iss"
 #include "dropbox.iss"
 #include "externalcommand.iss"
 #include "office.iss"

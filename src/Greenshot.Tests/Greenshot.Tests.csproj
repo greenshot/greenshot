@@ -41,6 +41,7 @@
     <ProjectReference Include="..\Greenshot.Plugin.Atlassian\Greenshot.Plugin.Atlassian.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.CustomUploader\Greenshot.Plugin.CustomUploader.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Divoom\Greenshot.Plugin.Divoom.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
