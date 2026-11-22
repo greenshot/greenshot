@@ -57,6 +57,11 @@ namespace Greenshot.Destinations.ImageSearch
         public abstract string Name { get; }
 
         /// <summary>
+        /// What the user should know before the capture goes to the engine, besides that it leaves the computer; null for nothing
+        /// </summary>
+        public virtual string PrivacyNote => null;
+
+        /// <summary>
         /// Send the capture to the engine and open the results in the default browser
         /// </summary>
         public abstract Task<ExportResult> SearchAsync(ExportRequest request, CancellationToken cancellationToken);
@@ -113,6 +118,8 @@ namespace Greenshot.Destinations.ImageSearch
         private const string UploadUrl = Host + "/images/touch/search?rpt=imageview&format=json&request=%7B%22blocks%22%3A%5B%7B%22block%22%3A%22cbir-uploader__get-cbir-id%22%7D%5D%7D";
 
         public override string Name => "Yandex";
+
+        public override string PrivacyNote => Texts.Core.ImageSearchYandexPublic;
 
         public override async Task<ExportResult> SearchAsync(ExportRequest request, CancellationToken cancellationToken)
         {
