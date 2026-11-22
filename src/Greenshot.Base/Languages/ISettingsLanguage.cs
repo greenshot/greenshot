@@ -277,6 +277,11 @@ namespace Greenshot.Base.Languages
         string DestinationViewer { get; }
 
         /// <summary>
+        /// Search the web for this image
+        /// </summary>
+        string DestinationImageSearch { get; }
+
+        /// <summary>
         /// Viewer
         /// </summary>
         string Viewer { get; }

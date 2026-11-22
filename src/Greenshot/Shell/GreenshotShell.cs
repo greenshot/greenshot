@@ -379,6 +379,10 @@ namespace Greenshot.Shell
                 new Win10OcrDestination(),
                 new ViewerDestination()
             };
+#if !GREENSHOT_LIGHT
+            // Beta: searches the web for the capture, needs the network
+            internalDestinations.Add(new Destinations.ImageSearch.ImageSearchDestination());
+#endif
 
             int len = 250;
             var stringBuilder = new StringBuilder(len);
