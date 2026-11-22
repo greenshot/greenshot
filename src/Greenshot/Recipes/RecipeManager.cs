@@ -457,9 +457,12 @@ namespace Greenshot.Recipes
                 "Capture from clipboard",
                 "Import and process image from system clipboard")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Clipboard, captureMouse: false))
-                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
+                // The destinations of the settings, like the other captures (1.3 always opened the editor)
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
-                .AddTransition("acquire", "export");
+                .AddTransition("acquire", "export")
+                .AddTransition("export", "notify");
             RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
             clipboardRecipe.AddTrigger(TriggerConfig.CreateHotkey("${config.Core.ClipboardHotkey}", "Clipboard Hotkey"));
             clipboardRecipe.AddTrigger(TriggerConfig.CreateMainMenu("Core.contextmenu_captureclipboard", 210, "contextmenu_captureclipboard.Image"));
