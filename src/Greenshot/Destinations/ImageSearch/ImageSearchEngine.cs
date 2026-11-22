@@ -26,6 +26,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapplo.Windows.Shell32;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;

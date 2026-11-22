@@ -26,6 +26,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Dapplo.Windows.Shell32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Threading;
 

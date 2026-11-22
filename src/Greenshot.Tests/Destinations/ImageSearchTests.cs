@@ -67,26 +67,5 @@ namespace Greenshot.Tests.Destinations
         {
             Assert.False(YandexImageSearch.TryGetResultUrl(answer, out _));
         }
-
-        [Theory]
-        [InlineData("\"C:\\Program Files\\Edge\\msedge.exe\" --single-argument %1", "C:\\Program Files\\Edge\\msedge.exe", "--single-argument C:\\t\\a b.html")]
-        [InlineData("\"C:\\Firefox\\firefox.exe\" -osint -url \"%1\"", "C:\\Firefox\\firefox.exe", "-osint -url \"C:\\t\\a b.html\"")]
-        [InlineData("C:\\browser.exe", "C:\\browser.exe", "\"C:\\t\\a b.html\"")]
-        public void DefaultBrowser_PlacesTheTarget(string command, string program, string arguments)
-        {
-            var startInfo = DefaultBrowser.CreateStartInfo(command, "C:\\t\\a b.html");
-
-            Assert.Equal(program, startInfo.FileName);
-            Assert.Equal(arguments, startInfo.Arguments);
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData(" ")]
-        [InlineData("\"C:\\unterminated.exe %1")]
-        public void DefaultBrowser_UnusableCommand(string command)
-        {
-            Assert.Null(DefaultBrowser.CreateStartInfo(command, "C:\\t\\a.html"));
-        }
     }
 }
