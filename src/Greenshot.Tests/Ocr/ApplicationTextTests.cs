@@ -106,6 +106,51 @@ namespace Greenshot.Tests.Ocr
         }
 
         [Fact]
+        public void ToLines_TheSameElementAgain_IsOneLine()
+        {
+            var captureBounds = new NativeRect(0, 0, 800, 600);
+            var label = new UiAutomationTextWord(new NativeRect(700, 20, 28, 18), "1791", null);
+            var lines = ApplicationText.ToLines(Enumerable.Range(0, 50).Select(_ => Line(label))
+                .Append(Line(new UiAutomationTextWord(new NativeRect(700, 60, 28, 18), "1791", null))), captureBounds, new List<NativeRect>());
+
+            // The same text in another place is another line
+            Assert.Equal(2, lines.Count);
+        }
+
+        [Fact]
+        public void ToLines_ColumnsInOneLine_AreSplit()
+        {
+            var captureBounds = new NativeRect(0, 0, 2000, 600);
+            var lines = ApplicationText.ToLines(new[]
+            {
+                // A side bar entry and the page next to it, given as one line; the page words come first
+                Line(new UiAutomationTextWord(new NativeRect(340, 100, 60, 20), "Your", null),
+                     new UiAutomationTextWord(new NativeRect(408, 100, 60, 20), "guess", null),
+                     new UiAutomationTextWord(new NativeRect(10, 100, 80, 20), "Document", null),
+                     new UiAutomationTextWord(new NativeRect(96, 100, 60, 20), "intake", null),
+                     new UiAutomationTextWord(new NativeRect(1300, 100, 60, 20), "right", null))
+            }, captureBounds, new List<NativeRect>());
+
+            Assert.Equal(new[] { "Document intake", "Your guess", "right" }, lines.Select(line => line.Text));
+            Assert.Equal(new NativeRect(10, 100, 146, 20), lines[0].Bounds);
+        }
+
+        [Fact]
+        public void SplitAtGaps_NormalWordGaps_StayOneLine()
+        {
+            var words = new List<OcrWordInfo>
+            {
+                new("one", new NativeRect(0, 0, 40, 16)),
+                new("two", new NativeRect(48, 0, 40, 16)),
+                // A tab stop: 40 px is less than 3 times the height
+                new("three", new NativeRect(128, 0, 50, 16))
+            };
+
+            var part = Assert.Single(ApplicationText.SplitAtGaps(words));
+            Assert.Equal(new[] { "one", "two", "three" }, part.Select(word => word.Text));
+        }
+
+        [Fact]
         public void ToLines_WordsUnderAnotherWindow_AreLeftOut()
         {
             var captureBounds = new NativeRect(0, 0, 800, 600);
