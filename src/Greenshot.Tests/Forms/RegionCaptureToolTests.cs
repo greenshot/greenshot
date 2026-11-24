@@ -73,6 +73,7 @@ public class RegionCaptureToolTests
         public void HidePanel(object owner) { }
         public CaptureToolStyle ToolStyle => null;
         public void Redraw() { }
+        public void RedrawForeground() { }
         public void Redraw(ICaptureOverlay overlay) { }
         public object FindResource(object resourceKey) => null;
         public void Accept(NativeRect rect, IInteropWindow window = null) => Accepted = rect;

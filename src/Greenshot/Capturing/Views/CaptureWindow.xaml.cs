@@ -1813,6 +1813,16 @@ namespace Greenshot.Capturing.Views
         /// <inheritdoc />
         public void Redraw()
         {
+            using (var dc = ToolBackgroundLayer.Open())
+            {
+                _activeTool.DrawBackground(dc);
+            }
+            RedrawForeground();
+        }
+
+        /// <inheritdoc />
+        public void RedrawForeground()
+        {
             using var dc = ToolLayer.Open();
             _activeTool.Draw(dc);
         }

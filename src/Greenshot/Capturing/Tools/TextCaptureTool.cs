@@ -87,7 +87,7 @@ namespace Greenshot.Capturing.Tools
             _hoveredLine = hoveredLine;
             if (redraw)
             {
-                Host.Redraw();
+                Host.RedrawForeground();
             }
         }
 
@@ -118,20 +118,15 @@ namespace Greenshot.Capturing.Tools
         }
 
         /// <summary>
-        /// The text lines, with the hovered line or the selected words highlighted
+        /// The outlines of all text lines: they only change when text was found, the mouse doesn't redraw them
         /// </summary>
-        public override void Draw(DrawingContext drawingContext)
+        public override void DrawBackground(DrawingContext drawingContext)
         {
             var linePen = new Pen((Brush)Host.FindResource("OcrLineBrush"), 1);
             linePen.Freeze();
             // Text read from the application has its own color, so it's clear where a text comes from
             var applicationTextPen = new Pen((Brush)Host.FindResource("ApplicationTextLineBrush"), 1);
             applicationTextPen.Freeze();
-            var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
-            if (_showOcrHint)
-            {
-                DrawOcrHint(drawingContext);
-            }
             foreach (var line in GetOcrLines())
             {
                 var lineBox = line.Box;
@@ -140,14 +135,29 @@ namespace Greenshot.Capturing.Tools
                     continue;
                 }
                 // The outline on the pixel grid for horizontal text, on the text for rotated text
-                var lineRect = lineBox.Unrotated;
-                var outline = lineBox.IsRotated ? lineRect : new Rect(line.Bounds.X + 0.5, line.Bounds.Y + 0.5, line.Bounds.Width, line.Bounds.Height);
+                var outline = lineBox.IsRotated ? lineBox.Unrotated : new Rect(line.Bounds.X + 0.5, line.Bounds.Y + 0.5, line.Bounds.Width, line.Bounds.Height);
                 var pen = line.Source == TextSource.UiAutomation ? applicationTextPen : linePen;
                 DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(null, pen, outline));
-                if (IsSelecting)
+            }
+        }
+
+        /// <summary>
+        /// The hovered line or the selected words highlighted, and the OCR hint: only these follow the mouse
+        /// </summary>
+        public override void Draw(DrawingContext drawingContext)
+        {
+            var highlightBrush = (Brush)Host.FindResource("OcrHighlightBrush");
+            if (_showOcrHint)
+            {
+                DrawOcrHint(drawingContext);
+            }
+            if (IsSelecting)
+            {
+                // Highlight the words which are selected
+                foreach (var line in GetOcrLines())
                 {
-                    // Highlight the words which are selected
-                    if (!lineBox.IntersectsWith(Selection))
+                    var lineBox = line.Box;
+                    if (lineBox.IsEmpty || !lineBox.IntersectsWith(Selection))
                     {
                         continue;
                     }
@@ -160,10 +170,11 @@ namespace Greenshot.Capturing.Tools
                         }
                     }
                 }
-                else if (line == _hoveredLine)
-                {
-                    DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(highlightBrush, null, lineRect));
-                }
+            }
+            else if (_hoveredLine != null && !_hoveredLine.Box.IsEmpty)
+            {
+                var lineBox = _hoveredLine.Box;
+                DrawRotated(drawingContext, lineBox, () => drawingContext.DrawRectangle(highlightBrush, null, lineBox.Unrotated));
             }
         }
 
@@ -257,7 +268,7 @@ namespace Greenshot.Capturing.Tools
             }
             _showOcrHint = false;
             _ocrHintTimer?.Stop();
-            Host?.Redraw();
+            Host?.RedrawForeground();
         }
 
         /// <summary>
@@ -276,11 +287,11 @@ namespace Greenshot.Capturing.Tools
                         _ocrHintTimer.Stop();
                         return;
                     }
-                    Host.Redraw();
+                    Host.RedrawForeground();
                 };
             }
             _ocrHintTimer.Start();
-            Host.Redraw();
+            Host.RedrawForeground();
         }
 
         /// <summary>
