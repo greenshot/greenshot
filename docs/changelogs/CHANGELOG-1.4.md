@@ -436,6 +436,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Large captures fit in the editor** (#1791)
 - A capture which is bigger than the screen the editor opens on is zoomed to fit, so it is shown completely
 
+**Editor keeps its size when restored**
+- An editor which is minimized and brought back with the task bar keeps its window size
+
 **Context Menu** (#670)
 - Fixed delay in context menu
 - By @Christian-Schulz

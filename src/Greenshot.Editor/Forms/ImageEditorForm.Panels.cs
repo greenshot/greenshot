@@ -265,6 +265,13 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void UpdateMinimumSize()
         {
+            // A minimized window is only a small caption and the content panel has no size: the difference isn't the chrome.
+            // A minimum computed from it would grow the window when it's restored from the task bar.
+            if (WindowState == FormWindowState.Minimized)
+            {
+                return;
+            }
+
             var contentPanel = topToolStripContainer.ContentPanel;
             int width = Width - contentPanel.ClientSize.Width + DpiCalculator.ScaleWithDpi(MinimumCanvasWidth, DeviceDpi);
             if (_panelDock?.Visible == true)
