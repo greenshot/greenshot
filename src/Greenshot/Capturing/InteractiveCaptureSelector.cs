@@ -180,6 +180,41 @@ namespace Greenshot.Capturing
         }
 
         /// <summary>
+        /// WPF's render thread frees the surfaces of a closed window only when it composes a window again (it processes the release
+        /// with the next batch of a shown window; rendering frames without one doesn't do it). In software rendering these are the
+        /// back buffers of the capture window: 3 DIB sections of the size of all screens (128 MB on three screens). After a selection
+        /// the picker or the editor is shown, after Escape nothing, so they stayed until the next capture.
+        /// A transparent window of one pixel, which isn't activated, is shown until its content was rendered once.
+        /// </summary>
+        private static void ReleaseSurfacesOfClosedWindows()
+        {
+            try
+            {
+                var helper = new System.Windows.Window
+                {
+                    WindowStyle = System.Windows.WindowStyle.None,
+                    AllowsTransparency = true,
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    ShowInTaskbar = false,
+                    ShowActivated = false,
+                    Focusable = false,
+                    IsHitTestVisible = false,
+                    Left = System.Windows.SystemParameters.VirtualScreenLeft,
+                    Top = System.Windows.SystemParameters.VirtualScreenTop,
+                    Width = 1,
+                    Height = 1,
+                    Content = new System.Windows.Controls.Grid()
+                };
+                helper.ContentRendered += (sender, args) => helper.Close();
+                helper.Show();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't show the window which releases the surfaces of the capture window", ex);
+            }
+        }
+
+        /// <summary>
         /// Runs on the UI thread: shows the capture window modally and returns the selection (null when the user declined)
         /// </summary>
         private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken)
@@ -224,6 +259,7 @@ namespace Greenshot.Capturing
             finally
             {
                 _openWindow = null;
+                ReleaseSurfacesOfClosedWindows();
             }
 
             if (result != true || cancellationToken.IsCancellationRequested)
