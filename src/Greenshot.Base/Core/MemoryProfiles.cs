@@ -58,13 +58,13 @@ namespace Greenshot.Base.Core
         {
             MemoryProfile.Fast => new Values
             {
-                HardwareRendering = true, KeepGraphicsCaptureReady = true, PrewarmCapture = true, PrewarmEditor = true,
+                HardwareRendering = false, KeepGraphicsCaptureReady = true, PrewarmCapture = true, PrewarmEditor = true,
                 BufferPoolLimit = 0, MinimizeWorkingSetSize = false
             },
-            // Keeps the smooth capture window (hardware rendering) and its quick start, drops what only the first editor needs
+            // Keeps the quick start of the capture window, drops what only the first editor needs
             MemoryProfile.Balanced => new Values
             {
-                HardwareRendering = true, KeepGraphicsCaptureReady = false, PrewarmCapture = true, PrewarmEditor = false,
+                HardwareRendering = false, KeepGraphicsCaptureReady = false, PrewarmCapture = true, PrewarmEditor = false,
                 BufferPoolLimit = BalancedBufferPoolLimit, MinimizeWorkingSetSize = true
             },
             MemoryProfile.LowMemory => new Values

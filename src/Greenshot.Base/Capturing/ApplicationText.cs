@@ -176,6 +176,9 @@ namespace Greenshot.Base.Capturing
         internal static List<IOcrLineFeature> ToLines(IEnumerable<UiAutomationTextLine> lines, NativeRect captureBounds, IReadOnlyList<NativeRect> windowsAbove)
         {
             var result = new List<IOcrLineFeature>();
+            // Some applications give the same element again and again (Claude's desktop app gave one label 5000 times, until the limit
+            // of the reader): one line per text and place
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (var line in lines ?? Enumerable.Empty<UiAutomationTextLine>())
             {
                 var words = new List<OcrWordInfo>();
@@ -192,16 +195,70 @@ namespace Greenshot.Base.Capturing
                     }
                     words.AddRange(Split(word.Text, word.Bounds.Offset(-captureBounds.X, -captureBounds.Y), word.LinkTarget));
                 }
-                if (words.Count == 0)
+                foreach (var part in SplitAtGaps(words))
                 {
-                    continue;
+                    var detectedLine = new DetectedOcrLine(default(OcrBox), string.Join(" ", part.Select(word => word.Text)), part)
+                    {
+                        Source = TextSource.UiAutomation
+                    };
+                    var bounds = detectedLine.Bounds;
+                    if (seen.Add($"{bounds.X},{bounds.Y},{bounds.Width},{bounds.Height}|{detectedLine.Text}"))
+                    {
+                        result.Add(detectedLine);
+                    }
                 }
-                result.Add(new DetectedOcrLine(default(OcrBox), string.Join(" ", words.Select(word => word.Text)), words)
-                {
-                    Source = TextSource.UiAutomation
-                });
             }
             return result;
+        }
+
+        /// <summary>
+        /// How much wider than the text is high a gap between two words of a line may be: a wider gap separates columns
+        /// (a side bar and the page, two pages next to each other), which the applications give as one line
+        /// </summary>
+        internal const int ColumnGapFactor = 3;
+
+        /// <summary>
+        /// The words of a line in parts, cut where the gap between two words is wider than <see cref="ColumnGapFactor"/> times the text height.
+        /// The words keep their order in each part.
+        /// </summary>
+        internal static List<List<OcrWordInfo>> SplitAtGaps(List<OcrWordInfo> words)
+        {
+            var parts = new List<List<OcrWordInfo>>();
+            if (words.Count < 2)
+            {
+                if (words.Count == 1)
+                {
+                    parts.Add(words);
+                }
+                return parts;
+            }
+            // The columns from left to right: a word starts a new column when it is far from all words left of it
+            var byLeft = words.OrderBy(word => word.Bounds.Left).ToList();
+            var columnOf = new Dictionary<OcrWordInfo, int>();
+            int column = 0;
+            int right = byLeft[0].Bounds.Right;
+            foreach (var word in byLeft)
+            {
+                var bounds = word.Bounds;
+                if (bounds.Left - right > ColumnGapFactor * Math.Max(1, bounds.Height))
+                {
+                    column++;
+                }
+                columnOf[word] = column;
+                right = Math.Max(right, bounds.Right);
+            }
+            if (column == 0)
+            {
+                parts.Add(words);
+                return parts;
+            }
+            var columns = new List<OcrWordInfo>[column + 1];
+            foreach (var word in words)
+            {
+                (columns[columnOf[word]] ??= new List<OcrWordInfo>()).Add(word);
+            }
+            parts.AddRange(columns.Where(part => part != null));
+            return parts;
         }
 
         /// <summary>

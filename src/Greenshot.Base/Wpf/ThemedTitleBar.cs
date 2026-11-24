@@ -88,6 +88,9 @@ namespace Greenshot.Base.Wpf
         private readonly Button _closeButton;
         // Without an icon of its own, Windows shows the icon of the exe in the title bar: this one does the same
         private static readonly Lazy<ImageSource> ApplicationIcon = new Lazy<ImageSource>(LoadApplicationIcon);
+        private static readonly DependencyPropertyDescriptor WindowTitleDescriptor = DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window));
+        private static readonly DependencyPropertyDescriptor WindowIconDescriptor = DependencyPropertyDescriptor.FromProperty(Window.IconProperty, typeof(Window));
+        private static readonly DependencyPropertyDescriptor WindowResizeModeDescriptor = DependencyPropertyDescriptor.FromProperty(Window.ResizeModeProperty, typeof(Window));
         private Window _window;
         private WindowStyle _customWindowStyle;
 
@@ -249,6 +252,10 @@ namespace Greenshot.Base.Wpf
                 return;
             }
 
+            if (_window != null)
+            {
+                DetachFromWindow(_window);
+            }
             _window = window;
             _customWindowStyle = window.WindowStyle;
             window.StateChanged += (s, e) => UpdateButtons();
@@ -264,12 +271,31 @@ namespace Greenshot.Base.Wpf
                 }
                 UpdateMode();
             };
-            DependencyPropertyDescriptor.FromProperty(Window.TitleProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());
-            DependencyPropertyDescriptor.FromProperty(Window.IconProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateTitle());
-            DependencyPropertyDescriptor.FromProperty(Window.ResizeModeProperty, typeof(Window)).AddValueChanged(window, (s, e) => UpdateMode());
+            WindowTitleDescriptor.AddValueChanged(window, OnWindowTitleChanged);
+            WindowIconDescriptor.AddValueChanged(window, OnWindowTitleChanged);
+            WindowResizeModeDescriptor.AddValueChanged(window, OnWindowResizeModeChanged);
+            window.Closed += OnWindowClosed;
             UpdateTitle();
             UpdateMode();
         }
+
+        /// <summary>
+        /// AddValueChanged keeps the window in a static table of WPF until RemoveValueChanged: without this every closed window
+        /// with this title bar (Settings with all its pages) stayed in memory.
+        /// </summary>
+        private void DetachFromWindow(Window window)
+        {
+            WindowTitleDescriptor.RemoveValueChanged(window, OnWindowTitleChanged);
+            WindowIconDescriptor.RemoveValueChanged(window, OnWindowTitleChanged);
+            WindowResizeModeDescriptor.RemoveValueChanged(window, OnWindowResizeModeChanged);
+            window.Closed -= OnWindowClosed;
+        }
+
+        private void OnWindowClosed(object sender, EventArgs e) => DetachFromWindow((Window)sender);
+
+        private void OnWindowTitleChanged(object sender, EventArgs e) => UpdateTitle();
+
+        private void OnWindowResizeModeChanged(object sender, EventArgs e) => UpdateMode();
 
         private void OnThemeChanged(object sender, PropertyChangedEventArgs e)
         {

@@ -182,16 +182,19 @@ namespace Greenshot.Tests.Recipes
             var second = new CaptureRecipe("second_rec", "Second Recipe") { IsEnabled = true };
             second.Triggers.Add(TriggerConfig.CreateEditor("Second Editor", "Test"));
 
+            // A recipe which isn't built in also gets its default context menu trigger, only the editor triggers are compared
+            EditorTrigger EditorTriggerOf(string recipeId) => triggerManager.GetAllTriggers().OfType<EditorTrigger>().Single(t => t.TargetRecipeId == recipeId);
+
             triggerManager.SyncRecipeTriggers(new[] { first, second });
-            var firstTrigger = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "first_rec");
-            var secondTrigger = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "second_rec");
+            var firstTrigger = EditorTriggerOf("first_rec");
+            var secondTrigger = EditorTriggerOf("second_rec");
 
             // Only the second recipe changes: the trigger of the first stays the same object, it isn't registered again
             second.Triggers[0] = TriggerConfig.CreateEditor("Second Editor renamed", "Test");
             triggerManager.SyncRecipeTriggers(new[] { first, second });
 
-            Assert.Same(firstTrigger, triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "first_rec"));
-            var changed = triggerManager.GetAllTriggers().Single(t => t.TargetRecipeId == "second_rec");
+            Assert.Same(firstTrigger, EditorTriggerOf("first_rec"));
+            var changed = EditorTriggerOf("second_rec");
             Assert.NotSame(secondTrigger, changed);
             Assert.Equal("Second Editor renamed", changed.Name);
 

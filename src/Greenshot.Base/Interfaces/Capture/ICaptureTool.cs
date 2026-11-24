@@ -82,9 +82,16 @@ namespace Greenshot.Base.Interfaces.Capture
         void OnMouseUp();
 
         /// <summary>
-        /// Draw on the layer of the tool, which is below the selection. Called by ICaptureToolHost.Redraw and when the detected features changed.
+        /// Draw on the layer of the tool, which is below the selection. Called by ICaptureToolHost.Redraw, ICaptureToolHost.RedrawForeground and when the detected features changed.
         /// </summary>
         void Draw(DrawingContext drawingContext);
+
+        /// <summary>
+        /// Draw what changes rarely, e.g. the outlines of all text lines, on its own layer below the one of Draw.
+        /// Redrawing a layer repaints the whole area its drawing covers, so a small change drawn in Draw stays cheap while this one covers all screens.
+        /// Called by ICaptureToolHost.Redraw and when the detected features changed, not by ICaptureToolHost.RedrawForeground.
+        /// </summary>
+        void DrawBackground(DrawingContext drawingContext);
     }
 
     /// <summary>
@@ -132,6 +139,10 @@ namespace Greenshot.Base.Interfaces.Capture
         }
 
         public virtual void Draw(DrawingContext drawingContext)
+        {
+        }
+
+        public virtual void DrawBackground(DrawingContext drawingContext)
         {
         }
     }

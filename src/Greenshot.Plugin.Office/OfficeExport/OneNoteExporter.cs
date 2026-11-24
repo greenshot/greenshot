@@ -19,12 +19,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Xml;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Native;
 using Dapplo.Windows.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
 using Greenshot.Plugin.Office.OfficeInterop;
@@ -135,17 +135,9 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <summary>
         ///     Is OneNote running? OneNote doesn't register in the Running Object Table, so GetActiveObject never finds it.
         ///     Creating OneNote.Application connects to the running OneNote instead of starting a second one.
+        ///     This runs on every destination picker open, so it doesn't use Process.GetProcessesByName, which builds Process info for every process.
         /// </summary>
-        private static bool IsOneNoteRunning()
-        {
-            var processes = Process.GetProcessesByName("ONENOTE");
-            foreach (var process in processes)
-            {
-                process.Dispose();
-            }
-
-            return processes.Length > 0;
-        }
+        private static bool IsOneNoteRunning() => ProcessHelper.IsRunning("ONENOTE.EXE");
 
         /// <summary>
         ///     The running OneNote, or a new instance (see IsOneNoteRunning why this doesn't use GetActiveObject)

@@ -6,12 +6,11 @@
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
-	  <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <!-- DebugLight and ReleaseLight build Greenshot Light, see Directory.Build.props -->
     <Configurations>Debug;Release;DebugLight;ReleaseLight</Configurations>
   </PropertyGroup>
-
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Greenshot.Tests</_Parameter1>
@@ -95,8 +94,7 @@
       <Using Namespace="System.IO" />
       <Using Namespace="System.Linq" />
       <Using Namespace="System.Text" />
-      <Code Type="Fragment" Language="cs">
-        <![CDATA[
+      <Code Type="Fragment" Language="cs"><![CDATA[
         byte[] content = File.ReadAllBytes(Assembly);
         string latin = Encoding.GetEncoding("ISO-8859-1").GetString(content);
         var found = ForbiddenNames.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
@@ -107,69 +105,61 @@
         {
             Log.LogError("Greenshot Light must not contain " + name + ", it is in " + Assembly);
         }
-        ]]>
-      </Code>
+        ]]></Code>
     </Task>
   </UsingTask>
   <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
-    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;PolicyTemplates;AddWindowsPolicies;PolicyRegFile;RecipeTrustStore;RecipeApprovalWindow;RecipeApprovalRequest;RecipeEditApproval;RecipeCatalogClient;RecipeCatalogInstaller;RecipeCatalogService;RecipeCatalogSignature;RecipeCatalogIndex;LoadRecipeFilesInteractively;SetupWatcherForFile" />
+    <CheckLightAssembly Assembly="@(IntermediateAssembly-&gt;'%(FullPath)')" ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage;AiToolsIpcExtension;AiToolRecipes;BrowserExtensionIpcExtension;BrowserExtensionRecipes;NotificationCaptures;NotificationIcons;NotificationButtons;ToastArguments;ToastNotificationService;ToastActivator;DesktopToasts;PolicyTemplates;AddWindowsPolicies;PolicyRegFile;RecipeTrustStore;RecipeApprovalWindow;RecipeApprovalRequest;RecipeEditApproval;RecipeCatalogClient;RecipeCatalogInstaller;RecipeCatalogService;RecipeCatalogSignature;RecipeCatalogIndex;LoadRecipeFilesInteractively;SetupWatcherForFile" />
   </Target>
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="Languages\greenshot*.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Resource Include="icons\applicationIcon\icon.ico" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.25.2" />
+    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.26.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
-    <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
+    <PackageReference Include="System.CommandLine" Version="3.0.0" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
     <Reference Include="System.Security" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- Images and sounds, loaded with EmbeddedResources (non string .resx entries would need System.Resources.Extensions) -->
     <EmbeddedResource Include="Resources\Tray\*.png" LogicalName="Greenshot.Shell.TrayMenu.%(Filename)" />
     <EmbeddedResource Include="sounds\camera.wav" LogicalName="Greenshot.Sounds.camera" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- The edition only changes Greenshot.exe, the libraries are the same (and built as Debug or Release for DebugLight and ReleaseLight) -->
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
-    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="log4net-release.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <PackageReference Update="MSBuildTasks" Version="1.5.0.235">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="11.0.0">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
-
   <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
-
   <!-- After ResolveProjectReferences: that builds Greenshot.BuildTasks, in a clean build its dll doesn't exist before (BeforeBuild is too early) -->
   <Target Name="GenerateEmojiTestTxtFile" AfterTargets="ResolveProjectReferences" Condition="'$(BuildingProject)' == 'true' And '$(DesignTimeBuild)' != 'true'" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt;..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" Outputs="$(TargetDir)emojis.xml">
     <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
     <MakeDir Directories="$(TargetDir)" />
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />
   </Target>
-
   <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <PostBuildEvent>
       copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(TargetDir)log4net.xml" &gt;nul
@@ -180,7 +170,6 @@
       copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml" &gt;nul
     </PostBuildEvent>
   </PropertyGroup>
-
   <!--
     The plugins copy themselves into Plugins\<name> when they are built (PostBuild in Directory.Build.props). A Rebuild cleans and builds
     project by project, so a clean of this output folder after a plugin was built loses that copy, and the plugin doesn't copy itself

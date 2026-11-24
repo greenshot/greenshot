@@ -612,6 +612,8 @@ namespace Greenshot.Settings.Views
                 _viewModel.RevertPreviews();
             }
             base.OnClosed(e);
+            // The memory of the settings pages is collected once Greenshot is idle
+            PooledMemory.ReleaseWhenIdle(this);
         }
 
         /// <summary>

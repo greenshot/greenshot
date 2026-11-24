@@ -1189,11 +1189,8 @@ namespace Greenshot.Editor.Forms
                 tab.Dispose();
             }
 
-            if (coreConfiguration.MinimizeWorkingSetSize)
-            {
-                GC.Collect();
-                PooledMemory.Trim();
-            }
+            // The memory of the closed captures is collected once Greenshot is idle (and trimmed with MinimizeWorkingSetSize)
+            PooledMemory.ReleaseWhenIdle();
         }
 
         private void RemoveFromOpenWindows()

@@ -175,16 +175,34 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static async Task<System.Windows.Media.ImageSource> GetImageSourceAsync(string iconKey, CancellationToken cancellationToken = default)
         {
+            // The built in icons don't change: the picker, the settings and the menus share one frozen source per key, instead of loading
+            // (e.g. extracting an icon of Windows from imageres.dll) and converting it again each time they open. The icons of the providers
+            // aren't kept, they can change (e.g. a definition gets its icon later).
+            bool cacheable = !string.IsNullOrEmpty(iconKey) && BuiltIn.CanProvide(iconKey);
+            if (cacheable && ImageSourceCache.TryGetValue(iconKey, out var cachedSource))
+            {
+                return cachedSource;
+            }
+
             using var image = await GetIconAsync(iconKey, cancellationToken).ConfigureAwait(false);
             if (image == null)
             {
                 return null;
             }
 
-            var imageSource = image.ToBitmapSource();
+            System.Windows.Media.ImageSource imageSource = image.ToBitmapSource();
             imageSource?.Freeze();
+            if (cacheable && imageSource != null)
+            {
+                // Two callers at the same time: the first source stays, the other one isn't kept
+                imageSource = ImageSourceCache.GetOrAdd(iconKey, imageSource);
+            }
+
             return imageSource;
         }
+
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, System.Windows.Media.ImageSource> ImageSourceCache =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, System.Windows.Media.ImageSource>(StringComparer.Ordinal);
 
         /// <summary>
         /// The built in icons (resources, executables, the icons of Windows), which don't need to wait for anything.

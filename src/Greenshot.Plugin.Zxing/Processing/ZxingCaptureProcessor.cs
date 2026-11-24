@@ -45,6 +45,24 @@ public class ZxingCaptureProcessor : AbstractProcessor
         _config = config;
     }
 
+    /// <summary>
+    /// The reader of the scan of every capture: QR codes only.
+    /// No AutoRotate: the QR detector finds codes in any orientation by itself. With AutoRotate a capture without a code (the usual case)
+    /// is scanned three more times, each time with new rotated copies of the luminance (about 33 MB on the large object heap per full
+    /// screen capture, most of what the scan allocated).
+    /// (TryInverted has no effect in DecodeMultiple of ZXing.Net 0.16, light on dark codes aren't found.)
+    /// </summary>
+    public static BarcodeReader CreateCaptureReader() => new BarcodeReader
+    {
+        AutoRotate = false,
+        Options = new ZXing.Common.DecodingOptions
+        {
+            TryHarder = true,
+            TryInverted = true,
+            PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
+        }
+    };
+
     public override bool ProcessCapture(ICapture capture)
     {
         if (capture == null || capture.CaptureDetails == null)
@@ -94,18 +112,7 @@ if (capture.Image == null)
             {
                 try
                 {
-                    var reader = new BarcodeReader
-                    {
-                        AutoRotate = true,
-                        Options = new ZXing.Common.DecodingOptions
-                        {
-                            TryHarder = true,
-                            TryInverted = true,
-                            PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
-                        }
-                    };
-
-                    var results = reader.DecodeMultiple(clonedBitmap);
+                    var results = CreateCaptureReader().DecodeMultiple(clonedBitmap);
                     if (results != null)
                         {
                             var detectedFeatures = new List<IDetectedFeature>();
