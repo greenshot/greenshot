@@ -44,7 +44,7 @@ using Greenshot.Plugin.RapidOcr.Views;
 namespace Greenshot.Plugin.RapidOcr;
 
 /// <summary>
-/// The OCR engine RapidOcr: the PaddleOCR models on ONNX Runtime, both downloaded when the user agrees (see docs/vNext/rapid-ocr.md)
+/// The OCR engine RapidOcr: the PaddleOCR models on ONNX Runtime, both downloaded when the user agrees (see docs/vNext/text-recognition.md)
 /// </summary>
 internal sealed class RapidOcrEngine : IOcrEngine, IDisposable
 {

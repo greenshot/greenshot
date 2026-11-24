@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Dapplo.Ini" Version="2.0.16" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="2.0.16" />
-    <!-- Only the managed part: onnxruntime.dll and the models are downloaded when the user agrees, see docs/vNext/rapid-ocr.md -->
+    <!-- Only the managed part: onnxruntime.dll and the models are downloaded when the user agrees, see docs/vNext/text-recognition.md -->
     <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.31.1" />
   </ItemGroup>
 

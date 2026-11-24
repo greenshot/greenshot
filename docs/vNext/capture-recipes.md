@@ -473,13 +473,13 @@ other languages, in the file itself, so they travel with it:
 
 ### Text and codes on the capture
 
-The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
+The `Ocr` step reads the text of the capture with the OCR engine of the settings (see [text-recognition.md](text-recognition.md)) into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
 itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
 `Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
 selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
-The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the OCR language when OCR runs in the step; without it the OCR
+The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the Windows OCR language when OCR runs in the step; without it the OCR
 language of the settings is used.
 
 A `Source` step which looks for a window (`ProcessName`, `WindowTitlePattern`) captures the active window, else the screen, when
