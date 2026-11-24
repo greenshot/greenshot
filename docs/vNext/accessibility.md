@@ -33,7 +33,8 @@ It applies to people and to AI coding assistants alike: new UI is not done until
 - Use real controls (`Button`, `ToggleButton`, `CheckBox`, `ListBox`...). A `Border` or `Grid` with a `MouseDown` handler can't be reached
   with Tab and has no name: make it a `Button` with a template instead (see the thumbnail in `DynamicDestinationWindow.xaml`).
 - Never set `FocusVisualStyle="{x:Null}"`. The shared styles in `Greenshot.Base/Wpf/Styles` use `GreenshotFocusVisual` (`FocusStyles.xaml`),
-  a 2px frame in the text color of the theme. A style of your own sets
+  a 2px frame in the text color of the theme. A row of a list (`ThemeListBoxItem`) uses `GreenshotListItemFocusVisual` instead: the frame
+  is inside the row, in the accent color, because the row shows its selection already. A style of your own sets
   `<Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>` and merges `FocusStyles.xaml`.
 - `IsDefault="True"` on the main button and `IsCancel="True"` on Cancel, so Enter and Esc work.
 - A grid of many small items (colors, emoji) is one Tab stop: `KeyboardNavigation.TabNavigation="Once"` and
@@ -155,6 +156,19 @@ When you add a tool or a mode:
 - The destination picker takes the letters from `destination_picker_keys` in the `[Core]` language section (`designation:letter;…`).
   Each letter is used once in a language; a new destination gets its letter there. A letter that isn't in the name is shown after it,
   "Name (K)".
+- The destination window (`DynamicDestinationWindow`) is the exception, because it is filtered by typing: the number in front of an
+  entry is its place in the list as shown, the number (1 to 9, 0 for the tenth), alone or with Ctrl, picks it, and the numbers start
+  again at 1 after every filter. The search takes no numbers (typed or pasted); while Ctrl is held the numbers are underlined. The unfiltered order itself never changes (the well known destinations first, then priority, then designation, not the
+  display name which changes with the language), and the number is the `AutomationProperties.AccessKey` ("Ctrl+1") of the entry, so a
+  screen reader says it. The search box has the focus from the start, Enter takes the first entry, Down goes into the list, Up from
+  its first entry goes back, and typing in the list goes to the search box. A destination with entries of its own (the open editors
+  below "Editor", the printers below "Printer", the same entries the destination picker menu has) shows `>>>` at its right (`<<<` while
+  they show): a click on it shows or hides the entries of that destination, Right and Left show or hide the entries of all destinations,
+  in the list wherever the selection is, in the search box at the end or the start of its text. The entries count in the numbers like
+  every row, so the numbers are new after every change. A filter keeps a destination in the list when one of its entries matches, also
+  when it doesn't match itself, and opens it to show the entries which match (`<<<` closes it, until the search text changes; an
+  empty search closes what the search opened). A destination which can only be used with one of its entries opens
+  instead of being chosen. The sign is no tab stop (it has a name for a screen reader).
 - A list of check boxes (the destinations in the settings) gives the rows `Focusable="False"` and the list
   `KeyboardNavigation.TabNavigation="Continue"`: Tab goes from check box to check box and Space switches one. A focusable row is one
   more stop which can't be switched.

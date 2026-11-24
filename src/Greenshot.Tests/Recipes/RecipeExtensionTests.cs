@@ -546,6 +546,31 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public async Task DestinationChains_OfACaptureChangedInTheDestinationWindow_ChangeACopyOfTheChangedCapture()
+        {
+            _ = CapturePipeline.Instance;
+            var composed = RecipeComposer.Compose(CreateCaptureRecipe("recipe_test_changed"), BuiltInExtensions.Create(), e => new RecipeExtensionSettings
+            {
+                Enabled = e.Id == BuiltInExtensions.BorderId
+            });
+
+            using var bmp = new Bitmap(100, 50);
+            using var context = new CaptureFlowContext(composed) { Payload = new CapturePayload(new Capture((Image)bmp.Clone())) };
+            var chains = DestinationDispatcher.ChainsFor(context, "Editor");
+            // A recipe of the destination window rotated the capture: 50 x 100
+            using var rotated = new Bitmap(50, 100);
+            using var changedPayload = new CapturePayload(new Capture((Image)rotated.Clone()));
+            using var changedSource = await changedPayload.GetExportSourceAsync(Greenshot.Base.Threading.InlineUiDispatcher.Instance);
+
+            var copy = await DestinationDispatcher.RunChainsOnCopyAsync(context, chains, "the test", default, changedSource);
+
+            Assert.NotNull(copy);
+            // The border around the changed capture, the capture of the flow stays as it was
+            Assert.Equal(new Size(54, 104), copy.Payload.EnsureSurface().Image.Size);
+            Assert.Equal(new Size(100, 50), context.Payload.EnsureSurface().Image.Size);
+        }
+
+        [Fact]
         public void Editor_InsertsAStep_IntoAConnection_AndAfterTheSelectedStep()
         {
             var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();

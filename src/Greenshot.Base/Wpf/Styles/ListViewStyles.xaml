@@ -55,7 +55,7 @@
     </Style>
 
     <Style x:Key="ThemeListBoxItem" TargetType="{x:Type ListBoxItem}">
-        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotFocusVisual}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GreenshotListItemFocusVisual}"/>
         <!-- Set here: the default style binds them to the list, which fails with "Cannot find source for binding" for grouped lists -->
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>

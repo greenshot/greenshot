@@ -231,7 +231,34 @@ namespace Greenshot.Base.Wpf
         protected override void OnVisualParentChanged(DependencyObject oldParent)
         {
             base.OnVisualParentChanged(oldParent);
+            if (VisualParent == null)
+            {
+                DetachFromWindow();
+                return;
+            }
+
             AttachToWindow();
+        }
+
+        /// <summary>
+        /// Taken out of the window (e.g. the destination window without a title bar): the window gets its frame back as it was. Else the
+        /// caption area of WindowChrome stays over the top of the window and takes the clicks of what is there now.
+        /// </summary>
+        private void DetachFromWindow()
+        {
+            var window = _window;
+            if (window == null)
+            {
+                return;
+            }
+
+            // UpdateMode does nothing anymore, also when the window gets its handle or the theme changes
+            _window = null;
+            WindowChrome.SetWindowChrome(window, null);
+            if (window.WindowStyle != _customWindowStyle)
+            {
+                window.WindowStyle = _customWindowStyle;
+            }
         }
 
         protected override void OnInitialized(EventArgs e)

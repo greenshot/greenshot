@@ -16,4 +16,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!--
+        The keyboard focus of a row in a list: a frame inside the row in the accent color, not around it. The row shows its selection
+        already, a second frame outside it in the text color is too much when the arrow keys go through the list.
+    -->
+    <Style x:Key="GreenshotListItemFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" RadiusX="3" RadiusY="3" StrokeThickness="2" SnapsToDevicePixels="True"
+                               Stroke="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=AccentBrush}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
