@@ -749,8 +749,9 @@ namespace Greenshot.Editor.Forms
                 AlignCanvasPositionAfterResize();
             }
 
-            // Use best fit, for those capture modes where we can get huge images
-            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard)
+            // Use best fit, for those capture modes where we can get huge images, and for a capture which doesn't fit on the screen
+            // the window is on: a capture of a big screen shows completely in an editor on a smaller one (#1791)
+            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard || !FitsOnScreen(editorSurface.Image.Size))
             {
                 ZoomBestFitMenuItemClick(this, EventArgs.Empty);
             }
@@ -3521,6 +3522,15 @@ namespace Greenshot.Editor.Forms
             var nextValue = Fraction.Parse((string)senderMenuItem.Tag);
 
             ZoomSetValue(nextValue);
+        }
+
+        /// <summary>
+        /// True when an image of the size fits on the screen of the window at 100%, next to the tool bars and the panels
+        /// </summary>
+        private bool FitsOnScreen(Size imageSize)
+        {
+            var maxImageSize = GetAvailableScreenSpace() - GetChromeSize();
+            return imageSize.Width <= maxImageSize.Width && imageSize.Height <= maxImageSize.Height;
         }
 
         private void ZoomBestFitMenuItemClick(object sender, EventArgs e)

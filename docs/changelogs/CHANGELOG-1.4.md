@@ -425,6 +425,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 UI/UX Improvements
 
+**Large captures fit in the editor** (#1791)
+- A capture which is bigger than the screen the editor opens on is zoomed to fit, so it is shown completely
+
 **Context Menu** (#670)
 - Fixed delay in context menu
 - By @Christian-Schulz
