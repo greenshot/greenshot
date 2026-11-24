@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime;
 using System.Threading;
@@ -82,6 +83,66 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static void ReleaseWhenIdle() => IdleTimer.Change(IdleDelay, Timeout.InfiniteTimeSpan);
 
+        /// <summary>
+        /// How often the collection is repeated while a closed object is still reachable, see <see cref="ReleaseWhenIdle(object)"/>
+        /// </summary>
+        private const int MaxRetries = 3;
+
+        private static readonly object ClosedLock = new object();
+        private static readonly List<WeakReference> Closed = new List<WeakReference>();
+        private static int _retries;
+
+        /// <summary>
+        /// Like <see cref="ReleaseWhenIdle()"/>, for a closed window (or other object) which should be gone afterwards. WPF can keep
+        /// a closed window reachable for some seconds (seen with the Settings window: still reachable 5 seconds after Closed,
+        /// unreachable 3 seconds later). Then the collection is repeated <see cref="IdleDelay"/> later, at most <see cref="MaxRetries"/> times,
+        /// otherwise its memory stays until something else collects.
+        /// </summary>
+        /// <param name="closed">The object which closed, only referenced weakly</param>
+        public static void ReleaseWhenIdle(object closed)
+        {
+            TrackClosed(closed);
+            ReleaseWhenIdle();
+        }
+
+        internal static void TrackClosed(object closed)
+        {
+            if (closed == null)
+            {
+                return;
+            }
+            lock (ClosedLock)
+            {
+                Closed.Add(new WeakReference(closed));
+                _retries = 0;
+            }
+        }
+
+        /// <summary>
+        /// After a collection: forget the closed objects which are gone, true when one is still reachable and a retry is left
+        /// </summary>
+        internal static bool ShouldCollectAgain()
+        {
+            lock (ClosedLock)
+            {
+                Closed.RemoveAll(reference => !reference.IsAlive);
+                if (Closed.Count == 0)
+                {
+                    _retries = 0;
+                    return false;
+                }
+                if (_retries >= MaxRetries)
+                {
+                    Log.DebugFormat("{0} closed object(s) still reachable after {1} collections, not retrying", Closed.Count, _retries + 1);
+                    Closed.Clear();
+                    _retries = 0;
+                    return false;
+                }
+                _retries++;
+                return true;
+            }
+        }
+
         private static int _busyCount;
 
         /// <summary>
@@ -133,6 +194,12 @@ namespace Greenshot.Base.Core
                 if (IniConfigRegistry.GetSection<ICoreConfiguration>()?.MinimizeWorkingSetSize == true)
                 {
                     Trim();
+                }
+
+                if (ShouldCollectAgain())
+                {
+                    Log.Debug("A closed window is still reachable, collecting again later");
+                    ReleaseWhenIdle();
                 }
             }
             catch (Exception ex)

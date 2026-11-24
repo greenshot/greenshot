@@ -196,7 +196,7 @@ namespace Greenshot.Views
         {
             base.OnClosed(e);
             // The memory of the window is collected once Greenshot is idle
-            PooledMemory.ReleaseWhenIdle();
+            PooledMemory.ReleaseWhenIdle(this);
         }
 
         private void OnThemeChanged()
