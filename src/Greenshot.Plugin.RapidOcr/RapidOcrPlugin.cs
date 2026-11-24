@@ -33,7 +33,7 @@ namespace Greenshot.Plugin.RapidOcr;
 
 /// <summary>
 /// Adds the OCR engine RapidOcr, chosen in the settings next to the OCR language. Nothing is downloaded before the user agrees.
-/// See docs/vNext/rapid-ocr.md.
+/// See docs/vNext/text-recognition.md.
 /// </summary>
 public class RapidOcrPlugin : IGreenshotPlugin, IConfigurablePlugin
 {
