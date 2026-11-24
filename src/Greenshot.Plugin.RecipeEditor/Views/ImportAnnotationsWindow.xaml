@@ -184,7 +184,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="DirectoryLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportSaveToFolder}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="DirectoryTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=DirectoryLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                        <TextBox x:Name="DirectoryTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=DirectoryLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center"
                                  Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                  Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>
                         <Button Grid.Column="3" Content="{ui:Text RecipeEditor.ImportBtnBrowse}" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
@@ -197,7 +197,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="BaseFileNameLabel" Grid.Column="0" Text="{ui:Text RecipeEditor.ImportFilenamePrefix}" FontSize="{ui:FontSize 11}" Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=BaseFileNameLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                        <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" AutomationProperties.LabeledBy="{Binding ElementName=BaseFileNameLabel}" FontSize="{ui:FontSize 11}" FontFamily="Consolas" VerticalContentAlignment="Center"
                                  ToolTip="{ui:Text RecipeEditor.ImportFilenamePrefixTooltip}"
                                  Background="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.WindowBackground}"
                                  Foreground="{Binding Source={x:Static ui:ThemeManager.Instance}, Path=CurrentPalette.TextPrimary}"/>

@@ -182,7 +182,7 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Capture window (`recipe_window`) | The capture screen in the window mode | Yes | `${config.WindowHotkey}` when *interactive window capture* is on |
 | Capture full screen (`recipe_fullscreen`) | All displays; in the menu with more than one display a sub menu: all, or one of them | Yes | `${config.FullscreenHotkey}` |
 | Capture active window (`recipe_active_window`) | The active window right away; in the menu "Capture window from list", a sub menu of the open windows | Yes | `${config.WindowHotkey}` when *interactive window capture* is off |
-| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
+| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard goes to the destinations of the settings, like a capture (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
 | Open file (`recipe_file`) | Asks for an image file and opens it, also used for files opened with Greenshot | Yes | |
 | OCR text to clipboard (`recipe_ocr`) | Select a region, its text goes to the clipboard | | |
 | Open last capture location (`recipe_open_capture_folder`) | `ShowInExplorer`: shows the last capture in the Explorer, or the folder of the screenshots | Yes | |
@@ -488,13 +488,13 @@ other languages, in the file itself, so they travel with it:
 
 ### Text and codes on the capture
 
-The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
+The `Ocr` step reads the text of the capture with the OCR engine of the settings (see [text-recognition.md](text-recognition.md)) into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
 itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
 `Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
 selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
-The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the OCR language when OCR runs in the step; without it the OCR
+The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the Windows OCR language when OCR runs in the step; without it the OCR
 language of the settings is used.
 
 A `Source` step which looks for a window (`ProcessName`, `WindowTitlePattern`) captures the active window, else the screen, when

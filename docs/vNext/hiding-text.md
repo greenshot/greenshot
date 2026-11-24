@@ -21,7 +21,7 @@ While the window is open, the matches show with the chosen effect. *Apply* keeps
 change or delete; *Cancel* removes them. The window remembers its settings.
 
 The window uses the text the capture already has (from a drawn obfuscation, a recipe OCR step or capturing text). Otherwise it runs OCR
-once, with the engine chosen in the settings (Windows OCR or [RapidOCR](rapid-ocr.md)).
+once, with the engine chosen in the settings (Windows OCR or [RapidOCR](text-recognition.md#choosing-the-ocr-engine)).
 
 ## How strong blur and pixelate are
 

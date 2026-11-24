@@ -100,6 +100,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture from clipboard**
+- The image from the clipboard goes to your destinations of the settings, like any other capture; 1.3 always opened it in the editor
+
 **Capture a fixed size** (#152, #1525)
 - Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
 - The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
@@ -423,6 +426,15 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @Christian-Schulz
 
 #### 🎨 UI/UX Improvements
+
+**Editor opens faster** (#1792)
+- A new editor window opens about three times faster, on slower PCs this saves seconds
+
+**Large captures fit in the editor** (#1791)
+- A capture which is bigger than the screen the editor opens on is zoomed to fit, so it is shown completely
+
+**Editor keeps its size when restored**
+- An editor which is minimized and brought back with the task bar keeps its window size
 
 **Context Menu** (#670)
 - Fixed delay in context menu

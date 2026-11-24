@@ -262,20 +262,16 @@ A panel lists the sizes:
 
 ### Text
 
-Press `T` to capture text. Greenshot reads the text on the screen with the text recognition of Windows, which can take a moment when
-the mode starts. Then every line of text it found gets a thin frame.
+Press `T` to capture text. Greenshot reads the text on the screen, which can take a moment when the mode starts. Then every line
+of text it found gets a thin frame.
 
 - **Click a line** to capture just that line. The line under the mouse is highlighted.
 - **Drag over the text** to select several words or lines: the words inside the rectangle are highlighted while you drag.
   Dragging works like in the region mode, with `Enter`, the arrow keys and `Shift`.
 
-The words in the selection are copied to the clipboard as text; the capture doesn't go to your destinations. This is a visible step
-of the built-in region and window capture recipes (the branch *Text or image* after the selection), so a recipe of your own can do
-something else with the text. With the recipe editor plugin switched on (Settings, Plugins tab), the built-in recipe *OCR text to clipboard* starts the capture
-in this mode and copies only the text; give it a hotkey or a menu entry to use it (see [capture-recipes.md](capture-recipes.md)).
-
-The text recognition needs a language installed in Windows (Time and language, Language and region). Which language Greenshot reads
-is set in the settings, Capture tab, *Text recognition (OCR)*. Without a recognition language no lines are shown.
+The words in the selection are copied to the clipboard as text; the capture doesn't go to your destinations. Where the text comes
+from, which OCR engine and language to choose and what else Greenshot does with text: see
+[text-recognition.md](text-recognition.md).
 
 ## The helpers
 
@@ -478,7 +474,7 @@ So if the keys panel is gone, it isn't lost: you hid it with `F1` once, and `F1`
 | Capture tab | *Recent captures keep* | What the fixed size mode offers of your last captures: only the size, the place on the screen, or the place in the window of the program (the default). |
 | Capture tab | *Move the mouse to the place of a size* | Picking a size with a place moves the mouse there (the default); off, only the outline shows it. |
 | Capture tab, *Window capture* | *Use interactive window capture mode* | Whether the window hotkey opens the capture screen in the window mode, or captures the active window right away (the default). |
-| Capture tab, *Text recognition (OCR)* | *Language of the text* | The language Windows reads text in, for the text mode and the Windows OCR destination. |
+| Capture tab, *Text recognition (OCR)* | *Recognized by*, *Language of the text* | Which OCR engine reads text (Windows OCR or RapidOCR) and the language of Windows OCR, see [text-recognition.md](text-recognition.md#choosing-the-ocr-engine). |
 | Expert tab | *Make some optimizations for usage with remote desktop* | No animations and no crosshair lines, also outside of a remote session. In a remote session this happens on its own. |
 | Expert tab | *Enable beta-test features* | Turns on features which are still tested, e.g. the areas in the window mode. |
 | Expert tab | *Take screenshots with DirectX* | The way the picture of the screens is taken; needed for HDR screens. |

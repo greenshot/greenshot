@@ -68,6 +68,10 @@ namespace Greenshot.Base.Core
         [Description("Was the welcome window shown? Greenshot shows it once, at its first start")]
         bool WelcomeShown { get; set; }
 
+        [Description("Image search engines (Bing, Yandex) the user doesn't want to be asked about any more before a capture is sent to them")]
+        [NotAdministrable]
+        List<string> ImageSearchConfirmedEngines { get; set; }
+
         [DataMember(Name = "Destinations")]
         [Description("Which destinations? Possible options (more might be added by plugins) are: Editor, FileDefault, FileWithDialog, Clipboard, Printer, EMail, Picker, DestinationWindow")]
         [DefaultValue("Picker")]

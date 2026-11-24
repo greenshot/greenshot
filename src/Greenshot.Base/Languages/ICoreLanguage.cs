@@ -1027,6 +1027,41 @@ namespace Greenshot.Base.Languages
         string HdrNotSavedFailed { get; }
 
         /// <summary>
+        /// Sending the image to {0}…
+        /// </summary>
+        string ImageSearchWait { get; }
+
+        /// <summary>
+        /// Search with {0}?
+        /// </summary>
+        string ImageSearchConfirmTitle { get; }
+
+        /// <summary>
+        /// This capture will be sent to {0}, the results open in your browser.
+        /// </summary>
+        string ImageSearchConfirmMessage { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string ImageSearchConfirmSearch { get; }
+
+        /// <summary>
+        /// Don't ask again for {0}
+        /// </summary>
+        string ImageSearchConfirmStop { get; }
+
+        /// <summary>
+        /// Greenshot only hands the image to {0} and isn't responsible for the search or what {0} does with the image. {0} offers no official way for this: when a change at {0} stops it from working, {0} is removed from Greenshot.
+        /// </summary>
+        string ImageSearchNotResponsible { get; }
+
+        /// <summary>
+        /// Yandex keeps the image at a public address: anyone with the link can see it.
+        /// </summary>
+        string ImageSearchYandexPublic { get; }
+
+        /// <summary>
         /// HDR content lost
         /// </summary>
         string HdrLostTitle { get; }

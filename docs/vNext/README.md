@@ -14,9 +14,10 @@ work differently there, and they can still change before the release. The docume
 | [image-formats.md](image-formats.md) | Which image formats Greenshot opens and saves, and more formats with codecs installed in Windows |
 | [external-commands.md](external-commands.md) | External commands: handing a capture to another program, sharing a command as a file |
 | [custom-uploader.md](custom-uploader.md) | Uploading to a service of your choice with an uploader file (.sxcu) |
+| [image-search.md](image-search.md) | Searching the web for a capture with Bing or Yandex (beta) |
 | [editor-panels.md](editor-panels.md) | The panel area of the editor: the Selection panel with size, position and the emoji picker |
 | [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
-| [rapid-ocr.md](rapid-ocr.md) | RapidOCR: a second OCR engine (PaddleOCR models), downloaded when chosen |
+| [text-recognition.md](text-recognition.md) | Text in your captures: what OCR is, copying text from the screen, the OCR engines (Windows OCR, RapidOCR) and text from the applications |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |

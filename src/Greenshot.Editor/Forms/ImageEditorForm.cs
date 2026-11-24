@@ -315,10 +315,13 @@ namespace Greenshot.Editor.Forms
         private void ApplyDpi(int dpi)
         {
             int pixelSize = 0;
-            foreach (var toolStrip in new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1, zoomMenuStrip, fileSavedStatusContextMenu })
+            WithLayoutSuspended(() =>
             {
-                pixelSize = IconBinder.ApplyForDpi(toolStrip, dpi, "the editor");
-            }
+                foreach (var toolStrip in EditorToolStrips)
+                {
+                    pixelSize = IconBinder.ApplyForDpi(toolStrip, dpi, "the editor");
+                }
+            });
 
             propertiesToolStrip.MinimumSize = new Size(150, pixelSize + 10);
             ApplyPanelDockSize();
@@ -442,7 +445,64 @@ namespace Greenshot.Editor.Forms
         /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
         /// Never set an Image in the designer, add the file to Resources and a line here.
         /// </summary>
-        private void ApplyImages()
+        private void ApplyImages() => WithLayoutSuspended(BindImages);
+
+        /// <summary>
+        /// The tool strips and menus of the editor, the drop downs of their items are found by <see cref="WithLayoutSuspended"/>
+        /// </summary>
+        private ToolStrip[] EditorToolStrips => new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1, zoomMenuStrip, fileSavedStatusContextMenu };
+
+        /// <summary>
+        /// Every image which is set lays out its tool strip or menu again, with about 85 images that took most of the time to open
+        /// the editor (issue #1792). The layout of the tool strips, their drop downs and the panels they are on is suspended
+        /// while the action runs, everything is laid out once at the end.
+        /// </summary>
+        private void WithLayoutSuspended(Action action)
+        {
+            var controls = new List<Control>
+            {
+                topToolStripContainer, topToolStripContainer.TopToolStripPanel, topToolStripContainer.LeftToolStripPanel, topToolStripContainer.BottomToolStripPanel
+            };
+            foreach (var toolStrip in EditorToolStrips)
+            {
+                AddWithDropDowns(toolStrip, controls);
+            }
+
+            // A DPI change can come before the controls exist
+            controls.RemoveAll(control => control == null);
+            controls.ForEach(control => control.SuspendLayout());
+            try
+            {
+                action();
+            }
+            finally
+            {
+                // The drop downs first, then the strips they belong to and the panels the strips are on
+                for (int i = controls.Count - 1; i >= 0; i--)
+                {
+                    controls[i].ResumeLayout(true);
+                }
+            }
+        }
+
+        private static void AddWithDropDowns(ToolStrip toolStrip, List<Control> controls)
+        {
+            if (toolStrip == null)
+            {
+                return;
+            }
+
+            controls.Add(toolStrip);
+            foreach (ToolStripItem item in toolStrip.Items)
+            {
+                if (item is ToolStripDropDownItem { HasDropDownItems: true } dropDownItem)
+                {
+                    AddWithDropDowns(dropDownItem.DropDown, controls);
+                }
+            }
+        }
+
+        private void BindImages()
         {
             IconBinder.Bind(btnCursor, IconSource.FromResource(typeof(ImageEditorForm), "btnCursor.Image"));
             IconBinder.Bind(btnRect, IconSource.FromResource(typeof(ImageEditorForm), "btnRect.Image"));
@@ -544,7 +604,9 @@ namespace Greenshot.Editor.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            timing.Mark("InitializeComponent");
             ApplyImages();
+            timing.Mark("Images");
             EventHandler themeChangedHandler = (s, e) =>
             {
                 if (IsDisposed || Disposing || !IsHandleCreated)
@@ -567,9 +629,11 @@ namespace Greenshot.Editor.Forms
             CreateOcrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
+            timing.Mark("Badges");
             InitializePanels();
+            timing.Mark("Panels");
             ApplyTheme();
-            timing.Mark("InitializeComponent");
+            timing.Mark("Theme");
             InitializeLanguage();
             timing.Mark("InitializeLanguage");
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
@@ -749,8 +813,9 @@ namespace Greenshot.Editor.Forms
                 AlignCanvasPositionAfterResize();
             }
 
-            // Use best fit, for those capture modes where we can get huge images
-            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard)
+            // Use best fit, for those capture modes where we can get huge images, and for a capture which doesn't fit on the screen
+            // the window is on: a capture of a big screen shows completely in an editor on a smaller one (#1791)
+            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard || !FitsOnScreen(editorSurface.Image.Size))
             {
                 ZoomBestFitMenuItemClick(this, EventArgs.Empty);
             }
@@ -3521,6 +3586,15 @@ namespace Greenshot.Editor.Forms
             var nextValue = Fraction.Parse((string)senderMenuItem.Tag);
 
             ZoomSetValue(nextValue);
+        }
+
+        /// <summary>
+        /// True when an image of the size fits on the screen of the window at 100%, next to the tool bars and the panels
+        /// </summary>
+        private bool FitsOnScreen(Size imageSize)
+        {
+            var maxImageSize = GetAvailableScreenSpace() - GetChromeSize();
+            return imageSize.Width <= maxImageSize.Width && imageSize.Height <= maxImageSize.Height;
         }
 
         private void ZoomBestFitMenuItemClick(object sender, EventArgs e)

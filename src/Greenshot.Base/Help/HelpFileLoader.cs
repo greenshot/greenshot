@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Diagnostics;
+using Dapplo.Windows.Shell32;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,10 +47,8 @@ namespace Greenshot.Base.Help
         public static async Task LoadHelpAsync()
         {
             string uri = await FindOnlineHelpUrlAsync(Texts.Config.CurrentLanguage, CancellationToken.None).ConfigureAwait(false) ?? FindLocalHelpFile();
-            using (Process.Start(uri))
-            {
-                // Only started
-            }
+            // In the browser: a local help file would otherwise open in whatever the .html files are associated with, e.g. an editor
+            DefaultBrowser.Open(uri);
         }
 
         /// <summary>
