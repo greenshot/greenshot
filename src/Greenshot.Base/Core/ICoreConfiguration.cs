@@ -367,8 +367,8 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
-        [Description("Draw Greenshot's windows with the graphics card (WPF hardware rendering). False saves the memory of the graphics driver (about 45 MB) but costs CPU, e.g. in the capture window. Takes effect after a restart.")]
-        [DefaultValue(true)]
+        [Description("Draw Greenshot's windows with the graphics card (WPF hardware rendering). Off by default: WPF keeps its graphics device until Greenshot exits (about 45 MB of driver memory, after a capture window several hundred MB), and in software the capture window draws as many frames with less CPU. Takes effect after a restart.")]
+        [DefaultValue(false)]
         bool HardwareRendering { get; set; }
 
         [Description("Take screenshots with Windows Graphics Capture (DirectX, needed for HDR screens). False uses the GDI capture only, without a DirectX device. Video recording always uses Windows Graphics Capture.")]

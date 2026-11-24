@@ -19,10 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Diagnostics;
+using System.Runtime;
+using System.Threading;
 using Dapplo.Ini;
 using Dapplo.Windows.Kernel32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
+using log4net;
 
 namespace Greenshot.Base.Core
 {
@@ -32,6 +37,15 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class PooledMemory
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(PooledMemory));
+
+        /// <summary>
+        /// How long Greenshot has to stay idle (no capture ending, no editor closing) before the memory is collected
+        /// </summary>
+        private static readonly TimeSpan IdleDelay = TimeSpan.FromSeconds(5);
+
+        private static readonly Timer IdleTimer = new Timer(_ => CollectNow(), null, Timeout.Infinite, Timeout.Infinite);
+
         /// <summary>
         /// Limits ImageSharp's pool to the BufferPoolLimit setting. Without a limit ImageSharp keeps up to 128 MB on .NET Framework
         /// (trimmed by half per idle minute). Call it once at the start, before the first image is made.
@@ -58,6 +72,40 @@ namespace Greenshot.Base.Core
         {
             Configuration.Default.MemoryAllocator.ReleaseRetainedResources();
             PsApi.EmptyWorkingSet();
+        }
+
+        /// <summary>
+        /// A capture ended or a window closed: a few seconds later, when nothing else ended in the meantime, the memory of the
+        /// closed captures is collected. Without this nothing collects it while Greenshot is idle: the .NET GC only runs when
+        /// something allocates, so the garbage (and the free space of the large object heap) stays committed until the next capture.
+        /// With MinimizeWorkingSetSize the pools and the working set are trimmed afterwards too.
+        /// </summary>
+        public static void ReleaseWhenIdle() => IdleTimer.Change(IdleDelay, Timeout.InfiniteTimeSpan);
+
+        private static void CollectNow()
+        {
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                long before = GC.GetTotalMemory(false);
+                // The large object heap is never compacted by itself: its free gaps stay committed
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+                // Bitmaps which nobody disposed free their GDI+ memory in their finalizer, the next collection takes the objects
+                GC.WaitForPendingFinalizers();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+                Log.InfoFormat("Collected the memory while idle in {0} ms, managed heap {1:0.0} MB -> {2:0.0} MB",
+                    stopwatch.ElapsedMilliseconds, before / 1048576.0, GC.GetTotalMemory(false) / 1048576.0);
+
+                if (IniConfigRegistry.GetSection<ICoreConfiguration>()?.MinimizeWorkingSetSize == true)
+                {
+                    Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Collecting the memory while idle failed", ex);
+            }
         }
     }
 }

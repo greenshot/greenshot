@@ -428,6 +428,10 @@ Continuous builds are automatically created for every commit to the `main` branc
 **Editor opens faster** (#1792)
 - A new editor window opens about three times faster, on slower PCs this saves seconds
 
+**Less memory after captures** (#1796)
+- Greenshot's windows are drawn without the graphics card by default: the graphics driver no longer keeps up to several hundred MB after a region capture, and the capture window needs less CPU. The setting Hardware rendering brings the old behaviour back
+- A few seconds after a capture or when a window closes, Greenshot gives the memory of the closed captures back
+
 **Large captures fit in the editor** (#1791)
 - A capture which is bigger than the screen the editor opens on is zoomed to fit, so it is shown completely
 

@@ -191,6 +191,14 @@ namespace Greenshot.Views
             Texts.Config.LanguageChanged -= OnLanguageChanged;
         }
 
+        /// <inheritdoc />
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            // The memory of the window is collected once Greenshot is idle
+            PooledMemory.ReleaseWhenIdle();
+        }
+
         private void OnThemeChanged()
         {
             ApplyImmersiveDarkMode();
