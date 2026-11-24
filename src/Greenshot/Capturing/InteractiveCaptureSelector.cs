@@ -180,6 +180,24 @@ namespace Greenshot.Capturing
         }
 
         /// <summary>
+        /// WPF releases the surfaces of a closed window (in software rendering 3 to 4 frames of the size of all screens) with the next
+        /// frame it renders. After Escape no other window renders, so they stayed until the next capture: a few frames are requested.
+        /// </summary>
+        private static void RenderFramesToReleaseTheWindow()
+        {
+            int frames = 0;
+            EventHandler handler = null;
+            handler = (sender, args) =>
+            {
+                if (++frames >= 3)
+                {
+                    System.Windows.Media.CompositionTarget.Rendering -= handler;
+                }
+            };
+            System.Windows.Media.CompositionTarget.Rendering += handler;
+        }
+
+        /// <summary>
         /// Runs on the UI thread: shows the capture window modally and returns the selection (null when the user declined)
         /// </summary>
         private SelectionResult ShowCaptureWindow(ICapture fullscreenCapture, IReadOnlyList<IInteropWindow> visibleWindows, CaptureMode initialMode, string initialTool, CancellationToken cancellationToken)
@@ -224,6 +242,7 @@ namespace Greenshot.Capturing
             finally
             {
                 _openWindow = null;
+                RenderFramesToReleaseTheWindow();
             }
 
             if (result != true || cancellationToken.IsCancellationRequested)
