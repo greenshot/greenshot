@@ -195,9 +195,14 @@ namespace Greenshot.Base.Interfaces.Capture
         void ClearLabels();
 
         /// <summary>
-        /// Redraw the layer of the active tool (calls ICaptureTool.Draw)
+        /// Redraw both layers of the active tool (calls ICaptureTool.DrawBackground and ICaptureTool.Draw)
         /// </summary>
         void Redraw();
+
+        /// <summary>
+        /// Redraw only the upper layer of the active tool (calls ICaptureTool.Draw), e.g. for a highlight which follows the mouse
+        /// </summary>
+        void RedrawForeground();
 
         /// <summary>
         /// Redraw the layer of an overlay (calls ICaptureOverlay.Draw)

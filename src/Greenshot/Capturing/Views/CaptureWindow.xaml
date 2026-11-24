@@ -103,7 +103,8 @@
         <!-- Hotspots of detected features (e.g. QR codes) -->
         <capture:DrawingLayer x:Name="FeatureLayer" />
 
-        <!-- Drawn by the active capture tool, e.g. the text lines of the OCR -->
+        <!-- Drawn by the active capture tool: what changes rarely (e.g. the outlines of the text lines), then what follows the mouse -->
+        <capture:DrawingLayer x:Name="ToolBackgroundLayer" />
         <capture:DrawingLayer x:Name="ToolLayer" />
 
         <!-- Numbered hotspots of the active tool (e.g. found links in the text tool): their boxes and number badges above the tool -->
