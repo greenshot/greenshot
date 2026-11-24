@@ -365,25 +365,38 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void RecipeEditorViewModel_NewRecipeTemplates_AreSmallAndHaveNoHotkeyYet()
         {
-            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
-            try
+            // One editor per template: a new recipe is unsaved until it is saved, a second New in the same editor asks about it
+            WithNewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.Empty, editorVm =>
             {
-                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.Empty);
                 Assert.Empty(editorVm.ActiveRecipe.Nodes);
                 Assert.Empty(editorVm.ActiveRecipe.Triggers);
+            });
 
-                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.HotkeyOpensWindow);
+            WithNewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.HotkeyOpensWindow, editorVm =>
+            {
                 var openWindow = Assert.Single(editorVm.Nodes);
                 Assert.Equal(WellKnownStepTypes.OpenWindow, openWindow.StepType);
                 Assert.True(openWindow.IsStartNode);
                 var hotkey = Assert.Single(editorVm.ActiveRecipe.Triggers);
                 Assert.Equal(Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, hotkey.TriggerType);
                 Assert.Equal(string.Empty, hotkey.GetHotkey(editorVm.ActiveRecipe));
+            });
 
-                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.CaptureRegionToFile);
+            WithNewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.CaptureRegionToFile, editorVm =>
+            {
                 Assert.Equal(new[] { "acquire", "select", "save_file" }, editorVm.Nodes.Select(n => n.Id));
                 Assert.Equal(2, editorVm.Connections.Count);
                 Assert.Equal(string.Empty, Assert.Single(editorVm.ActiveRecipe.Triggers).GetHotkey(editorVm.ActiveRecipe));
+            });
+        }
+
+        private static void WithNewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate template, System.Action<Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel> check)
+        {
+            var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
+            try
+            {
+                editorVm.NewRecipe(template);
+                check(editorVm);
             }
             finally
             {
@@ -537,9 +550,14 @@ namespace Greenshot.Tests.Recipes
             var editorVm = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel(RecipeManager.Instance);
             try
             {
-                editorVm.NewRecipe();
+                // A recipe which is valid: saving an invalid one (the empty new recipe, or one with a hotkey trigger without a key)
+                // is work in progress and asks nothing
+                editorVm.NewRecipe(Greenshot.Plugin.RecipeEditor.ViewModels.NewRecipeTemplate.CaptureRegionToFile);
                 editorVm.RefreshUnsavedState();
                 Assert.False(editorVm.CanUndo);
+                editorVm.RemoveTrigger(Assert.Single(editorVm.Triggers));
+                editorVm.RefreshUnsavedState();
+                editorVm.RefreshUnsavedState();
                 Assert.DoesNotContain("clipboard", editorVm.ApprovalNotice ?? "");
 
                 // A trigger which starts the recipe on its own: saving will ask
