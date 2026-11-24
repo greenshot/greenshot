@@ -82,8 +82,41 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static void ReleaseWhenIdle() => IdleTimer.Change(IdleDelay, Timeout.InfiniteTimeSpan);
 
+        private static int _busyCount;
+
+        /// <summary>
+        /// While the scope is open (e.g. a capture window is shown) the memory isn't collected; when the last scope ends, it is
+        /// collected <see cref="IdleDelay"/> later. After a collection which ran while a capture window was open, WPF's software surfaces
+        /// of the capture windows (3 frames of the size of all screens) stayed in memory after every later capture.
+        /// </summary>
+        /// <returns>IDisposable which ends the scope</returns>
+        public static IDisposable NotWhileOpen()
+        {
+            Interlocked.Increment(ref _busyCount);
+            IdleTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            return new BusyScope();
+        }
+
+        private sealed class BusyScope : IDisposable
+        {
+            private int _disposed;
+
+            public void Dispose()
+            {
+                if (Interlocked.Exchange(ref _disposed, 1) == 0 && Interlocked.Decrement(ref _busyCount) == 0)
+                {
+                    ReleaseWhenIdle();
+                }
+            }
+        }
+
         private static void CollectNow()
         {
+            if (Volatile.Read(ref _busyCount) > 0)
+            {
+                // Collected when the scope ends
+                return;
+            }
             try
             {
                 var stopwatch = Stopwatch.StartNew();

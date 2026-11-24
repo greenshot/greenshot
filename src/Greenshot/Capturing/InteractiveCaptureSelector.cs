@@ -191,6 +191,8 @@ namespace Greenshot.Capturing
             }
 
             var windows = visibleWindows?.ToList() ?? new List<IInteropWindow>();
+            // No idle collection while the window is shown, it runs a few seconds after it closed
+            using var notWhileOpen = PooledMemory.NotWhileOpen();
             var captureWindow = TakePreparedWindow();
             if (captureWindow != null)
             {
