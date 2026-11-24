@@ -425,6 +425,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🎨 UI/UX Improvements
 
+**Editor opens faster** (#1792)
+- A new editor window opens about three times faster, on slower PCs this saves seconds
+
 **Context Menu** (#670)
 - Fixed delay in context menu
 - By @Christian-Schulz
