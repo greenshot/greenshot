@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <!--
+    Maps the Surface of the editor to a GreenshotDocument (and later back). Experimental, runs in parallel with
+    Surface / DrawableContainer and nothing in a release build uses it yet.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+    <ProjectReference Include="..\Greenshot.Document\Greenshot.Document.csproj" />
+  </ItemGroup>
+</Project>

@@ -216,9 +216,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void NewSeed()
         {
-            _seed = CutOutHelper.NewSeed(_seed);
-            ClearShadowCache();
-            Invalidate();
+            SetSeed(CutOutHelper.NewSeed(_seed));
         }
 
         /// <summary>
