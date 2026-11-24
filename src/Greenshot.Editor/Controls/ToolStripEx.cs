@@ -60,6 +60,19 @@ namespace Greenshot.Editor.Controls
         /// </summary>
         internal void SelectFirstItem() => Select(true, true);
 
+        /// <summary>
+        /// WinForms doesn't dispose the overflow drop down of a tool strip: it stays subscribed to SystemEvents.UserPreferenceChanged
+        /// and so keeps the strip, its event handlers and through them the closed editor form alive until Greenshot exits.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                OverflowButton.DropDown.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
