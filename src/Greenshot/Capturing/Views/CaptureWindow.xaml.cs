@@ -190,6 +190,8 @@ namespace Greenshot.Capturing.Views
         private bool? _modelessResult;
         private bool _handleCreated;
         private bool _closed;
+        // FinishNow shrank the window and closes it after it rendered, see CloseWithSmallSurfaces
+        private bool _finishing;
         // The key which is being handled by HandleKeyDown, Key.None otherwise
         private Key _keyInHandling = Key.None;
         // A key (e.g. Esc) ended the selection: the window closes when that key is released, see Finish
@@ -734,15 +736,67 @@ namespace Greenshot.Capturing.Views
 
         private void FinishNow(bool selected)
         {
-            if (_prepared)
+            if (_finishing)
             {
-                _modelessResult = selected;
-                Close();
+                return;
             }
-            else
+            _finishing = true;
+            CloseWithSmallSurfaces(() =>
             {
-                DialogResult = selected;
+                if (_prepared)
+                {
+                    _modelessResult = selected;
+                    Close();
+                }
+                else
+                {
+                    DialogResult = selected;
+                }
+            });
+        }
+
+        /// <summary>
+        /// WPF's render thread frees the surfaces of a closed window only when it composes a shown window again. In software rendering
+        /// these are the back buffers of this window: 3 DIB sections of the size of all screens (128 MB on three screens), which stayed
+        /// after Escape until the next capture. Shrunk to one pixel while it is still shown, the window gets back buffers of one pixel
+        /// with the next frame, so closing it leaves nothing large behind. To the eye it's the same as closing: the overlay is gone.
+        /// </summary>
+        /// <param name="close">Closes the window, runs after two frames (about 15 ms), or after 250 ms if WPF doesn't render</param>
+        private void CloseWithSmallSurfaces(Action close)
+        {
+            if (!IsVisible || _closed)
+            {
+                close();
+                return;
             }
+
+            int frames = 0;
+            DispatcherTimer fallback = null;
+            EventHandler onRendering = null;
+            void CloseOnce()
+            {
+                CompositionTarget.Rendering -= onRendering;
+                fallback.Stop();
+                if (!_closed)
+                {
+                    close();
+                }
+            }
+            onRendering = (sender, args) =>
+            {
+                // The first frame has the new size, the render thread presented it when the next one starts
+                if (++frames >= 2)
+                {
+                    CloseOnce();
+                }
+            };
+            fallback = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher) { Interval = TimeSpan.FromMilliseconds(250) };
+            fallback.Tick += (sender, args) => CloseOnce();
+
+            User32Api.SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, 0, 0, 1, 1,
+                Dapplo.Windows.User32.Enums.WindowPos.SWP_NOMOVE | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOZORDER | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOACTIVATE);
+            CompositionTarget.Rendering += onRendering;
+            fallback.Start();
         }
 
         /// <summary>
@@ -1231,6 +1285,11 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void PlaceWindow()
         {
+            if (_finishing)
+            {
+                // Shrunk before closing, see CloseWithSmallSurfaces
+                return;
+            }
             var handle = new WindowInteropHelper(this).Handle;
             User32Api.SetWindowPos(handle, IntPtr.Zero, _screenBounds.X, _screenBounds.Y, _screenBounds.Width, _screenBounds.Height,
                 Dapplo.Windows.User32.Enums.WindowPos.SWP_NOZORDER | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOACTIVATE);
@@ -1259,7 +1318,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void Reveal()
         {
-            if (_closed)
+            if (_closed || _finishing)
             {
                 return;
             }
