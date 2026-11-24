@@ -556,6 +556,53 @@ namespace Greenshot.Tests.Forms
             Assert.Null(threadEx);
         }
 
+        [Fact]
+        public void ThemedTitleBar_StopsWatchingTheWindowWhenItCloses()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var root = new System.Windows.Controls.Grid();
+                    var window = new System.Windows.Window
+                    {
+                        Title = "Title bar test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Content = root
+                    };
+                    var titleBar = new ThemedTitleBar();
+                    root.Children.Add(titleBar);
+                    // A handle without showing the window: WPF raises Closed only for a window which has one
+                    new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+                    var titleText = (System.Windows.Controls.TextBlock)typeof(ThemedTitleBar)
+                        .GetField("_titleText", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(titleBar);
+
+                    // The title bar follows the title of its window
+                    window.Title = "Changed title";
+                    Assert.Equal("Changed title", titleText.Text);
+
+                    // Closed: the handlers are removed. AddValueChanged keeps the window in a static table of WPF until
+                    // RemoveValueChanged, the closed Settings window stayed in memory with all its pages.
+                    bool closedRaised = false;
+                    window.Closed += (s, e) => closedRaised = true;
+                    window.Close();
+                    Assert.True(closedRaised, "Closed was not raised");
+                    window.Title = "After closing";
+                    Assert.Equal("Changed title", titleText.Text);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
         [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
         private static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out int value, int size);
 
