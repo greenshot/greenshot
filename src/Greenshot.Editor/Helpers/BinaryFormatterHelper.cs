@@ -64,6 +64,7 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.ArrowContainer", typeof(ArrowContainer) },
             {"Greenshot.Editor.Drawing.ArrowContainer+ArrowHeadCombination", typeof(ArrowContainer.ArrowHeadCombination) },
             {"Greenshot.Editor.Drawing.LineContainer", typeof(LineContainer) },
+            {"Greenshot.Editor.Drawing.PolylineContainer", typeof(PolylineContainer) },
             {"Greenshot.Editor.Drawing.TextContainer", typeof(TextContainer) },
             {"Greenshot.Editor.Drawing.SpeechbubbleContainer", typeof(SpeechbubbleContainer) },
             {"Greenshot.Editor.Drawing.RectangleContainer", typeof(RectangleContainer) },
