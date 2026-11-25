@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading;
 using Greenshot.Ai.Views;
 using Greenshot.Base.Core;
@@ -63,6 +64,27 @@ namespace Greenshot.Tests.Forms
 
             // Second lookup must be cached and essentially instantaneous (< 10ms)
             Assert.True(secondLookupMs < 15, $"Second negative lookup should be cached (took {secondLookupMs}ms vs {firstLookupMs}ms)");
+        }
+
+        [Fact]
+        public void SettingsViewModel_SameHotkeyTwice_MarksBothRows()
+        {
+            var viewModel = new SettingsViewModel();
+            var rows = viewModel.Hotkeys.Where(h => h.CanChange && h.IsEditable).ToList();
+            Assert.True(rows.Count >= 2, "The built-in recipes have at least two hotkeys which can be changed");
+
+            rows[0].HotkeyString = "Ctrl + Alt + Shift + F12";
+            rows[1].HotkeyString = "Ctrl + Alt + Shift + F12";
+
+            Assert.True(rows[0].HasErrors);
+            Assert.True(rows[1].HasErrors);
+            Assert.Contains(rows[1].Label, rows[0].ConflictText);
+            Assert.NotEmpty(rows[0].GetErrors(nameof(RecipeHotkeyViewModel.HotkeyString)).Cast<object>());
+
+            // Another key for the second one: no conflict any more
+            rows[1].HotkeyString = "Ctrl + Alt + Shift + F11";
+            Assert.False(rows[0].HasConflict);
+            Assert.False(rows[1].HasErrors);
         }
 
         [Fact]
@@ -261,7 +283,34 @@ namespace Greenshot.Tests.Forms
                     var style = Assert.IsType<System.Windows.Style>(window.FindResource(typeof(System.Windows.Controls.GroupBox)));
                     var padding = Assert.Single(style.Setters, s => s is System.Windows.Setter st && st.Property == System.Windows.Controls.Control.PaddingProperty) as System.Windows.Setter;
                     Assert.NotNull(padding);
-                    Assert.Equal(new System.Windows.Thickness(12), padding.Value);
+                    Assert.Equal(new System.Windows.Thickness(12, 8, 12, 8), padding.Value);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void SettingsWindow_NumberBoxUsesTheSharedTextBoxTemplate()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // The local style of the settings (a margin) bases on GreenshotTextBoxStyle: the text box keeps the shared,
+                    // rounded template. BasedOn="{StaticResource {x:Type TextBox}}" left it with the Windows template.
+                    var textBox = Assert.IsType<System.Windows.Controls.TextBox>(window.FindName("IconSizeTextBox"));
+                    textBox.ApplyTemplate();
+                    Assert.IsType<System.Windows.Controls.Border>(textBox.Template.FindName("Bd", textBox));
                 }
                 catch (Exception ex)
                 {

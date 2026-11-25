@@ -20,8 +20,10 @@
  */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -163,6 +165,49 @@ namespace Greenshot.Base.Http
             }
 
             return response.Content == null ? Array.Empty<byte>() : await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Send the request (with headers of the caller) and copy the content into the stream, reporting how many bytes arrived so far.
+        /// For large downloads (e.g. into a file), which never are in memory as a whole.
+        /// </summary>
+        /// <param name="request">HttpRequestMessage, disposed after sending</param>
+        /// <param name="target">gets the content</param>
+        /// <param name="received">gets the number of bytes received so far, may be null</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>the number of bytes copied</returns>
+        /// <exception cref="HttpRequestException">for an HTTP error</exception>
+        public async Task<long> CopyToAsync(HttpRequestMessage request, Stream target, IProgress<long> received, CancellationToken cancellationToken)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            using var disposeRequest = request;
+            using var response = await SendCoreAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"{(int)response.StatusCode} {response.ReasonPhrase}");
+            }
+
+            if (response.Content == null) return 0;
+            using var content = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            // Below the 85000 bytes of the large object heap
+            var buffer = ArrayPool<byte>.Shared.Rent(81920);
+            try
+            {
+                long total = 0;
+                int read;
+                while ((read = await content.ReadAsync(buffer, 0, 81920, cancellationToken).ConfigureAwait(false)) > 0)
+                {
+                    await target.WriteAsync(buffer, 0, read, cancellationToken).ConfigureAwait(false);
+                    total += read;
+                    received?.Report(total);
+                }
+                return total;
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         /// <summary>

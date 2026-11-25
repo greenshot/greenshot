@@ -10,10 +10,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-    <PackageReference Include="Dapplo.Windows.Com" Version="3.19.3" />
+    <PackageReference Include="Dapplo.Windows.Com" Version="3.26.3" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="11.0.0">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

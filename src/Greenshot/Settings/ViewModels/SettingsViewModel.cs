@@ -58,17 +58,46 @@ namespace Greenshot.Settings.ViewModels
         private bool _pickerSelected;
         private string _selectedLanguage;
         private int _iconSize;
+        private readonly UiTheme _themeAtStart;
+        private readonly string _languageAtStart;
+
+        /// <summary>
+        /// The drafts of all sections the window and the plugin pages show
+        /// </summary>
+        public SettingsDrafts Drafts { get; } = new SettingsDrafts();
+
+        /// <summary>
+        /// The language isn't the one of the start of the window any more (it changes at once, it is no draft)
+        /// </summary>
+        public bool LanguageChanged => !string.IsNullOrEmpty(_languageAtStart) && !string.Equals(Texts.Config.CurrentLanguage, _languageAtStart, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Theme and language show at once in every window (they are no draft): without OK they go back to what they were
+        /// </summary>
+        public void RevertPreviews()
+        {
+            if (ThemeManager.Instance.Theme != _themeAtStart)
+            {
+                ThemeManager.Instance.Theme = _themeAtStart;
+            }
+            if (LanguageChanged)
+            {
+                Texts.SetLanguage(_languageAtStart);
+            }
+        }
 
         public SettingsViewModel()
         {
-            CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
-            EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
-            ViewerConfiguration = IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl());
-            _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
+            // Drafts: the window changes copies, OK applies them (SettingsDrafts.Apply), Cancel drops them
+            CoreConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl()));
+            EditorConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl()));
+            ViewerConfiguration = Drafts.Get(IniConfigHelper.EnsureSection<IViewerConfiguration>(() => new ViewerConfigurationImpl()));
+            _themeAtStart = ThemeManager.Instance.Theme;
             _autoStartEnabled = StartupHelper.IsAutostartEnabled();
             
             // Initialize language
             _selectedLanguage = Texts.Config.CurrentLanguage;
+            _languageAtStart = _selectedLanguage;
             
             // Initialize icon size
             _iconSize = CoreConfiguration.IconSize.Width;
@@ -205,6 +234,21 @@ namespace Greenshot.Settings.ViewModels
 
         public bool IsExpertTabVisible => !CoreConfiguration.HideExpertSettings;
 
+        /// <summary>
+        /// A released version: only there "check for unstable updates" means something, an unstable version always offers newer unstable versions
+        /// </summary>
+        public bool IsReleasedVersion => !UpdateService.IsUnstableBuild;
+
+        /// <summary>
+        /// A mandatory Windows policy sets at least one setting (the settings window says so), see docs/vNext/policies.md
+        /// </summary>
+        public bool IsManagedByPolicies =>
+#if GREENSHOT_LIGHT
+            false;
+#else
+            Greenshot.Policies.PoliciesSectionViewModel.HasMandatoryPolicies(Dapplo.Ini.IniConfigRegistry.Get().GetSections());
+#endif
+
         public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
         public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode";
 
@@ -215,6 +259,9 @@ namespace Greenshot.Settings.ViewModels
             OnPropertyChanged(nameof(ThemeToggleToolTip));
         }
 
+        /// <summary>
+        /// "I know what I am doing": not stored, off every time the settings open, so the expert settings are locked until it is ticked
+        /// </summary>
         public bool ExpertModeEnabled
         {
             get => _expertModeEnabled;
@@ -364,6 +411,9 @@ namespace Greenshot.Settings.ViewModels
 
         public ObservableCollection<DestinationViewModel> Destinations { get; private set; }
 
+        /// <summary>
+        /// After a capture: ask for the destination every time. The ticked destinations stay ticked, they are only saved without the picker
+        /// </summary>
         public bool PickerSelected
         {
             get => _pickerSelected;
@@ -373,17 +423,37 @@ namespace Greenshot.Settings.ViewModels
                 {
                     _pickerSelected = value;
                     OnPropertyChanged();
-                    // When picker is selected, deselect all destinations
-                    if (value)
-                    {
-                        foreach (var dest in Destinations)
-                        {
-                            dest.IsSelected = false;
-                        }
-                    }
+                    OnPropertyChanged(nameof(SendDirectly));
+                    OnPropertyChanged(nameof(IsSendToEmpty));
                 }
             }
         }
+
+        /// <summary>
+        /// After a capture: send it to the ticked destinations, the other choice of <see cref="PickerSelected"/>
+        /// </summary>
+        public bool SendDirectly
+        {
+            get => !PickerSelected;
+            set => PickerSelected = !value;
+        }
+
+        /// <summary>
+        /// Send directly with nothing ticked: a capture would go nowhere (only loading greenshot.ini puts the editor into an empty list),
+        /// so OK keeps the window open. A kept destination of a plugin which isn't loaded counts, it is saved again.
+        /// </summary>
+        public bool IsSendToEmpty => SendDirectly
+                                     && Destinations?.Any(item => item.IsSelected && item.IsAllowed) != true
+                                     && KeptOutputDestinations().Count == 0;
+
+        /// <summary>
+        /// The destinations of the settings which have no entry on the tab (e.g. of a plugin which isn't loaded), saved again as they are
+        /// </summary>
+        public List<string> KeptOutputDestinations() =>
+            CoreConfiguration.OutputDestinations?
+                .Where(designation => !string.Equals(designation, nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)
+                                      && Destinations?.All(item => !string.Equals(item.Designation, designation, StringComparison.OrdinalIgnoreCase)) != false)
+                .ToList() ?? new List<string>();
 
         private void InitializeImageFormats()
         {
@@ -419,6 +489,8 @@ namespace Greenshot.Settings.ViewModels
         private void InitializeDestinations()
         {
             Destinations = new ObservableCollection<DestinationViewModel>();
+            // From the setting itself, whether or not the picker is among the listed destinations
+            _pickerSelected = CoreConfiguration.OutputDestinations?.Any(designation => string.Equals(designation?.Trim(), nameof(WellKnownDestinations.Picker), StringComparison.OrdinalIgnoreCase)) == true;
             
             var allDestinations = GetListedDestinations();
             foreach (IDestination destination in allDestinations)
@@ -426,7 +498,6 @@ namespace Greenshot.Settings.ViewModels
                 // Skip picker - it's handled separately
                 if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                 {
-                    _pickerSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation);
                     continue;
                 }
 
@@ -448,9 +519,10 @@ namespace Greenshot.Settings.ViewModels
                     // Before IsSelected: switching it off unselects, an output destination which is off stays in the settings
                     IsAllowed = ConfigurationRestrictions.IsDestinationAllowed(CoreConfiguration, destination.Designation),
                     CanChangeAllowed = !AreDestinationExclusionsFixed && !ConfigurationRestrictions.IsDestinationBlockedByAdministrator(CoreConfiguration, destination.Designation),
-                    IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
+                    IsSelected = CoreConfiguration.OutputDestinations?.Any(designation => string.Equals(designation?.Trim(), destination.Designation, StringComparison.OrdinalIgnoreCase)) == true
                 };
                 
+                destItem.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IsSendToEmpty));
                 Destinations.Add(destItem);
             }
 

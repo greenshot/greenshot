@@ -63,12 +63,12 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void Balanced_KeepsHardwareRendering()
+        public void Balanced_KeepsThePreparedCapture()
         {
             var configuration = CreateDefaults();
             MemoryProfiles.Apply(configuration, MemoryProfile.Balanced);
 
-            Assert.True(configuration.HardwareRendering);
+            Assert.False(configuration.HardwareRendering);
             Assert.True(configuration.PrewarmCapture);
             Assert.False(configuration.KeepGraphicsCaptureReady);
             Assert.False(configuration.PrewarmEditor);

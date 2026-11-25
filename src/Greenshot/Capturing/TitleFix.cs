@@ -40,10 +40,22 @@ namespace Greenshot.Capturing
         /// </summary>
         public static void Apply(ICaptureDetails captureDetails)
         {
-            string title = captureDetails?.Title?.Trim();
-            if (string.IsNullOrEmpty(title))
+            if (string.IsNullOrEmpty(captureDetails?.Title?.Trim()))
             {
                 return;
+            }
+            captureDetails.Title = Fix(captureDetails.Title);
+        }
+
+        /// <summary>
+        /// The title with the active title fixes applied, as the capture gets it (apply it once: a fix may remove the last part of a title)
+        /// </summary>
+        public static string Fix(string title)
+        {
+            title = title?.Trim();
+            if (string.IsNullOrEmpty(title))
+            {
+                return title ?? string.Empty;
             }
             foreach (string key in Config.ActiveTitleFixes)
             {
@@ -55,7 +67,7 @@ namespace Greenshot.Capturing
                 Config.TitleFixReplacer.TryGetValue(key, out var replacement);
                 title = Regex.Replace(title, pattern, replacement ?? string.Empty);
             }
-            captureDetails.Title = title;
+            return title;
         }
     }
 }

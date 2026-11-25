@@ -395,5 +395,15 @@ namespace Greenshot.Plugin.Zxing
         /// Please enter required input on the left.
         /// </summary>
         string HintDefault { get; }
+
+        /// <summary>
+        /// QR / Barcode
+        /// </summary>
+        string PanelTitle { get; }
+
+        /// <summary>
+        /// QR / Barcode
+        /// </summary>
+        string SectionTitle { get; }
     }
 }

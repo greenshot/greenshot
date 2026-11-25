@@ -6,8 +6,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
-                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
+                <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -164,7 +163,8 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="{wpf:Text Settings.AitoolsPermissions}">
+            <!-- The permissions and the excluded applications only act on requests of AI tools: nothing to change while they are off -->
+            <GroupBox Header="{wpf:Text Settings.AitoolsPermissions}" IsEnabled="{Binding AiToolsEnabled}">
                 <StackPanel>
                     <CheckBox IsChecked="{Binding CoreConfiguration.AiToolsAllowRecipeProposals, Mode=TwoWay}"
                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsAllowRecipeProposals}">
@@ -180,7 +180,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="{wpf:Text Settings.AitoolsExcluded}">
+            <GroupBox Header="{wpf:Text Settings.AitoolsExcluded}" IsEnabled="{Binding AiToolsEnabled}">
                 <StackPanel IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsExcludedProcesses}">
                     <TextBlock Text="{wpf:Text Settings.AitoolsExcludedDescription}"
                                TextWrapping="Wrap" Margin="0,0,0,8" FontSize="{wpf:FontSize 11}"

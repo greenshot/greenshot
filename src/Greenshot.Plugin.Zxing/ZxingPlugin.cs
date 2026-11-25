@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Editor;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
@@ -48,7 +49,6 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
     private ZxingCaptureProcessor _captureProcessor;
-    private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
 
     public ValueTask DisposeAsync()
@@ -66,10 +66,10 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         _config = section;
 
         _captureProcessor = new ZxingCaptureProcessor(_config);
-        _editorPlugin = new ZxingEditorPlugin(_config);
         _hotspotTransformer = new ZxingHotspotTransformer();
         services.AddService<IProcessor>(_captureProcessor);
-        services.AddService<IEditorPlugin>(_editorPlugin);
+        services.AddServices<IEditorPanel>(() => new IEditorPanel[] { new BarcodePanel() });
+        services.AddServices<IEditorSection>(() => new IEditorSection[] { new BarcodeSection() });
         services.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
         services.AddService<IDestination>(new ZxingQrDestination());
         services.AddRecipeStepProvider(this);
@@ -221,7 +221,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         int formatIndex = 0;
         if (format != ZXing.BarcodeFormat.QR_CODE)
         {
-            formatIndex = Views.ZxingEditorWindow.MapFormatToIndex(format);
+            formatIndex = ZxingBarcodeGenerator.MapFormatToIndex(format);
         }
 
         var model = new ZxingModel
@@ -401,7 +401,7 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
-    /// Configures a barcode or QR code drawable using the ZxingEditorForm dialog.
+    /// Configures a barcode or QR code drawable of a recipe step in the barcode window
     /// </summary>
     public static bool ConfigureZxingDrawable(IDictionary<string, object> p, object owner)
     {
@@ -465,17 +465,17 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         model.BackColor = GetColor(p, "BackColor", Color.White);
         model.Margin = GetInt(p, "QuietZone", 1);
 
-        IWin32Window win32Owner = owner as IWin32Window;
-        if (win32Owner == null && owner is System.Windows.Window wpfWin)
+        var window = new ZxingEditorWindow(model);
+        if (owner is System.Windows.Window ownerWindow)
         {
-            var helper = new System.Windows.Interop.WindowInteropHelper(wpfWin);
-            win32Owner = new Win32WindowWrapper(helper.Handle);
+            window.Owner = ownerWindow;
+        }
+        else if (owner is IWin32Window win32Owner)
+        {
+            new System.Windows.Interop.WindowInteropHelper(window) { Owner = win32Owner.Handle };
         }
 
-        var window = new Views.ZxingEditorWindow(model);
-        var result = win32Owner != null ? window.ShowDialog(win32Owner) : window.ShowDialog();
-
-        if (result == true)
+        if (window.ShowDialog() == true)
         {
             string newQrType = model.QrCategoryIndex switch
             {
@@ -537,12 +537,6 @@ public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepPro
         }
 
         return false;
-    }
-
-    private class Win32WindowWrapper : IWin32Window
-    {
-        public IntPtr Handle { get; }
-        public Win32WindowWrapper(IntPtr handle) => Handle = handle;
     }
 
     #region Helpers

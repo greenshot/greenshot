@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using log4net;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Ipc.BrowserExtension
 {
@@ -150,12 +151,7 @@ namespace Greenshot.Ipc.BrowserExtension
                     return string.Empty;
                 }
 
-                foreach (char c in Path.GetInvalidFileNameChars())
-                {
-                    candidate = candidate.Replace(c, '_');
-                }
-
-                return candidate;
+                return FilenameHelper.MakeFilenameSafe(candidate);
             }
         }
     }

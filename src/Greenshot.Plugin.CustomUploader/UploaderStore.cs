@@ -41,6 +41,15 @@ internal sealed class UploaderKind : IDefinitionKind<UploaderDefinition>
     // StringExtensions.Encrypt only keeps ASCII: the JSON escapes everything else
     internal static readonly JsonSerializerOptions AsciiJson = new JsonSerializerOptions(UploaderFile.JsonOptions) { Encoder = JavaScriptEncoder.Default };
 
+    /// <summary>
+    /// The .sxcu files of the Uploaders folder: indented, UTF-8 (nothing needs escaping for HTML)
+    /// </summary>
+    internal static readonly JsonSerializerOptions FileJson = new JsonSerializerOptions(UploaderFile.JsonOptions)
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
     private UploaderKind()
     {
     }
@@ -64,7 +73,7 @@ internal sealed class UploaderKind : IDefinitionKind<UploaderDefinition>
         }
     }
 
-    public string Write(UploaderDefinition definition) => JsonSerializer.Serialize(definition, AsciiJson);
+    public string Write(UploaderDefinition definition) => JsonSerializer.Serialize(definition, FileJson);
 
     public string Describe(UploaderDefinition definition) => UploaderFile.DescribeServer(definition);
 
@@ -91,8 +100,9 @@ internal sealed class UploadRecord
 }
 
 /// <summary>
-/// The uploaders with their icons (<see cref="DefinitionStore{T}"/>), and next to them the reminders and the uploads, all in the
-/// [CustomUploader] section; the uploads encrypted like the uploaders.
+/// The uploaders with their icons (<see cref="DefinitionStore{T}"/>): one .sxcu file per uploader in the Uploaders folder, readable,
+/// only the values of the parameters, headers and form fields (the keys) encrypted. Next to them in the [CustomUploader] section
+/// the icons, the reminders and the uploads, the uploads encrypted as a whole (their deletion links are secrets).
 /// </summary>
 internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
 {
@@ -101,23 +111,107 @@ internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
     /// </summary>
     public const int MaximumUploads = 100;
 
+    /// <summary>
+    /// The start of an encrypted value in an uploader file; a value without it was written by hand and is used as it is
+    /// </summary>
+    internal const string EncryptedPrefix = "encrypted:";
+
     private readonly IDictionary<string, string> _uploads;
     private readonly IDictionary<string, string> _reminders;
+    private readonly Func<string, string> _protect;
+    private readonly Func<string, string> _unprotect;
 
-    /// <param name="uploaders">id to encrypted uploader</param>
+    /// <param name="uploaders">file name to uploader file (a <see cref="DefinitionFolder"/>) or a dictionary</param>
     /// <param name="uploads">id to encrypted upload</param>
     /// <param name="changed">Called after a change, saves the configuration</param>
-    /// <param name="protect">Encrypts, null: <see cref="StringExtensions.Encrypt"/></param>
-    /// <param name="unprotect">Decrypts, null: <see cref="StringExtensions.Decrypt"/> (which gives back what it can't decrypt, the JSON then can't be read)</param>
+    /// <param name="protect">Encrypts a key and an upload, null: <see cref="StringExtensions.Encrypt"/></param>
+    /// <param name="unprotect">Decrypts, null when it can't; null: <see cref="StringExtensions.Decrypt"/></param>
     /// <param name="icons">id of the uploader to its icon (base64 PNG, the public favicon of the service), null: not kept</param>
     /// <param name="reminders">ids of the uploaders with a reminder before each upload, null: not kept</param>
     public UploaderStore(IDictionary<string, string> uploaders, IDictionary<string, string> uploads, Action changed, Func<string, string> protect = null, Func<string, string> unprotect = null,
         IDictionary<string, string> icons = null, IDictionary<string, string> reminders = null)
-        : base(UploaderKind.Instance, uploaders, () => Notify(changed), icons, protect, unprotect)
+        : base(UploaderKind.Instance, uploaders, () => Notify(changed), icons,
+            json => ProtectKeys(json, protect ?? Encrypt), json => UnprotectKeys(json, unprotect ?? Decrypt))
     {
+        _protect = protect ?? Encrypt;
+        _unprotect = unprotect ?? Decrypt;
         _reminders = reminders ?? new Dictionary<string, string>();
         _uploads = uploads ?? throw new ArgumentNullException(nameof(uploads));
     }
+
+    private static string Encrypt(string text) => text.Encrypt();
+
+    /// <summary>
+    /// Decrypt, null when it can't (StringExtensions.Decrypt gives back what it can't decrypt)
+    /// </summary>
+    private static string Decrypt(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return null;
+        string clear = text.Decrypt();
+        return clear == text ? null : clear;
+    }
+
+    /// <summary>
+    /// The uploader file with the values of the parameters, headers and form fields encrypted (escaped first, so the stored
+    /// value is ASCII). What can't be read is stored as it is, reading it fails the checks.
+    /// </summary>
+    internal static string ProtectKeys(string json, Func<string, string> protect)
+    {
+        var definition = Deserialize(json);
+        if (definition == null) return json;
+        foreach (var values in ValuesOf(definition))
+        {
+            foreach (string name in values.Keys.ToList())
+            {
+                string value = values[name];
+                if (!string.IsNullOrEmpty(value) && !value.StartsWith(EncryptedPrefix, StringComparison.Ordinal))
+                {
+                    values[name] = EncryptedPrefix + protect(Uri.EscapeDataString(value));
+                }
+            }
+        }
+
+        return JsonSerializer.Serialize(definition, UploaderKind.FileJson);
+    }
+
+    /// <summary>
+    /// The uploader file with the keys decrypted, null when one can't be decrypted (e.g. the file of another Windows user):
+    /// the uploader can't be used then
+    /// </summary>
+    internal static string UnprotectKeys(string json, Func<string, string> unprotect)
+    {
+        var definition = Deserialize(json);
+        if (definition == null) return json;
+        foreach (var values in ValuesOf(definition))
+        {
+            foreach (string name in values.Keys.ToList())
+            {
+                string value = values[name];
+                if (value == null || !value.StartsWith(EncryptedPrefix, StringComparison.Ordinal)) continue;
+                string escaped = unprotect(value.Substring(EncryptedPrefix.Length));
+                if (escaped == null) return null;
+                values[name] = Uri.UnescapeDataString(escaped);
+            }
+        }
+
+        return JsonSerializer.Serialize(definition, UploaderKind.FileJson);
+    }
+
+    private static UploaderDefinition Deserialize(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            return JsonSerializer.Deserialize<UploaderDefinition>(json, UploaderFile.JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static IEnumerable<Dictionary<string, string>> ValuesOf(UploaderDefinition definition) =>
+        new[] { definition.Parameters, definition.Headers, definition.Arguments }.Where(values => values != null);
 
     /// <summary>
     /// Add the checked uploader without a reminder, it replaces the one with the same name.
@@ -193,7 +287,7 @@ internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
         if (upload == null) throw new ArgumentNullException(nameof(upload));
         lock (SyncRoot)
         {
-            _uploads[Guid.NewGuid().ToString("N")] = Protect(JsonSerializer.Serialize(upload, UploaderKind.AsciiJson));
+            _uploads[Guid.NewGuid().ToString("N")] = _protect(JsonSerializer.Serialize(upload, UploaderKind.AsciiJson));
             // The oldest go first, and what can't be read anymore
             var keep = new HashSet<string>(GetUploads().Take(MaximumUploads).Select(entry => entry.Key));
             foreach (string id in _uploads.Keys.Where(id => !keep.Contains(id)).ToList())
@@ -221,7 +315,7 @@ internal sealed class UploaderStore : DefinitionStore<UploaderDefinition>
 
     private UploadRecord ReadUpload(string protectedJson)
     {
-        string json = Unprotect(protectedJson);
+        string json = _unprotect(protectedJson);
         if (json == null)
         {
             return null;

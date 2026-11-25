@@ -166,6 +166,11 @@ namespace Greenshot.Base.Interfaces.Capture
         bool IsSelectionAnimating { get; }
 
         /// <summary>
+        /// Where the zoomer is (or moves to), empty when it isn't shown: a tool drawing next to the cursor keeps away from it
+        /// </summary>
+        NativeRect ZoomerBounds { get; }
+
+        /// <summary>
         /// Where the selection rectangle is (the end of an animation), empty when it is not shown
         /// </summary>
         NativeRect Selection { get; }
@@ -190,9 +195,14 @@ namespace Greenshot.Base.Interfaces.Capture
         void ClearLabels();
 
         /// <summary>
-        /// Redraw the layer of the active tool (calls ICaptureTool.Draw)
+        /// Redraw both layers of the active tool (calls ICaptureTool.DrawBackground and ICaptureTool.Draw)
         /// </summary>
         void Redraw();
+
+        /// <summary>
+        /// Redraw only the upper layer of the active tool (calls ICaptureTool.Draw), e.g. for a highlight which follows the mouse
+        /// </summary>
+        void RedrawForeground();
 
         /// <summary>
         /// Redraw the layer of an overlay (calls ICaptureOverlay.Draw)

@@ -22,21 +22,101 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Languages;
 using Greenshot.Configuration;
+using Greenshot.Base.Threading;
+using Greenshot.Plugin.Win10;
 
 namespace Greenshot.Settings.ViewModels
 {
     /// <summary>
-    /// The OCR language on the Capture tab
+    /// The OCR engine and language on the Capture tab
     /// </summary>
     public partial class SettingsViewModel
     {
         private IWin10Configuration _win10Configuration;
         private IList<OcrLanguage> _ocrLanguages;
+
+        /// <summary>
+        /// The OCR engines: Windows OCR and those of plugins
+        /// </summary>
+        public IList<OcrEngineChoice> OcrEngines => OcrEngineSelector.Engines.Select(engine => new OcrEngineChoice(engine.Id, engine.DisplayName)).ToList();
+
+        /// <summary>
+        /// The engine choice is only shown when a plugin adds one
+        /// </summary>
+        public bool HasOcrEngineChoice => OcrEngineSelector.Engines.Count > 1;
+
+        /// <summary>
+        /// The language choice only while Windows OCR is the chosen engine: it is the only one with languages, the others read all
+        /// their languages at once and ignore it (also while another engine still downloads and Windows OCR reads meanwhile)
+        /// </summary>
+        public bool HasOcrLanguageChoice => string.Equals(ChosenOcrEngineId, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The id of the OCR engine. An engine which isn't ready (e.g. needs a download) gets ready first, asking the user; when that is declined the choice goes back.
+        /// </summary>
+        public string SelectedOcrEngine
+        {
+            get => ChosenOcrEngineId;
+            set
+            {
+                string previous = ChosenOcrEngineId;
+                if (Win10Configuration == null || string.IsNullOrEmpty(value) || string.Equals(previous, value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                var engine = OcrEngineSelector.Engines.FirstOrDefault(candidate => string.Equals(candidate.Id, value, StringComparison.OrdinalIgnoreCase));
+                if (engine == null)
+                {
+                    return;
+                }
+
+                SetOcrEngine(value);
+                if (!engine.IsReady)
+                {
+                    PrepareOcrEngineAsync(engine, previous).FireAndLog("OCR engine", Log);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The engine may download for a while (its window can be closed meanwhile); the choice goes back only when it is still this engine
+        /// </summary>
+        private async Task PrepareOcrEngineAsync(IOcrEngine engine, string previous)
+        {
+            bool ready;
+            try
+            {
+                ready = await engine.PrepareAsync(IntPtr.Zero, false, CancellationToken.None).ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"OCR engine {engine.Id} couldn't get ready", ex);
+                ready = false;
+            }
+
+            if (!ready && string.Equals(ChosenOcrEngineId, engine.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                SetOcrEngine(previous);
+            }
+        }
+
+        private void SetOcrEngine(string id)
+        {
+            Win10Configuration.OcrEngine = string.Equals(id, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase) ? string.Empty : id;
+            _ocrLanguages = null;
+            OnPropertyChanged(nameof(SelectedOcrEngine));
+            OnPropertyChanged(nameof(OcrLanguages));
+            OnPropertyChanged(nameof(SelectedOcrLanguageItem));
+            OnPropertyChanged(nameof(HasOcrLanguageChoice));
+        }
 
         /// <summary>
         /// Automatic (the languages of the Windows user profile), the installed OCR languages, and the configured language when it isn't installed (anymore)
@@ -49,28 +129,35 @@ namespace Greenshot.Settings.ViewModels
         public bool HasOcr => SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true) != null;
 
         /// <summary>
-        /// The language tag of the OCR language, empty for automatic
+        /// The entry of the OCR language, "Automatic" (empty tag) when nothing or an unknown tag is set.
+        /// The entry and not its tag: the combo box showed nothing for the empty tag of "Automatic"
         /// </summary>
-        public string SelectedOcrLanguage
+        public OcrLanguage SelectedOcrLanguageItem
         {
             get
             {
-                // The tag as the OCR lists it, the combo box compares case sensitive
                 var configured = Win10Configuration?.OcrLanguage ?? string.Empty;
-                return OcrLanguages.FirstOrDefault(language => string.Equals(language.LanguageTag, configured, StringComparison.OrdinalIgnoreCase))?.LanguageTag ?? configured;
+                return OcrLanguages.FirstOrDefault(language => string.Equals(language.LanguageTag, configured, StringComparison.OrdinalIgnoreCase))
+                       ?? OcrLanguages.FirstOrDefault();
             }
             set
             {
-                if (Win10Configuration == null || string.Equals(Win10Configuration.OcrLanguage ?? string.Empty, value ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+                if (value == null || Win10Configuration == null || string.Equals(Win10Configuration.OcrLanguage ?? string.Empty, value.LanguageTag ?? string.Empty, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
-                Win10Configuration.OcrLanguage = value ?? string.Empty;
+                Win10Configuration.OcrLanguage = value.LanguageTag ?? string.Empty;
                 OnPropertyChanged();
             }
         }
 
-        private IWin10Configuration Win10Configuration => _win10Configuration ??= IniConfigRegistry.GetSection<IWin10Configuration>();
+        private IWin10Configuration Win10Configuration => _win10Configuration ??= Drafts.Get(IniConfigRegistry.GetSection<IWin10Configuration>());
+
+        /// <summary>
+        /// The engine chosen in this window (the draft), Windows when none is set; OcrEngineSelector.ConfiguredId is the live one
+        /// </summary>
+        private string ChosenOcrEngineId =>
+            string.IsNullOrWhiteSpace(Win10Configuration?.OcrEngine) ? Win10OcrProvider.EngineId : Win10Configuration.OcrEngine.Trim();
 
         private IList<OcrLanguage> CreateOcrLanguages()
         {
@@ -78,15 +165,17 @@ namespace Greenshot.Settings.ViewModels
             {
                 new OcrLanguage(string.Empty, Texts.Settings.OcrLanguageAutomatic)
             };
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider == null)
+            // The language is a setting of Windows OCR: its languages, also while another engine is chosen
+            // (the selector would ask the chosen engine, RapidOCR has no language list, and the list is made once)
+            var windowsOcr = OcrEngineSelector.Engines.FirstOrDefault(engine => string.Equals(engine.Id, Win10OcrProvider.EngineId, StringComparison.OrdinalIgnoreCase));
+            if (windowsOcr == null)
             {
                 return languages;
             }
 
             try
             {
-                languages.AddRange(ocrProvider.GetAvailableLanguages().OrderBy(language => language.DisplayName, StringComparer.CurrentCultureIgnoreCase));
+                languages.AddRange(windowsOcr.GetAvailableLanguages().OrderBy(language => language.DisplayName, StringComparer.CurrentCultureIgnoreCase));
             }
             catch (Exception ex)
             {
@@ -101,5 +190,21 @@ namespace Greenshot.Settings.ViewModels
             }
             return languages;
         }
+    }
+
+    /// <summary>
+    /// An OCR engine in the settings
+    /// </summary>
+    public sealed class OcrEngineChoice
+    {
+        public OcrEngineChoice(string id, string displayName)
+        {
+            Id = id;
+            DisplayName = displayName;
+        }
+
+        public string Id { get; }
+
+        public string DisplayName { get; }
     }
 }

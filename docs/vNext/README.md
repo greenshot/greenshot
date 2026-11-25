@@ -12,16 +12,20 @@ work differently there, and they can still change before the release. The docume
 | [capture-recipes.md](capture-recipes.md) | Recipes: automating what happens with a capture |
 | [viewer.md](viewer.md) | The viewer: a capture in a small window of its own, e.g. on top to compare it |
 | [image-formats.md](image-formats.md) | Which image formats Greenshot opens and saves, and more formats with codecs installed in Windows |
+| [external-commands.md](external-commands.md) | External commands: handing a capture to another program, sharing a command as a file |
 | [custom-uploader.md](custom-uploader.md) | Uploading to a service of your choice with an uploader file (.sxcu) |
+| [image-search.md](image-search.md) | Searching the web for a capture with Bing or Yandex (beta) |
 | [editor-panels.md](editor-panels.md) | The panel area of the editor: the Selection panel with size, position and the emoji picker |
 | [stamps.md](stamps.md) | Stamps: small images to insert into the editor or give to other programs |
+| [text-recognition.md](text-recognition.md) | Text in your captures: what OCR is, copying text from the screen, the OCR engines (Windows OCR, RapidOCR) and text from the applications |
 | [self-service.md](self-service.md) | The Self-Service window: checking that Greenshot is set up as expected |
 | [welcome-window.md](welcome-window.md) | The welcome window at the first start |
 | [autostart.md](autostart.md) | Starting Greenshot with Windows |
 | [plugins-and-destinations.md](plugins-and-destinations.md) | Switching plugins and destinations on or off, and locking it for all users |
+| [policies.md](policies.md) | Configuring Greenshot with Windows policies (Group Policy, Intune), and what greenshot.ini keeps |
 | [plugin-loading.md](plugin-loading.md) | How plugins are loaded, the signature check and the question about unsigned plugins |
 | [mcp-server.md](mcp-server.md) | Letting AI tools use Greenshot through greenshot-mcp.exe |
-| [TEXT_OBFUSCATION_FEATURE.md](TEXT_OBFUSCATION_FEATURE.md) | Obfuscating text found with OCR |
+| [hiding-text.md](hiding-text.md) | Hiding text: blur, pixelate, Redact Text, how strong they are and what they don't protect |
 
 **For developers**
 

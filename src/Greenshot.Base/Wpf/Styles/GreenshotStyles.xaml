@@ -1,0 +1,137 @@
+<!--
+    All styles of Greenshot's themed WPF windows and panels (light and dark). Greenshot merges this once into the resources
+    of the WPF application (GreenshotApplication), so every window and panel, also of a plugin, gets them.
+    A view still merges it itself, so it also works without the application (tests, designer):
+    <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml"/>
+    The brushes are bound to ThemeScope.Theme (Greenshot's theme unless a part sets its own), so a theme change updates the window.
+-->
+    <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:wpf="clr-namespace:Greenshot.Base.Wpf">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ButtonStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ComboBoxStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/ExpanderStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/GroupBoxStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/TabStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/MenuStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/PillStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/CardStyles.xaml"/>
+        <ResourceDictionary Source="/Greenshot.Base;component/Wpf/Styles/TextStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- The default template paints a disabled list in the system color, this one keeps the theme and dims it -->
+    <Style TargetType="{x:Type ListView}" BasedOn="{StaticResource ThemeListView}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListView}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}" Focusable="False">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ThemeListViewItem}"/>
+    <Style TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource ThemeGridViewColumnHeader}"/>
+
+    <!-- Named and then the default: a view which changes a little bases its style on the name (BasedOn="{StaticResource GreenshotLabelStyle}") -->
+    <Style x:Key="GreenshotLabelStyle" TargetType="Label">
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
+        <Setter Property="Padding" Value="0,2"/>
+    </Style>
+    <Style TargetType="Label" BasedOn="{StaticResource GreenshotLabelStyle}"/>
+
+    <Style x:Key="GreenshotTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="3,4"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <!-- Rounded like the other controls, the border shows the keyboard focus -->
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).AccentBrush, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        </Trigger>
+                        <!-- A single line box (see the style triggers): the line in the middle of the box -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="AcceptsReturn" Value="False"/>
+                                <Condition Property="TextWrapping" Value="NoWrap"/>
+                                <Condition Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="PART_ContentHost" Property="VerticalAlignment" Value="Center"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5"/>
+            </Trigger>
+            <!-- A single line box has the height of the dropdowns (DefaultComboBoxStyle); boxes for more lines (AcceptsReturn, wrapping, a scroll bar) keep theirs -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="AcceptsReturn" Value="False"/>
+                    <Condition Property="TextWrapping" Value="NoWrap"/>
+                    <Condition Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="Padding" Value="3,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="TextBox" BasedOn="{StaticResource GreenshotTextBoxStyle}"/>
+
+    <Style TargetType="PasswordBox">
+        <Setter Property="Foreground" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Background" Value="{Binding Path=(wpf:ThemeScope.Theme).TextBoxBackgroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ControlBorderBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="CaretBrush" Value="{Binding Path=(wpf:ThemeScope.Theme).ForegroundBrush, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="{wpf:FontSize 12}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <!-- The height of the text boxes and the dropdowns, the room is for the line -->
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Padding" Value="3,0"/>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

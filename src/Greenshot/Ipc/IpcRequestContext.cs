@@ -27,6 +27,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Serialization;
 using log4net;
 #if !GREENSHOT_LIGHT
@@ -147,8 +148,7 @@ namespace Greenshot.Ipc
 
             if (!UsesTextFrames)
             {
-                string json = JsonSerializer.Serialize(responsePayload, GreenshotJson.Options);
-                await WriteFrameAsync(Encoding.UTF8.GetBytes(json), cancellationToken).ConfigureAwait(false);
+                await WriteJsonFrameAsync(responsePayload, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -236,9 +236,6 @@ namespace Greenshot.Ipc
             return WriteFrameAsync(frame, cancellationToken);
         }
 
-        /// <summary>
-        /// Writes a 4-byte little-endian length prefix followed by the payload.
-        /// </summary>
         private static async Task<bool> CompletesWithinAsync(Task task, TimeSpan timeout, CancellationToken cancellationToken)
         {
             using (var delayCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
@@ -250,28 +247,62 @@ namespace Greenshot.Ipc
             }
         }
 
-        private async Task WriteFrameAsync(byte[] payload, CancellationToken cancellationToken)
+        /// <summary>
+        /// Writes a 4-byte little-endian length prefix followed by the payload.
+        /// </summary>
+        private Task WriteFrameAsync(byte[] payload, CancellationToken cancellationToken)
+        {
+            byte[] frame = new byte[LengthPrefixSize + payload.Length];
+            WriteLengthPrefix(frame, payload.Length);
+            Buffer.BlockCopy(payload, 0, frame, LengthPrefixSize, payload.Length);
+            return WriteFrameBytesAsync(frame, frame.Length, cancellationToken);
+        }
+
+        /// <summary>
+        /// Writes the reply as one frame: the JSON is serialized as UTF-8 straight behind the length prefix into a pooled buffer,
+        /// byte arrays (the image of an AI tool reply) as base64 without a string in between.
+        /// </summary>
+        private async Task WriteJsonFrameAsync(object payload, CancellationToken cancellationToken)
+        {
+            using MemoryStream buffer = RecyclableMemoryStreamFactory.GetStream("IpcReply");
+            buffer.SetLength(LengthPrefixSize);
+            buffer.Position = LengthPrefixSize;
+            await JsonSerializer.SerializeAsync(buffer, payload, payload.GetType(), GreenshotJson.Options, cancellationToken).ConfigureAwait(false);
+
+            int frameLength = checked((int)buffer.Length);
+            byte[] frame = buffer.GetBuffer();
+            WriteLengthPrefix(frame, frameLength - LengthPrefixSize);
+            await WriteFrameBytesAsync(frame, frameLength, cancellationToken).ConfigureAwait(false);
+        }
+
+        private const int LengthPrefixSize = 4;
+
+        private static void WriteLengthPrefix(byte[] frame, int payloadLength)
+        {
+            uint length = (uint)payloadLength;
+            // Little-endian, like BitConverter on Windows
+            frame[0] = unchecked((byte)length);
+            frame[1] = unchecked((byte)(length >> 8));
+            frame[2] = unchecked((byte)(length >> 16));
+            frame[3] = unchecked((byte)(length >> 24));
+        }
+
+        /// <summary>
+        /// Writes the first <paramref name="count"/> bytes of the frame, which already starts with its length prefix
+        /// </summary>
+        private async Task WriteFrameBytesAsync(byte[] frame, int count, CancellationToken cancellationToken)
         {
             if (_replyState.ClientGone)
             {
                 return;
             }
 
-            byte[] lengthBytes = BitConverter.GetBytes((uint)payload.Length);
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(lengthBytes);
-            }
             // One write per frame. No Flush: a pipe has no stream buffer, and FlushFileBuffers would wait until the client read everything.
-            byte[] frame = new byte[lengthBytes.Length + payload.Length];
-            Buffer.BlockCopy(lengthBytes, 0, frame, 0, lengthBytes.Length);
-            Buffer.BlockCopy(payload, 0, frame, lengthBytes.Length, payload.Length);
-
             await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             bool closedHere = false;
             try
             {
-                var writeTask = Stream.WriteAsync(frame, 0, frame.Length, cancellationToken);
+                var writeTask = Stream.WriteAsync(frame, 0, count, cancellationToken);
                 if (!writeTask.IsCompleted && !await CompletesWithinAsync(writeTask, WriteTimeout, cancellationToken).ConfigureAwait(false))
                 {
                     // The client does not read its replies. Closing the connection ends the pending write (and the connection),

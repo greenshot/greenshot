@@ -48,6 +48,7 @@ public class RegionCaptureToolTests
         public IReadOnlyList<IInteropWindow> Windows => Array.Empty<IInteropWindow>();
         public bool IsSelectionVisible { get; private set; }
         public bool IsSelectionAnimating => false;
+        public NativeRect ZoomerBounds => NativeRect.Empty;
         public NativeRect Selection { get; private set; }
         public NativeSize LabelSize { get; private set; }
         public NativeSize SelectionSize => LabelSize;
@@ -72,6 +73,7 @@ public class RegionCaptureToolTests
         public void HidePanel(object owner) { }
         public CaptureToolStyle ToolStyle => null;
         public void Redraw() { }
+        public void RedrawForeground() { }
         public void Redraw(ICaptureOverlay overlay) { }
         public object FindResource(object resourceKey) => null;
         public void Accept(NativeRect rect, IInteropWindow window = null) => Accepted = rect;

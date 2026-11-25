@@ -942,6 +942,36 @@ namespace Greenshot.Base.Languages
         string PromptNo { get; }
 
         /// <summary>
+        /// Wait before the capture
+        /// </summary>
+        string DelayPromptTitle { get; }
+
+        /// <summary>
+        /// How long should Greenshot wait? In the meantime, open the menu or popup you want to capture.
+        /// </summary>
+        string DelayPromptMessage { get; }
+
+        /// <summary>
+        /// {0} s
+        /// </summary>
+        string DelayChoiceSeconds { get; }
+
+        /// <summary>
+        /// Countdown before the capture
+        /// </summary>
+        string DelayCountdownTitle { get; }
+
+        /// <summary>
+        /// Capture in {0} s
+        /// </summary>
+        string DelayCountdown { get; }
+
+        /// <summary>
+        /// The capture starts in {0} seconds. Open the menu or popup you want to capture now.
+        /// </summary>
+        string DelayCountdownAnnouncement { get; }
+
+        /// <summary>
         /// Core Destinations
         /// </summary>
         string PickerCoreDestinations { get; }
@@ -1177,11 +1207,6 @@ namespace Greenshot.Base.Languages
         string CatalogMessageTitle { get; }
 
         /// <summary>
-        /// This edition of Greenshot doesn't use recipe files, so it can't install recipes from the catalog.
-        /// </summary>
-        string CatalogNotSupported { get; }
-
-        /// <summary>
         /// Recipes are switched off in this Greenshot, so it can't install recipes from the catalog.
         /// </summary>
         string CatalogRecipesOff { get; }
@@ -1235,5 +1260,50 @@ namespace Greenshot.Base.Languages
         /// Greenshot couldn't save the recipe: {0}
         /// </summary>
         string CatalogSaveFailed { get; }
+
+        /// <summary>
+        /// The recipe catalog has no newer version of the recipe "{0}" than {1}, and this Greenshot can't use that one. Please try again later, or look at the page of the recipe in the catalog.
+        /// </summary>
+        string CatalogNoNewerVersion { get; }
+
+        /// <summary>
+        /// Update from the Catalog
+        /// </summary>
+        string ApprovalBtnUpdateFromCatalog { get; }
+
+        /// <summary>
+        /// Shows the newest version of this recipe in the recipe catalog, to install it after you approved it
+        /// </summary>
+        string ApprovalUpdateFromCatalogTooltip { get; }
+
+        /// <summary>
+        /// This recipe is from the recipe catalog. A newer version from there may work with this Greenshot.
+        /// </summary>
+        string ApprovalCatalogUpdateHint { get; }
+
+        /// <summary>
+        /// Copy Errors
+        /// </summary>
+        string ApprovalBtnCopyErrors { get; }
+
+        /// <summary>
+        /// Copies the recipe, its file, the Greenshot version and all errors as text, e.g. for a bug report
+        /// </summary>
+        string ApprovalCopyErrorsTooltip { get; }
+
+        /// <summary>
+        /// Remove from Greenshot
+        /// </summary>
+        string ApprovalBtnRemoveFile { get; }
+
+        /// <summary>
+        /// Greenshot no longer loads this recipe file; the file itself stays where it is
+        /// </summary>
+        string ApprovalRemoveFileTooltip { get; }
+
+        /// <summary>
+        /// Version {1} of the recipe "{0}" in the recipe catalog doesn't work with this Greenshot either, so nothing was installed. Please try again later, or look at the page of the recipe in the catalog. The errors:
+        /// </summary>
+        string CatalogVersionInvalid { get; }
     }
 }

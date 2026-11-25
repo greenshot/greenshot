@@ -29,6 +29,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
 using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using Greenshot.Base.Native;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

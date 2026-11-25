@@ -31,6 +31,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Capturing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Hdr;
 using Greenshot.Base.Interfaces;
@@ -65,6 +66,7 @@ namespace Greenshot.Recipes.Steps
     [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
     [StepParameter("WindowHandle", ContractDataType.Window, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${var.Window}) or a window handle")]
     [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitlePattern and ProcessName case-sensitively")]
+    [StepParameter(ActiveWindowCaptureSource.WhenNoWindowParameter, ContractDataType.Enum, DefaultValue = ActiveWindowCaptureSource.WhenNoWindowScreen, SupportsExpressions = false, Description = "When no window matches WindowTitlePattern or ProcessName (SourceType Window): Screen captures the active window, else the whole screen; Stop ends the flow with a message", AllowedValues = new[] { ActiveWindowCaptureSource.WhenNoWindowScreen, ActiveWindowCaptureSource.WhenNoWindowStop })]
     [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
     [StepParameter(ScreenModeParameter, ContractDataType.Enum, DefaultValue = "Auto", SupportsExpressions = false, Description = "Select a region or window on the live or on the frozen screen (SourceType Region or Window with a selection). Auto: the Freeze screen setting. An HDR capture (Hdr) is clearer on the live screen, where the selection shows what is captured.", AllowedValues = new[] { "Auto", "Live", "Frozen" })]
     [StepParameter(HdrParameter, ContractDataType.Boolean, Description = "Capture with the HDR content of HDR displays (screen, region, window, last region): the capture keeps it, e.g. for the HdrFormat of SaveFile or a JPEG XR file (default: settings). Only HDR displays are kept, the SDR displays are in the normal image.")]
@@ -275,7 +277,7 @@ namespace Greenshot.Recipes.Steps
                 }
                 if (fromScreen && acquired.RawCapture != null)
                 {
-                    ProcessScreenCapture(acquired.RawCapture);
+                    ProcessScreenCapture(context, acquired.RawCapture);
                 }
                 // Without joining the HDR parts of a frozen screen: that waits for the selection
                 if (context.CaptureHdrRequested)
@@ -374,12 +376,17 @@ namespace Greenshot.Recipes.Steps
         /// (the QR code scan) start in the background, so what they find shows up while selecting.
         /// A live selection has no image yet, it gets no processors.
         /// </summary>
-        private static void ProcessScreenCapture(ICapture capture)
+        private static void ProcessScreenCapture(CaptureFlowContext context, ICapture capture)
         {
             TitleFix.Apply(capture.CaptureDetails);
             if (capture.Image == null)
             {
                 return;
+            }
+            if (CoreConfig.ReadApplicationText && !IsAiToolRun(context))
+            {
+                // The text of the applications, an AI tool doesn't get it: windows excluded from AI tools are only blacked out in the pixels
+                ApplicationText.Start(capture);
             }
             foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>().Where(p => p.isActive))
             {
@@ -471,9 +478,18 @@ namespace Greenshot.Recipes.Steps
         }
 
         /// <summary>
-        /// The default of ICoreConfiguration.CaptureDelay
+        /// The sources which capture the screen: only they wait before the capture (CaptureWait)
         /// </summary>
-        private const int DefaultCaptureDelay = 100;
+        private static bool CapturesScreen(CaptureSourceType sourceType) => sourceType switch
+        {
+            CaptureSourceType.Region => true,
+            CaptureSourceType.Window => true,
+            CaptureSourceType.ActiveWindow => true,
+            CaptureSourceType.FullScreen => true,
+            CaptureSourceType.LastRegion => true,
+            CaptureSourceType.TextOcr => true,
+            _ => false
+        };
 
         /// <summary>
         /// The parameter which selects on the live or on the frozen screen: Auto (the setting), Live or Frozen
@@ -523,11 +539,17 @@ namespace Greenshot.Recipes.Steps
             return true;
         }
 
+        private static bool IsAiToolRun(CaptureFlowContext context)
+        {
+#if !GREENSHOT_LIGHT
+            return AiToolCapture.IsAiToolRun(context);
+#else
+            return false;
+#endif
+        }
+
         private static bool HasInteractiveSelection(CaptureFlowContext context) =>
             context.Recipe?.Nodes?.Any(node => string.Equals(node?.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase)) == true;
-
-        private static bool IsHotkeyTrigger(CaptureFlowContext context) =>
-            string.Equals(context.Trigger?.TriggerType, Greenshot.Base.Recipes.Triggers.TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
 
         private async Task PreparePreCaptureAsync(CaptureFlowContext context, CancellationToken ct)
         {
@@ -553,8 +575,15 @@ namespace Greenshot.Recipes.Steps
                 }
             }
 
-            // Resolve capture delay: Context -> Step config -> CoreConfig
+            if (!CapturesScreen(Config.GetParameter("SourceType", CaptureSourceType.Region)))
+            {
+                return;
+            }
+
+            // The wait before the capture: Context -> Step config -> the settings (CaptureWait, off by default: no wait at all).
+            // A menu which started the capture waited until it was gone already (ThemedMenu).
             int delay = -1;
+            bool showCountdown = CoreConfig.CaptureWaitCountdown;
             if (context.Properties.TryGetValue("CaptureDelay", out var ctxDelay) && ctxDelay is int cd)
             {
                 delay = cd;
@@ -567,20 +596,29 @@ namespace Greenshot.Recipes.Steps
 
             if (delay < 0)
             {
-                delay = CoreConfig.CaptureDelay;
-                // The default delay lets a tray or context menu close before the capture; a hotkey opens no menu, so it only made
-                // the capture slower. A delay the user configured is kept.
-                if (delay == DefaultCaptureDelay && IsHotkeyTrigger(context))
-                {
-                    delay = 0;
-                }
+                delay = CoreConfig.CaptureWait ? CoreConfig.CaptureWaitMilliseconds : 0;
             }
 
-            if (delay > 0)
+            if (delay <= 0)
             {
-                context.LogStep($"Waiting pre-capture delay: {delay}ms");
-                await Task.Delay(delay, ct).ConfigureAwait(false);
+                return;
             }
+
+            context.LogStep($"Waiting pre-capture delay: {delay}ms");
+            var wait = TimeSpan.FromMilliseconds(delay);
+            bool interactive = context.UserInteraction?.IsInteractive == true;
+            // A second or more is time to open a menu or popup: with a countdown, which doesn't take the focus
+            bool countdown = showCountdown && wait >= CaptureCountdown.ShownFrom && interactive;
+            Log.Info($"Waiting {delay} ms before the capture, countdown: {countdown} (setting {showCountdown}, interactive {interactive}).");
+            if (countdown)
+            {
+                if (!await CaptureCountdown.WaitAsync(context, wait, ct).ConfigureAwait(false))
+                {
+                    context.Abort("The user cancelled the wait before the capture.");
+                }
+                return;
+            }
+            await Task.Delay(wait, ct).ConfigureAwait(false);
         }
     }
 }

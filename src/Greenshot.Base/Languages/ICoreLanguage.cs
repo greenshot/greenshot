@@ -596,6 +596,21 @@ namespace Greenshot.Base.Languages
         string CaptureKeyText { get; }
 
         /// <summary>
+        /// Actions of the numbered item
+        /// </summary>
+        string CaptureKeyHotspotMenu { get; }
+
+        /// <summary>
+        /// First action of the numbered item
+        /// </summary>
+        string CaptureKeyHotspotDefault { get; }
+
+        /// <summary>
+        /// Found items
+        /// </summary>
+        string CaptureHotspotList { get; }
+
+        /// <summary>
         /// Capture a fixed size
         /// </summary>
         string CaptureKeyFixedSize { get; }
@@ -1012,6 +1027,41 @@ namespace Greenshot.Base.Languages
         string HdrNotSavedFailed { get; }
 
         /// <summary>
+        /// Sending the image to {0}…
+        /// </summary>
+        string ImageSearchWait { get; }
+
+        /// <summary>
+        /// Search with {0}?
+        /// </summary>
+        string ImageSearchConfirmTitle { get; }
+
+        /// <summary>
+        /// This capture will be sent to {0}, the results open in your browser.
+        /// </summary>
+        string ImageSearchConfirmMessage { get; }
+
+        /// <summary>
+        /// Search
+        /// </summary>
+        string ImageSearchConfirmSearch { get; }
+
+        /// <summary>
+        /// Don't ask again for {0}
+        /// </summary>
+        string ImageSearchConfirmStop { get; }
+
+        /// <summary>
+        /// Greenshot only hands the image to {0} and isn't responsible for the search or what {0} does with the image. {0} offers no official way for this: when a change at {0} stops it from working, {0} is removed from Greenshot.
+        /// </summary>
+        string ImageSearchNotResponsible { get; }
+
+        /// <summary>
+        /// Yandex keeps the image at a public address: anyone with the link can see it.
+        /// </summary>
+        string ImageSearchYandexPublic { get; }
+
+        /// <summary>
         /// HDR content lost
         /// </summary>
         string HdrLostTitle { get; }
@@ -1040,6 +1090,11 @@ namespace Greenshot.Base.Languages
         /// Please choose the JPEG quality for your image.
         /// </summary>
         string JpegqualitydialogChoosejpegquality { get; }
+
+        /// <summary>
+        /// Reading the text of the capture...
+        /// </summary>
+        string OcrRunning { get; }
 
         /// <summary>
         /// OK
@@ -1145,6 +1200,26 @@ namespace Greenshot.Base.Languages
         /// More…
         /// </summary>
         string QuicksettingsAutomaticstepsMore { get; }
+
+        /// <summary>
+        /// Sound and notifications
+        /// </summary>
+        string QuicksettingsSoundAndNotifications { get; }
+
+        /// <summary>
+        /// Wait before capturing
+        /// </summary>
+        string QuicksettingsCaptureWait { get; }
+
+        /// <summary>
+        /// Wait time
+        /// </summary>
+        string QuicksettingsCaptureWaitTime { get; }
+
+        /// <summary>
+        /// {0} ms
+        /// </summary>
+        string QuicksettingsCaptureWaitMilliseconds { get; }
 
         /// <summary>
         /// Save directly (using preferred file output settings)
@@ -1502,5 +1577,10 @@ namespace Greenshot.Base.Languages
         /// Functions
         /// </summary>
         string ExpressionHelpGroupFunctions { get; }
+
+        /// <summary>
+        /// Save as: {0} ({1}), the title bar of the save dialog: {0} the title of the capture, {1} the time it was taken
+        /// </summary>
+        string SaveAsCaptureTitle { get; }
     }
 }

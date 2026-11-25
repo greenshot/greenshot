@@ -64,6 +64,7 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Panels;
+using Greenshot.Editor.Panels.Effects;
 using Greenshot.Editor.Tabs;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Views;
@@ -314,10 +315,13 @@ namespace Greenshot.Editor.Forms
         private void ApplyDpi(int dpi)
         {
             int pixelSize = 0;
-            foreach (var toolStrip in new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1, zoomMenuStrip, fileSavedStatusContextMenu })
+            WithLayoutSuspended(() =>
             {
-                pixelSize = IconBinder.ApplyForDpi(toolStrip, dpi, "the editor");
-            }
+                foreach (var toolStrip in EditorToolStrips)
+                {
+                    pixelSize = IconBinder.ApplyForDpi(toolStrip, dpi, "the editor");
+                }
+            });
 
             propertiesToolStrip.MinimumSize = new Size(150, pixelSize + 10);
             ApplyPanelDockSize();
@@ -441,7 +445,64 @@ namespace Greenshot.Editor.Forms
         /// designer: the designer would put them into the .resx as binary data, which needs System.Resources.Extensions.
         /// Never set an Image in the designer, add the file to Resources and a line here.
         /// </summary>
-        private void ApplyImages()
+        private void ApplyImages() => WithLayoutSuspended(BindImages);
+
+        /// <summary>
+        /// The tool strips and menus of the editor, the drop downs of their items are found by <see cref="WithLayoutSuspended"/>
+        /// </summary>
+        private ToolStrip[] EditorToolStrips => new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1, zoomMenuStrip, fileSavedStatusContextMenu };
+
+        /// <summary>
+        /// Every image which is set lays out its tool strip or menu again, with about 85 images that took most of the time to open
+        /// the editor (issue #1792). The layout of the tool strips, their drop downs and the panels they are on is suspended
+        /// while the action runs, everything is laid out once at the end.
+        /// </summary>
+        private void WithLayoutSuspended(Action action)
+        {
+            var controls = new List<Control>
+            {
+                topToolStripContainer, topToolStripContainer.TopToolStripPanel, topToolStripContainer.LeftToolStripPanel, topToolStripContainer.BottomToolStripPanel
+            };
+            foreach (var toolStrip in EditorToolStrips)
+            {
+                AddWithDropDowns(toolStrip, controls);
+            }
+
+            // A DPI change can come before the controls exist
+            controls.RemoveAll(control => control == null);
+            controls.ForEach(control => control.SuspendLayout());
+            try
+            {
+                action();
+            }
+            finally
+            {
+                // The drop downs first, then the strips they belong to and the panels the strips are on
+                for (int i = controls.Count - 1; i >= 0; i--)
+                {
+                    controls[i].ResumeLayout(true);
+                }
+            }
+        }
+
+        private static void AddWithDropDowns(ToolStrip toolStrip, List<Control> controls)
+        {
+            if (toolStrip == null)
+            {
+                return;
+            }
+
+            controls.Add(toolStrip);
+            foreach (ToolStripItem item in toolStrip.Items)
+            {
+                if (item is ToolStripDropDownItem { HasDropDownItems: true } dropDownItem)
+                {
+                    AddWithDropDowns(dropDownItem.DropDown, controls);
+                }
+            }
+        }
+
+        private void BindImages()
         {
             IconBinder.Bind(btnCursor, IconSource.FromResource(typeof(ImageEditorForm), "btnCursor.Image"));
             IconBinder.Bind(btnRect, IconSource.FromResource(typeof(ImageEditorForm), "btnRect.Image"));
@@ -543,7 +604,9 @@ namespace Greenshot.Editor.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            timing.Mark("InitializeComponent");
             ApplyImages();
+            timing.Mark("Images");
             EventHandler themeChangedHandler = (s, e) =>
             {
                 if (IsDisposed || Disposing || !IsHandleCreated)
@@ -566,9 +629,11 @@ namespace Greenshot.Editor.Forms
             CreateOcrLabel();
             // Before the texts are applied
             CreateTabContextMenu();
+            timing.Mark("Badges");
             InitializePanels();
+            timing.Mark("Panels");
             ApplyTheme();
-            timing.Mark("InitializeComponent");
+            timing.Mark("Theme");
             InitializeLanguage();
             timing.Mark("InitializeLanguage");
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
@@ -748,8 +813,9 @@ namespace Greenshot.Editor.Forms
                 AlignCanvasPositionAfterResize();
             }
 
-            // Use best fit, for those capture modes where we can get huge images
-            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard)
+            // Use best fit, for those capture modes where we can get huge images, and for a capture which doesn't fit on the screen
+            // the window is on: a capture of a big screen shows completely in an editor on a smaller one (#1791)
+            if (editorSurface.CaptureDetails.CaptureMode is CaptureMode.File or CaptureMode.Clipboard || !FitsOnScreen(editorSurface.Image.Size))
             {
                 ZoomBestFitMenuItemClick(this, EventArgs.Empty);
             }
@@ -1123,11 +1189,8 @@ namespace Greenshot.Editor.Forms
                 tab.Dispose();
             }
 
-            if (coreConfiguration.MinimizeWorkingSetSize)
-            {
-                GC.Collect();
-                PsApi.EmptyWorkingSet();
-            }
+            // The memory of the closed captures is collected once Greenshot is idle (and trimmed with MinimizeWorkingSetSize)
+            PooledMemory.ReleaseWhenIdle();
         }
 
         private void RemoveFromOpenWindows()
@@ -1356,19 +1419,6 @@ namespace Greenshot.Editor.Forms
                 btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
-
-            try
-            {
-                var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
-                foreach (var plugin in editorPlugins)
-                {
-                    plugin.InitializeEditor(this, pluginToolStripMenuItem, () => _surface);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Error initializing editor plugins", ex);
-            }
 
             AddPanelMenuItems(pluginToolStripMenuItem);
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
@@ -2067,6 +2117,8 @@ namespace Greenshot.Editor.Forms
         {
             _surface.Undo();
             UpdateUndoRedoSurfaceDependencies();
+            // An undo can remove or bring back a counter, the counter button shows the next number (BUG-1673)
+            RefreshEditorControls();
         }
 
         private void BtnUndoClick(object sender, EventArgs e)
@@ -2078,6 +2130,7 @@ namespace Greenshot.Editor.Forms
         {
             _surface.Redo();
             UpdateUndoRedoSurfaceDependencies();
+            RefreshEditorControls();
         }
 
         private void BtnRedoClick(object sender, EventArgs e)
@@ -2168,6 +2221,18 @@ namespace Greenshot.Editor.Forms
             // LOG.Debug("Got key event "+e.KeyCode + ", " + e.Modifiers);
             // avoid conflict with other shortcuts and
             // make sure there's no selected element claiming input focus
+            // While a crop waits for Confirm or Cancel the tools and menus are disabled, so are their keys: else another tool
+            // leaves the crop rectangle behind (BUG-3291). Esc which didn't reach the canvas (e.g. the tool bar has the focus) cancels the crop.
+            if (_controlsDisabledDueToConfirmable)
+            {
+                if (e.KeyCode == Keys.Escape && e.Modifiers == Keys.None)
+                {
+                    BtnCancelClick(sender, e);
+                }
+
+                return;
+            }
+
             if (e.Modifiers.Equals(Keys.None) && CanvasHasKeys)
             {
                 switch (e.KeyCode)
@@ -2234,13 +2299,13 @@ namespace Greenshot.Editor.Forms
                         RedoToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.Q: // Dropshadow Ctrl + Q
-                        AddDropshadowToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+                        AddDropshadowToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.B: // Border Ctrl + B
                         AddBorderToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.T: // Torn edge Ctrl + T
-                        TornEdgesToolStripMenuItemMouseUp(sender, new MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0));
+                        TornEdgesToolStripMenuItemClick(sender, e);
                         break;
                     case Keys.I: // Invert Ctrl + I
                         InvertToolStripMenuItemClick(sender, e);
@@ -2850,7 +2915,8 @@ namespace Greenshot.Editor.Forms
         {
             if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
-            string stepLabelIcon = stepLabels <= 20 ? $"btnStepLabel{stepLabels:00}.Image" : "btnStepLabel20+.Image";
+            // There are icons for 1 to 20 and 20+, a counter which starts at 0 shows the icon of 1 (BUG-2173)
+            string stepLabelIcon = stepLabels <= 20 ? $"btnStepLabel{Math.Max(1, stepLabels):00}.Image" : "btnStepLabel20+.Image";
             // Binding the same icon again does nothing, so this is cheap when the count didn't change
             IconBinder.Bind(btnStepLabel, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
             IconBinder.Bind(addCounterToolStripMenuItem, IconSource.FromResource(typeof(ImageEditorForm), stepLabelIcon));
@@ -3031,28 +3097,20 @@ namespace Greenshot.Editor.Forms
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            string path = FileDialogs.PickFileToSave(Handle, "Greenshot templates (*.gst)|*.gst", Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails)));
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = Path.GetFileName(OutputTemplates.PreviewFileName(_surface.CaptureDetails))
-            };
-            DialogResult dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
-            {
-                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+                using Stream streamWrite = File.OpenWrite(path);
                 _surface.SaveElementsToStream(streamWrite);
             }
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            string path = FileDialogs.PickFileToOpen(Handle, "Greenshot templates (*.gst)|*.gst");
+            if (path != null)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst"
-            };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+                using (Stream streamRead = File.OpenRead(path))
                 {
                     _surface.LoadElementsFromStream(streamRead);
                 }
@@ -3336,10 +3394,7 @@ namespace Greenshot.Editor.Forms
             }, $"Apply {effect.GetType().Name}");
         }
 
-        private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            ApplyEffect(new BorderEffect());
-        }
+        private void AddBorderToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.Border);
 
         /// <summary>
         /// Added for FEATURE-919, increasing the canvas by 25 pixels in every direction.
@@ -3371,79 +3426,21 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        /// <summary>
-        /// This is used when the dropshadow button is used
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">MouseEventArgs</param>
-        private void AddDropshadowToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
-        {
-            var dropShadowEffect = EditorConfiguration.DropShadowEffectSettings;
-            bool apply;
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    apply = true;
-                    break;
-                case MouseButtons.Right:
-                    var result = new DropShadowSettingsWindow(dropShadowEffect).ShowDialog(this);
-                    apply = result == true;
-                    break;
-                default:
-                    return;
-            }
+        private void AddDropshadowToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.DropShadow);
 
-            if (apply)
-            {
-                ApplyEffect(dropShadowEffect);
-            }
-        }
-
+        private void BtnResizeClick(object sender, EventArgs e) => ShowEffect(EffectKind.Resize);
 
         /// <summary>
-        /// Open the resize settings from, and resize if ok was pressed
+        /// Tear the edges with the last settings, as an element: the sides and the shadow are changed in the Selection panel,
+        /// the teeth, the color and the line in the properties of the tool
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnResizeClick(object sender, EventArgs e)
+        private void TornEdgesToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
-            var result = new ResizeSettingsWindow(resizeEffect).ShowDialog(this);
-            if (result == true)
-            {
-                ApplyEffect(resizeEffect);
-            }
-        }
-
-        /// <summary>
-        /// This is used when the torn-edge button is used
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">MouseEventArgs</param>
-        private void TornEdgesToolStripMenuItemMouseUp(object sender, MouseEventArgs e)
-        {
-            var tornEdgeEffect = EditorConfiguration.TornEdgeEffectSettings;
-            bool apply;
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    apply = true;
-                    break;
-                case MouseButtons.Right:
-                    var result = new TornEdgeSettingsWindow(tornEdgeEffect).ShowDialog(this);
-                    apply = result == true;
-                    break;
-                default:
-                    return;
-            }
-
-            if (apply)
-            {
-                // The torn edges are an element, so they can be changed or removed later
-                _surface.AddTornEdges(tornEdgeEffect);
-                UpdateUndoRedoSurfaceDependencies();
-                RefreshFieldControls();
-            }
+            // When there are torn edges already, these are selected
+            _surface.AddTornEdges(EditorConfiguration.TornEdgeEffectSettings);
+            UpdateUndoRedoSurfaceDependencies();
+            RefreshFieldControls();
+            _panelHost?.Show(SelectionPanel.PanelId, activate: false);
         }
 
         private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
@@ -3472,27 +3469,7 @@ namespace Greenshot.Editor.Forms
             ApplyEffect(new InvertEffect());
         }
 
-        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
-        {
-            var colorPickerWindow = new ColorPickerWindow
-            {
-                SelectedColor = Color.White
-            };
-
-            new WindowInteropHelper(colorPickerWindow)
-            {
-                Owner = Handle
-            };
-
-            if (colorPickerWindow.ShowDialog() == true)
-            {
-                var removeTransparencyEffect = new RemoveTransparencyEffect
-                {
-                    Color = colorPickerWindow.SelectedColor
-                };
-                ApplyEffect(removeTransparencyEffect);
-            }
-        }
+        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e) => ShowEffect(EffectKind.RemoveTransparency);
 
         private void ImageEditorFormResize(object sender, EventArgs e)
         {
@@ -3606,6 +3583,15 @@ namespace Greenshot.Editor.Forms
             var nextValue = Fraction.Parse((string)senderMenuItem.Tag);
 
             ZoomSetValue(nextValue);
+        }
+
+        /// <summary>
+        /// True when an image of the size fits on the screen of the window at 100%, next to the tool bars and the panels
+        /// </summary>
+        private bool FitsOnScreen(Size imageSize)
+        {
+            var maxImageSize = GetAvailableScreenSpace() - GetChromeSize();
+            return imageSize.Width <= maxImageSize.Width && imageSize.Height <= maxImageSize.Height;
         }
 
         private void ZoomBestFitMenuItemClick(object sender, EventArgs e)

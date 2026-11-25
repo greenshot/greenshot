@@ -56,11 +56,14 @@ namespace Greenshot.SelfService.Views
 
             var vm = new SelfServiceViewModel(initialSection);
             DataContext = vm;
+#if !GREENSHOT_LIGHT
+            PoliciesPanel.Content = new Greenshot.Policies.PoliciesView { DataContext = vm.PoliciesSection };
+#endif
             vm.PropertyChanged += OnViewModelPropertyChanged;
 
             UpdateVisiblePanel();
 
-            WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged += OnThemeChanged;
             Loaded += OnWindowLoaded;
             Closed += OnWindowClosed;
             KeyDown += OnWindowKeyDown;
@@ -85,6 +88,7 @@ namespace Greenshot.SelfService.Views
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
             ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
             ImgurPanel.Visibility = sectionId == "imgur" ? Visibility.Visible : Visibility.Collapsed;
+            PoliciesPanel.Visibility = sectionId == "policies" ? Visibility.Visible : Visibility.Collapsed;
 #if DEBUG
             if (IntegrationDebugPanel != null)
             {
@@ -136,7 +140,7 @@ namespace Greenshot.SelfService.Views
 
         private void OnWindowClosed(object sender, EventArgs e)
         {
-            WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            ThemeManager.Instance.PaletteChanged -= OnThemeChanged;
             ViewModel?.Cleanup();
             if (_currentInstance == this)
             {

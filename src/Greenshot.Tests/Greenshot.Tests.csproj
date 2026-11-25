@@ -14,14 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <!-- Without Microsoft Testing Platform: dotnet test (and tools\build-runner) keep using VSTest on the .NET 10 SDK -->
-    <PackageReference Include="xunit.v3.mtp-off" Version="4.0.2" />
+    <PackageReference Include="xunit.v3.mtp-off" Version="4.0.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="10.1.0">
+    <PackageReference Include="coverlet.collector" Version="10.1.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -46,5 +46,17 @@
     <ProjectReference Include="..\Greenshot.Plugin.Pdf\Greenshot.Plugin.Pdf.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Stamps\Greenshot.Plugin.Stamps.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.RapidOcr\Greenshot.Plugin.RapidOcr.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ZipArchive, to build test zips for the RapidOCR download -->
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="11.0.0">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

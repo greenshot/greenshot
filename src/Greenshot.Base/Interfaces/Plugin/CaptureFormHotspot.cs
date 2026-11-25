@@ -47,9 +47,29 @@ public class CaptureFormHotspot
     public string ToolTipText { get; set; }
 
     /// <summary>
-    /// What the user can do with the hotspot
+    /// What the user can do with the hotspot. The first one is the default, which Ctrl+click runs without the menu.
     /// </summary>
     public IList<CaptureHotspotAction> Actions { get; } = new List<CaptureHotspotAction>();
+
+    /// <summary>
+    /// The id of the capture tool (ICaptureTool.Id, e.g. "Text") in which the hotspot is shown and can be clicked, null for every tool
+    /// </summary>
+    public string ToolId { get; set; }
+
+    /// <summary>
+    /// The corners of the area when it is turned (e.g. text at an angle): top left, top right, bottom right, bottom left in
+    /// coordinates of the capture. Null draws Bounds; Bounds stays the upright rectangle around the corners.
+    /// </summary>
+    public IReadOnlyList<NativePointFloat> Outline { get; set; }
+
+    /// <summary>
+    /// A numbered hotspot (only with a ToolId) gets a badge with its number and a row in the list of the found items of its tool.
+    /// Only the badge and the row are clicked, the area itself stays with the tool (e.g. the text tool selects the text below);
+    /// the digit keys 1 to 9 and 0 show the menu of the first ten, with Ctrl they run the default action.
+    /// The capture window gives the numbers in reading order, a hotspot keeps its number while the window is open.
+    /// Text is the label of the row, ToolTipText its value.
+    /// </summary>
+    public bool IsNumbered { get; set; }
 }
 
 /// <summary>

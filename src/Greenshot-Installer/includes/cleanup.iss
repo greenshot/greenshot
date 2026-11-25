@@ -63,6 +63,7 @@ Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Pdf"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Photobucket"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.RecipeEditor"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Stamps"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.RapidOcr"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Win10"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Zxing"
 

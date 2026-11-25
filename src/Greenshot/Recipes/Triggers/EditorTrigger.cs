@@ -40,6 +40,9 @@ namespace Greenshot.Recipes.Triggers
         public string Group { get; set; } = "Recipes";
         public int Order { get; set; } = 0;
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { MenuItemText, Group, Order };
+
         public EditorTrigger(string id, string name, string menuItemText, string targetRecipeId, string group = "Recipes", int order = 0)
             : base(id, name, targetRecipeId)
         {

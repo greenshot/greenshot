@@ -23,8 +23,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Ini;
-using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
@@ -45,7 +43,6 @@ namespace Greenshot.Recipes.Pipeline
     public class CapturePipeline : ICapturePipeline
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CapturePipeline));
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private readonly IInteractiveCaptureSelector _selector;
         private readonly IDestinationDispatcher _dispatcher;
@@ -128,6 +125,7 @@ namespace Greenshot.Recipes.Pipeline
             _stepRegistry.Register<SlotStep>(config => new SlotStep(config));
             _stepRegistry.Register<ShowInExplorerStep>(config => new ShowInExplorerStep(config));
             _stepRegistry.Register<OpenWindowStep>(config => new OpenWindowStep(config));
+            _stepRegistry.Register<DelayStep>(config => new DelayStep(config));
 
             // Register all plugin step providers
             try
@@ -220,11 +218,8 @@ namespace Greenshot.Recipes.Pipeline
             }
             finally
             {
-                // Clean up working set if enabled
-                if (CoreConfig.MinimizeWorkingSetSize)
-                {
-                    PsApi.EmptyWorkingSet();
-                }
+                // The memory of this capture is collected once Greenshot is idle (and trimmed with MinimizeWorkingSetSize)
+                PooledMemory.ReleaseWhenIdle();
 
                 // A failed flow didn't get to its Notification step: what it exported is shown with the failure, while the export
                 // sources still exist (the kept capture of the toast comes from them). CaptureFlowRunner then shows no other message.

@@ -22,6 +22,7 @@
 using System.Drawing.Drawing2D;
 using System.Numerics;
 using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;

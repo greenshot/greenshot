@@ -74,7 +74,8 @@ namespace Greenshot.Editor.Drawing
                 var covered = lineBounds.Intersect(area);
                 if (covered.Width > 0 && covered.Height * 2 >= lineBounds.Height)
                 {
-                    heights.Add(lineBounds.Height);
+                    // The height of the text itself, the rectangle around rotated text is higher
+                    heights.Add(line.Box.PixelHeight);
                 }
             }
 

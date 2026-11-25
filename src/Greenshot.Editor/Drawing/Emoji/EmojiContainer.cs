@@ -56,14 +56,6 @@ namespace Greenshot.Editor.Drawing.Emoji
             Init();
         }
 
-        /// <summary>
-        /// A double click shows the emoji in the Selection panel and moves the keyboard there, a single click only selects the emoji.
-        /// </summary>
-        public override void OnDoubleClick()
-        {
-            InternalParent?.RequestProperties();
-        }
-
         public override bool HandleMouseDown(int mouseX, int mouseY)
         {
             return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));

@@ -43,7 +43,7 @@ namespace Greenshot.Base.Interfaces.Capture
         {
         }
 
-        /// <param name="activeWhen">For a key which isn't bound to a tool: the tools it works with, e.g. only those which select pixels, null for all</param>
+        /// <param name="activeWhen">When the key works, null for always: for a key which isn't bound to a tool the tools it works with (e.g. only those which select pixels), for a tool key e.g. only while there is something to pick</param>
         public CaptureKeyBinding(object owner, ICaptureTool tool, Key key, ModifierKeys modifiers, Func<string> description, Action execute,
             Func<ICaptureTool, bool> activeWhen)
         {
@@ -115,7 +115,7 @@ namespace Greenshot.Base.Interfaces.Capture
         /// <summary>
         /// True when the key is active while the given tool is
         /// </summary>
-        public bool IsActiveFor(ICaptureTool activeTool) => Tool == null ? _activeWhen?.Invoke(activeTool) ?? true : Tool == activeTool;
+        public bool IsActiveFor(ICaptureTool activeTool) => (Tool == null || Tool == activeTool) && (_activeWhen?.Invoke(activeTool) ?? true);
 
         public override string ToString() => $"{KeyText} ({Owner.GetType().Name})";
 

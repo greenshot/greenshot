@@ -51,33 +51,7 @@ namespace Greenshot.Views
                 // Ignore in headless/test environments
             }
 
-            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-            System.ComponentModel.PropertyChangedEventHandler themeHandler = (s, e) =>
-            {
-                if (Dispatcher.CheckAccess())
-                {
-                    Resources.MergedDictionaries.Clear();
-                    Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                }
-                else if (!Dispatcher.HasShutdownStarted)
-                {
-                    _ = Dispatcher.InvokeAsync(() =>
-                    {
-                        try
-                        {
-                            Resources.MergedDictionaries.Clear();
-                            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                        }
-                        catch
-                        {
-                            // Window or dispatcher shutting down
-                        }
-                    });
-                }
-            };
-            ThemeManager.Instance.PropertyChanged += themeHandler;
-            Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
-
+            // The shared styles (GreenshotStyles.xaml, merged in the XAML) bind to the theme, a theme change needs nothing here
             KeyDown += (s, e) =>
             {
                 if (e.Key == Key.Escape)

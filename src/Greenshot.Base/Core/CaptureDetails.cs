@@ -158,9 +158,18 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// A feature is in the image when any part of it is: a text line cut by a text selection still gives the words which were selected.
         /// Windows always stay, they are where the selection snaps to.
+        /// Text lines are in it when the rotated text is, not only the rectangle around it.
         /// </summary>
-        private static bool IsInImage(IDetectedFeature feature, NativeSize imageSize) =>
-            feature is WindowFeature || feature.Bounds.IntersectsWith(new NativeRect(0, 0, imageSize.Width, imageSize.Height));
+        private static bool IsInImage(IDetectedFeature feature, NativeSize imageSize)
+        {
+            var image = new NativeRect(0, 0, imageSize.Width, imageSize.Height);
+            return feature switch
+            {
+                WindowFeature => true,
+                Interfaces.Plugin.IOcrLineFeature line => line.Box.IntersectsWith(image),
+                _ => feature.Bounds.IntersectsWith(image)
+            };
+        }
 
         /// <inheritdoc />
         public System.Threading.Tasks.Task ProcessingTask { get; set; }

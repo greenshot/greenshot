@@ -25,7 +25,9 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using Greenshot.Base.Wpf;
-using Microsoft.Win32;
+using Greenshot.Base.Wpf.Views;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Definitions;
 
@@ -49,13 +51,28 @@ public static class DefinitionImport
     /// <returns>the path, null when the user cancelled</returns>
     public static string PickFile(Window owner, string filter)
     {
-        var dialog = new OpenFileDialog
-        {
-            Filter = filter,
-            CheckFileExists = true,
-            Multiselect = false
-        };
-        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true ? dialog.FileName : null;
+        return FileDialogs.PickFileToOpen(owner, filter);
+    }
+
+    /// <summary>
+    /// Let the user pick where to export a definition
+    /// </summary>
+    /// <param name="owner">the settings window</param>
+    /// <param name="filter">the file types</param>
+    /// <param name="fileName">the proposed file name</param>
+    /// <returns>the path, null when the user cancelled</returns>
+    public static string PickExportFile(Window owner, string filter, string fileName)
+    {
+        return FileDialogs.PickFileToSave(owner, filter, fileName);
+    }
+
+    /// <summary>
+    /// A file name for the definition: its name without characters a file name can't have
+    /// </summary>
+    public static string FileNameFor(string name, string extension)
+    {
+        string fileName = FilenameHelper.MakeFilenameSafe(name ?? string.Empty);
+        return (fileName.Length == 0 ? "definition" : fileName) + extension;
     }
 
     /// <summary>
@@ -94,18 +111,14 @@ public static class DefinitionImport
     }
 
     /// <summary>
-    /// Show what the definition does and let the user decide. The last button is Cancel: the default of Enter and Escape,
-    /// and the result when the box is closed. The buttons react only after <see cref="ArmDelay"/>.
+    /// Show what the definition does, with its icon, and let the user decide (<see cref="DefinitionApprovalWindow"/>). The last button
+    /// is Cancel: the default of Enter and Escape, and the result when the window is closed. The buttons react only after
+    /// <see cref="ArmDelay"/>.
     /// </summary>
-    /// <param name="owner">the settings window</param>
-    /// <param name="title">the caption</param>
-    /// <param name="question">what the definition does, e.g. where the captures go</param>
+    /// <param name="owner">the settings window, null: on top of the other windows, centered on the screen (the question at the start)</param>
+    /// <param name="approval">what the user sees</param>
     /// <param name="buttons">the choices, the last one cancels</param>
-    /// <returns>the index of the chosen button, -1 or the last index for Cancel</returns>
-    public static int Confirm(Window owner, string title, string question, IReadOnlyList<string> buttons)
-    {
-        if (buttons == null || buttons.Count < 2) throw new ArgumentException("At least one choice and Cancel", nameof(buttons));
-        int cancel = buttons.Count - 1;
-        return ThemedMessageBox.ShowChoice(owner, title, question, MessageBoxImage.Warning, buttons, defaultIndex: cancel, cancelIndex: cancel, armDelay: ArmDelay);
-    }
+    /// <returns>the index of the chosen button, the last index for Cancel</returns>
+    public static int Confirm(Window owner, DefinitionApproval approval, IReadOnlyList<string> buttons) =>
+        DefinitionApprovalWindow.Ask(owner, approval, buttons, ArmDelay);
 }

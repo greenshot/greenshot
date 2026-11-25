@@ -162,6 +162,16 @@ namespace Greenshot.Capturing.Views
             public TranslateTransform Position { get; } = new TranslateTransform();
             public NativeSize Size { get; set; }
             public NativeRect Bounds { get; set; } = NativeRect.Empty;
+
+            /// <summary>
+            /// Takes the mouse and stays where it is, instead of moving away from the cursor
+            /// </summary>
+            public bool IsInteractive { get; set; }
+
+            /// <summary>
+            /// An interactive panel is see-through while a selection is below it
+            /// </summary>
+            public bool IsSeeThrough { get; set; }
         }
         private NativePoint _cursorPos;
         private NativePoint _previousMousePos;
@@ -180,6 +190,8 @@ namespace Greenshot.Capturing.Views
         private bool? _modelessResult;
         private bool _handleCreated;
         private bool _closed;
+        // FinishNow shrank the window and closes it after it rendered, see CloseWithSmallSurfaces
+        private bool _finishing;
         // The key which is being handled by HandleKeyDown, Key.None otherwise
         private Key _keyInHandling = Key.None;
         // A key (e.g. Esc) ended the selection: the window closes when that key is released, see Finish
@@ -239,7 +251,7 @@ namespace Greenshot.Capturing.Views
             bool isNew = !(_panels.TryGetValue(owner, out var panel) && panel.Element is DrawingLayer);
             if (isNew)
             {
-                panel = AddPanel(owner, new DrawingLayer());
+                panel = AddPanel(owner, new DrawingLayer { IsHitTestVisible = false });
             }
 
             double padding = ToolStyle.PanelPadding;
@@ -257,7 +269,12 @@ namespace Greenshot.Capturing.Views
         }
 
         /// <inheritdoc />
-        public void ShowPanel(object owner, FrameworkElement content)
+        public void ShowPanel(object owner, FrameworkElement content) => ShowPanel(owner, content, false);
+
+        /// <summary>
+        /// A panel with WPF content, an interactive one takes the mouse (its content handles the clicks) and stays in its place
+        /// </summary>
+        private void ShowPanel(object owner, FrameworkElement content, bool interactive)
         {
             if (owner == null)
             {
@@ -280,7 +297,14 @@ namespace Greenshot.Capturing.Views
                 oldPanel.Child = null;
             }
             var border = ToolStyle.CreatePanel(content);
+            border.IsHitTestVisible = interactive;
+            if (interactive)
+            {
+                // A press on the panel itself doesn't start a selection below it
+                border.MouseLeftButtonDown += (sender, args) => args.Handled = true;
+            }
             var panel = AddPanel(owner, border);
+            panel.IsInteractive = interactive;
             // Bound values which change the size of the content (e.g. longer text) move the panel when needed
             border.SizeChanged += (sender, args) =>
             {
@@ -352,12 +376,27 @@ namespace Greenshot.Capturing.Views
         {
             foreach (var entry in _panels.ToList())
             {
+                if (entry.Value.IsInteractive)
+                {
+                    // It stays where it is, so it can be clicked; a selection below it can be seen through it
+                    UpdateInteractivePanelOpacity(entry.Value);
+                    continue;
+                }
                 PlacePanel(entry.Key, entry.Value, true);
             }
         }
 
         private void PlacePanel(object owner, Panel panel, bool animate, bool animateResize = true)
         {
+            if (panel.IsInteractive && !panel.Bounds.IsEmpty)
+            {
+                // Placed once, away from the cursor; it stays there, even when it grows below the cursor
+                var resized = PanelPlacement.Resize(panel.Bounds, panel.Size, GetMonitorBounds());
+                panel.Bounds = resized;
+                MovePanel(panel.Position, TranslateTransform.XProperty, resized.X, false);
+                MovePanel(panel.Position, TranslateTransform.YProperty, resized.Y, false);
+                return;
+            }
             var avoid = _panels.Where(other => !Equals(other.Key, owner)).Select(other => other.Value.Bounds).ToList();
             // The selection only once it stopped changing: the window tool changes it with every window under the cursor.
             // The zoomer is not avoided, it avoids the panels itself and moves with the cursor.
@@ -697,15 +736,67 @@ namespace Greenshot.Capturing.Views
 
         private void FinishNow(bool selected)
         {
-            if (_prepared)
+            if (_finishing)
             {
-                _modelessResult = selected;
-                Close();
+                return;
             }
-            else
+            _finishing = true;
+            CloseWithSmallSurfaces(() =>
             {
-                DialogResult = selected;
+                if (_prepared)
+                {
+                    _modelessResult = selected;
+                    Close();
+                }
+                else
+                {
+                    DialogResult = selected;
+                }
+            });
+        }
+
+        /// <summary>
+        /// WPF's render thread frees the surfaces of a closed window only when it composes a shown window again. In software rendering
+        /// these are the back buffers of this window: 3 DIB sections of the size of all screens (128 MB on three screens), which stayed
+        /// after Escape until the next capture. Shrunk to one pixel while it is still shown, the window gets back buffers of one pixel
+        /// with the next frame, so closing it leaves nothing large behind. To the eye it's the same as closing: the overlay is gone.
+        /// </summary>
+        /// <param name="close">Closes the window, runs after two frames (about 15 ms), or after 250 ms if WPF doesn't render</param>
+        private void CloseWithSmallSurfaces(Action close)
+        {
+            if (!IsVisible || _closed)
+            {
+                close();
+                return;
             }
+
+            int frames = 0;
+            DispatcherTimer fallback = null;
+            EventHandler onRendering = null;
+            void CloseOnce()
+            {
+                CompositionTarget.Rendering -= onRendering;
+                fallback.Stop();
+                if (!_closed)
+                {
+                    close();
+                }
+            }
+            onRendering = (sender, args) =>
+            {
+                // The first frame has the new size, the render thread presented it when the next one starts
+                if (++frames >= 2)
+                {
+                    CloseOnce();
+                }
+            };
+            fallback = new DispatcherTimer(DispatcherPriority.Normal, Dispatcher) { Interval = TimeSpan.FromMilliseconds(250) };
+            fallback.Tick += (sender, args) => CloseOnce();
+
+            User32Api.SetWindowPos(new WindowInteropHelper(this).Handle, IntPtr.Zero, 0, 0, 1, 1,
+                Dapplo.Windows.User32.Enums.WindowPos.SWP_NOMOVE | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOZORDER | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOACTIVATE);
+            CompositionTarget.Rendering += onRendering;
+            fallback.Start();
         }
 
         /// <summary>
@@ -931,6 +1022,9 @@ namespace Greenshot.Capturing.Views
             _activeTool = tool;
             _usedCaptureMode = tool.Mode;
             tool.Activate(this);
+            // The hotspots of the tool, e.g. the numbered ones of the text tool
+            UpdateNumberedHotspots();
+            DrawFeatures();
             ForEachOverlay(overlay => overlay.OnToolChanged());
             UpdateZoomerVisibility();
             UpdateSelection();
@@ -1191,6 +1285,11 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void PlaceWindow()
         {
+            if (_finishing)
+            {
+                // Shrunk before closing, see CloseWithSmallSurfaces
+                return;
+            }
             var handle = new WindowInteropHelper(this).Handle;
             User32Api.SetWindowPos(handle, IntPtr.Zero, _screenBounds.X, _screenBounds.Y, _screenBounds.Width, _screenBounds.Height,
                 Dapplo.Windows.User32.Enums.WindowPos.SWP_NOZORDER | Dapplo.Windows.User32.Enums.WindowPos.SWP_NOACTIVATE);
@@ -1219,7 +1318,7 @@ namespace Greenshot.Capturing.Views
         /// </summary>
         private void Reveal()
         {
-            if (_closed)
+            if (_closed || _finishing)
             {
                 return;
             }
@@ -1388,6 +1487,7 @@ namespace Greenshot.Capturing.Views
             }
             _hotspots = hotspots;
             _hoveredHotspot = null;
+            UpdateNumberedHotspots();
         }
 
         private void OnFeaturesChanged(object sender, EventArgs e)
@@ -1508,7 +1608,15 @@ namespace Greenshot.Capturing.Views
             var hotspot = FindHotspot(GetCursorPosition());
             if (hotspot != null)
             {
-                ShowHotspotMenu(hotspot);
+                // Ctrl+click runs the default action without the menu
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && hotspot.Actions.Count > 0)
+                {
+                    RunHotspotAction(hotspot.Actions[0]);
+                }
+                else
+                {
+                    ShowHotspotMenu(hotspot);
+                }
                 e.Handled = true;
                 return;
             }
@@ -1528,13 +1636,22 @@ namespace Greenshot.Capturing.Views
             _activeTool.OnMouseUp();
         }
 
-        private void ShowHotspotMenu(CaptureFormHotspot hotspot)
+        private void ShowHotspotMenu(CaptureFormHotspot hotspot) => ShowHotspotMenu(hotspot, this, null);
+
+        /// <summary>
+        /// The menu of a hotspot, at the mouse or below an area of the target (a badge, a row of the list)
+        /// </summary>
+        private void ShowHotspotMenu(CaptureFormHotspot hotspot, UIElement target, Rect? below)
         {
             var menu = new ContextMenu
             {
-                PlacementTarget = this,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                PlacementTarget = target,
+                Placement = below.HasValue ? System.Windows.Controls.Primitives.PlacementMode.Bottom : System.Windows.Controls.Primitives.PlacementMode.MousePoint
             };
+            if (below.HasValue)
+            {
+                menu.PlacementRectangle = below.Value;
+            }
             if (!string.IsNullOrEmpty(hotspot.Text))
             {
                 menu.Items.Add(new MenuItem { Header = hotspot.Text, IsEnabled = false });
@@ -1543,22 +1660,24 @@ namespace Greenshot.Capturing.Views
             foreach (var action in hotspot.Actions)
             {
                 var item = new MenuItem { Header = action.Text };
-                item.Click += (sender, args) =>
-                {
-                    // The action replaces the capture
-                    Cancel();
-                    try
-                    {
-                        action.Execute();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error running the hotspot action {action.Text}", ex);
-                    }
-                };
+                item.Click += (sender, args) => RunHotspotAction(action);
                 menu.Items.Add(item);
             }
             menu.IsOpen = true;
+        }
+
+        private void RunHotspotAction(CaptureHotspotAction action)
+        {
+            // The action replaces the capture
+            Cancel();
+            try
+            {
+                action.Execute();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error running the hotspot action {action.Text}", ex);
+            }
         }
 
         /// <summary>
@@ -1591,7 +1710,11 @@ namespace Greenshot.Capturing.Views
             return WindowCapture.GetLocationRelativeToScreenBounds(currentMouse);
         }
 
-        private CaptureFormHotspot FindHotspot(NativePoint location) => _hotspots.FirstOrDefault(hotspot => hotspot.Bounds.Contains(location));
+        /// <summary>
+        /// The hotspot of the active tool at the location: a numbered one by its badge, the others by their area
+        /// </summary>
+        private CaptureFormHotspot FindHotspot(NativePoint location) =>
+            FindNumberedHotspot(location) ?? _hotspots.FirstOrDefault(hotspot => !hotspot.IsNumbered && IsHotspotActive(hotspot) && hotspot.Bounds.Contains(location));
 
         #endregion
 
@@ -1604,9 +1727,11 @@ namespace Greenshot.Capturing.Views
         {
             _cursorPos = GetCursorPosition();
 
-            var hoveredHotspot = FindHotspot(_cursorPos);
-            Cursor = hoveredHotspot != null ? Cursors.Hand : Cursors.Cross;
-            ToolTip = hoveredHotspot?.ToolTipText;
+            // Over the list of the numbered hotspots its rows say which one is hovered
+            bool overList = IsMouseOverHotspotList;
+            var hoveredHotspot = overList ? _hoveredHotspot : FindHotspot(_cursorPos);
+            Cursor = hoveredHotspot != null && !overList ? Cursors.Hand : Cursors.Cross;
+            ToolTip = overList ? null : hoveredHotspot?.ToolTipText;
             bool redrawFeatures = hoveredHotspot != _hoveredHotspot;
             _hoveredHotspot = hoveredHotspot;
 
@@ -1694,6 +1819,11 @@ namespace Greenshot.Capturing.Views
         public bool IsSelectionAnimating => _selectionClock != null;
 
         /// <inheritdoc />
+        public NativeRect ZoomerBounds => _zoomerShown && !_zoomerSlotSize.IsEmpty
+            ? new NativeRect(_cursorPos.X + _zoomOffset.X, _cursorPos.Y + _zoomOffset.Y, _zoomerSlotSize.Width, _zoomerSlotSize.Height)
+            : NativeRect.Empty;
+
+        /// <inheritdoc />
         public NativeRect Selection => IsSelectionVisible ? _selectionRect : NativeRect.Empty;
 
         /// <summary>
@@ -1741,6 +1871,16 @@ namespace Greenshot.Capturing.Views
 
         /// <inheritdoc />
         public void Redraw()
+        {
+            using (var dc = ToolBackgroundLayer.Open())
+            {
+                _activeTool.DrawBackground(dc);
+            }
+            RedrawForeground();
+        }
+
+        /// <inheritdoc />
+        public void RedrawForeground()
         {
             using var dc = ToolLayer.Open();
             _activeTool.Draw(dc);
@@ -2130,12 +2270,12 @@ namespace Greenshot.Capturing.Views
                 var hotspotPen = new Pen((Brush)FindResource("HotspotBrush"), 2) { DashStyle = DashStyles.Dash };
                 hotspotPen.Freeze();
                 var hoverBrush = (Brush)FindResource("HotspotHoverBrush");
-                foreach (var hotspot in _hotspots)
+                foreach (var hotspot in _hotspots.Where(hotspot => !hotspot.IsNumbered && IsHotspotActive(hotspot)))
                 {
                     dc.DrawRectangle(hotspot == _hoveredHotspot ? hoverBrush : null, hotspotPen, ToRect(hotspot.Bounds));
                 }
             }
-
+            DrawNumberedHotspots();
         }
 
         private void ShowCapturedCursor()

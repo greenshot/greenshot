@@ -22,7 +22,7 @@
 
 using System.Collections.Generic;
 using Greenshot.Base.Effects;
-using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;

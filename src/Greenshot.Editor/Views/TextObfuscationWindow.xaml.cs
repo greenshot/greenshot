@@ -309,7 +309,7 @@ namespace Greenshot.Editor.Views
                 {
                     if (IsMatch(word.Text, searchText, useRegex))
                     {
-                        _matches.Add((ApplyPadding(word.Bounds), line.Bounds.Height));
+                        _matches.Add((ApplyPadding(word.Bounds), line.Box.PixelHeight));
                     }
                 }
             }
@@ -321,7 +321,7 @@ namespace Greenshot.Editor.Views
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matches.Add((ApplyPadding(line.Bounds), line.Bounds.Height));
+                    _matches.Add((ApplyPadding(line.Bounds), line.Box.PixelHeight));
                 }
             }
         }

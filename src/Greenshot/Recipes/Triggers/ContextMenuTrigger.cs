@@ -44,6 +44,9 @@ namespace Greenshot.Recipes.Triggers
         /// </summary>
         public string Expand { get; set; }
 
+        /// <inheritdoc />
+        protected override System.Collections.Generic.IEnumerable<object> DefinitionValues => new object[] { MenuItemText, Group, Order, Icon, Expand };
+
         public ContextMenuTrigger(string id, string name, string menuItemText, string targetRecipeId, string group = "Recipes", int order = 0)
             : base(id, name, targetRecipeId)
         {

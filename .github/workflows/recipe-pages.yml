@@ -1,6 +1,7 @@
 name: Recipe pages
 
-# Writes the recipe catalog (latest greenshot-recipes release) into gh-pages: unlisted pages under /recipes/.
+# Writes the recipe catalog (latest greenshot-recipes release) into gh-pages: unlisted pages under /recipes/, and the signed
+# index with every recipe file, which is where Greenshot reads the catalog (getgreenshot.org/recipes/index.json).
 # A push with the workflow token doesn't start the Pages build, so it is asked for afterwards (with the workflow
 # token's pages permission). Runs by hand, on a Greenshot release, and when greenshot-recipes published a new index
 # (repository_dispatch "recipes-published", sent with that repository's secret WEBSITE_DISPATCH_TOKEN).
@@ -35,11 +36,14 @@ jobs:
           sparse-checkout: tools/website
           path: greenshot
 
+      # Index and signature from one release: "latest" is looked up once, a new release in between can't mix them
       - name: Get the recipe catalog
-        run: curl -fsSL -o "$RUNNER_TEMP/index.json" https://github.com/greenshot/greenshot-recipes/releases/latest/download/index.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download --repo greenshot/greenshot-recipes --pattern index.json --pattern index.json.sig --dir "$RUNNER_TEMP/catalog"
 
       - name: Write the recipe pages
-        run: python3 greenshot/tools/website/recipes/build_pages.py --index "$RUNNER_TEMP/index.json" --site site
+        run: python3 greenshot/tools/website/recipes/build_pages.py --index "$RUNNER_TEMP/catalog/index.json" --signature "$RUNNER_TEMP/catalog/index.json.sig" --site site
 
       - name: Commit to gh-pages
         id: commit
@@ -51,7 +55,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          commit=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['commit'][:7])" "$RUNNER_TEMP/index.json")
+          commit=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['commit'][:7])" "$RUNNER_TEMP/catalog/index.json")
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "Recipe pages from greenshot-recipes $commit"
           git push -q origin HEAD:gh-pages

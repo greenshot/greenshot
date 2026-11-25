@@ -23,10 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using Greenshot.Base.Serialization;
+using Greenshot.Base.Trust;
 using log4net;
 
 namespace Greenshot.Recipes.Approval
@@ -42,10 +39,6 @@ namespace Greenshot.Recipes.Approval
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeTrustStore));
         private static readonly object LockObj = new object();
 
-        private static readonly byte[] Entropy = SHA256.Create().ComputeHash(
-            Encoding.UTF8.GetBytes($"Greenshot.RecipeTrust.Salt.{Environment.MachineName}.6f8c2b1e")
-        );
-
         private static string _storeFilePathOverride;
 
         private static string StoreFilePath => _storeFilePathOverride ?? Path.Combine(
@@ -53,6 +46,10 @@ namespace Greenshot.Recipes.Approval
             "Greenshot",
             "recipe_trust.dat"
         );
+
+        // The entropy text stays as it was, so the approvals already given can still be read
+        private static readonly ProtectedRecordFile<RecipeTrustRecord> RecordFile = new ProtectedRecordFile<RecipeTrustRecord>(
+            () => StoreFilePath, $"Greenshot.RecipeTrust.Salt.{Environment.MachineName}.6f8c2b1e", record => record.FilePath);
 
         /// <summary>
         /// Uses another store file (tests), null for the default one
@@ -71,42 +68,13 @@ namespace Greenshot.Recipes.Approval
         /// <summary>
         /// Computes the SHA-256 hash (lowercase hex) of a given file.
         /// </summary>
-        public static string ComputeSha256(string filePath)
-        {
-            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return null;
-
-            using (var sha = SHA256.Create())
-            using (var stream = File.OpenRead(filePath))
-            {
-                byte[] hash = sha.ComputeHash(stream);
-                var sb = new StringBuilder(hash.Length * 2);
-                foreach (byte b in hash)
-                {
-                    sb.Append(b.ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
+        public static string ComputeSha256(string filePath) => ContentHash.Sha256OfFile(filePath);
 
         /// <summary>
         /// Computes the SHA-256 hash (lowercase hex) of the given bytes: use the bytes that were read once, shown and parsed,
         /// so the approval belongs to exactly what the user saw.
         /// </summary>
-        public static string ComputeSha256(byte[] content)
-        {
-            if (content == null) return null;
-
-            using (var sha = SHA256.Create())
-            {
-                byte[] hash = sha.ComputeHash(content);
-                var sb = new StringBuilder(hash.Length * 2);
-                foreach (byte b in hash)
-                {
-                    sb.Append(b.ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
+        public static string ComputeSha256(byte[] content) => ContentHash.Sha256(content);
 
         /// <summary>
         /// The longest file content kept in a record, to show the changes later
@@ -170,75 +138,9 @@ namespace Greenshot.Recipes.Approval
                 string.Join(",", approval.AllowedGates ?? new List<Greenshot.Base.Recipes.Pipeline.RecipeGateType>()));
         }
 
-        private static Dictionary<string, RecipeTrustRecord> LoadRecords()
-        {
-            if (_records != null) return _records;
+        private static Dictionary<string, RecipeTrustRecord> LoadRecords() => _records ??= RecordFile.Load();
 
-            _records = new Dictionary<string, RecipeTrustRecord>(StringComparer.OrdinalIgnoreCase);
-
-            string path = StoreFilePath;
-            if (!File.Exists(path)) return _records;
-
-            try
-            {
-                byte[] cipherBytes = File.ReadAllBytes(path);
-                byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, Entropy, DataProtectionScope.CurrentUser);
-                string json = Encoding.UTF8.GetString(plainBytes);
-                var list = JsonSerializer.Deserialize<List<RecipeTrustRecord>>(json, GreenshotJson.Options);
-
-                if (list != null)
-                {
-                    foreach (var rec in list)
-                    {
-                        if (!string.IsNullOrEmpty(rec.FilePath))
-                        {
-                            _records[rec.FilePath] = rec;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Kept next to it, the next approval would overwrite it: e.g. a profile copied to another computer can't decrypt it
-                string unreadablePath = path + ".unreadable";
-                Log.Warn($"Failed to read encrypted recipe trust store, it is moved to '{unreadablePath}'; starting with fresh database.", ex);
-                try
-                {
-                    File.Delete(unreadablePath);
-                    File.Move(path, unreadablePath);
-                }
-                catch (Exception moveException)
-                {
-                    Log.Warn("Could not move the unreadable recipe trust store.", moveException);
-                }
-            }
-
-            return _records;
-        }
-
-        private static void SaveRecords()
-        {
-            try
-            {
-                string path = StoreFilePath;
-                string dir = Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
-                var list = new List<RecipeTrustRecord>(_records.Values);
-                string json = JsonSerializer.Serialize(list, GreenshotJson.IndentedOptions);
-                byte[] plainBytes = Encoding.UTF8.GetBytes(json);
-                byte[] cipherBytes = ProtectedData.Protect(plainBytes, Entropy, DataProtectionScope.CurrentUser);
-
-                File.WriteAllBytes(path, cipherBytes);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Failed to save encrypted recipe trust store.", ex);
-            }
-        }
+        private static void SaveRecords() => RecordFile.Save(_records.Values);
 
         /// <summary>
         /// Checks whether the specified recipe file has an approved SHA-256 fingerprint on record.

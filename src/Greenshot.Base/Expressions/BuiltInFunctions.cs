@@ -95,6 +95,9 @@ namespace Greenshot.Base.Expressions
             });
             yield return new ExpressionFunction("replaceMatch", 3, 3, "replaceMatch(text, pattern, new)", "Replace every match of a .NET regular expression ($1 for a group)", a => GetRegex(T(a, 1)).Replace(T(a, 0), T(a, 2)));
 
+            // Web addresses: a value which becomes part of a web address (path or query) can't change the address around it
+            yield return new ExpressionFunction("urlEncode", 1, 1, "urlEncode(text)", "The text for a part of a web address: every character except letters, digits and - _ . ~ encoded (a space as %20)", a => Uri.EscapeDataString(T(a, 0)));
+
             // Paths, on the value only
             yield return new ExpressionFunction("fileName", 1, 1, "fileName(path)", "The file name with extension", a => SafePath(T(a, 0), Path.GetFileName));
             yield return new ExpressionFunction("fileNameWithoutExtension", 1, 1, "fileNameWithoutExtension(path)", "The file name without extension", a => SafePath(T(a, 0), Path.GetFileNameWithoutExtension));

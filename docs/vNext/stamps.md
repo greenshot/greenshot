@@ -14,7 +14,7 @@ The plugin is `Greenshot.Plugin.Stamps`, a **beta** feature of the full Greensho
 
 ### Turn it on
 
-The stamps are only there for beta testers: in the settings, *Expert*, check *Enable to enable beta-test features*
+The stamps are only there for beta testers: in the settings, *Expert*, check *Enable beta-test features*
 (`BetaTester=True` in `[Core]` of greenshot.ini) and restart Greenshot. The installer has them as *Stamps plug-in (beta)*,
 in the full and the custom installation.
 

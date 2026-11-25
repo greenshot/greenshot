@@ -27,6 +27,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Hdr;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp.PixelFormats;
 using Xunit;
 
@@ -436,9 +437,9 @@ namespace Greenshot.Tests.Core
             using var hdrImage = CreateHdrImage(40, 30, Gray(5));
             // A cut, then something drawn over the cut
             var cut = new SixLabors.ImageSharp.Drawing.EllipsePolygon(20, 15, 12, 8);
-            var cutAway = new ImageFilter("Cut", (image, _) => Greenshot.Base.ImageSharpDrawing.CutDrawing.CutAway(image, cut));
+            var cutAway = new ImageFilter("Cut", (image, _) => Greenshot.ImageSharpDrawing.CutDrawing.CutAway(image, cut));
             var area = new NativeRect(10, 5, 20, 20);
-            Action<SixLabors.ImageSharp.Image, Greenshot.Base.ImageSharpDrawing.ImageValues> draw = (image, values) =>
+            Action<SixLabors.ImageSharp.Image, Greenshot.ImageSharpDrawing.ImageValues> draw = (image, values) =>
                 SixLabors.ImageSharp.Processing.ProcessingExtensions.Mutate(image, context =>
                     SixLabors.ImageSharp.Drawing.Processing.DrawPathExtensions.Draw(context, values.ColorOf(new Rgba32(255, 0, 0, 255)), 3f,
                         new SixLabors.ImageSharp.Drawing.RectangularPolygon(2, 2, 16, 16)));

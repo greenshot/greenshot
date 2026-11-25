@@ -138,18 +138,19 @@ namespace Greenshot.Base.Wpf
                     }
 
                     var menu = FindContextMenu(item);
-                    if (item.StaysOpenOnClick || menu == null || PresentationSource.FromVisual(menu) == null)
+                    if (item.StaysOpenOnClick || menu == null || !(PresentationSource.FromVisual(menu) is HwndSource menuWindow))
                     {
                         Run();
                         return;
                     }
 
                     // The menu is closed, but its window stays while it fades out, and it is the active window (see ShowAtCursor).
-                    // A dialog the action shows (e.g. Save as) would belong to it and close with it: the action runs when it's gone.
+                    // A dialog the action shows (e.g. Save as) would belong to it and close with it, and a capture would show it:
+                    // the action runs when the window is gone.
                     void OnClosed(object closedSender, RoutedEventArgs closedArgs)
                     {
                         menu.Closed -= OnClosed;
-                        Run();
+                        RunWhenGone(menuWindow, Run);
                     }
 
                     menu.Closed += OnClosed;
@@ -157,6 +158,48 @@ namespace Greenshot.Base.Wpf
             }
 
             return item;
+        }
+
+        /// <summary>
+        /// The longest wait for the window of a closed menu to go, in case it isn't destroyed (it normally is, after the fade out)
+        /// </summary>
+        private static readonly TimeSpan MenuGoneTimeout = TimeSpan.FromSeconds(1);
+
+        /// <summary>
+        /// Run the action when the window of the closed menu is destroyed: the popup destroys it when the fade out ended
+        /// </summary>
+        private static void RunWhenGone(HwndSource menuWindow, Action action)
+        {
+            if (menuWindow.IsDisposed)
+            {
+                action();
+                return;
+            }
+
+            bool done = false;
+            var timeout = new System.Windows.Threading.DispatcherTimer { Interval = MenuGoneTimeout };
+
+            void RunOnce()
+            {
+                if (done)
+                {
+                    return;
+                }
+                done = true;
+                timeout.Stop();
+                menuWindow.Disposed -= OnDisposed;
+                action();
+            }
+
+            void OnDisposed(object sender, EventArgs args) => RunOnce();
+
+            timeout.Tick += (sender, args) =>
+            {
+                Log.Warn($"The window of the closed menu is still there after {MenuGoneTimeout.TotalMilliseconds} ms, running the action anyway");
+                RunOnce();
+            };
+            menuWindow.Disposed += OnDisposed;
+            timeout.Start();
         }
 
         /// <summary>

@@ -93,7 +93,7 @@ namespace Greenshot.Base.Expressions
             p.Add<string>("source", Trusted, "Where it came from: Screen, Window, Clipboard or file", s => Meta(s, "source")).Available = "a capture or an opened file";
             p.Add<string>("hdr", Trusted, "Available (can be saved as HDR), Lost (an edit removed it) or None", s =>
                 s.Flow?.Payload != null ? HdrOutput.StateOf(s.Flow.Payload) : null).Available = "in a recipe";
-            p.Add<string>("title", Untrusted, "The window title, or the title stored in an opened file", s =>
+            p.Add<string>("title", Untrusted, "The window title (the title fixes of the settings take off the browser name of Firefox, Chrome and Edge), or the title stored in an opened file", s =>
             {
                 string title = CaptureOf(s)?.Title;
                 return string.IsNullOrEmpty(title) ? null : title;

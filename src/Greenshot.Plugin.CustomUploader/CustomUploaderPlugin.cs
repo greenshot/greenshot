@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Definitions;
 using Greenshot.Base.Http;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -88,12 +89,33 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         registry.Register<CustomUploaderStep>(config => new CustomUploaderStep(config, this));
     }
 
-    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) => Task.CompletedTask;
+    /// <summary>
+    /// Like the recipe files: an uploader file added or changed outside Greenshot is left out at the start, once Greenshot runs
+    /// the user sees where it sends the captures and decides whether to use it
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        if (IsEnabled)
+        {
+            DefinitionApprovalAtStartup.AskWhenIdle(CreateStore, ConfirmAtStartup);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static bool ConfirmAtStartup(StoredDefinition<UploaderDefinition> stored) =>
+        DefinitionImport.Confirm(null, CustomUploaderSettingsViewModel.DescribeApproval(stored.Definition, CreateStore(), stored.Id),
+            new[] { Language.ApproveButton, Language.ApproveLater }) == 0;
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
-    /// The uploaders and uploads of the configuration, empty before the plugin registered it
+    /// The folder of the uploaders, next to greenshot.ini: one .sxcu file per uploader, the keys in it encrypted
+    /// </summary>
+    internal static string FolderPath => DefinitionFolder.NextToConfiguration("Uploaders");
+
+    /// <summary>
+    /// The uploaders of the Uploaders folder and the uploads of the configuration, empty before the plugin registered it
     /// </summary>
     internal static UploaderStore CreateStore()
     {
@@ -104,7 +126,7 @@ public class CustomUploaderPlugin : IGreenshotPlugin, IConfigurablePlugin, IReci
         }
 
         config.OnAfterLoad();
-        return new UploaderStore(config.Uploaders, config.UploadHistory, () =>
+        return new UploaderStore(DefinitionFolder.Open(FolderPath, UploaderFile.FileExtension, UploaderFile.MaximumLength), config.UploadHistory, () =>
         {
             config.MarkChanged();
             // Saved at once: an import is confirmed, and a deletion link must not get lost

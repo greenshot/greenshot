@@ -1,4 +1,5 @@
 using System;
+using Greenshot.Base.Controls;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1027,35 +1028,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void BrowseFile()
         {
-            var ofd = new Microsoft.Win32.OpenFileDialog();
-            if (IsCursorType)
+            string chosenFile = IsCursorType
+                ? FileDialogs.PickFileToOpen(IntPtr.Zero, Texts.Get<IRecipeEditorLanguage>().FilterCursorImage + "|*.cur;*.ico;*.png" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*", Texts.Get<IRecipeEditorLanguage>().TitleSelectCursor)
+                : FileDialogs.PickFileToOpen(IntPtr.Zero, Texts.Get<IRecipeEditorLanguage>().FilterImage + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico;*.svg" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*", Texts.Get<IRecipeEditorLanguage>().TitleSelectImage);
+            if (chosenFile != null)
             {
-                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectCursor;
-                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterCursorImage + "|*.cur;*.ico;*.png" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
-            }
-            else
-            {
-                ofd.Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectImage;
-                ofd.Filter = Texts.Get<IRecipeEditorLanguage>().FilterImage + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico;*.svg" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*";
-            }
-
-            if (ofd.ShowDialog() == true)
-            {
-                FilePath = ofd.FileName;
+                FilePath = chosenFile;
                 try
                 {
-                    if (IsImageType && System.IO.File.Exists(ofd.FileName) && string.Equals(Path.GetExtension(ofd.FileName), ".svg", StringComparison.OrdinalIgnoreCase))
+                    if (IsImageType && System.IO.File.Exists(chosenFile) && string.Equals(Path.GetExtension(chosenFile), ".svg", StringComparison.OrdinalIgnoreCase))
                     {
                         // An SVG stays a vector: the file is embedded as it is
                         LockAspectRatio = true;
                         if (IsEmbedMode)
                         {
-                            ImageData = Convert.ToBase64String(File.ReadAllBytes(ofd.FileName));
+                            ImageData = Convert.ToBase64String(File.ReadAllBytes(chosenFile));
                         }
                     }
-                    else if (IsImageType && System.IO.File.Exists(ofd.FileName))
+                    else if (IsImageType && System.IO.File.Exists(chosenFile))
                     {
-                        using var img = System.Drawing.Image.FromFile(ofd.FileName);
+                        // Through a stream: GDI+ can't open a path longer than 260 characters
+                        using var imageStream = File.OpenRead(chosenFile);
+                        using var img = System.Drawing.Image.FromStream(imageStream);
                         if (img.Width > 0 && img.Height > 0)
                         {
                             _aspectRatio = (double)img.Width / img.Height;
@@ -1072,11 +1066,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             ImageData = Convert.ToBase64String(ms.ToArray());
                         }
                     }
-                    else if (IsCursorType && System.IO.File.Exists(ofd.FileName))
+                    else if (IsCursorType && System.IO.File.Exists(chosenFile))
                     {
                         if (IsCursorEmbedMode || IsEmbedMode)
                         {
-                            byte[] bytes = File.ReadAllBytes(ofd.FileName);
+                            byte[] bytes = File.ReadAllBytes(chosenFile);
                             ImageData = Convert.ToBase64String(bytes);
                         }
                     }
@@ -1721,47 +1715,30 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ImportFromGreenshotFileCommand = new RelayCommand(ExecuteImportFromGreenshotFile);
             BrowseSaveDirectoryCommand = new RelayCommand(() =>
             {
-                using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
+                // The folder as it is now, as a start for the dialog; null when it uses values only a capture has
+                string initialDirectory = string.IsNullOrEmpty(SaveDirectory) ? null : Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SaveDirectory, Greenshot.Base.Expressions.VariableScope.Empty, out _);
+                string folder = FileDialogs.PickFolder(null, Texts.Get<IRecipeEditorLanguage>().TitleSelectCaptureFolder, initialDirectory);
+                if (folder != null)
                 {
-                    dlg.Description = Texts.Get<IRecipeEditorLanguage>().TitleSelectCaptureFolder;
-                    dlg.ShowNewFolderButton = true;
-                    if (!string.IsNullOrEmpty(SaveDirectory))
-                    {
-                        // The folder as it is now, as a start for the dialog; null when it uses values only a capture has
-                        dlg.SelectedPath = Greenshot.Base.Expressions.OutputTemplates.RenderFolder(SaveDirectory, Greenshot.Base.Expressions.VariableScope.Empty, out _) ?? string.Empty;
-                    }
-                    if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        SaveDirectory = dlg.SelectedPath;
-                    }
+                    SaveDirectory = folder;
                 }
             });
 
             BrowseExternalExecutableCommand = new RelayCommand(() =>
             {
-                var dlg = new Microsoft.Win32.OpenFileDialog
+                string executable = FileDialogs.PickFileToOpen(IntPtr.Zero, Texts.Get<IRecipeEditorLanguage>().FilterExecutable + "|*.exe;*.cmd;*.bat;*.ps1;*.vbs" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*", Texts.Get<IRecipeEditorLanguage>().TitleSelectExecutable);
+                if (executable != null)
                 {
-                    Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectExecutable,
-                    Filter = Texts.Get<IRecipeEditorLanguage>().FilterExecutable + "|*.exe;*.cmd;*.bat;*.ps1;*.vbs" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
-                    CheckFileExists = true
-                };
-                if (dlg.ShowDialog() == true)
-                {
-                    ExternalCommandLine = dlg.FileName;
+                    ExternalCommandLine = executable;
                 }
             });
 
             BrowseSoundFileCommand = new RelayCommand(() =>
             {
-                var dlg = new Microsoft.Win32.OpenFileDialog
+                string soundFile = FileDialogs.PickFileToOpen(IntPtr.Zero, Texts.Get<IRecipeEditorLanguage>().FilterWave + "|*.wav" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAudio + "|*.wav;*.mp3" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*", Texts.Get<IRecipeEditorLanguage>().TitleSelectSound);
+                if (soundFile != null)
                 {
-                    Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectSound,
-                    Filter = Texts.Get<IRecipeEditorLanguage>().FilterWave + "|*.wav" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAudio + "|*.wav;*.mp3" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
-                    CheckFileExists = true
-                };
-                if (dlg.ShowDialog() == true)
-                {
-                    SoundFilePath = dlg.FileName;
+                    SoundFilePath = soundFile;
                 }
             });
 
@@ -2211,18 +2188,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ExecuteImportFromGreenshotFile()
         {
-            var ofd = new Microsoft.Win32.OpenFileDialog
-            {
-                Title = Texts.Get<IRecipeEditorLanguage>().TitleSelectGreenshotFile,
-                Filter = Texts.Get<IRecipeEditorLanguage>().FilterGreenshot + "|*.greenshot" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*",
-                CheckFileExists = true
-            };
-
-            if (ofd.ShowDialog() == true)
+            string greenshotFile = FileDialogs.PickFileToOpen(IntPtr.Zero, Texts.Get<IRecipeEditorLanguage>().FilterGreenshot + "|*.greenshot" + "|" + Texts.Get<IRecipeEditorLanguage>().FilterAllFiles + "|*.*", Texts.Get<IRecipeEditorLanguage>().TitleSelectGreenshotFile);
+            if (greenshotFile != null)
             {
                 try
                 {
-                    var surface = EditorAnnotationImporter.LoadSurfaceFromGreenshotFile(ofd.FileName);
+                    var surface = EditorAnnotationImporter.LoadSurfaceFromGreenshotFile(greenshotFile);
                     var items = EditorAnnotationImporter.AnalyzeSurfaceElements(surface);
                     if (items.Count == 0)
                     {
@@ -2230,7 +2201,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return;
                     }
 
-                    string sourceTitle = System.IO.Path.GetFileName(ofd.FileName);
+                    string sourceTitle = System.IO.Path.GetFileName(greenshotFile);
                     string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
 
                     var ownerWin = GetActiveWindow();
@@ -2912,6 +2883,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("Window", value); OnPropertyChanged(nameof(OpenWindowWindow)); OnPropertyChanged(nameof(Summary)); }
         }
 
+        // --- Delay Step ---
+        public string DelaySeconds
+        {
+            get => GetParam("Seconds", "5");
+            set { SetNumberParam("Seconds", value); OnPropertyChanged(nameof(DelaySeconds)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool DelayAskUser
+        {
+            get => GetParamBool("AskUser", false);
+            set { SetParam("AskUser", value); OnPropertyChanged(nameof(DelayAskUser)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool DelayShowCountdown
+        {
+            get => GetParamBool("ShowCountdown", true);
+            set { SetParam("ShowCountdown", value); OnPropertyChanged(nameof(DelayShowCountdown)); }
+        }
+
         public string StderrExitCode
         {
             get => GetParam("ExitCode", "1");
@@ -3437,14 +3427,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         // --- 13. ExternalCommand Step ---
         public string ExternalCommandLine
         {
-            get => GetParam("CommandLine", "");
-            set { SetParam("CommandLine", value); OnPropertyChanged(nameof(ExternalCommandLine)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Program", "");
+            set { SetParamOrRemoveIfEmpty("Program", value); OnPropertyChanged(nameof(ExternalCommandLine)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string ExternalCommandArguments
         {
-            get => GetParam("Arguments", "{0}");
-            set { SetParam("Arguments", value); OnPropertyChanged(nameof(ExternalCommandArguments)); OnPropertyChanged(nameof(Summary)); }
+            get => GetParam("Arguments", "");
+            set { SetParamOrRemoveIfEmpty("Arguments", value); OnPropertyChanged(nameof(ExternalCommandArguments)); OnPropertyChanged(nameof(Summary)); }
         }
 
         public string ExternalCommandFormat
@@ -3459,53 +3449,83 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("RunInBackground", value); OnPropertyChanged(nameof(ExternalCommandRunInBackground)); }
         }
 
-        public bool ExternalCommandOutputToClipboard
-        {
-            get => GetParamBool("OutputToClipboard", false);
-            set { SetParam("OutputToClipboard", value); OnPropertyChanged(nameof(ExternalCommandOutputToClipboard)); }
-        }
-
-        public bool ExternalCommandUriToClipboard
-        {
-            get => GetParamBool("UriToClipboard", false);
-            set { SetParam("UriToClipboard", value); OnPropertyChanged(nameof(ExternalCommandUriToClipboard)); }
-        }
-
-        public bool ExternalCommandReloadAfterExecution
-        {
-            get => GetParamBool("ReloadAfterExecution", false);
-            set { SetParam("ReloadAfterExecution", value); OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution)); }
-        }
-
         public string ExternalCommandWorkingDirectory
         {
             get => GetParam("WorkingDirectory", "");
             set { SetParamOrRemoveIfEmpty("WorkingDirectory", value); OnPropertyChanged(nameof(ExternalCommandWorkingDirectory)); }
         }
 
-        public string ExternalCommandSetOutputVariable
-        {
-            get => GetParam("OutputVariable", "");
-            set { SetParamOrRemoveIfEmpty("OutputVariable", value); OnPropertyChanged(nameof(ExternalCommandSetOutputVariable)); }
-        }
-
-        /// <summary>Name of a command configured in the External Command settings; when set, CommandLine and Arguments are not used.</summary>
+        /// <summary>Name of a command configured in the External Command settings; its program, arguments and settings are the defaults.</summary>
         public string ExternalCommandCommand
         {
             get => GetParam("Command", "");
             set { SetParamOrRemoveIfEmpty("Command", value); OnPropertyChanged(nameof(ExternalCommandCommand)); OnPropertyChanged(nameof(Summary)); }
         }
 
-        public string ExternalCommandVerb
+        /// <summary>The file handed to the command: New, LastExport or None (empty: New)</summary>
+        public string ExternalCommandFile
         {
-            get => GetParam("Verb", "");
-            set { SetParamOrRemoveIfEmpty("Verb", value); OnPropertyChanged(nameof(ExternalCommandVerb)); }
+            get => GetParam("File", "");
+            set { SetParamOrRemoveIfEmpty("File", value); OnPropertyChanged(nameof(ExternalCommandFile)); }
         }
 
-        public string ExternalCommandSetExitCodeVariable
+        /// <summary>What the command gets on standard input: None, Image or Text (empty: None)</summary>
+        public string ExternalCommandStandardInput
         {
-            get => GetParam("ExitCodeVariable", "");
-            set { SetParamOrRemoveIfEmpty("ExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
+            get => GetParam("StandardInput", "");
+            set
+            {
+                SetParamOrRemoveIfEmpty("StandardInput", value);
+                OnPropertyChanged(nameof(ExternalCommandStandardInput));
+                OnPropertyChanged(nameof(ExternalCommandHasStandardInputText));
+            }
+        }
+
+        public bool ExternalCommandHasStandardInputText => string.Equals(ExternalCommandStandardInput, "Text", StringComparison.OrdinalIgnoreCase);
+
+        public string ExternalCommandStandardInputText
+        {
+            get => GetParam("StandardInputText", "");
+            set { SetParamOrRemoveIfEmpty("StandardInputText", value); OnPropertyChanged(nameof(ExternalCommandStandardInputText)); }
+        }
+
+        /// <summary>What the standard output is: Text, Image, File or None (empty: Text)</summary>
+        public string ExternalCommandOutput
+        {
+            get => GetParam("Output", "");
+            set { SetParamOrRemoveIfEmpty("Output", value); OnPropertyChanged(nameof(ExternalCommandOutput)); }
+        }
+
+        /// <summary>The results are var.&lt;ResultName&gt;.*</summary>
+        public string ExternalCommandResultName
+        {
+            get => GetParam("ResultName", "");
+            set { SetParamOrRemoveIfEmpty("ResultName", value); OnPropertyChanged(nameof(ExternalCommandResultName)); }
+        }
+
+        /// <summary>None, Output or Url (empty: None, or the settings of a configured command)</summary>
+        public string ExternalCommandCopyToClipboard
+        {
+            get => GetParam("CopyToClipboard", "");
+            set { SetParamOrRemoveIfEmpty("CopyToClipboard", value); OnPropertyChanged(nameof(ExternalCommandCopyToClipboard)); }
+        }
+
+        public string ExternalCommandSuccessExitCodes
+        {
+            get => GetParam("SuccessExitCodes", "");
+            set { SetParamOrRemoveIfEmpty("SuccessExitCodes", value); OnPropertyChanged(nameof(ExternalCommandSuccessExitCodes)); }
+        }
+
+        public string ExternalCommandTimeout
+        {
+            get => GetParam("Timeout", "");
+            set { SetNumberParam("Timeout", value); OnPropertyChanged(nameof(ExternalCommandTimeout)); }
+        }
+
+        public string ExternalCommandEncoding
+        {
+            get => GetParam("Encoding", "");
+            set { SetParamOrRemoveIfEmpty("Encoding", value); OnPropertyChanged(nameof(ExternalCommandEncoding)); }
         }
 
         // --- 15. Jira Step ---
@@ -3994,6 +4014,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             : string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryShowInExplorer, ShowInExplorerPath);
                     case WellKnownStepTypes.OpenWindow:
                         return string.Format(Texts.Get<IRecipeEditorLanguage>().SummaryOpenWindow, OpenWindowWindow);
+                    case WellKnownStepTypes.Delay:
+                        return string.Format(DelayAskUser ? Texts.Get<IRecipeEditorLanguage>().SummaryDelayAsk : Texts.Get<IRecipeEditorLanguage>().SummaryDelay, DelaySeconds);
                     case WellKnownStepTypes.Stderr:
                         return string.Format(StderrAbort ? Texts.Get<IRecipeEditorLanguage>().SummaryStderrAbort : Texts.Get<IRecipeEditorLanguage>().SummaryStderr, StderrExitCode, OutputText);
                     case WellKnownStepTypes.Conditional:
@@ -4109,12 +4131,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ExternalCommandArguments));
             OnPropertyChanged(nameof(ExternalCommandFormat));
             OnPropertyChanged(nameof(ExternalCommandRunInBackground));
-            OnPropertyChanged(nameof(ExternalCommandOutputToClipboard));
-            OnPropertyChanged(nameof(ExternalCommandUriToClipboard));
-            OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution));
             OnPropertyChanged(nameof(ExternalCommandWorkingDirectory));
-            OnPropertyChanged(nameof(ExternalCommandSetOutputVariable));
-            OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable));
+            OnPropertyChanged(nameof(ExternalCommandFile));
+            OnPropertyChanged(nameof(ExternalCommandStandardInput));
+            OnPropertyChanged(nameof(ExternalCommandHasStandardInputText));
+            OnPropertyChanged(nameof(ExternalCommandStandardInputText));
+            OnPropertyChanged(nameof(ExternalCommandOutput));
+            OnPropertyChanged(nameof(ExternalCommandResultName));
+            OnPropertyChanged(nameof(ExternalCommandCopyToClipboard));
+            OnPropertyChanged(nameof(ExternalCommandSuccessExitCodes));
+            OnPropertyChanged(nameof(ExternalCommandTimeout));
+            OnPropertyChanged(nameof(ExternalCommandEncoding));
             OnPropertyChanged(nameof(JiraIssueKey));
             OnPropertyChanged(nameof(JiraFormat));
             OnPropertyChanged(nameof(JiraJpegQuality));
@@ -4133,13 +4160,15 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OutputText));
             OnPropertyChanged(nameof(ShowInExplorerPath));
             OnPropertyChanged(nameof(OpenWindowWindow));
+            OnPropertyChanged(nameof(DelaySeconds));
+            OnPropertyChanged(nameof(DelayAskUser));
+            OnPropertyChanged(nameof(DelayShowCountdown));
             OnPropertyChanged(nameof(StderrExitCode));
             OnPropertyChanged(nameof(StderrAbort));
             OnPropertyChanged(nameof(IsFileSource));
             OnPropertyChanged(nameof(SourceFilename));
             OnPropertyChanged(nameof(WindowMatchCase));
             OnPropertyChanged(nameof(ExternalCommandCommand));
-            OnPropertyChanged(nameof(ExternalCommandVerb));
             OnPropertyChanged(nameof(PlaySound));
             OnPropertyChanged(nameof(DestinationEditor));
             OnPropertyChanged(nameof(DestinationClipboard));

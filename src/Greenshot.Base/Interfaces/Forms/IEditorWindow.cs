@@ -25,7 +25,7 @@ namespace Greenshot.Base.Interfaces.Forms
 {
     /// <summary>
     /// An editor window as a plugin sees it, without the UI toolkit of the editor: to place a window of its own next to it
-    /// and to add elements to the capture which is shown. The window of <see cref="Plugin.IEditorPlugin.InitializeEditor"/> implements it.
+    /// and to add elements to the capture which is shown. Panels and sections get it as <see cref="Editor.IEditorPanelContext.Window"/>.
     /// </summary>
     public interface IEditorWindow
     {

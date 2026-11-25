@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Hdr;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -287,26 +288,27 @@ namespace Greenshot.Editor.Drawing.Filters
             }
             return new ImageFilter($"Pixelate {blocks.Count} blocks like the 8-bit image", (pixels, _) =>
             {
-                var values = new Vector4[area.Width * area.Height];
-                pixels.Mutate(context => context.ProcessPixelRowsAsVector4((row, start) =>
-                    row.CopyTo(values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length)), area));
+                // The area as float pixels (pooled, not one Vector4 array on the LOH), the blocks are averaged row by row
+                using var values = FloatPixels.Of(pixels, area);
                 foreach (var block in blocks)
                 {
                     var sum = Vector4.Zero;
                     for (int y = block.Top; y < block.Bottom; y++)
                     {
+                        var row = FloatPixels.Vectors(values, y);
                         for (int x = block.Left; x < block.Right; x++)
                         {
-                            sum += values[y * area.Width + x];
+                            sum += row[x];
                         }
                     }
                     var average = sum / (block.Width * block.Height);
                     for (int y = block.Top; y < block.Bottom; y++)
                     {
+                        var row = FloatPixels.Vectors(values, y);
                         for (int x = block.Left; x < block.Right; x++)
                         {
-                            int index = y * area.Width + x;
-                            values[index] = new Vector4(average.X * noise[index].X, average.Y * noise[index].Y, average.Z * noise[index].Z, average.W);
+                            var factor = noise[y * area.Width + x];
+                            row[x] = new Vector4(average.X * factor.X, average.Y * factor.Y, average.Z * factor.Z, average.W);
                         }
                     }
                 }
@@ -316,7 +318,7 @@ namespace Greenshot.Editor.Drawing.Filters
                     foreach (var target in areas.Select(part => Rectangle.Intersect(part, area)).Where(part => part.Width > 0 && part.Height > 0))
                     {
                         context.ProcessPixelRowsAsVector4((row, start) =>
-                            values.AsSpan((start.Y - area.Y) * area.Width + start.X - area.X, row.Length).CopyTo(row), target);
+                            FloatPixels.Vectors(values, start.Y - area.Y).Slice(start.X - area.X, row.Length).CopyTo(row), target);
                     }
                 });
             });

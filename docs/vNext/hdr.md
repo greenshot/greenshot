@@ -69,7 +69,8 @@ flowchart TD
 
 ## 1. Capturing
 
-Only the DirectX way of taking screenshots can see HDR (*Take screenshots with DirectX* on the Expert tab). A backend which can
+Only the DirectX way of taking screenshots can see HDR (*Take screenshots with DirectX* on the Expert tab); while it is off, the
+setting *Keep the HDR content of HDR displays* is greyed out. A backend which can
 deliver HDR implements `IHdrScreenCaptureBackend` (`GraphicsCaptureBackend`). Windows.Graphics.Capture delivers each HDR display as
 an FP16 texture in scRGB: linear light with the sRGB primaries, where 1.0 is 80 nits. Values above the SDR white level of the
 display are highlights.
@@ -201,7 +202,7 @@ elements on the UI thread, and work on any pixel type in the values of the image
 pool, here on the HDR image:
 
 - **Draw:** an element drawn with ImageSharp on the HDR pixels (`ElementDrawing`, using the routines in
-  Greenshot.Base/ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
+  Greenshot.ImageSharpDrawing). This covers every element type of the editor, also torn edges, cut marks and the mouse cursor.
   An element of another type (e.g. of a plugin) is drawn when it draws itself with ImageSharp (`IHdrDrawable`). The barcode of the Zxing
   plugin does: its layout (the modules from the matrix of ZXing.Net, `BarcodeLayout`) is drawn with GDI+ for the editor and with
   ImageSharp for the HDR file, the same way.
@@ -257,8 +258,8 @@ toward dropping System.Drawing.
 | HDR pixels of a capture | `Greenshot.Base/Hdr/HdrImage.cs`, `HdrParts.cs`, `HdrState.cs` (namespace `Greenshot.Base.Hdr`) |
 | Capturing HDR | `Greenshot.Base/Capturing/IHdrScreenCaptureBackend.cs`, `GraphicsCaptureBackend.cs`, `Native/WindowsGraphicsCaptureInterop.cs` |
 | HDR content and tone mapping | `Greenshot.Base/Hdr/HdrContent.cs`; with Direct3D: `Greenshot.Base/Native/HdrToneMapper.cs`, `HdrImageToneMapping.cs`, `HdrDisplayInfo.cs` |
-| Remembered edits | `Greenshot.Base/Effects/ImageEdits.cs`, `LinearColorEffects.cs`, `FloatPixels.cs` |
-| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/` (`ImageSharpStep.cs`, `ImageSharpSteps.cs`, `RoomDrawing.cs`, ...), `Greenshot.Base/Interfaces/Drawing/IHdrDrawable.cs`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
+| Remembered edits | `Greenshot.Base/Effects/ImageEdits.cs`, `Greenshot.ImageSharpDrawing/LinearColorEffects.cs`, `FloatPixels.cs` |
+| Elements on HDR pixels | `Greenshot.Base/ImageSharpDrawing/` (`ImageSharpStep.cs`, `ImageSharpSteps.cs`), `Greenshot.ImageSharpDrawing/` (`RoomDrawing.cs`, `Shapes.cs`, ...), `Greenshot.Base/Interfaces/Drawing/IHdrDrawable.cs`, `Greenshot.Editor/Drawing/ElementDrawing.cs`, `Greenshot.Editor/Drawing/Filters/ElementImageFilters.cs` |
 | Writing and reading files | `Greenshot.Base/Hdr/HdrExport.cs`, `Greenshot.Editor/FileFormatHandlers/WicHdrImageEncoder.cs`, `WicHdrImageDecoder.cs` |
 | Recipes | `Greenshot.Base/Recipes/HdrOutput.cs`, the `Source`, `SaveFile` and `Notification` steps |
 

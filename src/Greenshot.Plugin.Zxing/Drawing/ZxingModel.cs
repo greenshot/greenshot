@@ -23,13 +23,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Windows.Forms;
-using Greenshot.Base.Interfaces.Drawing;
-using Greenshot.Plugin.Zxing.Views;
+using System.Reflection;
 
 namespace Greenshot.Plugin.Zxing.Drawing
 {
-    public class ZxingModel : IDoubleClickHandler
+    /// <summary>
+    /// What a barcode shows: format, content and look. The fields are the state of the barcode view (BarcodeEditorViewModel).
+    /// </summary>
+    public class ZxingModel
     {
         /// <summary>
         /// The amount of an EPC payment code ("EUR12.30"): a decimal point or comma, the same in every Windows language;
@@ -199,29 +200,21 @@ namespace Greenshot.Plugin.Zxing.Drawing
             }
         }
 
-        public void OnDoubleClick(IDrawableContainer container)
-        {
-            Form ownerForm = null;
-            if (container.Parent is Control ctrl)
-            {
-                ownerForm = ctrl.FindForm();
-            }
+        /// <summary>
+        /// A copy with the same values, e.g. the state before a change for undo
+        /// </summary>
+        public ZxingModel Clone() => (ZxingModel)MemberwiseClone();
 
-            var window = new ZxingEditorWindow(this);
-            if (window.ShowDialog(ownerForm) == true)
+        /// <summary>
+        /// Take all values of another model, e.g. to undo a change while the same model stays the one of the barcode
+        /// </summary>
+        public void CopyFrom(ZxingModel other)
+        {
+            foreach (var property in typeof(ZxingModel).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                window.PopulateModel(this);
-                if (container is BarcodeContainer barcodeContainer)
+                if (property.CanRead && property.CanWrite)
                 {
-                    barcodeContainer.RegenerateBarcode();
-                    barcodeContainer.Invalidate();
-                }
-                else if (container is IImageContainer imageContainer && window.GeneratedBitmap != null)
-                {
-                    imageContainer.Image = window.GeneratedBitmap;
-                    imageContainer.Width = window.GeneratedBitmap.Width;
-                    imageContainer.Height = window.GeneratedBitmap.Height;
-                    imageContainer.Invalidate();
+                    property.SetValue(this, property.GetValue(other));
                 }
             }
         }

@@ -94,7 +94,7 @@ public abstract class DefinitionIconProvider<T> : IIconProvider where T : class
         StoredDefinition<T> single = null;
         foreach (var stored in store.GetAll())
         {
-            if (stored.Definition == null) continue;
+            if (!stored.IsUsable) continue;
             if (single != null) return null;
             single = stored;
         }

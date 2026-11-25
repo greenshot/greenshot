@@ -99,7 +99,7 @@ public class AtlassianPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeSte
         services.AddSettingsView<AtlassianSettingsViewModel>(settings => new AtlassianConfigurationView(settings));
     }
 
-    public object CreateSettingsViewModel(IServiceProvider services) => new AtlassianSettingsViewModel(_jiraConfig, _confluenceConfig);
+    public object CreateSettingsViewModel(IServiceProvider services) => new AtlassianSettingsViewModel(services.SettingsSection(_jiraConfig), services.SettingsSection(_confluenceConfig));
 
     /// <summary>
     /// Registers the recipe steps of Jira and Confluence.

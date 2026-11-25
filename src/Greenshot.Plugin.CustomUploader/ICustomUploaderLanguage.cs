@@ -47,9 +47,9 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     string NoLink { get; }
 
     /// <summary>
-    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps it encrypted.
+    /// Upload your captures to a service of your choice: import the uploader file (.sxcu) the service offers, the same file ShareX uses. Greenshot asks before it imports a file, and keeps the keys in it encrypted.
     /// </summary>
-    string SettingsDescription { get; }
+    string SettingsIntro { get; }
 
     /// <summary>
     /// Uploaders
@@ -100,6 +100,41 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// Can't be read, import it again
     /// </summary>
     string Unreadable { get; }
+
+    /// <summary>
+    /// Not approved: {0}
+    /// </summary>
+    string NotApproved { get; }
+
+    /// <summary>
+    /// An uploader file Greenshot wrote which was changed outside Greenshot is only used after you approve it: Greenshot asks when it starts, or approve it here. A file copied into the Uploaders folder is ignored, import it.
+    /// </summary>
+    string ApprovalHint { get; }
+
+    /// <summary>
+    /// Approve...
+    /// </summary>
+    string Approve { get; }
+
+    /// <summary>
+    /// Approve
+    /// </summary>
+    string ApproveButton { get; }
+
+    /// <summary>
+    /// Not now
+    /// </summary>
+    string ApproveLater { get; }
+
+    /// <summary>
+    /// Approve an uploader
+    /// </summary>
+    string ApproveTitle { get; }
+
+    /// <summary>
+    /// The uploader "{0}" was added or changed outside Greenshot. Use it?\n\nWhen you choose it, Greenshot sends your capture to {1}.
+    /// </summary>
+    string ApproveQuestion { get; }
 
     /// <summary>
     /// Uploader files (*.sxcu)|*.sxcu|All files (*.*)|*.*
@@ -325,4 +360,14 @@ public interface ICustomUploaderLanguage : INotifyPropertyChanged
     /// "{0}" isn't part of Greenshot: it comes from an uploader file you imported, ... ask {1} or whoever made the file, the details help them.
     /// </summary>
     string UploadFailedNote { get; }
+
+    /// <summary>
+    /// Custom uploader
+    /// </summary>
+    string KindUploader { get; }
+
+    /// <summary>
+    /// File
+    /// </summary>
+    string ApprovalFile { get; }
 }

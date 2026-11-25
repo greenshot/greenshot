@@ -81,7 +81,7 @@ empty text). *Trusted* values may choose a folder or a program (see Where a text
 | `payload.ocr.text` | text | after an OCR or barcode step | no | The text found by OCR or a barcode |
 | `payload.source` | text | a capture or an opened file | yes | Where it came from: Screen, Window, Clipboard or file |
 | `payload.time` | date and time | always (the time now without a capture) | yes | When it was taken; for an opened file the time stored in the file, else the file's time |
-| `payload.title` | text | a window capture, or an opened file with a title | no | The window title, or the title stored in an opened file |
+| `payload.title` | text | a window capture, or an opened file with a title | no | The window title (the title fixes of the settings take off the browser name of Firefox, Chrome and Edge), or the title stored in an opened file |
 | `payload.url` | text | a capture with a web address (browser extension, opened file) | no | The web address stored with the capture |
 | `payload.video.file` | text | after a video recording | yes | The file of a video recording |
 | `payload.width` | number | a capture or an opened file | yes | The width of the image in pixels (now, after cropping or resizing) |
@@ -113,6 +113,7 @@ empty text). *Trusted* values may choose a folder or a program (see Where a text
 |---|---|
 | Text | `left(t, n)`, `right(t, n)`, `substring(t, start, length?)`, `replace(t, old, new)`, `lower(t)`, `upper(t)`, `trim(t)`, `padLeft(t, n, c?)`, `padRight(t, n, c?)`, `length(t)`, `contains(t, x)`, `startsWith(t, x)`, `endsWith(t, x)` |
 | Patterns | `match(t, pattern, group?)`, `replaceMatch(t, pattern, new)` (.NET regular expressions, 250 ms limit) |
+| Web addresses | `urlEncode(t)` (for a part of a web address, e.g. `https://crm.example.com/customers/${urlEncode(var.Found)}`) |
 | Paths | `fileName(p)`, `fileNameWithoutExtension(p)`, `extension(p)`, `folder(p)`; they never touch the disk |
 | Numbers | `round(n, digits?)`, `floor(n)`, `ceiling(n)`, `min(a, b)`, `max(a, b)`, `abs(n)` |
 | Date and time | `addDays(d, n)`, `addHours(d, n)`, `addMinutes(d, n)`, `isoWeek(d)`, `date(text, format)` |

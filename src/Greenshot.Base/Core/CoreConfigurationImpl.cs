@@ -328,6 +328,8 @@ namespace Greenshot.Base.Core
             MoveTrayClickAction("LeftClickAction", nameof(TrayClickRecipe), value => TrayClickRecipe = value);
             MoveTrayClickAction("DoubleClickAction", nameof(TrayDoubleClickRecipe), value => TrayDoubleClickRecipe = value);
 
+            MoveCaptureDelay();
+
             // Prevent both settings at once, bug #3435056
             if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
             {
@@ -385,17 +387,7 @@ namespace Greenshot.Base.Core
                     : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
             }
 
-            ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
-            if (TitleFixMatcher == null || TitleFixMatcher.Count == 0)
-            {
-                SetRawValue("TitleFixMatcher.Firefox", " - Mozilla Firefox.*");
-                SetRawValue("TitleFixMatcher.Chrome", " - Google Chrome.*");
-            }
-            if (TitleFixReplacer == null || TitleFixReplacer.Count == 0)
-            {
-                SetRawValue("TitleFixReplacer.Firefox", string.Empty);
-                SetRawValue("TitleFixReplacer.Chrome", string.Empty);
-            }
+            AddBuiltInTitleFixes();
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
             ExcludePluginNames ??= new List<string>();
@@ -478,6 +470,100 @@ namespace Greenshot.Base.Core
             catch (Exception ex)
             {
                 Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
+        }
+
+        /// <summary>
+        /// The default of the CaptureDelay of earlier versions: only the time a menu needed to close, the menu waits for that itself now
+        /// </summary>
+        internal const int OldDefaultCaptureDelay = 100;
+
+        /// <summary>
+        /// CaptureDelay (milliseconds before every capture, default 100) is replaced by CaptureWait and CaptureWaitMilliseconds.
+        /// A value other than the old default was chosen by the user: it is moved once. CaptureWaitCountdown stays as it is: a wait
+        /// shorter than a second never shows the countdown, and a longer one chosen later should.
+        /// </summary>
+        private void MoveCaptureDelay()
+        {
+            const string oldKey = "CaptureDelay";
+            string rawValue;
+            try
+            {
+                rawValue = GetRawValue(oldKey);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't read {oldKey}", ex);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(rawValue))
+            {
+                return;
+            }
+
+            if (int.TryParse(rawValue.Trim(), out int delay) && delay > 0 && delay != OldDefaultCaptureDelay
+                && !IsConstant(nameof(CaptureWait)) && !IsConstant(nameof(CaptureWaitMilliseconds)))
+            {
+                CaptureWait = true;
+                CaptureWaitMilliseconds = Clamp(delay, 0, 600000);
+                Log.InfoFormat("Moved {0}={1} to {2} and {3}.", oldKey, delay, nameof(CaptureWait), nameof(CaptureWaitMilliseconds));
+            }
+
+            // Moved only once: an empty value is not moved again
+            try
+            {
+                SetRawValue(oldKey, string.Empty);
+                MarkAsDirty();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Couldn't clear {oldKey}", ex);
+            }
+        }
+
+        /// <summary>
+        /// The title fixes Greenshot brings, by name: the regular expression and its replacement.
+        /// Edge adds "and 12 more pages" (in its language) and the profile name, see <see cref="EdgeWindowTitle"/>.
+        /// </summary>
+        internal static readonly IReadOnlyList<(string Name, string Matcher, string Replacer)> BuiltInTitleFixes = new[]
+        {
+            ("Firefox", " - Mozilla Firefox.*", string.Empty),
+            ("Chrome", " - Google Chrome.*", string.Empty),
+            ("Edge", EdgeWindowTitle.Matcher, string.Empty),
+        };
+
+        /// <summary>
+        /// Add each built-in title fix whose matcher isn't in the settings yet, also to a file of an earlier version, and switch it on.
+        /// A fix that is taken out of ActiveTitleFixes stays off, as its matcher stays.
+        /// </summary>
+        private void AddBuiltInTitleFixes()
+        {
+            ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
+            TitleFixMatcher ??= new Dictionary<string, string>();
+            TitleFixReplacer ??= new Dictionary<string, string>();
+            bool changed = false;
+            foreach (var (name, matcher, replacer) in BuiltInTitleFixes)
+            {
+                if (TitleFixMatcher.ContainsKey(name))
+                {
+                    continue;
+                }
+                TitleFixMatcher[name] = matcher;
+                if (!TitleFixReplacer.ContainsKey(name))
+                {
+                    TitleFixReplacer[name] = replacer;
+                }
+                if (!ActiveTitleFixes.Contains(name))
+                {
+                    ActiveTitleFixes.Add(name);
+                }
+                changed = true;
+            }
+            if (changed)
+            {
+                // Changed in place, the section doesn't notice that by itself
+                MarkAsDirty();
             }
         }
 

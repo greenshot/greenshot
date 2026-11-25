@@ -47,10 +47,10 @@ namespace Greenshot.Base.Wpf.Views
             _settings = settings;
             string title = Texts.Core.QualitydialogTitle;
             ThemedControls.ApplyDialogLook(this, title);
-            // The slider below is made in code, so it gets the slider style from here
+            // The controls below are made in code, they get the shared styles (e.g. of the slider) from here
             Resources.MergedDictionaries.Add(new ResourceDictionary
             {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/GreenshotStyles.xaml", UriKind.Relative)
             });
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             Topmost = true;
@@ -73,7 +73,7 @@ namespace Greenshot.Base.Wpf.Views
             {
                 Text = Texts.Core.JpegqualitydialogChoosejpegquality,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 Margin = new Thickness(0, 10, 0, 4)
             };
             _qualitySlider = new Slider
@@ -92,7 +92,7 @@ namespace Greenshot.Base.Wpf.Views
             {
                 Width = 36,
                 TextAlignment = TextAlignment.Right,
-                Foreground = WpfThemeHelper.TextPrimary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextPrimary,
                 VerticalAlignment = VerticalAlignment.Center,
                 Text = settings.JPGQuality.ToString()
             };

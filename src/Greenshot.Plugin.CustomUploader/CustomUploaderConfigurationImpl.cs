@@ -27,7 +27,6 @@ public partial class CustomUploaderConfigurationImpl : ICustomUploaderConfigurat
 {
     public void OnAfterLoad()
     {
-        Uploaders ??= new Dictionary<string, string>();
         UploadHistory ??= new Dictionary<string, string>();
         UploaderIcons ??= new Dictionary<string, string>();
         UploadReminders ??= new Dictionary<string, string>();

@@ -22,6 +22,8 @@
 using System.ComponentModel;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.WindowsPolicies;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Stamps;
 
@@ -31,5 +33,6 @@ public interface IStampsConfiguration : IIniSection
 {
     [Description("The folder with the stamps and their names and tags (stamps.json), a template like ${user.documents}\\Stamps; empty for the folder Stamps next to greenshot.ini")]
     [DefaultValue("")]
+    [PolicyCategory(PolicyCategories.Common)]
     string LibraryPath { get; set; }
 }

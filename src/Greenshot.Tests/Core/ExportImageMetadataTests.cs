@@ -259,7 +259,10 @@ namespace Greenshot.Tests.Core
 
         private sealed class OcrLine(string text) : IOcrLineFeature
         {
-            public NativeRect Bounds => new NativeRect(0, 0, 10, 10);
+            public NativeRect Bounds => Box.Bounds;
+            public OcrBox Box => OcrBox.FromRect(new NativeRect(0, 0, 10, 10));
+            public double? Score => null;
+            public TextSource Source => TextSource.Ocr;
             public string FeatureType => "OcrLine";
             public string Text => text;
             public string ToolTipText => text;

@@ -288,15 +288,15 @@ namespace Greenshot.Tests.Recipes
             {
                 Parameters = new Dictionary<string, object>
                 {
-                    { "CommandLine", @"C:\Tools\optimize.exe" },
-                    { "Arguments", "\"{0}\" --quality ${option.quality}" }
+                    { "Program", @"C:\Tools\optimize.exe" },
+                    { "Arguments", "\"${export.file}\" --quality ${option.quality}" }
                 }
             });
             recipe.Flow = new RecipeFlowConfig("source").AddTransition("source", "cmd");
 
             Assert.DoesNotContain(RecipeValidator.Validate(recipe).Errors, e => e.Contains("text option"));
 
-            recipe.FindNode("cmd").Parameters["Arguments"] = "\"{0}\" ${option.suffix}";
+            recipe.FindNode("cmd").Parameters["Arguments"] = "\"${export.file}\" ${option.suffix}";
             var result = RecipeValidator.Validate(recipe);
             Assert.Contains(result.Errors, e => e.Contains("'suffix'") && e.Contains("text option"));
         }

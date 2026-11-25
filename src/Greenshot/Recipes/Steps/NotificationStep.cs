@@ -20,15 +20,21 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Expressions;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Languages;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Recipes.Contracts;
 using Greenshot.Base.Recipes.Pipeline;
+using Greenshot.Base.Threading;
 using Greenshot.Recipes.Pipeline;
+using log4net;
 
 namespace Greenshot.Recipes.Steps
 {
@@ -36,7 +42,8 @@ namespace Greenshot.Recipes.Steps
     /// Pipeline step that shows the completion notification (toast or tray balloon) for the exports before it.
     /// Dynamically evaluates whether notifications are enabled based on CoreConfig if not pre-defined.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Shows the notification for the exports before it.", "Feedback")]
+    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Shows the notification for the exports before it, and the message when it has one.", "Feedback")]
+    [StepParameter(MessageParameter, ContractDataType.String, Purpose = TemplatePurpose.Text, Translatable = true, Description = "A message for the user, e.g. Customer number ${var.CustomerNumber} copied: a line after the exports, or a notification of its own when there were none")]
     [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
     [StepParameter(NoHdrNoteParameter, ContractDataType.Boolean, DefaultValue = false, Description = "Say in the notification when the capture has no HDR content (payload.hdr is None: not on an HDR display, or nothing brighter than SDR white or outside sRGB), e.g. after a SaveFile with HdrFormat")]
     [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
@@ -44,6 +51,7 @@ namespace Greenshot.Recipes.Steps
     public class NotificationStep : ICaptureStep
     {
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
@@ -67,18 +75,30 @@ namespace Greenshot.Recipes.Steps
             }
             // The exports since the previous Notification step (of all destination and plugin steps, also of parallel branches),
             // one notification shows them
-            await ExportNotification.ShowAsync(context, null, cancellationToken, GetNote(context)).ConfigureAwait(false);
+            string message = Config.GetParameter<string>(MessageParameter);
+            bool shown = await ExportNotification.ShowAsync(context, null, cancellationToken, GetNote(context, message)).ConfigureAwait(false);
+            if (!shown && !string.IsNullOrWhiteSpace(message) && CoreConfig.NotificationLevel.Shows(NotificationKind.Info))
+            {
+                // No exports to show (e.g. a recipe which only copies a text): the message on its own
+                var title = context.Payload?.RawCapture?.CaptureDetails?.Title;
+                var notification = new Notification(NotificationKind.Info, message, TimeSpan.FromHours(1), title: string.IsNullOrWhiteSpace(title) ? "Greenshot" : title);
+                await context.Ui.InvokeAsync(() => UserInteraction.Current.NotifyAsync(notification).FireAndLog("Recipe notification", Log), cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public const string NoHdrNoteParameter = "NoHdrNote";
 
+        public const string MessageParameter = "Message";
+
         /// <summary>
-        /// The line about the capture after the exports, null for none
+        /// The lines after the exports: the one about the capture and the message, null for none
         /// </summary>
-        internal string GetNote(CaptureFlowContext context)
+        internal string GetNote(CaptureFlowContext context, string message = null)
         {
             bool noHdrNote = Config.GetParameter(NoHdrNoteParameter, false);
-            return noHdrNote && HdrOutput.StateOf(context.Payload) == HdrOutput.StateNone ? Texts.Core.NotificationNoHdr : null;
+            string hdrNote = noHdrNote && HdrOutput.StateOf(context.Payload) == HdrOutput.StateNone ? Texts.Core.NotificationNoHdr : null;
+            var lines = new[] { hdrNote, string.IsNullOrWhiteSpace(message) ? null : message.Trim() }.Where(line => line != null).ToList();
+            return lines.Count == 0 ? null : string.Join(Environment.NewLine, lines);
         }
 
         private bool ResolveShowNotification(CaptureFlowContext context)

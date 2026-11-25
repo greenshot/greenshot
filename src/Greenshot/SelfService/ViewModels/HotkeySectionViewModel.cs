@@ -51,7 +51,7 @@ namespace Greenshot.SelfService.ViewModels
             : IsRegistered
                 ? (Texts.SelfService.HotkeysStatusOk ?? "Registered")
                 : (Texts.SelfService.HotkeysStatusFailed ?? "Not Registered / Conflict");
-        public Brush StatusBrush => IsDisabled ? WpfThemeHelper.TextSecondary : IsRegistered ? WpfThemeHelper.Accent : WpfThemeHelper.WarningText;
+        public Brush StatusBrush => IsDisabled ? ThemeManager.Instance.CurrentPalette.TextSecondary : IsRegistered ? ThemeManager.Instance.CurrentPalette.Accent : ThemeManager.Instance.CurrentPalette.WarningText;
     }
 
     public class ContenderAppViewModel
@@ -74,7 +74,7 @@ namespace Greenshot.SelfService.ViewModels
                 return string.IsNullOrEmpty(notRunning) ? "Not Running" : notRunning;
             }
         }
-        public Brush StatusBrush => IsRunning ? WpfThemeHelper.WarningText : WpfThemeHelper.TextSecondary;
+        public Brush StatusBrush => IsRunning ? ThemeManager.Instance.CurrentPalette.WarningText : ThemeManager.Instance.CurrentPalette.TextSecondary;
     }
 
     public class HotkeySectionViewModel : SelfServiceSectionViewModel
@@ -177,7 +177,7 @@ namespace Greenshot.SelfService.ViewModels
             if (totalIssues > 0)
             {
                 BadgeText = string.Format(totalIssues > 1 ? Texts.SelfService.HotkeysIssues : Texts.SelfService.HotkeysIssue, totalIssues);
-                BadgeBrush = WpfThemeHelper.WarningBackground;
+                BadgeBrush = ThemeManager.Instance.CurrentPalette.WarningBackground;
             }
             else
             {
@@ -293,19 +293,19 @@ namespace Greenshot.SelfService.ViewModels
                 if (blocking)
                 {
                     OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusEnabled ?? "⚠️ OneDrive is currently intercepting screenshot hotkeys!";
-                    OneDriveStatusBrush = WpfThemeHelper.ErrorText;
+                    OneDriveStatusBrush = ThemeManager.Instance.CurrentPalette.ErrorText;
                     OneDriveFixButtonVisibility = Visibility.Visible;
                 }
                 else if (IsOneDriveRunning)
                 {
                     OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusDisabled ?? "OneDrive is running, but screenshot hotkey capture is disabled. (OK)";
-                    OneDriveStatusBrush = WpfThemeHelper.Accent;
+                    OneDriveStatusBrush = ThemeManager.Instance.CurrentPalette.Accent;
                     OneDriveFixButtonVisibility = Visibility.Collapsed;
                 }
                 else
                 {
                     OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusNotdetected ?? "OneDrive is not running.";
-                    OneDriveStatusBrush = WpfThemeHelper.TextSecondary;
+                    OneDriveStatusBrush = ThemeManager.Instance.CurrentPalette.TextSecondary;
                     OneDriveFixButtonVisibility = Visibility.Collapsed;
                 }
             }
@@ -313,7 +313,7 @@ namespace Greenshot.SelfService.ViewModels
             {
                 Log.Error("Error checking OneDrive status", ex);
                 OneDriveStatusText = Texts.SelfService.HotkeysOnedriveStatusNotdetected ?? "Could not verify OneDrive status.";
-                OneDriveStatusBrush = WpfThemeHelper.TextSecondary;
+                OneDriveStatusBrush = ThemeManager.Instance.CurrentPalette.TextSecondary;
                 OneDriveFixButtonVisibility = Visibility.Collapsed;
             }
         }
@@ -396,13 +396,13 @@ namespace Greenshot.SelfService.ViewModels
                 if (IsSnippingToolHijackEnabled)
                 {
                     SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusEnabled ?? "⚠️ Windows Snipping Tool is set to open on PrintScreen!";
-                    SnippingToolStatusBrush = WpfThemeHelper.WarningText;
+                    SnippingToolStatusBrush = ThemeManager.Instance.CurrentPalette.WarningText;
                     SnippingToolFixButtonVisibility = Visibility.Visible;
                 }
                 else
                 {
                     SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusDisabled ?? "Windows Snipping Tool PrintScreen takeover is disabled. (OK)";
-                    SnippingToolStatusBrush = WpfThemeHelper.Accent;
+                    SnippingToolStatusBrush = ThemeManager.Instance.CurrentPalette.Accent;
                     SnippingToolFixButtonVisibility = Visibility.Collapsed;
                 }
             }
@@ -410,7 +410,7 @@ namespace Greenshot.SelfService.ViewModels
             {
                 Log.Error("Error checking Snipping Tool registry", ex);
                 SnippingToolStatusText = Texts.SelfService.HotkeysSnippingStatusNa ?? "Could not check Windows Snipping Tool status.";
-                SnippingToolStatusBrush = WpfThemeHelper.TextSecondary;
+                SnippingToolStatusBrush = ThemeManager.Instance.CurrentPalette.TextSecondary;
                 SnippingToolFixButtonVisibility = Visibility.Collapsed;
             }
         }
@@ -460,18 +460,18 @@ namespace Greenshot.SelfService.ViewModels
                 if (IsDropboxRunning)
                 {
                     DropboxStatusText = Texts.SelfService.HotkeysDropboxRunning ?? "Dropbox is running.";
-                    DropboxStatusBrush = WpfThemeHelper.WarningText;
+                    DropboxStatusBrush = ThemeManager.Instance.CurrentPalette.WarningText;
                 }
                 else
                 {
                     DropboxStatusText = Texts.SelfService.HotkeysDropboxNotrunning ?? "Dropbox is not running.";
-                    DropboxStatusBrush = WpfThemeHelper.TextSecondary;
+                    DropboxStatusBrush = ThemeManager.Instance.CurrentPalette.TextSecondary;
                 }
             }
             catch (Exception)
             {
                 DropboxStatusText = Texts.SelfService.HotkeysDropboxNotrunning ?? "Could not check Dropbox status.";
-                DropboxStatusBrush = WpfThemeHelper.TextSecondary;
+                DropboxStatusBrush = ThemeManager.Instance.CurrentPalette.TextSecondary;
             }
         }
 

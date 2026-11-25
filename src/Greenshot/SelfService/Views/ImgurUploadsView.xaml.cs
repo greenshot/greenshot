@@ -29,7 +29,7 @@ using Greenshot.Base.Threading;
 using Greenshot.Base.Wpf;
 using Greenshot.SelfService.ViewModels;
 using log4net;
-using Microsoft.Win32;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.SelfService.Views
 {
@@ -83,21 +83,16 @@ namespace Greenshot.SelfService.Views
 
         private void OnExportClicked(object sender, RoutedEventArgs e)
         {
-            var dialog = new SaveFileDialog
-            {
-                FileName = Texts.SelfService.ImgurTitle,
-                DefaultExt = ".html",
-                Filter = "HTML (*.html)|*.html"
-            };
-            if (ViewModel == null || dialog.ShowDialog(Window.GetWindow(this)) != true)
+            string exportFile = ViewModel == null ? null : FileDialogs.PickFileToSave(Window.GetWindow(this), "HTML (*.html)|*.html", Texts.SelfService.ImgurTitle);
+            if (exportFile == null)
             {
                 return;
             }
 
             try
             {
-                ViewModel.Export(dialog.FileName);
-                ExceptionHelper.OpenUrl(dialog.FileName);
+                ViewModel.Export(exportFile);
+                ExceptionHelper.OpenUrl(exportFile);
             }
             catch (Exception ex)
             {

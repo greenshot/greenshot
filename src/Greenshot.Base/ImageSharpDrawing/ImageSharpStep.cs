@@ -22,6 +22,7 @@
 using System;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;
+using Greenshot.ImageSharpDrawing;
 using SixLabors.ImageSharp;
 
 namespace Greenshot.Base.ImageSharpDrawing

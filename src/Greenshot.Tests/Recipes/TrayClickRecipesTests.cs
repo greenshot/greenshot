@@ -66,6 +66,7 @@ namespace Greenshot.Tests.Recipes
         [InlineData(RecipeManager.RecipeIdTrayMenu)]
         [InlineData(RecipeManager.RecipeIdOpenSettings)]
         [InlineData(RecipeManager.RecipeIdEmptyEditor)]
+        [InlineData(RecipeManager.RecipeIdQuickSettings)]
         public void BuiltInRecipe_CanRunFromAClick(string recipeId)
         {
             var manager = new RecipeManager();

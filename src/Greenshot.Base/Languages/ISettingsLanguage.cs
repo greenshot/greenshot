@@ -32,6 +32,11 @@ namespace Greenshot.Base.Languages
     public interface ISettingsLanguage : INotifyPropertyChanged
     {
         /// <summary>
+        /// Save as .reg…
+        /// </summary>
+        string AdministratorSettingsSaveReg { get; }
+
+        /// <summary>
         /// AI tools
         /// </summary>
         string Aitools { get; }
@@ -172,6 +177,11 @@ namespace Greenshot.Base.Languages
         string CaptureHdr { get; }
 
         /// <summary>
+        /// Some settings are set by your organization (Windows policies) and can't be changed here.
+        /// </summary>
+        string ManagedByOrganization { get; }
+
+        /// <summary>
         /// On an HDR display the capture keeps its HDR content too: saving it as JPEG XR (also from the editor) keeps the highlights. Costs memory only for the HDR displays.
         /// </summary>
         string TipCaptureHdr { get; }
@@ -182,9 +192,24 @@ namespace Greenshot.Base.Languages
         string CaptureWindowsInteractive { get; }
 
         /// <summary>
-        /// Update check interval in days (0=no check)
+        /// Check for updates
         /// </summary>
-        string Checkperiod { get; }
+        string UpdateCheck { get; }
+
+        /// <summary>
+        /// Days between checks
+        /// </summary>
+        string UpdateCheckInterval { get; }
+
+        /// <summary>
+        /// Check now
+        /// </summary>
+        string UpdateCheckNow { get; }
+
+        /// <summary>
+        /// This is Greenshot {0}.
+        /// </summary>
+        string UpdateCurrentVersion { get; }
 
         /// <summary>
         /// Configure
@@ -252,6 +277,11 @@ namespace Greenshot.Base.Languages
         string DestinationViewer { get; }
 
         /// <summary>
+        /// Search the web for this image
+        /// </summary>
+        string DestinationImageSearch { get; }
+
+        /// <summary>
         /// Viewer
         /// </summary>
         string Viewer { get; }
@@ -287,9 +317,34 @@ namespace Greenshot.Base.Languages
         string ViewerBorderColor { get; }
 
         /// <summary>
-        /// Available
+        /// After a capture
         /// </summary>
-        string DestinationAvailable { get; }
+        string DestinationAfterCapture { get; }
+
+        /// <summary>
+        /// Send it to:
+        /// </summary>
+        string DestinationSendTo { get; }
+
+        /// <summary>
+        /// Tick at least one destination, or choose "Ask for destination every time".
+        /// </summary>
+        string DestinationSendToRequired { get; }
+
+        /// <summary>
+        /// Destinations Greenshot offers
+        /// </summary>
+        string DestinationOffered { get; }
+
+        /// <summary>
+        /// A destination which is switched off isn't in the menus, the destination window or recipes.
+        /// </summary>
+        string DestinationOfferedHint { get; }
+
+        /// <summary>
+        /// Not loaded (shown on a destination of a plugin which isn't loaded)
+        /// </summary>
+        string DestinationNotLoaded { get; }
 
         /// <summary>
         /// Plugins are switched on or off at the next start of Greenshot.
@@ -412,7 +467,7 @@ namespace Greenshot.Base.Languages
         string ExpertAutoreducecolors { get; }
 
         /// <summary>
-        /// Enable to enable beta-test features.
+        /// Enable beta-test features
         /// </summary>
         string ExpertBetatester { get; }
 
@@ -427,7 +482,7 @@ namespace Greenshot.Base.Languages
         string ExpertClipboardformats { get; }
 
         /// <summary>
-        /// The number for the ${NUM} in the filename pattern
+        /// The number for the ${counter.global} in the filename pattern
         /// </summary>
         string ExpertCounter { get; }
 
@@ -435,11 +490,6 @@ namespace Greenshot.Base.Languages
         /// I know what I am doing!
         /// </summary>
         string ExpertEnableexpert { get; }
-
-        /// <summary>
-        /// Enable recipes
-        /// </summary>
-        string ExpertEnablerecipes { get; }
 
         /// <summary>
         /// Printer footer pattern
@@ -516,10 +566,6 @@ namespace Greenshot.Base.Languages
         /// </summary>
         string ExpertSuppresssavedialogatclose { get; }
 
-        /// <summary>
-        /// Show window thumbnails in context menu (for Vista and windows 7)
-        /// </summary>
-        string ExpertThumbnailpreview { get; }
 
         /// <summary>
         /// Filename pattern
@@ -585,6 +631,16 @@ namespace Greenshot.Base.Languages
         /// Text recognition (OCR)
         /// </summary>
         string Ocr { get; }
+
+        /// <summary>
+        /// Recognized by
+        /// </summary>
+        string OcrEngine { get; }
+
+        /// <summary>
+        /// Windows OCR
+        /// </summary>
+        string OcrEngineWindows { get; }
 
         /// <summary>
         /// Language of the text
@@ -730,6 +786,11 @@ namespace Greenshot.Base.Languages
         /// The hotkey is written in the recipe file, it is changed in the recipe editor
         /// </summary>
         string HotkeySetInRecipe { get; }
+
+        /// <summary>
+        /// A hotkey on the General tab is also the hotkey of another recipe ({0}: its name), only one of them can work
+        /// </summary>
+        string HotkeyConflict { get; }
 
         /// <summary>
         /// Choose a folder
@@ -949,6 +1010,11 @@ namespace Greenshot.Base.Languages
         string TooltipOcrLanguage { get; }
 
         /// <summary>
+        /// What recognizes text, for capturing text, the OCR destination and the recipes. Windows OCR is built into Windows; a plugin can add another one.
+        /// </summary>
+        string TooltipOcrEngine { get; }
+
+        /// <summary>
         /// Image format used by default
         /// </summary>
         string TooltipPrimaryimageformat { get; }
@@ -1007,6 +1073,16 @@ namespace Greenshot.Base.Languages
         /// Milliseconds to wait before capture
         /// </summary>
         string Waittime { get; }
+
+        /// <summary>
+        /// Wait before every capture of the screen (to open a menu or popup first)
+        /// </summary>
+        string CaptureWait { get; }
+
+        /// <summary>
+        /// Show a countdown during the wait
+        /// </summary>
+        string CaptureWaitCountdown { get; }
 
         /// <summary>
         /// Fixed capture sizes
@@ -1112,16 +1188,6 @@ namespace Greenshot.Base.Languages
         /// Picking a size with a place moves the mouse so the area is there. When off, the place is shown as an outline and the area snaps onto it.
         /// </summary>
         string TooltipFixedCaptureMovesCursor { get; }
-
-        /// <summary>
-        /// Window capture
-        /// </summary>
-        string Windowscapture { get; }
-
-        /// <summary>
-        /// Show magnifier
-        /// </summary>
-        string Zoom { get; }
 
         /// <summary>
         /// Freeze the screen while selecting

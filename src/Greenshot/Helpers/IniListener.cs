@@ -77,6 +77,13 @@ namespace Greenshot.Helpers
         }
 
         /// <inheritdoc />
+        public override void OnValueSourceIgnored(string sectionName, string key, string ignoredValue)
+        {
+            // A mandatory Windows policy replaced the value of greenshot-fixed.ini (the policy wins), or a constant was kept
+            Log.InfoFormat("[Dapplo.Ini] [{0}] {1}: the value '{2}' is not used, a policy or greenshot-fixed.ini sets this key", sectionName, key, ignoredValue);
+        }
+
+        /// <inheritdoc />
         public override void OnSectionAdded(string sectionName, bool loaded)
         {
             Log.DebugFormat("[Dapplo.Ini] Section [{0}] added {1}", sectionName, loaded ? "and loaded" : "before the load");

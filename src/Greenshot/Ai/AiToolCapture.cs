@@ -168,7 +168,7 @@ namespace Greenshot.Ai
                 }
                 width = toEncode.Width;
                 height = toEncode.Height;
-                using var stream = new MemoryStream();
+                using MemoryStream stream = RecyclableMemoryStreamFactory.GetStream("AiToolCapture");
                 toEncode.Save(stream, ImageFormat.Png);
                 return stream.ToArray();
             }

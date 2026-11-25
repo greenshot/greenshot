@@ -27,7 +27,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection;
 using Greenshot.Base.Core;
-using Greenshot.Base.ImageSharpDrawing;
+using Greenshot.ImageSharpDrawing;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Threading;
 using Greenshot.Editor.Drawing;

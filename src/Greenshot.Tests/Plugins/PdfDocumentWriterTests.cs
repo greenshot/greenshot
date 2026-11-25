@@ -246,6 +246,40 @@ public class PdfDocumentWriterTests
     }
 
     [Fact]
+    public void Write_ChecksumMatchesAdler32OverMoreThanOneBlock()
+    {
+        TestEnvironment.EnsureInitialized();
+        var configuration = new PdfConfigurationImpl();
+        configuration.ResetToDefaults();
+        // 3000 bytes per row and 30000 in all: several blocks of 5552 bytes, with all-white rows for the largest sums
+        using var bitmap = new Bitmap(1000, 10);
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                bitmap.SetPixel(x, y, y % 2 == 0 ? Color.White : Color.FromArgb(255, x % 256, (x * 7 + y) % 256, (x * 13) % 256));
+            }
+        }
+        using var output = new MemoryStream();
+
+        PdfDocumentWriter.Write(new[] { bitmap }, output, configuration, null);
+
+        byte[] pdfBytes = output.ToArray();
+        byte[] pixels = ReadImagePixels(pdfBytes);
+        uint a = 1, b = 0;
+        foreach (byte value in pixels)
+        {
+            a = (a + value) % 65521;
+            b = (b + a) % 65521;
+        }
+
+        byte[] stored = ReadImageStream(pdfBytes);
+        uint storedChecksum = (uint)stored[stored.Length - 4] << 24 | (uint)stored[stored.Length - 3] << 16 | (uint)stored[stored.Length - 2] << 8 | stored[stored.Length - 1];
+        Assert.Equal(3000 * 10, pixels.Length);
+        Assert.Equal((b << 16) | a, storedChecksum);
+    }
+
+    [Fact]
     public void Write_RejectsMarginsThatLeaveNoPrintableArea()
     {
         TestEnvironment.EnsureInitialized();
@@ -268,6 +302,19 @@ public class PdfDocumentWriterTests
         int start = value.IndexOf(marker, StringComparison.Ordinal) + marker.Length;
         int end = value.IndexOf('\n', start);
         return value.Substring(start, end - start);
+    }
+
+    private static byte[] ReadImageStream(byte[] pdfBytes)
+    {
+        string pdf = Encoding.GetEncoding(28591).GetString(pdfBytes);
+        int filterIndex = pdf.IndexOf("/Filter/FlateDecode", StringComparison.Ordinal);
+        int lengthStart = pdf.IndexOf("/Length ", filterIndex, StringComparison.Ordinal) + 8;
+        int lengthEnd = pdf.IndexOf(">>", lengthStart, StringComparison.Ordinal);
+        int streamLength = int.Parse(pdf.Substring(lengthStart, lengthEnd - lengthStart), CultureInfo.InvariantCulture);
+        int streamStart = pdf.IndexOf("stream\n", filterIndex, StringComparison.Ordinal) + 7;
+        var stream = new byte[streamLength];
+        Array.Copy(pdfBytes, streamStart, stream, 0, streamLength);
+        return stream;
     }
 
     private static byte[] ReadImagePixels(byte[] pdfBytes)

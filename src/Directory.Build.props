@@ -90,12 +90,21 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <!-- SourceLink is only needed for the build, its dependency System.IO.Hashing (the tasks bring their own copy) shouldn't end up in the output -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="All" ExcludeAssets="compile;runtime"/>
   </ItemGroup>
 
-  <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
+  <!-- HttpClient (NetworkHelper.HttpClient) and the Range and Required attributes of the configurations are part of the framework,
+       but not referenced by default (the System.ComponentModel.Annotations package only adds a facade for them, which nothing uses) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <!-- ImageSharp 2.1 needs System.Text.Encoding.CodePages (759 KB) on .NET Framework for one thing only: EXIF texts (UserComment,
+       GPSProcessingMethod, GPSAreaInformation) in the JIS encoding. Greenshot doesn't ship it. Such a text throws a FileNotFoundException
+       inside ImageSharp: the image details reader catches it and leaves the details out, WIC loads the image (ImageSharp only loads when WIC
+       can't), see ImageSharpExifWithoutCodePagesTests. The version is the one ImageSharp asks for. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Async & threading guardrails, see docs/vNext/async-threading-roadmap.md (section 3 and Phase 0).

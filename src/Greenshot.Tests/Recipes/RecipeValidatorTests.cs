@@ -151,8 +151,8 @@ namespace Greenshot.Tests.Recipes
                     StepType = "ExternalCommand",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "CommandLine", @"C:\Windows\System32\cmd.exe" },
-                        { "Arguments", "\"{0}\"" }
+                        { "Program", @"C:\Windows\System32\cmd.exe" },
+                        { "Arguments", "\"${export.file}\"" }
                     }
                 });
 
@@ -163,10 +163,68 @@ namespace Greenshot.Tests.Recipes
             Assert.Contains(result.GatedActions, c => c.Target.Contains(@"C:\Windows\System32\cmd.exe"));
         }
 
+        private static RecipeValidationResult ValidateExternalCommand(Dictionary<string, object> parameters)
+        {
+            parameters["Program"] = @"C:\Tools\tool.exe";
+            var recipe = new CaptureRecipe("external_command_channels", "Channels")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig { Id = "cmd", StepType = "ExternalCommand", Parameters = parameters });
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "cmd");
+            return RecipeValidator.Validate(recipe);
+        }
+
+        [Fact]
+        public void Validate_ExternalCommand_ChannelsWhichFit_AreValid()
+        {
+            var result = ValidateExternalCommand(new Dictionary<string, object>
+            {
+                { "File", "None" },
+                { "StandardInput", "Text" },
+                { "StandardInputText", "${payload.ocr.text}" },
+                { "Output", "Text" },
+                { "CopyToClipboard", "Url" },
+                { "ResultName", "translation" },
+                { "SuccessExitCodes", "0,98" },
+                { "Timeout", 30 },
+                { "Encoding", "oem" }
+            });
+            Assert.True(result.IsValid, string.Join(", ", result.Errors));
+        }
+
+        [Theory]
+        [InlineData("StandardInputText", "x", null, null, "only used with 'StandardInput' Text")]
+        [InlineData("Output", "Image", "RunInBackground", true, "'Output' must be None")]
+        [InlineData("Output", "File", "File", "None", "'File' is None")]
+        [InlineData("CopyToClipboard", "Output", "Output", "Image", "'Output' must be Text")]
+        [InlineData("Output", "Picture", null, null, "is not a value of 'Output'")]
+        [InlineData("SuccessExitCodes", "0,ok", null, null, "'SuccessExitCodes' must be numbers")]
+        [InlineData("Encoding", "no-such-encoding", null, null, "'Encoding' 'no-such-encoding' is not known")]
+        public void Validate_ExternalCommand_ChannelsWhichDontFit_AreErrors(string name, object value, string otherName, object otherValue, string error)
+        {
+            var parameters = new Dictionary<string, object> { { name, value } };
+            if (otherName != null)
+            {
+                parameters[otherName] = otherValue;
+            }
+            var result = ValidateExternalCommand(parameters);
+            Assert.Contains(result.Errors, e => e.Contains(error));
+        }
+
+        [Theory]
+        [InlineData("CommandLine")]
+        [InlineData("Verb")]
+        [InlineData("ReloadAfterExecution")]
+        [InlineData("OutputVariable")]
+        public void Validate_ExternalCommand_ParametersOfBefore_AreErrors(string name)
+        {
+            var result = ValidateExternalCommand(new Dictionary<string, object> { { name, "x" } });
+            Assert.Contains(result.Errors, e => e.Contains($"'{name}' is not a parameter"));
+        }
+
         [Fact]
         public void Validate_RouteB_DestinationsExternal_FlagsExternalCommands()
         {
-            var extDest = new ExternalCommandDestination("MS Paint");
+            var extDest = new ExternalCommandDestination(new Greenshot.Plugin.ExternalCommand.Running.CommandDefinition { Name = "MS Paint", Program = "mspaint.exe" });
             SimpleServiceProvider.Current.AddService<IDestination>(extDest);
 
             var recipe = new CaptureRecipe("route_b_recipe", "Route B PoC")

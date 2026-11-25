@@ -98,6 +98,9 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 📸 Capture Improvements
 
+**Capture from clipboard**
+- The image from the clipboard goes to your destinations of the settings, like any other capture; 1.3 always opened it in the editor
+
 **Capture a fixed size** (#152, #1525)
 - Press F while selecting a region to capture an area of a fixed size, e.g. 1280 × 720 or 32 × 32
 - The area follows the mouse and lines up with the edges of windows and the screen; hold Alt to place it freely
@@ -144,6 +147,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @danrhodes
 
 #### 🔌 Plugin Improvements
+
+**Text from applications**
+- Capturing text (T), the OCR destination and the recipes use the exact text the applications show (through UI Automation, e.g. browsers and Explorer); OCR only reads the rest, e.g. text in images
+
+**RapidOCR text recognition**
+- A second OCR engine next to Windows OCR, chosen in the settings: reads small and underlined text (links, e-mail addresses) much better
+- Its files (about 35 MB) are downloaded only when you choose it, after asking
 
 **Windows 10/11 Integration** (#802)
 - Integrated Windows 10 plugin into main codebase
@@ -304,6 +314,24 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed opening older .greenshot files with StepLabels (#844)
 - By @Christian-Schulz
 
+**Printing, PowerPoint and file names, bugs from the old bug tracker** (#1765)
+- "Force grayscale printing" prints in gray also when the printer driver ignores it
+- A capture shrunk to fit the page prints with sharper text
+- With the PowerPoint slide layout ppLayoutBlank the capture goes on one slide, before an extra empty slide was added
+- Invisible marks in window titles (e.g. of Microsoft Edge) are left out of file names
+- File names from window titles and web pages can no longer hide text or fake their extension with invisible or right-to-left characters; emoji and scripts that need joining characters still work
+- A name like CON or NUL, which Windows can't save, gets a _ in front
+
+**Installer** (#1766)
+- The installer shows the GPL without asking to accept it, the GPL doesn't need to be accepted to use Greenshot
+
+**Editor bugs from the old bug tracker** (#1764)
+- Closing an opened .greenshot file without changes no longer asks to save it, and its elements are no longer all selected after opening
+- While a crop waits for Confirm or Cancel, the tool keys (R, E, T, ...) and shortcuts are blocked like the disabled buttons; before, they could leave the crop rectangle behind, and confirming it later gave an error
+- A counter with a transparent fill can be selected, the counter button keeps its icon when the counter starts at 0 and shows the right number after undo, counters can start at up to 9999
+- Ctrl+Backspace in a text box removes one word, also after a line break
+- Invert keeps transparent areas transparent
+
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
 - Fixed null reference in cursor setter (#873)
@@ -321,6 +349,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 **One way to write variables** (#1693)
 - The screenshot folder, file name, print footer, Outlook subject, external commands and recipes all use the same `${...}` values, e.g. `${payload.time:yyyy-MM-dd}`, `${payload.title}`, `${user.pictures}`; see [variables](../vNext/variables.md)
 - The settings show what a file name or folder gives and what is wrong with it while you type
+- Microsoft Edge window titles lose " - Microsoft Edge", the profile name and "and 12 more pages" (in all languages of Edge) in file names, like Firefox and Chrome already did
 - New counters: per folder (`${counter.folder}`), per name and per key; a counter only goes up when a file was saved
 - A window title or other text of a capture can no longer choose the folder or the program of an external command
 - The settings of 1.3 are converted once and kept, so going back to 1.3 still works
@@ -331,6 +360,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A double-click opens the folder of the last capture again, as in 1.3 (it showed the tray menu in earlier 1.4 builds)
 - The entries of the tray menu (captures, open file, open last capture location) are recipes now, so they can get a hotkey or be changed in the recipe editor
 
+**Quick settings window and capture after a delay**
+- The quick settings of the tray menu can open in a window of their own, e.g. from a hotkey or a click on the tray icon (recipe "Quick preferences")
+- Captures start at once, also from a hotkey: the old 100 ms "capture delay" is gone, the tray menu itself waits until it has disappeared
+- "Wait before every capture" (Settings and quick settings, off by default) waits a chosen time before every capture of the screen, with a countdown which doesn't close an open menu; an old capture delay you set is taken over
+- A recipe can wait before the capture in the same way, and can ask how long to wait
+
 **When the file already exists**
 - greenshot.ini has OutputFileIfExists: Overwrite (the default), Ask (the save dialog, which now suggests the next free name) or AddNumber ("name (2).png", "name (3).png", ...). It replaces OutputFileAllowOverwrite; False there becomes Ask.
 
@@ -340,6 +375,18 @@ Continuous builds are automatically created for every commit to the `main` branc
 - A destination of a plugin which isn't loaded is no longer removed from the settings
 - A plugin in a folder you can change (e.g. the portable version) which isn't signed by the makers of Greenshot isn't loaded until you allow it
 - The plugin list in the settings shows who signed each plugin
+
+**Update check**
+- Settings > General: switch the update check on or off, choose the days between the checks, and "Check now" shows your version and a newer one with its download
+- A released version only offers the next release, unless "Check for unstable updates" is on; an unstable (beta) version offers newer unstable versions and releases, whichever is newest
+
+**Fewer settings**
+- The window menus always show a preview of the window under the mouse, the setting "Show window thumbnails in context menu" is gone
+- The magnifier is switched on and off with Z while capturing, the setting "Show magnifier" is gone
+
+**Hotkeys in the settings**
+- A hotkey which two recipes use is shown in red with the name of the other one, OK only closes the window once each hotkey is used once
+- Changing a setting no longer registers all hotkeys again, only the ones which changed
 
 **MAPI Client Detection** (#861)
 - Fixed MAPI Client detection on HKCU registry
@@ -356,8 +403,17 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
 - By @Copilot
 
+**File and folder dialogs** (#988)
+- All open, save and folder dialogs (settings, recipes, recipe editor, editor templates, stamps, imports and exports) are the current Windows dialogs, also for long paths; the old folder browser is gone
+- The Save as dialog for a capture says in its title which capture it saves, e.g. "Save as: Inbox - Outlook (08:41:12)"
+- Opening an image file offers each format on its own (e.g. only PNG), next to all formats Greenshot can open
+
 **External Commands**
 - An external command whose program isn't found when Greenshot starts (e.g. on a USB stick or a network drive) is no longer deleted from the settings, it is only left out of the menu until Greenshot starts with the program available again
+- New settings page for the commands: add, change, remove, and share a command as a file (.gscommand.json) with export and import. The commands of Greenshot 1.3 are taken over once, MS Paint and Paint.NET come with Greenshot when they are installed
+- A command can get the image or a text on standard input, its output can go to the clipboard, and it can have a timeout and exit codes which mean success
+- A capture whose file name has characters like ( ) & or ' can be handed to a command, only " % and line breaks are refused
+- A command which can't be started is reported as failed, Greenshot no longer tries again with administrator rights
 
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
@@ -368,6 +424,22 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @Christian-Schulz
 
 #### 🎨 UI/UX Improvements
+
+**Editor opens faster** (#1792)
+- A new editor window opens about three times faster, on slower PCs this saves seconds
+
+**Less memory after captures** (#1796)
+- Greenshot's windows are drawn without the graphics card by default: the graphics driver no longer keeps up to several hundred MB after a region capture, and the capture window needs less CPU. The setting Hardware rendering brings the old behaviour back
+- A few seconds after a capture or when a window closes, Greenshot gives the memory of the closed captures back
+- A closed editor window no longer stays in memory until Greenshot exits
+- The QR code scan of a capture needs much less memory
+- The icons of the destination picker are loaded once, not every time it opens
+
+**Large captures fit in the editor** (#1791)
+- A capture which is bigger than the screen the editor opens on is zoomed to fit, so it is shown completely
+
+**Editor keeps its size when restored**
+- An editor which is minimized and brought back with the task bar keeps its window size
 
 **Context Menu** (#670)
 - Fixed delay in context menu

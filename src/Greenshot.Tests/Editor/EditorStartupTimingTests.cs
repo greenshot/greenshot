@@ -240,13 +240,13 @@ namespace Greenshot.Tests.Editor
             var candidates = new List<string>
             {
                 Path.Combine(testFolder.FullName, "emojis.xml"),
-                Path.Combine(testFolder.FullName, "Twemoji.Mozilla.ttf")
+                Path.Combine(testFolder.FullName, "Twemoji.Mozilla.woff")
             };
             if (srcFolder != null)
             {
                 var greenshotOutput = Path.Combine(srcFolder.FullName, "Greenshot", "bin", testFolder.Parent.Name, testFolder.Name);
                 candidates.Add(Path.Combine(greenshotOutput, "emojis.xml"));
-                candidates.Add(Path.Combine(greenshotOutput, "Twemoji.Mozilla.ttf"));
+                candidates.Add(Path.Combine(greenshotOutput, "Twemoji.Mozilla.woff"));
             }
 
             foreach (var source in candidates)

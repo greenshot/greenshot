@@ -25,7 +25,9 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Dapplo.Ini;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
@@ -33,8 +35,10 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Wpf;
 using Greenshot.Capturing.Tools;
+using Greenshot.Base.Controls;
 using Greenshot.Helpers;
 using Greenshot.Base.Languages;
+using Greenshot.Recipes;
 using Greenshot.Recipes.Triggers;
 using Greenshot.Recipes.Views;
 using Greenshot.Settings.ViewModels;
@@ -54,6 +58,7 @@ namespace Greenshot.Settings.Views
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsWindow));
         private readonly SettingsViewModel _viewModel;
+        private bool _applied;
 
         public SettingsWindow(string initialPluginName = null, string initialTabName = null)
         {
@@ -62,36 +67,7 @@ namespace Greenshot.Settings.Views
             _viewModel = new SettingsViewModel();
             DataContext = _viewModel;
             Icon = _viewModel.WindowIcon;
-            
-            // Apply theme
-            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-            
-            // Listen for theme changes
-            System.ComponentModel.PropertyChangedEventHandler themeHandler = (s, e) =>
-            {
-                if (Dispatcher.CheckAccess())
-                {
-                    Resources.MergedDictionaries.Clear();
-                    Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                }
-                else if (!Dispatcher.HasShutdownStarted)
-                {
-                    _ = Dispatcher.InvokeAsync(() =>
-                    {
-                        try
-                        {
-                            Resources.MergedDictionaries.Clear();
-                            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-                        }
-                        catch
-                        {
-                            // Window or dispatcher shutting down
-                        }
-                    });
-                }
-            };
-            ThemeManager.Instance.PropertyChanged += themeHandler;
-            Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
+            // The shared styles (GreenshotStyles.xaml, merged in the XAML) bind to the theme, a theme change needs nothing here
 
 #if GREENSHOT_LIGHT
             // Greenshot Light has no plugins and no AI tools
@@ -222,9 +198,23 @@ namespace Greenshot.Settings.Views
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            HotkeyManager.UnregisterHotkeys();
-            SaveSettings();
-            TriggerManager.Instance.RestartHotkeyTriggers();
+            // A box with a value that can't be stored (red frame) keeps the window open: show that box instead
+            if (FindInvalidInput(SettingsTabControl) is { } invalidInput)
+            {
+                ShowInput(invalidInput);
+                return;
+            }
+            // "Send it to:" with nothing ticked: a capture would go nowhere, the tab says so in red
+            if (_viewModel.IsSendToEmpty)
+            {
+                ShowInput(SendToRadioButton);
+                return;
+            }
+            // A changed setting (a hotkey, a trigger's condition or the language): only the triggers which differ now are registered again
+            if (SaveSettings())
+            {
+                TriggerManager.Instance.SyncRecipeTriggers(RecipeManager.Instance.GetAllRecipes());
+            }
 
             var shell = SimpleServiceProvider.Current.GetInstance<IGreenshotShell>(isOptional: true);
             shell?.UpdateUi();
@@ -232,6 +222,70 @@ namespace Greenshot.Settings.Views
             DialogResult = true;
             Close();
         }
+
+        /// <summary>
+        /// The first element with a validation error, also on the tabs which aren't shown:
+        /// their content is in the logical tree, the items of templates only in the visual tree
+        /// </summary>
+        private static FrameworkElement FindInvalidInput(DependencyObject root)
+        {
+            var visited = new HashSet<DependencyObject>();
+            var pending = new Stack<DependencyObject>();
+            pending.Push(root);
+            while (pending.Count > 0)
+            {
+                var current = pending.Pop();
+                if (!visited.Add(current))
+                {
+                    continue;
+                }
+                if (current is FrameworkElement element && Validation.GetHasError(element))
+                {
+                    return element;
+                }
+                foreach (var child in LogicalTreeHelper.GetChildren(current).OfType<DependencyObject>())
+                {
+                    pending.Push(child);
+                }
+                if (current is Visual or System.Windows.Media.Media3D.Visual3D)
+                {
+                    int count = VisualTreeHelper.GetChildrenCount(current);
+                    for (int i = 0; i < count; i++)
+                    {
+                        pending.Push(VisualTreeHelper.GetChild(current, i));
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Selects the tab of the element and moves the focus to it
+        /// </summary>
+        private void ShowInput(FrameworkElement input)
+        {
+            DependencyObject current = input;
+            while (current != null)
+            {
+                if (current is TabItem tabItem && SettingsTabControl.Items.Contains(tabItem))
+                {
+                    SettingsTabControl.SelectedItem = tabItem;
+                    break;
+                }
+                current = LogicalTreeHelper.GetParent(current) ?? (current is Visual ? VisualTreeHelper.GetParent(current) : null);
+            }
+            // The tab content is laid out after the selection, focus then
+            _ = Dispatcher.BeginInvoke(new Action(() =>
+            {
+                input.BringIntoView();
+                input.Focus();
+            }), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void CheckForUpdatesNow_Click(object sender, RoutedEventArgs e) =>
+            Base.Threading.AsyncCommand.Run(() => _viewModel.CheckForUpdatesNowAsync(), "Check for updates from the settings");
+
+        private void UpdateDownload_Click(object sender, RoutedEventArgs e) => _viewModel.OpenUpdateDownloads();
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
@@ -242,10 +296,10 @@ namespace Greenshot.Settings.Views
 
         private void BrowseStorageLocation_Click(object sender, RoutedEventArgs e)
         {
-            string selectedPath = ModernFolderPicker.SelectFolder(
+            string selectedPath = FileDialogs.PickFolder(
                 this,
-                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _),
-                Texts.Settings.Storagelocation);
+                Texts.Settings.Storagelocation,
+                Base.Expressions.OutputTemplates.RenderFolder(_viewModel.CoreConfiguration.OutputDirectory, Base.Expressions.VariableScope.Empty, out _));
 
             if (!string.IsNullOrEmpty(selectedPath))
             {
@@ -469,7 +523,8 @@ namespace Greenshot.Settings.Views
             AddFixedCaptureSizeButton.Focus();
         }
 
-        private void SaveSettings()
+        /// <returns>true when a setting of the drafts or the language changed</returns>
+        private bool SaveSettings()
         {
             // Save destinations
             var destinations = new List<string>();
@@ -486,10 +541,7 @@ namespace Greenshot.Settings.Views
                 }
 
                 // Keep the destinations which aren't there right now, e.g. of a plugin which isn't loaded
-                destinations.AddRange(_viewModel.CoreConfiguration.OutputDestinations?
-                    .Where(designation => designation != nameof(WellKnownDestinations.Picker)
-                                          && _viewModel.Destinations.All(d => !string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase)))
-                    ?? Enumerable.Empty<string>());
+                destinations.AddRange(_viewModel.KeptOutputDestinations());
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
@@ -527,8 +579,41 @@ namespace Greenshot.Settings.Views
                 }
             }
             
-            // Force save of all configuration sections
-            IniConfigRegistry.Get()?.Save();
+            // The drafts the window changed: their changed keys go to the live sections at once, saved once
+            bool applied = false;
+            try
+            {
+                applied = _viewModel.Drafts.Apply();
+            }
+            catch (AccessViolationException ex)
+            {
+                // An administrator locked a key while the window was open: Dapplo.Ini checks all locks first, nothing was written
+                Log.Warn("The settings couldn't be applied, a setting was locked meanwhile", ex);
+            }
+            _applied = true;
+
+            // The recipe options, the theme and the language are written live: saved now, but only when one of them changed
+            var config = IniConfigRegistry.Get();
+            if (config != null && config.HasPendingChanges())
+            {
+                config.Save();
+            }
+
+            return applied || _viewModel.LanguageChanged;
+        }
+
+        /// <summary>
+        /// Closed without OK (Cancel, X, Esc): the drafts are dropped with the view model, only theme and language were shown live
+        /// </summary>
+        protected override void OnClosed(EventArgs e)
+        {
+            if (!_applied)
+            {
+                _viewModel.RevertPreviews();
+            }
+            base.OnClosed(e);
+            // The memory of the settings pages is collected once Greenshot is idle
+            PooledMemory.ReleaseWhenIdle(this);
         }
 
         /// <summary>
@@ -539,6 +624,8 @@ namespace Greenshot.Settings.Views
         /// </summary>
         private void RecipesGetMore_Click(object sender, RoutedEventArgs e)
         {
+#if !GREENSHOT_LIGHT
+            // Greenshot Light hides the button (no recipe catalog)
             string url = Greenshot.Recipes.Catalog.RecipeCatalogInstaller.GetCatalogUrl();
             try
             {
@@ -548,6 +635,7 @@ namespace Greenshot.Settings.Views
             {
                 Log.Warn($"Couldn't open {url}", ex);
             }
+#endif
         }
 
         private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)

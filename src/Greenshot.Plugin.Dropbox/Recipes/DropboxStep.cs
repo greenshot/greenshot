@@ -40,13 +40,15 @@ namespace Greenshot.Plugin.Dropbox.Recipes
     [StepInfo("Dropbox", "Upload to Dropbox", "Uploads the capture to Dropbox (configured account).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepOutputVariable("Dropbox.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
-    public class DropboxStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class DropboxStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxStep));
         private readonly DropboxPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public IEnumerable<string> UsedDestinations { get; } = new[] { "Dropbox" };
 
         /// <summary>
         /// Uploads the capture: the user has to allow network access when approving a recipe with this step

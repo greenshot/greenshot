@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Dapplo.Ini;
@@ -37,6 +38,8 @@ using Greenshot.Plugin.Atlassian.Confluence.Views;
 using Greenshot.Plugin.Dropbox;
 using Greenshot.Plugin.Dropbox.Views;
 using Greenshot.Plugin.ExternalCommand;
+using Greenshot.Plugin.ExternalCommand.Running;
+using Greenshot.Plugin.ExternalCommand.ViewModels;
 using Greenshot.Plugin.ExternalCommand.Views;
 using Greenshot.Plugin.Atlassian.Jira;
 using Greenshot.Plugin.Atlassian.Jira.Views;
@@ -129,8 +132,7 @@ namespace Greenshot.Tests.Forms
                     var zxingControl = new ZxingConfigurationView(zxingConfig);
                     Assert.NotNull(zxingControl);
 
-                    IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var extCmdControl = new ExternalCommandConfigurationView();
+                    var extCmdControl = new CommandSettingsView(new CommandSettingsViewModel(new CommandStore(new Dictionary<string, string>(), null)));
                     Assert.NotNull(extCmdControl);
 
                     var confluenceConfig = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
@@ -226,57 +228,14 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(printOptionsWindow);
 
                     // Greenshot.Editor WPF windows
-                    var dropShadowWindow = new Greenshot.Editor.Views.DropShadowSettingsWindow();
-                    Assert.NotNull(dropShadowWindow);
-
                     var tornEdgeWindow = new Greenshot.Editor.Views.TornEdgeSettingsWindow();
                     Assert.NotNull(tornEdgeWindow);
 
-                    var resizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow();
-                    Assert.NotNull(resizeWindow);
+                    var effectsPanelView = new Greenshot.Editor.Panels.Effects.EffectsPanelView();
+                    Assert.NotNull(effectsPanelView);
 
-                    var maximumResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(30_000, 30_000, true));
-                    var maximumOkButton = maximumResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(maximumOkButton);
-                    Assert.True(maximumOkButton.IsEnabled);
-
-                    var overLimitResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
-                    var widthUnitComboBox = overLimitResizeWindow.FindName("WidthUnitComboBox") as System.Windows.Controls.ComboBox;
-                    var widthTextBox = overLimitResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var overLimitOkButton = overLimitResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(widthUnitComboBox);
-                    Assert.NotNull(widthTextBox);
-                    Assert.NotNull(overLimitOkButton);
-                    widthUnitComboBox.SelectedIndex = 1;
-                    widthTextBox.Text = "30001";
-                    Assert.False(overLimitOkButton.IsEnabled);
-
-                    var mouseWheelResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(100, 100, true));
-                    var mouseWheelWidthTextBox = mouseWheelResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var mouseWheelOkButton = mouseWheelResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(mouseWheelWidthTextBox);
-                    Assert.NotNull(mouseWheelOkButton);
-                    mouseWheelWidthTextBox.Text = "30001";
-                    Assert.False(mouseWheelOkButton.IsEnabled);
-                    mouseWheelWidthTextBox.RaiseEvent(new System.Windows.Input.MouseWheelEventArgs(
-                        System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount, -120)
-                    {
-                        RoutedEvent = System.Windows.UIElement.PreviewMouseWheelEvent
-                    });
-                    Assert.Equal("30000", mouseWheelWidthTextBox.Text);
-                    Assert.True(mouseWheelOkButton.IsEnabled);
-
-                    var aspectRatioResizeWindow = new Greenshot.Editor.Views.ResizeSettingsWindow(
-                        new Greenshot.Base.Effects.ResizeEffect(1, 2, true));
-                    var aspectRatioWidthTextBox = aspectRatioResizeWindow.FindName("WidthTextBox") as System.Windows.Controls.TextBox;
-                    var aspectRatioOkButton = aspectRatioResizeWindow.FindName("OkButton") as System.Windows.Controls.Button;
-                    Assert.NotNull(aspectRatioWidthTextBox);
-                    Assert.NotNull(aspectRatioOkButton);
-                    aspectRatioWidthTextBox.Text = "15001";
-                    Assert.False(aspectRatioOkButton.IsEnabled);
+                    var tornEdgesSectionView = new Greenshot.Editor.Panels.Views.TornEdgesSectionView();
+                    Assert.NotNull(tornEdgesSectionView);
 
                     var textObfuscationWindow = new Greenshot.Editor.Views.TextObfuscationWindow();
                     Assert.NotNull(textObfuscationWindow);
@@ -314,7 +273,7 @@ namespace Greenshot.Tests.Forms
 
             var textEn = Texts.Settings.ExpertBetatester;
             Assert.False(string.IsNullOrEmpty(textEn));
-            Assert.Equal("Enable to enable beta-test features.", textEn);
+            Assert.Equal("Enable beta-test features", textEn);
         }
 
         [Fact]
@@ -350,60 +309,30 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ExternalCommandConfigurationControl_PropertyBindingsAndDependentPropertiesWork()
+        public void CommandSettings_BuiltInCommand_CanBeExportedButNotChanged()
         {
             Exception threadEx = null;
             var thread = new Thread(() =>
             {
                 try
                 {
-                    var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var control = new ExternalCommandConfigurationView();
+                    var builtIn = new CommandDefinition { Name = "Built-in", Program = "builtin.exe" };
+                    var store = new CommandStore(new Dictionary<string, string>(), null, new[] { builtIn });
+                    store.Add(new CommandDefinition { Name = "Mine", Program = "mine.exe" });
+                    var viewModel = new CommandSettingsViewModel(store);
+                    var editor = new CommandEditorWindow(new CommandEditorViewModel(new CommandDefinition(), null), viewModel.Save);
+                    Assert.NotNull(editor);
 
-                    // Per-command settings on SelectedCommand
-                    Assert.NotNull(control.SelectedCommand);
-                    var cmd = control.SelectedCommand;
+                    viewModel.SelectedCommand = viewModel.Commands.Single(item => item.Name == "Built-in");
+                    Assert.False(viewModel.CanEditSelected);
+                    Assert.False(viewModel.CanRemoveSelected);
+                    Assert.True(viewModel.CanExportSelected);
+                    Assert.NotNull(viewModel.BuiltInHint);
 
-                    cmd.RedirectStandardOutput = true;
-                    cmd.ParseOutputForUri = true;
-                    Assert.True(cmd.CanConfigureOutputOptions);
-                    Assert.True(cmd.CanConfigureUriToClipboard);
-
-                    cmd.ParseOutputForUri = false;
-                    Assert.True(cmd.CanConfigureOutputOptions);
-                    Assert.False(cmd.CanConfigureUriToClipboard);
-
-                    cmd.RedirectStandardOutput = false;
-                    Assert.False(cmd.CanConfigureOutputOptions);
-                    Assert.False(cmd.CanConfigureUriToClipboard);
-
-                    cmd.RedirectStandardOutput = true;
-                    cmd.ParseOutputForUri = true;
-
-                    // Boolean toggling on SelectedCommand
-                    cmd.RedirectStandardError = false;
-                    Assert.False(cmd.RedirectStandardError);
-                    Assert.False(config.RedirectStandardErrorCommand[cmd.Name]);
-                    cmd.RedirectStandardError = true;
-                    Assert.True(config.RedirectStandardErrorCommand[cmd.Name]);
-
-                    cmd.ShowStandardOutputInLog = true;
-                    Assert.True(cmd.ShowStandardOutputInLog);
-                    Assert.True(config.ShowStandardOutputInLogCommand[cmd.Name]);
-                    cmd.ShowStandardOutputInLog = false;
-                    Assert.False(config.ShowStandardOutputInLogCommand[cmd.Name]);
-
-                    cmd.OutputToClipboard = true;
-                    Assert.True(cmd.OutputToClipboard);
-                    Assert.True(config.OutputToClipboardCommand[cmd.Name]);
-                    cmd.OutputToClipboard = false;
-                    Assert.False(config.OutputToClipboardCommand[cmd.Name]);
-
-                    cmd.UriToClipboard = false;
-                    Assert.False(cmd.UriToClipboard);
-                    Assert.False(config.UriToClipboardCommand[cmd.Name]);
-                    cmd.UriToClipboard = true;
-                    Assert.True(config.UriToClipboardCommand[cmd.Name]);
+                    viewModel.SelectedCommand = viewModel.Commands.Single(item => item.Name == "Mine");
+                    Assert.True(viewModel.CanEditSelected);
+                    Assert.True(viewModel.CanRemoveSelected);
+                    Assert.Null(viewModel.BuiltInHint);
                 }
                 catch (Exception ex)
                 {
@@ -445,12 +374,12 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ZxingEditorWindow_InstantiatesAndPopulatesModelCorrectly()
+        public void ZxingEditorWindow_ShowsAndChangesTheModel()
         {
-            Assert.Equal(ZXing.BarcodeFormat.QR_CODE, ZxingEditorWindow.MapFormatIndex(0));
-            Assert.Equal(ZXing.BarcodeFormat.CODE_128, ZxingEditorWindow.MapFormatIndex(4));
-            Assert.Equal(0, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.QR_CODE));
-            Assert.Equal(4, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.CODE_128));
+            Assert.Equal(ZXing.BarcodeFormat.QR_CODE, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatIndex(0));
+            Assert.Equal(ZXing.BarcodeFormat.CODE_128, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatIndex(4));
+            Assert.Equal(0, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatToIndex(ZXing.BarcodeFormat.QR_CODE));
+            Assert.Equal(4, Greenshot.Plugin.Zxing.Processing.ZxingBarcodeGenerator.MapFormatToIndex(ZXing.BarcodeFormat.CODE_128));
 
             Exception threadEx = null;
             var thread = new Thread(() =>
@@ -472,23 +401,21 @@ namespace Greenshot.Tests.Forms
                     Assert.NotNull(window);
                     Assert.Equal("Edit QR / Barcode", window.Title);
 
-                    // Verify payload generation for WiFi
-                    string payload = window.GetPayloadString();
-                    Assert.Contains("WIFI:S:TestWifi;T:WPA;P:SecretPassword;;", payload);
+                    // The fields show the model, the payload is the WiFi one
+                    Assert.Equal("TestWifi", window.ViewModel.WifiSsid);
+                    Assert.True(window.ViewModel.RoundedDots);
+                    Assert.Equal(2, window.ViewModel.Margin);
+                    Assert.Contains("WIFI:S:TestWifi;T:WPA;P:SecretPassword;;", window.ViewModel.Payload);
 
-                    // Test model populate
-                    var updatedModel = new ZxingModel();
-                    window.PopulateModel(updatedModel);
-                    Assert.Equal("TestWifi", updatedModel.WifiSsid);
-                    Assert.Equal("SecretPassword", updatedModel.WifiPassword);
-                    Assert.True(updatedModel.RoundedDots);
-                    Assert.Equal(2, updatedModel.Margin);
+                    // A change of a field is in the model
+                    window.ViewModel.WifiPassword = "Other";
+                    Assert.Equal("Other", model.WifiPassword);
 
                     // Test theme toggle
-                    bool initialTheme = WpfThemeHelper.IsDarkMode;
-                    WpfThemeHelper.ToggleTheme();
-                    Assert.NotEqual(initialTheme, WpfThemeHelper.IsDarkMode);
-                    WpfThemeHelper.ToggleTheme(); // Toggle back
+                    bool initialTheme = ThemeManager.Instance.IsDarkTheme;
+                    ThemeManager.Instance.ToggleTheme();
+                    Assert.NotEqual(initialTheme, ThemeManager.Instance.IsDarkTheme);
+                    ThemeManager.Instance.ToggleTheme(); // Toggle back
                 }
                 catch (Exception ex)
                 {
@@ -507,9 +434,6 @@ namespace Greenshot.Tests.Forms
         {
             var tm = ThemeManager.Instance;
             Assert.NotNull(tm.ControlBorderBrush);
-
-            var dict = tm.GetThemeResources();
-            Assert.True(dict.Contains("ThemeControlBorderBrush"));
 
             bool notified = false;
             System.ComponentModel.PropertyChangedEventHandler handler = (s, e) =>
@@ -623,6 +547,53 @@ namespace Greenshot.Tests.Forms
                 finally
                 {
                     tm.Theme = previousTheme;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ThemedTitleBar_StopsWatchingTheWindowWhenItCloses()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var root = new System.Windows.Controls.Grid();
+                    var window = new System.Windows.Window
+                    {
+                        Title = "Title bar test",
+                        WindowStyle = System.Windows.WindowStyle.None,
+                        Content = root
+                    };
+                    var titleBar = new ThemedTitleBar();
+                    root.Children.Add(titleBar);
+                    // A handle without showing the window: WPF raises Closed only for a window which has one
+                    new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+                    var titleText = (System.Windows.Controls.TextBlock)typeof(ThemedTitleBar)
+                        .GetField("_titleText", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(titleBar);
+
+                    // The title bar follows the title of its window
+                    window.Title = "Changed title";
+                    Assert.Equal("Changed title", titleText.Text);
+
+                    // Closed: the handlers are removed. AddValueChanged keeps the window in a static table of WPF until
+                    // RemoveValueChanged, the closed Settings window stayed in memory with all its pages.
+                    bool closedRaised = false;
+                    window.Closed += (s, e) => closedRaised = true;
+                    window.Close();
+                    Assert.True(closedRaised, "Closed was not raised");
+                    window.Title = "After closing";
+                    Assert.Equal("Changed title", titleText.Text);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
                 }
             });
             thread.SetApartmentState(ApartmentState.STA);

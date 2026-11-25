@@ -40,13 +40,15 @@ namespace Greenshot.Plugin.Box.Recipes
     [StepInfo("Box", "Upload to Box", "Uploads the capture to Box (configured account).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepOutputVariable("Box.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
-    public class BoxStep : ICaptureStep, IRequiresRecipeAuthorization
+    public class BoxStep : ICaptureStep, IRequiresRecipeAuthorization, IUsesDestinations
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(BoxStep));
         private readonly BoxPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public IEnumerable<string> UsedDestinations { get; } = new[] { "Box" };
 
         /// <summary>
         /// Uploads the capture: the user has to allow network access when approving a recipe with this step

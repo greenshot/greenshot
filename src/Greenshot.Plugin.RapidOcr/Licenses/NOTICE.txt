@@ -1,0 +1,24 @@
+Greenshot RapidOCR plug-in: third-party notices
+
+The plug-in is part of Greenshot (GNU General Public License, version 3 or later). It contains or downloads these
+works of others, each under its own license:
+
+1. RapidOCR (https://github.com/RapidAI/RapidOCR)
+   Copyright (c) 2021 RapidOCR Authors. Apache License, Version 2.0, see RapidOCR-LICENSE.txt.
+   Greenshot ported the text detection, the text recognition and their pre- and post-processing of RapidOCR 3.10
+   from Python to C# and changed them (RapidOcrPipeline.cs, TextBoxFinder.cs, TextModels.cs): detection at the
+   size of the capture, lines cut from the capture, tiles for large captures, word boxes for the text selection,
+   no orientation model.
+
+2. PP-OCRv6 small text detection and recognition models (PP-OCRv6_det_small.onnx, PP-OCRv6_rec_small.onnx)
+   Model weights copyright Baidu and/or the PaddleOCR rights holders (https://github.com/PaddlePaddle/PaddleOCR),
+   converted to ONNX by RapidOCR. Apache License, Version 2.0, see RapidOCR-LICENSE.txt and
+   RapidOCR-MODEL_LICENSES.md. Downloaded only when the user chooses RapidOCR, unchanged (checked by SHA-256).
+
+3. ONNX Runtime (https://github.com/microsoft/onnxruntime)
+   Copyright (c) Microsoft Corporation. MIT License, see onnxruntime-LICENSE.txt.
+   Microsoft.ML.OnnxRuntime.dll is installed with the plug-in; onnxruntime.dll is downloaded from Microsoft's
+   release together with its LICENSE and ThirdPartyNotices.txt (the notices of the libraries built into it).
+
+RapidOCR, PaddleOCR, PaddlePaddle and ONNX Runtime are names of their owners. They are named here only to say where
+these parts come from; the owners do not endorse or support Greenshot.

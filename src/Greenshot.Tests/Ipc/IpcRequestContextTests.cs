@@ -20,8 +20,10 @@
  */
 
 using System;
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Greenshot.Ipc;
 using Xunit;
@@ -89,6 +91,25 @@ namespace Greenshot.Tests.Ipc
                 await reply;
                 Assert.Contains("\"status\":\"ok\"", Encoding.UTF8.GetString(payload));
             }
+        }
+
+        [Fact]
+        public async Task Reply_WithBytes_IsOneFrameWithBase64()
+        {
+            // Larger than one pooled block (128 KB), so the frame comes from more than one block
+            byte[] image = new byte[300 * 1024];
+            new Random(1756).NextBytes(image);
+            using var stream = new MemoryStream();
+            var context = new IpcRequestContext(CreateEnvelope(), stream);
+
+            await context.ReplyAsync(new { status = "ok", image = new { mime_type = "image/png", data = image } });
+
+            byte[] frame = stream.ToArray();
+            int length = BitConverter.ToInt32(frame, 0);
+            Assert.Equal(frame.Length - 4, length);
+            using var reply = JsonDocument.Parse(new ReadOnlyMemory<byte>(frame, 4, length));
+            Assert.Equal("ok", reply.RootElement.GetProperty("status").GetString());
+            Assert.Equal(image, reply.RootElement.GetProperty("image").GetProperty("data").GetBytesFromBase64());
         }
     }
 }

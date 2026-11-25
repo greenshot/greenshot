@@ -36,7 +36,8 @@ namespace Greenshot.Tests.Core
     {
         private static readonly string[] Configurations = { "Debug", "Debug Light", "Release", "Release Light" };
         private static readonly string[] Platforms = { "Any CPU", "x64", "x86" };
-        private static readonly string[] LightProjects = { "Greenshot", "Greenshot.Base", "Greenshot.Editor", "Greenshot.BuildTasks" };
+        // Greenshot.Base references Greenshot.ImageSharpDrawing, so Greenshot Light needs it too
+        private static readonly string[] LightProjects = { "Greenshot", "Greenshot.Base", "Greenshot.Editor", "Greenshot.BuildTasks", "Greenshot.ImageSharpDrawing" };
 
         private static string ReadSolution()
         {

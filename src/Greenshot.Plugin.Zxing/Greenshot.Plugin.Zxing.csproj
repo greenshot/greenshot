@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
-    <PackageReference Include="Dapplo.Ini" Version="1.1.17" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.17" />
+    <PackageReference Include="Dapplo.Ini" Version="2.0.16" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="2.0.16" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,5 +23,8 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="System.Text.Encoding.CodePages" Version="11.0.0">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

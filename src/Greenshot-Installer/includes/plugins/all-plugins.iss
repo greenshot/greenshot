@@ -8,4 +8,5 @@
 #include "pdf.iss"
 #include "recipeeditor.iss"
 #include "stamps.iss"
+#include "rapidocr.iss"
 #include "zxing.iss"

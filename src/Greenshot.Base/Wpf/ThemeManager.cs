@@ -72,6 +72,11 @@ namespace Greenshot.Base.Wpf
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Raised after <see cref="CurrentPalette"/> changed (light/dark, accent color or high contrast), for code-behind which redraws by hand.
+        /// </summary>
+        public event Action PaletteChanged;
+
         private ThemeManager()
         {
             ComboBoxHelper.Initialize();
@@ -382,8 +387,9 @@ namespace Greenshot.Base.Wpf
             }
 
             OnPropertyChanged(nameof(TaskbarPalette));
-            // The last one: listeners which redraw by hand (see WpfThemeHelper.ThemeChanged) see all new values
+            // The last one: listeners which redraw by hand (see PaletteChanged) see all new values
             OnPropertyChanged(nameof(CurrentPalette));
+            PaletteChanged?.Invoke();
             if (updateWindowFrames)
             {
                 WindowFrameTheme.UpdateAll();
@@ -469,45 +475,5 @@ namespace Greenshot.Base.Wpf
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public ResourceDictionary GetThemeResources()
-        {
-            var dict = new ResourceDictionary();
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/CheckBoxStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml", UriKind.Relative)
-            });
-            dict.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/SliderStyles.xaml", UriKind.Relative)
-            });
-
-            dict["ThemeBackgroundBrush"] = BackgroundBrush;
-            dict["ThemeForegroundBrush"] = ForegroundBrush;
-            dict["ThemeMutedBrush"] = MutedBrush;
-            dict["ThemeBorderBrush"] = BorderBrush;
-            dict["ThemeControlBorderBrush"] = ControlBorderBrush;
-            dict["ThemeGroupBoxBrush"] = GroupBoxBrush;
-            dict["ThemeControlBackgroundBrush"] = ControlBackgroundBrush;
-            dict["ThemeTextBoxBackgroundBrush"] = TextBoxBackgroundBrush;
-            dict["ThemeButtonBackgroundBrush"] = ButtonBackgroundBrush;
-            dict["ThemeButtonHoverBrush"] = ButtonHoverBrush;
-            dict["ThemeButtonPressedBrush"] = ButtonPressedBrush;
-            dict["ThemeHighlightForegroundBrush"] = HighlightForegroundBrush;
-            dict["ThemeTitleBarBrush"] = TitleBarBrush;
-            dict["ThemeAccentBrush"] = AccentBrush;
-            dict["ThemeAccentForegroundBrush"] = AccentForegroundBrush;
-            dict["ThemeWarningBrush"] = WarningBrush;
-            dict["ThemeErrorBrush"] = ErrorBrush;
-            
-            return dict;
-        }
     }
 }

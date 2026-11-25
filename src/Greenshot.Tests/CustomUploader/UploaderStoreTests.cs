@@ -47,7 +47,7 @@ namespace Greenshot.Tests.CustomUploader
             UploaderFile.Read(UploaderFileTests.File($@"""Name"": ""{name}"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://{host}/upload"", ""FileFormName"": ""file"", ""Headers"": {{ ""Authorization"": ""Bearer s3cret"" }}"));
 
         [Fact]
-        public void Add_StoresTheUploaderEncrypted()
+        public void Add_StoresTheUploaderReadable_TheKeysEncrypted()
         {
             var store = CreateStore();
 
@@ -55,7 +55,9 @@ namespace Greenshot.Tests.CustomUploader
 
             Assert.Equal(1, _changes);
             Assert.DoesNotContain("s3cret", _uploaders[id]);
-            Assert.DoesNotContain("example.com", _uploaders[id]);
+            // The rest of the file stays readable
+            Assert.Contains("\"RequestURL\": \"https://example.com/upload\"", _uploaders[id]);
+            Assert.Contains("\"Authorization\": \"" + UploaderStore.EncryptedPrefix, _uploaders[id]);
             var uploader = Assert.Single(CreateStore().GetAll());
             Assert.Equal("Mine", uploader.Name);
             Assert.Equal("Bearer s3cret", uploader.Definition.Headers["Authorization"]);
@@ -139,6 +141,17 @@ namespace Greenshot.Tests.CustomUploader
             Assert.Equal(new[] { "a", "b", null }, uploaders.Select(u => u.Name));
             Assert.Null(uploaders[2].Definition);
             Assert.Null(store.Find("broken"));
+        }
+
+        [Fact]
+        public void GetAll_KeyWrittenByHand_IsUsedAsItIs_KeyOfAnotherUser_IsNotReadable()
+        {
+            var store = new UploaderStore(_uploaders, _uploads, null, text => "x" + text, text => text.StartsWith("x") ? text.Substring(1) : null);
+            _uploaders["hand.sxcu"] = UploaderFileTests.File(@"""Name"": ""Hand"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://example.com/upload"", ""FileFormName"": ""file"", ""Headers"": { ""Authorization"": ""Bearer typed"" }");
+            _uploaders["other.sxcu"] = UploaderFileTests.File(@"""Name"": ""Other"", ""DestinationType"": ""ImageUploader"", ""RequestURL"": ""https://example.com/upload"", ""FileFormName"": ""file"", ""Headers"": { ""Authorization"": ""encrypted:yBearer"" }");
+
+            Assert.Equal("Bearer typed", store.Find("Hand").Definition.Headers["Authorization"]);
+            Assert.Null(store.Find("Other"));
         }
 
         [Fact]

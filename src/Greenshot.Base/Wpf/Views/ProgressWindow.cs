@@ -62,7 +62,7 @@ namespace Greenshot.Base.Wpf.Views
             _message = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = WpfThemeHelper.TextSecondary,
+                Foreground = ThemeManager.Instance.CurrentPalette.TextSecondary,
                 Margin = new Thickness(0, 0, 0, 8),
                 Visibility = Visibility.Collapsed
             };
@@ -74,8 +74,8 @@ namespace Greenshot.Base.Wpf.Views
                 IsIndeterminate = true,
                 Minimum = 0,
                 Maximum = 100,
-                Foreground = WpfThemeHelper.Accent,
-                Background = WpfThemeHelper.CardBorder,
+                Foreground = ThemeManager.Instance.CurrentPalette.Accent,
+                Background = ThemeManager.Instance.CurrentPalette.CardBorder,
                 BorderThickness = new Thickness(0)
             };
             AutomationProperties.SetName(_progressBar, title ?? "Greenshot");

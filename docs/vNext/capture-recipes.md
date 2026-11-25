@@ -25,7 +25,7 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 >
 > Right-click the Greenshot tray icon and open **Recipes**:
 > - **your recipes' menu entries**: run them with a single click.
-> - **Import Recipe...**: approve a `.gsrecipe.json` file and add it to your recipes.
+> - **Import Recipe...**: approve a `.gsrecipe.json` file and add it to your recipes (not in Greenshot Light, which has only the built-in recipes).
 > - **Reload Recipes**: read the recipe files again.
 > - **Recipe Manager...** and **Recipe Editor...**: manage, create and change recipes.
 >
@@ -76,7 +76,31 @@ Settings > Recipes offer "Get More Recipes" (beta testers only) to open the cata
 Installing a newer version of the same recipe shows what changed, like any changed file. A recipe with the same id
 that didn't come from the catalog (a built-in recipe, or one of your own files) is never replaced, and only one install
 window is open at a time. Administrators switch catalog installs off with `AllowCatalogInstall=False` in the `[Recipe]`
-section of `greenshot-fixed.ini`; the Light edition, which has no recipe files, refuses them too.
+section of `greenshot-fixed.ini`. Greenshot Light has no recipe files and no catalog: it doesn't know the link and has no "Get More Recipes".
+
+#### A recipe which doesn't load
+
+The window with the errors of a recipe file offers *Copy Errors*, *Edit Recipe File* and **Remove from Greenshot**: Greenshot
+stops loading the file (it leaves `RecipeFiles`, the recipes of the file go), the file itself stays where it is and can be
+imported again. Such windows, the approvals of changed recipe files and the other questions Greenshot asks after the start
+(changed command and uploader files, plugins which aren't signed) come one at a time.
+
+#### Updating recipes from the catalog
+
+A Greenshot update can change what recipes may contain, so a recipe installed from the catalog can stop loading. Greenshot
+recognizes such a recipe by its file (`Recipes\Catalog\<id>.gsrecipe.json` with an approval), also when the file can't be
+read any more:
+
+- the window with the errors of the recipe offers **Update from the Catalog**: it reads the signed index again and shows the
+  catalog version in the approval window, with what changed. When the catalog has nothing newer than the installed
+  version, Greenshot says so and shows nothing to approve.
+- **Check for Updates** in the recipe manager (shown while recipes from the catalog are installed) compares them with the
+  signed index. It lists the ones with another version in the catalog, and the ones Greenshot couldn't load, each with an
+  **Update** button. A catalog version which needs a newer Greenshot (`minGreenshot`) is listed but can't be installed, and
+  an older catalog version is never offered.
+
+Greenshot doesn't check the catalog on its own: it only goes online when you click one of these buttons. An update is
+approved like an install and replaces only the file in `Recipes\Catalog`.
 
 ---
 
@@ -143,7 +167,7 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Capture window (`recipe_window`) | The capture screen in the window mode | Yes | `${config.WindowHotkey}` when *interactive window capture* is on |
 | Capture full screen (`recipe_fullscreen`) | All displays; in the menu with more than one display a sub menu: all, or one of them | Yes | `${config.FullscreenHotkey}` |
 | Capture active window (`recipe_active_window`) | The active window right away; in the menu "Capture window from list", a sub menu of the open windows | Yes | `${config.WindowHotkey}` when *interactive window capture* is off |
-| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
+| Capture from clipboard (`recipe_clipboard`) | The image on the clipboard goes to the destinations of the settings, like a capture (the item is off while there is none) | Yes | `${config.ClipboardHotkey}` |
 | Open file (`recipe_file`) | Asks for an image file and opens it, also used for files opened with Greenshot | Yes | |
 | OCR text to clipboard (`recipe_ocr`) | Select a region, its text goes to the clipboard | | |
 | Open last capture location (`recipe_open_capture_folder`) | `ShowInExplorer`: shows the last capture in the Explorer, or the folder of the screenshots | Yes | |
@@ -151,6 +175,7 @@ targets of a click on the tray icon (see below). Their ids stay the same, a reci
 | Show the tray menu (`recipe_tray_menu`) | `OpenWindow` `TrayMenu`: the tray menu at the mouse | | |
 | Open the settings (`recipe_open_settings`) | `OpenWindow` `Settings` | | |
 | Open an empty image in the editor (`recipe_empty_editor`) | `OpenWindow` `EmptyEditor` | | |
+| Quick preferences (`recipe_quick_settings`) | `OpenWindow` `QuickSettings`: the quick settings of the tray menu in a window | | |
 | Handle the capture of a notification (`recipe_notification`) | A click on a Greenshot notification hands it the capture, it shows the destination window | | |
 
 The browser extension and the AI tools add their own built-in recipes; they get their capture from the browser or the AI
@@ -178,16 +203,70 @@ A recipe file which replaces a built-in recipe keeps its own triggers: a file wr
 recipes has no `Main` trigger, so the entry is missing from the tray menu until you add one (or use "Reset Default" in the
 recipe manager).
 
-**Steps without a capture.** Two steps don't use an image. A recipe which only has steps like these gets no source and
+**Steps without a capture.** Three steps don't use an image. A recipe which only has steps like these gets no source and
 no destination added when a trigger starts it:
 
 - `ShowInExplorer` shows a file (selected in its folder) or a folder in the Windows Explorer. `Path` (supports `${...}`)
   is the file or folder; when the file is gone its folder is shown. Without `Path` it shows the last capture, or the folder
   of the screenshots when that file is gone. It only opens the Explorer, it never runs a file. It sets `ShownPath`.
-- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `About`, `Help` or `EmptyEditor`.
+- `OpenWindow` opens a window of Greenshot: `Window` is `TrayMenu`, `Settings`, `QuickSettings`, `About`, `Help` or
+  `EmptyEditor`. `QuickSettings` shows the quick settings of the tray menu (mouse pointer, destinations, print options,
+  the wait before capturing, sound and notifications, the options of recipes marked for the quick settings) in a window: the groups which are
+  sub menus in the tray menu (destinations, print options, ...) start closed, every change is stored at once, *Preferences...* opens all settings. With `DisableQuickSettings=true` in `greenshot.ini` the step stops the
+  recipe instead. The built-in recipe "Quick preferences" (`recipe_quick_settings`) does just this, so a hotkey or a
+  click on the tray icon can open the quick settings.
+- `Delay` waits, see [Waiting before the capture](#waiting-before-the-capture-delay-step).
 
 A `Source` with `SourceType` `File` and no `Filename` asks for the file when the recipe was started by hand (tray menu,
 hotkey, a click on the tray icon); started unattended it fails as before.
+
+### Waiting before the capture (`Delay` step)
+
+A `Delay` step before the `Source` gives you time to open a menu, a tooltip or a popup before Greenshot captures the
+screen. While it waits it shows a small countdown at the bottom right of the display with the mouse, with a *Cancel*
+button. The countdown never takes the focus, so the menu you opened stays open, and it closes a moment before the end, so
+it is not in the capture.
+
+| Parameter | Default | What it does |
+|---|---|---|
+| `Seconds` | `5` | The seconds to wait, 0 to 600. Supports `${...}`, e.g. `${option.delay}` of a recipe option, which can then be changed in the quick settings |
+| `AskUser` | `false` | First asks how long to wait: 3, 5, 10, 30 seconds or `Seconds` (the default button). *Cancel* or closing the prompt stops the recipe |
+| `ShowCountdown` | `true` | Show the countdown; without it the step only waits |
+
+The step sets `DelaySeconds` to the seconds it waited. Started unattended (from the command line, a schedule or a test)
+nothing is shown or asked: it waits `Seconds`, so a recipe with `AskUser` never fails for want of a user. *Cancel* in the
+countdown stops the recipe, like Esc in the capture window. The countdown can't get the keyboard focus (that would close
+the menu you want to capture); without a mouse let it run out and press Esc in the capture window.
+
+The wait of the `Source` step (below, or its `DelayMs`) is still applied after the `Delay` step.
+
+**For every capture.** No recipe step is needed to wait before every capture. By default Greenshot doesn't wait at
+all, so a hotkey captures at once. When the capture is started from the tray menu, the menu first waits until it is
+gone from the screen (that is not a setting). To wait before every capture of the screen (region, window, active
+window, full screen, last region, OCR), whatever started it:
+
+| Setting (`[Core]`) | Default | |
+|---|---|---|
+| `CaptureWait` | `false` | Wait before every capture of the screen. The quick settings switch it on and off with *Wait before capturing* |
+| `CaptureWaitMilliseconds` | `3000` | How long, 0 to 600000; *Milliseconds to wait before capture* in the settings, *Wait time* (1, 3, 5, 10 or 30 s) in the quick settings, which also switches the wait on |
+| `CaptureWaitCountdown` | `true` | Show the countdown (with *Cancel*) during a wait of a second or more |
+
+Started unattended (command line, schedule) it waits without the countdown. Clipboard, Open file and the current
+editor don't wait, they don't capture the screen. The `DelayMs` of a `Source` step replaces the setting for that step.
+`CaptureDelay` of earlier versions is gone: a value other than its old default of 100 ms is moved once into
+`CaptureWait` and `CaptureWaitMilliseconds`.
+
+[`examples/region_after_delay.gsrecipe.json`](examples/region_after_delay.gsrecipe.json) asks how long to wait, counts
+down and then lets you select the region; it is in the Recipes menu of the tray menu. The part which matters:
+
+```json
+"nodes": [
+  { "id": "wait", "stepType": "Delay", "parameters": { "Seconds": 5, "AskUser": true } },
+  { "id": "source", "stepType": "Source", "parameters": { "SourceType": "Region" } },
+  ...
+],
+"flow": { "startNodes": [ "wait" ], "transitions": [ { "from": "wait", "to": "source" }, ... ] }
+```
 
 ### A click on the tray icon
 
@@ -394,12 +473,19 @@ other languages, in the file itself, so they travel with it:
 
 ### Text and codes on the capture
 
-The `Ocr` step reads the text of the capture with Windows OCR into the variable `OcrText` (also `Payload.ExtractedText`);
+The `Ocr` step reads the text of the capture with the OCR engine of the settings (see [text-recognition.md](text-recognition.md)) into the variable `OcrText` (also `Payload.ExtractedText`);
 the text lines stay with the capture. A text selection (`InteractiveSelection` with `SelectionMode` `Text`) extracts the text
 itself and needs no `Ocr` step. The selection step sets the variable `SelectedMode` to the mode the user selected in (`Region`,
 `Window` or `Text`; the user can switch, e.g. `T` for text). The built-in region and window capture recipes branch on it after the
 selection: a `Conditional` step *Text or image* sends `${var.SelectedMode == 'Text'}` to a `Clipboard` step with `ClipboardMode` `TextOnly`,
 everything else to the destinations. Barcodes and QR codes are read by the `BarcodeScan` step of the ZXing plugin.
+The `Language` parameter of the `Ocr` step (e.g. `de-DE`) chooses the Windows OCR language when OCR runs in the step; without it the OCR
+language of the settings is used.
+
+A `Source` step which looks for a window (`ProcessName`, `WindowTitlePattern`) captures the active window, else the screen, when
+no window matches. `WhenNoWindow` `Stop` ends the recipe instead, with a message, so a recipe meant for one window never works on
+something else. The `Message` parameter of the `Notification` step shows a text of the recipe (e.g. `Copied ${var.Found}`), also
+when the recipe exported nothing.
 
 Every capture of the screen (not the clipboard, a file or the editor) gets the title fixes of the settings. The QR code scan
 (`ScanOnCapture` of the ZXing plugin) starts in the background as soon as the screen is captured, so the codes show up while
@@ -635,6 +721,23 @@ Annotations with scalable visual proportions (`Image`, `Emoji`, `StepLabel`, `Cu
 
 ---
 
+### Starting a new recipe in the Recipe Editor
+
+**New** (Ctrl+N) asks what the recipe starts with:
+
+| Choice | Trigger | Steps |
+|---|---|---|
+| Empty recipe | none | none: the first step you add is the start step |
+| Hotkey opens a window | Hotkey | `OpenWindow` (QuickSettings) |
+| Capture a region to a file | Hotkey | `Source` (Region) → `InteractiveSelection` → `SaveFile` |
+| Copy of an existing recipe (picked from a drop-down) | as the recipe | as the recipe |
+
+The Hotkey triggers have no key yet (`"None"`): the recipe does nothing on its own until you record one. A copy gets its
+own id and the name "Copy of …", and its Hotkey triggers lose their key so they don't clash with the original's. Copy a
+built-in capture recipe to start with the steps and slots the built-in recipes have.
+
+---
+
 ### Visual Recipe Editor — Creating Templates from Editors & Files
 
 The visual Recipe Editor includes a built-in workflow to convert open screenshot editor surfaces into recipe annotation steps:
@@ -834,7 +937,7 @@ it does nothing itself. No slot, no extension; nothing is inferred.
 | `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
 
 The built-in capture recipes (region, window, active window, full screen, last region, clipboard and the browser
-extension) have all four slots, and so does a new recipe in the recipe editor; their `BeforeDestination` slot sits right
+extension) have all four slots, and so does a copy of one of them made with New in the recipe editor; their `BeforeDestination` slot sits right
 before the export, where it does nothing itself. Opening a file, OCR and the AI tools have no slots.
 
 ```json
@@ -1210,7 +1313,7 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 | Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `Command` runs a command configured in `greenshot.ini`. | `Command`, `CommandLine`, `Arguments`, `WorkingDirectory`, `Verb`, `Format`, `JpegQuality`, `RunInBackground`, `OutputToClipboard`, `UriToClipboard`, `ReloadAfterExecution`, `OutputVariable`, `ExitCodeVariable` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Runs a program with the capture (as a file, on standard input, or not at all); exit code, output and errors are its results. `Command` uses a command of the settings ([external-commands.md](external-commands.md)). | `Command`, `Program`, `Arguments`, `WorkingDirectory`, `File`, `Format`, `JpegQuality`, `StandardInput`, `StandardInputText`, `Output`, `ResultName`, `CopyToClipboard`, `SuccessExitCodes`, `Timeout`, `Encoding`, `RunInBackground` |
 | `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
 | `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
 | `Jira` | `Greenshot.Plugin.Atlassian` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. A used file name adds another attachment with that name (Jira has no versions). | `IssueKey` (default: variable `Jira.IssueKey`), `Format`, `JpegQuality`, `ReduceColors` |
@@ -1222,21 +1325,80 @@ The complete, current description of every step type (parameters, variables it r
 
 ### External Command Step In Depth
 
-The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
+The `ExternalCommand` step runs a program: an image editor, a converter (`magick`), a script or an uploader. PNG files don't need an external optimizer: Greenshot writes them optimized itself. Every way into and out of the program has one parameter that says what it carries.
 
-#### Configuration Parameters:
-- **`CommandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` with trusted values only (e.g. `${user.localappdata}`, `${env.ProgramFiles}`).
-- **`Arguments`**: Arguments string passed to the process. `${export.file}` is the file (quote it yourself: `"${export.file}"`); only trusted values (`${user.*}`, `${machine.*}`, `${env.*}`, `${option.*}` of a non-text option), never values of the capture.
-- **`Command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
-- **`RunInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
-- **`WorkingDirectory`**, **`Verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
-- **`Format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
-- **`JpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
-- **`ReloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
-- **`OutputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
-- **`UriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
-- **`OutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
-- **`ExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+#### What the command gets
+
+| Channel | Parameter | Values | What may be in it |
+|---|---|---|---|
+| Program | `Program`, or `Command` (a command of the settings) | a path, e.g. `${user.localappdata}\Programs\tool.exe` | trusted values only |
+| Arguments | `Arguments` | default `"${export.file}"` | trusted values and `${export.file}`; nothing is quoted for you |
+| Working folder | `WorkingDirectory` | default the folder of the file | trusted values only |
+| File | `File` | `New` (default): a new file in `Format`; `LastExport`: the file of the export before this step; `None`: no file | it is `${export.file}` |
+| Standard input | `StandardInput` | `None` (default), `Image` (the image in `Format`, no file needed), `Text` (`StandardInputText`) | the text may use every value, e.g. `${payload.ocr.text}` |
+
+Standard input is the place for values of the capture (title, OCR text, a URL): no command line parser reads it, so they can't change what runs. A program which runs its input (`powershell -Command -`, `cmd`) runs that text, which is why the approval of the recipe shows the program together with the text.
+
+#### What the command gives back
+
+| Channel | Parameter | Values | Where it lands |
+|---|---|---|---|
+| Exit code | `SuccessExitCodes` | default `0`, e.g. `0,1` for a tool which returns 1 for a warning | `${var.command.exitCode}`; any other code fails the export, the notification shows the standard error |
+| Standard output | `Output` | `Text` (default), `Image`, `File`, `None` | Text: `${var.command.output}`, the first URL in it is `${var.command.url}` and the link of the export; Image: the bytes are the new image; File: the image is read again from the file the command changed; None: not read |
+| Standard error | | always read | `${var.command.error}`, logged as a warning |
+
+`command` is the default of `ResultName`: with two commands in a recipe give each its own name. `CopyToClipboard` (`None`, `Output`, `Url`) copies the output or the URL found in it. `Timeout` (seconds, `0`: no limit) stops the command, so does cancelling the recipe; the processes the command started itself keep running. `Encoding` is the encoding of the texts: `utf-8` (default), `oem` (the console code page of Windows, for older console programs) or an encoding name. `RunInBackground` starts the command without waiting for it: `Output` must be `None` then, there are no results.
+
+With `Command` the step uses that command of the settings ([external-commands.md](external-commands.md)): its fields are the defaults, each parameter the step sets wins. A command of the settings reads no output unless it says `Text`; without `Command` the default of `Output` is `Text`. A command converted from Greenshot 1.3 has `File` `LastExport`: in a recipe that needs an export before the step, or `"File": "New"` in the step.
+
+#### Results
+
+| Name | Type | Available | Trusted | Description |
+|---|---|---|---|---|
+| `export.file` | file path | while the step renders its arguments | yes | the file handed to the command |
+| `var.<ResultName>.file` | file path | after the step, `File` not `None` | no | the same file, for later steps |
+| `var.<ResultName>.exitCode` | number | after the step, not in the background | no | exit code of the command |
+| `var.<ResultName>.output` | text | after the step, `Output` `Text` | no | standard output, at most 1 MB |
+| `var.<ResultName>.url` | text | after the step, `Output` `Text` and a URL was found | no | first URL in the output |
+| `var.<ResultName>.error` | text | after the step, not in the background | no | standard error, at most 1 MB |
+
+#### Examples
+
+The OCR text to a translator on standard input, its answer to the clipboard:
+
+```json
+{
+  "id": "translate",
+  "stepType": "ExternalCommand",
+  "parameters": {
+    "Program": "${user.localappdata}\\Programs\\translate\\translate.exe",
+    "Arguments": "--to en",
+    "File": "None",
+    "StandardInput": "Text",
+    "StandardInputText": "${payload.ocr.text}",
+    "ResultName": "translation",
+    "CopyToClipboard": "Output",
+    "Timeout": 30
+  }
+}
+```
+
+A tool which changes the file the File destination just saved, here ImageMagick adding a border:
+
+```json
+{
+  "id": "border",
+  "stepType": "ExternalCommand",
+  "parameters": {
+    "Program": "${machine.programfiles}\\ImageMagick\\magick.exe",
+    "Arguments": "mogrify -bordercolor white -border 20 \"${export.file}\"",
+    "File": "LastExport",
+    "Output": "File"
+  }
+}
+```
+
+A converter which reads the image on standard input and writes the new one to its output: `"Program": "magick.exe"`, `"Arguments": "png:- -resize 50% png:-"`, `"StandardInput": "Image"`, `"File": "None"`, `"Output": "Image"`.
 
 ---
 
