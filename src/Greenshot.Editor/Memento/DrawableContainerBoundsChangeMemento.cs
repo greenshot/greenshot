@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -68,11 +68,6 @@ namespace Greenshot.Editor.Memento
 
         private void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _listOfDrawableContainer?.Dispose();
-            }
-
             _listOfDrawableContainer = null;
         }
 
