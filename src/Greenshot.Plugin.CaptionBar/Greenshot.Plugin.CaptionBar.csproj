@@ -1,0 +1,16 @@
+
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Disable PostBuild target from Directory.Build.props for standalone builds -->
+    <DisablePostBuildCopy Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">true</DisablePostBuildCopy>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+</Project>
